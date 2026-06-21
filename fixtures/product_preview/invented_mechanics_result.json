@@ -693,7 +693,7 @@
         "component": "active_set_iteration_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD; support_count=2",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; support_count=2; support_classes=friction,one_way",
         "sign_convention": "counts completed dense active-set linearization iterations"
       }
     },
@@ -711,7 +711,7 @@
         "component": "active_set_final_residual_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; residual_is_changed_support_count",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; residual_is_changed_support_count",
         "sign_convention": "zero means no nonlinear support state changed in the final iteration"
       }
     },
@@ -729,7 +729,7 @@
         "component": "active_set_converged_flag",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; residual_is_changed_support_count",
         "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
       }
     },
@@ -747,7 +747,7 @@
         "component": "friction_normal_reaction_derived",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
         "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
       }
     },
@@ -765,7 +765,7 @@
         "component": "active_set_state_code",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
       }
     },
@@ -783,7 +783,7 @@
         "component": "nonlinear_support_final_displacement",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "positive value follows the global frame DOF sign convention"
       }
     },
@@ -801,7 +801,7 @@
         "component": "nonlinear_support_final_reaction",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
@@ -819,7 +819,7 @@
         "component": "active_set_state_code",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
       }
     },
@@ -837,7 +837,7 @@
         "component": "nonlinear_support_final_displacement",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "positive value follows the global frame DOF sign convention"
       }
     },
@@ -855,7 +855,7 @@
         "component": "nonlinear_support_final_reaction",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
@@ -5357,7 +5357,7 @@
         "component": "active_set_iteration_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD; support_count=2",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; support_count=2; support_classes=friction,one_way",
         "sign_convention": "counts completed dense active-set linearization iterations"
       }
     },
@@ -5375,7 +5375,7 @@
         "component": "active_set_final_residual_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; residual_is_changed_support_count",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; residual_is_changed_support_count",
         "sign_convention": "zero means no nonlinear support state changed in the final iteration"
       }
     },
@@ -5393,7 +5393,7 @@
         "component": "active_set_converged_flag",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; residual_is_changed_support_count",
         "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
       }
     },
@@ -5411,7 +5411,7 @@
         "component": "friction_normal_reaction_derived",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
         "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
       }
     },
@@ -5429,7 +5429,7 @@
         "component": "active_set_state_code",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
       }
     },
@@ -5447,7 +5447,7 @@
         "component": "nonlinear_support_final_displacement",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "positive value follows the global frame DOF sign convention"
       }
     },
@@ -5465,7 +5465,7 @@
         "component": "nonlinear_support_final_reaction",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
@@ -5483,7 +5483,7 @@
         "component": "active_set_state_code",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
       }
     },
@@ -5501,7 +5501,7 @@
         "component": "nonlinear_support_final_displacement",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "positive value follows the global frame DOF sign convention"
       }
     },
@@ -5519,7 +5519,7 @@
         "component": "nonlinear_support_final_reaction",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
@@ -14932,17 +14932,6 @@
       ]
     },
     {
-      "id": "diagnostic:nonlinear:load-L-100:1:TOLERANCE_POLICY_TBD",
-      "code": "TOLERANCE_POLICY_TBD",
-      "severity": "warning",
-      "message": "solver tolerance policy remains TBD and must be accepted before release-quality performance claims",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "load:L-100",
-        "DEC-046-CV-B-preview-active-set-count-TBD"
-      ]
-    },
-    {
       "id": "diagnostic:nonlinear:load-L-100:support-NL-130-FRIC:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
@@ -14968,7 +14957,7 @@
       "id": "diagnostic:nonlinear:load-L-100:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; force/displacement and release thresholds remain TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-100",
@@ -15028,17 +15017,6 @@
       ]
     },
     {
-      "id": "diagnostic:nonlinear:load-L-200:1:TOLERANCE_POLICY_TBD",
-      "code": "TOLERANCE_POLICY_TBD",
-      "severity": "warning",
-      "message": "solver tolerance policy remains TBD and must be accepted before release-quality performance claims",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "load:L-200",
-        "DEC-046-CV-B-preview-active-set-count-TBD"
-      ]
-    },
-    {
       "id": "diagnostic:nonlinear:load-L-200:support-NL-130-FRIC:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
@@ -15064,7 +15042,7 @@
       "id": "diagnostic:nonlinear:load-L-200:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; force/displacement and release thresholds remain TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-200",

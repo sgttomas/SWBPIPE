@@ -23,7 +23,8 @@ use open_pipe_stress_nonlinear_integration::{
     NonlinearIntegrationError, NonlinearResidualObservation,
 };
 use open_pipe_stress_nonlinear_supports::{
-    ActivationSense, ActiveSetState, GapDirection, NonlinearSupport, SupportStateRecord,
+    ActivationSense, ActiveSetState, GapDirection, NonlinearSupport, NonlinearSupportBehavior,
+    SupportStateRecord,
 };
 use open_pipe_stress_primitive_loads::{
     prepare_loads, LoadDimension, LoadDirection, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
@@ -43,6 +44,12 @@ use std::f64::consts::PI;
 
 mod validation;
 use validation::validate_model_inputs;
+
+const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =
+    "DEC-046-CV-B-product-preview-active-set-count-v1";
+const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS: usize = 4;
+const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_RESIDUAL_TOLERANCE: f64 = 0.0;
+const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_ABSOLUTE_FLOOR: f64 = 0.0;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PreviewModel {
@@ -1027,13 +1034,9 @@ fn append_nonlinear_support_loop_results(
         return;
     }
 
-    let convergence = match ConvergenceControl::new(
-        "DEC-046-CV-B-preview-active-set-count-TBD",
-        ConvergencePolicyStatus::Tbd,
-        0.0,
-        0.0,
-        8,
-    ) {
+    let support_classes = product_preview_policy_support_classes(&built.nonlinear_supports);
+    let support_classes_basis = support_classes.join(",");
+    let convergence = match product_preview_convergence_control() {
         Ok(convergence) => convergence,
         Err(error) => {
             diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
@@ -1079,9 +1082,10 @@ fn append_nonlinear_support_loop_results(
                 "active_set_iteration_count",
                 "load_case",
                 &format!(
-                    "dense_active_set_loop; policy_ref={}; policy_status=TBD; support_count={}",
+                    "dense_active_set_loop; policy_ref={}; policy_status=accepted; support_count={}; support_classes={}",
                     solve.policy_ref,
-                    built.nonlinear_supports.len()
+                    built.nonlinear_supports.len(),
+                    support_classes_basis
                 ),
                 "counts completed dense active-set linearization iterations",
             );
@@ -1110,7 +1114,7 @@ fn append_nonlinear_support_loop_results(
                 "active_set_converged_flag",
                 "load_case",
                 &format!(
-                    "dense_active_set_loop; policy_ref={}; policy_status=TBD",
+                    "dense_active_set_loop; policy_ref={}; policy_status=accepted; residual_is_changed_support_count",
                     solve.policy_ref
                 ),
                 "1 means the active-set state-change residual satisfied the supplied preview tolerance",
@@ -1234,7 +1238,7 @@ fn append_nonlinear_support_loop_results(
                 },
                 if solve.converged { "info" } else { "warning" },
                 format!(
-                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; policy_ref={} remains release-TBD",
+                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; force/displacement and release thresholds remain TBD",
                     solve.iterations.len(),
                     final_residual,
                     solve.policy_ref
@@ -1244,6 +1248,32 @@ fn append_nonlinear_support_loop_results(
         }
         Err(error) => diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error)),
     }
+}
+
+fn product_preview_convergence_control() -> Result<ConvergenceControl, NonlinearIntegrationError> {
+    ConvergenceControl::new(
+        DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF,
+        ConvergencePolicyStatus::Accepted,
+        DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_RESIDUAL_TOLERANCE,
+        DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_ABSOLUTE_FLOOR,
+        DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS,
+    )
+}
+
+fn product_preview_policy_support_classes(supports: &[NonlinearSupport]) -> Vec<&'static str> {
+    let mut classes = supports
+        .iter()
+        .map(|support| match support.behavior {
+            NonlinearSupportBehavior::OneWay { .. } => "one_way",
+            NonlinearSupportBehavior::Gap { .. } => "gap",
+            NonlinearSupportBehavior::LiftOff { .. } => "lift_off",
+            NonlinearSupportBehavior::Friction => "friction",
+        })
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    classes.sort_unstable();
+    classes
 }
 
 fn append_nonlinear_scalar_result(
@@ -5044,7 +5074,7 @@ mod tests {
         assert!(!normal_metadata
             .basis
             .contains("derived_normal_force_model=TBD"));
-        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(!diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
@@ -5409,6 +5439,24 @@ mod tests {
             .unwrap()
             .basis
             .contains("support_count=3"));
+        assert!(iteration_count
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains(DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF));
+        assert!(iteration_count
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("policy_status=accepted"));
+        assert!(iteration_count
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("support_classes=friction,gap,one_way"));
         let normal_evidence = result
             .results
             .iter()
@@ -5436,7 +5484,7 @@ mod tests {
                 .count(),
             3
         );
-        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(!diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
     }
@@ -5673,7 +5721,7 @@ mod tests {
             ),
             10.0
         );
-        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(!diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
@@ -5745,7 +5793,7 @@ mod tests {
                 "result:nonlinear-support:support-NL-GAP-110:ux-reaction"
             ) < 0.0
         );
-        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(!diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
@@ -5814,7 +5862,7 @@ mod tests {
             ),
             0.0
         );
-        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(!diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));

@@ -26,11 +26,34 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 ## Remaining TBDs
 
 - Force/displacement residual thresholds, sparse live-path thresholds,
-  product-preview thresholds, and external validation thresholds remain `TBD`.
+  product-preview non-active-set threshold axes, and external validation
+  thresholds remain `TBD`.
 - The current assembled validation seed has an accepted active-set
   changed-support-count policy under `DEC-046-CV-B-active-set-count-validation-v1`.
+- The current invented product-preview nonlinear path has an accepted
+  active-set changed-support-count policy under
+  `DEC-046-CV-B-product-preview-active-set-count-v1`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-21 - TP-R4-D9-PRODPOLICY-001
+
+- Promoted the current invented product-preview nonlinear dense-loop
+  active-set-count convergence surface to
+  `DEC-046-CV-B-product-preview-active-set-count-v1`.
+- `core/product_physics` now uses `ConvergencePolicyStatus::Accepted`,
+  tolerance `0.0`, absolute floor `0.0`, and max iteration cap `4` for this
+  preview active-set-count surface, and records deterministic support-class
+  coverage in iteration-count metadata.
+- Updated `fixtures/product_preview/invented_mechanics_result.json` and the
+  product-preview service regression so the checked-in preview fixture no
+  longer emits `TOLERANCE_POLICY_TBD` for the active-set-count surface.
+- Boundary preserved: force/displacement threshold promotion, sparse live-path
+  behavior, external validation thresholds, release thresholds, R4 exit
+  readiness, lifecycle transitions, and professional/code-compliance claims
+  remain out of scope.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-PRODPOLICY-001.md`.
 
 ## 2026-06-21 - TP-R4-D9-FORCEDISPRESID-001
 

@@ -124,7 +124,15 @@ describe("previewService mechanics browser fallback", () => {
     expect(normalBasis).not.toContain("derived_normal_force_model=TBD");
     expect(
       result.diagnostics.some((item) => item.code === "TOLERANCE_POLICY_TBD"),
-    ).toBe(true);
+    ).toBe(false);
+    expect(
+      result.results
+        .find(
+          (item) =>
+            item.id === "result:nonlinear-support:iteration-count",
+        )
+        ?.metadata?.basis,
+    ).toContain("DEC-046-CV-B-product-preview-active-set-count-v1");
     expect(
       result.diagnostics.some(
         (item) => item.code === "NONLINEAR_SUPPORT_LOOP_CONVERGED",

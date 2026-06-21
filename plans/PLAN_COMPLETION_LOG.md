@@ -14,6 +14,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 product-preview active-set policy (`TP-R4-D9-PRODPOLICY-001`)
+
+Promoted the product-preview nonlinear dense-loop active-set-count convergence
+surface to a named accepted DEC-046 policy:
+`DEC-046-CV-B-product-preview-active-set-count-v1`. The policy applies only to
+the current invented product-preview support classes already covered by
+DEC-046 active-set-count evidence: one-way, gap, lift-off, and friction.
+
+`core/product_physics` now constructs the preview loop with
+`ConvergencePolicyStatus::Accepted`, max iteration cap `4`, relative tolerance
+`0.0`, and absolute floor `0.0`; result metadata records
+`policy_status=accepted` and deterministic support-class coverage. The
+checked-in product-preview mechanics fixture now carries the same policy ref
+and no longer emits `TOLERANCE_POLICY_TBD` for the active-set-count preview
+surface. Desktop preview assertions were updated for the resulting two-warning
+diagnostic-count reduction.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-PRODPOLICY-001.md`.
+
+Validation: focused product physics cargo tests passed; focused product-preview
+and nonlinear Python regressions passed; desktop Vitest passed. Full DEC-025
+sweep passed in
+`validation/evidence/sweeps/SWEEP_20260621T113918Z_756f319251c0-dirty.json`;
+final `git diff --check` passed.
+
+Residual: force/displacement threshold promotion, sparse live-path adoption,
+external validation thresholds, and final R4 exit-chain evidence remain open.
+`D-15` and `D-17` remain pending unless separately ruled.
+
+Boundary: product-preview active-set-count policy evidence only; no lifecycle
+transition, target-stage advancement, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-21 - R4 D9 force/displacement residual observations (`TP-R4-D9-FORCEDISPRESID-001`)
 
 Recorded force/displacement residual observations for the current dense

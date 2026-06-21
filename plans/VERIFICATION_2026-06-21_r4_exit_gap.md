@@ -33,7 +33,7 @@ R4 deliverable families named by the same section:
 | Expansion joints | `TP-R4-D4-EJSTIFF-001` landed expansion-joint mapping, provenance, user-entered stiffness rows, diagnostics, and review rows under `DEC-045`. | Demonstrated for invented preview path; pressure-thrust load generation and full assembled macro-element solve remain out of scope |
 | Spring hangers | `D-15_spring_hanger_scope.md` is prepared and awaiting human ruling. The current public implementation still has only the generic `spring` support path, not dedicated constant-effort / variable-rate hanger behavior. | **Not ready** |
 | Gaps/lift-off/friction validation | `TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-CONVOBS-001`, and `TP-R4-D9-CONVPOLICY-001` provide current assembled dense-loop validation seeds for one-way, gap, lift-off, and friction classes. The accepted policy is `DEC-046-CV-B-active-set-count-validation-v1`, limited to the current assembled validation seed and active-set changed-support-count residual. | Partially demonstrated; non-seed convergence thresholds remain open |
-| Product-preview nonlinear path | `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, and `TP-R4-D6-LIVEBUNDLE-001` show dense-loop product-preview evidence for invented nonlinear supports. Product-preview diagnostics intentionally preserve `TOLERANCE_POLICY_TBD`. | Evidence exists; not release-policy complete |
+| Product-preview nonlinear path | `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D6-LIVEBUNDLE-001`, and `TP-R4-D9-PRODPOLICY-001` show dense-loop product-preview evidence for invented nonlinear supports. The active-set-count preview policy is accepted as `DEC-046-CV-B-product-preview-active-set-count-v1`; force/displacement and release/external threshold axes remain `TBD`. | Evidence exists; not release-policy complete |
 | Component provenance in reports | `TP-R4-D8-COMPPROVREPORT-001` carries component provenance and missing-provenance warnings into `ReportSections` and the deterministic hash-bound rendered HTML report. | Demonstrated for current invented component paths |
 
 ## Blocking Gaps
@@ -47,11 +47,11 @@ R4 deliverable families named by the same section:
    public-original assembled validation seed and its active-set
    changed-support-count residual. It does not govern force residuals,
    displacement residuals, energy residuals, sparse live-path behavior,
-   product-preview thresholds, or external validation thresholds.
+   product-preview non-active-set threshold axes, or external validation thresholds.
 3. **Sparse live-path adoption is still gated by `D-17`.** The sparse solver
    crate exists from earlier work, but `frame_kernel` / `product_physics` still
-   use the dense live path. `D-17` is not prepared yet and must be handled at
-   the D7 lead-up before sparse adoption can proceed.
+   use the dense live path. The `D-17` packet is prepared and awaiting human
+   ruling before sparse adoption can proceed.
 4. **No human R4 exit review packet is ready.** This file is a gap packet, not
    the final `VERIFICATION_<date>_r4_exit_chain.md` successor for human R4 exit
    review.

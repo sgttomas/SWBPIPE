@@ -97,13 +97,15 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "result:nonlinear-support:support-NL-130-FRIC:uz-displacement" in result_ids
     assert "result:nonlinear-support:support-NL-130-FRIC:uz-reaction" in result_ids
     assert "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction" in result_ids
-    assert "TOLERANCE_POLICY_TBD" in {item["code"] for item in result["diagnostics"]}
+    assert "TOLERANCE_POLICY_TBD" not in {item["code"] for item in result["diagnostics"]}
     assert "NONLINEAR_SUPPORT_LOOP_CONVERGED" in {item["code"] for item in result["diagnostics"]}
     axial = next(item for item in result["results"] if item["id"] == "result:force:pipe-P-120:axial")
     axial_end_j = next(item for item in result["results"] if item["id"] == "result:force:pipe-P-120:axial:end-j")
     nonlinear_iteration_count = next(
         item for item in result["results"] if item["id"] == "result:nonlinear-support:iteration-count"
     )
+    assert "DEC-046-CV-B-product-preview-active-set-count-v1" in nonlinear_iteration_count["metadata"]["basis"]
+    assert "policy_status=accepted" in nonlinear_iteration_count["metadata"]["basis"]
     nonlinear_reaction = next(
         item for item in result["results"] if item["id"] == "result:nonlinear-support:support-NL-140:uy-reaction"
     )

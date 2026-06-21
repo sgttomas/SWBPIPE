@@ -9169,10 +9169,10 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("rule inputs incomplete");
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain("30 diagnostics");
+    ).toContain("28 diagnostics");
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain("14 warnings");
+    ).toContain("12 warnings");
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
     ).toContain("0 blocking/error");
@@ -9250,7 +9250,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.summary.job_state).toBe("completed");
     expect(solveJobPacket.summary.event_count).toBe(3);
     expect(solveJobPacket.summary.result_row_count).toBe(783);
-    expect(solveJobPacket.summary.diagnostic_count).toBe(30);
+    expect(solveJobPacket.summary.diagnostic_count).toBe(28);
     expect(solveJobPacket.summary.cancellation_requested).toBe(false);
     expect(solveJobPacket.summary.cancellation_status).toBe("not_requested");
     expect(solveJobPacket.progress_contract.progress_basis).toBe(
@@ -9350,7 +9350,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("sets=1");
     expect(
       within(resultExport).getByTestId("result-export-summary").textContent,
-    ).toContain("diagnostics=30");
+    ).toContain("diagnostics=28");
     expect(
       within(resultExport).getByTestId("result-export-format").textContent,
     ).toContain("schema_first_json_result_envelope");
@@ -9470,7 +9470,7 @@ describe("OpenPipeStress desktop preview", () => {
       "exported_result_row_preserves_source_value_unit_and_dimension",
     );
     expect(resultExportUnitWitness.conversion_performed).toBe(false);
-    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(30);
+    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(28);
     expect(
       resultExportPacket.result_envelope.reproducibility.deterministic_ordering,
     ).toBe(true);
@@ -9842,7 +9842,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(headlessUnitWitness.target_quantity.unit).toBe("N");
     expect(headlessUnitWitness.target_quantity.dimension).toBe("force");
     expect(headlessUnitWitness.conversion_performed).toBe(false);
-    expect(headlessPacket.result.diagnostics).toHaveLength(30);
+    expect(headlessPacket.result.diagnostics).toHaveLength(28);
     expect(headlessPacket.result.privacy.telemetry_allowed).toBe(false);
     expect(
       headlessPacket.result.professional_boundary
@@ -9862,7 +9862,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(adapterFramework).getByTestId("adapter-framework-summary")
         .textContent,
-    ).toContain("diagnostics=30");
+    ).toContain("diagnostics=28");
     expect(
       within(adapterFramework).getByTestId("adapter-framework-validation")
         .textContent,
@@ -9892,7 +9892,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(adapterPacket.operation_result.parse_status).toBe(
       "not_parsed_by_framework",
     );
-    expect(adapterPacket.operation_result.diagnostics).toHaveLength(30);
+    expect(adapterPacket.operation_result.diagnostics).toHaveLength(28);
     expect(adapterPacket.operation_result.checksums).toHaveLength(2);
     expect(adapterPacket.operation_result.audit_manifest_refs[0].ref_id).toBe(
       "audit-manifest:run:preview-linear-static-001:preview",
@@ -10470,7 +10470,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       nativePackagePacket.loss_report.entries[2].affected_refs,
     ).not.toContain("canonical_package_hash");
-    expect(nativePackagePacket.diagnostics).toHaveLength(30);
+    expect(nativePackagePacket.diagnostics).toHaveLength(28);
     expect(nativePackagePacket.generation_context.network_required).toBe(false);
     expect(nativePackagePacket.generation_context.telemetry_enabled).toBe(
       false,
@@ -11358,10 +11358,10 @@ describe("OpenPipeStress desktop preview", () => {
       within(report).getByTestId("report-component-stiffness-inputs")
         .textContent,
     ).toContain("component:C-150");
-    expect(within(report).getByText(/32 review findings/i)).toBeInTheDocument();
+    expect(within(report).getByText(/30 review findings/i)).toBeInTheDocument();
     expect(
       within(report).getByTestId("report-diagnostic-summary").textContent,
-    ).toContain("15 warnings; 17 info; 0 errors; 0 blocking");
+    ).toContain("13 warnings; 17 info; 0 errors; 0 blocking");
     expect(
       within(report).getByText(/result value hashes/i),
     ).toBeInTheDocument();
@@ -11422,7 +11422,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("no private payload");
     expect(
       within(report).getByTestId("report-export-summary").textContent,
-    ).toContain("32 diagnostics");
+    ).toContain("30 diagnostics");
     const exportHref =
       within(report).getByTestId("report-export-link").getAttribute("href") ??
       "";
@@ -11485,8 +11485,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.diagnostic_refs).toContain(
       "diagnostic:component:component-C-150:expansion-joint-review",
     );
-    expect(exportPacket.diagnostic_summary.total).toBe(32);
-    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(15);
+    expect(exportPacket.diagnostic_summary.total).toBe(30);
+    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(13);
     expect(exportPacket.diagnostic_summary.by_severity.info).toBe(17);
     expect(exportPacket.component_stress_modifier_count).toBe(12);
     expect(exportPacket.component_provenance[0]).toEqual(
@@ -11922,7 +11922,7 @@ describe("OpenPipeStress desktop preview", () => {
       "handoff-export-summary",
     );
     expect(handoffExportSummary.textContent).toContain("24 entities");
-    expect(handoffExportSummary.textContent).toContain("32 diagnostics");
+    expect(handoffExportSummary.textContent).toContain("30 diagnostics");
     expect(
       within(handoff).getByTestId("handoff-target-profile").textContent,
     ).toContain("native_open_json_preview");
@@ -12682,11 +12682,11 @@ describe("OpenPipeStress desktop preview", () => {
     const diagnostics = await screen.findByLabelText("Diagnostics");
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("32 of 32 diagnostics visible");
+    ).toContain("30 of 30 diagnostics visible");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
-    ).toContain("15 Warnings");
+    ).toContain("13 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
     ).toContain("17 Info");
@@ -12706,7 +12706,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("1 of 32 diagnostics visible");
+    ).toContain("1 of 30 diagnostics visible");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
@@ -12771,7 +12771,7 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(within(diagnostics).getByTestId("clear-diagnostic-filter"));
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("32 of 32 diagnostics visible");
+    ).toContain("30 of 30 diagnostics visible");
     expect(
       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
     ).toBeInTheDocument();
