@@ -18,8 +18,9 @@
 - Added repeat-run harness records for matrix size, reduced DOFs, nonzero
   counts, force nonzero counts, repeatability delta, residual, condition-ratio
   estimate, diagnostics, assumptions, limitations, and provenance notes.
-- The harness reports sparse-solver and tolerance-policy `TBD` diagnostics
-  rather than choosing a sparse library or release threshold policy.
+- The harness reports sparse live-path adoption and tolerance-policy `TBD`
+  diagnostics rather than asserting default sparse adoption or release threshold
+  policy. Sparse strategy selection itself is resolved by `DEC-023`.
 
 ## Evidence
 
@@ -36,7 +37,9 @@
 
 ## Open TBDs
 
-- Accepted sparse numerical library remains `TBD`.
+- Accepted sparse numerical strategy is `DEC-023`
+  (`core/solver/sparse_direct`); live solve-path adoption remains `TBD` pending
+  D-17 ruling and follow-on implementation.
 - Release timing, memory, practical-size bands, conditioning, and CI threshold
   policies remain `TBD`.
 - Hardware-normalized performance methodology remains `TBD`.
@@ -148,3 +151,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-21 - TP-R4-D17-PACKET-001
+
+- WORKING_ITEMS prepared the D-17 sparse live-path adoption decision packet:
+  `execution/_Coordination/_DECISIONS/D-17_sparse_solver_live_path_adoption.md`.
+- The packet records the DEC-023 truth that the sparse solver strategy is no
+  longer `TBD`: `core/solver/sparse_direct` is the accepted in-repo skyline
+  profile solver. The open D-17 question is whether/how that solver enters the
+  live R4 `frame_kernel` / `product_physics` / `nonlinear_integration` solve
+  path.
+- Advisory recommendation is Option B: add an R4 live sparse evidence lane while
+  dense remains the default product path until measured promotion. This is a
+  `PROPOSAL`; no ruling or implementation adoption is implied.
+- Evidence basis: `sparse_direct` implements DEC-023; `performance_harness`
+  measures sparse observations alongside dense and still emits live-adoption
+  `TBD`; live product/nonlinear paths still call `solve_dense`.
+- No code, schema, lifecycle state, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim was changed
+  by this packet-preparation tranche.

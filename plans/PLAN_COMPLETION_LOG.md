@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - D-17 sparse live-path decision packet prepared (`TP-R4-D17-PACKET-001`)
+
+Prepared `execution/_Coordination/_DECISIONS/D-17_sparse_solver_live_path_adoption.md`
+for human ruling. The packet records that `DEC-023` already selected and landed
+the in-repo `core/solver/sparse_direct` skyline/profile solver, while live
+product/nonlinear paths still call the dense solver and the performance harness
+still records live solve-path adoption as `TBD`.
+
+The advisory recommendation is Option B: add an R4 live sparse evidence lane
+with dense remaining the default product path until measured promotion; keep
+profile-direct assembly and default sparse promotion as follow-on work. The
+decision register row D-17 is now `AWAITING_RULING`.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D17-PACKET-001.md`.
+
+Validation: `git diff --check` passed; `core/solver/sparse_direct` passed 18/18;
+`core/solver/performance_harness` passed 18/18; full DEC-025 sweep passed and
+wrote
+`validation/evidence/sweeps/SWEEP_20260621T105725Z_54f581a0b912-dirty.json`.
+
+Residual: `D-15` and `D-17` both await human ruling. No current Phase D
+dependency-spine implementation item should be selected from those gates until
+a ruling lands; only a clearly unblocked D6/D9 nonlinear residual under
+`DEC-044`/`DEC-046` may proceed.
+
+Boundary: decision-preparation and evidence-log update only; no source
+behavior, schema, lifecycle transition, target-stage advancement,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 exit readiness gap packet (`TP-R4-D9-EXITGAP-001`)
 
 Assembled `plans/VERIFICATION_2026-06-21_r4_exit_gap.md` as a derivative
