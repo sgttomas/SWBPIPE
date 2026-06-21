@@ -30,6 +30,7 @@ dependencies = [
  "open_pipe_stress_frame_kernel",
  "open_pipe_stress_nonlinear_supports",
  "open_pipe_stress_solver_diagnostics",
+ "open_pipe_stress_sparse_direct",
 ]
 
 [[package]]

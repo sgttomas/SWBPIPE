@@ -16,6 +16,7 @@ use open_pipe_stress_nonlinear_supports::{
     SupportStateRecord, TrialSupportState,
 };
 use open_pipe_stress_solver_diagnostics::{tolerance_policy_tbd_diagnostic, SolverDiagnostic};
+use open_pipe_stress_sparse_direct::solve_symmetric_system;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fmt;
@@ -133,6 +134,7 @@ pub struct NonlinearFrameIteration {
     pub displacements: DenseVector,
     pub reactions: DenseVector,
     pub residuals: NonlinearResidualObservation,
+    pub sparse_evidence: SparseLinearSolveEvidence,
     pub active_set: ActiveSetIteration,
 }
 
@@ -145,6 +147,29 @@ pub struct NonlinearResidualObservation {
     pub max_abs_moment_reaction_delta_from_previous: Option<f64>,
     pub max_abs_free_dof_force_residual: f64,
     pub max_abs_free_dof_moment_residual: f64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SparseLinearSolveEvidence {
+    pub status: SparseEvidenceStatus,
+    pub policy_ref: String,
+    pub reduced_dof_count: usize,
+    pub original_max_half_bandwidth: Option<usize>,
+    pub ordered_max_half_bandwidth: Option<usize>,
+    pub original_profile_entry_count: Option<usize>,
+    pub ordered_profile_entry_count: Option<usize>,
+    pub nonpositive_pivot_count: Option<usize>,
+    pub pivot_condition_ratio_estimate: Option<f64>,
+    pub max_abs_dense_sparse_solution_delta: Option<f64>,
+    pub relative_dense_sparse_solution_delta: Option<f64>,
+    pub max_abs_sparse_residual: Option<f64>,
+    pub failure_message: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SparseEvidenceStatus {
+    Observed,
+    Unavailable,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -260,6 +285,7 @@ pub fn solve_active_set_frame(
             displacements: linearized.displacements,
             reactions: linearized.reactions,
             residuals,
+            sparse_evidence: linearized.sparse_evidence,
             active_set,
         };
         iterations.push(iteration);
@@ -297,7 +323,8 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
 
 pub fn assembled_loop_limitations() -> Vec<String> {
     vec![
-        "This dense integration slice does not bind the live sparse solver path; D-17 remains the sparse live-path timing gate.".to_string(),
+        "DEC-050 sparse evidence lane observes the reduced linearized systems, but the dense frame solve remains the default active-set path and parity oracle.".to_string(),
+        "Profile-direct sparse assembly and default sparse-solver promotion remain follow-on work.".to_string(),
         "DEC-046 class-tiered convergence values remain TBD until assembled-loop evidence seeds them; callers must supply explicit controls and policy references.".to_string(),
         "The result is mechanics evidence only and does not state rule compliance, professional approval, certification, sealing, authentication, or code compliance.".to_string(),
     ]
@@ -315,6 +342,7 @@ struct LinearizedSolve {
     reactions: DenseVector,
     max_abs_free_dof_force_residual: f64,
     max_abs_free_dof_moment_residual: f64,
+    sparse_evidence: SparseLinearSolveEvidence,
 }
 
 fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearIntegrationError> {
@@ -556,6 +584,8 @@ fn solve_linearized_system(
         &boundary.displacements,
     )?;
     let reduced_solution = solve_dense(&reduced.stiffness, &reduced.force)?;
+    let sparse_evidence =
+        observe_sparse_linearized_solve(&reduced.stiffness, &reduced.force, &reduced_solution);
 
     let mut displacements = vec![0.0; force.len()];
     for (&dof, &value) in boundary.dofs.iter().zip(boundary.displacements.iter()) {
@@ -580,7 +610,61 @@ fn solve_linearized_system(
         reactions,
         max_abs_free_dof_force_residual,
         max_abs_free_dof_moment_residual,
+        sparse_evidence,
     })
+}
+
+fn observe_sparse_linearized_solve(
+    reduced_stiffness: &DenseMatrix,
+    reduced_force: &[f64],
+    dense_solution: &[f64],
+) -> SparseLinearSolveEvidence {
+    match solve_symmetric_system(reduced_stiffness, reduced_force) {
+        Ok(sparse) => {
+            let max_abs_dense_sparse_solution_delta =
+                max_abs_delta(dense_solution, &sparse.solution);
+            let dense_scale = max_abs_value(dense_solution);
+            let relative_dense_sparse_solution_delta = if dense_scale > 0.0 {
+                max_abs_dense_sparse_solution_delta / dense_scale
+            } else {
+                max_abs_dense_sparse_solution_delta
+            };
+            SparseLinearSolveEvidence {
+                status: SparseEvidenceStatus::Observed,
+                policy_ref: "DEC-050".to_string(),
+                reduced_dof_count: sparse.solution.len(),
+                original_max_half_bandwidth: Some(sparse.original_max_half_bandwidth),
+                ordered_max_half_bandwidth: Some(sparse.ordered_max_half_bandwidth),
+                original_profile_entry_count: Some(sparse.original_profile_entry_count),
+                ordered_profile_entry_count: Some(sparse.ordered_profile_entry_count),
+                nonpositive_pivot_count: Some(sparse.factorization.nonpositive_pivot_count),
+                pivot_condition_ratio_estimate: sparse.factorization.pivot_condition_ratio_estimate,
+                max_abs_dense_sparse_solution_delta: Some(max_abs_dense_sparse_solution_delta),
+                relative_dense_sparse_solution_delta: Some(relative_dense_sparse_solution_delta),
+                max_abs_sparse_residual: Some(max_abs_residual(
+                    reduced_stiffness,
+                    &sparse.solution,
+                    reduced_force,
+                )),
+                failure_message: None,
+            }
+        }
+        Err(error) => SparseLinearSolveEvidence {
+            status: SparseEvidenceStatus::Unavailable,
+            policy_ref: "DEC-050".to_string(),
+            reduced_dof_count: reduced_force.len(),
+            original_max_half_bandwidth: None,
+            ordered_max_half_bandwidth: None,
+            original_profile_entry_count: None,
+            ordered_profile_entry_count: None,
+            nonpositive_pivot_count: None,
+            pivot_condition_ratio_estimate: None,
+            max_abs_dense_sparse_solution_delta: None,
+            relative_dense_sparse_solution_delta: None,
+            max_abs_sparse_residual: None,
+            failure_message: Some(error.to_string()),
+        },
+    }
 }
 
 fn residual_observation(
@@ -614,6 +698,32 @@ fn max_abs_delta_by_dof_group(current: &[f64], previous: &[f64], translations: b
         .enumerate()
         .filter(|(index, _)| is_translation_dof_index(*index) == translations)
         .map(|(_, (current, previous))| (current - previous).abs())
+        .fold(0.0, f64::max)
+}
+
+fn max_abs_delta(left: &[f64], right: &[f64]) -> f64 {
+    left.iter()
+        .zip(right.iter())
+        .map(|(left, right)| (left - right).abs())
+        .fold(0.0, f64::max)
+}
+
+fn max_abs_value(values: &[f64]) -> f64 {
+    values.iter().copied().map(f64::abs).fold(0.0, f64::max)
+}
+
+fn max_abs_residual(matrix: &DenseMatrix, solution: &[f64], force: &[f64]) -> f64 {
+    matrix
+        .iter()
+        .zip(force.iter())
+        .map(|(row, force)| {
+            let applied = row
+                .iter()
+                .zip(solution.iter())
+                .map(|(stiffness, displacement)| stiffness * displacement)
+                .sum::<f64>();
+            (applied - force).abs()
+        })
         .fold(0.0, f64::max)
 }
 
@@ -886,6 +996,25 @@ mod tests {
                 .max_abs_free_dof_force_residual,
             0.0
         );
+        let sparse_evidence = &result.iterations.last().unwrap().sparse_evidence;
+        assert_eq!(sparse_evidence.status, SparseEvidenceStatus::Observed);
+        assert_eq!(sparse_evidence.policy_ref, "DEC-050");
+        assert_eq!(sparse_evidence.reduced_dof_count, 1);
+        assert!(
+            sparse_evidence
+                .relative_dense_sparse_solution_delta
+                .unwrap()
+                <= 1.0e-9
+        );
+        assert_eq!(sparse_evidence.nonpositive_pivot_count, Some(0));
+        assert!(result
+            .limitations
+            .iter()
+            .any(|limitation| limitation.contains("DEC-050 sparse evidence lane")));
+        assert!(!result
+            .limitations
+            .iter()
+            .any(|limitation| limitation.contains("D-17 remains")));
     }
 
     #[test]

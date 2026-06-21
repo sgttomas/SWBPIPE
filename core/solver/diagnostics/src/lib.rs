@@ -529,15 +529,14 @@ pub fn convergence_diagnostic(
 ///
 /// The sparse solver *selection* is resolved by the human ruling `DEC-023`
 /// (D-03 Option C: in-repo skyline LDL^T direct solver,
-/// `core/solver/sparse_direct`). What remains `TBD` is binding the live
-/// product solve path to that solver; until then the dense solve path remains
-/// the live path and this diagnostic keeps that state explicit.
+/// `core/solver/sparse_direct`). `DEC-050` binds an R4 sparse evidence lane;
+/// what remains `TBD` is profile-direct assembly and default sparse promotion.
 pub fn sparse_solver_tbd_diagnostic() -> SolverDiagnostic {
     SolverDiagnostic::new(
         SolverDiagnosticCode::SparseSolverTbd,
         DiagnosticSeverity::Warning,
         DiagnosticSource::SolverConfiguration,
-        "sparse solver strategy is resolved by DEC-023 (in-repo skyline LDLT direct solver, core/solver/sparse_direct); live solve-path adoption remains TBD",
+        "sparse solver strategy is resolved by DEC-023 (in-repo skyline LDLT direct solver, core/solver/sparse_direct); DEC-050 sparse evidence lane is live; profile-direct assembly and default sparse promotion remain TBD",
     )
 }
 
@@ -671,7 +670,7 @@ fn diagnostic_class_for(
 fn default_remediation(code: SolverDiagnosticCode, severity: DiagnosticSeverity) -> &'static str {
     match code {
         SolverDiagnosticCode::SparseSolverTbd => {
-            "Bind the live solve path to the DEC-023 in-repo sparse skyline solver before external performance reliance."
+            "Complete profile-direct sparse assembly and governed default sparse-solver promotion before external performance reliance."
         }
         SolverDiagnosticCode::NonPositivePivot => {
             "Review restraint and stiffness definitions; a nonpositive pivot means the reduced stiffness system is not positive definite."
@@ -1012,19 +1011,20 @@ mod tests {
     }
 
     #[test]
-    fn sparse_solver_status_reflects_dec023_resolution_and_pending_adoption() {
+    fn sparse_solver_status_reflects_dec023_dec050_resolution_and_remaining_tbd() {
         let diagnostic = sparse_solver_tbd_diagnostic();
 
         assert!(diagnostic.message.contains("DEC-023"));
+        assert!(diagnostic.message.contains("DEC-050"));
         assert!(diagnostic.message.contains("core/solver/sparse_direct"));
         assert!(diagnostic
             .message
-            .contains("live solve-path adoption remains TBD"));
+            .contains("default sparse promotion remain TBD"));
         assert!(diagnostic
             .remediation
             .as_deref()
             .unwrap()
-            .contains("DEC-023"));
+            .contains("profile-direct sparse assembly"));
     }
 
     #[test]

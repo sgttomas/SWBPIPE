@@ -31,6 +31,24 @@
   },
   "results": [
     {
+      "id": "result:sparse-live:dense-parity-relative-delta",
+      "kind": "sparse_live_path_dense_parity_relative_delta",
+      "value": 0.0,
+      "unit": "unitless",
+      "entity_ref": "solver:sparse_direct",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "sparse_live_path",
+        "coordinate_system": "reduced_system",
+        "location": "load_case",
+        "basis": "DEC-050 sparse_evidence_lane; dense_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; ordering=reverse_cuthill_mckee; reduced_dofs=21; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=follow_on; default_sparse_promotion=follow_on",
+        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
+      }
+    },
+    {
       "id": "result:disp:node-N-100",
       "kind": "displacement_magnitude",
       "value": 0.0,
@@ -4750,6 +4768,24 @@
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-100"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:sparse-live:dense-parity-relative-delta",
+      "kind": "sparse_live_path_dense_parity_relative_delta",
+      "value": 0.0,
+      "unit": "unitless",
+      "entity_ref": "solver:sparse_direct",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "sparse_live_path",
+        "coordinate_system": "reduced_system",
+        "location": "load_case",
+        "basis": "DEC-050 sparse_evidence_lane; dense_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; ordering=reverse_cuthill_mckee; reduced_dofs=21; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=follow_on; default_sparse_promotion=follow_on",
+        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
       }
     },
     {

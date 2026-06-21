@@ -14,6 +14,70 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D7 sparse live evidence lane (`TP-R4-D7-SPARSELIVE-001`)
+
+Landed the bounded D7 implementation authorized by `DEC-050`: the accepted
+`core/solver/sparse_direct` solver now runs as a live, non-blocking sparse
+evidence lane beside the current dense R4 product solve path. Dense remains the
+default solver and parity oracle; sparse-default promotion and profile-direct
+assembly remain follow-on work.
+
+Changed surfaces:
+
+- `core/solver/nonlinear_integration`: sparse sidecar observations per
+  iteration, including profile/bandwidth, pivot status, sparse residual, and
+  dense-vs-sparse deltas;
+- `core/product_physics`: two unitless
+  `sparse_live_path_dense_parity_relative_delta` result rows in the invented
+  preview result envelope, excluded from load-combination algebra;
+- `core/solver/diagnostics` and `core/solver/performance_harness`: wording
+  updated from unresolved live adoption to landed evidence lane with remaining
+  profile-direct/default-promotion follow-on;
+- desktop tests and smoke: generated fixture expectations updated for the
+  802-row result surface and native-package unit witnesses;
+- evidence: DEL-04-01 and DEL-04-05 run records
+  `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D7-SPARSELIVE-001.md`.
+
+Validation:
+
+- `cargo fmt --manifest-path core/solver/nonlinear_integration/Cargo.toml --check`
+  passed.
+- `cargo test --manifest-path core/solver/nonlinear_integration/Cargo.toml`
+  passed 10/10 tests.
+- `cargo fmt --manifest-path core/product_physics/Cargo.toml --check` passed.
+- `cargo test --manifest-path core/product_physics/Cargo.toml` passed 43/43
+  tests.
+- `cargo fmt --manifest-path core/solver/diagnostics/Cargo.toml --check`
+  passed.
+- `cargo test --manifest-path core/solver/diagnostics/Cargo.toml` passed 24/24
+  tests.
+- `cargo fmt --manifest-path core/solver/performance_harness/Cargo.toml --check`
+  passed.
+- `cargo test --manifest-path core/solver/performance_harness/Cargo.toml`
+  passed 18/18 tests.
+- `pytest tests/product_preview/test_product_preview_service.py tests/test_results_schema.py -q`
+  passed 11/11 tests.
+- `npm test --workspace apps/desktop` passed 19/19 test files and 407/407
+  tests.
+- From `apps/desktop`,
+  `npm exec -- playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+  Playwright checks.
+- Full DEC-025 evidence sweep passed:
+  `validation/evidence/sweeps/SWEEP_20260621T205711Z_c771567ed6a8-dirty.json`
+  (`overall_status=pass`, 5/5 surfaces).
+
+Residual: D7 is landed for evidence-lane adoption only. Profile-direct sparse
+assembly, sparse-default promotion, timing/memory thresholds, and practical-size
+promotion evidence remain future work. Non-seed convergence thresholds, deeper
+spring-hanger behavior, and the remaining D9 validation package remain open.
+
+Boundary: invented/local evidence only. No protected standards content,
+proprietary benchmark model, private project data, network path, telemetry
+feature, lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D5 spring-hanger user-data model (`TP-R4-D5-HANGERDATA-001`)
 
 Landed the bounded D5 implementation authorized by `DEC-049`: a minimal

@@ -365,13 +365,15 @@ bounded tranche.
       `TP-R4-D8-COMPPROVREPORT-001`;
       `TP-R4-D9-CONVOBS-001` records observed convergence values for the
       current assembled fixtures and `TP-R4-D9-CONVPOLICY-001` promotes the
-      governed active-set-count policy for that validation seed only:
-      sparse live-path adoption, non-seed convergence thresholds, deeper
-      spring-hanger behavior, and the R4 exit evidence package remain open
-      under `DEC-044`/`DEC-046`. D7 is
-      ruled by `DEC-050` as a live sparse evidence lane with dense remaining
-      default; `D-20` remains a Phase E lead-up decision; held `D-21` does not
-      authorize v0.2/R6/R7 scope;
+      governed active-set-count policy for that validation seed only.
+      `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
+      assembled nonlinear integration and product-preview reduced solve paths
+      as the `DEC-050` sparse evidence lane, with dense remaining default:
+      non-seed convergence thresholds, profile-direct sparse/default
+      promotion, deeper spring-hanger behavior, and the R4 exit evidence
+      package remain open under `DEC-044`/`DEC-046`/`DEC-050`. `D-20`
+      remains a Phase E lead-up decision; held `D-21` does not authorize
+      v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or
       smoke-evidence gaps in already-landed surfaces;
    3. residual hardening (missing app-to-core seams, preview workflow gaps,

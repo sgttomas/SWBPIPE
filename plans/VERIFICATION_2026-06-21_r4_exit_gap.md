@@ -34,6 +34,7 @@ R4 deliverable families named by the same section:
 | Spring hangers | `D-15_spring_hanger_scope.md` is ruled by `DEC-049` Option B, and `TP-R4-D5-HANGERDATA-001` landed the minimal dedicated user-entered spring-hanger model for invented variable spring and constant-effort supports, including schema slots, validation diagnostics, user-entered review rows, and report/native-package/rendered-report provenance. | Demonstrated for minimal user-data path; catalog sizing and deeper constant-effort solve behavior remain out of scope |
 | Gaps/lift-off/friction validation | `TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-CONVOBS-001`, and `TP-R4-D9-CONVPOLICY-001` provide current assembled dense-loop validation seeds for one-way, gap, lift-off, and friction classes. The accepted policy is `DEC-046-CV-B-active-set-count-validation-v1`, limited to the current assembled validation seed and active-set changed-support-count residual. | Partially demonstrated; non-seed convergence thresholds remain open |
 | Product-preview nonlinear path | `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D6-LIVEBUNDLE-001`, and `TP-R4-D9-PRODPOLICY-001` show dense-loop product-preview evidence for invented nonlinear supports. The active-set-count preview policy is accepted as `DEC-046-CV-B-product-preview-active-set-count-v1`; force/displacement and release/external threshold axes remain `TBD`. | Evidence exists; not release-policy complete |
+| Sparse evidence lane | `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the assembled nonlinear integration and product-preview reduced solve paths as `DEC-050` evidence. Product-preview result envelopes now carry sparse parity evidence rows for the invented load cases. Dense remains default; profile-direct sparse assembly and default sparse promotion remain follow-on work. | Demonstrated as evidence lane; not default sparse promotion |
 | Component provenance in reports | `TP-R4-D8-COMPPROVREPORT-001` carries component provenance and missing-provenance warnings into `ReportSections` and the deterministic hash-bound rendered HTML report. | Demonstrated for current invented component paths |
 
 ## Blocking Gaps
@@ -44,11 +45,11 @@ R4 deliverable families named by the same section:
    changed-support-count residual. It does not govern force residuals,
    displacement residuals, energy residuals, sparse live-path behavior,
    product-preview non-active-set threshold axes, or external validation thresholds.
-2. **Sparse live-path adoption remains open under `DEC-050`.** The sparse
-   solver crate exists from earlier work, but `frame_kernel` /
-   `product_physics` still use the dense live path. `D-17` is ruled by
-   `DEC-050` Option B: add an R4 live sparse evidence lane while dense remains
-   default; profile-direct assembly and default sparse promotion follow on.
+2. **Sparse default promotion remains follow-on under `DEC-050`.**
+   `TP-R4-D7-SPARSELIVE-001` closes the R4 sparse evidence-lane adoption item:
+   the sparse skyline solver observes reduced live systems while dense remains
+   default. Profile-direct sparse assembly and default sparse promotion are not
+   closed by this packet.
 3. **Deeper spring-hanger behavior is not closed by D5.**
    `TP-R4-D5-HANGERDATA-001` intentionally lands user-entered variable spring
    and constant-effort support data/review evidence only. It does not authorize
@@ -80,8 +81,9 @@ R4 is **not ready** for human exit review. The strongest current evidence is:
 - current assembled nonlinear validation seeds converge under the accepted
   active-set-count policy for one-way, gap, lift-off, and friction classes.
 
-The decisive blockers are D7 sparse live evidence-lane adoption under
-`DEC-050`, the intentionally unpromoted convergence-policy surfaces outside the
-current assembled validation seed, and deeper spring-hanger behavior if the
-R4 exit review requires more than the minimal user-data path. The next ordinary
-Phase D dependency-spine implementation item is D7.
+The decisive blockers are the intentionally unpromoted convergence-policy
+surfaces outside the current assembled validation seed, profile-direct
+sparse/default promotion if required by the R4 exit review, and deeper
+spring-hanger behavior if the R4 exit review requires more than the minimal
+user-data path. The next ordinary Phase D dependency-spine item is D9 exit
+evidence/readiness after the landed D7 sparse evidence lane.

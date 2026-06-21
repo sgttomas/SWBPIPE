@@ -170,3 +170,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No code, schema, lifecycle state, release-readiness, professional approval,
   certification, sealing, authentication, or code-compliance claim was changed
   by this packet-preparation tranche.
+
+## 2026-06-21 - TP-R4-D7-SPARSELIVE-001 sparse evidence lane adoption
+
+- Implemented the human ruling `DEC-050` Option B: live sparse evidence is now
+  bound into the R4 product/nonlinear solve path while dense remains the default
+  solver and parity oracle.
+- `core/solver/nonlinear_integration` and `core/product_physics` consume
+  `core/solver/sparse_direct` as a non-blocking sidecar on dense-reduced
+  systems. Evidence records include profile/bandwidth, pivot status, sparse
+  residual, and dense-vs-sparse parity delta.
+- `core/solver/diagnostics` and `core/solver/performance_harness` wording now
+  distinguish the resolved `DEC-023` sparse strategy and landed `DEC-050`
+  evidence lane from the remaining follow-on work.
+- The invented mechanics fixture now has 802 result rows, including two
+  unitless sparse parity evidence rows. Desktop unit and Playwright smoke
+  expectations were updated to match that result surface.
+- Validation passed, including full DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260621T205711Z_c771567ed6a8-dirty.json`.
+- Residuals remain explicit: profile-direct sparse assembly, sparse-default
+  promotion, timing/memory thresholds, practical-size bands, conditioning/CI
+  thresholds, and hardware-normalized methodology remain future work. No
+  release-readiness, professional approval, certification, sealing,
+  authentication, code-compliance claim, protected standards content, private
+  data, network path, or telemetry feature changed.

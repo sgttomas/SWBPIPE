@@ -314,3 +314,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, code-compliance claim, protected
   standards content, public defaults, or private data was introduced.
+
+## 2026-06-21 - TP-R4-D7-SPARSELIVE-001 sparse evidence lane adoption
+
+- Implemented `DEC-050` Option B at the integration/product boundary: the
+  current dense solve path remains default, while `core/solver/sparse_direct`
+  runs as a non-blocking live evidence observer on the same reduced systems.
+- DEL-04-01 remains the frame-kernel provider. `core/solver/frame_kernel` was
+  not changed; assembly, reduction, and dense verification behavior remain
+  behind the existing frame-kernel boundary.
+- `core/solver/nonlinear_integration` now records sparse evidence per iteration:
+  reduced DOFs, original/ordered profile and bandwidth, pivot status, dense vs
+  sparse delta, sparse residual, and non-blocking unavailable status when the
+  sparse sidecar cannot solve.
+- `core/product_physics` now emits two unitless
+  `sparse_live_path_dense_parity_relative_delta` result rows for the invented
+  preview load cases. These rows are solver evidence and are excluded from load
+  combination algebra.
+- Validation passed, including full DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260621T205711Z_c771567ed6a8-dirty.json`.
+- Residuals remain explicit: profile-direct sparse assembly and sparse-default
+  promotion are follow-on work; no release-readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards content, private data, network path, or telemetry feature changed.

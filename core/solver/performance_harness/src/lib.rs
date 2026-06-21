@@ -607,7 +607,7 @@ fn suite_record(
         limitations: vec![
             "fixture sizes are explicit invented coverage points, not approved practical-size bands"
                 .to_string(),
-            "live solve-path adoption of the DEC-023 sparse skyline solver remains TBD".to_string(),
+            "DEC-023 selects the sparse skyline solver and DEC-050 binds it as a live evidence lane; profile-direct assembly and default sparse promotion remain follow-on work".to_string(),
             "release timing, memory, conditioning, and CI thresholds remain TBD".to_string(),
         ],
         provenance_notes,
@@ -745,7 +745,7 @@ fn run_record(
                 .to_string(),
         ],
         limitations: vec![
-            "live solve-path adoption of the DEC-023 sparse skyline solver remains TBD".to_string(),
+            "DEC-023 selects the sparse skyline solver and DEC-050 binds it as a live evidence lane; profile-direct assembly and default sparse promotion remain follow-on work".to_string(),
             "release timing, memory, and conditioning thresholds remain TBD".to_string(),
             "elapsed-time observations are environment-dependent measurements, not asserted thresholds"
                 .to_string(),

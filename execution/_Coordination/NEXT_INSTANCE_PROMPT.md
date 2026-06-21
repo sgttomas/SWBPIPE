@@ -90,13 +90,12 @@
      Structured observed convergence values are recorded for the current
      assembled fixtures, and the governed active-set-count policy is promoted
      for that assembled validation seed only. Mixed one-way/gap/friction
-     product live-loop coverage is landed for one invented dense solve. Sparse
-     live-path adoption, non-seed convergence thresholds, deeper spring-hanger
-     behavior, and the remaining D9 validation package remain open. D7
-     sparse live-path timing is ruled by
-     `DEC-050`: add a live sparse evidence lane while dense remains default,
-     with profile-direct assembly/default promotion as follow-on work. `D-20`
-     is held for Phase E; `D-21` remains held and does not authorize
+     product live-loop coverage is landed for one invented dense solve.
+     `TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` live sparse evidence lane
+     while dense remains default. Non-seed convergence thresholds,
+     profile-direct sparse/default promotion, deeper spring-hanger behavior,
+     and the remaining D9 validation package remain open. `D-20` is held for
+     Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default
      writes, no network/telemetry feature, no live external SDK/harness or

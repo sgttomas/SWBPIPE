@@ -32,6 +32,7 @@ use open_pipe_stress_primitive_loads::{
 use open_pipe_stress_solver_diagnostics::{
     DiagnosticSeverity as SolverDiagnosticSeverity, SolverDiagnostic, SolverDiagnosticCode,
 };
+use open_pipe_stress_sparse_direct::solve_symmetric_system;
 use open_pipe_stress_straight_pipe::{StraightPipeElement, StraightPipeSectionProperties};
 use open_pipe_stress_stress_recovery::{
     recover_stresses, AnalysisStatus, ForceResultants, PressureBasis, StressComponents,
@@ -795,6 +796,14 @@ fn solve_load_case(
     }
 
     let mut results = Vec::new();
+    append_sparse_live_path_evidence(
+        &mut results,
+        diagnostics,
+        &load_case.id,
+        &reduced.stiffness,
+        &reduced.force,
+        &reduced_displacements,
+    );
     let mut max_displacement = None;
     for node in &model.nodes {
         let node_index = node_index(&model, &node.id).unwrap();
@@ -1308,6 +1317,69 @@ fn product_preview_policy_support_classes(supports: &[NonlinearSupport]) -> Vec<
         .collect::<Vec<_>>();
     classes.sort_unstable();
     classes
+}
+
+fn append_sparse_live_path_evidence(
+    results: &mut Vec<ResultItem>,
+    diagnostics: &mut Vec<Diagnostic>,
+    load_case_id: &str,
+    reduced_stiffness: &[Vec<f64>],
+    reduced_force: &[f64],
+    dense_solution: &[f64],
+) {
+    let sparse = match solve_symmetric_system(reduced_stiffness, reduced_force) {
+        Ok(sparse) => sparse,
+        Err(error) => {
+            diagnostics.push(diag(
+                &format!("diagnostic:sparse-live:{}:unavailable", stable_suffix(load_case_id)),
+                "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE",
+                "warning",
+                format!(
+                    "DEC-050 sparse evidence lane could not observe load case {load_case_id}; dense solve remains the default product path and parity oracle: {error}"
+                ),
+                vec![load_case_id.to_string(), "DEC-050".to_string()],
+            ));
+            return;
+        }
+    };
+    let max_abs_dense_sparse_solution_delta = max_abs_delta(dense_solution, &sparse.solution);
+    let dense_scale = max_abs_value(dense_solution);
+    let relative_dense_sparse_solution_delta = if dense_scale > 0.0 {
+        max_abs_dense_sparse_solution_delta / dense_scale
+    } else {
+        max_abs_dense_sparse_solution_delta
+    };
+    let sparse_residual =
+        max_abs_linear_residual(reduced_stiffness, &sparse.solution, reduced_force);
+
+    results.push(ResultItem {
+        id: "result:sparse-live:dense-parity-relative-delta".to_string(),
+        kind: "sparse_live_path_dense_parity_relative_delta".to_string(),
+        value: round6(relative_dense_sparse_solution_delta),
+        unit: "unitless".to_string(),
+        entity_ref: "solver:sparse_direct".to_string(),
+        basis_ref: None,
+        source_result_refs: Vec::new(),
+        metadata: Some(ResultMetadata {
+            component: "sparse_live_path".to_string(),
+            coordinate_system: "reduced_system".to_string(),
+            location: "load_case".to_string(),
+            basis: format!(
+                "DEC-050 sparse_evidence_lane; dense_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; ordering=reverse_cuthill_mckee; reduced_dofs={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; max_abs_dense_sparse_delta={}; max_abs_sparse_residual={}; nonpositive_pivots={}; profile_direct_assembly=follow_on; default_sparse_promotion=follow_on",
+                sparse.solution.len(),
+                sparse.original_profile_entry_count,
+                sparse.ordered_profile_entry_count,
+                sparse.original_max_half_bandwidth,
+                sparse.ordered_max_half_bandwidth,
+                round6(max_abs_dense_sparse_solution_delta),
+                round6(sparse_residual),
+                sparse.factorization.nonpositive_pivot_count
+            ),
+            sign_convention:
+                "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
+                    .to_string(),
+        }),
+    });
 }
 
 fn append_nonlinear_scalar_result(
@@ -4651,6 +4723,7 @@ fn is_combination_excluded_result_kind(kind: &str) -> bool {
             | "nonlinear_support_observed_max_moment_reaction_delta"
             | "nonlinear_support_observed_free_dof_force_residual"
             | "nonlinear_support_observed_free_dof_moment_residual"
+            | "sparse_live_path_dense_parity_relative_delta"
     )
 }
 
@@ -4880,6 +4953,32 @@ fn multiply_matrix_vector(matrix: &[Vec<f64>], vector: &[f64]) -> Vec<f64> {
         .iter()
         .map(|row| row.iter().zip(vector).map(|(a, b)| a * b).sum())
         .collect()
+}
+
+fn max_abs_delta(left: &[f64], right: &[f64]) -> f64 {
+    left.iter()
+        .zip(right.iter())
+        .map(|(left, right)| (left - right).abs())
+        .fold(0.0, f64::max)
+}
+
+fn max_abs_value(values: &[f64]) -> f64 {
+    values.iter().copied().map(f64::abs).fold(0.0, f64::max)
+}
+
+fn max_abs_linear_residual(matrix: &[Vec<f64>], solution: &[f64], force: &[f64]) -> f64 {
+    matrix
+        .iter()
+        .zip(force.iter())
+        .map(|(row, force)| {
+            let applied = row
+                .iter()
+                .zip(solution.iter())
+                .map(|(stiffness, displacement)| stiffness * displacement)
+                .sum::<f64>();
+            (applied - force).abs()
+        })
+        .fold(0.0, f64::max)
 }
 
 fn node_index(model: &PreviewModel, id: &str) -> Option<usize> {
@@ -5270,6 +5369,11 @@ mod tests {
     #[test]
     fn valid_invented_model_solves_deterministically() {
         let result = run_linear_static_preview(request());
+        let result_ids = result
+            .results
+            .iter()
+            .map(|item| item.id.as_str())
+            .collect::<HashSet<_>>();
 
         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
         assert!(!result.results.is_empty());
@@ -5278,6 +5382,31 @@ mod tests {
             .results
             .iter()
             .any(|item| item.id == "result:disp:node-N-140"));
+        assert!(result_ids.contains("result:sparse-live:dense-parity-relative-delta"));
+        assert!(result_ids
+            .contains("result:loadcase:load-L-200:sparse-live:dense-parity-relative-delta"));
+        assert!(!result_ids.contains(
+            "result:combination:combination-C-OPER-ALT:sparse-live:dense-parity-relative-delta"
+        ));
+        let sparse_evidence = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:sparse-live:dense-parity-relative-delta")
+            .expect("default load case sparse evidence row is present");
+        assert_eq!(
+            sparse_evidence.kind,
+            "sparse_live_path_dense_parity_relative_delta"
+        );
+        assert!(sparse_evidence.value <= 1.0e-9);
+        let metadata = sparse_evidence.metadata.as_ref().unwrap();
+        assert_eq!(metadata.component, "sparse_live_path");
+        assert_eq!(metadata.coordinate_system, "reduced_system");
+        assert!(metadata.basis.contains("DEC-050 sparse_evidence_lane"));
+        assert!(metadata.basis.contains("dense_default=true"));
+        assert!(metadata.basis.contains("profile_direct_assembly=follow_on"));
+        assert!(metadata
+            .basis
+            .contains("default_sparse_promotion=follow_on"));
     }
 
     #[test]

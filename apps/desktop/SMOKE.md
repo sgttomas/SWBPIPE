@@ -9676,3 +9676,54 @@ notes:
   data, constant-effort solve claim, network path, telemetry feature, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-284 R4 D7 sparse evidence lane - PASSED (`TP-R4-D7-SPARSELIVE-001`, 2026-06-21)
+
+- Scope: R4/D7 sparse evidence-lane slice under `DEC-050`, binding the accepted
+  `core/solver/sparse_direct` solver as a live non-blocking evidence observer
+  while dense remains the default product solve path and parity oracle.
+- App/core behavior: `core/solver/nonlinear_integration` records sparse
+  sidecar evidence per iteration, and `core/product_physics` emits two unitless
+  `sparse_live_path_dense_parity_relative_delta` rows for the invented preview
+  load cases. Sparse evidence rows are not load effects and are excluded from
+  combination algebra.
+- UI/report behavior: generated mechanics results now contain 802 rows; result
+  filtering, unit policy surfaces, native package witnesses, headless/stress
+  neutral/handoff witnesses, and Playwright smoke expectations match the
+  updated result surface.
+- Validation:
+  - `cargo fmt --manifest-path core/solver/nonlinear_integration/Cargo.toml --check`
+    passed.
+  - `cargo test --manifest-path core/solver/nonlinear_integration/Cargo.toml`
+    passed 10/10 tests.
+  - `cargo fmt --manifest-path core/product_physics/Cargo.toml --check`
+    passed.
+  - `cargo test --manifest-path core/product_physics/Cargo.toml` passed 43/43
+    tests.
+  - `cargo fmt --manifest-path core/solver/diagnostics/Cargo.toml --check`
+    passed.
+  - `cargo test --manifest-path core/solver/diagnostics/Cargo.toml` passed
+    24/24 tests.
+  - `cargo fmt --manifest-path core/solver/performance_harness/Cargo.toml --check`
+    passed.
+  - `cargo test --manifest-path core/solver/performance_harness/Cargo.toml`
+    passed 18/18 tests.
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 407/407
+    tests.
+  - From `apps/desktop`,
+    `npm exec -- playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    Playwright checks.
+  - Full DEC-025 evidence sweep passed:
+    `validation/evidence/sweeps/SWEEP_20260621T205711Z_c771567ed6a8-dirty.json`
+    (`overall_status=pass`, 5/5 surfaces).
+- Evidence: DEL-04-01 and DEL-04-05 run records
+  `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D7-SPARSELIVE-001.md`; plan log entry in
+  `plans/PLAN_COMPLETION_LOG.md`.
+- Residual: D7 is landed for evidence-lane adoption only. Profile-direct sparse
+  assembly, sparse-default promotion, timing/memory thresholds, practical-size
+  bands, non-seed convergence thresholds, and the remaining D9 validation
+  package remain follow-on work.
+- Boundary: invented/local evidence only. No protected standards content,
+  proprietary benchmark model, private data, network path, telemetry feature,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
