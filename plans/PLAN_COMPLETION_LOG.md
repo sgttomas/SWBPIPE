@@ -14,6 +14,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D6 mixed nonlinear live-solver bundle (`TP-R4-D6-LIVEBUNDLE-001`)
+
+Closed the broader D6 live-solver coverage residual by adding a bundled
+product-preview dense-loop regression under `DEC-044` and `DEC-046`.
+
+`core/product_physics` now has an invented mixed nonlinear support request
+that runs one-way deactivation, gap closure, and explicit-normal friction
+sliding in one `run_linear_static_preview` solve. The regression asserts three
+per-support state rows from one dense loop, two active-set iterations, final
+residual `0`, `support_count=3` metadata, one-way final `inactive`, gap final
+`active` at the explicit `0.05 mm` clearance, friction final `sliding`, and an
+explicit normal-reaction evidence row that remains excluded from
+load-combination algebra.
+
+Validation: `cargo fmt --manifest-path core/product_physics/Cargo.toml -- --check`
+passed; `cargo test --manifest-path core/product_physics/Cargo.toml` passed
+41/41 tests; focused repository pytest for product-preview/schema/nonlinear
+surfaces passed 28/28 tests; `git diff --check` passed; the full five-surface
+evidence sweep passed across cargo crates, repository pytest (362), desktop
+Vitest (407), Playwright dev/dist (18 + 1), and desktop production build,
+writing
+`validation/evidence/sweeps/SWEEP_20260621T101429Z_f74897170d66-dirty.json`.
+
+Evidence: PKG-04 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-LIVEBUNDLE-001.md`.
+
+Residual: sparse live-path adoption remains gated by `D-17`; governed
+class-tier threshold promotion under `DEC-046` and the R4 exit evidence
+package remain open.
+
+Boundary: invented product-preview regression evidence only; no protected
+standards content, private data, sparse live-path binding, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D9 convergence observation inventory (`TP-R4-D9-CONVOBS-001`)
 
 Landed structured observed convergence evidence for the current assembled

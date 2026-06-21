@@ -119,6 +119,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
 
+## 2026-06-21 - TP-R4-D6-LIVEBUNDLE-001
+
+- Added product-preview live dense-loop regression coverage for a mixed
+  invented support bundle: one-way deactivation, gap closure, and
+  explicit-normal friction sliding in one `core/product_physics` solve.
+- The active-set classifier remains the per-iteration state oracle and now has
+  product-level evidence that multiple support classes can be consumed together
+  by the integration loop without adding hidden normal-force defaults or
+  generated friction loads.
+- Validation passed in the tranche run record:
+  `../_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-LIVEBUNDLE-001.md`.
+  Boundaries preserved: no sparse live-path binding, governed threshold
+  promotion, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim.
+
 ## 2026-06-21 - TP-R4-D6-FRICTIONNORMAL-001
 
 - D6 integration tranche added derived friction normal-reaction support in

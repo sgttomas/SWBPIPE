@@ -77,7 +77,8 @@
      `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D9-ASSEMBLEDSEED-001`,
      `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`,
      `TP-R4-D6-FRICTIONNORMAL-001`, and
-     `TP-R4-D9-BRANCHASSEMBLY-001`, and `TP-R4-D9-CONVOBS-001`: the loop-core crate
+     `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVOBS-001`, and
+     `TP-R4-D6-LIVEBUNDLE-001`: the loop-core crate
      `core/solver/nonlinear_integration` exists under `DEC-044`/`DEC-046`, the
      first invented product/app/result-envelope sidecar is landed, explicit
      friction normal-reaction input evidence is visible without being combined
@@ -86,8 +87,9 @@
      branch-assembly benchmark is landed as public-original mechanics evidence.
      Structured observed convergence values are recorded for the current
      assembled fixtures while governed class-tier thresholds remain `TBD`.
-     Sparse live-path adoption, broader live-solver coverage, and the remaining
-     D9 validation package remain open. D7 sparse live-path timing remains
+     Mixed one-way/gap/friction product live-loop coverage is landed for one
+     invented dense solve. Sparse live-path adoption and the remaining D9
+     validation package remain open. D7 sparse live-path timing remains
      gated by `D-17`; `D-20` is held for Phase E; `D-21` remains held and does
      not authorize v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

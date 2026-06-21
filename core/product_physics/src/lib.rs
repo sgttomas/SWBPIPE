@@ -5067,6 +5067,251 @@ mod tests {
         )
     }
 
+    fn mixed_nonlinear_preview_request() -> LinearStaticPreviewRequest {
+        let mut request = two_node_nonlinear_preview_request(
+            "support:NL-MIX-ONEWAY-110",
+            NonlinearSupportInput {
+                behavior: "one_way".to_string(),
+                dof: "UX".to_string(),
+                initial_state: Some("active".to_string()),
+                active_when: Some("positive_reaction".to_string()),
+                contact_when: None,
+                closes_when: None,
+                gap: None,
+                friction_coefficient: None,
+                normal_reaction: None,
+                normal_reaction_source: None,
+            },
+            "load:L-MIXED-NONLINEAR",
+            100.0,
+            "combination:C-MIXED-NONLINEAR",
+        );
+        request.model.supports.push(PreviewSupport {
+            id: "support:NL-MIX-GAP-110".to_string(),
+            node: "node:N-110".to_string(),
+            restraints: Vec::new(),
+            family: Some("nonlinear".to_string()),
+            stiffness: None,
+            nonlinear: Some(NonlinearSupportInput {
+                behavior: "gap".to_string(),
+                dof: "UY".to_string(),
+                initial_state: Some("inactive".to_string()),
+                active_when: None,
+                contact_when: None,
+                closes_when: Some("positive_displacement".to_string()),
+                gap: Some(Quantity {
+                    value: 0.05,
+                    unit: "mm".to_string(),
+                }),
+                friction_coefficient: None,
+                normal_reaction: None,
+                normal_reaction_source: None,
+            }),
+            provenance: Some("invented_example_user_entered_nonlinear_gap_no_catalog".to_string()),
+        });
+        request.model.supports.push(PreviewSupport {
+            id: "support:NL-MIX-FRIC-110".to_string(),
+            node: "node:N-110".to_string(),
+            restraints: Vec::new(),
+            family: Some("nonlinear".to_string()),
+            stiffness: None,
+            nonlinear: Some(NonlinearSupportInput {
+                behavior: "friction".to_string(),
+                dof: "UZ".to_string(),
+                initial_state: Some("sticking".to_string()),
+                active_when: None,
+                contact_when: None,
+                closes_when: None,
+                gap: None,
+                friction_coefficient: Some(Quantity {
+                    value: 0.30,
+                    unit: "none".to_string(),
+                }),
+                normal_reaction: Some(Quantity {
+                    value: 10.0,
+                    unit: "N".to_string(),
+                }),
+                normal_reaction_source: None,
+            }),
+            provenance: Some(
+                "invented_example_user_entered_nonlinear_friction_no_catalog".to_string(),
+            ),
+        });
+        request.model.load_cases[0]
+            .primitive_loads
+            .push(PreviewPrimitiveLoad {
+                id: "load:L-MIXED-NONLINEAR-Y".to_string(),
+                category: "occasional".to_string(),
+                target: LoadTargetInput::Node {
+                    node: "node:N-110".to_string(),
+                },
+                direction: "global_y".to_string(),
+                magnitude: Quantity {
+                    value: 100_000.0,
+                    unit: "N".to_string(),
+                },
+                dimension: "force".to_string(),
+                provenance: Some("invented_example_user_input".to_string()),
+            });
+        request.model.load_cases[0]
+            .primitive_loads
+            .push(PreviewPrimitiveLoad {
+                id: "load:L-MIXED-NONLINEAR-Z".to_string(),
+                category: "occasional".to_string(),
+                target: LoadTargetInput::Node {
+                    node: "node:N-110".to_string(),
+                },
+                direction: "global_z".to_string(),
+                magnitude: Quantity {
+                    value: 100.0,
+                    unit: "N".to_string(),
+                },
+                dimension: "force".to_string(),
+                provenance: Some("invented_example_user_input".to_string()),
+            });
+        request
+    }
+
+    #[test]
+    fn mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state() {
+        let result = run_linear_static_preview(mixed_nonlinear_preview_request());
+        let result_ids = result
+            .results
+            .iter()
+            .map(|item| item.id.as_str())
+            .collect::<HashSet<_>>();
+        let diagnostic_codes = result
+            .diagnostics
+            .iter()
+            .map(|item| item.code.as_str())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(
+            result_ids.contains("result:nonlinear-support:support-NL-MIX-ONEWAY-110:state-code")
+        );
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-MIX-GAP-110:state-code"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-MIX-FRIC-110:state-code"));
+        assert!(result_ids
+            .contains("result:nonlinear-support:support-NL-MIX-FRIC-110:friction-normal-reaction"));
+        assert!(!result_ids.contains(
+            "result:combination:combination-C-MIXED-NONLINEAR:nonlinear-support:support-NL-MIX-FRIC-110:friction-normal-reaction"
+        ));
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:iteration-count"),
+            2.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:final-residual-count"),
+            0.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:converged-flag"),
+            1.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-ONEWAY-110:state-code"
+            ),
+            0.0
+        );
+        assert!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-ONEWAY-110:ux-displacement"
+            ) > 0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-ONEWAY-110:ux-reaction"
+            ),
+            0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-GAP-110:state-code"
+            ),
+            1.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-GAP-110:uy-displacement"
+            ),
+            0.05
+        );
+        assert!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-GAP-110:uy-reaction"
+            ) < 0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-FRIC-110:state-code"
+            ),
+            3.0
+        );
+        assert!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-FRIC-110:uz-displacement"
+            ) > 0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-MIX-FRIC-110:uz-reaction"
+            ),
+            0.0
+        );
+        let iteration_count = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:nonlinear-support:iteration-count")
+            .expect("iteration-count row exists");
+        assert!(iteration_count
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("support_count=3"));
+        let normal_evidence = result
+            .results
+            .iter()
+            .find(|item| {
+                item.id
+                    == "result:nonlinear-support:support-NL-MIX-FRIC-110:friction-normal-reaction"
+            })
+            .expect("normal evidence row is present");
+        assert_eq!(
+            normal_evidence.kind,
+            "nonlinear_support_friction_normal_reaction_input"
+        );
+        assert_eq!(normal_evidence.value, 10.0);
+        assert!(normal_evidence
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("explicit_user_entered_normal_reaction"));
+        assert_eq!(
+            result
+                .diagnostics
+                .iter()
+                .filter(|item| item.code == "NONLINEAR_SUPPORT_STATE_REVIEW")
+                .count(),
+            3
+        );
+        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+        assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
+    }
+
     #[test]
     fn friction_preview_surfaces_explicit_normal_evidence_without_combining_it() {
         let result = run_linear_static_preview(friction_preview_request());
