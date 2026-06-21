@@ -116,6 +116,43 @@
         "normal_reaction_source": { "support_ref": "support:S-130", "dof": "UY" }
       },
       "provenance": "invented_example_user_entered_friction_support_no_catalog_derived_normal_from_named_support_reaction"
+    },
+    {
+      "id": "support:SH-140",
+      "label": "Invented variable spring hanger",
+      "node": "node:N-140",
+      "family": "variable_spring_hanger",
+      "restraints": [],
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "stiffness": { "dof": "UZ", "value": { "value": 42000, "unit": "N/m" } },
+        "installed_load": { "value": 460, "unit": "N" },
+        "cold_load": { "value": 430, "unit": "N" },
+        "hot_load": { "value": 390, "unit": "N" },
+        "travel_range": { "value": 0.045, "unit": "m" },
+        "manufacturer_reference": "invented_user_entered_variable_hanger_reference_no_catalog",
+        "source_reference": "invented_user_entered_spring_hanger_values_no_catalog",
+        "load_side_review_reference": "invented_review_only_hot_cold_load_metadata",
+        "mechanics_consumption": "linear_spring_primitive_user_stiffness"
+      },
+      "provenance": "invented_example_user_entered_variable_spring_hanger_no_catalog"
+    },
+    {
+      "id": "support:CE-120",
+      "label": "Invented constant-effort support",
+      "node": "node:N-120",
+      "family": "constant_effort_support",
+      "restraints": [],
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "constant_load": { "value": 375, "unit": "N" },
+        "travel_range": { "value": 0.04, "unit": "m" },
+        "manufacturer_reference": "invented_user_entered_constant_effort_reference_no_catalog",
+        "source_reference": "invented_user_entered_constant_effort_values_no_catalog",
+        "load_side_review_reference": "review_only_constant_load_not_combined_as_load_effect",
+        "mechanics_consumption": "load_side_review_only_no_global_solve_consumption"
+      },
+      "provenance": "invented_example_user_entered_constant_effort_support_no_catalog"
     }
   ],
   "components": [

@@ -71,9 +71,11 @@
      change. D4 expansion-joint app absorption landed through
      `TP-R4-D4-EJSTIFF-001` with user-stiffness macro-element review rows and
      no full assembled global solve or pressure-thrust load generation claim.
-     D5 is unblocked by `DEC-049`: R4 requires a minimal dedicated
-     user-entered spring-hanger model, and generic `spring` alone is
-     insufficient. D6/D9 residuals after `TP-R4-D6-LOOPCORE-001`,
+     D5 spring-hanger user-data model evidence landed through
+     `TP-R4-D5-HANGERDATA-001` under `DEC-049`, with invented variable spring
+     and constant-effort support records and no catalog sizing, protected
+     defaults, hidden support values, or professional/code-compliance claim.
+     D6/D9 residuals after `TP-R4-D6-LOOPCORE-001`,
      `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D9-ASSEMBLEDSEED-001`,
      `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`,
      `TP-R4-D6-FRICTIONNORMAL-001`, and
@@ -89,8 +91,9 @@
      assembled fixtures, and the governed active-set-count policy is promoted
      for that assembled validation seed only. Mixed one-way/gap/friction
      product live-loop coverage is landed for one invented dense solve. Sparse
-     live-path adoption, non-seed convergence thresholds, and the remaining D9
-     validation package remain open. D7 sparse live-path timing is ruled by
+     live-path adoption, non-seed convergence thresholds, deeper spring-hanger
+     behavior, and the remaining D9 validation package remain open. D7
+     sparse live-path timing is ruled by
      `DEC-050`: add a live sparse evidence lane while dense remains default,
      with profile-direct assembly/default promotion as follow-on work. `D-20`
      is held for Phase E; `D-21` remains held and does not authorize

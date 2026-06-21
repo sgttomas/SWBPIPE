@@ -217,6 +217,78 @@ function componentProvenanceDiagnostics(
     }));
 }
 
+function springHangerSupports(model: PreviewModel) {
+  return model.supports.filter(
+    (support) =>
+      support.family === "variable_spring_hanger" ||
+      support.family === "constant_effort_support" ||
+      support.hanger?.hanger_type === "variable_spring_hanger" ||
+      support.hanger?.hanger_type === "constant_effort_support"
+  );
+}
+
+function springHangerSourceLocation(support: PreviewModel["supports"][number]): string {
+  const refs: string[] = [];
+  if (support.provenance?.trim()) refs.push(`support.provenance=${support.provenance.trim()}`);
+  if (support.family?.trim()) refs.push(`support.family=${support.family.trim()}`);
+  for (const [key, value] of Object.entries(support.hanger ?? {})) {
+    if (typeof value === "string" && value.trim()) refs.push(`hanger.${key}=${value.trim()}`);
+  }
+  return refs.join("; ") || "spring hanger provenance missing";
+}
+
+function springHangerProvenanceRecord(
+  support: PreviewModel["supports"][number],
+  base: ReturnType<typeof sessionProvenance>
+) {
+  const normalized = springHangerSourceLocation(support).toLowerCase();
+  const invented = normalized.includes("invented") || normalized.includes("cleared");
+  return {
+    source_name: `${support.label || support.id} spring-hanger provenance`,
+    source_location: springHangerSourceLocation(support),
+    source_license: invented ? "project_fixture" : "user_supplied_or_private",
+    contributor: base.contributor,
+    contributor_certification: invented
+      ? "Invented spring-hanger metadata only; no protected standards tables or manufacturer catalog defaults bundled."
+      : "User-local spring-hanger provenance metadata; redistribution remains private or pending until separately cleared.",
+    redistribution_status: invented ? "invented_non_engineering_example" : "private_only",
+    review_status: invented ? "accepted" : "pending",
+    privacy_classification: invented ? "invented_public_example" : "private_project_data"
+  };
+}
+
+function springHangerValues(model: PreviewModel, provenance: ReturnType<typeof sessionProvenance>) {
+  return springHangerSupports(model).map((support) => {
+    const record = springHangerProvenanceRecord(support, provenance);
+    return {
+      value_id: `spring-hanger:${support.id}`,
+      value_category: `spring_hanger:${support.hanger?.hanger_type || support.family || "TBD"}`,
+      source: { ref_type: "support", ref_id: support.id },
+      quantity: support.hanger?.stiffness?.value ?? support.stiffness?.value ?? support.hanger?.constant_load ?? null,
+      provenance: record,
+      privacy_classification: record.privacy_classification,
+      required_for: ["reporting", "human_review", "support_boundary_review"],
+      review_status: record.review_status,
+      missing_data_finding: !support.provenance?.trim() || !support.hanger?.source_reference?.trim()
+    };
+  });
+}
+
+function springHangerDiagnostics(model: PreviewModel, provenance: ReturnType<typeof sessionProvenance>) {
+  return springHangerSupports(model)
+    .filter((support) => !support.provenance?.trim() || !support.hanger?.source_reference?.trim())
+    .map((support) => ({
+      code: "SPRING_HANGER_PROVENANCE_MISSING",
+      class: "PROVENANCE_WARNING",
+      severity: "warning",
+      source: { ref_type: "support", ref_id: support.id },
+      affected_object: { ref_type: "support", ref_id: support.id },
+      message: `Spring hanger ${support.label || support.id} is missing support provenance or hanger.source_reference.`,
+      remediation: "Enter spring-hanger source/provenance before relying on this report.",
+      provenance
+    }));
+}
+
 export async function buildRenderableReportInput({
   model,
   result,
@@ -246,10 +318,11 @@ export async function buildRenderableReportInput({
     report_section_id: `sections:${result.run_id}`,
     model_ref: { ref_type: "model", ref_id: result.model_ref },
     run_ref: { ref_type: "analysis_run", ref_id: result.run_id },
-    diagnostics: [
-      ...diagnosticsForSections(result, provenance),
-      ...componentProvenanceDiagnostics(model, provenance)
-    ],
+	    diagnostics: [
+	      ...diagnosticsForSections(result, provenance),
+	      ...componentProvenanceDiagnostics(model, provenance),
+	      ...springHangerDiagnostics(model, provenance)
+	    ],
     analysis_status_disclosures: [
       ...analysisStatus
         .filter((status) => status !== "HUMAN_REVIEW_REQUIRED")
@@ -270,11 +343,15 @@ export async function buildRenderableReportInput({
         human_acceptance_ref: null
       }
     ],
-    provenance_notes: [
-      provenance,
-      ...model.components.map((component) => componentProvenanceRecord(component, provenance))
-    ],
-    user_supplied_values: componentProvenanceValues(model, provenance),
+	    provenance_notes: [
+	      provenance,
+	      ...model.components.map((component) => componentProvenanceRecord(component, provenance)),
+	      ...springHangerSupports(model).map((support) => springHangerProvenanceRecord(support, provenance))
+	    ],
+	    user_supplied_values: [
+	      ...componentProvenanceValues(model, provenance),
+	      ...springHangerValues(model, provenance)
+	    ],
     assumptions: [],
     limitations: [
       {

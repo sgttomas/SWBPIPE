@@ -259,6 +259,10 @@ function buildTree(model: PreviewModel): TreeModel {
           support.id,
           support.label,
           support.node,
+          support.family ?? "",
+          support.hanger?.hanger_type ?? "",
+          support.hanger?.source_reference ?? "",
+          support.hanger?.mechanics_consumption ?? "",
           support.restraints.join(" "),
           support.provenance,
           "support",
@@ -711,6 +715,9 @@ function gridRows(model: PreviewModel, entityType: GridEntityType): GridRow[] {
         support.id,
         support.label,
         support.node,
+        support.family ?? "",
+        support.hanger?.hanger_type ?? "",
+        support.hanger?.source_reference ?? "",
         support.restraints.join(" "),
         support.provenance
       ])
@@ -777,6 +784,8 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
     return [
       scalarGridColumn("label", "Label", "label", "Support", "support label only", "update_support"),
       scalarGridColumn("node", "Node", "node", "Support", "target node reference", "update_support"),
+      readonlyGridColumn("family", "Family", "family", "Support"),
+      readonlyGridColumn("hanger_type", "Hanger", "hanger.hanger_type", "Support"),
       scalarGridColumn(
         "restraints",
         "Restraints",

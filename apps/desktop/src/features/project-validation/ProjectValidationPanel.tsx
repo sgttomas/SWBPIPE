@@ -629,11 +629,14 @@ function unitMetadataPresent(model: PreviewModel): boolean {
   return (
     Object.values(model.project.units).every((unit) => unit.length > 0) &&
     countUnitBearingRecords(model) > 0 &&
-    model.pipe_segments.every((segment) => Object.values(segment.section).every((quantity) => hasUnit(quantity))) &&
-    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && hasUnit(material.shear_modulus)) &&
-    model.components.every((component) =>
-      componentUnitQuantities(component).every((quantity) => !quantity || hasUnit(quantity))
-    )
+	    model.pipe_segments.every((segment) => Object.values(segment.section).every((quantity) => hasUnit(quantity))) &&
+	    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && hasUnit(material.shear_modulus)) &&
+	    model.supports.every((support) =>
+	      supportUnitQuantities(support).every((quantity) => !quantity || hasUnit(quantity))
+	    ) &&
+	    model.components.every((component) =>
+	      componentUnitQuantities(component).every((quantity) => !quantity || hasUnit(quantity))
+	    )
   );
 }
 
@@ -656,12 +659,32 @@ function countUnitBearingRecords(model: PreviewModel): number {
     material.shear_modulus,
     material.thermal_expansion_coefficient
   ]);
+  const supportQuantities = model.supports.flatMap(supportUnitQuantities);
   const componentQuantities = model.components.flatMap(componentUnitQuantities);
   const loadQuantities = model.load_cases.flatMap((loadCase) =>
     (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
   );
-  return [...pipeSectionQuantities, ...materialQuantities, ...componentQuantities, ...loadQuantities].filter(hasUnit)
-    .length;
+  return [
+    ...pipeSectionQuantities,
+    ...materialQuantities,
+    ...supportQuantities,
+    ...componentQuantities,
+    ...loadQuantities
+  ].filter(hasUnit).length;
+}
+
+function supportUnitQuantities(support: PreviewModel["supports"][number]): unknown[] {
+  return [
+    support.stiffness?.value,
+    support.properties?.linear_stiffness,
+    support.hanger?.stiffness?.value,
+    support.hanger?.installed_load,
+    support.hanger?.cold_load,
+    support.hanger?.hot_load,
+    support.hanger?.constant_load,
+    support.hanger?.travel_range,
+    support.hanger?.movement_limit
+  ];
 }
 
 function componentUnitQuantities(component: PreviewModel["components"][number]): unknown[] {

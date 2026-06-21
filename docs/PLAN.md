@@ -80,7 +80,7 @@ lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 | R1 Core Solver MVP | Substantially met (linear static, dense solve) | Tolerance thresholds **RULED** (`DEC-024`/`DEC-026`, D-04) |
 | R2 GUI MVP | Met in substance | Exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](../plans/VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`). The two R2-carried residuals were closed for C5 by the 2026-06-20 replacement-criterion ruling (`DEC-047`) |
 | R3 Rule packs + private libraries | Evidence accepted for target-stage advancement | C1-C4 landed; C5.8 assembled [VERIFICATION_2026-06-20_r3_exit_chain.md](../plans/VERIFICATION_2026-06-20_r3_exit_chain.md); `D-23` ruled O-A by `DEC-048` |
-| R4 Components + nonlinear supports (current target) | D1 bend, D2 branch, D3 rigid/semi-rigid, and D4 expansion-joint invented-preview paths landed across app visibility, user-entered evidence, diagnostics, native-package/report provenance, bend/branch stress-recovery review rows, and EJ user-stiffness macro-element review rows (`TP-R4-D1-BENDVIS-001`, `TP-R4-D1-BENDSTRESS-001`, `TP-R4-D2-BRANCHSTRESS-001`, `TP-R4-D3-RIGIDVIS-001`, `TP-R4-D4-EJSTIFF-001`); D6 loop-core crate and invented product/result-envelope sidecar landed (`TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`), with product gap/lift-off live-loop coverage (`TP-R4-D6-LIVECOVER-001`), derived friction normal-source evidence (`TP-R4-D6-FRICTIONNORMAL-001`), mixed one-way/gap/friction product live-loop coverage (`TP-R4-D6-LIVEBUNDLE-001`), force/displacement residual observation rows (`TP-R4-D9-FORCEDISPRESID-001`), and product-preview active-set-count policy (`TP-R4-D9-PRODPOLICY-001`); assembled validation seeds landed through explicit/derived-normal friction evidence, the PRD §16.2 branch-assembly benchmark, structured convergence observations, force/displacement residual observations with no threshold policy, the governed active-set-count validation-seed policy, and product-preview active-set-count policy (`TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVOBS-001`, `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D9-FORCEDISPRESID-001`, `TP-R4-D9-PRODPOLICY-001`); D8 component provenance now flows into the hash-bound rendered report (`TP-R4-D8-COMPPROVREPORT-001`); sparse-solver strategy decided (`DEC-023`, first slice landed) | No spring-hanger constant-effort/variable-rate behavior; sparse live path not bound; force/displacement threshold promotion, non-active-set product-preview threshold axes, other non-seed convergence thresholds, and broader R4 validation/exit evidence remain (Phase D) |
+| R4 Components + nonlinear supports (current target) | D1 bend, D2 branch, D3 rigid/semi-rigid, and D4 expansion-joint invented-preview paths landed across app visibility, user-entered evidence, diagnostics, native-package/report provenance, bend/branch stress-recovery review rows, and EJ user-stiffness macro-element review rows (`TP-R4-D1-BENDVIS-001`, `TP-R4-D1-BENDSTRESS-001`, `TP-R4-D2-BRANCHSTRESS-001`, `TP-R4-D3-RIGIDVIS-001`, `TP-R4-D4-EJSTIFF-001`); D5 spring-hanger user-data model evidence landed for variable spring and constant-effort supports (`TP-R4-D5-HANGERDATA-001`); D6 loop-core crate and invented product/result-envelope sidecar landed (`TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`), with product gap/lift-off live-loop coverage (`TP-R4-D6-LIVECOVER-001`), derived friction normal-source evidence (`TP-R4-D6-FRICTIONNORMAL-001`), mixed one-way/gap/friction product live-loop coverage (`TP-R4-D6-LIVEBUNDLE-001`), force/displacement residual observation rows (`TP-R4-D9-FORCEDISPRESID-001`), and product-preview active-set-count policy (`TP-R4-D9-PRODPOLICY-001`); assembled validation seeds landed through explicit/derived-normal friction evidence, the PRD §16.2 branch-assembly benchmark, structured convergence observations, force/displacement residual observations with no threshold policy, the governed active-set-count validation-seed policy, and product-preview active-set-count policy (`TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVOBS-001`, `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D9-FORCEDISPRESID-001`, `TP-R4-D9-PRODPOLICY-001`); D8 component provenance now flows into the hash-bound rendered report (`TP-R4-D8-COMPPROVREPORT-001`); sparse-solver strategy decided (`DEC-023`, first slice landed) | Sparse live path not bound; force/displacement threshold promotion, non-active-set product-preview threshold axes, other non-seed convergence thresholds, deeper spring-hanger catalog/constant-effort solve behavior, and broader R4 validation/exit evidence remain (Phase D) |
 | R5 Engineering Beta | Distant | All release machinery TBD; validation manual; redaction workflow; signed releases (Phase E) |
 
 ## 3. How the strategic layers relate
@@ -157,9 +157,8 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
   `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`,
   `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVOBS-001`, and
   `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D9-FORCEDISPRESID-001`, and
-  `TP-R4-D9-PRODPOLICY-001`; D5 is unblocked by `DEC-049` and now requires a
-  minimal dedicated user-entered spring-hanger model rather than generic
-  `spring` alone.
+  `TP-R4-D9-PRODPOLICY-001`; D5 spring-hanger user-data model evidence landed
+  through `TP-R4-D5-HANGERDATA-001` under `DEC-049`.
 - **The two R2-carried R3-exit residuals are closed for C5** by `DEC-047`.
   The stale TP-MAC-189 path remains bypassed, not passed.
 - **Later stages** follow the completion plan: R5 (engineering beta and
@@ -171,9 +170,8 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
   which records **not ready** rather than R4 closure. `D-17` sparse live-path
   adoption timing is ruled by `DEC-050`: add a live sparse evidence lane while
   dense remains default and profile-direct assembly/default promotion follow
-  on. The next ordinary Phase D dependency-spine item is D5 spring-hanger
-  implementation under `DEC-049`, followed by D7 sparse evidence-lane adoption
-  when sequencing reaches it.
+  on. The next ordinary Phase D dependency-spine item is D7 sparse
+  evidence-lane adoption under `DEC-050`.
 
 ## 5. Non-goals and boundary prohibitions
 

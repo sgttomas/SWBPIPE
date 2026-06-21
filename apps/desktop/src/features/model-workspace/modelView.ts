@@ -79,11 +79,27 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
     const rows: Array<[string, string]> = [
       ["ID", support.id],
       ["Node", support.node],
+      ["Family", support.family ?? "TBD"],
       ["Restraints", support.restraints.join(", ")]
     ];
-    const linearStiffness = support.properties?.linear_stiffness;
+    const linearStiffness = support.stiffness?.value ?? support.hanger?.stiffness?.value ?? support.properties?.linear_stiffness;
     if (linearStiffness) {
-      rows.push(["Linear stiffness", `${linearStiffness.value} ${linearStiffness.unit}`]);
+      rows.push(["Linear stiffness", quantityDisplay(linearStiffness)]);
+    }
+    if (support.hanger) {
+      rows.push(
+        ["Hanger type", support.hanger.hanger_type ?? "TBD"],
+        ["Installed load", quantityDisplay(support.hanger.installed_load)],
+        ["Cold load", quantityDisplay(support.hanger.cold_load)],
+        ["Hot load", quantityDisplay(support.hanger.hot_load)],
+        ["Constant load", quantityDisplay(support.hanger.constant_load)],
+        ["Travel range", quantityDisplay(support.hanger.travel_range)],
+        ["Movement limit", quantityDisplay(support.hanger.movement_limit)],
+        ["Source", support.hanger.source_reference ?? "TBD"],
+        ["Manufacturer", support.hanger.manufacturer_reference ?? "TBD"],
+        ["Load-side review", support.hanger.load_side_review_reference ?? "TBD"],
+        ["Mechanics consumption", support.hanger.mechanics_consumption ?? "TBD"]
+      );
     }
     rows.push(["Provenance", support.provenance]);
     return rows;

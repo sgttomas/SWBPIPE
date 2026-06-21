@@ -259,6 +259,8 @@ pub struct PreviewSupport {
     #[serde(default)]
     pub stiffness: Option<SupportStiffnessInput>,
     #[serde(default)]
+    pub hanger: Option<SpringHangerInput>,
+    #[serde(default)]
     pub nonlinear: Option<NonlinearSupportInput>,
     #[serde(default)]
     pub provenance: Option<String>,
@@ -268,6 +270,34 @@ pub struct PreviewSupport {
 pub struct SupportStiffnessInput {
     pub dof: String,
     pub value: Quantity,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct SpringHangerInput {
+    #[serde(default)]
+    pub hanger_type: Option<String>,
+    #[serde(default)]
+    pub stiffness: Option<SupportStiffnessInput>,
+    #[serde(default)]
+    pub installed_load: Option<Quantity>,
+    #[serde(default)]
+    pub cold_load: Option<Quantity>,
+    #[serde(default)]
+    pub hot_load: Option<Quantity>,
+    #[serde(default)]
+    pub constant_load: Option<Quantity>,
+    #[serde(default)]
+    pub travel_range: Option<Quantity>,
+    #[serde(default)]
+    pub movement_limit: Option<Quantity>,
+    #[serde(default)]
+    pub manufacturer_reference: Option<String>,
+    #[serde(default)]
+    pub source_reference: Option<String>,
+    #[serde(default)]
+    pub load_side_review_reference: Option<String>,
+    #[serde(default)]
+    pub mechanics_consumption: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -397,6 +427,7 @@ pub struct Summary {
     pub load_case_count: usize,
     pub component_stress_modifier_count: usize,
     pub component_user_stiffness_macro_element_count: usize,
+    pub spring_hanger_user_input_count: usize,
     pub max_displacement: Option<LocatedQuantity>,
     pub max_open_formula_stress: Option<LocatedQuantity>,
 }
@@ -651,6 +682,8 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
     append_combination_results(&model, &rows_by_base_id, &mut results, &mut diagnostics);
     let component_user_stiffness_macro_element_count =
         append_expansion_joint_user_stiffness_results(&model, &mut results);
+    let spring_hanger_user_input_count =
+        append_spring_hanger_user_input_results(&model, &mut results);
 
     if let Some(maximum) = &max_displacement {
         if maximum.value > 5.0 {
@@ -688,6 +721,7 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
             load_case_count: model.load_cases.len(),
             component_stress_modifier_count,
             component_user_stiffness_macro_element_count,
+            spring_hanger_user_input_count,
             max_displacement,
             max_open_formula_stress: max_stress,
         },
@@ -1945,6 +1979,9 @@ fn build_model(
             if support.nonlinear.is_some() {
                 return None;
             }
+            if is_constant_effort_support(support) {
+                return None;
+            }
             let Some(&node) = node_map.get(support.node.as_str()) else {
                 diagnostics.push(diag(
                     &format!("diagnostic:support:{}:node", stable_suffix(&support.id)),
@@ -1972,8 +2009,8 @@ fn build_model(
                     }
                 })
                 .collect::<Vec<_>>();
-            if support.family.as_deref() == Some("spring") {
-                let stiffness = support.stiffness.as_ref().and_then(|input| {
+            if support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support) {
+                let stiffness = support_stiffness_input(support).and_then(|input| {
                     let dimension = if parse_dof(&input.dof).ok()?.is_translational() {
                         QuantityDimension::TranslationalStiffness
                     } else {
@@ -1984,7 +2021,10 @@ fn build_model(
                 Some(LinearSupport::spring(
                     &support.id,
                     node,
-                    dofs.first().copied().unwrap_or(FrameDof::Uz),
+                    support_stiffness_input(support)
+                        .and_then(|input| parse_dof(&input.dof).ok())
+                        .or_else(|| dofs.first().copied())
+                        .unwrap_or(FrameDof::Uz),
                     stiffness,
                 ))
             } else if dofs.len() == 6 {
@@ -2102,6 +2142,67 @@ fn normalize_model_units(
                 vec![support.id.clone(), "stiffness".to_string()],
                 diagnostics,
             );
+        }
+        if let Some(hanger) = &mut support.hanger {
+            if let Some(stiffness) = &mut hanger.stiffness {
+                let Some(dimension) = parse_dof(&stiffness.dof).ok().map(|dof| {
+                    if dof.is_translational() {
+                        Dimension::LinearStiffness
+                    } else {
+                        Dimension::RotationalStiffness
+                    }
+                }) else {
+                    continue;
+                };
+                normalize_quantity(
+                    &mut stiffness.value,
+                    dimension,
+                    &format!(
+                        "diagnostic:unit-conversion:support:{}:hanger-stiffness",
+                        stable_suffix(&support.id)
+                    ),
+                    vec![support.id.clone(), "hanger.stiffness".to_string()],
+                    diagnostics,
+                );
+            }
+            for (field, quantity) in [
+                ("hanger.installed_load", &mut hanger.installed_load),
+                ("hanger.cold_load", &mut hanger.cold_load),
+                ("hanger.hot_load", &mut hanger.hot_load),
+                ("hanger.constant_load", &mut hanger.constant_load),
+            ] {
+                if let Some(quantity) = quantity {
+                    normalize_quantity(
+                        quantity,
+                        Dimension::Force,
+                        &format!(
+                            "diagnostic:unit-conversion:support:{}:{}",
+                            stable_suffix(&support.id),
+                            stable_suffix(field)
+                        ),
+                        vec![support.id.clone(), field.to_string()],
+                        diagnostics,
+                    );
+                }
+            }
+            for (field, quantity) in [
+                ("hanger.travel_range", &mut hanger.travel_range),
+                ("hanger.movement_limit", &mut hanger.movement_limit),
+            ] {
+                if let Some(quantity) = quantity {
+                    normalize_quantity(
+                        quantity,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:support:{}:{}",
+                            stable_suffix(&support.id),
+                            stable_suffix(field)
+                        ),
+                        vec![support.id.clone(), field.to_string()],
+                        diagnostics,
+                    );
+                }
+            }
         }
         if let Some(nonlinear) = &mut support.nonlinear {
             if let Some(gap) = &mut nonlinear.gap {
@@ -3725,6 +3826,179 @@ fn append_expansion_joint_user_stiffness_results(
     appended
 }
 
+fn append_spring_hanger_user_input_results(
+    model: &PreviewModel,
+    results: &mut Vec<ResultItem>,
+) -> usize {
+    let mut appended = 0;
+    for support in model
+        .supports
+        .iter()
+        .filter(|support| is_variable_spring_hanger(support) || is_constant_effort_support(support))
+    {
+        let Some(hanger) = support.hanger.as_ref() else {
+            continue;
+        };
+        let source_reference = hanger
+            .source_reference
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or("source_reference_missing");
+        let manufacturer_reference = hanger
+            .manufacturer_reference
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or("manufacturer_reference_missing");
+        let load_side_review = hanger
+            .load_side_review_reference
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or("load_side_review_reference_missing");
+        let mechanics_consumption = hanger
+            .mechanics_consumption
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or("review_only");
+        let suffix = stable_suffix(&support.id);
+
+        if is_variable_spring_hanger(support) {
+            if let Some(stiffness) = support_stiffness_input(support) {
+                append_hanger_quantity_result(
+                    results,
+                    &format!("result:spring-hanger:{suffix}:stiffness"),
+                    "spring_hanger_user_input_review",
+                    support,
+                    "variable_spring_hanger_stiffness",
+                    &format!("{} stiffness", stiffness.dof),
+                    &stiffness.value,
+                    &format!(
+                        "support_family=variable_spring_hanger;user_entered_dof={};source={source_reference};manufacturer={manufacturer_reference};mechanics_consumption={mechanics_consumption};dec_ref=DEC-049",
+                        stiffness.dof
+                    ),
+                    "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied",
+                );
+                appended += 1;
+            }
+            for (field, component, quantity) in [
+                (
+                    "installed-load",
+                    "variable_spring_hanger_installed_load",
+                    hanger.installed_load.as_ref(),
+                ),
+                (
+                    "cold-load",
+                    "variable_spring_hanger_cold_load",
+                    hanger.cold_load.as_ref(),
+                ),
+                (
+                    "hot-load",
+                    "variable_spring_hanger_hot_load",
+                    hanger.hot_load.as_ref(),
+                ),
+                (
+                    "travel-range",
+                    "variable_spring_hanger_travel_range",
+                    hanger.travel_range.as_ref(),
+                ),
+                (
+                    "movement-limit",
+                    "variable_spring_hanger_movement_limit",
+                    hanger.movement_limit.as_ref(),
+                ),
+            ] {
+                let Some(quantity) = quantity else {
+                    continue;
+                };
+                append_hanger_quantity_result(
+                    results,
+                    &format!("result:spring-hanger:{suffix}:{field}"),
+                    "spring_hanger_user_input_review",
+                    support,
+                    component,
+                    field,
+                    quantity,
+                    &format!(
+                        "support_family=variable_spring_hanger;field={field};source={source_reference};manufacturer={manufacturer_reference};load_side_review={load_side_review};mechanics_consumption={mechanics_consumption};dec_ref=DEC-049"
+                    ),
+                    "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata",
+                );
+                appended += 1;
+            }
+        }
+
+        if is_constant_effort_support(support) {
+            for (field, component, quantity) in [
+                (
+                    "constant-load",
+                    "constant_effort_support_constant_load",
+                    hanger.constant_load.as_ref(),
+                ),
+                (
+                    "travel-range",
+                    "constant_effort_support_travel_range",
+                    hanger.travel_range.as_ref(),
+                ),
+                (
+                    "movement-limit",
+                    "constant_effort_support_movement_limit",
+                    hanger.movement_limit.as_ref(),
+                ),
+            ] {
+                let Some(quantity) = quantity else {
+                    continue;
+                };
+                append_hanger_quantity_result(
+                    results,
+                    &format!("result:constant-effort-support:{suffix}:{field}"),
+                    "constant_effort_user_input_review",
+                    support,
+                    component,
+                    field,
+                    quantity,
+                    &format!(
+                        "support_family=constant_effort_support;field={field};source={source_reference};manufacturer={manufacturer_reference};load_side_review={load_side_review};mechanics_consumption={mechanics_consumption};dec_ref=DEC-049"
+                    ),
+                    "positive value is user-entered constant-effort support input evidence; no global constant-effort load or nonlinear behavior is claimed by this preview row",
+                );
+                appended += 1;
+            }
+        }
+    }
+    appended
+}
+
+fn append_hanger_quantity_result(
+    results: &mut Vec<ResultItem>,
+    id: &str,
+    kind: &str,
+    support: &PreviewSupport,
+    metadata_component: &str,
+    location: &str,
+    quantity: &Quantity,
+    basis: &str,
+    sign_convention: &str,
+) {
+    if !positive_finite(quantity.value) {
+        return;
+    }
+    results.push(ResultItem {
+        id: id.to_string(),
+        kind: kind.to_string(),
+        value: round6(quantity.value),
+        unit: quantity.unit.clone(),
+        entity_ref: support.id.clone(),
+        basis_ref: None,
+        source_result_refs: Vec::new(),
+        metadata: Some(ResultMetadata {
+            component: metadata_component.to_string(),
+            coordinate_system: "support_local_preview".to_string(),
+            location: format!("{}:{location}", support.node),
+            basis: basis.to_string(),
+            sign_convention: sign_convention.to_string(),
+        }),
+    });
+}
+
 fn endpoint_stress_source_refs(pipe_id: &str, location: &str) -> Vec<String> {
     let suffix = stable_suffix(pipe_id);
     let endpoint = endpoint_id_location(location);
@@ -3752,6 +4026,39 @@ fn is_branch_component(component: &PreviewComponent) -> bool {
 
 fn is_expansion_joint_component(component: &PreviewComponent) -> bool {
     component.kind == "expansion_joint"
+}
+
+pub(crate) fn support_hanger_type(support: &PreviewSupport) -> Option<&str> {
+    support
+        .hanger
+        .as_ref()
+        .and_then(|hanger| hanger.hanger_type.as_deref())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .or_else(|| support.family.as_deref().map(str::trim))
+}
+
+pub(crate) fn is_variable_spring_hanger(support: &PreviewSupport) -> bool {
+    matches!(
+        support_hanger_type(support),
+        Some("variable_spring_hanger" | "spring_hanger")
+    )
+}
+
+pub(crate) fn is_constant_effort_support(support: &PreviewSupport) -> bool {
+    matches!(
+        support_hanger_type(support),
+        Some("constant_effort_support")
+    )
+}
+
+pub(crate) fn support_stiffness_input(support: &PreviewSupport) -> Option<&SupportStiffnessInput> {
+    support.stiffness.as_ref().or_else(|| {
+        support
+            .hanger
+            .as_ref()
+            .and_then(|hanger| hanger.stiffness.as_ref())
+    })
 }
 
 fn positive_finite(value: f64) -> bool {
@@ -4439,6 +4746,7 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
             load_case_count: model.load_cases.len(),
             component_stress_modifier_count: 0,
             component_user_stiffness_macro_element_count: 0,
+            spring_hanger_user_input_count: 0,
             max_displacement: None,
             max_open_formula_stress: None,
         },
@@ -5124,6 +5432,7 @@ mod tests {
                 ],
                 family: Some("anchor".to_string()),
                 stiffness: None,
+                hanger: None,
                 nonlinear: None,
                 provenance: Some("invented_example".to_string()),
             },
@@ -5133,6 +5442,7 @@ mod tests {
                 restraints: Vec::new(),
                 family: Some("nonlinear".to_string()),
                 stiffness: None,
+                hanger: None,
                 nonlinear: Some(nonlinear),
                 provenance: Some(
                     "invented_example_user_entered_nonlinear_support_no_catalog".to_string(),
@@ -5225,6 +5535,7 @@ mod tests {
             restraints: Vec::new(),
             family: Some("nonlinear".to_string()),
             stiffness: None,
+            hanger: None,
             nonlinear: Some(NonlinearSupportInput {
                 behavior: "gap".to_string(),
                 dof: "UY".to_string(),
@@ -5248,6 +5559,7 @@ mod tests {
             restraints: Vec::new(),
             family: Some("nonlinear".to_string()),
             stiffness: None,
+            hanger: None,
             nonlinear: Some(NonlinearSupportInput {
                 behavior: "friction".to_string(),
                 dof: "UZ".to_string(),
@@ -5574,6 +5886,7 @@ mod tests {
             restraints: vec!["UY".to_string()],
             family: Some("guide".to_string()),
             stiffness: None,
+            hanger: None,
             nonlinear: None,
             provenance: Some("invented_example_normal_reaction_source".to_string()),
         });
@@ -6530,6 +6843,92 @@ mod tests {
                 .all(|diagnostic| diagnostic.code
                     != "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED")
         );
+    }
+
+    #[test]
+    fn spring_hanger_user_inputs_emit_review_rows_without_catalog_defaults() {
+        let result = run_linear_static_preview(request());
+        let variable_stiffness = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:spring-hanger:support-SH-140:stiffness")
+            .expect("variable spring hanger stiffness review row should be emitted");
+        let constant_load = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:constant-effort-support:support-CE-120:constant-load")
+            .expect("constant-effort support load review row should be emitted");
+
+        assert_eq!(result.summary.spring_hanger_user_input_count, 7);
+        assert_eq!(variable_stiffness.kind, "spring_hanger_user_input_review");
+        assert_eq!(variable_stiffness.entity_ref, "support:SH-140");
+        assert_eq!(variable_stiffness.value, 42_000.0);
+        assert_eq!(variable_stiffness.unit, "N/m");
+        let variable_metadata = variable_stiffness
+            .metadata
+            .as_ref()
+            .expect("spring hanger row carries support metadata");
+        assert_eq!(
+            variable_metadata.component,
+            "variable_spring_hanger_stiffness"
+        );
+        assert_eq!(variable_metadata.coordinate_system, "support_local_preview");
+        assert!(variable_metadata
+            .basis
+            .contains("mechanics_consumption=linear_spring_primitive_user_stiffness"));
+        assert!(variable_metadata.basis.contains("dec_ref=DEC-049"));
+        assert!(variable_metadata
+            .sign_convention
+            .contains("no catalog/default value is supplied"));
+
+        assert_eq!(constant_load.kind, "constant_effort_user_input_review");
+        assert_eq!(constant_load.entity_ref, "support:CE-120");
+        assert_eq!(constant_load.value, 375.0);
+        assert_eq!(constant_load.unit, "N");
+        let constant_metadata = constant_load
+            .metadata
+            .as_ref()
+            .expect("constant-effort row carries review metadata");
+        assert!(constant_metadata
+            .basis
+            .contains("mechanics_consumption=load_side_review_only_no_global_solve_consumption"));
+        assert!(constant_metadata
+            .sign_convention
+            .contains("no global constant-effort load"));
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "SPRING_HANGER_USER_DATA_REVIEWED"));
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "CONSTANT_EFFORT_USER_DATA_REVIEWED"));
+    }
+
+    #[test]
+    fn spring_hanger_missing_stiffness_blocks_without_defaulting() {
+        let mut request = request();
+        let support = request
+            .model
+            .supports
+            .iter_mut()
+            .find(|support| support.id == "support:SH-140")
+            .expect("fixture carries variable spring hanger");
+        support.stiffness = None;
+        support
+            .hanger
+            .as_mut()
+            .expect("fixture carries hanger data")
+            .stiffness = None;
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert_eq!(result.summary.spring_hanger_user_input_count, 0);
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "SPRING_HANGER_STIFFNESS_MISSING"));
     }
 
     #[test]

@@ -205,3 +205,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-21 - TP-R4-D5-HANGERDATA-001 spring-hanger user data
+
+- WORKING_ITEMS implemented the D5 minimal dedicated user-entered
+  spring-hanger model ruled by `DEC-049`.
+- Added named support `hanger` data for invented variable-rate and
+  constant-effort examples, with explicit stiffness/load/travel fields,
+  source/manufacturer notes, load-side review notes, mechanics consumption
+  posture, and no catalog/protected/default/professional claim.
+- `core/product_physics` validates hanger units and required fields. Missing
+  variable-hanger stiffness blocks with `SPRING_HANGER_STIFFNESS_MISSING`
+  rather than applying a hidden default.
+- The variable hanger consumes explicit user-entered stiffness through the
+  existing linear spring primitive. Constant-effort support rows are evidence
+  only; no global constant-effort solve behavior is claimed.
+- Desktop model tree/detail/report/rendered-report/project-validation/native
+  package surfaces now expose hanger provenance and user-entered review rows.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D5-HANGERDATA-001.md`.
+  Validation passed product-physics tests 43/43, desktop Vitest 407/407,
+  desktop production build, and JSON fixture checks.

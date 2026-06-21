@@ -1608,6 +1608,70 @@
         }
       }
     },
+    "SpringHanger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hanger_type",
+        "source_reference"
+      ],
+      "properties": {
+        "hanger_type": {
+          "type": "string",
+          "enum": [
+            "variable_spring_hanger",
+            "constant_effort_support",
+            "TBD"
+          ]
+        },
+        "stiffness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dof",
+            "value"
+          ],
+          "properties": {
+            "dof": {
+              "$ref": "#/$defs/Axis"
+            },
+            "value": {
+              "$ref": "#/$defs/Quantity"
+            }
+          }
+        },
+        "installed_load": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "cold_load": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "hot_load": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "constant_load": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "travel_range": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "movement_limit": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "manufacturer_reference": {
+          "type": "string"
+        },
+        "source_reference": {
+          "type": "string"
+        },
+        "load_side_review_reference": {
+          "type": "string"
+        },
+        "mechanics_consumption": {
+          "type": "string"
+        }
+      }
+    },
     "Support": {
       "type": "object",
       "additionalProperties": false,
@@ -1631,6 +1695,8 @@
             "line_stop",
             "restraint",
             "spring",
+            "variable_spring_hanger",
+            "constant_effort_support",
             "gap",
             "friction",
             "other",
@@ -1652,6 +1718,9 @@
           "additionalProperties": {
             "$ref": "#/$defs/Quantity"
           }
+        },
+        "hanger": {
+          "$ref": "#/$defs/SpringHanger"
         },
         "active_state_result_ref": {
           "$ref": "#/$defs/Reference"

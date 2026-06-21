@@ -1,8 +1,9 @@
 use crate::LoadTargetInput;
 use crate::{
-    canonical_unit_symbol, diag, expected_load_dimension, parse_dof, stable_suffix,
+    canonical_unit_symbol, diag, expected_load_dimension, is_constant_effort_support,
+    is_variable_spring_hanger, parse_dof, stable_suffix, support_stiffness_input,
     unit_symbol_matches_dimension, Diagnostic, MaterialInput, PreviewCombination, PreviewModel,
-    Quantity,
+    Quantity, SpringHangerInput, SupportStiffnessInput,
 };
 use open_pipe_stress_load_case_algebra::RangeMode;
 use open_pipe_stress_units::Dimension;
@@ -17,6 +18,7 @@ pub(crate) fn validate_model_inputs(
     validate_ids(model, materials, diagnostics);
     validate_provenance(model, materials, diagnostics);
     validate_units(model, materials, diagnostics);
+    validate_spring_hangers(model, diagnostics);
     validate_components(model, diagnostics);
     validate_thermal_inputs(model, materials, diagnostics);
     validate_combinations(model, diagnostics);
@@ -259,34 +261,54 @@ fn validate_units(
     }
     for support in &model.supports {
         if let Some(stiffness) = &support.stiffness {
-            let expected = match parse_dof(&stiffness.dof) {
-                Ok(dof) if dof.is_translational() => Some(Dimension::LinearStiffness),
-                Ok(_) => Some(Dimension::RotationalStiffness),
-                Err(message) => {
-                    diagnostics.push(diag(
-                        &format!(
-                            "diagnostic:unit:support:{}:stiffness-dof",
-                            stable_suffix(&support.id)
-                        ),
-                        "SUPPORT_STIFFNESS_DOF_INVALID",
-                        "blocking",
-                        message,
-                        vec![support.id.clone(), stiffness.dof.clone()],
-                    ));
-                    None
-                }
-            };
-            if let Some(dimension) = expected {
-                expect_unit(
-                    &stiffness.value,
-                    dimension,
-                    &format!(
-                        "diagnostic:unit:support:{}:stiffness",
-                        stable_suffix(&support.id)
-                    ),
-                    vec![support.id.clone(), "stiffness".to_string()],
+            expect_support_stiffness_unit(&support.id, "stiffness", stiffness, diagnostics);
+        }
+        if let Some(hanger) = &support.hanger {
+            if let Some(stiffness) = &hanger.stiffness {
+                expect_support_stiffness_unit(
+                    &support.id,
+                    "hanger.stiffness",
+                    stiffness,
                     diagnostics,
                 );
+            }
+            for (field, quantity) in [
+                ("hanger.installed_load", hanger.installed_load.as_ref()),
+                ("hanger.cold_load", hanger.cold_load.as_ref()),
+                ("hanger.hot_load", hanger.hot_load.as_ref()),
+                ("hanger.constant_load", hanger.constant_load.as_ref()),
+            ] {
+                if let Some(quantity) = quantity {
+                    expect_unit(
+                        quantity,
+                        Dimension::Force,
+                        &format!(
+                            "diagnostic:unit:support:{}:{}",
+                            stable_suffix(&support.id),
+                            stable_suffix(field)
+                        ),
+                        vec![support.id.clone(), field.to_string()],
+                        diagnostics,
+                    );
+                }
+            }
+            for (field, quantity) in [
+                ("hanger.travel_range", hanger.travel_range.as_ref()),
+                ("hanger.movement_limit", hanger.movement_limit.as_ref()),
+            ] {
+                if let Some(quantity) = quantity {
+                    expect_unit(
+                        quantity,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:support:{}:{}",
+                            stable_suffix(&support.id),
+                            stable_suffix(field)
+                        ),
+                        vec![support.id.clone(), field.to_string()],
+                        diagnostics,
+                    );
+                }
             }
         }
     }
@@ -663,6 +685,276 @@ fn validate_units(
             );
         }
     }
+}
+
+fn validate_spring_hangers(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    for support in &model.supports {
+        if !is_variable_spring_hanger(support) && !is_constant_effort_support(support) {
+            continue;
+        }
+        let Some(hanger) = support.hanger.as_ref() else {
+            diagnostics.push(spring_hanger_diag(
+                &support.id,
+                "hanger",
+                "SPRING_HANGER_DATA_MISSING",
+                "blocking",
+                "dedicated spring-hanger support records require a named hanger object; no generic support properties or catalog defaults are substituted",
+            ));
+            continue;
+        };
+        let hanger_type = hanger
+            .hanger_type
+            .as_deref()
+            .map(str::trim)
+            .filter(|value| !value.is_empty());
+        if hanger_type.is_none() {
+            diagnostics.push(spring_hanger_diag(
+                &support.id,
+                "hanger.hanger_type",
+                "SPRING_HANGER_TYPE_MISSING",
+                "blocking",
+                "spring-hanger records require hanger.hanger_type to distinguish variable spring hangers from constant-effort supports",
+            ));
+            continue;
+        }
+
+        if is_variable_spring_hanger(support) {
+            validate_variable_spring_hanger(
+                &support.id,
+                hanger,
+                support_stiffness_input(support),
+                diagnostics,
+            );
+        }
+        if is_constant_effort_support(support) {
+            validate_constant_effort_support(&support.id, hanger, diagnostics);
+        }
+    }
+}
+
+fn validate_variable_spring_hanger(
+    support_id: &str,
+    hanger: &SpringHangerInput,
+    stiffness: Option<&SupportStiffnessInput>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let mut accepted = true;
+    if !matches!(
+        hanger.hanger_type.as_deref().map(str::trim),
+        Some("variable_spring_hanger" | "spring_hanger")
+    ) {
+        accepted = false;
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger.hanger_type",
+            "SPRING_HANGER_TYPE_INVALID",
+            "blocking",
+            "variable spring-hanger support requires hanger.hanger_type=variable_spring_hanger",
+        ));
+    }
+    match stiffness {
+        Some(stiffness) if positive_quantity(&stiffness.value) => {}
+        Some(_) => {
+            accepted = false;
+            diagnostics.push(spring_hanger_diag(
+                support_id,
+                "hanger.stiffness",
+                "SPRING_HANGER_INPUT_INVALID",
+                "blocking",
+                "variable spring-hanger stiffness must be a finite positive user-entered value",
+            ));
+        }
+        None => {
+            accepted = false;
+            diagnostics.push(spring_hanger_diag(
+                support_id,
+                "hanger.stiffness",
+                "SPRING_HANGER_STIFFNESS_MISSING",
+                "blocking",
+                "variable spring hanger requires explicit user-entered stiffness before the preview may reuse the linear spring primitive",
+            ));
+        }
+    }
+    if !positive_optional_quantity(&hanger.installed_load)
+        || !positive_optional_quantity(&hanger.cold_load)
+        || !positive_optional_quantity(&hanger.hot_load)
+    {
+        accepted = false;
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger.installed_load,hanger.cold_load,hanger.hot_load",
+            "SPRING_HANGER_LOAD_MISSING",
+            "blocking",
+            "variable spring hanger requires finite positive installed, cold, and hot load metadata; no preload or operating-load default is supplied",
+        ));
+    }
+    if !positive_optional_quantity(&hanger.travel_range)
+        && !positive_optional_quantity(&hanger.movement_limit)
+    {
+        accepted = false;
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger.travel_range",
+            "SPRING_HANGER_TRAVEL_MISSING",
+            "blocking",
+            "variable spring hanger requires explicit finite positive travel range or movement limit metadata",
+        ));
+    }
+    if !has_text(&hanger.source_reference) {
+        accepted = false;
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger.source_reference",
+            "SPRING_HANGER_SOURCE_MISSING",
+            "blocking",
+            "variable spring hanger requires an invented or user-entered source reference; no catalog or protected source is bundled",
+        ));
+    }
+    if accepted {
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger",
+            "SPRING_HANGER_USER_DATA_REVIEWED",
+            "info",
+            "variable spring hanger carries explicit user-entered stiffness, installed/cold/hot load metadata, travel metadata, and source reference under DEC-049; no catalog/default values are supplied",
+        ));
+    }
+}
+
+fn validate_constant_effort_support(
+    support_id: &str,
+    hanger: &SpringHangerInput,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let mut accepted = true;
+    if !matches!(
+        hanger.hanger_type.as_deref().map(str::trim),
+        Some("constant_effort_support")
+    ) {
+        accepted = false;
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger.hanger_type",
+            "SPRING_HANGER_TYPE_INVALID",
+            "blocking",
+            "constant-effort support requires hanger.hanger_type=constant_effort_support",
+        ));
+    }
+    if !positive_optional_quantity(&hanger.constant_load) {
+        accepted = false;
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger.constant_load",
+            "CONSTANT_EFFORT_LOAD_MISSING",
+            "blocking",
+            "constant-effort support requires explicit finite positive constant load metadata; no support load default is supplied",
+        ));
+    }
+    if !positive_optional_quantity(&hanger.travel_range)
+        && !positive_optional_quantity(&hanger.movement_limit)
+    {
+        accepted = false;
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger.travel_range",
+            "CONSTANT_EFFORT_TRAVEL_MISSING",
+            "blocking",
+            "constant-effort support requires explicit finite positive travel range or movement limit metadata",
+        ));
+    }
+    if !has_text(&hanger.source_reference) {
+        accepted = false;
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger.source_reference",
+            "CONSTANT_EFFORT_SOURCE_MISSING",
+            "blocking",
+            "constant-effort support requires an invented or user-entered source reference; no catalog or protected source is bundled",
+        ));
+    }
+    if accepted {
+        diagnostics.push(spring_hanger_diag(
+            support_id,
+            "hanger",
+            "CONSTANT_EFFORT_USER_DATA_REVIEWED",
+            "info",
+            "constant-effort support carries explicit user-entered constant load, travel metadata, and source reference under DEC-049; no global constant-effort solve behavior or catalog default is claimed",
+        ));
+    }
+}
+
+fn expect_support_stiffness_unit(
+    support_id: &str,
+    field_path: &str,
+    stiffness: &SupportStiffnessInput,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let expected = match parse_dof(&stiffness.dof) {
+        Ok(dof) if dof.is_translational() => Some(Dimension::LinearStiffness),
+        Ok(_) => Some(Dimension::RotationalStiffness),
+        Err(message) => {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:unit:support:{}:{}-dof",
+                    stable_suffix(support_id),
+                    stable_suffix(field_path)
+                ),
+                "SUPPORT_STIFFNESS_DOF_INVALID",
+                "blocking",
+                message,
+                vec![support_id.to_string(), stiffness.dof.clone()],
+            ));
+            None
+        }
+    };
+    if let Some(dimension) = expected {
+        expect_unit(
+            &stiffness.value,
+            dimension,
+            &format!(
+                "diagnostic:unit:support:{}:{}",
+                stable_suffix(support_id),
+                stable_suffix(field_path)
+            ),
+            vec![support_id.to_string(), field_path.to_string()],
+            diagnostics,
+        );
+    }
+}
+
+fn positive_optional_quantity(quantity: &Option<Quantity>) -> bool {
+    quantity.as_ref().is_some_and(positive_quantity)
+}
+
+fn positive_quantity(quantity: &Quantity) -> bool {
+    quantity.value.is_finite() && quantity.value > 0.0
+}
+
+fn has_text(value: &Option<String>) -> bool {
+    value
+        .as_deref()
+        .map(str::trim)
+        .is_some_and(|value| !value.is_empty())
+}
+
+fn spring_hanger_diag(
+    support_id: &str,
+    field_path: &str,
+    code: &str,
+    severity: &str,
+    message: &str,
+) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:spring-hanger:{}:{}",
+            stable_suffix(support_id),
+            stable_suffix(field_path)
+        ),
+        code,
+        severity,
+        message,
+        vec![support_id.to_string(), field_path.to_string()],
+    )
 }
 
 fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {

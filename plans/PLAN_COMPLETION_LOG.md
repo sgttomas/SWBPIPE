@@ -14,6 +14,63 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D5 spring-hanger user-data model (`TP-R4-D5-HANGERDATA-001`)
+
+Landed the bounded D5 implementation authorized by `DEC-049`: a minimal
+dedicated, user-entered spring-hanger model for the invented preview path.
+Generic `spring` remains available, but D5 now has explicit variable spring and
+constant-effort support records with hanger-specific schema slots, provenance,
+unit validation, missing-data blockers, mechanics review rows, and app/report
+visibility.
+
+Changed surfaces:
+
+- schema/model fixture: `schemas/model.schema.yaml`,
+  `fixtures/product_preview/invented_preview_model.json`, and regenerated
+  `fixtures/product_preview/invented_mechanics_result.json`;
+- product physics: support hanger parsing, unit normalization, validation,
+  missing-data diagnostics, variable spring primitive consumption, and
+  `spring_hanger_user_input_review` / `constant_effort_user_input_review` rows;
+- desktop app: type support, model tree/grid/search, selected-support
+  properties, native-package unit preservation, project validation, report
+  export packet, and rendered-report input provenance;
+- evidence: `execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D5-HANGERDATA-001.md`.
+
+Validation:
+
+- `python3 -m json.tool fixtures/product_preview/invented_preview_model.json`
+  passed.
+- `npm run generate:product-preview-mechanics` passed.
+- `python3 -m json.tool fixtures/product_preview/invented_mechanics_result.json`
+  passed.
+- `cargo fmt --manifest-path core/product_physics/Cargo.toml` passed.
+- `cargo test --manifest-path core/product_physics/Cargo.toml` passed 43/43.
+- `npm test --workspace apps/desktop` passed 19/19 test files and 407/407
+  tests.
+- From `apps/desktop`,
+  `npm exec -- playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+  Playwright checks after refreshing fixture-count expectations for the
+  800-row D5 mechanics result surface.
+- `npm run build:desktop` passed, retaining the existing Vite chunk-size
+  warning.
+- Full DEC-025 evidence sweep passed:
+  `validation/evidence/sweeps/SWEEP_20260621T202442Z_4829dea6c2e0-dirty.json`
+  (`overall_status=pass`, 5/5 surfaces).
+
+Residual: D5 is landed for the minimal user-data path only. Catalog sizing,
+protected/default support values, hidden manufacturer data, full constant-effort
+solve behavior, and any professional/code-compliance claim remain out of scope.
+The next ordinary Phase D dependency-spine item is D7 sparse evidence-lane
+adoption under `DEC-050`.
+
+Boundary: invented/user-entered preview values only; no protected standards
+content, proprietary catalog values, private project data, network path,
+telemetry feature, lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-21 - D-15/D-17 rulings recorded (`TP-R4-D15D17-RULINGS-001`)
 
 Recorded the human project authority rulings for the two pending Phase D

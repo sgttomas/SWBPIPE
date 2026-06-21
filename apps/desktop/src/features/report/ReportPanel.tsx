@@ -45,6 +45,7 @@ export function ReportPanel({
   const componentProvenance = result ? reportComponentProvenance(model, result) : [];
   const componentStressModifierEvidence = result ? reportComponentStressModifierEvidence(model, result) : [];
   const componentUserStiffnessEvidence = result ? reportComponentUserStiffnessEvidence(model, result) : [];
+  const springHangerEvidence = result ? reportSpringHangerEvidence(model, result) : [];
   const severitySummary = countDiagnosticsBySeverity(diagnostics);
   const run = analysisRun?.analysis_run;
   const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
@@ -71,12 +72,13 @@ export function ReportPanel({
         proposal,
         selectedReviewTarget,
         unitSystemDisclosure,
-        componentProvenance,
-        componentStressModifierEvidence,
-        componentUserStiffnessEvidence,
-        resultRefs,
-        diagnostics
-      })
+	        componentProvenance,
+	        componentStressModifierEvidence,
+	        componentUserStiffnessEvidence,
+	        springHangerEvidence,
+	        resultRefs,
+	        diagnostics
+	      })
     : null;
   return (
     <section className="panel report-panel" aria-label="Report packet" data-testid="report-panel">
@@ -131,6 +133,11 @@ export function ReportPanel({
               label="Component stiffness inputs"
               value={formatComponentUserStiffnessSummary(componentUserStiffnessEvidence)}
               testId="report-component-stiffness-inputs"
+            />
+            <ReportLine
+              label="Spring hanger inputs"
+              value={formatSpringHangerSummary(springHangerEvidence)}
+              testId="report-spring-hanger-inputs"
             />
             <ReportLine
               label="Selected result refs"
@@ -389,6 +396,50 @@ function reportComponentUserStiffnessEvidence(model: PreviewModel, result: Mecha
     });
 }
 
+function reportSpringHangerEvidence(model: PreviewModel, result: MechanicsResult) {
+  return model.supports
+    .filter((support) => isSpringHangerSupport(support))
+    .map((support) => {
+      const rows = result.results.filter(
+        (item) =>
+          (item.kind === "spring_hanger_user_input_review" ||
+            item.kind === "constant_effort_user_input_review") &&
+          item.entity_ref === support.id
+      );
+      return {
+        support_ref: support.id,
+        support_family: support.family ?? "not provided",
+        node_ref: support.node,
+        hanger_type: support.hanger?.hanger_type ?? "not provided",
+        stiffness_dof: support.stiffness?.dof ?? support.hanger?.stiffness?.dof ?? null,
+        user_entered_stiffness: support.stiffness?.value ?? support.hanger?.stiffness?.value ?? null,
+        installed_load: support.hanger?.installed_load ?? null,
+        cold_load: support.hanger?.cold_load ?? null,
+        hot_load: support.hanger?.hot_load ?? null,
+        constant_load: support.hanger?.constant_load ?? null,
+        travel_range: support.hanger?.travel_range ?? null,
+        movement_limit: support.hanger?.movement_limit ?? null,
+        source_reference: support.hanger?.source_reference ?? "not provided",
+        manufacturer_reference: support.hanger?.manufacturer_reference ?? "not provided",
+        load_side_review_reference: support.hanger?.load_side_review_reference ?? "not provided",
+        mechanics_consumption: support.hanger?.mechanics_consumption ?? "not provided",
+        provenance: support.provenance,
+        result_refs: rows.map((item) => item.id),
+        result_evidence: rows.map((item) => ({
+          result_ref: item.id,
+          result_kind: item.kind,
+          value: item.value,
+          unit: item.unit,
+          evidence_basis: item.metadata?.basis ?? "not provided",
+          sign_convention: item.metadata?.sign_convention ?? "not provided"
+        })),
+        private_payload_included: false,
+        protected_content_included: false,
+        release_or_professional_claim: false
+      };
+    });
+}
+
 function formatComponentProvenanceSummary(records: ReturnType<typeof reportComponentProvenance>): string {
   if (records.length === 0) return "0 components";
   const stressRows = records.reduce((count, item) => count + item.stress_modifier_result_refs.length, 0);
@@ -427,6 +478,23 @@ function formatComponentUserStiffnessSummary(records: ReturnType<typeof reportCo
   const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
   const units = [...new Set(records.map((item) => item.unit))].join(", ");
   return `${records.length} user-entered stiffness row${records.length === 1 ? "" : "s"}; components=${components}; units=${units}`;
+}
+
+function formatSpringHangerSummary(records: ReturnType<typeof reportSpringHangerEvidence>): string {
+  if (records.length === 0) return "0 spring hanger records";
+  const variableCount = records.filter((item) => item.hanger_type === "variable_spring_hanger").length;
+  const constantCount = records.filter((item) => item.hanger_type === "constant_effort_support").length;
+  const rowCount = records.reduce((count, item) => count + item.result_refs.length, 0);
+  return `${records.length} hanger record${records.length === 1 ? "" : "s"}; variable=${variableCount}; constant_effort=${constantCount}; rows=${rowCount}`;
+}
+
+function isSpringHangerSupport(support: PreviewModel["supports"][number]): boolean {
+  return (
+    support.family === "variable_spring_hanger" ||
+    support.family === "constant_effort_support" ||
+    support.hanger?.hanger_type === "variable_spring_hanger" ||
+    support.hanger?.hanger_type === "constant_effort_support"
+  );
 }
 
 function componentGeometrySourceRef(component: PreviewModel["components"][number]): string {
@@ -511,6 +579,7 @@ function reportExportPacket({
   componentProvenance,
   componentStressModifierEvidence,
   componentUserStiffnessEvidence,
+  springHangerEvidence,
   resultRefs,
   diagnostics
 }: {
@@ -526,6 +595,7 @@ function reportExportPacket({
   componentProvenance: ReturnType<typeof reportComponentProvenance>;
   componentStressModifierEvidence: ReturnType<typeof reportComponentStressModifierEvidence>;
   componentUserStiffnessEvidence: ReturnType<typeof reportComponentUserStiffnessEvidence>;
+  springHangerEvidence: ReturnType<typeof reportSpringHangerEvidence>;
   resultRefs: string[];
   diagnostics: Diagnostic[];
 }) {
@@ -535,9 +605,10 @@ function reportExportPacket({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.report_packet_export",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: [
-      "DEL-03-03",
-      "DEL-05-03",
+	    deliverable_refs: [
+	      "DEL-03-03",
+	      "DEL-04-03",
+	      "DEL-05-03",
       "DEL-08-01",
       "DEL-08-03",
       "DEL-08-04",
@@ -578,9 +649,11 @@ function reportExportPacket({
     component_provenance: componentProvenance,
     component_stress_modifier_evidence: componentStressModifierEvidence,
     component_stress_modifier_count: componentStressModifierEvidence.length,
-    component_user_stiffness_macro_element_evidence: componentUserStiffnessEvidence,
-    component_user_stiffness_macro_element_count: componentUserStiffnessEvidence.length,
-    diagnostic_refs: diagnostics.map((item) => item.id ?? item.code),
+	    component_user_stiffness_macro_element_evidence: componentUserStiffnessEvidence,
+	    component_user_stiffness_macro_element_count: componentUserStiffnessEvidence.length,
+	    spring_hanger_evidence: springHangerEvidence,
+	    spring_hanger_evidence_count: springHangerEvidence.length,
+	    diagnostic_refs: diagnostics.map((item) => item.id ?? item.code),
     diagnostic_summary: {
       total: diagnostics.length,
       by_severity: diagnosticSummary

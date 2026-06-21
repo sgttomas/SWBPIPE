@@ -9440,6 +9440,9 @@ notes:
     tests.
   - `npm run build:desktop` passed, retaining the existing Vite chunk-size
     warning.
+  - Full DEC-025 evidence sweep passed:
+    `validation/evidence/sweeps/SWEEP_20260621T202442Z_4829dea6c2e0-dirty.json`
+    (`overall_status=pass`, 5/5 surfaces).
   - `npm run test:e2e:desktop` passed 18/18 Playwright checks.
 - Evidence: DEL-07-06 run record
   `WORKING_ITEMS_RUN_2026-06-20_TP-R4-D1-BENDVIS-001.md`; DEL-03-03 run record
@@ -9624,3 +9627,52 @@ notes:
   network path, telemetry feature, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-283 R4 D5 spring-hanger user-data preview slice - PASSED (`TP-R4-D5-HANGERDATA-001`, 2026-06-21)
+
+- Scope: R4/D5 spring-hanger app-absorption slice under `DEC-049`, landing
+  invented preview evidence for a variable spring hanger and a constant-effort
+  support with user-entered stiffness/load/travel fields, source/manufacturer
+  provenance, load-side review reference, and mechanics-consumption notes. This
+  is user-data/review evidence only; it does not claim catalog sizing, hidden
+  defaults, full constant-effort solve behavior, or professional acceptance.
+- App/core behavior: `schemas/model.schema.yaml` now includes hanger-specific
+  support slots; the invented preview model carries `support:SH-140` and
+  `support:CE-120`. `core/product_physics` validates hanger units and required
+  user data, consumes variable spring hanger stiffness through the existing
+  linear spring primitive, skips constant-effort supports as review/load-side
+  evidence, and emits `spring_hanger_user_input_review` plus
+  `constant_effort_user_input_review` result rows.
+- UI/report behavior: support family/hanger fields now appear in the model
+  tree/grid/search and selected-support properties. Project validation,
+  native-package unit preservation, report export packets, and rendered-report
+  input provenance include the spring-hanger user-data evidence.
+- Validation:
+  - `python3 -m json.tool fixtures/product_preview/invented_preview_model.json`
+    passed.
+  - `npm run generate:product-preview-mechanics` passed.
+  - `python3 -m json.tool fixtures/product_preview/invented_mechanics_result.json`
+    passed.
+  - `cargo fmt --manifest-path core/product_physics/Cargo.toml` passed.
+  - `cargo test --manifest-path core/product_physics/Cargo.toml` passed 43/43
+    unit tests.
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 407/407
+    tests.
+  - From `apps/desktop`, `npm exec -- playwright test e2e/r2-smoke.spec.ts --workers=1`
+    passed 18/18 Playwright checks after updating fixture-count expectations
+    for the 800-row D5 mechanics result surface.
+  - `npm run build:desktop` passed, retaining the existing Vite chunk-size
+    warning.
+- Evidence: DEL-04-03 run record
+  `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D5-HANGERDATA-001.md`; plan log entry in
+  `plans/PLAN_COMPLETION_LOG.md`.
+- Residual: D5 is landed for the minimal user-data path. Catalog sizing,
+  protected/default support values, hidden manufacturer data, full
+  constant-effort solve behavior, and R4 validation/exit evidence remain out of
+  scope for this slice. The next Phase D item is D7 sparse evidence-lane
+  adoption under `DEC-050`.
+- Boundary: invented/user-entered preview values only. No protected standards
+  table, code-derived spring-hanger factor, proprietary catalog value, private
+  data, constant-effort solve claim, network path, telemetry feature, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

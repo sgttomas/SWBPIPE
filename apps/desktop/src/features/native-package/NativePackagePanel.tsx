@@ -537,20 +537,80 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
     }
   }
 
-  for (const segment of model.pipe_segments) {
-    for (const [field, quantity] of Object.entries(segment.section)) {
-      pushModelWitness({
-        dimension: "length",
+	  for (const segment of model.pipe_segments) {
+	    for (const [field, quantity] of Object.entries(segment.section)) {
+	      pushModelWitness({
+	        dimension: "length",
         fieldPath: `section.${field}`,
         quantity,
         refId: segment.id,
         refType: "pipe_segment"
       });
-    }
-  }
+	    }
+	  }
 
-  for (const component of model.components) {
-    const componentQuantities = [
+	  for (const support of model.supports) {
+	    const supportQuantities = [
+	      {
+	        dimension: "linear_stiffness",
+	        fieldPath: "stiffness.value",
+	        quantity: support.stiffness?.value
+	      },
+	      {
+	        dimension: "linear_stiffness",
+	        fieldPath: "properties.linear_stiffness",
+	        quantity: support.properties?.linear_stiffness
+	      },
+	      {
+	        dimension: "linear_stiffness",
+	        fieldPath: "hanger.stiffness.value",
+	        quantity: support.hanger?.stiffness?.value
+	      },
+	      {
+	        dimension: "force",
+	        fieldPath: "hanger.installed_load",
+	        quantity: support.hanger?.installed_load
+	      },
+	      {
+	        dimension: "force",
+	        fieldPath: "hanger.cold_load",
+	        quantity: support.hanger?.cold_load
+	      },
+	      {
+	        dimension: "force",
+	        fieldPath: "hanger.hot_load",
+	        quantity: support.hanger?.hot_load
+	      },
+	      {
+	        dimension: "force",
+	        fieldPath: "hanger.constant_load",
+	        quantity: support.hanger?.constant_load
+	      },
+	      {
+	        dimension: "length",
+	        fieldPath: "hanger.travel_range",
+	        quantity: support.hanger?.travel_range
+	      },
+	      {
+	        dimension: "length",
+	        fieldPath: "hanger.movement_limit",
+	        quantity: support.hanger?.movement_limit
+	      }
+	    ];
+	    for (const { dimension, fieldPath, quantity } of supportQuantities) {
+	      if (!quantity) continue;
+	      pushModelWitness({
+	        dimension,
+	        fieldPath,
+	        quantity,
+	        refId: support.id,
+	        refType: "support"
+	      });
+	    }
+	  }
+
+	  for (const component of model.components) {
+	    const componentQuantities = [
       {
         dimension: "length",
         fieldPath: "geometry.bend_radius",

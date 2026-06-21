@@ -120,7 +120,29 @@ export type PreviewModel = {
     id: string;
     label: string;
     node: string;
+    family?: string;
     restraints: string[];
+    stiffness?: {
+      dof: string;
+      value: QuantityValue;
+    };
+    hanger?: {
+      hanger_type?: string;
+      stiffness?: {
+        dof: string;
+        value: QuantityValue;
+      };
+      installed_load?: QuantityValue;
+      cold_load?: QuantityValue;
+      hot_load?: QuantityValue;
+      constant_load?: QuantityValue;
+      travel_range?: QuantityValue;
+      movement_limit?: QuantityValue;
+      manufacturer_reference?: string;
+      source_reference?: string;
+      load_side_review_reference?: string;
+      mechanics_consumption?: string;
+    };
     properties?: {
       linear_stiffness?: { value: number; unit: string };
       [key: string]: { value: number; unit: string } | undefined;
