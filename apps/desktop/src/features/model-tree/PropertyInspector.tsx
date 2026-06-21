@@ -949,8 +949,20 @@ function entityProvenanceRows(model: PreviewModel, selection: EntityRef): Array<
     if (component?.geometry?.rigid_component_source_reference) {
       rows.push(["Geometry source", component.geometry.rigid_component_source_reference]);
     }
+    if (component?.geometry?.expansion_joint_source_reference) {
+      rows.push(["Geometry source", component.geometry.expansion_joint_source_reference]);
+    }
     if (component?.geometry?.stiffness_behavior_reference) {
       rows.push(["Stiffness behavior", component.geometry.stiffness_behavior_reference]);
+    }
+    if (component?.geometry?.pressure_thrust_reference) {
+      rows.push(["Pressure thrust", component.geometry.pressure_thrust_reference]);
+    }
+    if (component?.geometry?.hardware_reference) {
+      rows.push(["Hardware reference", component.geometry.hardware_reference]);
+    }
+    if (component?.geometry?.manufacturer_reference) {
+      rows.push(["Manufacturer reference", component.geometry.manufacturer_reference]);
     }
     if (component?.modifiers?.source_reference) {
       rows.push(["Modifier source", component.modifiers.source_reference]);
@@ -1034,6 +1046,27 @@ function requiredFlagsForSelection(
       );
       if (!geometryComplete) flags.push("RIGID_COMPONENT_GEOMETRY_INCOMPLETE");
       if (!modifiersComplete) flags.push("RIGID_COMPONENT_STIFFNESS_DATA_MISSING");
+    }
+    if (component && isExpansionJointComponent(component)) {
+      const geometry = component.geometry;
+      const geometryComplete = Boolean(
+        geometry?.expansion_joint_pipe_ref?.trim() &&
+        geometry.effective_area &&
+        geometry.movement_limit &&
+        geometry.hardware_reference?.trim() &&
+        geometry.manufacturer_reference?.trim() &&
+        geometry.pressure_thrust_reference?.trim() &&
+        geometry.expansion_joint_source_reference?.trim()
+      );
+      const modifiersComplete = Boolean(
+        component.modifiers?.axial_stiffness_user_value &&
+        component.modifiers.lateral_stiffness_user_value &&
+        component.modifiers.angular_stiffness_user_value &&
+        component.modifiers.torsional_stiffness_user_value &&
+        component.modifiers.source_reference?.trim()
+      );
+      if (!geometryComplete) flags.push("EXPANSION_JOINT_GEOMETRY_INCOMPLETE");
+      if (!modifiersComplete) flags.push("EXPANSION_JOINT_STIFFNESS_DATA_MISSING");
     }
   }
   return Array.from(new Set(flags)).slice(0, 4);
@@ -1559,6 +1592,108 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         )
       );
     }
+    if (isExpansionJointComponent(component)) {
+      fields.splice(
+        2,
+        0,
+        scalarField(
+          "Expansion joint pipe",
+          "geometry.expansion_joint_pipe_ref",
+          component.geometry?.expansion_joint_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "expansion-joint frame member mapping"
+        ),
+        quantityField(
+          "Effective pressure area",
+          "geometry.effective_area.value",
+          component.geometry?.effective_area?.value ?? "TBD",
+          "Component",
+          "area",
+          component.geometry?.effective_area?.unit ?? "m^2",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Movement limit",
+          "geometry.movement_limit.value",
+          component.geometry?.movement_limit?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.movement_limit?.unit ?? model.project.units.length ?? "m",
+          "set_field",
+          true
+        ),
+        scalarField(
+          "Hardware reference",
+          "geometry.hardware_reference",
+          component.geometry?.hardware_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered expansion-joint hardware reference"
+        ),
+        scalarField(
+          "Manufacturer reference",
+          "geometry.manufacturer_reference",
+          component.geometry?.manufacturer_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered manufacturer provenance reference"
+        ),
+        scalarField(
+          "Pressure thrust reference",
+          "geometry.pressure_thrust_reference",
+          component.geometry?.pressure_thrust_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "load-side pressure thrust handling reference"
+        ),
+        quantityField(
+          "Axial stiffness",
+          "modifiers.axial_stiffness_user_value.value",
+          component.modifiers?.axial_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "linear_stiffness",
+          component.modifiers?.axial_stiffness_user_value?.unit ?? "N/m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Lateral stiffness",
+          "modifiers.lateral_stiffness_user_value.value",
+          component.modifiers?.lateral_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "linear_stiffness",
+          component.modifiers?.lateral_stiffness_user_value?.unit ?? "N/m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Angular stiffness",
+          "modifiers.angular_stiffness_user_value.value",
+          component.modifiers?.angular_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "rotational_stiffness",
+          component.modifiers?.angular_stiffness_user_value?.unit ?? "N*m/rad",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Torsional stiffness",
+          "modifiers.torsional_stiffness_user_value.value",
+          component.modifiers?.torsional_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "rotational_stiffness",
+          component.modifiers?.torsional_stiffness_user_value?.unit ?? "N*m/rad",
+          "set_field",
+          true
+        )
+      );
+    }
     return fields;
   }
 
@@ -1714,6 +1849,10 @@ function isBranchComponent(component: PreviewComponent): boolean {
 
 function isRigidComponent(component: PreviewComponent): boolean {
   return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
+}
+
+function isExpansionJointComponent(component: PreviewComponent): boolean {
+  return component.kind === "expansion_joint";
 }
 
 function buildOperationIntent({

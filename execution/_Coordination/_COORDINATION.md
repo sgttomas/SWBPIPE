@@ -256,9 +256,14 @@ bend-object app absorption landed for the invented preview path across
 visibility/provenance (`TP-R4-D1-BENDVIS-001`) and
 mechanics/stress-recovery/report evidence (`TP-R4-D1-BENDSTRESS-001`). D2
 branch-object app absorption landed for the invented preview path through
-`TP-R4-D2-BRANCHSTRESS-001`. The Phase D dependency spine continues with
-component crate/app work (D3 rigid/semi-rigid components, D4 expansion joints), then
-the D5 spring-hanger scope gate (`D-15`), D6 assembled nonlinear solve under
+`TP-R4-D2-BRANCHSTRESS-001`. D3 rigid/semi-rigid component app absorption
+landed for the invented preview path through `TP-R4-D3-RIGIDVIS-001`, with
+`mechanics_geometry_only` data/provenance/diagnostic evidence and no
+frame-stiffness behavior change. D4 expansion-joint app absorption landed for
+the invented preview path through `TP-R4-D4-EJSTIFF-001`, with user-stiffness
+macro-element review rows and no full assembled global solve or pressure-thrust
+load generation claim. The Phase D dependency spine continues with the D5
+spring-hanger scope gate (`D-15`), D6 assembled nonlinear solve under
 `DEC-044`/`DEC-046`, D7 sparse live-path timing gate (`D-17`), D8 report
 provenance, and D9 R4 validation evidence. `DAG-007` remains pending human
 approval; `_DAG/_LATEST.md` stays on `DAG-006`.
@@ -312,10 +317,13 @@ bounded tranche.
       Select Phase D/R4 work in plan order. D1 bend-object app absorption
       landed for the invented preview path through `TP-R4-D1-BENDVIS-001` and
       `TP-R4-D1-BENDSTRESS-001`; D2 branch-object app absorption landed through
-      `TP-R4-D2-BRANCHSTRESS-001`; the next ordinary unblocked item is D3
-      rigid / semi-rigid components under `DEC-045`.
-      D5 is gated by `D-15`; D7 is gated by `D-17`; `D-20` remains a Phase E
-      lead-up decision; held `D-21` does not authorize v0.2/R6/R7 scope;
+      `TP-R4-D2-BRANCHSTRESS-001`; D3 rigid/semi-rigid component app
+      absorption landed through `TP-R4-D3-RIGIDVIS-001`; D4 expansion-joint
+      app absorption landed through `TP-R4-D4-EJSTIFF-001`. The next Phase D
+      item is D5, gated by `D-15`; prepare the D-15 decision packet if no
+      human-approved tranche is already active. D7 is gated by `D-17`; `D-20`
+      remains a Phase E lead-up decision; held `D-21` does not authorize
+      v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or
       smoke-evidence gaps in already-landed surfaces;
    3. residual hardening (missing app-to-core seams, preview workflow gaps,

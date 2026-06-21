@@ -116,3 +116,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-21 - TP-R4-D4-EJSTIFF-001 expansion-joint app absorption
+
+- R4/D4 app absorption landed for the invented preview path under `DEC-045`:
+  `component:C-150` now carries explicit pipe mapping, effective pressure area,
+  movement limit, hardware/manufacturer references, pressure-thrust reference,
+  source provenance, and user-entered axial/lateral/angular/torsional stiffness
+  values.
+- Product-physics preview validation now normalizes and validates
+  expansion-joint area, movement, linear stiffness, and rotational stiffness
+  quantities, emits `EXPANSION_JOINT_*` diagnostics, and appends four
+  `component_user_stiffness_macro_element_review` rows for the invented
+  expansion-joint path.
+- The desktop viewport, model view, inspector, model tree/grid/search,
+  validation evidence, native-package witnesses, report packet, app tests, and
+  Playwright smoke now surface the D4 expansion-joint fields and review rows.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D4-EJSTIFF-001.md`;
+  supporting DEL-08-03 run record; `apps/desktop/SMOKE.md` TP-MAC-282.
+- Boundary preserved: invented/user-entered values only; no populated code
+  table, protected standards value, proprietary catalog value, private project
+  data, pressure-thrust load generation, global nonlinear solve, lifecycle
+  state, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

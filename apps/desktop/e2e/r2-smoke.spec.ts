@@ -441,10 +441,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=749");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=753");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("model=angle=rad,force=N,length=m");
-  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=MPa,N,N*m,mm,rad");
-  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=749");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("N*m/rad,N/m");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=753");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=33.211157 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
@@ -465,8 +465,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("payload=false");
   await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
   await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("model=angle=rad,force=N,length=m");
-  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("results=MPa,N,N*m,mm,rad");
-  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("rows=749");
+  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("N*m/rad,N/m");
+  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("rows=753");
   await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("source=result_envelope");
   await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("conversion=false");
   await auditDrawer.getByRole("button", { name: /Close/i }).click();
@@ -482,20 +482,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toBeVisible();
   await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
-  await expect(page.getByTestId("result-unit-policy")).toContainText("749 rows");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("753 rows");
   await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("749 of 749 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("753 of 753 results match filter");
   await expect(page.getByTestId("result-family-count-reaction")).toContainText("9");
   await page.getByTestId("result-family-reaction").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("9 of 749 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("9 of 753 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 9 of 9 matching results; page 1 of 1"
   );
   await expect(page.getByTestId("result-row-result:reaction:support-S-120")).toBeVisible();
   await page.getByTestId("result-family-all").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("749 of 749 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("753 of 753 results match filter");
   await page.getByTestId("result-filter-input").fill("pipe-P-120");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("170 of 749 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("170 of 753 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 50 of 170 matching results; page 1 of 4"
   );
@@ -505,7 +505,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("comparison-unit-policy")).toContainText("units=MPa,N,N*m,mm,rad");
   await expect(page.getByTestId("comparison-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("comparison-unit-policy")).toContainText("tolerance=not_tolerance_checked");
-  await expect(page.getByTestId("design-workspace-units")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("N*m/rad,N/m");
   await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=MPa,N,N*m,mm,rad");
   await expect(page.getByTestId("design-workspace-units")).toContainText("conversion=false");
 
@@ -533,7 +533,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "unit_system=unit-system:dec-018-si-dual-display"
   );
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("model=angle=rad,force=N,length=m");
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("N*m/rad,N/m");
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
   const reportLint = page.getByLabel("Report content lint");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=44");
@@ -665,7 +665,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "conversion=false"
   );
   const stressNeutralExport = page.getByLabel("Stress-neutral CSV JSON export");
-  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=749");
+  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=753");
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText(
     "conversion=false"
   );
@@ -674,15 +674,15 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "unit-system:dec-018-si-dual-display"
   );
   await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("conversion=false");
-  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=749");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=753");
   await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText(
     "conversion=false"
   );
   const handoffPackage = page.getByLabel("Handoff package");
-  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=749");
+  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=753");
   await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("conversion=false");
   const reviewGeometryExport = page.getByLabel("Review geometry export");
-  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=60");
+  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=63");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
     "target=m"
   );
@@ -692,10 +692,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "project_units=6"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "model_quantities=35"
+    "model_quantities=41"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "result_quantities=751"
+    "result_quantities=755"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
     "conversion=false"

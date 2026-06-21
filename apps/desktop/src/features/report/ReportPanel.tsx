@@ -44,6 +44,7 @@ export function ReportPanel({
   const unitSystemDisclosure = result ? reportUnitSystemDisclosure(model, result) : null;
   const componentProvenance = result ? reportComponentProvenance(model, result) : [];
   const componentStressModifierEvidence = result ? reportComponentStressModifierEvidence(model, result) : [];
+  const componentUserStiffnessEvidence = result ? reportComponentUserStiffnessEvidence(model, result) : [];
   const severitySummary = countDiagnosticsBySeverity(diagnostics);
   const run = analysisRun?.analysis_run;
   const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
@@ -72,6 +73,7 @@ export function ReportPanel({
         unitSystemDisclosure,
         componentProvenance,
         componentStressModifierEvidence,
+        componentUserStiffnessEvidence,
         resultRefs,
         diagnostics
       })
@@ -124,6 +126,11 @@ export function ReportPanel({
               label="Component stress modifiers"
               value={formatComponentStressModifierSummary(componentStressModifierEvidence)}
               testId="report-component-stress-modifiers"
+            />
+            <ReportLine
+              label="Component stiffness inputs"
+              value={formatComponentUserStiffnessSummary(componentUserStiffnessEvidence)}
+              testId="report-component-stiffness-inputs"
             />
             <ReportLine
               label="Selected result refs"
@@ -292,6 +299,9 @@ function reportComponentProvenance(model: PreviewModel, result: MechanicsResult)
     const modifierRows = result.results.filter(
       (item) => item.kind === "component_user_stress_multiplier_review" && item.entity_ref === component.id
     );
+    const stiffnessRows = result.results.filter(
+      (item) => item.kind === "component_user_stiffness_macro_element_review" && item.entity_ref === component.id
+    );
     return {
       component_ref: component.id,
       component_kind: component.kind,
@@ -313,7 +323,18 @@ function reportComponentProvenance(model: PreviewModel, result: MechanicsResult)
       user_entered_stiffness_scale: component.modifiers?.stiffness_scaling_user_value ?? null,
       user_entered_linear_stiffness: component.modifiers?.linear_stiffness_user_value ?? null,
       user_entered_rotational_stiffness: component.modifiers?.rotational_stiffness_user_value ?? null,
+      expansion_joint_pipe_ref: component.geometry?.expansion_joint_pipe_ref ?? null,
+      effective_area: component.geometry?.effective_area ?? null,
+      movement_limit: component.geometry?.movement_limit ?? null,
+      hardware_reference: component.geometry?.hardware_reference ?? null,
+      manufacturer_reference: component.geometry?.manufacturer_reference ?? null,
+      pressure_thrust_reference: component.geometry?.pressure_thrust_reference ?? null,
+      user_entered_axial_stiffness: component.modifiers?.axial_stiffness_user_value ?? null,
+      user_entered_lateral_stiffness: component.modifiers?.lateral_stiffness_user_value ?? null,
+      user_entered_angular_stiffness: component.modifiers?.angular_stiffness_user_value ?? null,
+      user_entered_torsional_stiffness: component.modifiers?.torsional_stiffness_user_value ?? null,
       stress_modifier_result_refs: modifierRows.map((item) => item.id),
+      user_stiffness_result_refs: stiffnessRows.map((item) => item.id),
       private_payload_included: false,
       protected_content_included: false,
       release_or_professional_claim: false
@@ -344,19 +365,51 @@ function reportComponentStressModifierEvidence(model: PreviewModel, result: Mech
     });
 }
 
+function reportComponentUserStiffnessEvidence(model: PreviewModel, result: MechanicsResult) {
+  return result.results
+    .filter((item) => item.kind === "component_user_stiffness_macro_element_review")
+    .map((item) => {
+      const component = model.components.find((candidate) => candidate.id === item.entity_ref);
+      return {
+        result_ref: item.id,
+        component_ref: item.entity_ref,
+        component_kind: component?.kind ?? "component",
+        value: item.value,
+        unit: item.unit,
+        source_result_refs: item.source_result_refs ?? [],
+        recovery_basis: item.metadata?.basis ?? "not provided",
+        sign_convention: item.metadata?.sign_convention ?? "not provided",
+        modifier_source_ref: component?.modifiers?.source_reference ?? "not provided",
+        solver_consumption: component?.mechanics_interface?.solver_consumption ?? "not provided",
+        pressure_thrust_reference: component?.geometry?.pressure_thrust_reference ?? "not provided",
+        private_payload_included: false,
+        protected_content_included: false,
+        release_or_professional_claim: false
+      };
+    });
+}
+
 function formatComponentProvenanceSummary(records: ReturnType<typeof reportComponentProvenance>): string {
   if (records.length === 0) return "0 components";
   const stressRows = records.reduce((count, item) => count + item.stress_modifier_result_refs.length, 0);
+  const stiffnessRows = records.reduce((count, item) => count + item.user_stiffness_result_refs.length, 0);
   const bendRecords = records.filter((item) => item.component_kind === "bend" || item.component_kind === "elbow");
   const rigidRecords = records.filter((item) => isRigidComponentKind(item.component_kind));
-  const primary = bendRecords[0] ?? rigidRecords[0] ?? records[0];
+  const expansionJointRecords = records.filter((item) => item.component_kind === "expansion_joint");
+  const primary = bendRecords[0] ?? rigidRecords[0] ?? expansionJointRecords[0] ?? records[0];
   const rigidSummary = rigidRecords.length
     ? `; rigid=${rigidRecords.map((item) => `${item.component_ref}->${item.rigid_pipe_ref ?? "TBD"}`).join(",")}`
+    : "";
+  const expansionJointSummary = expansionJointRecords.length
+    ? `; expansion_joint=${expansionJointRecords
+        .map((item) => `${item.component_ref}->${item.expansion_joint_pipe_ref ?? "TBD"}`)
+        .join(",")}`
     : "";
   return [
     `${records.length} component${records.length === 1 ? "" : "s"}`,
     `${stressRows} stress modifier row${stressRows === 1 ? "" : "s"}`,
-    `${primary.component_ref}; source=${primary.modifier_source_ref}; solver=${primary.solver_consumption}${rigidSummary}`
+    `${stiffnessRows} stiffness input row${stiffnessRows === 1 ? "" : "s"}`,
+    `${primary.component_ref}; source=${primary.modifier_source_ref}; solver=${primary.solver_consumption}${rigidSummary}${expansionJointSummary}`
   ].join("; ");
 }
 
@@ -369,11 +422,19 @@ function formatComponentStressModifierSummary(
   return `${records.length} user-entered multiplier row${records.length === 1 ? "" : "s"}; components=${components}; units=${units}`;
 }
 
+function formatComponentUserStiffnessSummary(records: ReturnType<typeof reportComponentUserStiffnessEvidence>): string {
+  if (records.length === 0) return "none supplied";
+  const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
+  const units = [...new Set(records.map((item) => item.unit))].join(", ");
+  return `${records.length} user-entered stiffness row${records.length === 1 ? "" : "s"}; components=${components}; units=${units}`;
+}
+
 function componentGeometrySourceRef(component: PreviewModel["components"][number]): string {
   return (
     component.geometry?.bend_geometry_source_reference ??
     component.geometry?.branch_geometry_source_reference ??
     component.geometry?.rigid_component_source_reference ??
+    component.geometry?.expansion_joint_source_reference ??
     "not provided"
   );
 }
@@ -449,6 +510,7 @@ function reportExportPacket({
   unitSystemDisclosure,
   componentProvenance,
   componentStressModifierEvidence,
+  componentUserStiffnessEvidence,
   resultRefs,
   diagnostics
 }: {
@@ -463,6 +525,7 @@ function reportExportPacket({
   unitSystemDisclosure: ReturnType<typeof reportUnitSystemDisclosure> | null;
   componentProvenance: ReturnType<typeof reportComponentProvenance>;
   componentStressModifierEvidence: ReturnType<typeof reportComponentStressModifierEvidence>;
+  componentUserStiffnessEvidence: ReturnType<typeof reportComponentUserStiffnessEvidence>;
   resultRefs: string[];
   diagnostics: Diagnostic[];
 }) {
@@ -491,6 +554,7 @@ function reportExportPacket({
       "DEL-10-05",
       "DEL-03-04",
       "DEL-03-05",
+      "DEL-03-06",
       "DEL-15-04",
       "DEL-17-04",
       "DEL-17-05",
@@ -514,6 +578,8 @@ function reportExportPacket({
     component_provenance: componentProvenance,
     component_stress_modifier_evidence: componentStressModifierEvidence,
     component_stress_modifier_count: componentStressModifierEvidence.length,
+    component_user_stiffness_macro_element_evidence: componentUserStiffnessEvidence,
+    component_user_stiffness_macro_element_count: componentUserStiffnessEvidence.length,
     diagnostic_refs: diagnostics.map((item) => item.id ?? item.code),
     diagnostic_summary: {
       total: diagnostics.length,

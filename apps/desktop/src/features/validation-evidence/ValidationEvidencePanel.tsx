@@ -317,13 +317,19 @@ function componentUnitQuantities(component: PreviewModel["components"][number]):
     component.geometry?.end_b_size,
     component.geometry?.weight,
     component.geometry?.center_of_gravity,
+    component.geometry?.effective_area,
+    component.geometry?.movement_limit,
     component.modifiers?.sif_user_value,
     component.modifiers?.branch_header_sif_user_value,
     component.modifiers?.branch_branch_sif_user_value,
     component.modifiers?.flexibility_factor_user_value,
     component.modifiers?.stiffness_scaling_user_value,
     component.modifiers?.linear_stiffness_user_value,
-    component.modifiers?.rotational_stiffness_user_value
+    component.modifiers?.rotational_stiffness_user_value,
+    component.modifiers?.axial_stiffness_user_value,
+    component.modifiers?.lateral_stiffness_user_value,
+    component.modifiers?.angular_stiffness_user_value,
+    component.modifiers?.torsional_stiffness_user_value
   ];
 }
 

@@ -450,6 +450,34 @@ fn validate_units(
                 }
             }
         }
+        if is_expansion_joint_component(component) {
+            if let Some(geometry) = &component.geometry {
+                if let Some(area) = &geometry.effective_area {
+                    expect_unit(
+                        area,
+                        Dimension::Area,
+                        &format!(
+                            "diagnostic:unit:component:{}:effective-area",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.effective_area".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(limit) = &geometry.movement_limit {
+                    expect_unit(
+                        limit,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:component:{}:movement-limit",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.movement_limit".to_string()],
+                        diagnostics,
+                    );
+                }
+            }
+        }
         if is_bend_component(component) || is_branch_component(component) {
             if let Some(modifiers) = &component.modifiers {
                 if let Some(sif) = &modifiers.sif_user_value {
@@ -555,6 +583,70 @@ fn validate_units(
                 }
             }
         }
+        if is_expansion_joint_component(component) {
+            if let Some(modifiers) = &component.modifiers {
+                if let Some(stiffness) = &modifiers.axial_stiffness_user_value {
+                    expect_unit(
+                        stiffness,
+                        Dimension::LinearStiffness,
+                        &format!(
+                            "diagnostic:unit:component:{}:axial-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.axial_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &modifiers.lateral_stiffness_user_value {
+                    expect_unit(
+                        stiffness,
+                        Dimension::LinearStiffness,
+                        &format!(
+                            "diagnostic:unit:component:{}:lateral-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.lateral_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &modifiers.angular_stiffness_user_value {
+                    expect_unit(
+                        stiffness,
+                        Dimension::RotationalStiffness,
+                        &format!(
+                            "diagnostic:unit:component:{}:angular-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.angular_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &modifiers.torsional_stiffness_user_value {
+                    expect_unit(
+                        stiffness,
+                        Dimension::RotationalStiffness,
+                        &format!(
+                            "diagnostic:unit:component:{}:torsional-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.torsional_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
+        }
     }
     for load in model
         .load_cases
@@ -600,24 +692,44 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
         if !is_bend_component(component)
             && !is_branch_component(component)
             && !is_rigid_component(component)
+            && !is_expansion_joint_component(component)
         {
             continue;
         }
-        if component
+        let solver_consumption = component
             .mechanics_interface
             .as_ref()
-            .and_then(|interface| interface.solver_consumption.as_deref())
-            .map(|value| value != "mechanics_geometry_only")
-            .unwrap_or(false)
+            .and_then(|interface| interface.solver_consumption.as_deref());
+        if is_bend_component(component) || is_branch_component(component) || is_rigid_component(component) {
+            if solver_consumption
+                .map(|value| value != "mechanics_geometry_only")
+                .unwrap_or(false)
+            {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:mechanics-interface",
+                        stable_suffix(&component.id)
+                    ),
+                    "COMPONENT_MECHANICS_INTERFACE_UNSUPPORTED",
+                    "warning",
+                    "component stress modifier rows currently require solver_consumption=mechanics_geometry_only per DEC-045",
+                    vec![component.id.clone()],
+                ));
+            }
+        }
+        if is_expansion_joint_component(component)
+            && solver_consumption
+                .map(|value| value != "mechanics_geometry_and_user_flexibility")
+                .unwrap_or(true)
         {
             diagnostics.push(diag(
                 &format!(
-                    "diagnostic:component:{}:mechanics-interface",
+                    "diagnostic:component:{}:expansion-joint-interface",
                     stable_suffix(&component.id)
                 ),
-                "COMPONENT_MECHANICS_INTERFACE_UNSUPPORTED",
+                "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED",
                 "warning",
-                "component stress modifier rows currently require solver_consumption=mechanics_geometry_only per DEC-045",
+                "expansion joint components require solver_consumption=mechanics_geometry_and_user_flexibility under DEC-045; pressure thrust remains load-side input evidence",
                 vec![component.id.clone()],
             ));
         }
@@ -771,6 +883,73 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
                     "info",
                     "rigid/semi-rigid component carries user-entered dimensions, weight, center of gravity, mapping, stiffness scaling, semi-rigid stiffness quantities, and source notes under DEC-045 mechanics_geometry_only; no protected/default component values are supplied",
+                    vec![component.id.clone()],
+                ));
+            }
+        }
+        if is_expansion_joint_component(component) {
+            if expansion_joint_geometry_missing(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:expansion-joint-geometry",
+                        stable_suffix(&component.id)
+                    ),
+                    "EXPANSION_JOINT_GEOMETRY_INPUT_MISSING",
+                    "warning",
+                    "expansion joint requires explicit mapped pipe, effective pressure area, movement limit, hardware reference, manufacturer reference, pressure-thrust handling reference, and invented or cleared source before provenance review is complete",
+                    vec![component.id.clone()],
+                ));
+            }
+            if expansion_joint_mapping_invalid(component, &pipe_map) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:expansion-joint-mapping",
+                        stable_suffix(&component.id)
+                    ),
+                    "EXPANSION_JOINT_MAPPING_INPUT_INVALID",
+                    "warning",
+                    "expansion joint pipe mapping must reference an existing frame member that terminates at the component node before user-stiffness macro-element evidence can be generated",
+                    vec![component.id.clone()],
+                ));
+            }
+            if expansion_joint_modifier_missing(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:expansion-joint-stiffness",
+                        stable_suffix(&component.id)
+                    ),
+                    "EXPANSION_JOINT_STIFFNESS_INPUT_MISSING",
+                    "warning",
+                    "expansion joint requires user-entered axial, lateral, angular, and torsional stiffness quantities plus source reference under DEC-045; no manufacturer or code default is supplied",
+                    vec![component.id.clone()],
+                ));
+            }
+            if expansion_joint_modifier_invalid(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:expansion-joint-stiffness-invalid",
+                        stable_suffix(&component.id)
+                    ),
+                    "EXPANSION_JOINT_STIFFNESS_INPUT_INVALID",
+                    "warning",
+                    "expansion joint user-entered stiffness quantities must be finite positive values before they can be used as macro-element input evidence",
+                    vec![component.id.clone()],
+                ));
+            }
+            if !expansion_joint_geometry_missing(component)
+                && !expansion_joint_mapping_invalid(component, &pipe_map)
+                && !expansion_joint_modifier_missing(component)
+                && !expansion_joint_modifier_invalid(component)
+                && solver_consumption == Some("mechanics_geometry_and_user_flexibility")
+            {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:expansion-joint-review",
+                        stable_suffix(&component.id)
+                    ),
+                    "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
+                    "info",
+                    "expansion joint carries user-entered stiffnesses, effective pressure area, movement limit, hardware/manufacturer provenance, and load-side pressure-thrust handling evidence under DEC-045; no protected/default manufacturer values are supplied",
                     vec![component.id.clone()],
                 ));
             }
@@ -933,6 +1112,10 @@ fn is_rigid_component(component: &crate::PreviewComponent) -> bool {
         component.kind.as_str(),
         "valve" | "flange" | "reducer" | "rigid" | "specialty"
     )
+}
+
+fn is_expansion_joint_component(component: &crate::PreviewComponent) -> bool {
+    component.kind == "expansion_joint"
 }
 
 fn bend_geometry_missing(component: &crate::PreviewComponent) -> bool {
@@ -1140,6 +1323,89 @@ fn rigid_modifier_invalid(component: &crate::PreviewComponent) -> bool {
         modifiers.stiffness_scaling_user_value.as_ref(),
         modifiers.linear_stiffness_user_value.as_ref(),
         modifiers.rotational_stiffness_user_value.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|quantity| !quantity.value.is_finite() || quantity.value <= 0.0)
+}
+
+fn expansion_joint_geometry_missing(component: &crate::PreviewComponent) -> bool {
+    let Some(geometry) = &component.geometry else {
+        return true;
+    };
+    geometry
+        .expansion_joint_pipe_ref
+        .as_deref()
+        .map(|value| value.trim().is_empty())
+        .unwrap_or(true)
+        || geometry.effective_area.is_none()
+        || geometry.movement_limit.is_none()
+        || geometry
+            .hardware_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .manufacturer_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .pressure_thrust_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .expansion_joint_source_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+}
+
+fn expansion_joint_mapping_invalid(
+    component: &crate::PreviewComponent,
+    pipe_map: &HashMap<&str, &crate::PreviewPipe>,
+) -> bool {
+    let Some(geometry) = &component.geometry else {
+        return false;
+    };
+    let Some(pipe_ref) = geometry
+        .expansion_joint_pipe_ref
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return false;
+    };
+    pipe_map
+        .get(pipe_ref)
+        .map(|pipe| pipe.from != component.node && pipe.to != component.node)
+        .unwrap_or(true)
+}
+
+fn expansion_joint_modifier_missing(component: &crate::PreviewComponent) -> bool {
+    let Some(modifiers) = &component.modifiers else {
+        return true;
+    };
+    modifiers.axial_stiffness_user_value.is_none()
+        || modifiers.lateral_stiffness_user_value.is_none()
+        || modifiers.angular_stiffness_user_value.is_none()
+        || modifiers.torsional_stiffness_user_value.is_none()
+        || modifiers
+            .source_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+}
+
+fn expansion_joint_modifier_invalid(component: &crate::PreviewComponent) -> bool {
+    let Some(modifiers) = &component.modifiers else {
+        return false;
+    };
+    [
+        modifiers.axial_stiffness_user_value.as_ref(),
+        modifiers.lateral_stiffness_user_value.as_ref(),
+        modifiers.angular_stiffness_user_value.as_ref(),
+        modifiers.torsional_stiffness_user_value.as_ref(),
     ]
     .into_iter()
     .flatten()

@@ -205,3 +205,18 @@ Durable context preserved after reconciliation review:
   professional boundary semantics, lifecycle state, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-21 - TP-R4-D4-EJSTIFF-001 supporting expansion-joint provenance evidence
+
+- Supporting role for DEL-03-06 app absorption: the preview report packet and
+  JSON export now preserve invented expansion-joint pipe mapping, effective
+  pressure area, movement limit, hardware/manufacturer references,
+  pressure-thrust reference, user-entered stiffness values, and user-stiffness
+  macro-element review rows.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D4-EJSTIFF-001.md`;
+  primary DEL-03-06 run record; `apps/desktop/SMOKE.md` TP-MAC-282.
+- Boundary preserved: no report clearance, legal review, redaction,
+  professional boundary semantics, lifecycle state, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

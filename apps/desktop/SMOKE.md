@@ -9576,3 +9576,51 @@ notes:
   feature, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-282 R4 D4 expansion-joint user-stiffness preview slice - PASSED (`TP-R4-D4-EJSTIFF-001`, 2026-06-21)
+
+- Scope: R4/D4 expansion-joint app-absorption slice under `DEC-045`, landing
+  invented preview evidence for an expansion joint with pipe mapping,
+  user-entered effective pressure area, movement limit, hardware/manufacturer
+  provenance, pressure-thrust reference, and axial/lateral/angular/torsional
+  stiffness values. This is dedicated user-stiffness macro-element review
+  evidence; it does not claim a full assembled global macro-element solve or
+  pressure-thrust load generation.
+- App/core behavior: `core/product_physics` now parses and validates D4
+  expansion-joint geometry/modifier fields, normalizes area/movement/stiffness
+  units, emits `EXPANSION_JOINT_*` diagnostics, and appends four
+  `component_user_stiffness_macro_element_review` rows for `component:C-150`.
+  The regenerated mechanics fixture now has 753 result rows and
+  `summary.component_user_stiffness_macro_element_count = 4`.
+- UI/report behavior: the invented preview model carries `component:C-150`;
+  the viewport renders expansion joints with a distinct bellows-style marker.
+  Model view, inspector/provenance rows, grid/search, validation evidence,
+  native-package witnesses, and report exports now surface the D4
+  expansion-joint fields and user-stiffness review rows.
+- Validation:
+  - `cargo test --manifest-path core/product_physics/Cargo.toml` passed 34/34
+    unit tests.
+  - `python3 -m pytest tests/product_preview/test_product_preview_service.py tests/test_results_schema.py tests/test_analysis_run_records.py`
+    passed 20/20 tests.
+  - `npm --prefix apps/desktop test -- --run src/App.test.tsx` passed 57/57
+    tests.
+  - `npm --prefix apps/desktop test -- --run` passed 19/19 test files and
+    406/406 tests.
+  - `npm --prefix apps/desktop run build` passed, retaining the existing Vite
+    chunk-size warning.
+  - `npm --prefix apps/desktop run build:wasm` passed.
+  - From `apps/desktop`, `PLAYWRIGHT_WORKERS=1 npm exec playwright test e2e/r2-smoke.spec.ts --workers=1`
+    passed 18/18 Playwright checks.
+- Evidence: DEL-03-06 and DEL-08-03 run records
+  `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D4-EJSTIFF-001.md`; plan log entry in
+  `plans/PLAN_COMPLETION_LOG.md`.
+- Residual: D4 expansion-joint app absorption is landed for the invented
+  preview path. Full assembled nonlinear solve behavior, pressure-thrust load
+  application, and R4 validation benchmarks remain out of scope for this
+  slice. The next Phase D item is D5, gated by `D-15`.
+- Boundary: invented/user-entered preview values only. No protected standards
+  table, code-derived expansion-joint factor, proprietary catalog value,
+  private data, pressure-thrust load generation, global nonlinear solve,
+  network path, telemetry feature, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

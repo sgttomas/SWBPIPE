@@ -14,6 +14,7 @@
     "support_count": 3,
     "load_case_count": 2,
     "component_stress_modifier_count": 8,
+    "component_user_stiffness_macro_element_count": 4,
     "max_displacement": {
       "value": 26.515341,
       "unit": "mm",
@@ -14329,6 +14330,62 @@
         "basis": "explicit_user_linear_combination",
         "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
       }
+    },
+    {
+      "id": "result:component-stiffness:component-C-150:axial",
+      "kind": "component_user_stiffness_macro_element_review",
+      "value": 3200000.0,
+      "unit": "N/m",
+      "entity_ref": "component:C-150",
+      "metadata": {
+        "component": "axial_user_stiffness",
+        "coordinate_system": "component_local_preview",
+        "location": "pipe:P-130",
+        "basis": "component_family=expansion_joint;user_entered_axis=axial;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness input evidence; global macro-element solve is not claimed by this preview row"
+      }
+    },
+    {
+      "id": "result:component-stiffness:component-C-150:lateral",
+      "kind": "component_user_stiffness_macro_element_review",
+      "value": 900000.0,
+      "unit": "N/m",
+      "entity_ref": "component:C-150",
+      "metadata": {
+        "component": "lateral_user_stiffness",
+        "coordinate_system": "component_local_preview",
+        "location": "pipe:P-130",
+        "basis": "component_family=expansion_joint;user_entered_axis=lateral;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness input evidence; global macro-element solve is not claimed by this preview row"
+      }
+    },
+    {
+      "id": "result:component-stiffness:component-C-150:angular",
+      "kind": "component_user_stiffness_macro_element_review",
+      "value": 480000.0,
+      "unit": "N*m/rad",
+      "entity_ref": "component:C-150",
+      "metadata": {
+        "component": "angular_user_stiffness",
+        "coordinate_system": "component_local_preview",
+        "location": "pipe:P-130",
+        "basis": "component_family=expansion_joint;user_entered_axis=angular;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness input evidence; global macro-element solve is not claimed by this preview row"
+      }
+    },
+    {
+      "id": "result:component-stiffness:component-C-150:torsional",
+      "kind": "component_user_stiffness_macro_element_review",
+      "value": 620000.0,
+      "unit": "N*m/rad",
+      "entity_ref": "component:C-150",
+      "metadata": {
+        "component": "torsional_user_stiffness",
+        "coordinate_system": "component_local_preview",
+        "location": "pipe:P-130",
+        "basis": "component_family=expansion_joint;user_entered_axis=torsional;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness input evidence; global macro-element solve is not claimed by this preview row"
+      }
     }
   ],
   "diagnostics": [
@@ -14340,6 +14397,16 @@
       "source": "core/product_physics",
       "affected_refs": [
         "component:C-130"
+      ]
+    },
+    {
+      "id": "diagnostic:component:component-C-150:expansion-joint-review",
+      "code": "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
+      "severity": "info",
+      "message": "expansion joint carries user-entered stiffnesses, effective pressure area, movement limit, hardware/manufacturer provenance, and load-side pressure-thrust handling evidence under DEC-045; no protected/default manufacturer values are supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-150"
       ]
     },
     {

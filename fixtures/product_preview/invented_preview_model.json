@@ -192,7 +192,42 @@
       ],
       "provenance": "invented_example_user_entered_rigid_component_values_no_catalog"
     },
-    { "id": "component:C-140", "label": "Invented tie-in marker", "kind": "terminal", "node": "node:N-140", "provenance": "invented_example" }
+    { "id": "component:C-140", "label": "Invented tie-in marker", "kind": "terminal", "node": "node:N-140", "provenance": "invented_example" },
+    {
+      "id": "component:C-150",
+      "label": "Invented expansion joint marker",
+      "kind": "expansion_joint",
+      "node": "node:N-140",
+      "geometry": {
+        "expansion_joint_pipe_ref": "pipe:P-130",
+        "effective_area": { "value": 0.018, "unit": "m^2" },
+        "movement_limit": { "value": 0.045, "unit": "m" },
+        "hardware_reference": "invented_user_entered_tie_rod_limit_metadata_no_catalog",
+        "manufacturer_reference": "invented_user_entered_manufacturer_reference_no_catalog",
+        "pressure_thrust_reference": "load_side_pressure_thrust_user_review_required",
+        "expansion_joint_source_reference": "invented_user_entered_expansion_joint_preview_geometry"
+      },
+      "modifiers": {
+        "axial_stiffness_user_value": { "value": 3200000, "unit": "N/m" },
+        "lateral_stiffness_user_value": { "value": 900000, "unit": "N/m" },
+        "angular_stiffness_user_value": { "value": 480000, "unit": "N*m/rad" },
+        "torsional_stiffness_user_value": { "value": 620000, "unit": "N*m/rad" },
+        "source_reference": "invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_and_user_flexibility",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "completeness": [
+        {
+          "finding_id": "finding:C-150:expansion-joint",
+          "status": "complete",
+          "diagnostic_code": "EXPANSION_JOINT_STIFFNESS_DATA_MISSING",
+          "missing_field_kinds": []
+        }
+      ],
+      "provenance": "invented_example_user_entered_expansion_joint_values_no_catalog"
+    }
   ],
   "load_cases": [
     {

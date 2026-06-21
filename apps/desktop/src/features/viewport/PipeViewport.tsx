@@ -1700,6 +1700,40 @@ function componentMesh(component: PreviewComponent, position: Vec3, active: bool
     group.add(handwheel);
     return group;
   }
+  if (isExpansionJointComponent(component)) {
+    const group = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({
+      color: active ? 0xf08c22 : 0x7d5f2c,
+      metalness: 0.16,
+      roughness: 0.52
+    });
+    const axis = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.42, 18), material);
+    axis.position.set(position.x, position.y + 0.2, position.z);
+    axis.rotation.z = Math.PI / 2;
+    group.add(axis);
+
+    const leftRing = new THREE.Mesh(new THREE.TorusGeometry(0.082, 0.014, 8, 20), material);
+    leftRing.position.set(position.x - 0.11, position.y + 0.2, position.z);
+    leftRing.rotation.y = Math.PI / 2;
+    group.add(leftRing);
+
+    const rightRing = new THREE.Mesh(new THREE.TorusGeometry(0.082, 0.014, 8, 20), material);
+    rightRing.position.set(position.x + 0.11, position.y + 0.2, position.z);
+    rightRing.rotation.y = Math.PI / 2;
+    group.add(rightRing);
+
+    const bellows = new THREE.Mesh(
+      new THREE.TorusGeometry(active ? 0.075 : 0.064, 0.01, 8, 16),
+      new THREE.MeshStandardMaterial({
+        color: active ? 0xf08c22 : 0x9d7830,
+        roughness: 0.48
+      })
+    );
+    bellows.position.set(position.x, position.y + 0.2, position.z);
+    bellows.rotation.y = Math.PI / 2;
+    group.add(bellows);
+    return group;
+  }
 
   const box = new THREE.Mesh(
     new THREE.BoxGeometry(0.24, 0.24, 0.24),
@@ -1722,6 +1756,10 @@ function isBranchComponent(component: PreviewComponent): boolean {
 
 function isRigidComponent(component: PreviewComponent): boolean {
   return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
+}
+
+function isExpansionJointComponent(component: PreviewComponent): boolean {
+  return component.kind === "expansion_joint";
 }
 
 function deformedPipeMesh(from: Vec3, to: Vec3, active: boolean) {

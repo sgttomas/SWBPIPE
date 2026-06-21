@@ -602,6 +602,16 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
         quantity: component.geometry?.weight
       },
       {
+        dimension: "area",
+        fieldPath: "geometry.effective_area",
+        quantity: component.geometry?.effective_area
+      },
+      {
+        dimension: "length",
+        fieldPath: "geometry.movement_limit",
+        quantity: component.geometry?.movement_limit
+      },
+      {
         dimension: "dimensionless",
         fieldPath: "modifiers.sif_user_value",
         quantity: component.modifiers?.sif_user_value
@@ -635,6 +645,26 @@ function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel;
         dimension: "rotational_stiffness",
         fieldPath: "modifiers.rotational_stiffness_user_value",
         quantity: component.modifiers?.rotational_stiffness_user_value
+      },
+      {
+        dimension: "linear_stiffness",
+        fieldPath: "modifiers.axial_stiffness_user_value",
+        quantity: component.modifiers?.axial_stiffness_user_value
+      },
+      {
+        dimension: "linear_stiffness",
+        fieldPath: "modifiers.lateral_stiffness_user_value",
+        quantity: component.modifiers?.lateral_stiffness_user_value
+      },
+      {
+        dimension: "rotational_stiffness",
+        fieldPath: "modifiers.angular_stiffness_user_value",
+        quantity: component.modifiers?.angular_stiffness_user_value
+      },
+      {
+        dimension: "rotational_stiffness",
+        fieldPath: "modifiers.torsional_stiffness_user_value",
+        quantity: component.modifiers?.torsional_stiffness_user_value
       }
     ];
     for (const { dimension, fieldPath, quantity } of componentQuantities) {

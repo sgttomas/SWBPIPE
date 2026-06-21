@@ -379,6 +379,17 @@ function componentKeyword(component: PreviewModel["components"][number]): string
     component.geometry?.connection_end_b_reference ?? "",
     component.geometry?.stiffness_behavior_reference ?? "",
     component.geometry?.rigid_component_source_reference ?? "",
+    component.geometry?.expansion_joint_pipe_ref ?? "",
+    component.geometry?.effective_area
+      ? `${component.geometry.effective_area.value} ${component.geometry.effective_area.unit}`
+      : "",
+    component.geometry?.movement_limit
+      ? `${component.geometry.movement_limit.value} ${component.geometry.movement_limit.unit}`
+      : "",
+    component.geometry?.hardware_reference ?? "",
+    component.geometry?.manufacturer_reference ?? "",
+    component.geometry?.pressure_thrust_reference ?? "",
+    component.geometry?.expansion_joint_source_reference ?? "",
     component.modifiers?.sif_user_value
       ? `${component.modifiers.sif_user_value.value} ${component.modifiers.sif_user_value.unit}`
       : "",
@@ -399,6 +410,18 @@ function componentKeyword(component: PreviewModel["components"][number]): string
       : "",
     component.modifiers?.rotational_stiffness_user_value
       ? `${component.modifiers.rotational_stiffness_user_value.value} ${component.modifiers.rotational_stiffness_user_value.unit}`
+      : "",
+    component.modifiers?.axial_stiffness_user_value
+      ? `${component.modifiers.axial_stiffness_user_value.value} ${component.modifiers.axial_stiffness_user_value.unit}`
+      : "",
+    component.modifiers?.lateral_stiffness_user_value
+      ? `${component.modifiers.lateral_stiffness_user_value.value} ${component.modifiers.lateral_stiffness_user_value.unit}`
+      : "",
+    component.modifiers?.angular_stiffness_user_value
+      ? `${component.modifiers.angular_stiffness_user_value.value} ${component.modifiers.angular_stiffness_user_value.unit}`
+      : "",
+    component.modifiers?.torsional_stiffness_user_value
+      ? `${component.modifiers.torsional_stiffness_user_value.value} ${component.modifiers.torsional_stiffness_user_value.unit}`
       : "",
     component.modifiers?.source_reference ?? "",
     component.mechanics_interface?.solver_consumption ?? "",
@@ -897,6 +920,75 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "rot-stiffness",
         "Rot. stiffness",
         "modifiers.rotational_stiffness_user_value.value",
+        "Component",
+        "rotational_stiffness",
+        "N*m/rad"
+      ),
+      scalarGridColumn(
+        "ej-pipe",
+        "EJ pipe",
+        "geometry.expansion_joint_pipe_ref",
+        "Component",
+        "expansion-joint frame member mapping"
+      ),
+      quantityGridColumn(
+        "ej-effective-area",
+        "EJ eff. area",
+        "geometry.effective_area.value",
+        "Component",
+        "area",
+        "m^2"
+      ),
+      quantityGridColumn(
+        "ej-movement-limit",
+        "EJ move limit",
+        "geometry.movement_limit.value",
+        "Component",
+        "length",
+        lengthUnit
+      ),
+      scalarGridColumn(
+        "ej-hardware",
+        "EJ hardware",
+        "geometry.hardware_reference",
+        "Component",
+        "user-entered expansion-joint hardware reference"
+      ),
+      scalarGridColumn(
+        "ej-manufacturer",
+        "EJ mfr ref",
+        "geometry.manufacturer_reference",
+        "Component",
+        "user-entered manufacturer provenance reference"
+      ),
+      quantityGridColumn(
+        "ej-axial-stiffness",
+        "EJ axial k",
+        "modifiers.axial_stiffness_user_value.value",
+        "Component",
+        "linear_stiffness",
+        "N/m"
+      ),
+      quantityGridColumn(
+        "ej-lateral-stiffness",
+        "EJ lateral k",
+        "modifiers.lateral_stiffness_user_value.value",
+        "Component",
+        "linear_stiffness",
+        "N/m"
+      ),
+      quantityGridColumn(
+        "ej-angular-stiffness",
+        "EJ angular k",
+        "modifiers.angular_stiffness_user_value.value",
+        "Component",
+        "rotational_stiffness",
+        "N*m/rad"
+      ),
+      quantityGridColumn(
+        "ej-torsional-stiffness",
+        "EJ torsion k",
+        "modifiers.torsional_stiffness_user_value.value",
         "Component",
         "rotational_stiffness",
         "N*m/rad"

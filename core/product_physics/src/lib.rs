@@ -179,6 +179,20 @@ pub struct ComponentGeometryInput {
     pub stiffness_behavior_reference: Option<String>,
     #[serde(default)]
     pub rigid_component_source_reference: Option<String>,
+    #[serde(default)]
+    pub expansion_joint_pipe_ref: Option<String>,
+    #[serde(default)]
+    pub effective_area: Option<Quantity>,
+    #[serde(default)]
+    pub movement_limit: Option<Quantity>,
+    #[serde(default)]
+    pub hardware_reference: Option<String>,
+    #[serde(default)]
+    pub manufacturer_reference: Option<String>,
+    #[serde(default)]
+    pub pressure_thrust_reference: Option<String>,
+    #[serde(default)]
+    pub expansion_joint_source_reference: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -197,6 +211,14 @@ pub struct ComponentModifierInput {
     pub linear_stiffness_user_value: Option<Quantity>,
     #[serde(default)]
     pub rotational_stiffness_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub axial_stiffness_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub lateral_stiffness_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub angular_stiffness_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub torsional_stiffness_user_value: Option<Quantity>,
     #[serde(default)]
     pub source_reference: Option<String>,
 }
@@ -326,6 +348,7 @@ pub struct Summary {
     pub support_count: usize,
     pub load_case_count: usize,
     pub component_stress_modifier_count: usize,
+    pub component_user_stiffness_macro_element_count: usize,
     pub max_displacement: Option<LocatedQuantity>,
     pub max_open_formula_stress: Option<LocatedQuantity>,
 }
@@ -574,6 +597,8 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
         }
     }
     append_combination_results(&model, &rows_by_base_id, &mut results, &mut diagnostics);
+    let component_user_stiffness_macro_element_count =
+        append_expansion_joint_user_stiffness_results(&model, &mut results);
 
     if let Some(maximum) = &max_displacement {
         if maximum.value > 5.0 {
@@ -610,6 +635,7 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
             support_count: model.supports.len(),
             load_case_count: model.load_cases.len(),
             component_stress_modifier_count,
+            component_user_stiffness_macro_element_count,
             max_displacement,
             max_open_formula_stress: max_stress,
         },
@@ -1209,6 +1235,7 @@ fn normalize_model_units(
             component.kind.as_str(),
             "valve" | "flange" | "reducer" | "rigid" | "specialty"
         );
+        let is_expansion_joint = component.kind == "expansion_joint";
         if let Some(geometry) = &mut component.geometry {
             if is_bend {
                 if let Some(radius) = &mut geometry.bend_radius {
@@ -1363,6 +1390,32 @@ fn normalize_model_units(
                     );
                 }
             }
+            if is_expansion_joint {
+                if let Some(area) = &mut geometry.effective_area {
+                    normalize_quantity(
+                        area,
+                        Dimension::Area,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:effective-area",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.effective_area".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(limit) = &mut geometry.movement_limit {
+                    normalize_quantity(
+                        limit,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:movement-limit",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.movement_limit".to_string()],
+                        diagnostics,
+                    );
+                }
+            }
         }
         if let Some(modifiers) = &mut component.modifiers {
             if is_bend {
@@ -1488,6 +1541,68 @@ fn normalize_model_units(
                         vec![
                             component.id.clone(),
                             "modifiers.rotational_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
+            if is_expansion_joint {
+                if let Some(stiffness) = &mut modifiers.axial_stiffness_user_value {
+                    normalize_quantity(
+                        stiffness,
+                        Dimension::LinearStiffness,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:axial-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.axial_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &mut modifiers.lateral_stiffness_user_value {
+                    normalize_quantity(
+                        stiffness,
+                        Dimension::LinearStiffness,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:lateral-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.lateral_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &mut modifiers.angular_stiffness_user_value {
+                    normalize_quantity(
+                        stiffness,
+                        Dimension::RotationalStiffness,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:angular-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.angular_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &mut modifiers.torsional_stiffness_user_value {
+                    normalize_quantity(
+                        stiffness,
+                        Dimension::RotationalStiffness,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:torsional-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.torsional_stiffness_user_value".to_string(),
                         ],
                         diagnostics,
                     );
@@ -2589,6 +2704,103 @@ fn append_component_stress_multiplier_result(
     ));
 }
 
+fn append_expansion_joint_user_stiffness_results(
+    model: &PreviewModel,
+    results: &mut Vec<ResultItem>,
+) -> usize {
+    let mut appended = 0;
+    for component in model.components.iter().filter(|component| is_expansion_joint_component(component)) {
+        let solver_consumption = component
+            .mechanics_interface
+            .as_ref()
+            .and_then(|interface| interface.solver_consumption.as_deref())
+            .unwrap_or("not_provided");
+        if solver_consumption != "mechanics_geometry_and_user_flexibility" {
+            continue;
+        }
+        let Some(geometry) = component.geometry.as_ref() else {
+            continue;
+        };
+        let Some(modifiers) = component.modifiers.as_ref() else {
+            continue;
+        };
+        let Some(pipe_ref) = geometry
+            .expansion_joint_pipe_ref
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+        else {
+            continue;
+        };
+        let source_reference = modifiers
+            .source_reference
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or("source_reference_missing");
+        let entries = [
+            (
+                "axial",
+                "axial_user_stiffness",
+                "N/m",
+                modifiers.axial_stiffness_user_value.as_ref(),
+            ),
+            (
+                "lateral",
+                "lateral_user_stiffness",
+                "N/m",
+                modifiers.lateral_stiffness_user_value.as_ref(),
+            ),
+            (
+                "angular",
+                "angular_user_stiffness",
+                "N*m/rad",
+                modifiers.angular_stiffness_user_value.as_ref(),
+            ),
+            (
+                "torsional",
+                "torsional_user_stiffness",
+                "N*m/rad",
+                modifiers.torsional_stiffness_user_value.as_ref(),
+            ),
+        ];
+        for (axis, metadata_component, unit, quantity) in entries {
+            let Some(quantity) = quantity else {
+                continue;
+            };
+            if !positive_finite(quantity.value) {
+                continue;
+            }
+            let component_suffix = stable_suffix(&component.id);
+            let result_id = format!("result:component-stiffness:{component_suffix}:{axis}");
+            results.push(ResultItem {
+                id: result_id,
+                kind: "component_user_stiffness_macro_element_review".to_string(),
+                value: round6(quantity.value),
+                unit: unit.to_string(),
+                entity_ref: component.id.clone(),
+                basis_ref: None,
+                source_result_refs: Vec::new(),
+                metadata: Some(ResultMetadata {
+                    component: metadata_component.to_string(),
+                    coordinate_system: "component_local_preview".to_string(),
+                    location: pipe_ref.to_string(),
+                    basis: format!(
+                        "component_family=expansion_joint;user_entered_axis={axis};source={source_reference};solver_consumption={solver_consumption};pressure_thrust={}",
+                        geometry
+                            .pressure_thrust_reference
+                            .as_deref()
+                            .unwrap_or("load_side_pressure_thrust_reference_missing")
+                    ),
+                    sign_convention:
+                        "positive value is user-entered expansion-joint stiffness input evidence; global macro-element solve is not claimed by this preview row"
+                            .to_string(),
+                }),
+            });
+            appended += 1;
+        }
+    }
+    appended
+}
+
 fn endpoint_stress_source_refs(pipe_id: &str, location: &str) -> Vec<String> {
     let suffix = stable_suffix(pipe_id);
     let endpoint = endpoint_id_location(location);
@@ -2612,6 +2824,10 @@ fn is_branch_component(component: &PreviewComponent) -> bool {
         component.kind.as_str(),
         "branch" | "tee" | "branch_connection"
     )
+}
+
+fn is_expansion_joint_component(component: &PreviewComponent) -> bool {
+    component.kind == "expansion_joint"
 }
 
 fn positive_finite(value: f64) -> bool {
@@ -3232,6 +3448,7 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
             support_count: model.supports.len(),
             load_case_count: model.load_cases.len(),
             component_stress_modifier_count: 0,
+            component_user_stiffness_macro_element_count: 0,
             max_displacement: None,
             max_open_formula_stress: None,
         },
@@ -4298,6 +4515,59 @@ mod tests {
                 .as_ref()
                 .map(|basis| basis.ref_id.as_str()),
             Some("combination:C-OPER-ALT")
+        );
+    }
+
+    #[test]
+    fn expansion_joint_user_stiffness_emits_macro_element_review_rows() {
+        let result = run_linear_static_preview(request());
+        let axial = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:component-stiffness:component-C-150:axial")
+            .expect("expansion joint axial stiffness review row should be emitted");
+        let torsional = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:component-stiffness:component-C-150:torsional")
+            .expect("expansion joint torsional stiffness review row should be emitted");
+
+        assert_eq!(result.summary.component_user_stiffness_macro_element_count, 4);
+        assert_eq!(axial.kind, "component_user_stiffness_macro_element_review");
+        assert_eq!(axial.entity_ref, "component:C-150");
+        assert_eq!(axial.value, 3_200_000.0);
+        assert_eq!(axial.unit, "N/m");
+        let axial_metadata = axial
+            .metadata
+            .as_ref()
+            .expect("expansion joint row carries macro-element metadata");
+        assert_eq!(axial_metadata.component, "axial_user_stiffness");
+        assert_eq!(axial_metadata.coordinate_system, "component_local_preview");
+        assert_eq!(axial_metadata.location, "pipe:P-130");
+        assert!(axial_metadata.basis.contains("component_family=expansion_joint"));
+        assert!(axial_metadata
+            .basis
+            .contains("solver_consumption=mechanics_geometry_and_user_flexibility"));
+        assert!(axial_metadata
+            .basis
+            .contains("pressure_thrust=load_side_pressure_thrust_user_review_required"));
+        assert!(axial_metadata
+            .sign_convention
+            .contains("global macro-element solve is not claimed"));
+
+        assert_eq!(torsional.value, 620_000.0);
+        assert_eq!(torsional.unit, "N*m/rad");
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED")
+        );
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .all(|diagnostic| diagnostic.code != "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED")
         );
     }
 

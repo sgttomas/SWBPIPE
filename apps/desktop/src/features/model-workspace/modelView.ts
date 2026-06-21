@@ -149,6 +149,25 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
         ["Completeness", componentCompletenessDisplay(component)]
       );
     }
+    if (isExpansionJointComponent(component)) {
+      rows.push(
+        ["Mapped pipe", component.geometry?.expansion_joint_pipe_ref ?? "TBD"],
+        ["Effective area", quantityDisplay(component.geometry?.effective_area)],
+        ["Movement limit", quantityDisplay(component.geometry?.movement_limit)],
+        ["Hardware reference", component.geometry?.hardware_reference ?? "TBD"],
+        ["Manufacturer reference", component.geometry?.manufacturer_reference ?? "TBD"],
+        ["Pressure thrust", component.geometry?.pressure_thrust_reference ?? "TBD"],
+        ["Geometry source", component.geometry?.expansion_joint_source_reference ?? "TBD"],
+        ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
+        ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
+        ["Axial stiffness", quantityDisplay(component.modifiers?.axial_stiffness_user_value)],
+        ["Lateral stiffness", quantityDisplay(component.modifiers?.lateral_stiffness_user_value)],
+        ["Angular stiffness", quantityDisplay(component.modifiers?.angular_stiffness_user_value)],
+        ["Torsional stiffness", quantityDisplay(component.modifiers?.torsional_stiffness_user_value)],
+        ["Modifier source", component.modifiers?.source_reference ?? "TBD"],
+        ["Completeness", componentCompletenessDisplay(component)]
+      );
+    }
     rows.push(["Provenance", component.provenance]);
     return rows;
   }
@@ -195,6 +214,10 @@ function isBranchComponent(component: PreviewComponent): boolean {
 
 function isRigidComponent(component: PreviewComponent): boolean {
   return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
+}
+
+function isExpansionJointComponent(component: PreviewComponent): boolean {
+  return component.kind === "expansion_joint";
 }
 
 function componentCompletenessDisplay(component: PreviewComponent): string {

@@ -32,6 +32,13 @@ export type PreviewComponent = {
     connection_end_b_reference?: string;
     stiffness_behavior_reference?: string;
     rigid_component_source_reference?: string;
+    expansion_joint_pipe_ref?: string;
+    effective_area?: QuantityValue;
+    movement_limit?: QuantityValue;
+    hardware_reference?: string;
+    manufacturer_reference?: string;
+    pressure_thrust_reference?: string;
+    expansion_joint_source_reference?: string;
   };
   modifiers?: {
     sif_user_value?: QuantityValue;
@@ -41,6 +48,10 @@ export type PreviewComponent = {
     stiffness_scaling_user_value?: QuantityValue;
     linear_stiffness_user_value?: QuantityValue;
     rotational_stiffness_user_value?: QuantityValue;
+    axial_stiffness_user_value?: QuantityValue;
+    lateral_stiffness_user_value?: QuantityValue;
+    angular_stiffness_user_value?: QuantityValue;
+    torsional_stiffness_user_value?: QuantityValue;
     source_reference?: string;
   };
   mechanics_interface?: {
