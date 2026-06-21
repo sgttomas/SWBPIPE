@@ -73,14 +73,16 @@
      no full assembled global solve or pressure-thrust load generation claim.
      D5 is gated by `D-15`; the D-15 spring-hanger scope decision packet is
      prepared and awaiting human ruling. If that ruling is still pending,
-     continue D6/D9 residuals after `TP-R4-D6-LOOPCORE-001` and
-     `TP-R4-D6-PHYSINTEG-001`: the loop-core crate
-     `core/solver/nonlinear_integration` exists under `DEC-044`/`DEC-046`, and
-     the first invented product/app/result-envelope sidecar is landed, but
-     friction normal-force model integration, measured convergence values,
-     sparse live-path adoption, broader live-solver coverage, and D9 validation
-     cases beyond the first assembled seed (`TP-R4-D9-ASSEMBLEDSEED-001`)
-     remain open. D7 sparse live-path
+     continue D6/D9 residuals after `TP-R4-D6-LOOPCORE-001`,
+     `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D9-ASSEMBLEDSEED-001`, and
+     `TP-R4-D9-FRICTIONSEED-001`: the loop-core crate
+     `core/solver/nonlinear_integration` exists under `DEC-044`/`DEC-046`, the
+     first invented product/app/result-envelope sidecar is landed, and explicit
+     friction normal-reaction input evidence is visible without being combined
+     as a load effect. The derived friction normal-force model, sliding
+     friction assembled/product coverage, measured convergence values, sparse
+     live-path adoption, broader live-solver coverage, and remaining D9
+     validation package remain open. D7 sparse live-path
      timing remains gated by `D-17`; `D-20` is held for Phase E; `D-21` remains
      held and does not authorize v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

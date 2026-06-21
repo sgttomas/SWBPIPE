@@ -1101,6 +1101,11 @@ fn append_nonlinear_support_loop_results(
                 ),
                 "1 means the active-set state-change residual satisfied the supplied preview tolerance",
             );
+            append_nonlinear_friction_normal_evidence(
+                results,
+                &built.nonlinear_friction_normal_reactions,
+                &solve.policy_ref,
+            );
 
             for state in &solve.final_states {
                 let Some(support) = built
@@ -3901,6 +3906,9 @@ fn append_combination_results(
                 ));
                 continue;
             }
+            if is_combination_excluded_result_kind(&reference_row.kind) {
+                continue;
+            }
             let Some(dimension) = algebra_dimension(reference_row) else {
                 diagnostics.push(combination_diag(
                     combination,
@@ -3987,6 +3995,34 @@ fn append_combination_results(
             results.push(combined);
         }
     }
+}
+
+fn append_nonlinear_friction_normal_evidence(
+    results: &mut Vec<ResultItem>,
+    friction_normal_reactions: &[FrictionNormalReaction],
+    policy_ref: &str,
+) {
+    for reaction in friction_normal_reactions {
+        let suffix = stable_suffix(&reaction.support_id);
+        append_nonlinear_scalar_result(
+            results,
+            &format!("result:nonlinear-support:{suffix}:friction-normal-reaction"),
+            "nonlinear_support_friction_normal_reaction_input",
+            reaction.normal_reaction,
+            "N",
+            &reaction.support_id,
+            "friction_normal_reaction_input",
+            "normal",
+            &format!(
+                "dense_active_set_loop; policy_ref={policy_ref}; explicit_user_entered_normal_reaction; derived_normal_force_model=TBD"
+            ),
+            "positive value is an explicit contact normal reaction supplied by the user or caller",
+        );
+    }
+}
+
+fn is_combination_excluded_result_kind(kind: &str) -> bool {
+    matches!(kind, "nonlinear_support_friction_normal_reaction_input")
 }
 
 fn combination_source_identity_matches(reference: &ResultItem, candidate: &ResultItem) -> bool {
@@ -4675,6 +4711,163 @@ mod tests {
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
+    }
+
+    fn friction_preview_request() -> LinearStaticPreviewRequest {
+        let mut request = request();
+        request.model.nodes.truncate(2);
+        request.model.nodes[0].id = "node:N-100".to_string();
+        request.model.nodes[0].position = Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        request.model.nodes[1].id = "node:N-110".to_string();
+        request.model.nodes[1].position = Vec3 {
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        request.model.pipe_segments.truncate(1);
+        request.model.pipe_segments[0].id = "pipe:P-100".to_string();
+        request.model.pipe_segments[0].from = "node:N-100".to_string();
+        request.model.pipe_segments[0].to = "node:N-110".to_string();
+        request.model.pipe_segments[0].y_reference = Some(Vec3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        });
+        request.model.supports = vec![
+            PreviewSupport {
+                id: "support:S-100".to_string(),
+                node: "node:N-100".to_string(),
+                restraints: vec![
+                    "UX".to_string(),
+                    "UY".to_string(),
+                    "UZ".to_string(),
+                    "RX".to_string(),
+                    "RY".to_string(),
+                    "RZ".to_string(),
+                ],
+                family: Some("anchor".to_string()),
+                stiffness: None,
+                nonlinear: None,
+                provenance: Some("invented_example".to_string()),
+            },
+            PreviewSupport {
+                id: "support:NL-FRIC-110".to_string(),
+                node: "node:N-110".to_string(),
+                restraints: Vec::new(),
+                family: Some("nonlinear".to_string()),
+                stiffness: None,
+                nonlinear: Some(NonlinearSupportInput {
+                    behavior: "friction".to_string(),
+                    dof: "UX".to_string(),
+                    initial_state: Some("sticking".to_string()),
+                    active_when: None,
+                    contact_when: None,
+                    closes_when: None,
+                    gap: None,
+                    friction_coefficient: Some(Quantity {
+                        value: 0.50,
+                        unit: "none".to_string(),
+                    }),
+                    normal_reaction: Some(Quantity {
+                        value: 1000.0,
+                        unit: "N".to_string(),
+                    }),
+                }),
+                provenance: Some(
+                    "invented_example_user_entered_friction_support_no_catalog".to_string(),
+                ),
+            },
+        ];
+        request.model.components.clear();
+        request.model.load_cases.truncate(1);
+        request.model.load_cases[0].id = "load:L-FRICTION".to_string();
+        request.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
+            id: "load:L-FRICTION-X".to_string(),
+            category: "occasional".to_string(),
+            target: LoadTargetInput::Node {
+                node: "node:N-110".to_string(),
+            },
+            direction: "global_x".to_string(),
+            magnitude: Quantity {
+                value: 100.0,
+                unit: "N".to_string(),
+            },
+            dimension: "force".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }];
+        request.model.combinations = vec![PreviewCombination {
+            id: "combination:C-FRICTION".to_string(),
+            label: None,
+            basis: "mechanics".to_string(),
+            terms: vec![PreviewCombinationTerm {
+                load_case: "load:L-FRICTION".to_string(),
+                factor: 1.0,
+            }],
+            minuend_id: None,
+            subtrahend_id: None,
+            operand_ids: None,
+            mode: None,
+            provenance: Some("invented_example_no_code_combination".to_string()),
+        }];
+        request
+    }
+
+    #[test]
+    fn friction_preview_surfaces_explicit_normal_evidence_without_combining_it() {
+        let result = run_linear_static_preview(friction_preview_request());
+        let result_ids = result
+            .results
+            .iter()
+            .map(|item| item.id.as_str())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(result_ids
+            .contains("result:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-FRIC-110:state-code"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-FRIC-110:ux-reaction"));
+        assert!(!result_ids.contains(
+            "result:combination:combination-C-FRICTION:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction"
+        ));
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-FRIC-110:state-code"
+            ),
+            2.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction"
+            ),
+            1000.0
+        );
+        let normal_evidence = result
+            .results
+            .iter()
+            .find(|item| {
+                item.id == "result:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction"
+            })
+            .expect("normal evidence row is present");
+        assert_eq!(
+            normal_evidence.kind,
+            "nonlinear_support_friction_normal_reaction_input"
+        );
+        assert!(normal_evidence
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("derived_normal_force_model=TBD"));
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "NONLINEAR_SUPPORT_LOOP_CONVERGED"));
     }
 
     #[test]

@@ -141,3 +141,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Added public-original hand-calculation notes for the assembled cases under `validation/hand_calcs/nonlinear/` and extended the focused pytest readiness checks to require those notes, source references, invented-data boundary wording, visible `TolerancePolicyTbd`, and the `DEC-046-CV-B-assembled-validation-seed-TBD` convergence-policy reference.
 - D9 remains partial: friction normal-force model integration, measured class-tiered convergence values, sparse live-path adoption, broader live-solver coverage, the PRD section 16.2 branch-assembly benchmark, component provenance in the rendered report path, and the R4 exit evidence package remain open.
 - Validation in this WORKING_ITEMS run: nonlinear benchmark `cargo fmt --check` passed; nonlinear benchmark `cargo test` passed; focused nonlinear pytest passed; `git diff --check` passed; the five-surface `DEC-025` evidence sweep passed and wrote `validation/evidence/sweeps/SWEEP_20260621T073226Z_4cb593a09376-dirty.json`.
+
+## 2026-06-21 - TP-R4-D9-FRICTIONSEED-001
+
+- Added an assembled friction sticking seed for the dense active-set loop:
+  `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` uses explicit invented normal-reaction
+  evidence and remains `Sticking`.
+- Added `validation/hand_calcs/nonlinear/assembled_friction_sticking.md` and
+  extended the focused nonlinear pytest note requirements to include it.
+- Updated `core/product_physics` to surface explicit friction normal-reaction
+  evidence in mechanics result envelopes as
+  `nonlinear_support_friction_normal_reaction_input` while excluding that input
+  evidence from load-case combination algebra.
+- D6/D9 remain partial: the derived friction normal-force model, sliding
+  friction assembled/product validation, measured class-tiered convergence
+  values, sparse live-path adoption, broader live-solver coverage, the PRD
+  section 16.2 branch-assembly benchmark, component provenance in the rendered
+  report path, and the R4 exit evidence package remain open.
+- Validation in this WORKING_ITEMS run: nonlinear benchmark `cargo fmt --check`
+  passed; product physics `cargo fmt --check` passed; nonlinear benchmark
+  `cargo test` passed; focused nonlinear pytest passed; product physics
+  `cargo test` passed; `git diff --check` passed; the five-surface `DEC-025`
+  evidence sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260621T074615Z_a83ced203fac-dirty.json`.

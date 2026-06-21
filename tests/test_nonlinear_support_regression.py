@@ -33,6 +33,7 @@ REQUIRED_ASSEMBLED_FIXTURE_NOTES = {
     "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL": "assembled_one_way_deactivation.md",
     "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL": "assembled_gap_closure.md",
     "NL-ASSEMBLED-LIFT-OFF-ORIGINAL": "assembled_lift_off.md",
+    "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL": "assembled_friction_sticking.md",
 }
 
 REQUIRED_UNIT_BASIS_LINES = {

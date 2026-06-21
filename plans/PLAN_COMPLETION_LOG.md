@@ -14,6 +14,48 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 friction explicit-normal assembled seed (`TP-R4-D9-FRICTIONSEED-001`)
+
+Landed a bounded D6/D9 friction seed under `DEC-044` and `DEC-046`.
+`validation/benchmarks/nonlinear` now includes
+`NL-ASSEMBLED-FRICTION-STICK-ORIGINAL`, an assembled dense active-set case
+where a friction support remains `Sticking` using explicit invented
+normal-reaction evidence. This extends the assembled validation seed set beyond
+one-way, gap, and lift-off without treating the derived friction normal-force
+model as complete.
+
+`core/product_physics` now emits explicit friction normal-reaction evidence
+rows with kind `nonlinear_support_friction_normal_reaction_input` and basis
+metadata that preserves `derived_normal_force_model=TBD`. Those rows are
+intentionally excluded from load-case combination algebra because they are input
+evidence, not solved load effects.
+
+Validation: `cargo fmt --manifest-path validation/benchmarks/nonlinear/Cargo.toml -- --check`
+passed; `cargo fmt --manifest-path core/product_physics/Cargo.toml -- --check`
+passed; `cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml`
+passed 7/7; `python3 -m pytest -q tests/test_nonlinear_support_regression.py`
+passed 8/8; `cargo test --manifest-path core/product_physics/Cargo.toml`
+passed 36/36; `git diff --check` passed;
+`python3 tools/release/run_evidence_sweep.py --execute` passed all five
+surfaces, writing
+`validation/evidence/sweeps/SWEEP_20260621T074615Z_a83ced203fac-dirty.json`.
+
+Evidence: DEL-09-03 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-FRICTIONSEED-001.md`.
+
+Residual: D6/D9 remain partial. The derived friction normal-force model,
+sliding friction assembled/product validation, measured class-tiered
+convergence values, sparse live-path adoption, broader live-solver coverage,
+the PRD section 16.2 branch-assembly benchmark, component provenance in the
+rendered report path, and the R4 exit evidence package remain open.
+
+Boundary: invented explicit-normal evidence only; no protected standards table,
+proprietary catalog value, public default, private data, lifecycle transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D9 assembled nonlinear validation seed (`TP-R4-D9-ASSEMBLEDSEED-001`)
 
 Landed the first D9 assembled global-loop validation seed under `DEC-044` and
