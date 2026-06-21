@@ -1,0 +1,101 @@
+{
+  "tranche_id": "TP-R3UX-AGENTSHELL-001",
+  "smoke_id": "TP-MAC-276",
+  "date": "2026-06-20",
+  "dev_server_url": "http://127.0.0.1:5175/",
+  "cases": [
+    {
+      "name": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "modeling_workspace": {
+        "x": 8,
+        "y": 143,
+        "width": 1424,
+        "height": 673,
+        "bottom": 816
+      },
+      "viewport_pane": {
+        "x": 52,
+        "y": 143,
+        "width": 986,
+        "height": 673,
+        "bottom": 816
+      },
+      "agent_panel": {
+        "x": 1048,
+        "y": 143,
+        "width": 340,
+        "height": 673,
+        "bottom": 816
+      },
+      "canvas": {
+        "x": 53,
+        "y": 180,
+        "width": 984,
+        "height": 520,
+        "bottom": 700
+      },
+      "tree_expanded": false,
+      "inspector_expanded": false,
+      "horizontal_overflow": false,
+      "canvas_contained_by_workspace": true,
+      "sampled_unique_canvas_colors": 150,
+      "sampled_non_pale_canvas_pixels": 238,
+      "sampled_canvas_pixels": 5330
+    },
+    {
+      "name": "compact",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "modeling_workspace": {
+        "x": 8,
+        "y": 143,
+        "width": 1264,
+        "height": 553,
+        "bottom": 696
+      },
+      "viewport_pane": {
+        "x": 52,
+        "y": 143,
+        "width": 846,
+        "height": 553,
+        "bottom": 696
+      },
+      "agent_panel": {
+        "x": 908,
+        "y": 143,
+        "width": 320,
+        "height": 553,
+        "bottom": 696
+      },
+      "canvas": {
+        "x": 53,
+        "y": 175,
+        "width": 844,
+        "height": 520,
+        "bottom": 695
+      },
+      "tree_expanded": false,
+      "inspector_expanded": false,
+      "horizontal_overflow": false,
+      "canvas_contained_by_workspace": true,
+      "sampled_unique_canvas_colors": 160,
+      "sampled_non_pale_canvas_pixels": 269,
+      "sampled_canvas_pixels": 5525
+    }
+  ],
+  "boundary": {
+    "agent_runtime": "not_integrated",
+    "agent_panel_mode": "local_review_only_workbench",
+    "accepted_model_state_mutated": false,
+    "protected_content_added": false,
+    "private_data_added": false,
+    "network_or_telemetry_added": false,
+    "d21_scope_promotion": false
+  }
+}

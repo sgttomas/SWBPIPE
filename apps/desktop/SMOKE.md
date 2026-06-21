@@ -9294,3 +9294,57 @@ notes:
   protected-content, private-data, network/telemetry, lifecycle,
   release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-276 C5.7 human bypass and agent-first viewport shell - PASSED (`TP-R3UX-AGENTSHELL-001`, 2026-06-20)
+
+- Scope: human-directed bypass/redirect of the pending C5.7 packaged re-pass.
+  The prior criterion was not passed. The human ruled that the primary screen
+  must become a 3D model and visual-interaction surface, not a heavily
+  user-laden workflow/data-entry screen; the missing primary affordance is an
+  agent panel because the agent is expected to manage data, workflows, and
+  model redesign from user inputs.
+- App behavior: the model tree and inspector now default to collapsed rails,
+  entity selection no longer forces the inspector open, and the primary
+  workspace includes a persistent local `Design Agent` workbench. The agent
+  panel exposes selected target, queued/applied operation counts, professional
+  boundary, review-only proposal status, mechanics run, proposal generation
+  after mechanics results exist, and Operations/Results openers. It is a local
+  deterministic workbench over existing app state, not a live agent runtime.
+- Layout evidence: the dock-collapsed short-screen layout now preserves the
+  primary model/agent surface instead of shrinking the canvas below its fixed
+  frame. Visual probe assets are stored under DEL-07-06 `_run_records/assets/`:
+  `TP-R3UX-AGENTSHELL-001_1440x920.png`,
+  `TP-R3UX-AGENTSHELL-001_1280x800.png`,
+  `TP-R3UX-AGENTSHELL-001_1440x920_canvas.png`,
+  `TP-R3UX-AGENTSHELL-001_1280x800_canvas.png`, and
+  `TP-R3UX-AGENTSHELL-001_probe.json`. The probe recorded no horizontal
+  overflow, collapsed tree/inspector rails by default, visible agent panel,
+  contained canvas, and nonblank canvas pixel samples at 1440x920 and 1280x800.
+- Validation:
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 406/406
+    tests.
+  - `npm run build --workspace apps/desktop` passed, retaining the existing
+    Vite chunk-size warning.
+  - `PLAYWRIGHT_WORKERS=1 npm run test:e2e --workspace apps/desktop` passed
+    18/18 Playwright checks across desktop and compact Chromium projects.
+  - `npm run test:e2e:dist --workspace apps/desktop` passed 1/1 production
+    dist smoke check.
+  - `cargo check --release` in `apps/desktop/src-tauri` passed.
+  - `cd apps/desktop && npm run tauri -- build --bundles app` passed,
+    regenerating the WASM operation engine and producing:
+    `apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`.
+- Boot probe: launched the bundled executable for 8 seconds, observed it still
+  running, recorded `stdout_bytes=0` and `stderr_bytes=0`, and terminated it.
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-AGENTSHELL-001.md`.
+- Human status: TP-MAC-189 / the old C5.7 packaged pass criterion is bypassed
+  by human direction, not passed. F-4 and A3 remain open under the prior
+  `DEC-035` vocabulary until the human accepts a replacement C5.7 closure
+  criterion or records a new gate.
+- Boundary: local deterministic review-only UI workbench only. No live
+  embedded-agent runtime, external SDK/harness consumption, autonomous accepted
+  model-state mutation, solver change, schema change, evaluator grammar
+  change, persistence contract change, protected-content source, private-data
+  write path, network/telemetry feature, lifecycle transition, R3 exit review,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

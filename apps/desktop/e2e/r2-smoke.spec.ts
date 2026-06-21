@@ -34,19 +34,44 @@ async function openWorkspaceSection(page: Page, sectionId: string): Promise<void
   await expect(section).toBeVisible();
 }
 
+async function ensureTreeExpanded(page: Page): Promise<void> {
+  const toggle = page.getByTestId("toggle-tree");
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
+  }
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+}
+
+async function ensureInspectorExpanded(page: Page): Promise<void> {
+  const toggle = page.getByTestId("toggle-inspector");
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
+  }
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+}
+
 test("guided workbench shell keeps journey steps, details, and compact status reachable", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await expect(page.getByTestId("app-menu-bar")).toBeVisible();
-  // The dock is collapsed by default so the 3D spatial core dominates.
+  // The dock and detailed rails are collapsed by default so the 3D model plus
+  // the local review-only agent rail dominate the primary screen.
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
+  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByTestId("agent-workbench-panel")).toBeVisible();
+  await expect(page.getByTestId("agent-focus-selection")).toContainText("project:invented-loop-01");
+  await expect(page.getByTestId("agent-proposal-summary")).toContainText("review_only_local_preview");
   await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
   await expect(page.getByTestId("status-pill-professional")).toContainText("HUMAN_REVIEW_REQUIRED");
+  await page.getByTestId("toggle-tree").click();
+  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
   await page.getByTestId("layout-mode-grid").click();
   await expect(page.getByTestId("entity-grid")).toBeVisible();
   await expect(page.getByTestId("entity-grid-table-nodes")).toBeVisible();
   await page.getByTestId("entity-grid-row-node:N-100").click();
+  await expect(page.getByTestId("agent-focus-selection")).toContainText("node:N-100");
   await expect(page.getByLabel("Property inspector")).toContainText("node:N-100");
   await page.getByTestId("entity-grid-input-node:N-100-x").fill("1.25");
   await page.getByTestId("entity-grid-input-node:N-100-y").fill("0.5");
@@ -102,6 +127,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("m, model metadata");
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
+  await ensureTreeExpanded(page);
+  await ensureInspectorExpanded(page);
   await page.getByTestId("tree-row-support:S-120").click();
   await expect(page.getByTestId("delete-support-intent-panel")).toContainText("delete_support");
   await expect(page.getByTestId("delete-support-intent-panel")).toContainText("not_required_dimensionless");
@@ -778,6 +805,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "0 load cases; 0 primitive loads; 0 combinations"
   );
+  await ensureInspectorExpanded(page);
 
   const startNode = stepPayload("create_node", "node:R2-100");
   await fillNodeDraft(page, startNode);

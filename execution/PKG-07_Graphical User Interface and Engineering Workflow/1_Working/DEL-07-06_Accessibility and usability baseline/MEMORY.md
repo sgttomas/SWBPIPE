@@ -437,3 +437,30 @@ successor journey evidence. Next unblocked C5 tranche is
   color-only signaling policy, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-20 - TP-R3UX-AGENTSHELL-001 C5.7 human bypass and agent-first viewport shell
+
+- Human bypassed the stale C5.7 packaged re-pass route instead of passing it.
+  The app should not continue toward a heavily user-laden workflow/data-entry
+  primary screen; the primary screen must be a 3D model and visual interaction
+  surface with an agent panel.
+- Implemented the replacement local shell direction: model tree and inspector
+  default collapsed; selection no longer forces inspector open; a persistent
+  local `Design Agent` workbench sits beside the viewport with selection,
+  target, queue counts, boundary, review-only proposal status, mechanics run,
+  proposal generation, and Operations/Results openers.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-AGENTSHELL-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-276; visual captures and probe under
+  `_run_records/assets/TP-R3UX-AGENTSHELL-001_*`.
+- Validation passed: full desktop Vitest 19 files / 406 tests; desktop build;
+  desktop Playwright 18/18; dist Playwright 1/1; `cargo check --release`;
+  Tauri `.app` build; 8-second packaged boot probe clean.
+- Boundary preserved: local deterministic review-only workbench only. No live
+  external agent SDK/harness, autonomous accepted-model mutation, schema,
+  solver, evaluator, persistence, protected content, private data,
+  network/telemetry, lifecycle, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+- Residual: F-4 and A3 remain open under `DEC-035` vocabulary until the human
+  accepts a replacement C5.7 closure criterion or records a new gate. TP-MAC-189
+  is bypassed, not passed.

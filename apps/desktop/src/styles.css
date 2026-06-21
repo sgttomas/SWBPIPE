@@ -484,13 +484,18 @@ button:focus-visible {
   padding: 8px;
 }
 
+.workspace.dock-collapsed .modeling-workspace {
+  flex: 1 1 0;
+}
+
 /* Persistent spatial core (PRD 14.1): model tree | viewport | inspector. */
 .modeling-workspace {
   --pane-tree-col: 300px;
-  --pane-viewport-col: minmax(520px, 1.25fr);
+  --pane-viewport-col: minmax(560px, 1.6fr);
+  --pane-agent-col: minmax(300px, 340px);
   --pane-inspector-col: 390px;
   display: grid;
-  grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-inspector-col);
+  grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-agent-col) var(--pane-inspector-col);
   gap: 10px;
   flex: 1.5 1 0;
   min-height: 540px;
@@ -506,6 +511,14 @@ button:focus-visible {
 
 .modeling-workspace.inspector-collapsed {
   --pane-inspector-col: 34px;
+}
+
+.modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) {
+  --pane-agent-col: 0;
+}
+
+.modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) .workspace-pane-agent {
+  display: none;
 }
 
 /* One persistent toggle per rail. It stays mounted across collapse/expand
@@ -585,6 +598,15 @@ button:focus-visible {
 .workspace-pane > .panel,
 .workspace-pane > .viewport-shell {
   flex: 0 0 auto;
+}
+
+.workspace-pane-viewport > .viewport-shell,
+.workspace-pane-agent > .panel {
+  flex: 1 1 auto;
+}
+
+.workspace-pane-agent {
+  overflow-y: auto;
 }
 
 .layout-mode-toggle,
@@ -1235,6 +1257,7 @@ button:focus-visible {
 .viewport-shell {
   display: grid;
   grid-template-rows: auto minmax(520px, 1fr) auto auto;
+  min-height: 100%;
 }
 
 .viewport-frame {
@@ -1664,6 +1687,107 @@ button:focus-visible {
   font-size: 11px;
 }
 
+.agent-workbench-panel {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 100%;
+}
+
+.agent-workbench-title {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.agent-workbench-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid #b8c3bd;
+  border-radius: 6px;
+  color: #213832;
+  background: #e3eee8;
+}
+
+.agent-workbench-title p {
+  margin: 2px 0 0;
+  color: #5a6763;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.agent-focus-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+}
+
+.agent-focus-fact,
+.agent-proposal-summary {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #d5ddd8;
+  border-radius: 6px;
+  background: #fbfcfa;
+}
+
+.agent-focus-fact span,
+.agent-proposal-summary span,
+.agent-proposal-summary small {
+  color: #5f6c68;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.agent-focus-fact strong,
+.agent-proposal-summary strong {
+  min-width: 0;
+  color: #25332f;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.agent-action-grid button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid #aeb9b3;
+  border-radius: 6px;
+  color: #263331;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.agent-action-grid button:disabled {
+  color: #83908b;
+  background: #edf1ee;
+  cursor: not-allowed;
+}
+
+.agent-action-grid button:not(:disabled):hover {
+  border-color: #2d5b50;
+  background: #e6f0eb;
+}
+
 @media (max-width: 1040px) {
   .viewport-intents,
   .viewport-node-form,
@@ -1681,6 +1805,11 @@ button:focus-visible {
   .modeling-workspace {
     flex: 0 1 210px;
     min-height: 210px;
+  }
+
+  .workspace.dock-collapsed .modeling-workspace {
+    flex: 1 1 0;
+    min-height: 0;
   }
 
   .workspace-dock {
@@ -2757,6 +2886,7 @@ th {
   .modeling-workspace {
     --pane-tree-col: 250px;
     --pane-viewport-col: minmax(400px, 1fr);
+    --pane-agent-col: minmax(280px, 320px);
     --pane-inspector-col: 340px;
     min-height: 230px;
   }

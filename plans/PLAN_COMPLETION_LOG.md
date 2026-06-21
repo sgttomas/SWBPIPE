@@ -14,6 +14,48 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-20 - C5.7 human bypass and agent-first viewport shell (`TP-R3UX-AGENTSHELL-001`)
+
+Recorded the human-directed bypass of the pending C5.7 packaged re-pass and
+implemented the replacement primary-screen direction. The old TP-MAC-189
+criterion was not passed: the human explicitly rejected continuing toward a
+heavily user-laden workflow/data-entry surface and directed the app toward a
+3D-model-first interaction screen with visual aids plus a primary agent panel.
+
+The desktop shell now defaults the model tree and inspector to collapsed rails,
+stops reopening the inspector on every model selection, and adds a persistent
+local `Design Agent` workbench beside the viewport. The panel exposes the
+current selection/target, operation queue counts, the professional boundary,
+review-only proposal status, mechanics run, proposal generation after mechanics
+results exist, and Operations/Results openers. It is a deterministic local UI
+workbench over existing state, not a live external agent runtime or app-dev
+harness integration.
+
+Validation: full desktop Vitest 19 files / 406 tests; desktop build green with
+the existing Vite large-chunk warning; desktop Playwright 18/18; dist
+Playwright 1/1; `cargo check --release`; `npm run tauri -- build --bundles app`;
+packaged boot probe alive for 8 seconds with `stdout_bytes=0`,
+`stderr_bytes=0`. Visual evidence at 1440x920 and 1280x800 recorded no
+horizontal overflow, collapsed rails by default, visible agent panel, contained
+canvas, and nonblank canvas pixels.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-276; DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-AGENTSHELL-001.md`; visual probe/assets
+under DEL-07-06 `_run_records/assets/TP-R3UX-AGENTSHELL-001_*`.
+
+Residuals: F-4 and A3 remain open under the prior `DEC-035` vocabulary until
+the human accepts a replacement C5.7 closure criterion or records a new gate.
+TP-MAC-189 is bypassed by direction, not retroactively passed.
+
+Boundary: frontend layout/local workbench/tests/package evidence only. No live
+embedded-agent runtime, external SDK/harness consumption, autonomous accepted
+model-state mutation, backend operation kind, solver, schema, evaluator,
+persistence, unit storage, protected-content, private-data, network/telemetry,
+lifecycle, release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-20 - C5.7R object-creation toolbar (`TP-R3UX-CREATIONTOOLS-001`)
 
 Completed the remaining C5.7R CAD-shell builder increment, tranche 2c:

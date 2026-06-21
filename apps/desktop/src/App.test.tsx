@@ -99,6 +99,11 @@ describe("OpenPipeStress desktop preview", () => {
     // The dock starts collapsed so the spatial core owns the surface; the
     // workflow ribbon and earlier guided shells are gone.
     expect(screen.getByTestId("workspace-dock").className).toContain("collapsed");
+    expect(screen.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("agent-workbench-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("agent-focus-selection")).toHaveTextContent("project: project:invented-loop-01");
+    expect(screen.getByTestId("agent-proposal-summary")).toHaveTextContent("review_only_local_preview");
     expect(screen.queryByTestId("workflow-ribbon")).toBeNull();
     expect(screen.queryByTestId("guided-workbench")).toBeNull();
     expect(screen.queryByTestId("workspace-nav")).toBeNull();

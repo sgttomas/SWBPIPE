@@ -8,7 +8,7 @@
 - Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
 - Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
-- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-22` (with `DEC-041/042/043` recorded 2026-06-18: the embedded-agent substrate ruling, the D-21 held-with-prep disposition, and the piping-design equation-reliability constraint).
+- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-22` (with `DEC-041/042/043` recorded 2026-06-18 and `DEC-044/045/046` recorded for D-16/D-18/D-19).
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat `execution/_DAG/DAG-007/` as the validated canonical dependency type-system rectification successor pending human approval. Do not treat it as current authority or update `_DAG/_LATEST.md` unless the human approval record is completed.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
@@ -65,39 +65,26 @@
      pass was run and FAILED on usability (2026-06-18): "a wall of
      evidence/telemetry strings, three competing navigation systems, the model
      a postage stamp" — F-4 and the A3 authoring-usability finding stay open.**
-     The human-approved repair tranche **C5.7R** has Inc 0-7 landed: Inc 0-5
-     are recorded under `TP-R3UX-WORKSPACEREDESIGN-001` / SMOKE TP-MAC-272 /
-     DEL-07-06 `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-WORKSPACEREDESIGN-001.md`;
-     Inc 6 Grid mode is recorded under `TP-R3UX-GRIDMODE-001` / SMOKE
-     TP-MAC-273 / DEL-07-06
-     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-GRIDMODE-001.md`; Inc 7 packaged
-     kit is recorded under `TP-R3UX-PACKAGEKIT-002` / SMOKE TP-MAC-274 /
-     DEL-07-06
-     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-PACKAGEKIT-002.md`.
-     **Further human-directed "professional grade" CAD-shell increments
-     landed on top of Inc 0-7** (frontend + native-menu only, per
-     `plans/PLAN_2026-06-18_workspace_redesign_c5_7.md` §10): the CAD-grade
-     3D viewport (`TP-R3UX-VIEWPORT-001` / DEL-07-06
-     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-VIEWPORT-001.md`); Phase 2 tranche
-     2a, a native + in-DOM menu-bar IA with a collapsible viewport-dominant
-     dock (`TP-R3UX-CADSHELL-001` /
-     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-CADSHELL-001.md`); and Phase 2
-     tranche 2b, collapsible tree/inspector rails with inspector auto-open on
-     selection (`TP-R3UX-CADSHELL-002` /
-     `WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-CADSHELL-002.md`). Each is
-     gates-green (tsc; vitest 406/406; e2e 18/18; cargo check; `.app`
-     rebuilt/boots clean) and committed to `main`.
-     **The remaining builder increment is tranche 2c — an object-creation
-     toolbar that makes Insert commands arm a creation tool rather than only
-     navigate.** After 2c, rebuild the `.app`; the packaged C5.7 human re-pass
-     (target SMOKE TP-MAC-189) remains the gate and must be performed by the
-     human and recorded before F-4/A3 can close or C5.8 can begin. Honor the
-     spec's scope boundaries:
-     agent-panel seam reserved-not-built (`D-21`); `DEC-037` (structured rule
-     composer, no writable text); dual units display-only; no new engine
-     contracts (Grid mode fans existing `EditorOperationIntent`s). The Phase B
-     unit-aware-I/O remainder is allowed alongside only when it does not block
-     or displace C5;
+     The human-approved repair tranche **C5.7R** has landed through the
+     2026-06-20 agent-first viewport-shell redirect: workspace redesign Inc
+     0-5 (`TP-R3UX-WORKSPACEREDESIGN-001`, TP-MAC-272), Grid mode
+     (`TP-R3UX-GRIDMODE-001`, TP-MAC-273), packaged kit
+     (`TP-R3UX-PACKAGEKIT-002`, TP-MAC-274), CAD-grade 3D viewport
+     (`TP-R3UX-VIEWPORT-001`), menu-bar IA (`TP-R3UX-CADSHELL-001`),
+     collapsible rails (`TP-R3UX-CADSHELL-002`), object-creation toolbar
+     (`TP-R3UX-CREATIONTOOLS-001`, TP-MAC-275), and the local agent workbench
+     (`TP-R3UX-AGENTSHELL-001`, TP-MAC-276). The 2026-06-20 human redirect
+     explicitly bypassed the stale TP-MAC-189 re-pass path instead of passing
+     it: the primary screen must be a 3D model / visual-interaction surface
+     with an agent panel, not a heavily user-laden workflow/data-entry screen.
+     F-4/A3 remain open under `DEC-035` vocabulary until the human accepts a
+     replacement C5.7 closure criterion or records a new gate; C5.8 should not
+     begin until that replacement human closure exists. Honor the scope
+     boundaries: agent panel is local deterministic review-only (`DEC-042`);
+     no live external SDK/harness or `D-21` promotion; `DEC-037` structured
+     rule composer/no writable text; dual units display-only; no new engine
+     contracts. The Phase B unit-aware-I/O remainder is allowed alongside only
+     when it does not block or displace C5;
    - if that item is blocked by a human decision, run the loop's
      decision-escalation step: prepare the decision packet if none exists;
      if a packet already awaits ruling, take the next unblocked

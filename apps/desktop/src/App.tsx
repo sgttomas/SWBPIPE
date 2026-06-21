@@ -1,4 +1,7 @@
 import {
+  Bot,
+  ClipboardCheck,
+  Crosshair,
   Database,
   FileWarning,
   FilePlus,
@@ -6,8 +9,10 @@ import {
   HardDrive,
   List,
   LockKeyhole,
+  Play,
   Save,
-  ShieldCheck
+  ShieldCheck,
+  Sparkles
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -302,11 +307,12 @@ export function App() {
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const [armedCreationTool, setArmedCreationTool] = useState<CreationTool | null>(null);
-  // Collapsible spatial-core rails. Both default expanded, so existing layout,
-  // unit, and e2e behavior are unchanged; collapsing a rail hands its column
-  // width to the 3D viewport so the spatial core can dominate the surface.
-  const [treeCollapsed, setTreeCollapsed] = useState(false);
-  const [inspectorCollapsed, setInspectorCollapsed] = useState(false);
+  // Viewport-first agent-mediated shell (TP-R3UX-AGENTSHELL-001): the detailed
+  // tree and property inspector start tucked away so the primary screen is the
+  // 3D model plus a local review-only agent workbench. The detailed rails remain
+  // available from View for targeted investigation.
+  const [treeCollapsed, setTreeCollapsed] = useState(true);
+  const [inspectorCollapsed, setInspectorCollapsed] = useState(true);
   const [r3JourneyState, setR3JourneyState] = useState<R3JourneyState>(() => ({
     ...INITIAL_R3_JOURNEY_STATE
   }));
@@ -838,13 +844,8 @@ export function App() {
     }
   }
 
-  // Selecting any entity (from the tree, the 3D viewport, or the load-case
-  // manager) reveals its properties: re-open the inspector rail if it was
-  // collapsed, so the spatial core behaves like a CAD "click a part to see its
-  // details" surface.
   function handleSelectEntity(entity: EntityRef) {
     setSelection(entity);
-    setInspectorCollapsed(false);
   }
 
   function handleArmCreationTool(tool: CreationTool | null) {
@@ -1078,6 +1079,23 @@ export function App() {
               queuedIntents={editorIntents}
               result={result}
               selection={selection}
+            />
+          </div>
+          <div className="workspace-pane workspace-pane-agent">
+            <AgentWorkbenchPanel
+              appliedOperationCount={appliedOperations.length}
+              mechanicsReady={Boolean(result)}
+              model={model}
+              proposal={proposal}
+              queuedIntentCount={editorIntents.length}
+              running={running}
+              selection={selection}
+              selectedReviewTarget={selectedReviewTarget}
+              statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
+              onGenerateProposal={handleProposal}
+              onOpenOperations={() => setActiveSection("operations")}
+              onOpenResults={() => setActiveSection("results")}
+              onRunMechanics={handleRun}
             />
           </div>
           <div className="workspace-pane workspace-pane-inspector">
@@ -1585,6 +1603,112 @@ function MenuBar({
         ))}
       </nav>
     </>
+  );
+}
+
+function AgentWorkbenchPanel({
+  appliedOperationCount,
+  mechanicsReady,
+  model,
+  proposal,
+  queuedIntentCount,
+  running,
+  selection,
+  selectedReviewTarget,
+  statusText,
+  onGenerateProposal,
+  onOpenOperations,
+  onOpenResults,
+  onRunMechanics
+}: {
+  appliedOperationCount: number;
+  mechanicsReady: boolean;
+  model: PreviewModel;
+  proposal: AgentProposal | null;
+  queuedIntentCount: number;
+  running: boolean;
+  selection: EntityRef;
+  selectedReviewTarget: SelectedReviewTarget | null;
+  statusText: string;
+  onGenerateProposal: () => void;
+  onOpenOperations: () => void;
+  onOpenResults: () => void;
+  onRunMechanics: () => void;
+}) {
+  const selectedTarget = selectedReviewTarget ? `${selectedReviewTarget.target_type}: ${selectedReviewTarget.id}` : "model";
+  return (
+    <section className="panel agent-workbench-panel" aria-label="Design agent workbench" data-testid="agent-workbench-panel">
+      <div className="agent-workbench-title">
+        <span className="agent-workbench-icon" aria-hidden="true">
+          <Bot size={18} />
+        </span>
+        <div>
+          <div className="panel-title">Design Agent</div>
+          <p data-testid="agent-workbench-status">{statusText}</p>
+        </div>
+      </div>
+
+      <div className="agent-focus-grid" aria-label="Agent focus">
+        <AgentFocusFact label="Selection" value={`${selection.type}: ${selection.id}`} testId="agent-focus-selection" />
+        <AgentFocusFact label="Target" value={selectedTarget} testId="agent-focus-target" />
+        <AgentFocusFact label="Queue" value={`${queuedIntentCount} queued / ${appliedOperationCount} applied`} testId="agent-focus-queue" />
+        <AgentFocusFact
+          label="Boundary"
+          value={boundaryValue(model, "professional_boundary")}
+          testId="agent-focus-boundary"
+        />
+      </div>
+
+      <div className="agent-action-grid" aria-label="Agent actions">
+        <button type="button" data-testid="agent-run-mechanics" onClick={onRunMechanics} disabled={running}>
+          <Play size={15} aria-hidden="true" />
+          Run
+        </button>
+        <button
+          type="button"
+          data-testid="agent-generate-proposal"
+          onClick={onGenerateProposal}
+          disabled={!mechanicsReady}
+          title={mechanicsReady ? undefined : "Run mechanics before generating a review proposal."}
+        >
+          <Sparkles size={15} aria-hidden="true" />
+          Propose
+        </button>
+        <button type="button" data-testid="agent-open-operations" onClick={onOpenOperations}>
+          <ClipboardCheck size={15} aria-hidden="true" />
+          Review
+        </button>
+        <button type="button" data-testid="agent-open-results" onClick={onOpenResults}>
+          <Crosshair size={15} aria-hidden="true" />
+          Inspect
+        </button>
+      </div>
+
+      <div className="agent-proposal-summary" data-testid="agent-proposal-summary">
+        {proposal ? (
+          <>
+            <strong>{proposal.proposal_id}</strong>
+            <span>{proposal.validation.application_status ?? "not_applied"}</span>
+            <small>{proposal.audit_boundary.requires_user_acceptance ? "requires_user_acceptance=true" : "requires_user_acceptance=false"}</small>
+          </>
+        ) : (
+          <>
+            <strong>No active proposal</strong>
+            <span>review_only_local_preview</span>
+            <small>accepted_model_state_mutated=false</small>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function AgentFocusFact({ label, value, testId }: { label: string; value: string; testId: string }) {
+  return (
+    <div className="agent-focus-fact" data-testid={testId} title={value}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }
 
