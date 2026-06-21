@@ -14,6 +14,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 assembled nonlinear validation seed (`TP-R4-D9-ASSEMBLEDSEED-001`)
+
+Landed the first D9 assembled global-loop validation seed under `DEC-044` and
+`DEC-046`. `validation/benchmarks/nonlinear` now includes three cases that run
+`core/solver/nonlinear_integration::solve_active_set_frame` through a two-node
+dense frame: one-way support deactivation, positive gap closure, and lift-off
+release. The existing classifier-only fixtures remain in place.
+
+The assembled cases keep the convergence policy unresolved and visible through
+`TolerancePolicyTbd` and `DEC-046-CV-B-assembled-validation-seed-TBD`. New
+public-original hand-calculation notes were added for the assembled cases, and
+the focused pytest surface now requires the note files, invented-data boundary
+wording, source references, and assembled fixture IDs.
+
+Validation: `cargo fmt --manifest-path validation/benchmarks/nonlinear/Cargo.toml -- --check`
+passed; `cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml`
+passed 7/7; `python3 -m pytest -q tests/test_nonlinear_support_regression.py`
+passed 8/8; `git diff --check` passed; `python3 tools/release/run_evidence_sweep.py --execute`
+passed all five surfaces, writing
+`validation/evidence/sweeps/SWEEP_20260621T073226Z_4cb593a09376-dirty.json`.
+
+Evidence: DEL-09-03 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-ASSEMBLEDSEED-001.md`.
+
+Residual: D9 remains partial. Friction normal-force model integration,
+measured class-tiered convergence values, sparse live-path adoption, broader
+live-solver coverage, the PRD section 16.2 branch-assembly benchmark,
+component provenance in the rendered report path, and the R4 exit evidence
+package remain open.
+
+Boundary: invented dense validation fixtures only; no protected standards
+table, proprietary catalog value, public default, private data, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D6 product-preview nonlinear sidecar (`TP-R4-D6-PHYSINTEG-001`)
 
 Landed the first product/app/result-envelope follow-through for D6 under

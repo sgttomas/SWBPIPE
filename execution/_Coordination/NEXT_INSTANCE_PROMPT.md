@@ -33,9 +33,10 @@
    are never resolved by agents. Prepare decision packets per the loop's
    decision-escalation step, surface pending rulings every session, and
    proceed only on unblocked work.
-7. Current lifecycle state is application-integration ready: all deliverables
-   are `CHECKING` or `ISSUED`; `DEL-01-01` is the sole currently `ISSUED`
-   deliverable and remains the accepted governance baseline unless a
+7. Current lifecycle state must be discovered from deliverable-local
+   `_STATUS.md` files. The 2026-06-21 discovery run reported `CHECKING=8`,
+   `IN_PROGRESS=92`, and `ISSUED=1`; `DEL-01-01` is the sole currently
+   `ISSUED` deliverable and remains the accepted governance baseline unless a
    human-approved change path opens it.
 
 ## Next Action
@@ -72,13 +73,14 @@
      no full assembled global solve or pressure-thrust load generation claim.
      D5 is gated by `D-15`; the D-15 spring-hanger scope decision packet is
      prepared and awaiting human ruling. If that ruling is still pending,
-     continue D6 residuals after `TP-R4-D6-LOOPCORE-001` and
+     continue D6/D9 residuals after `TP-R4-D6-LOOPCORE-001` and
      `TP-R4-D6-PHYSINTEG-001`: the loop-core crate
      `core/solver/nonlinear_integration` exists under `DEC-044`/`DEC-046`, and
      the first invented product/app/result-envelope sidecar is landed, but
      friction normal-force model integration, measured convergence values,
      sparse live-path adoption, broader live-solver coverage, and D9 validation
-     cases remain open. D7 sparse live-path
+     cases beyond the first assembled seed (`TP-R4-D9-ASSEMBLEDSEED-001`)
+     remain open. D7 sparse live-path
      timing remains gated by `D-17`; `D-20` is held for Phase E; `D-21` remains
      held and does not authorize v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

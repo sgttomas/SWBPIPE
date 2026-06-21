@@ -33,3 +33,6 @@ thresholds remain `TBD`.
 | `NL-LIFT-OFF-ORIGINAL` | [lift_off.md](lift_off.md) |
 | `NL-FRICTION-STICK-SLIDE-ORIGINAL` | [friction_transition.md](friction_transition.md) |
 | `NL-NONCONVERGENCE-LIMIT-ORIGINAL` | [unresolved_nonconvergence.md](unresolved_nonconvergence.md) |
+| `NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL` | [assembled_one_way_deactivation.md](assembled_one_way_deactivation.md) |
+| `NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL` | [assembled_gap_closure.md](assembled_gap_closure.md) |
+| `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | [assembled_lift_off.md](assembled_lift_off.md) |

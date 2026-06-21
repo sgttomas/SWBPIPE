@@ -7,7 +7,13 @@
 
 use std::path::Path;
 
-use open_pipe_stress_linear_supports::FrameDof;
+use open_pipe_stress_frame_kernel::{
+    node_dof_index, DenseVector, FrameDof, FrameElement, FrameNode, FrameSection, DOF_PER_NODE,
+};
+use open_pipe_stress_nonlinear_integration::{
+    solve_active_set_frame, ConvergenceControl, ConvergencePolicyStatus, NonlinearFrameSolveInput,
+    NonlinearFrameSolveResult,
+};
 use open_pipe_stress_nonlinear_supports::{
     evaluate_active_set_iteration, ActivationSense, ActiveSetIteration, ActiveSetIterationInput,
     ActiveSetState, GapDirection, NonlinearSupport, NonlinearSupportError, SupportStateRecord,
@@ -192,6 +198,23 @@ pub struct NonlinearRegressionCase {
     pub observations: Vec<DimensionedObservation>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct AssembledNonlinearRegressionCase {
+    pub fixture_id: &'static str,
+    pub family: NonlinearRegressionFamily,
+    pub description: &'static str,
+    pub assumptions: &'static [&'static str],
+    pub provenance: BenchmarkProvenance,
+    pub unit_basis: FixtureUnitBasis,
+    pub input: NonlinearFrameSolveInput,
+    pub expected_final_states: Vec<ExpectedState>,
+    pub expected_iteration_count: usize,
+    pub expected_final_residual_norm: f64,
+    pub expected_converged: bool,
+    pub expected_diagnostic_codes: Vec<SolverDiagnosticCode>,
+    pub observations: Vec<DimensionedObservation>,
+}
+
 impl NonlinearRegressionCase {
     pub fn run(&self) -> Result<ActiveSetIteration, NonlinearSupportError> {
         evaluate_active_set_iteration(&self.input)
@@ -251,6 +274,59 @@ impl NonlinearRegressionCase {
     }
 }
 
+impl AssembledNonlinearRegressionCase {
+    pub fn run(
+        &self,
+    ) -> Result<
+        NonlinearFrameSolveResult,
+        open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
+    > {
+        solve_active_set_frame(&self.input)
+    }
+
+    pub fn tolerance_policy_is_unresolved(&self) -> bool {
+        self.observations
+            .iter()
+            .all(|observation| observation.tolerance_policy.is_none())
+    }
+
+    pub fn has_dimensioned_observations(&self) -> bool {
+        self.observations.iter().all(|observation| {
+            observation.value.is_finite()
+                && !observation.unit.is_empty()
+                && CANONICAL_DIMENSIONS.contains(&observation.dimension)
+        }) && self.unit_basis.is_explicit_fixture_basis()
+    }
+
+    pub fn matches_expected_outcome(&self) -> bool {
+        let solve = match self.run() {
+            Ok(solve) => solve,
+            Err(_) => return false,
+        };
+        let expected_states: Vec<SupportStateRecord> = self
+            .expected_final_states
+            .iter()
+            .map(|expected| SupportStateRecord::new(expected.support_id, expected.state))
+            .collect();
+        let final_residual = solve
+            .iterations
+            .last()
+            .map(|iteration| iteration.active_set.residual_norm)
+            .unwrap_or(f64::NAN);
+        let diagnostic_codes = solve
+            .diagnostics
+            .iter()
+            .map(|diagnostic| diagnostic.code)
+            .collect::<Vec<_>>();
+
+        solve.final_states == expected_states
+            && solve.iterations.len() == self.expected_iteration_count
+            && final_residual == self.expected_final_residual_norm
+            && solve.converged == self.expected_converged
+            && diagnostic_codes == self.expected_diagnostic_codes
+    }
+}
+
 pub fn fixture_inventory() -> Vec<NonlinearRegressionCase> {
     vec![
         active_set_one_way_fixture(),
@@ -258,6 +334,14 @@ pub fn fixture_inventory() -> Vec<NonlinearRegressionCase> {
         lift_off_fixture(),
         friction_transition_fixture(),
         unresolved_nonconvergence_fixture(),
+    ]
+}
+
+pub fn assembled_fixture_inventory() -> Vec<AssembledNonlinearRegressionCase> {
+    vec![
+        assembled_one_way_deactivation_fixture(),
+        assembled_gap_closure_fixture(),
+        assembled_lift_off_loss_fixture(),
     ]
 }
 
@@ -276,6 +360,254 @@ pub fn missing_required_families(
         .into_iter()
         .filter(|family| !fixtures.iter().any(|fixture| fixture.family == *family))
         .collect()
+}
+
+pub fn missing_required_assembled_families(
+    fixtures: &[AssembledNonlinearRegressionCase],
+) -> Vec<NonlinearRegressionFamily> {
+    let required = [
+        NonlinearRegressionFamily::ActiveSet,
+        NonlinearRegressionFamily::Gap,
+        NonlinearRegressionFamily::LiftOff,
+    ];
+
+    required
+        .into_iter()
+        .filter(|family| !fixtures.iter().any(|fixture| fixture.family == *family))
+        .collect()
+}
+
+fn assembled_axial_input(
+    nonlinear_supports: Vec<NonlinearSupport>,
+    initial_states: Vec<SupportStateRecord>,
+    max_iterations: usize,
+) -> NonlinearFrameSolveInput {
+    let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+    let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
+    let section = FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap();
+    let element = FrameElement::new(node_i, node_j, section, [0.0, 1.0, 0.0]).unwrap();
+    let mut force: DenseVector = vec![0.0; 2 * DOF_PER_NODE];
+    force[node_dof_index(1, FrameDof::Ux)] = 10.0;
+
+    NonlinearFrameSolveInput {
+        node_count: 2,
+        elements: vec![element],
+        force,
+        base_restrained_dofs: vec![
+            node_dof_index(0, FrameDof::Ux),
+            node_dof_index(0, FrameDof::Uy),
+            node_dof_index(0, FrameDof::Uz),
+            node_dof_index(0, FrameDof::Rx),
+            node_dof_index(0, FrameDof::Ry),
+            node_dof_index(0, FrameDof::Rz),
+            node_dof_index(1, FrameDof::Uy),
+            node_dof_index(1, FrameDof::Uz),
+            node_dof_index(1, FrameDof::Rx),
+            node_dof_index(1, FrameDof::Ry),
+            node_dof_index(1, FrameDof::Rz),
+        ],
+        nonlinear_supports,
+        initial_states,
+        friction_normal_reactions: Vec::new(),
+        convergence: ConvergenceControl::new(
+            "DEC-046-CV-B-assembled-validation-seed-TBD",
+            ConvergencePolicyStatus::Tbd,
+            0.0,
+            0.0,
+            max_iterations,
+        )
+        .unwrap(),
+    }
+}
+
+pub fn assembled_one_way_deactivation_fixture() -> AssembledNonlinearRegressionCase {
+    let support_id = "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-A";
+    let support = NonlinearSupport::one_way(
+        support_id,
+        1,
+        FrameDof::Ux,
+        ActivationSense::PositiveReaction,
+    );
+    let input = assembled_axial_input(
+        vec![support],
+        vec![SupportStateRecord::new(support_id, ActiveSetState::Active)],
+        4,
+    );
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL",
+        family: NonlinearRegressionFamily::ActiveSet,
+        description:
+            "Invented assembled frame solve deactivates a one-way support and then converges.",
+        assumptions: &[
+            "The frame fixture is a two-node axial member with invented stiffness values.",
+            "The residual is the assembled loop's active-set changed-support count.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_one_way_deactivation.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![ExpectedState {
+            support_id,
+            state: ActiveSetState::Inactive,
+        }],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        observations: vec![
+            DimensionedObservation {
+                name: "applied_force",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
+pub fn assembled_gap_closure_fixture() -> AssembledNonlinearRegressionCase {
+    let support_id = "NL-ASSEMBLED-GAP-CLOSE-A";
+    let support = NonlinearSupport::gap(
+        support_id,
+        1,
+        FrameDof::Ux,
+        0.05,
+        GapDirection::PositiveDisplacement,
+    )
+    .unwrap();
+    let input = assembled_axial_input(
+        vec![support],
+        vec![SupportStateRecord::new(
+            support_id,
+            ActiveSetState::Inactive,
+        )],
+        4,
+    );
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL",
+        family: NonlinearRegressionFamily::Gap,
+        description: "Invented assembled frame solve closes a positive gap at explicit clearance.",
+        assumptions: &[
+            "The free axial displacement is larger than the explicit invented clearance.",
+            "The closed gap is represented as a prescribed support displacement in the linearized iteration.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_gap_closure.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![ExpectedState {
+            support_id,
+            state: ActiveSetState::Active,
+        }],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        observations: vec![
+            DimensionedObservation {
+                name: "gap_clearance",
+                value: 0.05,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
+pub fn assembled_lift_off_loss_fixture() -> AssembledNonlinearRegressionCase {
+    let support_id = "NL-ASSEMBLED-LIFT-OFF-A";
+    let support = NonlinearSupport::lift_off(
+        support_id,
+        1,
+        FrameDof::Ux,
+        ActivationSense::PositiveReaction,
+    );
+    let input = assembled_axial_input(
+        vec![support],
+        vec![SupportStateRecord::new(support_id, ActiveSetState::Active)],
+        4,
+    );
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-LIFT-OFF-ORIGINAL",
+        family: NonlinearRegressionFamily::LiftOff,
+        description:
+            "Invented assembled frame solve releases a lift-off support and then converges.",
+        assumptions: &[
+            "Contact requires a positive reaction in this invented fixture.",
+            "The final free-state reaction remains zero, so contact stays released.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_lift_off.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![ExpectedState {
+            support_id,
+            state: ActiveSetState::Inactive,
+        }],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        observations: vec![
+            DimensionedObservation {
+                name: "applied_force",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+        ],
+    }
 }
 
 pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
@@ -640,6 +972,14 @@ mod tests {
     }
 
     #[test]
+    fn assembled_inventory_covers_global_loop_seed_families() {
+        let fixtures = assembled_fixture_inventory();
+
+        assert!(missing_required_assembled_families(&fixtures).is_empty());
+        assert_eq!(fixtures.len(), 3);
+    }
+
+    #[test]
     fn fixtures_are_public_original_and_unit_aware() {
         let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .ancestors()
@@ -647,6 +987,18 @@ mod tests {
             .expect("benchmark crate remains under validation/benchmarks/nonlinear");
 
         for fixture in fixture_inventory() {
+            assert!(fixture.provenance.is_publicly_usable());
+            assert!(
+                fixture.provenance.source_artifact_exists(repo_root),
+                "{} provenance source is missing: {}",
+                fixture.fixture_id,
+                fixture.provenance.source_location
+            );
+            assert!(fixture.has_dimensioned_observations());
+            assert!(fixture.tolerance_policy_is_unresolved());
+        }
+
+        for fixture in assembled_fixture_inventory() {
             assert!(fixture.provenance.is_publicly_usable());
             assert!(
                 fixture.provenance.source_artifact_exists(repo_root),
@@ -667,6 +1019,24 @@ mod tests {
                 "{:?}",
                 fixture.fixture_id
             );
+        }
+    }
+
+    #[test]
+    fn assembled_global_loop_seed_cases_converge_with_visible_tbd_policy() {
+        for fixture in assembled_fixture_inventory() {
+            let solve = fixture.run().unwrap();
+
+            assert!(fixture.matches_expected_outcome(), "{}", fixture.fixture_id);
+            assert!(solve.converged, "{}", fixture.fixture_id);
+            assert_eq!(
+                solve.iterations.last().unwrap().active_set.residual_norm,
+                0.0
+            );
+            assert!(solve
+                .diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::TolerancePolicyTbd));
         }
     }
 

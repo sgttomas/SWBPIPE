@@ -9,6 +9,7 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies]
-open_pipe_stress_linear_supports = { path = "../../../core/solver/linear_supports" }
+open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
+open_pipe_stress_nonlinear_integration = { path = "../../../core/solver/nonlinear_integration" }
 open_pipe_stress_nonlinear_supports = { path = "../../../core/solver/nonlinear_supports" }
 open_pipe_stress_solver_diagnostics = { path = "../../../core/solver/diagnostics" }

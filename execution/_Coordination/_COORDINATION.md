@@ -212,18 +212,21 @@ changes. Do not create a session-steering coordination state file.
 ## Application Integration And Issuance Phase
 
 The project has moved out of ordinary deliverable-by-deliverable buildout.
-Current local status discovery reports all deliverables as either `CHECKING`
-or `ISSUED`; `DEL-01-01` is the sole currently `ISSUED` deliverable and
-remains the accepted governance baseline unless a human-approved change path
-opens it.
+Do not infer lifecycle state from this coordination prose; run the local
+status-discovery command and use deliverable-local `_STATUS.md` files as the
+authority. The latest discovery during 2026-06-21 closeout reported
+`CHECKING=8`, `IN_PROGRESS=92`, and `ISSUED=1`; `DEL-01-01` is the sole
+currently `ISSUED` deliverable and remains the accepted governance baseline
+unless a human-approved change path opens it.
 
 Until all deliverables are `ISSUED`, ordinary development is app-centric:
-produce a working desktop application while using `CHECKING` deliverables,
-the current approved DAG pointer, and the decomposition as mature design
-authority. As of 2026-06-16, that pointer is still `DAG-006` pending human
-approval of `DAG-007`. `CHECKING`
-means design authority is mature; it does not mean the application has
-absorbed that deliverable's scope. The completion plan's FR map tracks
+produce a working desktop application while using the current approved DAG
+pointer, the decomposition, and deliverable-local records according to their
+discovered lifecycle state. As of 2026-06-16, that pointer is still `DAG-006`
+pending human approval of `DAG-007`. `CHECKING` means design authority is
+mature; it does not mean the application has absorbed that deliverable's
+scope. `IN_PROGRESS` records remain current development surfaces and must not
+be described as issued or closed. The completion plan's FR map tracks
 absorption toward the PRD yardstick. Formal issuance remains a separate
 human-gated lifecycle workflow.
 
@@ -264,16 +267,19 @@ the invented preview path through `TP-R4-D4-EJSTIFF-001`, with user-stiffness
 macro-element review rows and no full assembled global solve or pressure-thrust
 load generation claim. D5 spring-hanger scope is gated by `D-15`, whose packet
 is prepared and awaiting human ruling. If that ruling is still pending, continue
-D6 residuals: the loop-core slice `TP-R4-D6-LOOPCORE-001` added
+D6/D9 residuals: the loop-core slice `TP-R4-D6-LOOPCORE-001` added
 `core/solver/nonlinear_integration` as the dense assembled active-set loop owner
 under `DEC-044`/`DEC-046`, and `TP-R4-D6-PHYSINTEG-001` bound that dense loop
 into the invented product/app/result-envelope preview path for one explicit
-nonlinear support. Friction normal-force model integration, measured
-convergence values, sparse live-path adoption, broader live-solver coverage,
-and D9 validation cases remain open. The remaining spine continues with D7
-sparse live-path timing gate
-(`D-17`), D8 report provenance, and D9 R4 validation evidence. `DAG-007` remains pending human
-approval; `_DAG/_LATEST.md` stays on `DAG-006`.
+nonlinear support. `TP-R4-D9-ASSEMBLEDSEED-001` added the first assembled
+global-loop validation seed for one-way deactivation, gap closure, and lift-off
+release. Friction normal-force model integration, measured convergence values,
+sparse live-path adoption, broader live-solver coverage, the branch-assembly
+benchmark, component provenance in rendered reports, and the R4 exit evidence
+package remain open. The remaining spine continues with D7 sparse live-path
+timing gate (`D-17`), D8 report provenance, and broader D9 R4 validation
+evidence. `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
+`DAG-006`.
 
 Interactive authoring of user-created local models — applying editor
 operations to a persisted local model document — remains in scope and does not
@@ -328,11 +334,12 @@ bounded tranche.
       absorption landed through `TP-R4-D3-RIGIDVIS-001`; D4 expansion-joint
       app absorption landed through `TP-R4-D4-EJSTIFF-001`. D5 is gated by
       `D-15`; the D-15 decision packet is prepared and awaiting human ruling.
-      If that ruling is still pending, continue D6 residuals after
+      If that ruling is still pending, continue D6/D9 residuals after
       `TP-R4-D6-LOOPCORE-001` and `TP-R4-D6-PHYSINTEG-001`: friction
       normal-force model integration, measured convergence values, sparse
       live-path adoption, broader live-solver coverage, and D9 validation
-      cases remain open under `DEC-044`/`DEC-046`. D7 is gated by
+      cases beyond the `TP-R4-D9-ASSEMBLEDSEED-001` seed remain open under
+      `DEC-044`/`DEC-046`. D7 is gated by
       `D-17`; `D-20` remains a Phase E lead-up decision; held `D-21` does not
       authorize v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or

@@ -29,6 +29,12 @@ REQUIRED_FIXTURE_NOTES = {
     "NL-NONCONVERGENCE-LIMIT-ORIGINAL": "unresolved_nonconvergence.md",
 }
 
+REQUIRED_ASSEMBLED_FIXTURE_NOTES = {
+    "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL": "assembled_one_way_deactivation.md",
+    "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL": "assembled_gap_closure.md",
+    "NL-ASSEMBLED-LIFT-OFF-ORIGINAL": "assembled_lift_off.md",
+}
+
 REQUIRED_UNIT_BASIS_LINES = {
     "Translational support displacement and clearance | `mm` | length",
     "Translational support reaction | `N` | force",
@@ -118,7 +124,10 @@ def test_nonlinear_fixture_notes_cover_each_public_original_fixture():
     source = SOURCE_PATH.read_text(encoding="utf-8")
     readme = HAND_CALCS_README.read_text(encoding="utf-8")
 
-    for fixture_id, note_name in REQUIRED_FIXTURE_NOTES.items():
+    for fixture_id, note_name in {
+        **REQUIRED_FIXTURE_NOTES,
+        **REQUIRED_ASSEMBLED_FIXTURE_NOTES,
+    }.items():
         note_path = HAND_CALCS_DIR / note_name
         assert note_path.is_file(), note_name
 
@@ -155,7 +164,10 @@ def test_nonlinear_hand_calc_unit_basis_is_explicit_and_unresolved():
     assert "CI gate" in readme
     assert "remain `TBD`" in readme
 
-    for note_name in REQUIRED_FIXTURE_NOTES.values():
+    for note_name in [
+        *REQUIRED_FIXTURE_NOTES.values(),
+        *REQUIRED_ASSEMBLED_FIXTURE_NOTES.values(),
+    ]:
         note = (HAND_CALCS_DIR / note_name).read_text(encoding="utf-8")
         assert "| Quantity |" in note
         assert "Canonical dimension" in note
@@ -167,7 +179,13 @@ def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
         SOURCE_PATH,
         BENCHMARK_README,
         HAND_CALCS_README,
-        *(HAND_CALCS_DIR / note_name for note_name in REQUIRED_FIXTURE_NOTES.values()),
+        *(
+            HAND_CALCS_DIR / note_name
+            for note_name in [
+                *REQUIRED_FIXTURE_NOTES.values(),
+                *REQUIRED_ASSEMBLED_FIXTURE_NOTES.values(),
+            ]
+        ),
     ]
 
     for path in scanned_paths:
@@ -193,3 +211,14 @@ def test_nonlinear_public_provenance_sources_exist_before_fixture_acceptance():
     assert source_locations
     for source_location in source_locations:
         assert (ROOT / source_location).is_file(), source_location
+
+
+def test_assembled_global_loop_seed_keeps_tbd_policy_visible():
+    source = SOURCE_PATH.read_text(encoding="utf-8")
+
+    assert "assembled_fixture_inventory" in source
+    assert "solve_active_set_frame" in source
+    assert "DEC-046-CV-B-assembled-validation-seed-TBD" in source
+    assert "TolerancePolicyTbd" in source
+    for fixture_id in REQUIRED_ASSEMBLED_FIXTURE_NOTES:
+        assert fixture_id in source

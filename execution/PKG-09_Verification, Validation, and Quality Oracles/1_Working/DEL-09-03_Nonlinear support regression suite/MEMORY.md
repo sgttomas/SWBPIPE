@@ -133,3 +133,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-21 - TP-R4-D9-ASSEMBLEDSEED-001
+
+- Added the first D9 assembled global-loop validation seed for nonlinear supports under `DEC-044` and `DEC-046`.
+- Extended `validation/benchmarks/nonlinear/` beyond classifier-only fixtures with three two-node dense frame cases that call `core/solver/nonlinear_integration::solve_active_set_frame`: one-way deactivation, positive gap closure, and lift-off release.
+- Added public-original hand-calculation notes for the assembled cases under `validation/hand_calcs/nonlinear/` and extended the focused pytest readiness checks to require those notes, source references, invented-data boundary wording, visible `TolerancePolicyTbd`, and the `DEC-046-CV-B-assembled-validation-seed-TBD` convergence-policy reference.
+- D9 remains partial: friction normal-force model integration, measured class-tiered convergence values, sparse live-path adoption, broader live-solver coverage, the PRD section 16.2 branch-assembly benchmark, component provenance in the rendered report path, and the R4 exit evidence package remain open.
+- Validation in this WORKING_ITEMS run: nonlinear benchmark `cargo fmt --check` passed; nonlinear benchmark `cargo test` passed; focused nonlinear pytest passed; `git diff --check` passed; the five-surface `DEC-025` evidence sweep passed and wrote `validation/evidence/sweeps/SWEEP_20260621T073226Z_4cb593a09376-dirty.json`.
