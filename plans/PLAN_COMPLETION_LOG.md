@@ -14,6 +14,45 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D6 product live-loop coverage (`TP-R4-D6-LIVECOVER-001`)
+
+Broadened D6 product-preview dense-loop coverage under `DEC-044` and
+`DEC-046`. `core/product_physics` now has deterministic product/result-envelope
+regressions for gap closure and lift-off release through
+`run_linear_static_preview`, using invented two-node support requests.
+
+The new gap case starts inactive, closes at an explicit `0.05 mm` positive
+clearance, converges in two active-set iterations, and reports final state code
+`1` plus the explicit clearance displacement row. The lift-off case starts
+active, releases when the positive-reaction contact condition is not met,
+converges in two iterations, and reports final state code `0` plus zero final
+free-state reaction. Both preserve visible `TOLERANCE_POLICY_TBD`,
+`NONLINEAR_SUPPORT_STATE_REVIEW`, and `NONLINEAR_SUPPORT_LOOP_CONVERGED`
+diagnostics.
+
+Validation: `cargo fmt --manifest-path core/product_physics/Cargo.toml -- --check`
+passed; `cargo test --manifest-path core/product_physics/Cargo.toml` passed
+38/38; `git diff --check` passed;
+`python3 tools/release/run_evidence_sweep.py --execute` passed all five
+surfaces, writing
+`validation/evidence/sweeps/SWEEP_20260621T075607Z_837d0febe6d9-dirty.json`.
+
+Evidence: PKG-04 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-LIVECOVER-001.md`.
+
+Residual: D6/D9 remain partial. The derived friction normal-force model,
+sliding friction assembled/product validation, sparse live-path adoption,
+measured class-tiered convergence values, broader validation, the PRD section
+16.2 branch-assembly benchmark, component provenance in the rendered report
+path, and the R4 exit evidence package remain open.
+
+Boundary: invented product-preview regression evidence only; no protected
+standards table, proprietary catalog value, public default, private data,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D9 friction explicit-normal assembled seed (`TP-R4-D9-FRICTIONSEED-001`)
 
 Landed a bounded D6/D9 friction seed under `DEC-044` and `DEC-046`.

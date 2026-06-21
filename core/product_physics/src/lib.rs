@@ -4713,7 +4713,13 @@ mod tests {
         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
     }
 
-    fn friction_preview_request() -> LinearStaticPreviewRequest {
+    fn two_node_nonlinear_preview_request(
+        support_id: &str,
+        nonlinear: NonlinearSupportInput,
+        load_id: &str,
+        load_value: f64,
+        combination_id: &str,
+    ) -> LinearStaticPreviewRequest {
         let mut request = request();
         request.model.nodes.truncate(2);
         request.model.nodes[0].id = "node:N-100".to_string();
@@ -4755,56 +4761,40 @@ mod tests {
                 provenance: Some("invented_example".to_string()),
             },
             PreviewSupport {
-                id: "support:NL-FRIC-110".to_string(),
+                id: support_id.to_string(),
                 node: "node:N-110".to_string(),
                 restraints: Vec::new(),
                 family: Some("nonlinear".to_string()),
                 stiffness: None,
-                nonlinear: Some(NonlinearSupportInput {
-                    behavior: "friction".to_string(),
-                    dof: "UX".to_string(),
-                    initial_state: Some("sticking".to_string()),
-                    active_when: None,
-                    contact_when: None,
-                    closes_when: None,
-                    gap: None,
-                    friction_coefficient: Some(Quantity {
-                        value: 0.50,
-                        unit: "none".to_string(),
-                    }),
-                    normal_reaction: Some(Quantity {
-                        value: 1000.0,
-                        unit: "N".to_string(),
-                    }),
-                }),
+                nonlinear: Some(nonlinear),
                 provenance: Some(
-                    "invented_example_user_entered_friction_support_no_catalog".to_string(),
+                    "invented_example_user_entered_nonlinear_support_no_catalog".to_string(),
                 ),
             },
         ];
         request.model.components.clear();
         request.model.load_cases.truncate(1);
-        request.model.load_cases[0].id = "load:L-FRICTION".to_string();
+        request.model.load_cases[0].id = load_id.to_string();
         request.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
-            id: "load:L-FRICTION-X".to_string(),
+            id: format!("{load_id}-X"),
             category: "occasional".to_string(),
             target: LoadTargetInput::Node {
                 node: "node:N-110".to_string(),
             },
             direction: "global_x".to_string(),
             magnitude: Quantity {
-                value: 100.0,
+                value: load_value,
                 unit: "N".to_string(),
             },
             dimension: "force".to_string(),
             provenance: Some("invented_example_user_input".to_string()),
         }];
         request.model.combinations = vec![PreviewCombination {
-            id: "combination:C-FRICTION".to_string(),
+            id: combination_id.to_string(),
             label: None,
             basis: "mechanics".to_string(),
             terms: vec![PreviewCombinationTerm {
-                load_case: "load:L-FRICTION".to_string(),
+                load_case: load_id.to_string(),
                 factor: 1.0,
             }],
             minuend_id: None,
@@ -4814,6 +4804,32 @@ mod tests {
             provenance: Some("invented_example_no_code_combination".to_string()),
         }];
         request
+    }
+
+    fn friction_preview_request() -> LinearStaticPreviewRequest {
+        two_node_nonlinear_preview_request(
+            "support:NL-FRIC-110",
+            NonlinearSupportInput {
+                behavior: "friction".to_string(),
+                dof: "UX".to_string(),
+                initial_state: Some("sticking".to_string()),
+                active_when: None,
+                contact_when: None,
+                closes_when: None,
+                gap: None,
+                friction_coefficient: Some(Quantity {
+                    value: 0.50,
+                    unit: "none".to_string(),
+                }),
+                normal_reaction: Some(Quantity {
+                    value: 1000.0,
+                    unit: "N".to_string(),
+                }),
+            },
+            "load:L-FRICTION",
+            100.0,
+            "combination:C-FRICTION",
+        )
     }
 
     #[test]
@@ -4868,6 +4884,145 @@ mod tests {
             .diagnostics
             .iter()
             .any(|item| item.code == "NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+    }
+
+    fn gap_closure_preview_request() -> LinearStaticPreviewRequest {
+        two_node_nonlinear_preview_request(
+            "support:NL-GAP-110",
+            NonlinearSupportInput {
+                behavior: "gap".to_string(),
+                dof: "UX".to_string(),
+                initial_state: Some("inactive".to_string()),
+                active_when: None,
+                contact_when: None,
+                closes_when: Some("positive_displacement".to_string()),
+                gap: Some(Quantity {
+                    value: 0.05,
+                    unit: "mm".to_string(),
+                }),
+                friction_coefficient: None,
+                normal_reaction: None,
+            },
+            "load:L-GAP",
+            100_000.0,
+            "combination:C-GAP",
+        )
+    }
+
+    #[test]
+    fn gap_preview_closes_to_explicit_clearance_through_dense_loop() {
+        let result = run_linear_static_preview(gap_closure_preview_request());
+        let diagnostic_codes = result
+            .diagnostics
+            .iter()
+            .map(|item| item.code.as_str())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:iteration-count"),
+            2.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:final-residual-count"),
+            0.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:converged-flag"),
+            1.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-GAP-110:state-code"
+            ),
+            1.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-GAP-110:ux-displacement"
+            ),
+            0.05
+        );
+        assert!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-GAP-110:ux-reaction"
+            ) < 0.0
+        );
+        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+        assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
+    }
+
+    fn lift_off_release_preview_request() -> LinearStaticPreviewRequest {
+        two_node_nonlinear_preview_request(
+            "support:NL-LIFT-110",
+            NonlinearSupportInput {
+                behavior: "lift_off".to_string(),
+                dof: "UX".to_string(),
+                initial_state: Some("active".to_string()),
+                active_when: None,
+                contact_when: Some("positive_reaction".to_string()),
+                closes_when: None,
+                gap: None,
+                friction_coefficient: None,
+                normal_reaction: None,
+            },
+            "load:L-LIFT",
+            100.0,
+            "combination:C-LIFT",
+        )
+    }
+
+    #[test]
+    fn lift_off_preview_releases_contact_through_dense_loop() {
+        let result = run_linear_static_preview(lift_off_release_preview_request());
+        let diagnostic_codes = result
+            .diagnostics
+            .iter()
+            .map(|item| item.code.as_str())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:iteration-count"),
+            2.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:final-residual-count"),
+            0.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:converged-flag"),
+            1.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-LIFT-110:state-code"
+            ),
+            0.0
+        );
+        assert!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-LIFT-110:ux-displacement"
+            ) > 0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-LIFT-110:ux-reaction"
+            ),
+            0.0
+        );
+        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+        assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
     }
 
     #[test]
