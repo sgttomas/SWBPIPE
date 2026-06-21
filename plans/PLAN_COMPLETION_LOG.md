@@ -14,6 +14,33 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 exit readiness gap packet (`TP-R4-D9-EXITGAP-001`)
+
+Assembled `plans/VERIFICATION_2026-06-21_r4_exit_gap.md` as a derivative
+readiness/gap package for PRD 22.5. The packet records that R4 is **not ready**
+for human exit review: component provenance appears in the current rendered
+report path, and the current assembled nonlinear validation seed converges
+under `DEC-046-CV-B-active-set-count-validation-v1`, but D5 spring-hanger scope
+remains gated by `D-15`, product-preview and other non-seed convergence
+thresholds remain unpromoted, sparse live-path adoption is still gated by
+`D-17`, and no final R4 exit-chain packet is ready.
+
+Validation evidence is recorded in DEL-09-03 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-EXITGAP-001.md`; the full DEC-025 sweep
+passed and wrote
+`validation/evidence/sweeps/SWEEP_20260621T104441Z_977483bf478b-dirty.json`.
+
+Residual: `D-15` awaits ruling. If it remains pending, the next unblocked plan
+item is `D-17` decision-packet preparation for D7 sparse live-path adoption
+timing.
+
+Boundary: derivative planning/evidence package only; no protected standards
+content, private data, lifecycle transition, target-stage advancement,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D9 governed convergence policy seed (`TP-R4-D9-CONVPOLICY-001`)
 
 Promoted the governed DEC-046 convergence policy for the current assembled

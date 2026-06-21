@@ -32,6 +32,23 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
 
+## 2026-06-21 - TP-R4-D9-EXITGAP-001
+
+- Added derivative R4 readiness/gap packet
+  `plans/VERIFICATION_2026-06-21_r4_exit_gap.md` for PRD 22.5.
+- Verdict recorded: R4 is **not ready** for human exit review. Component
+  provenance appears in the current rendered report path and current assembled
+  nonlinear validation seeds converge under
+  `DEC-046-CV-B-active-set-count-validation-v1`, but D5 spring-hanger scope
+  remains gated by `D-15` and non-seed convergence-policy surfaces remain
+  outside the accepted policy.
+- The packet is derivative planning/evidence only; it does not close D9, close
+  R4, change lifecycle state, advance the target stage, or make release,
+  professional, certification, sealing, authentication, or code-compliance
+  claims.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-EXITGAP-001.md`.
+
 ## 2026-06-21 - TP-R4-D9-CONVPOLICY-001
 
 - Promoted the governed DEC-046 convergence policy for the current assembled

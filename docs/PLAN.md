@@ -164,8 +164,11 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
   release machinery).
 - Stage advancement is human-ruled: agents propose with evidence; only a
   human-approved coordination update advances the target stage recorded in
-  `_COORDINATION.md`. If `D-15` is not yet ruled, the next unblocked
-  dependency-spine item is the remaining Phase D D9 R4 exit evidence package
+  `_COORDINATION.md`. If `D-15` is not yet ruled, the current Phase D D9
+  readiness packet is
+  [VERIFICATION_2026-06-21_r4_exit_gap.md](../plans/VERIFICATION_2026-06-21_r4_exit_gap.md),
+  which records **not ready** rather than R4 closure. The next unblocked
+  dependency-spine item is `D-17` sparse live-path decision-packet preparation
   or the next unblocked D6/D9 nonlinear residual under `DEC-044` and
   `DEC-046`, unless superseded by a later human-approved tranche.
 
