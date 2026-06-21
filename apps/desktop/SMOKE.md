@@ -9419,3 +9419,36 @@ notes:
   lifecycle transition, R3 exit review, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-278 R4 D1 bend visibility/provenance slice - PASSED (`TP-R4-D1-BENDVIS-001`, 2026-06-20)
+
+- Scope: first partial R4/D1 app-absorption slice for bend objects under
+  `DEC-045`. This makes invented bend geometry and user-entered modifier values
+  visible and reviewable in the technical preview without closing D1 mechanics
+  or report-provenance work.
+- App behavior: `component:C-110` in the invented preview model now carries
+  user-entered bend radius, bend angle, bend-plane orientation, geometry source,
+  user SIF, user flexibility factor, modifier source, completeness evidence,
+  and `mechanics_geometry_only` / `user_rule_pack_inputs_only` labels. The
+  viewport renders bend/elbow components as a curved glyph. Model view,
+  inspector/provenance rows, grid mode, editor contract, missing-data blockers,
+  rule-check diagnostics, validation evidence, and native-package witnesses now
+  surface those bend fields.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 57/57 tests.
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 406/406
+    tests.
+  - `npm run build:desktop` passed, retaining the existing Vite chunk-size
+    warning.
+  - `npm run test:e2e:desktop` passed 18/18 Playwright checks.
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-20_TP-R4-D1-BENDVIS-001.md`; DEL-03-03 run record
+  with the same tranche id; plan log entry in `plans/PLAN_COMPLETION_LOG.md`.
+- Residual: D1 remains partially open for any governed mechanics/stress-recovery
+  multiplier consumption and downstream report-provenance closure.
+- Boundary: invented/user-entered preview values only. No protected standards
+  table, code-derived component factor, proprietary catalog value, private data,
+  solver/kernel behavior, rule-engine grammar, persistence contract, network
+  path, telemetry feature, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

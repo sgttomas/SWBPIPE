@@ -5,6 +5,33 @@ ruling (`DEC-047`) and the R3 exit-chain packet is assembled as
 `TP-R3VERIFY-001` / SMOKE TP-MAC-190. Older entries below that say F-4/A3
 remain open are historical pre-closure state.
 
+## 2026-06-20 - TP-R4-D1-BENDVIS-001 R4 bend visibility/provenance slice
+
+WORKING_ITEMS landed the first partial D1 bend-object app-absorption slice
+under `DEC-045`. The invented preview model now carries user-entered bend
+radius, bend angle, bend-plane orientation, geometry source, user SIF,
+user flexibility factor, modifier source, component completeness evidence, and
+`mechanics_geometry_only` / `user_rule_pack_inputs_only` interface labels for
+`component:C-110`.
+
+The desktop app now renders bend/elbow components as a curved viewport glyph
+and surfaces the bend fields in the model view, inspector/provenance rows, grid
+mode, editor contract, missing-data blockers, rule-check diagnostics,
+validation evidence, and native-package witnesses. Component `kind` is
+read-only in the component edit/grid path; bend-specific geometry and
+user-modifier edits remain review-only operation intents.
+
+Validation passed: focused App Vitest 57/57; full desktop Vitest 19 files /
+406 tests; desktop production build with the existing Vite large-chunk warning;
+desktop Playwright 18/18. Evidence is recorded in
+`_run_records/WORKING_ITEMS_RUN_2026-06-20_TP-R4-D1-BENDVIS-001.md` and
+`apps/desktop/SMOKE.md` TP-MAC-278.
+
+Residual: D1 is not closed. Mechanics/stress-recovery multiplier consumption
+and report-provenance closure remain for later D1/D8/D9 work. No lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-20 - TP-R3UX-CREATIONTOOLS-001 object-creation toolbar
 
 WORKING_ITEMS completed the remaining C5.7R CAD-shell builder increment

@@ -692,7 +692,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "project_units=6"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "model_quantities=18"
+    "model_quantities=22"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
     "result_quantities=739"

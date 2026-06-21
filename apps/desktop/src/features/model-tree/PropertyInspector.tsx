@@ -1,6 +1,13 @@
 import { ListPlus, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, OperationOutcome, PreviewModel } from "../../types";
+import type {
+  EditorOperationIntent,
+  EditorOperationObjectType,
+  EntityRef,
+  OperationOutcome,
+  PreviewComponent,
+  PreviewModel
+} from "../../types";
 import {
   acceptedUnits,
   describeUnitBasis,
@@ -903,6 +910,18 @@ function entityProvenanceRows(model: PreviewModel, selection: EntityRef): Array<
   } else if (typeof source === "string" && source.trim()) {
     rows.push(["Source", source]);
   }
+  if (selection.type === "component") {
+    const component = model.components.find((item) => item.id === selection.id);
+    if (component?.geometry?.bend_geometry_source_reference) {
+      rows.push(["Geometry source", component.geometry.bend_geometry_source_reference]);
+    }
+    if (component?.modifiers?.source_reference) {
+      rows.push(["Modifier source", component.modifiers.source_reference]);
+    }
+    if (component?.mechanics_interface?.solver_consumption) {
+      rows.push(["Solver consumption", component.mechanics_interface.solver_consumption]);
+    }
+  }
   return rows;
 }
 
@@ -914,6 +933,25 @@ function requiredFlagsForSelection(model: PreviewModel, selection: EntityRef, pr
   if (entity && typeof entity === "object") {
     const record = entity as Record<string, unknown>;
     if (!record.provenance && !record.source && !record.source_ref) flags.push("provenance");
+  }
+  if (selection.type === "component") {
+    const component = model.components.find((item) => item.id === selection.id);
+    if (component && isBendComponent(component)) {
+      const geometry = component.geometry;
+      const geometryComplete = Boolean(
+        geometry?.bend_radius &&
+          geometry.bend_angle &&
+          geometry.bend_plane_orientation?.trim() &&
+          geometry.bend_geometry_source_reference?.trim()
+      );
+      const modifiersComplete = Boolean(
+        component.modifiers?.sif_user_value &&
+          component.modifiers.flexibility_factor_user_value &&
+          component.modifiers.source_reference?.trim()
+      );
+      if (!geometryComplete) flags.push("BEND_GEOMETRY_INCOMPLETE");
+      if (!modifiersComplete) flags.push("BEND_RULE_INPUT_MISSING");
+    }
   }
   return Array.from(new Set(flags)).slice(0, 4);
 }
@@ -1124,12 +1162,65 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
 
   const component = model.components.find((item) => item.id === selection.id);
   if (component) {
-    return [
+    const fields: EditableField[] = [
       scalarField("Label", "label", component.label, "Component", "dimensionless", "none", "component label only"),
-      scalarField("Kind", "kind", component.kind, "Component", "dimensionless", "none", "component type"),
       scalarField("Node", "node", component.node, "Component", "dimensionless", "none", "target node reference"),
       scalarField("Provenance", "provenance", component.provenance, "Component", "dimensionless", "none", "public/private source note")
     ];
+    if (isBendComponent(component)) {
+      fields.splice(
+        2,
+        0,
+        quantityField(
+          "Bend radius",
+          "geometry.bend_radius.value",
+          component.geometry?.bend_radius?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.bend_radius?.unit ?? model.project.units.length ?? "m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Bend angle",
+          "geometry.bend_angle.value",
+          component.geometry?.bend_angle?.value ?? "TBD",
+          "Component",
+          "angle",
+          component.geometry?.bend_angle?.unit ?? model.project.units.angle ?? "rad",
+          "set_field",
+          true
+        ),
+        scalarField(
+          "Bend plane",
+          "geometry.bend_plane_orientation",
+          component.geometry?.bend_plane_orientation ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered bend plane orientation"
+        ),
+        scalarField(
+          "SIF user value",
+          "modifiers.sif_user_value.value",
+          String(component.modifiers?.sif_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        ),
+        scalarField(
+          "Flexibility user value",
+          "modifiers.flexibility_factor_user_value.value",
+          String(component.modifiers?.flexibility_factor_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        )
+      );
+    }
+    return fields;
   }
 
   const loadCase = model.load_cases.find((item) => item.id === selection.id);
@@ -1209,6 +1300,10 @@ function quantityField(
     changeKind,
     unitEditable
   };
+}
+
+function isBendComponent(component: PreviewComponent): boolean {
+  return component.kind === "bend" || component.kind === "elbow";
 }
 
 function buildOperationIntent({

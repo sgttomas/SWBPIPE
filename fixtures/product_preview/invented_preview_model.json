@@ -90,7 +90,36 @@
     { "id": "support:S-130", "label": "Rack shoe", "node": "node:N-130", "family": "guide", "restraints": ["UY"], "provenance": "invented_example" }
   ],
   "components": [
-    { "id": "component:C-110", "label": "Invented elbow marker", "kind": "bend", "node": "node:N-110", "provenance": "invented_example_no_flexibility_factor" },
+    {
+      "id": "component:C-110",
+      "label": "Invented elbow marker",
+      "kind": "bend",
+      "node": "node:N-110",
+      "geometry": {
+        "bend_radius": { "value": 0.45, "unit": "m" },
+        "bend_angle": { "value": 1.5707963268, "unit": "rad" },
+        "bend_plane_orientation": "global_xy_preview",
+        "bend_geometry_source_reference": "invented_user_entered_preview_geometry"
+      },
+      "modifiers": {
+        "sif_user_value": { "value": 1.15, "unit": "none" },
+        "flexibility_factor_user_value": { "value": 1.08, "unit": "none" },
+        "source_reference": "invented_user_entered_preview_no_code_table"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_only",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "completeness": [
+        {
+          "finding_id": "finding:C-110:bend-geometry",
+          "status": "complete",
+          "diagnostic_code": "BEND_GEOMETRY_INCOMPLETE",
+          "missing_field_kinds": []
+        }
+      ],
+      "provenance": "invented_example_user_entered_bend_values_no_code_table"
+    },
     { "id": "component:C-140", "label": "Invented tie-in marker", "kind": "terminal", "node": "node:N-140", "provenance": "invented_example" }
   ],
   "load_cases": [

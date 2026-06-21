@@ -1,4 +1,4 @@
-import type { EntityRef, PreviewModel } from "../../types";
+import type { EntityRef, PreviewComponent, PreviewModel } from "../../types";
 
 export function defaultSelection(model: PreviewModel): EntityRef {
   return { type: "project", id: model.project.id };
@@ -90,12 +90,27 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
   }
   const component = model.components.find((item) => item.id === selection.id);
   if (component) {
-    return [
+    const rows: Array<[string, string]> = [
       ["ID", component.id],
       ["Kind", component.kind],
-      ["Node", component.node],
-      ["Provenance", component.provenance]
+      ["Node", component.node]
     ];
+    if (isBendComponent(component)) {
+      rows.push(
+        ["Bend radius", quantityDisplay(component.geometry?.bend_radius)],
+        ["Bend angle", quantityDisplay(component.geometry?.bend_angle)],
+        ["Bend plane", component.geometry?.bend_plane_orientation ?? "TBD"],
+        ["Geometry source", component.geometry?.bend_geometry_source_reference ?? "TBD"],
+        ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
+        ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
+        ["SIF user value", quantityDisplay(component.modifiers?.sif_user_value)],
+        ["Flexibility user value", quantityDisplay(component.modifiers?.flexibility_factor_user_value)],
+        ["Modifier source", component.modifiers?.source_reference ?? "TBD"],
+        ["Completeness", componentCompletenessDisplay(component)]
+      );
+    }
+    rows.push(["Provenance", component.provenance]);
+    return rows;
   }
   const loadCase = model.load_cases.find((item) => item.id === selection.id);
   if (loadCase) {
@@ -124,6 +139,21 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
 
 function quantityDisplay(quantity: { value: number; unit: string } | undefined): string {
   return quantity ? `${quantity.value} ${quantity.unit}` : "TBD";
+}
+
+function isBendComponent(component: PreviewComponent): boolean {
+  return component.kind === "bend" || component.kind === "elbow";
+}
+
+function componentCompletenessDisplay(component: PreviewComponent): string {
+  const findings = component.completeness ?? [];
+  if (findings.length === 0) return "TBD";
+  return findings
+    .map((finding) => {
+      const missing = finding.missing_field_kinds?.length ? `; missing=${finding.missing_field_kinds.join(",")}` : "";
+      return `${finding.diagnostic_code}:${finding.status}${missing}`;
+    })
+    .join("; ");
 }
 
 function provenanceDisplay(provenance: string | Record<string, unknown>): string {

@@ -242,7 +242,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.release_or_professional_claim).toBe(false);
     expect(solveJobPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
     const ruleCheck = await screen.findByLabelText("Rule-check completeness");
-    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("4 review findings");
+    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("3 review findings");
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("rule_check_blocked=true");
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain(
       "mechanics_reviewable=false"
@@ -266,9 +266,6 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(ruleCheck).getByTestId("rule-check-finding-required-rule-inputs-missing").textContent).toContain(
       "RULE_CHECK_BLOCKING"
     );
-    expect(
-      within(ruleCheck).getByTestId("rule-check-finding-component-flexibility-factor-provenance").textContent
-    ).toContain("PROVENANCE_WARNING");
     expect(await screen.findByLabelText("Model tree")).toBeInTheDocument();
     expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
     const runAudit = await screen.findByLabelText("Run audit");
@@ -1137,7 +1134,7 @@ describe("OpenPipeStress desktop preview", () => {
       "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC"
     );
     expect(within(validationEvidence).getByTestId("validation-evidence-unit-policy").textContent).toContain(
-      "records=18"
+      "records=22"
     );
     expect(within(validationEvidence).getByTestId("validation-evidence-unit-policy").textContent).toContain(
       "conversion=false"
@@ -1171,7 +1168,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationEvidencePacket.summary.release_profile_count).toBe(5);
     expect(validationEvidencePacket.summary.required_release_path_count).toBe(7);
     expect(validationEvidencePacket.summary.skeleton_check_count).toBe(2);
-    expect(validationEvidencePacket.summary.unit_bearing_record_count).toBe(18);
+    expect(validationEvidencePacket.summary.unit_bearing_record_count).toBe(22);
     expect(validationEvidencePacket.validation_manual.professional_reliance_outside_software_authority).toBe(true);
     expect(validationEvidencePacket.unit_policy_evidence.unit_system_ref.ref).toBe(
       "unit-system:dec-018-si-dual-display"
@@ -1188,7 +1185,7 @@ describe("OpenPipeStress desktop preview", () => {
       stress: "MPa",
       temperature: "degC"
     });
-    expect(validationEvidencePacket.unit_policy_evidence.unit_bearing_record_count).toBe(18);
+    expect(validationEvidencePacket.unit_policy_evidence.unit_bearing_record_count).toBe(22);
     expect(validationEvidencePacket.unit_policy_evidence.unit_and_schema_manual_section).toBe(
       "unit_and_schema_verification"
     );
@@ -1215,7 +1212,7 @@ describe("OpenPipeStress desktop preview", () => {
     const editorContract = await screen.findByLabelText("Editor contract review");
     expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain("editors=4");
     expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain("surfaces=7");
-    expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain("diagnostics=4");
+    expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain("diagnostics=3");
     expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain(
       "private_payload=false"
     );
@@ -1228,8 +1225,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(editorContract).getByTestId("editor-contract-coverage").textContent).toContain(
       "private_libraries:reference_slots_only_no_private_payload"
     );
-    expect(within(editorContract).getByTestId("editor-contract-validation").textContent).toContain("ready=2");
-    expect(within(editorContract).getByTestId("editor-contract-validation").textContent).toContain("blocked=2");
+    expect(within(editorContract).getByTestId("editor-contract-validation").textContent).toContain("ready=3");
+    expect(within(editorContract).getByTestId("editor-contract-validation").textContent).toContain("blocked=1");
     expect(within(editorContract).getByTestId("editor-contract-unit-contract").textContent).toContain(
       "contract=DEL-02-02"
     );
@@ -1264,9 +1261,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(editorContractPacket.objectives).toContain("OBJ-006");
     expect(editorContractPacket.summary.editor_count).toBe(4);
     expect(editorContractPacket.summary.surface_count).toBe(7);
-    expect(editorContractPacket.summary.ready_editor_count).toBe(2);
-    expect(editorContractPacket.summary.blocked_editor_count).toBe(2);
-    expect(editorContractPacket.summary.diagnostic_count).toBe(4);
+    expect(editorContractPacket.summary.ready_editor_count).toBe(3);
+    expect(editorContractPacket.summary.blocked_editor_count).toBe(1);
+    expect(editorContractPacket.summary.diagnostic_count).toBe(3);
     expect(editorContractPacket.summary.queued_intent_count).toBe(0);
     expect(editorContractPacket.unit_contract).toEqual({
       contract_ref: "DEL-02-02",
@@ -1302,7 +1299,7 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     const missingData = await screen.findByLabelText("Missing-data blocking review");
     expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("classes=6");
-    expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("active=5");
+    expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("active=4");
     expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("solve_blocked=false");
     expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("rule_blocked=true");
     expect(within(missingData).getByTestId("missing-data-class-coverage").textContent).toContain(
@@ -1354,7 +1351,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(missingDataPacket.scope_item).toBe("SOW-022");
     expect(missingDataPacket.objectives).toContain("OBJ-011");
     expect(missingDataPacket.summary.warning_class_count).toBe(6);
-    expect(missingDataPacket.summary.active_warning_count).toBe(5);
+    expect(missingDataPacket.summary.active_warning_count).toBe(4);
     expect(missingDataPacket.summary.solve_blocking_count).toBe(0);
     expect(missingDataPacket.summary.rule_check_blocking_count).toBe(2);
     expect(missingDataPacket.summary.mechanics_solve_blocked).toBe(false);
@@ -1906,7 +1903,7 @@ describe("OpenPipeStress desktop preview", () => {
       "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC"
     );
     expect(within(projectValidation).getByTestId("project-validation-unit-policy").textContent).toContain(
-      "records=18"
+      "records=22"
     );
     expect(within(projectValidation).getByTestId("project-validation-unit-policy").textContent).toContain(
       "round_trip=not_persisted_this_session"
@@ -1953,7 +1950,7 @@ describe("OpenPipeStress desktop preview", () => {
       stress: "MPa",
       temperature: "degC"
     });
-    expect(validationPacket.unit_policy_evidence.unit_bearing_record_count).toBe(18);
+    expect(validationPacket.unit_policy_evidence.unit_bearing_record_count).toBe(22);
     expect(validationPacket.unit_policy_evidence.unit_round_trip_status).toBe("not_persisted_this_session");
     expect(validationPacket.unit_policy_evidence.unit_round_trip_signature).toBe("not_persisted");
     expect(validationPacket.unit_policy_evidence.conversion_performed).toBe(false);
@@ -2423,6 +2420,14 @@ describe("OpenPipeStress desktop preview", () => {
     expect(inspector.textContent).toContain("UX, UZ");
     expect(within(tree).getByTestId("tree-row-support:S-120")).toHaveClass("active");
 
+    fireEvent.click(within(viewportSelection).getByTestId("viewport-select-component:C-110"));
+    expect(within(inspector).getByRole("heading", { name: "Invented elbow marker" })).toBeInTheDocument();
+    expect(inspector.textContent).toContain("component:C-110");
+    expect(inspector.textContent).toContain("0.45 m");
+    expect(inspector.textContent).toContain("1.5707963268 rad");
+    expect(inspector.textContent).toContain("mechanics_geometry_only");
+    expect(within(tree).getByTestId("tree-row-component:C-110")).toHaveClass("active");
+
     fireEvent.click(within(viewportSelection).getByTestId("viewport-select-component:C-140"));
     expect(within(inspector).getByRole("heading", { name: "Invented tie-in marker" })).toBeInTheDocument();
     expect(inspector.textContent).toContain("component:C-140");
@@ -2461,6 +2466,9 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(within(tree).getByTestId("tree-row-component:C-110"));
     const inspector = screen.getByLabelText("Property inspector");
     expect(within(inspector).getByRole("heading", { name: "Invented elbow marker" })).toBeInTheDocument();
+    expect(inspector.textContent).toContain("0.45 m");
+    expect(inspector.textContent).toContain("1.5707963268 rad");
+    expect(inspector.textContent).toContain("global_xy_preview");
 
     fireEvent.change(within(tree).getByTestId("model-tree-filter-input"), {
       target: { value: "carbon-steel-like" }
@@ -2557,7 +2565,16 @@ describe("OpenPipeStress desktop preview", () => {
     expect(inspector.textContent).toContain("component:C-110");
     expect(inspector.textContent).toContain("bend");
     expect(inspector.textContent).toContain("node:N-110");
-    expect(inspector.textContent).toContain("invented_example_no_flexibility_factor");
+    expect(inspector.textContent).toContain("0.45 m");
+    expect(inspector.textContent).toContain("1.5707963268 rad");
+    expect(inspector.textContent).toContain("global_xy_preview");
+    expect(inspector.textContent).toContain("mechanics_geometry_only");
+    expect(inspector.textContent).toContain("user_rule_pack_inputs_only");
+    expect(inspector.textContent).toContain("1.15 none");
+    expect(inspector.textContent).toContain("1.08 none");
+    expect(inspector.textContent).toContain("BEND_GEOMETRY_INCOMPLETE:complete");
+    expect(inspector.textContent).toContain("invented_example_user_entered_bend_values_no_code_table");
+    expect(inspector.textContent).toContain("No missing selected fields detected");
 
     fireEvent.click(within(tree).getByRole("button", { name: /Invented operating gravity and pressure preview/i }));
     expect(
@@ -6413,7 +6430,7 @@ describe("OpenPipeStress desktop preview", () => {
       "project_units=6"
     );
     expect(within(nativePackage).getByTestId("native-package-unit-witnesses").textContent).toContain(
-      "model_quantities=18"
+      "model_quantities=22"
     );
     expect(within(nativePackage).getByTestId("native-package-unit-witnesses").textContent).toContain(
       "result_quantities=739"
@@ -6494,9 +6511,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(nativePackagePacket.unit_preservation.conversion_performed).toBe(false);
     expect(nativePackagePacket.unit_preservation.project_unit_declarations).toHaveLength(6);
-    expect(nativePackagePacket.unit_preservation.model_quantity_witnesses).toHaveLength(18);
+    expect(nativePackagePacket.unit_preservation.model_quantity_witnesses).toHaveLength(22);
     expect(nativePackagePacket.unit_preservation.result_quantity_witnesses).toHaveLength(739);
-    expect(nativePackagePacket.unit_preservation.summary.total_witness_count).toBe(763);
+    expect(nativePackagePacket.unit_preservation.summary.total_witness_count).toBe(767);
     expect(
       nativePackagePacket.unit_preservation.model_quantity_witnesses.find(
         (witness: { witness_id: string }) =>
@@ -6519,6 +6536,25 @@ describe("OpenPipeStress desktop preview", () => {
       },
       target_quantity: {
         value: 0.168,
+        unit: "m",
+        dimension: "length"
+      },
+      conversion_performed: false,
+      preservation_status: "unit_and_value_preserved"
+    });
+    expect(
+      nativePackagePacket.unit_preservation.model_quantity_witnesses.find(
+        (witness: { witness_id: string }) =>
+          witness.witness_id === "native-unit:model:component:C-110:geometry.bend_radius"
+      )
+    ).toMatchObject({
+      source_ref: {
+        ref_type: "component",
+        ref_id: "component:C-110",
+        field_path: "geometry.bend_radius"
+      },
+      source_quantity: {
+        value: 0.45,
         unit: "m",
         dimension: "length"
       },
@@ -6611,7 +6647,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.release_or_professional_claim).toBe(false);
     expect(solveJobPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
     const ruleCheck = await screen.findByLabelText("Rule-check completeness");
-    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("5 review findings");
+    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("4 review findings");
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("rule_check_blocked=true");
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain(
       "mechanics_reviewable=true"
@@ -6637,7 +6673,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(ruleCheckPacket.scope_items).toContain("SOW-022");
     expect(ruleCheckPacket.run_ref).toBe("run:preview-linear-static-001");
     expect(ruleCheckPacket.rule_check_status).toBe("RULE_INPUTS_INCOMPLETE");
-    expect(ruleCheckPacket.summary.finding_count).toBe(5);
+    expect(ruleCheckPacket.summary.finding_count).toBe(4);
     expect(ruleCheckPacket.summary.rule_check_blocked).toBe(true);
     expect(ruleCheckPacket.summary.mechanics_results_reviewable).toBe(true);
     expect(ruleCheckPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
@@ -6655,7 +6691,7 @@ describe("OpenPipeStress desktop preview", () => {
       stress: "MPa",
       temperature: "degC"
     });
-    expect(ruleCheckPacket.unit_policy_evidence.unit_bearing_record_count).toBe(18);
+    expect(ruleCheckPacket.unit_policy_evidence.unit_bearing_record_count).toBe(22);
     expect(ruleCheckPacket.unit_policy_evidence.rule_input_unit_policy).toBe(
       "required_rule_inputs_must_carry_explicit_units_or_block_user_rule_checks"
     );

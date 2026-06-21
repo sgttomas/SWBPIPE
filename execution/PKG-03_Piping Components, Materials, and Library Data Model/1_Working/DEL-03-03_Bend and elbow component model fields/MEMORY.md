@@ -1,5 +1,25 @@
 # MEMORY - DEL-03-03 Bend and elbow component model fields
 
+## 2026-06-20 - TP-R4-D1-BENDVIS-001 app absorption evidence
+
+WORKING_ITEMS recorded the first R4/D1 partial app-absorption slice for
+bend/elbow component fields. The invented preview fixture and desktop app now
+surface user-entered bend geometry, user SIF/flexibility values, source
+references, completeness evidence, and `mechanics_geometry_only` labels for the
+invented `component:C-110` bend.
+
+This updates the downstream app evidence for the existing DEL-03-03 contract:
+the fields are visible in the viewport/model/inspector/grid/editor contract,
+review diagnostics, unit/provenance witnesses, and native package evidence.
+The detailed run record is
+`_run_records/WORKING_ITEMS_RUN_2026-06-20_TP-R4-D1-BENDVIS-001.md`.
+
+D1 remains partially open. This slice does not add protected standards values,
+code-derived SIF/flexibility factors, proprietary catalog values, private
+library data, solver/kernel behavior, lifecycle promotion, release-readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance claims.
+
 ## Session 2026-05-01
 
 Human project authority authorized ORCHESTRATOR to choose one bounded item and

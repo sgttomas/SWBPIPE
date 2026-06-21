@@ -214,19 +214,66 @@ function materialEditors(model: PreviewModel) {
 
 function componentEditors(model: PreviewModel) {
   return model.components.map((component) => {
-    const needsPrivateModifier = component.provenance.toLowerCase().includes("no_flexibility_factor");
+    const needsPrivateModifier = componentModifierProvenanceMissing(component);
+    const fields = [
+      field("label", "Label", component.label, "dimensionless", "none", component.id),
+      field("kind", "Kind", component.kind, "dimensionless", "none", component.id),
+      field("node", "Node", component.node, "dimensionless", "none", component.id),
+      field("provenance", "Provenance", component.provenance, "dimensionless", "none", component.id)
+    ];
+    if (component.kind === "bend" || component.kind === "elbow") {
+      fields.splice(
+        3,
+        0,
+        field(
+          "geometry.bend_radius.value",
+          "Bend radius",
+          component.geometry?.bend_radius?.value ?? "TBD",
+          "length",
+          component.geometry?.bend_radius?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "geometry.bend_angle.value",
+          "Bend angle",
+          component.geometry?.bend_angle?.value ?? "TBD",
+          "angle",
+          component.geometry?.bend_angle?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "geometry.bend_plane_orientation",
+          "Bend plane",
+          component.geometry?.bend_plane_orientation ?? "TBD",
+          "dimensionless",
+          "none",
+          component.id
+        ),
+        field(
+          "modifiers.sif_user_value.value",
+          "SIF user value",
+          component.modifiers?.sif_user_value?.value ?? "TBD",
+          "dimensionless",
+          component.modifiers?.sif_user_value?.unit ?? "none",
+          component.id
+        ),
+        field(
+          "modifiers.flexibility_factor_user_value.value",
+          "Flexibility user value",
+          component.modifiers?.flexibility_factor_user_value?.value ?? "TBD",
+          "dimensionless",
+          component.modifiers?.flexibility_factor_user_value?.unit ?? "none",
+          component.id
+        )
+      );
+    }
     return {
       editor_id: `editor:${safeRefToken(component.id)}:component`,
       editor_kind: "component" as EditorKind,
       target_ref: reference("component", component.id),
       library_classification: "invented_public_example",
       source_provenance: component.provenance,
-      fields: [
-        field("label", "Label", component.label, "dimensionless", "none", component.id),
-        field("kind", "Kind", component.kind, "dimensionless", "none", component.id),
-        field("node", "Node", component.node, "dimensionless", "none", component.id),
-        field("provenance", "Provenance", component.provenance, "dimensionless", "none", component.id)
-      ],
+      fields,
       rule_pack_lifecycle: null,
       validation_state: needsPrivateModifier
         ? ("blocked_by_user_supplied_modifier" as EditorValidationState)
@@ -327,7 +374,7 @@ function editorDiagnostics(model: PreviewModel): EditorDiagnostic[] {
     )
   ];
 
-  for (const component of model.components.filter((item) => item.provenance.toLowerCase().includes("no_flexibility_factor"))) {
+  for (const component of model.components.filter(componentModifierProvenanceMissing)) {
     diagnostics.push(
       diagnostic(
         "COMPONENT_MODIFIER_PROVENANCE_REQUIRED",
@@ -341,6 +388,16 @@ function editorDiagnostics(model: PreviewModel): EditorDiagnostic[] {
   }
 
   return diagnostics.sort((left, right) => left.code.localeCompare(right.code));
+}
+
+function componentModifierProvenanceMissing(component: PreviewModel["components"][number]): boolean {
+  const legacyMissingToken = component.provenance.toLowerCase().includes("no_flexibility_factor");
+  if (component.kind !== "bend" && component.kind !== "elbow") return legacyMissingToken;
+  return !(
+    component.modifiers?.sif_user_value &&
+    component.modifiers.flexibility_factor_user_value &&
+    component.modifiers.source_reference?.trim()
+  );
 }
 
 function field(

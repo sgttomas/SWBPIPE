@@ -10,7 +10,7 @@ import {
   unitDimensionValidationStatus,
   unitEntryMatchesDimension
 } from "../../services/unitCatalogService";
-import type { EditorOperationIntent, EntityRef, MechanicsResult, PreviewModel, Vec3 } from "../../types";
+import type { EditorOperationIntent, EntityRef, MechanicsResult, PreviewComponent, PreviewModel, Vec3 } from "../../types";
 
 type Props = {
   armedCreationTool?: CreationTool | null;
@@ -246,7 +246,7 @@ export function PipeViewport({
     for (const component of model.components) {
       const node = nodeMap.get(component.node);
       if (!node) continue;
-      const mesh = componentMesh(node, selection.id === component.id);
+      const mesh = componentMesh(component, node, selection.id === component.id);
       tag(mesh, { type: "component", id: component.id }, { x: node.x, y: node.y + 0.2, z: node.z });
       scene.add(mesh);
     }
@@ -1528,13 +1528,39 @@ function supportMesh(position: Vec3, active: boolean) {
   return group;
 }
 
-function componentMesh(position: Vec3, active: boolean) {
+function componentMesh(component: PreviewComponent, position: Vec3, active: boolean) {
+  if (isBendComponent(component)) {
+    const group = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({
+      color: active ? 0xf08c22 : 0x1f6f73,
+      metalness: 0.18,
+      roughness: 0.5
+    });
+    const arc = new THREE.Mesh(new THREE.TorusGeometry(0.24, active ? 0.035 : 0.027, 10, 32, Math.PI * 0.75), material);
+    arc.position.set(position.x, position.y + 0.2, position.z);
+    arc.rotation.x = Math.PI / 2;
+    arc.rotation.z = Math.PI / 4;
+    group.add(arc);
+
+    const hub = new THREE.Mesh(
+      new THREE.SphereGeometry(active ? 0.08 : 0.06, 18, 12),
+      new THREE.MeshStandardMaterial({ color: active ? 0xf08c22 : 0x2f6f73, roughness: 0.48 })
+    );
+    hub.position.set(position.x, position.y + 0.2, position.z);
+    group.add(hub);
+    return group;
+  }
+
   const box = new THREE.Mesh(
     new THREE.BoxGeometry(0.24, 0.24, 0.24),
     new THREE.MeshStandardMaterial({ color: active ? 0xf08c22 : 0x874c62, roughness: 0.52 })
   );
   box.position.set(position.x, position.y + 0.2, position.z);
   return box;
+}
+
+function isBendComponent(component: PreviewComponent): boolean {
+  return component.kind === "bend" || component.kind === "elbow";
 }
 
 function deformedPipeMesh(from: Vec3, to: Vec3, active: boolean) {

@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-20 - R4 D1 partial bend visibility/provenance slice (`TP-R4-D1-BENDVIS-001`)
+
+Landed the first partial D1 bend-object application-absorption slice under
+`DEC-045`. The invented preview model now carries user-entered bend radius,
+bend angle, bend-plane orientation, geometry source, user SIF, user flexibility
+factor, modifier source, completeness evidence, and `mechanics_geometry_only`
+/ `user_rule_pack_inputs_only` interface labels for `component:C-110`.
+
+The desktop app now distinguishes bend/elbow components with a curved viewport
+glyph and surfaces the bend fields through the model view, inspector/provenance
+rows, model tree/grid search, grid columns, editor contract, missing-data
+blockers, rule-check diagnostics, validation evidence, and native-package unit
+/ provenance witnesses. Component `kind` is read-only in the component
+edit/grid path; bend geometry and user-modifier edits remain review-only
+operation intents.
+
+Validation: `npm test --workspace apps/desktop -- App.test.tsx` passed 57/57;
+`npm test --workspace apps/desktop` passed 19 files / 406 tests;
+`npm run build:desktop` passed with the existing Vite large-chunk warning;
+`npm run test:e2e:desktop` passed 18/18.
+
+Evidence: DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-20_TP-R4-D1-BENDVIS-001.md`; DEL-03-03 run record
+with the same tranche id; `apps/desktop/SMOKE.md` TP-MAC-278.
+
+Residual: D1 is partially landed, not closed. Mechanics/stress-recovery
+multiplier consumption and report-provenance closure remain for later D1/D8/D9
+work. Boundary: invented/user-entered values only; no protected standards
+table, code-derived factor, proprietary catalog value, private data, solver
+behavior, lifecycle, release-readiness, professional, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-20 - D-23 R3 exit accepted; target stage advanced to R4 (`DEC-048`)
 
 Recorded the human ruling approving `D-23` Option O-A: accept the

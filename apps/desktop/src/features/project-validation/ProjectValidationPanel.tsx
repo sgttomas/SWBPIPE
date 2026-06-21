@@ -620,7 +620,8 @@ function unitMetadataPresent(model: PreviewModel): boolean {
     Object.values(model.project.units).every((unit) => unit.length > 0) &&
     countUnitBearingRecords(model) > 0 &&
     model.pipe_segments.every((segment) => Object.values(segment.section).every((quantity) => hasUnit(quantity))) &&
-    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && hasUnit(material.shear_modulus))
+    (model.materials ?? []).every((material) => hasUnit(material.elastic_modulus) && hasUnit(material.shear_modulus)) &&
+    model.components.every((component) => componentUnitQuantities(component).every((quantity) => !quantity || hasUnit(quantity)))
   );
 }
 
@@ -641,10 +642,20 @@ function countUnitBearingRecords(model: PreviewModel): number {
     material.shear_modulus,
     material.thermal_expansion_coefficient
   ]);
+  const componentQuantities = model.components.flatMap(componentUnitQuantities);
   const loadQuantities = model.load_cases.flatMap((loadCase) =>
     (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
   );
-  return [...pipeSectionQuantities, ...materialQuantities, ...loadQuantities].filter(hasUnit).length;
+  return [...pipeSectionQuantities, ...materialQuantities, ...componentQuantities, ...loadQuantities].filter(hasUnit).length;
+}
+
+function componentUnitQuantities(component: PreviewModel["components"][number]): unknown[] {
+  return [
+    component.geometry?.bend_radius,
+    component.geometry?.bend_angle,
+    component.modifiers?.sif_user_value,
+    component.modifiers?.flexibility_factor_user_value
+  ];
 }
 
 function countProvenanceRecords(model: PreviewModel): number {

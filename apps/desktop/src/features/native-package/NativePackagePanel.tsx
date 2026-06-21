@@ -505,6 +505,29 @@ function buildUnitPreservationEvidence({
     }
   }
 
+  for (const component of model.components) {
+    const componentQuantities = [
+      { dimension: "length", fieldPath: "geometry.bend_radius", quantity: component.geometry?.bend_radius },
+      { dimension: "angle", fieldPath: "geometry.bend_angle", quantity: component.geometry?.bend_angle },
+      { dimension: "dimensionless", fieldPath: "modifiers.sif_user_value", quantity: component.modifiers?.sif_user_value },
+      {
+        dimension: "dimensionless",
+        fieldPath: "modifiers.flexibility_factor_user_value",
+        quantity: component.modifiers?.flexibility_factor_user_value
+      }
+    ];
+    for (const { dimension, fieldPath, quantity } of componentQuantities) {
+      if (!quantity) continue;
+      pushModelWitness({
+        dimension,
+        fieldPath,
+        quantity,
+        refId: component.id,
+        refType: "component"
+      });
+    }
+  }
+
   for (const loadCase of model.load_cases) {
     for (const primitiveLoad of loadCase.primitive_loads ?? []) {
       const quantity = quantityRecord(primitiveLoad.magnitude);

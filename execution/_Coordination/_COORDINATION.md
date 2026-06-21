@@ -252,8 +252,11 @@ the R3 exit review and R3-to-R4 target-stage advancement by approving `D-23`
 Option O-A. The ordinary in-stage program is now Phase D: piping components and
 nonlinear supports. R4 exit criteria are PRD §22.5: nonlinear support
 validation cases converge, and component provenance appears in reports. The
-Phase D dependency spine begins with component crate/app work (D1 bend objects,
-D2 branch objects, D3 rigid/semi-rigid components, D4 expansion joints), then
+first D1 bend-object app-visibility/provenance slice landed as
+`TP-R4-D1-BENDVIS-001`; D1 remains partially open for mechanics/stress-recovery
+and report-provenance residuals. The Phase D dependency spine continues with
+component crate/app work (D1 residual, D2 branch objects, D3 rigid/semi-rigid
+components, D4 expansion joints), then
 the D5 spring-hanger scope gate (`D-15`), D6 assembled nonlinear solve under
 `DEC-044`/`DEC-046`, D7 sparse live-path timing gate (`D-17`), D8 report
 provenance, and D9 R4 validation evidence. `DAG-007` remains pending human
@@ -305,10 +308,14 @@ bounded tranche.
    1. the earliest unblocked item on the completion plan's dependency spine
       for the current target stage (R4/Phase D per `DEC-048`). C1-C4 and C5
       are landed, and the R3 exit evidence was accepted through `D-23`.
-      Select Phase D/R4 work in plan order. The first ordinary unblocked item
-      is D1 bend objects under `DEC-045`. D5 is gated by `D-15`; D7 is gated by
-      `D-17`; `D-20` remains a Phase E lead-up decision; held `D-21` does not
-      authorize v0.2/R6/R7 scope;
+      Select Phase D/R4 work in plan order. The first D1
+      bend-object app-visibility/provenance slice landed as
+      `TP-R4-D1-BENDVIS-001`; D1 remains partially open for any governed
+      mechanics/stress-recovery multiplier consumption and downstream report
+      provenance closure. If that residual is intentionally held or deferred,
+      the next ordinary unblocked item is D2 branch objects under `DEC-045`.
+      D5 is gated by `D-15`; D7 is gated by `D-17`; `D-20` remains a Phase E
+      lead-up decision; held `D-21` does not authorize v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or
       smoke-evidence gaps in already-landed surfaces;
    3. residual hardening (missing app-to-core seams, preview workflow gaps,

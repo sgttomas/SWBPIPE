@@ -223,9 +223,7 @@ function buildFindings({
     });
   }
 
-  const componentRefs = model.components
-    .filter((item) => item.provenance.toLowerCase().includes("no_flexibility_factor"))
-    .map((item) => item.id);
+  const componentRefs = model.components.filter(componentModifierProvenanceMissing).map((item) => item.id);
   if (componentRefs.length > 0) {
     findings.push({
       finding_id: "component-flexibility-factor-provenance",
@@ -335,10 +333,30 @@ function countUnitBearingRecords(model: PreviewModel): number {
     material.shear_modulus,
     material.thermal_expansion_coefficient
   ]);
+  const componentQuantities = model.components.flatMap(componentUnitQuantities);
   const loadQuantities = model.load_cases.flatMap((loadCase) =>
     (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
   );
-  return [...pipeSectionQuantities, ...materialQuantities, ...loadQuantities].filter(hasUnit).length;
+  return [...pipeSectionQuantities, ...materialQuantities, ...componentQuantities, ...loadQuantities].filter(hasUnit).length;
+}
+
+function componentUnitQuantities(component: PreviewModel["components"][number]): unknown[] {
+  return [
+    component.geometry?.bend_radius,
+    component.geometry?.bend_angle,
+    component.modifiers?.sif_user_value,
+    component.modifiers?.flexibility_factor_user_value
+  ];
+}
+
+function componentModifierProvenanceMissing(component: PreviewModel["components"][number]): boolean {
+  const legacyMissingToken = component.provenance.toLowerCase().includes("no_flexibility_factor");
+  if (component.kind !== "bend" && component.kind !== "elbow") return legacyMissingToken;
+  return !(
+    component.modifiers?.sif_user_value &&
+    component.modifiers.flexibility_factor_user_value &&
+    component.modifiers.source_reference?.trim()
+  );
 }
 
 function hasUnit(value: unknown): value is { unit: string } {

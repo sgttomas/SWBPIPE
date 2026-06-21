@@ -1,5 +1,36 @@
 export type Vec3 = { x: number; y: number; z: number };
 
+export type QuantityValue = { value: number; unit: string };
+
+export type PreviewComponent = {
+  id: string;
+  label: string;
+  kind: string;
+  node: string;
+  provenance: string;
+  geometry?: {
+    bend_radius?: QuantityValue;
+    bend_angle?: QuantityValue;
+    bend_plane_orientation?: string;
+    bend_geometry_source_reference?: string;
+  };
+  modifiers?: {
+    sif_user_value?: QuantityValue;
+    flexibility_factor_user_value?: QuantityValue;
+    source_reference?: string;
+  };
+  mechanics_interface?: {
+    solver_consumption?: string;
+    rule_check_consumption?: string;
+  };
+  completeness?: Array<{
+    finding_id?: string;
+    status: string;
+    diagnostic_code: string;
+    missing_field_kinds?: string[];
+  }>;
+};
+
 export type PreviewModel = {
   schema_version: string;
   document_kind: string;
@@ -56,7 +87,7 @@ export type PreviewModel = {
     };
     provenance: string;
   }>;
-  components: Array<{ id: string; label: string; kind: string; node: string; provenance: string }>;
+  components: PreviewComponent[];
   load_cases: Array<{
     id: string;
     label: string;

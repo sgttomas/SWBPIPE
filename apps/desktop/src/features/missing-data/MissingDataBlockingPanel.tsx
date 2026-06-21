@@ -293,9 +293,7 @@ function buildWarnings({
     }));
   }
 
-  const componentRefs = model.components
-    .filter((item) => item.provenance.toLowerCase().includes("no_flexibility_factor"))
-    .map((item) => item.id);
+  const componentRefs = model.components.filter(componentModifierProvenanceMissing).map((item) => item.id);
   if (componentRefs.length > 0) {
     warnings.push(warning({
       warning_id: "component-modifier-provenance",
@@ -389,6 +387,16 @@ function buildWarnings({
   }
 
   return warnings.sort((left, right) => left.warning_id.localeCompare(right.warning_id));
+}
+
+function componentModifierProvenanceMissing(component: PreviewModel["components"][number]): boolean {
+  const legacyMissingToken = component.provenance.toLowerCase().includes("no_flexibility_factor");
+  if (component.kind !== "bend" && component.kind !== "elbow") return legacyMissingToken;
+  return !(
+    component.modifiers?.sif_user_value &&
+    component.modifiers.flexibility_factor_user_value &&
+    component.modifiers.source_reference?.trim()
+  );
 }
 
 function warningClassInventory(warnings: MissingDataWarning[]) {

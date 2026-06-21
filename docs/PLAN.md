@@ -80,7 +80,7 @@ lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 | R1 Core Solver MVP | Substantially met (linear static, dense solve) | Tolerance thresholds **RULED** (`DEC-024`/`DEC-026`, D-04) |
 | R2 GUI MVP | Met in substance | Exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](../plans/VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`). The two R2-carried residuals were closed for C5 by the 2026-06-20 replacement-criterion ruling (`DEC-047`) |
 | R3 Rule packs + private libraries | Evidence accepted for target-stage advancement | C1-C4 landed; C5.8 assembled [VERIFICATION_2026-06-20_r3_exit_chain.md](../plans/VERIFICATION_2026-06-20_r3_exit_chain.md); `D-23` ruled O-A by `DEC-048` |
-| R4 Components + nonlinear supports (current target) | Schema/data-model only; sparse-solver strategy decided (`DEC-023`, first slice landed) | No bend/branch/expansion-joint/hanger elements; no assembled nonlinear iterative solve (Phase D) |
+| R4 Components + nonlinear supports (current target) | Schema/data-model plus first preview-app bend visibility/provenance slice (`TP-R4-D1-BENDVIS-001`); sparse-solver strategy decided (`DEC-023`, first slice landed) | D1 mechanics/stress-recovery/report residuals; no branch/expansion-joint/hanger elements; no assembled nonlinear iterative solve (Phase D) |
 | R5 Engineering Beta | Distant | All release machinery TBD; validation manual; redaction workflow; signed releases (Phase E) |
 
 ## 3. How the strategic layers relate

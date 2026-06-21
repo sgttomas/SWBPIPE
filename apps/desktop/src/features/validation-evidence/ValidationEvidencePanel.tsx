@@ -294,10 +294,20 @@ function countUnitBearingRecords(model: PreviewModel): number {
     material.shear_modulus,
     material.thermal_expansion_coefficient
   ]);
+  const componentQuantities = model.components.flatMap(componentUnitQuantities);
   const loadQuantities = model.load_cases.flatMap((loadCase) =>
     (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
   );
-  return [...pipeSectionQuantities, ...materialQuantities, ...loadQuantities].filter(hasUnit).length;
+  return [...pipeSectionQuantities, ...materialQuantities, ...componentQuantities, ...loadQuantities].filter(hasUnit).length;
+}
+
+function componentUnitQuantities(component: PreviewModel["components"][number]): unknown[] {
+  return [
+    component.geometry?.bend_radius,
+    component.geometry?.bend_angle,
+    component.modifiers?.sif_user_value,
+    component.modifiers?.flexibility_factor_user_value
+  ];
 }
 
 function hasUnit(value: unknown): value is { unit: string } {

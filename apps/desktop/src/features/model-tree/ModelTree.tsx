@@ -258,7 +258,16 @@ function buildTree(model: PreviewModel): TreeModel {
         label: component.label,
         detail: component.id,
         icon: <Box size={14} aria-hidden="true" />,
-        keywords: [component.id, component.label, component.kind, component.node, component.provenance, "component", "components"]
+        keywords: [
+          component.id,
+          component.label,
+          component.kind,
+          component.node,
+          component.provenance,
+          componentKeyword(component),
+          "component",
+          "components"
+        ]
       }))
     },
     {
@@ -295,6 +304,22 @@ function buildTree(model: PreviewModel): TreeModel {
 
 function provenanceKeyword(provenance: string | Record<string, unknown>): string {
   return typeof provenance === "string" ? provenance : JSON.stringify(provenance);
+}
+
+function componentKeyword(component: PreviewModel["components"][number]): string {
+  return [
+    component.geometry?.bend_radius ? `${component.geometry.bend_radius.value} ${component.geometry.bend_radius.unit}` : "",
+    component.geometry?.bend_angle ? `${component.geometry.bend_angle.value} ${component.geometry.bend_angle.unit}` : "",
+    component.geometry?.bend_plane_orientation ?? "",
+    component.geometry?.bend_geometry_source_reference ?? "",
+    component.modifiers?.sif_user_value ? `${component.modifiers.sif_user_value.value} ${component.modifiers.sif_user_value.unit}` : "",
+    component.modifiers?.flexibility_factor_user_value
+      ? `${component.modifiers.flexibility_factor_user_value.value} ${component.modifiers.flexibility_factor_user_value.unit}`
+      : "",
+    component.modifiers?.source_reference ?? "",
+    component.mechanics_interface?.solver_consumption ?? "",
+    component.completeness?.map((finding) => `${finding.diagnostic_code} ${finding.status}`).join(" ") ?? ""
+  ].join(" ");
 }
 
 function filterTree(tree: TreeModel, filterText: string): FilteredTreeModel {
@@ -587,7 +612,8 @@ function gridRows(model: PreviewModel, entityType: GridEntityType): GridRow[] {
         component.label,
         component.kind,
         component.node,
-        component.provenance
+        component.provenance,
+        componentKeyword(component)
       ])
     );
   }
@@ -665,8 +691,38 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
   if (entityType === "components") {
     return [
       scalarGridColumn("label", "Label", "label", "Component", "component label only"),
-      scalarGridColumn("kind", "Kind", "kind", "Component", "component type"),
+      readonlyGridColumn("kind", "Kind", "kind", "Component"),
       scalarGridColumn("node", "Node", "node", "Component", "target node reference"),
+      quantityGridColumn("bend-radius", "Bend radius", "geometry.bend_radius.value", "Component", "length", lengthUnit),
+      quantityGridColumn(
+        "bend-angle",
+        "Bend angle",
+        "geometry.bend_angle.value",
+        "Component",
+        "angle",
+        model.project.units.angle ?? "rad"
+      ),
+      scalarGridColumn(
+        "bend-plane",
+        "Bend plane",
+        "geometry.bend_plane_orientation",
+        "Component",
+        "user-entered bend plane orientation"
+      ),
+      scalarGridColumn(
+        "sif-user",
+        "SIF user",
+        "modifiers.sif_user_value.value",
+        "Component",
+        "user-entered modifier value; no code table default"
+      ),
+      scalarGridColumn(
+        "flexibility-user",
+        "Flexibility user",
+        "modifiers.flexibility_factor_user_value.value",
+        "Component",
+        "user-entered modifier value; no code table default"
+      ),
       scalarGridColumn("provenance", "Provenance", "provenance", "Component", "public/private source note")
     ];
   }
