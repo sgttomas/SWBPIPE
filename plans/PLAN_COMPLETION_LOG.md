@@ -14,6 +14,33 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 gap-packet refresh (`TP-R4-D9-GAPREFRESH-001`)
+
+Refreshed the derivative R4 exit-readiness gap packet after the D-17 decision
+packet and D9 product-preview active-set policy tranche landed. The packet now
+matches the current decision register: both `D-15` and `D-17` are prepared and
+awaiting human ruling. It no longer routes the next session to D-17 decision
+preparation, because that packet already exists.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-GAPREFRESH-001.md`.
+
+Validation: stale-text search over the R4 gap packet passed; full DEC-025
+sweep passed in
+`validation/evidence/sweeps/SWEEP_20260621T114725Z_df60a628ee9e-dirty.json`;
+final `git diff --check` passed.
+
+Residual: `D-15` spring-hanger scope and `D-17` sparse live-path adoption
+remain awaiting human ruling. Force/displacement threshold promotion,
+product-preview non-active-set threshold axes, external validation thresholds,
+and final R4 exit-chain evidence remain open.
+
+Boundary: derivative planning/evidence text only; no lifecycle transition,
+target-stage advancement, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D9 product-preview active-set policy (`TP-R4-D9-PRODPOLICY-001`)
 
 Promoted the product-preview nonlinear dense-loop active-set-count convergence

@@ -38,10 +38,10 @@ R4 deliverable families named by the same section:
 
 ## Blocking Gaps
 
-1. **D5 spring-hanger scope remains human-gated.** `D-15` is the only current
-   decision packet awaiting ruling. Until the human rules the spring-hanger
-   scope and the selected behavior is implemented or explicitly deferred, R4
-   cannot be treated as complete.
+1. **D5 spring-hanger scope remains human-gated.** `D-15` is prepared and
+   awaiting human ruling. Until the human rules the spring-hanger scope and
+   the selected behavior is implemented or explicitly deferred, R4 cannot be
+   treated as complete.
 2. **The accepted convergence policy is intentionally narrow.**
    `DEC-046-CV-B-active-set-count-validation-v1` applies only to the current
    public-original assembled validation seed and its active-set
@@ -77,8 +77,8 @@ R4 is **not ready** for human exit review. The strongest current evidence is:
 - current assembled nonlinear validation seeds converge under the accepted
   active-set-count policy for one-way, gap, lift-off, and friction classes.
 
-The decisive blockers are `D-15` / D5 spring-hanger scope and the intentionally
-unpromoted convergence-policy surfaces outside the current assembled validation
-seed. The next unblocked plan item after this gap packet is the `D-17`
-decision-preparation packet for sparse live-path adoption timing, unless the
-human first rules `D-15`.
+The decisive blockers are `D-15` / D5 spring-hanger scope, `D-17` / sparse
+live-path adoption, and the intentionally unpromoted convergence-policy
+surfaces outside the current assembled validation seed. Both `D-15` and `D-17`
+are prepared and awaiting human ruling; no current Phase D dependency-spine
+implementation item should be selected from those gates until a ruling lands.

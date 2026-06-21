@@ -55,6 +55,19 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - Validation evidence is in
   `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-PRODPOLICY-001.md`.
 
+## 2026-06-21 - TP-R4-D9-GAPREFRESH-001
+
+- Refreshed the derivative R4 readiness/gap packet after D-17 packet
+  preparation and product-preview active-set policy promotion.
+- The packet now records both `D-15` and `D-17` as prepared and awaiting human
+  ruling, and no longer points to D-17 decision preparation as the next
+  unblocked plan item.
+- Boundary preserved: planning/evidence text only; no D-15/D-17 ruling, sparse
+  live-path adoption, threshold promotion, R4 closure, lifecycle transition, or
+  professional/code-compliance claim.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-GAPREFRESH-001.md`.
+
 ## 2026-06-21 - TP-R4-D9-FORCEDISPRESID-001
 
 - Added final-iteration force/displacement residual observations to the dense
