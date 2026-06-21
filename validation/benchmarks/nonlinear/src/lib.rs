@@ -11,8 +11,9 @@ use open_pipe_stress_frame_kernel::{
     node_dof_index, DenseVector, FrameDof, FrameElement, FrameNode, FrameSection, DOF_PER_NODE,
 };
 use open_pipe_stress_nonlinear_integration::{
-    solve_active_set_frame, ConvergenceControl, ConvergencePolicyStatus, FrictionNormalReaction,
-    NonlinearFrameSolveInput, NonlinearFrameSolveResult,
+    solve_active_set_frame, ConvergenceControl, ConvergencePolicyStatus,
+    DerivedFrictionNormalReaction, FrictionNormalReaction, NonlinearFrameSolveInput,
+    NonlinearFrameSolveResult,
 };
 use open_pipe_stress_nonlinear_supports::{
     evaluate_active_set_iteration, ActivationSense, ActiveSetIteration, ActiveSetIterationInput,
@@ -344,6 +345,7 @@ pub fn assembled_fixture_inventory() -> Vec<AssembledNonlinearRegressionCase> {
         assembled_lift_off_loss_fixture(),
         assembled_friction_sticking_fixture(),
         assembled_friction_sliding_fixture(),
+        assembled_friction_derived_normal_fixture(),
     ]
 }
 
@@ -412,6 +414,7 @@ fn assembled_axial_input(
         nonlinear_supports,
         initial_states,
         friction_normal_reactions: Vec::new(),
+        derived_friction_normal_reactions: Vec::new(),
         convergence: ConvergenceControl::new(
             "DEC-046-CV-B-assembled-validation-seed-TBD",
             ConvergencePolicyStatus::Tbd,
@@ -755,6 +758,90 @@ pub fn assembled_friction_sliding_fixture() -> AssembledNonlinearRegressionCase 
             DimensionedObservation {
                 name: "iteration_count",
                 value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
+pub fn assembled_friction_derived_normal_fixture() -> AssembledNonlinearRegressionCase {
+    let support_id = "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-A";
+    let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
+    let mut input = assembled_axial_input(
+        vec![support],
+        vec![SupportStateRecord::new(
+            support_id,
+            ActiveSetState::Sticking,
+        )],
+        4,
+    );
+    input.force[node_dof_index(1, FrameDof::Uy)] = -100.0;
+    input.derived_friction_normal_reactions =
+        vec![DerivedFrictionNormalReaction::from_support_reaction(
+            support_id,
+            1,
+            FrameDof::Uy,
+            "fixture-normal-support:node-1:uy",
+        )
+        .unwrap()];
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
+        family: NonlinearRegressionFamily::Friction,
+        description:
+            "Invented assembled frame solve derives friction normal evidence from a named support reaction.",
+        assumptions: &[
+            "The normal reaction magnitude is the absolute frame reaction at a named restrained support-normal DOF.",
+            "The source support DOF is explicit fixture input; no catalog, default, or protected normal-force value is supplied.",
+            "The tangential trial reaction comes from the assembled frame reaction at the friction DOF.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_friction_derived_normal.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![ExpectedState {
+            support_id,
+            state: ActiveSetState::Sticking,
+        }],
+        expected_iteration_count: 1,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        observations: vec![
+            DimensionedObservation {
+                name: "friction_coefficient",
+                value: 0.30,
+                unit: "ratio",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "derived_normal_reaction",
+                value: 100.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "tangential_reaction",
+                value: -10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 1.0,
                 unit: "count",
                 dimension: "dimensionless",
                 tolerance_policy: None,
@@ -1136,7 +1223,7 @@ mod tests {
         let fixtures = assembled_fixture_inventory();
 
         assert!(missing_required_assembled_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 5);
+        assert_eq!(fixtures.len(), 6);
     }
 
     #[test]

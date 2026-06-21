@@ -18,8 +18,9 @@ use open_pipe_stress_load_case_algebra::{
     CombinationTerm, FindingCode, RangeMode,
 };
 use open_pipe_stress_nonlinear_integration::{
-    solve_active_set_frame, ConvergenceControl, ConvergencePolicyStatus, FrictionNormalReaction,
-    NonlinearFrameSolveInput, NonlinearIntegrationError,
+    solve_active_set_frame, ConvergenceControl, ConvergencePolicyStatus,
+    DerivedFrictionNormalReaction, FrictionNormalReaction, NonlinearFrameSolveInput,
+    NonlinearIntegrationError,
 };
 use open_pipe_stress_nonlinear_supports::{
     ActivationSense, ActiveSetState, GapDirection, NonlinearSupport, SupportStateRecord,
@@ -280,6 +281,14 @@ pub struct NonlinearSupportInput {
     pub friction_coefficient: Option<Quantity>,
     #[serde(default)]
     pub normal_reaction: Option<Quantity>,
+    #[serde(default)]
+    pub normal_reaction_source: Option<FrictionNormalReactionSourceInput>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct FrictionNormalReactionSourceInput {
+    pub support_ref: String,
+    pub dof: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -453,6 +462,7 @@ struct BuiltModel {
     nonlinear_supports: Vec<NonlinearSupport>,
     nonlinear_initial_states: Vec<SupportStateRecord>,
     nonlinear_friction_normal_reactions: Vec<FrictionNormalReaction>,
+    nonlinear_derived_friction_normal_reactions: Vec<DerivedFrictionNormalReaction>,
     sections: HashMap<String, DerivedSection>,
 }
 
@@ -1002,6 +1012,7 @@ struct NonlinearSupportBuild {
     supports: Vec<NonlinearSupport>,
     initial_states: Vec<SupportStateRecord>,
     friction_normal_reactions: Vec<FrictionNormalReaction>,
+    derived_friction_normal_reactions: Vec<DerivedFrictionNormalReaction>,
 }
 
 fn append_nonlinear_support_loop_results(
@@ -1038,6 +1049,9 @@ fn append_nonlinear_support_loop_results(
         nonlinear_supports: built.nonlinear_supports.clone(),
         initial_states: built.nonlinear_initial_states.clone(),
         friction_normal_reactions: built.nonlinear_friction_normal_reactions.clone(),
+        derived_friction_normal_reactions: built
+            .nonlinear_derived_friction_normal_reactions
+            .clone(),
         convergence,
     };
 
@@ -1104,6 +1118,8 @@ fn append_nonlinear_support_loop_results(
             append_nonlinear_friction_normal_evidence(
                 results,
                 &built.nonlinear_friction_normal_reactions,
+                &built.nonlinear_derived_friction_normal_reactions,
+                &solve.reactions,
                 &solve.policy_ref,
             );
 
@@ -1322,12 +1338,128 @@ fn active_set_state_code(state: ActiveSetState) -> f64 {
     }
 }
 
+fn derived_friction_normal_source(
+    friction_support_id: &str,
+    source: &FrictionNormalReactionSourceInput,
+    support_by_id: &HashMap<&str, &PreviewSupport>,
+    node_map: &HashMap<&str, usize>,
+) -> Result<DerivedFrictionNormalReaction, Diagnostic> {
+    let Some(source_support) = support_by_id.get(source.support_ref.as_str()) else {
+        return Err(diag(
+            &format!(
+                "diagnostic:nonlinear-support:{}:normal-source",
+                stable_suffix(friction_support_id)
+            ),
+            "NONLINEAR_FRICTION_NORMAL_SOURCE_UNKNOWN",
+            "blocking",
+            "friction normal_reaction_source support_ref is not present in preview model",
+            vec![friction_support_id.to_string(), source.support_ref.clone()],
+        ));
+    };
+    if source_support.nonlinear.is_some() {
+        return Err(diag(
+            &format!(
+                "diagnostic:nonlinear-support:{}:normal-source",
+                stable_suffix(friction_support_id)
+            ),
+            "NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID",
+            "blocking",
+            "friction normal_reaction_source must reference a linear support restraint",
+            vec![friction_support_id.to_string(), source.support_ref.clone()],
+        ));
+    }
+    let source_dof = parse_dof(&source.dof).map_err(|message| {
+        diag(
+            &format!(
+                "diagnostic:nonlinear-support:{}:normal-source-dof",
+                stable_suffix(friction_support_id)
+            ),
+            "NONLINEAR_FRICTION_NORMAL_SOURCE_DOF_INVALID",
+            "blocking",
+            message,
+            vec![friction_support_id.to_string(), source.dof.clone()],
+        )
+    })?;
+    if !source_dof.is_translational() {
+        return Err(diag(
+            &format!(
+                "diagnostic:nonlinear-support:{}:normal-source-dof",
+                stable_suffix(friction_support_id)
+            ),
+            "NONLINEAR_FRICTION_NORMAL_SOURCE_DOF_INVALID",
+            "blocking",
+            "friction normal_reaction_source must reference a translational support DOF",
+            vec![friction_support_id.to_string(), source.dof.clone()],
+        ));
+    }
+    let source_has_restraint = source_support
+        .restraints
+        .iter()
+        .filter_map(|dof| parse_dof(dof).ok())
+        .any(|dof| dof == source_dof);
+    if !source_has_restraint {
+        return Err(diag(
+            &format!(
+                "diagnostic:nonlinear-support:{}:normal-source-dof",
+                stable_suffix(friction_support_id)
+            ),
+            "NONLINEAR_FRICTION_NORMAL_SOURCE_DOF_UNRESTRAINED",
+            "blocking",
+            "friction normal_reaction_source must reference a restrained support DOF",
+            vec![
+                friction_support_id.to_string(),
+                source.support_ref.clone(),
+                source.dof.clone(),
+            ],
+        ));
+    }
+    let Some(&source_node_index) = node_map.get(source_support.node.as_str()) else {
+        return Err(diag(
+            &format!(
+                "diagnostic:nonlinear-support:{}:normal-source-node",
+                stable_suffix(friction_support_id)
+            ),
+            "NONLINEAR_FRICTION_NORMAL_SOURCE_NODE_UNKNOWN",
+            "blocking",
+            "friction normal_reaction_source support node is not present in preview model",
+            vec![
+                friction_support_id.to_string(),
+                source.support_ref.clone(),
+                source_support.node.clone(),
+            ],
+        ));
+    };
+    DerivedFrictionNormalReaction::from_support_reaction(
+        friction_support_id,
+        source_node_index,
+        source_dof,
+        &source.support_ref,
+    )
+    .map_err(|error| {
+        diag(
+            &format!(
+                "diagnostic:nonlinear-support:{}:normal-source",
+                stable_suffix(friction_support_id)
+            ),
+            "NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID",
+            "blocking",
+            error.to_string(),
+            vec![friction_support_id.to_string(), source.support_ref.clone()],
+        )
+    })
+}
+
 fn build_nonlinear_supports(
     model: &PreviewModel,
     node_map: &HashMap<&str, usize>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> NonlinearSupportBuild {
     let mut build = NonlinearSupportBuild::default();
+    let support_by_id = model
+        .supports
+        .iter()
+        .map(|support| (support.id.as_str(), support))
+        .collect::<HashMap<_, _>>();
     for support in &model.supports {
         let Some(input) = &support.nonlinear else {
             continue;
@@ -1471,7 +1603,50 @@ fn build_nonlinear_supports(
                     ));
                     continue;
                 };
-                let Some(normal_reaction) = input.normal_reaction.as_ref() else {
+                if input.normal_reaction.is_some() && input.normal_reaction_source.is_some() {
+                    diagnostics.push(diag(
+                        &format!(
+                            "diagnostic:nonlinear-support:{}:normal-reaction",
+                            stable_suffix(&support.id)
+                        ),
+                        "NONLINEAR_FRICTION_NORMAL_REACTION_AMBIGUOUS",
+                        "blocking",
+                        "friction nonlinear support must use either explicit normal_reaction or normal_reaction_source, not both",
+                        vec![support.id.clone()],
+                    ));
+                    continue;
+                }
+                if let Some(normal_reaction) = input.normal_reaction.as_ref() {
+                    match FrictionNormalReaction::new(&support.id, normal_reaction.value) {
+                        Ok(reaction) => build.friction_normal_reactions.push(reaction),
+                        Err(error) => {
+                            diagnostics.push(diag(
+                                &format!(
+                                    "diagnostic:nonlinear-support:{}:normal-reaction",
+                                    stable_suffix(&support.id)
+                                ),
+                                "NONLINEAR_FRICTION_NORMAL_REACTION_INVALID",
+                                "blocking",
+                                error.to_string(),
+                                vec![support.id.clone()],
+                            ));
+                            continue;
+                        }
+                    }
+                } else if let Some(source) = input.normal_reaction_source.as_ref() {
+                    match derived_friction_normal_source(
+                        &support.id,
+                        source,
+                        &support_by_id,
+                        node_map,
+                    ) {
+                        Ok(source) => build.derived_friction_normal_reactions.push(source),
+                        Err(diagnostic) => {
+                            diagnostics.push(diagnostic);
+                            continue;
+                        }
+                    }
+                } else {
                     diagnostics.push(diag(
                         &format!(
                             "diagnostic:nonlinear-support:{}:normal-reaction",
@@ -1479,26 +1654,10 @@ fn build_nonlinear_supports(
                         ),
                         "NONLINEAR_FRICTION_NORMAL_REACTION_MISSING",
                         "blocking",
-                        "friction nonlinear support requires explicit normal reaction evidence until the governed normal-force model is integrated",
+                        "friction nonlinear support requires explicit normal_reaction or a normal_reaction_source support DOF",
                         vec![support.id.clone()],
                     ));
                     continue;
-                };
-                match FrictionNormalReaction::new(&support.id, normal_reaction.value) {
-                    Ok(reaction) => build.friction_normal_reactions.push(reaction),
-                    Err(error) => {
-                        diagnostics.push(diag(
-                            &format!(
-                                "diagnostic:nonlinear-support:{}:normal-reaction",
-                                stable_suffix(&support.id)
-                            ),
-                            "NONLINEAR_FRICTION_NORMAL_REACTION_INVALID",
-                            "blocking",
-                            error.to_string(),
-                            vec![support.id.clone()],
-                        ));
-                        continue;
-                    }
                 }
                 match NonlinearSupport::friction(&support.id, node_index, dof, coefficient.value) {
                     Ok(support) => support,
@@ -1724,6 +1883,7 @@ fn build_model(
         nonlinear_supports: nonlinear.supports,
         nonlinear_initial_states: nonlinear.initial_states,
         nonlinear_friction_normal_reactions: nonlinear.friction_normal_reactions,
+        nonlinear_derived_friction_normal_reactions: nonlinear.derived_friction_normal_reactions,
         sections,
     })
 }
@@ -4000,6 +4160,8 @@ fn append_combination_results(
 fn append_nonlinear_friction_normal_evidence(
     results: &mut Vec<ResultItem>,
     friction_normal_reactions: &[FrictionNormalReaction],
+    derived_friction_normal_reactions: &[DerivedFrictionNormalReaction],
+    reactions: &[f64],
     policy_ref: &str,
 ) {
     for reaction in friction_normal_reactions {
@@ -4014,15 +4176,42 @@ fn append_nonlinear_friction_normal_evidence(
             "friction_normal_reaction_input",
             "normal",
             &format!(
-                "dense_active_set_loop; policy_ref={policy_ref}; explicit_user_entered_normal_reaction; derived_normal_force_model=TBD"
+                "dense_active_set_loop; policy_ref={policy_ref}; explicit_user_entered_normal_reaction; no_catalog_or_default_normal_force"
             ),
             "positive value is an explicit contact normal reaction supplied by the user or caller",
+        );
+    }
+    for source in derived_friction_normal_reactions {
+        let suffix = stable_suffix(&source.support_id);
+        let global = source.source_node_index * DOF_PER_NODE + dof_index(source.source_dof);
+        let Some(reaction) = reactions.get(global) else {
+            continue;
+        };
+        append_nonlinear_scalar_result(
+            results,
+            &format!("result:nonlinear-support:{suffix}:friction-normal-reaction"),
+            "nonlinear_support_friction_normal_reaction_derived",
+            reaction.abs(),
+            "N",
+            &source.support_id,
+            "friction_normal_reaction_derived",
+            source.source_dof.as_str(),
+            &format!(
+                "dense_active_set_loop; policy_ref={policy_ref}; derived_support_reaction; source_ref={}; source_dof={}",
+                source.source_ref,
+                source.source_dof.as_str()
+            ),
+            "positive value is the absolute support reaction at the named normal-source DOF",
         );
     }
 }
 
 fn is_combination_excluded_result_kind(kind: &str) -> bool {
-    matches!(kind, "nonlinear_support_friction_normal_reaction_input")
+    matches!(
+        kind,
+        "nonlinear_support_friction_normal_reaction_input"
+            | "nonlinear_support_friction_normal_reaction_derived"
+    )
 }
 
 fn combination_source_identity_matches(reference: &ResultItem, candidate: &ResultItem) -> bool {
@@ -4682,7 +4871,7 @@ mod tests {
         ));
         assert_eq!(
             result_value(&result, "result:nonlinear-support:iteration-count"),
-            2.0
+            1.0
         );
         assert_eq!(
             result_value(&result, "result:nonlinear-support:final-residual-count"),
@@ -4733,13 +4922,25 @@ mod tests {
             ),
             0.0
         );
+        let normal_evidence = result
+            .results
+            .iter()
+            .find(|item| {
+                item.id == "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction"
+            })
+            .expect("derived normal evidence row is present");
         assert_eq!(
-            result_value(
-                &result,
-                "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction"
-            ),
-            10.0
+            normal_evidence.kind,
+            "nonlinear_support_friction_normal_reaction_derived"
         );
+        assert_eq!(normal_evidence.value, 158.102028);
+        let normal_metadata = normal_evidence.metadata.as_ref().unwrap();
+        assert!(normal_metadata.basis.contains("derived_support_reaction"));
+        assert!(normal_metadata.basis.contains("source_ref=support:S-130"));
+        assert!(normal_metadata.basis.contains("source_dof=uy"));
+        assert!(!normal_metadata
+            .basis
+            .contains("derived_normal_force_model=TBD"));
         assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
@@ -4858,6 +5059,7 @@ mod tests {
                     value: 1000.0,
                     unit: "N".to_string(),
                 }),
+                normal_reaction_source: None,
             },
             "load:L-FRICTION",
             100.0,
@@ -4912,11 +5114,113 @@ mod tests {
             .as_ref()
             .unwrap()
             .basis
-            .contains("derived_normal_force_model=TBD"));
+            .contains("explicit_user_entered_normal_reaction"));
         assert!(result
             .diagnostics
             .iter()
             .any(|item| item.code == "NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+    }
+
+    fn friction_derived_normal_preview_request() -> LinearStaticPreviewRequest {
+        let mut request = two_node_nonlinear_preview_request(
+            "support:NL-FRIC-DERIVED-110",
+            NonlinearSupportInput {
+                behavior: "friction".to_string(),
+                dof: "UX".to_string(),
+                initial_state: Some("sticking".to_string()),
+                active_when: None,
+                contact_when: None,
+                closes_when: None,
+                gap: None,
+                friction_coefficient: Some(Quantity {
+                    value: 0.30,
+                    unit: "none".to_string(),
+                }),
+                normal_reaction: None,
+                normal_reaction_source: Some(FrictionNormalReactionSourceInput {
+                    support_ref: "support:S-NORMAL-110".to_string(),
+                    dof: "UY".to_string(),
+                }),
+            },
+            "load:L-FRICTION-DERIVED",
+            10.0,
+            "combination:C-FRICTION-DERIVED",
+        );
+        request.model.supports.push(PreviewSupport {
+            id: "support:S-NORMAL-110".to_string(),
+            node: "node:N-110".to_string(),
+            restraints: vec!["UY".to_string()],
+            family: Some("guide".to_string()),
+            stiffness: None,
+            nonlinear: None,
+            provenance: Some("invented_example_normal_reaction_source".to_string()),
+        });
+        request.model.load_cases[0]
+            .primitive_loads
+            .push(PreviewPrimitiveLoad {
+                id: "load:L-FRICTION-DERIVED-Y".to_string(),
+                category: "occasional".to_string(),
+                target: LoadTargetInput::Node {
+                    node: "node:N-110".to_string(),
+                },
+                direction: "global_y".to_string(),
+                magnitude: Quantity {
+                    value: -100.0,
+                    unit: "N".to_string(),
+                },
+                dimension: "force".to_string(),
+                provenance: Some("invented_example_user_input".to_string()),
+            });
+        request
+    }
+
+    #[test]
+    fn friction_preview_derives_normal_from_named_support_reaction() {
+        let result = run_linear_static_preview(friction_derived_normal_preview_request());
+        let result_ids = result
+            .results
+            .iter()
+            .map(|item| item.id.as_str())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(result_ids.contains(
+            "result:nonlinear-support:support-NL-FRIC-DERIVED-110:friction-normal-reaction"
+        ));
+        assert!(!result_ids.contains(
+            "result:combination:combination-C-FRICTION-DERIVED:nonlinear-support:support-NL-FRIC-DERIVED-110:friction-normal-reaction"
+        ));
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-FRIC-DERIVED-110:state-code"
+            ),
+            2.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-FRIC-DERIVED-110:friction-normal-reaction"
+            ),
+            100.0
+        );
+        let normal_evidence = result
+            .results
+            .iter()
+            .find(|item| {
+                item.id
+                    == "result:nonlinear-support:support-NL-FRIC-DERIVED-110:friction-normal-reaction"
+            })
+            .expect("derived normal evidence row is present");
+        assert_eq!(
+            normal_evidence.kind,
+            "nonlinear_support_friction_normal_reaction_derived"
+        );
+        let metadata = normal_evidence.metadata.as_ref().unwrap();
+        assert!(metadata.basis.contains("derived_support_reaction"));
+        assert!(metadata.basis.contains("source_ref=support:S-NORMAL-110"));
+        assert!(metadata.basis.contains("source_dof=uy"));
+        assert!(!metadata.basis.contains("derived_normal_force_model=TBD"));
     }
 
     fn friction_sliding_preview_request() -> LinearStaticPreviewRequest {
@@ -4938,6 +5242,7 @@ mod tests {
                     value: 10.0,
                     unit: "N".to_string(),
                 }),
+                normal_reaction_source: None,
             },
             "load:L-FRICTION-SLIDE",
             10.0,
@@ -5016,6 +5321,7 @@ mod tests {
                 }),
                 friction_coefficient: None,
                 normal_reaction: None,
+                normal_reaction_source: None,
             },
             "load:L-GAP",
             100_000.0,
@@ -5084,6 +5390,7 @@ mod tests {
                 gap: None,
                 friction_coefficient: None,
                 normal_reaction: None,
+                normal_reaction_source: None,
             },
             "load:L-LIFT",
             100.0,

@@ -682,7 +682,7 @@
     {
       "id": "result:nonlinear-support:iteration-count",
       "kind": "nonlinear_support_active_set_iteration_count",
-      "value": 2.0,
+      "value": 1.0,
       "unit": "count",
       "entity_ref": "nonlinear_supports",
       "basis_ref": {
@@ -735,8 +735,8 @@
     },
     {
       "id": "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
-      "kind": "nonlinear_support_friction_normal_reaction_input",
-      "value": 10.0,
+      "kind": "nonlinear_support_friction_normal_reaction_derived",
+      "value": 158.102028,
       "unit": "N",
       "entity_ref": "support:NL-130-FRIC",
       "basis_ref": {
@@ -744,11 +744,11 @@
         "ref_id": "load:L-100"
       },
       "metadata": {
-        "component": "friction_normal_reaction_input",
+        "component": "friction_normal_reaction_derived",
         "coordinate_system": "solver_iteration",
-        "location": "normal",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; explicit_user_entered_normal_reaction; derived_normal_force_model=TBD",
-        "sign_convention": "positive value is an explicit contact normal reaction supplied by the user or caller"
+        "location": "uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
+        "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
       }
     },
     {
@@ -5346,7 +5346,7 @@
     {
       "id": "result:loadcase:load-L-200:nonlinear-support:iteration-count",
       "kind": "nonlinear_support_active_set_iteration_count",
-      "value": 2.0,
+      "value": 1.0,
       "unit": "count",
       "entity_ref": "nonlinear_supports",
       "basis_ref": {
@@ -5399,8 +5399,8 @@
     },
     {
       "id": "result:loadcase:load-L-200:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
-      "kind": "nonlinear_support_friction_normal_reaction_input",
-      "value": 10.0,
+      "kind": "nonlinear_support_friction_normal_reaction_derived",
+      "value": 79.051014,
       "unit": "N",
       "entity_ref": "support:NL-130-FRIC",
       "basis_ref": {
@@ -5408,11 +5408,11 @@
         "ref_id": "load:L-200"
       },
       "metadata": {
-        "component": "friction_normal_reaction_input",
+        "component": "friction_normal_reaction_derived",
         "coordinate_system": "solver_iteration",
-        "location": "normal",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; explicit_user_entered_normal_reaction; derived_normal_force_model=TBD",
-        "sign_convention": "positive value is an explicit contact normal reaction supplied by the user or caller"
+        "location": "uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
+        "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
       }
     },
     {
@@ -14968,7 +14968,7 @@
       "id": "diagnostic:nonlinear:load-L-100:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 2 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-100",
@@ -15064,7 +15064,7 @@
       "id": "diagnostic:nonlinear:load-L-200:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 2 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-200",

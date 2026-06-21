@@ -119,6 +119,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
 
+## 2026-06-21 - TP-R4-D6-FRICTIONNORMAL-001
+
+- D6 integration tranche added derived friction normal-reaction support in
+  `core/solver/nonlinear_integration`: callers may name a restrained linear
+  support DOF and the dense active-set loop uses the absolute reaction at that
+  DOF as friction normal evidence.
+- The active-set classifier itself remains the per-iteration state oracle; no
+  protected normal-force value, catalog/default support value, sparse live path,
+  release convergence value, lifecycle transition, or professional/code-
+  compliance claim was introduced.
+- Validation passed in the tranche run record:
+  `../_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-FRICTIONNORMAL-001.md`,
+  including the full five-surface evidence sweep summary
+  `validation/evidence/sweeps/SWEEP_20260621T092312Z_53b592aee006-dirty.json`.
+
 ## 2026-06-21 - TP-R4-D6-LOOPCORE-001 ownership re-point
 
 - `DEC-044` re-pointed assembled nonlinear loop ownership to the PKG-04

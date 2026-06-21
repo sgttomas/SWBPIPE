@@ -38,3 +38,4 @@ thresholds remain `TBD`.
 | `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | [assembled_lift_off.md](assembled_lift_off.md) |
 | `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | [assembled_friction_sticking.md](assembled_friction_sticking.md) |
 | `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | [assembled_friction_sliding.md](assembled_friction_sliding.md) |
+| `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | [assembled_friction_derived_normal.md](assembled_friction_derived_normal.md) |

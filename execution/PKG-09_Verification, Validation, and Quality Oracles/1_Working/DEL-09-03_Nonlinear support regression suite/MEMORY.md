@@ -118,6 +118,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No lifecycle, review-disposition, release, acceptance, protected-content,
   private-data, professional-approval, or code-compliance surface was changed.
 
+## 2026-06-21 - TP-R4-D6-FRICTIONNORMAL-001
+
+- Added `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` to the nonlinear
+  benchmark inventory with hand-calc evidence in
+  `validation/hand_calcs/nonlinear/assembled_friction_derived_normal.md`.
+- The fixture uses public invented data only: a friction support derives normal
+  evidence from a named restrained `UY` support DOF; it does not use protected
+  standards data, catalog/default normal-force values, private data, or release
+  thresholds.
+- Focused validation passed for the nonlinear benchmark crate and focused
+  pytest regression, and the full five-surface evidence sweep passed; details
+  are recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-FRICTIONNORMAL-001.md`.
+
 ## 2026-06-21 - TP-R4-D9-FRICTIONSLIDE-001 assembled sliding friction
 
 - Added `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` to the nonlinear benchmark

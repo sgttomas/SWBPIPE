@@ -275,11 +275,14 @@ nonlinear support. `TP-R4-D9-ASSEMBLEDSEED-001` added the first assembled
 global-loop validation seed for one-way deactivation, gap closure, and lift-off
 release; `TP-R4-D9-FRICTIONSEED-001` and
 `TP-R4-D9-FRICTIONSLIDE-001` added explicit-normal friction sticking/sliding
-assembled and product-preview evidence. `TP-R4-D8-COMPPROVREPORT-001` added
-component provenance and missing-provenance warnings to the hash-bound rendered
-report path. Derived friction normal-force model integration, measured
-convergence values, sparse live-path adoption, broader live-solver coverage,
-the branch-assembly benchmark, and the R4 exit evidence package remain open.
+assembled and product-preview evidence. `TP-R4-D6-FRICTIONNORMAL-001` added
+derived friction normal-reaction evidence from named restrained support DOFs
+in the dense loop, product adapter, nonlinear benchmark inventory, and
+invented preview fixture. `TP-R4-D8-COMPPROVREPORT-001` added component
+provenance and missing-provenance warnings to the hash-bound rendered report
+path. Measured convergence values, sparse live-path adoption, broader
+live-solver coverage, the branch-assembly benchmark, and the R4 exit evidence
+package remain open.
 The remaining spine continues with D7
 sparse live-path timing gate (`D-17`) and broader D9 R4 validation evidence.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
@@ -341,10 +344,10 @@ bounded tranche.
       If that ruling is still pending, continue D6/D9 residuals after
       `TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`,
       `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSEED-001`,
-      `TP-R4-D9-FRICTIONSLIDE-001`, and the D8 rendered report-provenance
-      slice `TP-R4-D8-COMPPROVREPORT-001`: derived friction normal-force model
-      integration, measured convergence values, sparse live-path adoption,
-      broader live-solver coverage, and D9 validation cases beyond the current
+      `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, and the D8
+      rendered report-provenance slice `TP-R4-D8-COMPPROVREPORT-001`:
+      measured convergence values, sparse live-path adoption, broader
+      live-solver coverage, and D9 validation cases beyond the current
       assembled/product seeds remain open under `DEC-044`/`DEC-046`. D7 is gated by
       `D-17`; `D-20` remains a Phase E lead-up decision; held `D-21` does not
       authorize v0.2/R6/R7 scope;

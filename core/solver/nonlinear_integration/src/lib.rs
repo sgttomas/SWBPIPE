@@ -8,7 +8,7 @@
 
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness, node_dof_index, reduce_system_with_prescribed_displacements,
-    solve_dense, DenseMatrix, DenseVector, FrameElement, FrameKernelError, DOF_PER_NODE,
+    solve_dense, DenseMatrix, DenseVector, FrameDof, FrameElement, FrameKernelError, DOF_PER_NODE,
 };
 use open_pipe_stress_nonlinear_supports::{
     evaluate_active_set_iteration, ActiveSetIteration, ActiveSetIterationInput, ActiveSetState,
@@ -89,6 +89,30 @@ impl FrictionNormalReaction {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct DerivedFrictionNormalReaction {
+    pub support_id: String,
+    pub source_node_index: usize,
+    pub source_dof: FrameDof,
+    pub source_ref: String,
+}
+
+impl DerivedFrictionNormalReaction {
+    pub fn from_support_reaction(
+        support_id: impl Into<String>,
+        source_node_index: usize,
+        source_dof: FrameDof,
+        source_ref: impl Into<String>,
+    ) -> Result<Self, NonlinearIntegrationError> {
+        Ok(Self {
+            support_id: normalize_required_id(support_id, "support_id")?,
+            source_node_index,
+            source_dof,
+            source_ref: normalize_required_id(source_ref, "source_ref")?,
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct NonlinearFrameSolveInput {
     pub node_count: usize,
     pub elements: Vec<FrameElement>,
@@ -97,6 +121,7 @@ pub struct NonlinearFrameSolveInput {
     pub nonlinear_supports: Vec<NonlinearSupport>,
     pub initial_states: Vec<SupportStateRecord>,
     pub friction_normal_reactions: Vec<FrictionNormalReaction>,
+    pub derived_friction_normal_reactions: Vec<DerivedFrictionNormalReaction>,
     pub convergence: ConvergenceControl,
 }
 
@@ -184,6 +209,7 @@ pub fn solve_active_set_frame(
     let mut iterations = Vec::new();
     let mut final_diagnostics = policy_diagnostics(&input.convergence);
     let friction_normals = friction_normal_map(input)?;
+    let derived_friction_normals = derived_friction_normal_map(input)?;
 
     for iteration_index in 1..=input.convergence.max_iterations {
         let boundary = active_boundary(
@@ -198,6 +224,7 @@ pub fn solve_active_set_frame(
             &linearized.displacements,
             &linearized.reactions,
             &friction_normals,
+            &derived_friction_normals,
         )?;
         let active_set_input = ActiveSetIterationInput {
             iteration: iteration_index,
@@ -248,7 +275,7 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
     vec![
         "Active nonlinear support states are represented as prescribed frame DOFs in the current linearized iteration.".to_string(),
         "The first assembled-loop residual is the nonlinear-support classifier state-change count; force/displacement residual norms remain future D6/D9 evidence work.".to_string(),
-        "Friction support normal reaction facts must be supplied explicitly until a governed normal/tangential support model is integrated.".to_string(),
+        "Friction support normal reactions are either explicit input evidence or derived as the absolute reaction at a named support-normal DOF supplied by the caller.".to_string(),
         "Released friction supports may persist in sliding state while nonzero displacement remains, preventing active-set chatter without adding hidden friction-load defaults.".to_string(),
     ]
 }
@@ -377,6 +404,46 @@ fn friction_normal_map(
     Ok(normals)
 }
 
+fn derived_friction_normal_map(
+    input: &NonlinearFrameSolveInput,
+) -> Result<HashMap<&str, &DerivedFrictionNormalReaction>, NonlinearIntegrationError> {
+    let mut normals = HashMap::new();
+    let explicit_ids = input
+        .friction_normal_reactions
+        .iter()
+        .map(|reaction| reaction.support_id.as_str())
+        .collect::<HashSet<_>>();
+    let expected_dofs = input.node_count * DOF_PER_NODE;
+    for source in &input.derived_friction_normal_reactions {
+        if explicit_ids.contains(source.support_id.as_str()) {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!(
+                    "friction normal reaction source for support {} is both explicit and derived",
+                    source.support_id
+                ),
+            });
+        }
+        let global_dof = node_dof_index(source.source_node_index, source.source_dof);
+        if global_dof >= expected_dofs {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!(
+                    "derived friction normal source {} DOF {global_dof} is outside total DOF count {expected_dofs}",
+                    source.source_ref
+                ),
+            });
+        }
+        if normals.insert(source.support_id.as_str(), source).is_some() {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!(
+                    "derived friction normal reaction source for support {} is repeated",
+                    source.support_id
+                ),
+            });
+        }
+    }
+    Ok(normals)
+}
+
 fn active_boundary(
     node_count: usize,
     base_restrained_dofs: &[usize],
@@ -498,6 +565,7 @@ fn build_trial_states(
     displacements: &[f64],
     reactions: &[f64],
     friction_normals: &HashMap<&str, f64>,
+    derived_friction_normals: &HashMap<&str, &DerivedFrictionNormalReaction>,
 ) -> Result<Vec<TrialSupportState>, NonlinearIntegrationError> {
     let mut trial_states = Vec::with_capacity(supports.len());
     for support in supports {
@@ -508,17 +576,49 @@ fn build_trial_states(
             reactions[global_dof],
         )?;
         if matches!(support.behavior, NonlinearSupportBehavior::Friction) {
-            let normal = friction_normals
-                .get(support.support_id.as_str())
-                .copied()
-                .ok_or_else(|| NonlinearSupportError::MissingFrictionData {
-                    support_id: support.support_id.clone(),
-                })?;
+            let normal = friction_normal_for_support(
+                support,
+                reactions,
+                friction_normals,
+                derived_friction_normals,
+            )?;
             trial = trial.with_friction_reactions(normal, reactions[global_dof])?;
         }
         trial_states.push(trial);
     }
     Ok(trial_states)
+}
+
+fn friction_normal_for_support(
+    support: &NonlinearSupport,
+    reactions: &[f64],
+    friction_normals: &HashMap<&str, f64>,
+    derived_friction_normals: &HashMap<&str, &DerivedFrictionNormalReaction>,
+) -> Result<f64, NonlinearIntegrationError> {
+    if let Some(normal) = friction_normals.get(support.support_id.as_str()).copied() {
+        return Ok(normal);
+    }
+
+    if let Some(source) = derived_friction_normals
+        .get(support.support_id.as_str())
+        .copied()
+    {
+        let global_dof = node_dof_index(source.source_node_index, source.source_dof);
+        let reaction = reactions.get(global_dof).copied().ok_or_else(|| {
+            NonlinearIntegrationError::InvalidInput {
+                detail: format!(
+                    "derived friction normal source {} DOF {global_dof} is outside reaction vector",
+                    source.source_ref
+                ),
+            }
+        })?;
+        return Ok(reaction.abs());
+    }
+
+    Err(NonlinearSupportError::MissingFrictionData {
+        support_id: support.support_id.clone(),
+    }
+    .into())
 }
 
 fn multiply_matrix_vector(
@@ -630,6 +730,7 @@ mod tests {
             nonlinear_supports,
             initial_states,
             friction_normal_reactions: Vec::new(),
+            derived_friction_normal_reactions: Vec::new(),
             convergence: ConvergenceControl::new(
                 "DEC-046-fixture-active-set-count-tightening",
                 ConvergencePolicyStatus::Accepted,
@@ -739,6 +840,70 @@ mod tests {
             .unwrap()
             .active_restrained_dofs
             .contains(&node_dof_index(1, FrameDof::Ux)));
+    }
+
+    #[test]
+    fn friction_support_derives_normal_from_named_support_reaction() {
+        let support_id = "NL-FRICTION-DERIVED-NORMAL";
+        let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
+        let mut input = two_node_axial_problem(
+            vec![support],
+            vec![SupportStateRecord::new(
+                support_id,
+                ActiveSetState::Sticking,
+            )],
+            4,
+        );
+        input.force[node_dof_index(1, FrameDof::Uy)] = -100.0;
+        input.derived_friction_normal_reactions =
+            vec![DerivedFrictionNormalReaction::from_support_reaction(
+                support_id,
+                1,
+                FrameDof::Uy,
+                "support:NORMAL-110:UY",
+            )
+            .unwrap()];
+
+        let result = solve_active_set_frame(&input).unwrap();
+
+        assert!(result.converged);
+        assert_eq!(result.iterations.len(), 1);
+        assert_eq!(
+            result.final_states,
+            vec![SupportStateRecord::new(
+                support_id,
+                ActiveSetState::Sticking
+            )]
+        );
+        assert_eq!(result.reactions[node_dof_index(1, FrameDof::Uy)], 100.0);
+    }
+
+    #[test]
+    fn duplicate_explicit_and_derived_friction_normal_source_is_invalid() {
+        let support_id = "NL-FRICTION-DUPLICATE-NORMAL";
+        let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
+        let mut input = two_node_axial_problem(
+            vec![support],
+            vec![SupportStateRecord::new(
+                support_id,
+                ActiveSetState::Sticking,
+            )],
+            4,
+        );
+        input.friction_normal_reactions =
+            vec![FrictionNormalReaction::new(support_id, 10.0).unwrap()];
+        input.derived_friction_normal_reactions =
+            vec![DerivedFrictionNormalReaction::from_support_reaction(
+                support_id,
+                1,
+                FrameDof::Uy,
+                "support:NORMAL-110:UY",
+            )
+            .unwrap()];
+
+        let error = solve_active_set_frame(&input).unwrap_err();
+
+        assert!(error.to_string().contains("is both explicit and derived"));
     }
 
     #[test]

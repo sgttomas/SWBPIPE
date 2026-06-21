@@ -14,6 +14,57 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D6 derived friction normal source (`TP-R4-D6-FRICTIONNORMAL-001`)
+
+Landed the bounded derived friction normal-force model for the dense assembled
+active-set path under `DEC-044` and `DEC-046`. Friction supports can now name a
+linear restrained support DOF as `normal_reaction_source`; the solver derives
+the normal-reaction magnitude from the absolute reaction at that explicit DOF
+instead of requiring only user-entered `normal_reaction`.
+
+`core/solver/nonlinear_integration` now accepts
+`DerivedFrictionNormalReaction`, rejects duplicate explicit and derived normal
+sources for the same friction support, and evaluates friction limits from
+either explicit normal evidence or a named support-normal reaction. The product
+adapter validates the source support, translational DOF, restraint, and node,
+emits `nonlinear_support_friction_normal_reaction_derived` evidence rows, and
+continues to exclude normal-reaction evidence from scalar load combinations.
+
+The nonlinear benchmark crate now includes
+`NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL`, backed by
+`validation/hand_calcs/nonlinear/assembled_friction_derived_normal.md`. The
+invented preview model now derives `support:NL-130-FRIC` normal evidence from
+`support:S-130/UY`; the regenerated mechanics fixture remains at 783 result
+rows and reports derived normal evidence values of `158.102028 N` for
+`load:L-100` and `79.051014 N` for `load:L-200`.
+
+Validation: focused formatting passed for `core/solver/nonlinear_integration`,
+`core/product_physics`, and `validation/benchmarks/nonlinear`; focused Rust
+crate tests passed for `nonlinear_integration` (10), `product_physics` (40),
+and `validation/benchmarks/nonlinear` (7); focused Python
+preview/regression/schema/run-record tests passed 28/28; focused desktop
+Vitest passed 67/67; desktop production build passed. The full five-surface
+evidence sweep passed across 33 cargo crates, repository pytest (362), desktop
+Vitest (407), Playwright dev/dist (18 + 1), and production build, writing
+`validation/evidence/sweeps/SWEEP_20260621T092312Z_53b592aee006-dirty.json`.
+
+Evidence: PKG-04 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-FRICTIONNORMAL-001.md` and DEL-09-03
+run record with the same tranche ID.
+
+Residual: measured class-tiered convergence values remain `TBD`; sparse
+live-path adoption remains gated by `D-17`; broader live-solver coverage, the
+PRD section 16.2 branch-assembly benchmark, and the R4 exit evidence package
+remain open.
+
+Boundary: explicit public invented source DOF only; no protected standards
+data, proprietary catalog value, public default normal force, private data
+default write, lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-21 - R4 D9 sliding friction validation (`TP-R4-D9-FRICTIONSLIDE-001`)
 
 Landed explicit-normal sliding-friction evidence across the assembled dense
@@ -45,10 +96,11 @@ Evidence: PKG-04 run record
 `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-FRICTIONSLIDE-001.md` and DEL-09-03 run
 record with the same tranche ID.
 
-Residual: derived friction normal-force modeling remains open; measured
-class-tiered convergence values remain `TBD`; sparse live-path adoption remains
-gated by `D-17`; broader live-solver coverage, the PRD section 16.2
-branch-assembly benchmark, and the R4 exit evidence package remain open.
+Residual at landing time: derived friction normal-force modeling remained open
+until superseded by `TP-R4-D6-FRICTIONNORMAL-001`; measured class-tiered
+convergence values remain `TBD`; sparse live-path adoption remains gated by
+`D-17`; broader live-solver coverage, the PRD section 16.2 branch-assembly
+benchmark, and the R4 exit evidence package remain open.
 
 Boundary: explicit invented normal input only; no protected standards data,
 proprietary catalog value, public default, private data default write,
@@ -84,9 +136,9 @@ Evidence: PKG-08 run record
 
 Residual: D8 is landed for component provenance in the current rendered-report
 path, but the R4 exit evidence package remains open under D9. D6/D9 still
-carry the derived friction normal-force model, sliding friction validation,
-measured convergence values, broader live-solver coverage, and the PRD
-section 16.2 branch-assembly benchmark.
+carry measured convergence values, broader live-solver coverage, and the PRD
+section 16.2 branch-assembly benchmark; derived friction normal-force evidence
+landed later in `TP-R4-D6-FRICTIONNORMAL-001`.
 
 Boundary: report provenance evidence only; no protected standards data,
 proprietary catalog value, public default, private data default write,

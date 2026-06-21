@@ -111,11 +111,11 @@
       "nonlinear": {
         "behavior": "friction",
         "dof": "UZ",
-        "initial_state": "sticking",
-        "friction_coefficient": { "value": 0.1, "unit": "none" },
-        "normal_reaction": { "value": 10, "unit": "N" }
+        "initial_state": "sliding",
+        "friction_coefficient": { "value": 0.01, "unit": "none" },
+        "normal_reaction_source": { "support_ref": "support:S-130", "dof": "UY" }
       },
-      "provenance": "invented_example_user_entered_friction_support_no_catalog_or_normal_force_model"
+      "provenance": "invented_example_user_entered_friction_support_no_catalog_derived_normal_from_named_support_reaction"
     }
   ],
   "components": [
