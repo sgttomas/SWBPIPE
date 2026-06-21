@@ -88,8 +88,21 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "result:stress:pipe-P-120:quarter-1:pressure-hoop" in result_ids
     assert "result:stress:pipe-P-120:quarter-1:pressure-longitudinal" not in result_ids
     assert "result:stress:pipe-P-120:quarter-1:shear-y" not in result_ids
+    assert "result:nonlinear-support:iteration-count" in result_ids
+    assert "result:nonlinear-support:final-residual-count" in result_ids
+    assert "result:nonlinear-support:converged-flag" in result_ids
+    assert "result:nonlinear-support:support-NL-140:state-code" in result_ids
+    assert "result:nonlinear-support:support-NL-140:uy-reaction" in result_ids
+    assert "TOLERANCE_POLICY_TBD" in {item["code"] for item in result["diagnostics"]}
+    assert "NONLINEAR_SUPPORT_LOOP_CONVERGED" in {item["code"] for item in result["diagnostics"]}
     axial = next(item for item in result["results"] if item["id"] == "result:force:pipe-P-120:axial")
     axial_end_j = next(item for item in result["results"] if item["id"] == "result:force:pipe-P-120:axial:end-j")
+    nonlinear_iteration_count = next(
+        item for item in result["results"] if item["id"] == "result:nonlinear-support:iteration-count"
+    )
+    nonlinear_reaction = next(
+        item for item in result["results"] if item["id"] == "result:nonlinear-support:support-NL-140:uy-reaction"
+    )
     shear_quarter = next(
         item
         for item in result["results"]
@@ -114,6 +127,11 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert axial["metadata"]["location"] == "end_i"
     assert axial["metadata"]["component"] == "axial_force"
     assert axial["basis_ref"] == {"ref_type": "load_case", "ref_id": "load:L-100"}
+    assert nonlinear_iteration_count["kind"] == "nonlinear_support_active_set_iteration_count"
+    assert nonlinear_iteration_count["value"] == 1
+    assert nonlinear_reaction["kind"] == "nonlinear_support_final_reaction"
+    assert nonlinear_reaction["entity_ref"] == "support:NL-140"
+    assert nonlinear_reaction["value"] < 0
     assert axial_end_j["metadata"]["coordinate_system"] == "element_local"
     assert axial_end_j["metadata"]["location"] == "end_j"
     assert axial_end_j["metadata"]["component"] == "axial_force"

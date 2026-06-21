@@ -11,7 +11,7 @@
   "summary": {
     "node_count": 5,
     "segment_count": 4,
-    "support_count": 3,
+    "support_count": 4,
     "load_case_count": 2,
     "component_stress_modifier_count": 8,
     "component_user_stiffness_macro_element_count": 4,
@@ -655,6 +655,125 @@
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-100"
+      }
+    },
+    {
+      "id": "result:reaction:support-NL-140",
+      "kind": "reaction_resultant",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:iteration-count",
+      "kind": "nonlinear_support_active_set_iteration_count",
+      "value": 1.0,
+      "unit": "count",
+      "entity_ref": "nonlinear_supports",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "active_set_iteration_count",
+        "coordinate_system": "solver_iteration",
+        "location": "load_case",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD; support_count=1",
+        "sign_convention": "counts completed dense active-set linearization iterations"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:final-residual-count",
+      "kind": "nonlinear_support_active_set_final_residual_count",
+      "value": 0.0,
+      "unit": "count",
+      "entity_ref": "nonlinear_supports",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "active_set_final_residual_count",
+        "coordinate_system": "solver_iteration",
+        "location": "load_case",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; residual_is_changed_support_count",
+        "sign_convention": "zero means no nonlinear support state changed in the final iteration"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:converged-flag",
+      "kind": "nonlinear_support_active_set_converged_flag",
+      "value": 1.0,
+      "unit": "boolean",
+      "entity_ref": "nonlinear_supports",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "active_set_converged_flag",
+        "coordinate_system": "solver_iteration",
+        "location": "load_case",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD",
+        "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-140:state-code",
+      "kind": "nonlinear_support_active_set_state_code",
+      "value": 1.0,
+      "unit": "state_code",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "active_set_state_code",
+        "coordinate_system": "solver_iteration",
+        "location": "uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-140:uy-displacement",
+      "kind": "nonlinear_support_final_displacement",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nonlinear_support_final_displacement",
+        "coordinate_system": "solver_iteration",
+        "location": "uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "sign_convention": "positive value follows the global frame DOF sign convention"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-140:uy-reaction",
+      "kind": "nonlinear_support_final_reaction",
+      "value": -191.897972,
+      "unit": "N",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nonlinear_support_final_reaction",
+        "coordinate_system": "solver_iteration",
+        "location": "uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
     {
@@ -5117,6 +5236,125 @@
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-200"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:reaction:support-NL-140",
+      "kind": "reaction_resultant",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:iteration-count",
+      "kind": "nonlinear_support_active_set_iteration_count",
+      "value": 1.0,
+      "unit": "count",
+      "entity_ref": "nonlinear_supports",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "active_set_iteration_count",
+        "coordinate_system": "solver_iteration",
+        "location": "load_case",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD; support_count=1",
+        "sign_convention": "counts completed dense active-set linearization iterations"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:final-residual-count",
+      "kind": "nonlinear_support_active_set_final_residual_count",
+      "value": 0.0,
+      "unit": "count",
+      "entity_ref": "nonlinear_supports",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "active_set_final_residual_count",
+        "coordinate_system": "solver_iteration",
+        "location": "load_case",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; residual_is_changed_support_count",
+        "sign_convention": "zero means no nonlinear support state changed in the final iteration"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:converged-flag",
+      "kind": "nonlinear_support_active_set_converged_flag",
+      "value": 1.0,
+      "unit": "boolean",
+      "entity_ref": "nonlinear_supports",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "active_set_converged_flag",
+        "coordinate_system": "solver_iteration",
+        "location": "load_case",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD",
+        "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:support-NL-140:state-code",
+      "kind": "nonlinear_support_active_set_state_code",
+      "value": 1.0,
+      "unit": "state_code",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "active_set_state_code",
+        "coordinate_system": "solver_iteration",
+        "location": "uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-displacement",
+      "kind": "nonlinear_support_final_displacement",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nonlinear_support_final_displacement",
+        "coordinate_system": "solver_iteration",
+        "location": "uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "sign_convention": "positive value follows the global frame DOF sign convention"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-reaction",
+      "kind": "nonlinear_support_final_reaction",
+      "value": -45.948986,
+      "unit": "N",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nonlinear_support_final_reaction",
+        "coordinate_system": "solver_iteration",
+        "location": "uy",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=active",
+        "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
     {
@@ -12329,6 +12567,65 @@
       }
     },
     {
+      "id": "result:combination:combination-C-OPER-ALT:nonlinear-support:support-NL-140:uy-displacement",
+      "kind": "nonlinear_support_final_displacement",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:nonlinear-support:support-NL-140:uy-displacement",
+        "result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-displacement"
+      ],
+      "metadata": {
+        "component": "nonlinear_support_final_displacement",
+        "coordinate_system": "solver_iteration",
+        "location": "uy",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:nonlinear-support:support-NL-140:uy-reaction",
+      "kind": "nonlinear_support_final_reaction",
+      "value": -214.872465,
+      "unit": "N",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:nonlinear-support:support-NL-140:uy-reaction",
+        "result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-reaction"
+      ],
+      "metadata": {
+        "component": "nonlinear_support_final_reaction",
+        "coordinate_system": "solver_iteration",
+        "location": "uy",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:reaction:support-NL-140",
+      "kind": "reaction_resultant",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:reaction:support-NL-140",
+        "result:loadcase:load-L-200:reaction:support-NL-140"
+      ]
+    },
+    {
       "id": "result:combination:combination-C-OPER-ALT:reaction:support-S-100",
       "kind": "reaction_resultant",
       "value": 889.891803,
@@ -14410,55 +14707,36 @@
       ]
     },
     {
-      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
-      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
-      "severity": "info",
-      "message": "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "id": "diagnostic:nonlinear:load-L-100:1:TOLERANCE_POLICY_TBD",
+      "code": "TOLERANCE_POLICY_TBD",
+      "severity": "warning",
+      "message": "solver tolerance policy remains TBD and must be accepted before release-quality performance claims",
       "source": "core/product_physics",
       "affected_refs": [
-        "component:C-110",
-        "pipe:P-100",
-        "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
-        "invented_user_entered_preview_no_code_table"
+        "load:L-100",
+        "DEC-046-CV-B-preview-active-set-count-TBD"
       ]
     },
     {
-      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-110:end-i",
-      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "id": "diagnostic:nonlinear:load-L-100:support-NL-140:state",
+      "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
-      "message": "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-110 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "message": "nonlinear support support:NL-140 ended in active state for load case load:L-100; dense preview loop evidence only",
       "source": "core/product_physics",
       "affected_refs": [
-        "component:C-110",
-        "pipe:P-110",
-        "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
-        "invented_user_entered_preview_no_code_table"
+        "support:NL-140",
+        "load:L-100"
       ]
     },
     {
-      "id": "diagnostic:component-stress-multiplier:component-C-120:pipe-P-110:end-j",
-      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "id": "diagnostic:nonlinear:load-L-100:loop",
+      "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "branch component component:C-120 applies user-entered branch SIF 1.31 and flexibility factor 1.05 to pipe:P-110 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
       "source": "core/product_physics",
       "affected_refs": [
-        "component:C-120",
-        "pipe:P-110",
-        "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
-        "invented_user_entered_branch_modifiers_no_code_table"
-      ]
-    },
-    {
-      "id": "diagnostic:component-stress-multiplier:component-C-120:pipe-P-120:end-i",
-      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
-      "severity": "info",
-      "message": "branch component component:C-120 applies user-entered header SIF 1.22 and flexibility factor 1.05 to pipe:P-120 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:C-120",
-        "pipe:P-120",
-        "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
-        "invented_user_entered_branch_modifiers_no_code_table"
+        "load:L-100",
+        "DEC-046"
       ]
     },
     {
@@ -14511,6 +14789,139 @@
         "pipe:P-120",
         "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
         "invented_user_entered_branch_modifiers_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:nonlinear:load-L-200:1:TOLERANCE_POLICY_TBD",
+      "code": "TOLERANCE_POLICY_TBD",
+      "severity": "warning",
+      "message": "solver tolerance policy remains TBD and must be accepted before release-quality performance claims",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "load:L-200",
+        "DEC-046-CV-B-preview-active-set-count-TBD"
+      ]
+    },
+    {
+      "id": "diagnostic:nonlinear:load-L-200:support-NL-140:state",
+      "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+      "severity": "info",
+      "message": "nonlinear support support:NL-140 ended in active state for load case load:L-200; dense preview loop evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:NL-140",
+        "load:L-200"
+      ]
+    },
+    {
+      "id": "diagnostic:nonlinear:load-L-200:loop",
+      "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+      "severity": "info",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "load:L-200",
+        "DEC-046"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-110",
+        "pipe:P-100",
+        "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+        "invented_user_entered_preview_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-110:end-i",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-110 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-110",
+        "pipe:P-110",
+        "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+        "invented_user_entered_preview_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-120:pipe-P-110:end-j",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "branch component component:C-120 applies user-entered branch SIF 1.31 and flexibility factor 1.05 to pipe:P-110 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-120",
+        "pipe:P-110",
+        "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+        "invented_user_entered_branch_modifiers_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-120:pipe-P-120:end-i",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "branch component component:C-120 applies user-entered header SIF 1.22 and flexibility factor 1.05 to pipe:P-120 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-120",
+        "pipe:P-120",
+        "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+        "invented_user_entered_branch_modifiers_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:combination:combination-C-OPER-ALT:result-nonlinear-support-converged-flag:LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "code": "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "severity": "warning",
+      "message": "result row unit is not supported for TP-MAC-08 scalar load-combination algebra",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "combination:C-OPER-ALT",
+        "result:nonlinear-support:converged-flag",
+        "result:nonlinear-support:converged-flag"
+      ]
+    },
+    {
+      "id": "diagnostic:combination:combination-C-OPER-ALT:result-nonlinear-support-final-residual-count:LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "code": "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "severity": "warning",
+      "message": "result row unit is not supported for TP-MAC-08 scalar load-combination algebra",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "combination:C-OPER-ALT",
+        "result:nonlinear-support:final-residual-count",
+        "result:nonlinear-support:final-residual-count"
+      ]
+    },
+    {
+      "id": "diagnostic:combination:combination-C-OPER-ALT:result-nonlinear-support-iteration-count:LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "code": "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "severity": "warning",
+      "message": "result row unit is not supported for TP-MAC-08 scalar load-combination algebra",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "combination:C-OPER-ALT",
+        "result:nonlinear-support:iteration-count",
+        "result:nonlinear-support:iteration-count"
+      ]
+    },
+    {
+      "id": "diagnostic:combination:combination-C-OPER-ALT:result-nonlinear-support-support-NL-140-state-code:LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "code": "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "severity": "warning",
+      "message": "result row unit is not supported for TP-MAC-08 scalar load-combination algebra",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "combination:C-OPER-ALT",
+        "result:nonlinear-support:support-NL-140:state-code",
+        "result:nonlinear-support:support-NL-140:state-code"
       ]
     },
     {

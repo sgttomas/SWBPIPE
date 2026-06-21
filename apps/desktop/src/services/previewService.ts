@@ -7,10 +7,14 @@ import type {
   ObjectRef,
   PreviewModel,
   PreviewComparison,
-  SelectedReviewTarget
+  SelectedReviewTarget,
 } from "../types";
 
-async function invokeOrFixture<T>(command: string, fixture: () => Promise<T>, args?: Record<string, unknown>): Promise<T> {
+async function invokeOrFixture<T>(
+  command: string,
+  fixture: () => Promise<T>,
+  args?: Record<string, unknown>,
+): Promise<T> {
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
     return fixture();
   }
@@ -29,8 +33,14 @@ export async function loadDesignKnowledge(): Promise<DesignKnowledge> {
   return invokeOrFixture("load_design_knowledge", loadKnowledgeFixture);
 }
 
-export async function runPreviewMechanics(model?: PreviewModel | null): Promise<MechanicsResult> {
-  return invokeOrFixture("run_preview_mechanics", () => runBrowserPreviewMechanics(model), model ? { model } : undefined);
+export async function runPreviewMechanics(
+  model?: PreviewModel | null,
+): Promise<MechanicsResult> {
+  return invokeOrFixture(
+    "run_preview_mechanics",
+    () => runBrowserPreviewMechanics(model),
+    model ? { model } : undefined,
+  );
 }
 
 export type SolveJobStartReceipt =
@@ -62,33 +72,39 @@ export type BackendSolveJobCancellationReceipt = {
   cancellation_success_claimed: boolean;
 };
 
-export async function startPreviewMechanicsJob(model?: PreviewModel | null): Promise<SolveJobStartReceipt> {
+export async function startPreviewMechanicsJob(
+  model?: PreviewModel | null,
+): Promise<SolveJobStartReceipt> {
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
     return { mode: "browser_fixture_no_backend_job" };
   }
   try {
-    const receipt = await invoke<Omit<Extract<SolveJobStartReceipt, { mode: "backend_job" }>, "mode">>(
-      "start_preview_mechanics_job",
-      model ? { model } : undefined
-    );
+    const receipt = await invoke<
+      Omit<Extract<SolveJobStartReceipt, { mode: "backend_job" }>, "mode">
+    >("start_preview_mechanics_job", model ? { model } : undefined);
     return { mode: "backend_job", ...receipt };
   } catch {
     return { mode: "browser_fixture_no_backend_job" };
   }
 }
 
-export async function pollPreviewMechanicsJob(jobId: string): Promise<BackendSolveJobStatus> {
+export async function pollPreviewMechanicsJob(
+  jobId: string,
+): Promise<BackendSolveJobStatus> {
   return invoke<BackendSolveJobStatus>("poll_preview_mechanics_job", { jobId });
 }
 
 export async function cancelPreviewMechanicsJob(
   jobId: string,
-  cancellationToken: string
+  cancellationToken: string,
 ): Promise<BackendSolveJobCancellationReceipt> {
-  return invoke<BackendSolveJobCancellationReceipt>("cancel_preview_mechanics_job", {
-    jobId,
-    cancellationToken
-  });
+  return invoke<BackendSolveJobCancellationReceipt>(
+    "cancel_preview_mechanics_job",
+    {
+      jobId,
+      cancellationToken,
+    },
+  );
 }
 
 // The three frozen automatic rule-check statuses a GUI rule-check run may
@@ -96,7 +112,11 @@ export async function cancelPreviewMechanicsJob(
 // Anything outside this set is NOT silently coerced (CONTRACT
 // no-silent-defaults) — the analysis-run record falls back to the solve
 // envelope's own rule_check rather than trusting an unrecognized aggregate.
-const RULE_CHECK_RUN_STATUSES = new Set(["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"]);
+const RULE_CHECK_RUN_STATUSES = new Set([
+  "RULE_INPUTS_INCOMPLETE",
+  "USER_RULE_CHECKED",
+  "USER_RULE_FAILED",
+]);
 
 // Resolve the rule-check status the app-held analysis-run record should carry.
 // A recognized GUI rule-check aggregate (the worst-of over the checks the user
@@ -104,7 +124,10 @@ const RULE_CHECK_RUN_STATUSES = new Set(["RULE_INPUTS_INCOMPLETE", "USER_RULE_CH
 // plain solve always leaves at RULE_INPUTS_INCOMPLETE because the solve runs no
 // user rule checks. An absent or unrecognized aggregate falls back to the solve
 // envelope's own rule_check — never a false pass.
-export function appliedRuleCheckStatus(solveRuleCheck: string, ruleCheckAggregate?: string | null): string {
+export function appliedRuleCheckStatus(
+  solveRuleCheck: string,
+  ruleCheckAggregate?: string | null,
+): string {
   if (ruleCheckAggregate && RULE_CHECK_RUN_STATUSES.has(ruleCheckAggregate)) {
     return ruleCheckAggregate;
   }
@@ -120,14 +143,20 @@ export function appliedRuleCheckStatus(solveRuleCheck: string, ruleCheckAggregat
 // reproduces the prior behavior byte-for-byte.
 export async function buildAnalysisRunPreview(
   result: MechanicsResult,
-  ruleCheckAggregate?: string | null
+  ruleCheckAggregate?: string | null,
 ): Promise<AnalysisRunEnvelope> {
   const runRef = ref("AnalysisRun", result.run_id);
-  const effectiveRuleCheck = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
+  const effectiveRuleCheck = appliedRuleCheckStatus(
+    result.status.rule_check,
+    ruleCheckAggregate,
+  );
   // The analysis-run record's own status carries the rule-check outcome; the
   // raw solve envelope (hashed separately below) is left exactly as solved.
   const recordStatus = { ...result.status, rule_check: effectiveRuleCheck };
-  const resultEnvelopeRef = ref("ResultEnvelope", `result-envelope:${result.run_id}`);
+  const resultEnvelopeRef = ref(
+    "ResultEnvelope",
+    `result-envelope:${result.run_id}`,
+  );
   const resultRefs = await Promise.all(
     result.results
       .slice()
@@ -141,19 +170,23 @@ export async function buildAnalysisRunPreview(
             canonicalization: "rfc8785_jcs",
             payload_ref: ref("Result", item.id),
             payload_scope: "result_value",
-            value: await sha256(canonicalJson(item))
-          }
+            value: await sha256(canonicalJson(item)),
+          },
         ],
-        privacy_classification: "invented_public_example"
-      }))
+        privacy_classification: "invented_public_example",
+      })),
   );
-  const status = new Set([
-    "HUMAN_REVIEW_REQUIRED",
-    result.status.mechanics,
-    effectiveRuleCheck
-  ].filter(Boolean));
+  const status = new Set(
+    [
+      "HUMAN_REVIEW_REQUIRED",
+      result.status.mechanics,
+      effectiveRuleCheck,
+    ].filter(Boolean),
+  );
   const resultIds = result.results.map((item) => item.id).sort();
-  const diagnosticIds = result.diagnostics.map((item) => item.id ?? "diagnostic:unknown").sort();
+  const diagnosticIds = result.diagnostics
+    .map((item) => item.id ?? "diagnostic:unknown")
+    .sort();
   const loadBasisRefs = loadBasisRefsFor(result);
 
   return {
@@ -167,7 +200,7 @@ export async function buildAnalysisRunPreview(
       model_state_binding: "schemas/model_state.schema.json",
       result_binding: "schemas/results.schema.yaml",
       physical_project_container: "TBD",
-      external_validation_boundary: "reference_only_not_determined_by_software"
+      external_validation_boundary: "reference_only_not_determined_by_software",
     },
     analysis_run: {
       run_id: result.run_id,
@@ -189,32 +222,35 @@ export async function buildAnalysisRunPreview(
               status: recordStatus,
               load_basis_refs: loadBasisRefs,
               result_ids: resultIds,
-              diagnostic_ids: diagnosticIds
-            })
-          )
+              diagnostic_ids: diagnosticIds,
+            }),
+          ),
         },
         {
           algorithm: "sha256",
           canonicalization: "rfc8785_jcs",
           payload_ref: resultEnvelopeRef,
           payload_scope: "result_envelope",
-          value: await sha256(canonicalJson(result))
-        }
+          value: await sha256(canonicalJson(result)),
+        },
       ],
       analysis_status: Array.from(status).sort(),
       reproducibility: {
         input_manifest_refs: [resultEnvelopeRef],
         determinism_notes: [
           "analysis run record was generated from an already computed invented preview mechanics result",
-          "canonical hashes use stable JSON key ordering"
+          "canonical hashes use stable JSON key ordering",
         ],
-        unresolved_tbd: ["physical project container", "release-grade solver build provenance"]
+        unresolved_tbd: [
+          "physical project container",
+          "release-grade solver build provenance",
+        ],
       },
       immutability_policy: {
         run_record_is_read_only: true,
         mutation_policy: "changes_create_new_analysis_run",
         new_run_required_for_change: true,
-        hash_invalidates_external_acceptance: true
+        hash_invalidates_external_acceptance: true,
       },
       professional_boundary: {
         human_review_required: true,
@@ -222,9 +258,9 @@ export async function buildAnalysisRunPreview(
         software_makes_certification_claim: false,
         software_makes_sealing_claim: false,
         software_makes_approval_claim: false,
-        software_makes_authentication_claim: false
-      }
-    }
+        software_makes_authentication_claim: false,
+      },
+    },
   };
 }
 
@@ -232,7 +268,7 @@ export function buildPreviewComparison({
   result,
   analysisRun,
   leftBasisRef = "load:L-100",
-  rightBasisRef = "combination:C-OPER-ALT"
+  rightBasisRef = "combination:C-OPER-ALT",
 }: {
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
@@ -241,13 +277,19 @@ export function buildPreviewComparison({
 }): PreviewComparison {
   const run = analysisRun.analysis_run;
   const resultIndex = new Map(result.results.map((item) => [item.id, item]));
-  const leftResults = result.results.filter((item) => item.basis_ref?.ref_id === leftBasisRef);
-  const rightResults = result.results.filter((item) => item.basis_ref?.ref_id === rightBasisRef);
+  const leftResults = result.results.filter(
+    (item) => item.basis_ref?.ref_id === leftBasisRef,
+  );
+  const rightResults = result.results.filter(
+    (item) => item.basis_ref?.ref_id === rightBasisRef,
+  );
   const matchedLeftIds = new Set<string>();
   const unmatchedRightRefs: string[] = [];
   const deltas = rightResults
     .flatMap((rightResult) => {
-      const leftResultId = rightResult.source_result_refs?.find((sourceRef) => resultIndex.has(sourceRef));
+      const leftResultId = rightResult.source_result_refs?.find((sourceRef) =>
+        resultIndex.has(sourceRef),
+      );
       if (!leftResultId) {
         unmatchedRightRefs.push(rightResult.id);
         return [];
@@ -273,17 +315,27 @@ export function buildPreviewComparison({
           raw_delta: rightResult.value - leftResult.value,
           absolute_delta: Math.abs(rightResult.value - leftResult.value),
           classification: "not_tolerance_checked" as const,
-          classification_basis: "governed_tolerance_profile_TBD_no_default_engineering_threshold"
-        }
+          classification_basis:
+            "governed_tolerance_profile_TBD_no_default_engineering_threshold",
+        },
       ];
     })
     .sort((left, right) => {
       const byDelta = right.absolute_delta - left.absolute_delta;
-      return byDelta === 0 ? left.right_result_id.localeCompare(right.right_result_id) : byDelta;
+      return byDelta === 0
+        ? left.right_result_id.localeCompare(right.right_result_id)
+        : byDelta;
     });
-  const unmatchedLeftRefs = leftResults.map((item) => item.id).filter((id) => !matchedLeftIds.has(id));
-  const diagnostics = comparisonDiagnostics({ unmatchedLeftRefs, unmatchedRightRefs });
-  const matchedResultUnits = Array.from(new Set(deltas.map((item) => item.unit).filter(Boolean))).sort();
+  const unmatchedLeftRefs = leftResults
+    .map((item) => item.id)
+    .filter((id) => !matchedLeftIds.has(id));
+  const diagnostics = comparisonDiagnostics({
+    unmatchedLeftRefs,
+    unmatchedRightRefs,
+  });
+  const matchedResultUnits = Array.from(
+    new Set(deltas.map((item) => item.unit).filter(Boolean)),
+  ).sort();
 
   return {
     schema_version: "0.1.0",
@@ -299,39 +351,47 @@ export function buildPreviewComparison({
       basis_ref: ref("LoadCase", leftBasisRef),
       model_state_ref: run.model_state_ref,
       analysis_run_ref: ref("AnalysisRun", run.run_id),
-      result_count: leftResults.length
+      result_count: leftResults.length,
     },
     right: {
       label: "User-defined combination result rows",
       basis_ref: ref("Combination", rightBasisRef),
       model_state_ref: run.model_state_ref,
       analysis_run_ref: ref("AnalysisRun", run.run_id),
-      result_count: rightResults.length
+      result_count: rightResults.length,
     },
     summary: {
       comparable_result_pairs: deltas.length,
       unmatched_left_results: unmatchedLeftRefs.length,
       unmatched_right_results: unmatchedRightRefs.length,
-      mapping_basis: "stable result IDs plus explicit source_result_refs from the preview mechanics result envelope",
+      mapping_basis:
+        "stable result IDs plus explicit source_result_refs from the preview mechanics result envelope",
       tolerance_status: "not_tolerance_checked",
-      tolerance_profile_ref: "TBD"
+      tolerance_profile_ref: "TBD",
     },
     unit_policy_evidence: {
       evidence_id: "unit-policy-evidence:comparison-workspace-preview",
       unit_system_ref: ref("UnitSystem", "unit-system:dec-018-si-dual-display"),
       storage_convention: "entered_units_preserved",
-      comparison_unit_policy: "compare_only_rows_with_equal_explicit_result_units",
-      matching_policy: "stable_result_refs_must_match_and_units_must_be_equal_before_delta",
+      comparison_unit_policy:
+        "compare_only_rows_with_equal_explicit_result_units",
+      matching_policy:
+        "stable_result_refs_must_match_and_units_must_be_equal_before_delta",
       matched_result_units: matchedResultUnits,
       unmatched_left_result_count: unmatchedLeftRefs.length,
       unmatched_right_result_count: unmatchedRightRefs.length,
-      conversion_policy: "comparison_workspace_preserves_result_units_without_conversion",
+      conversion_policy:
+        "comparison_workspace_preserves_result_units_without_conversion",
       conversion_performed: false,
       tolerance_profile_ref: "TBD",
       tolerance_status: "not_tolerance_checked",
-      decision_basis_refs: [ref("Decision", "DEC-018"), ref("Decision", "DEC-026"), ref("Deliverable", "DEL-14-05")],
+      decision_basis_refs: [
+        ref("Decision", "DEC-018"),
+        ref("Decision", "DEC-026"),
+        ref("Deliverable", "DEL-14-05"),
+      ],
       protected_content_included: false,
-      private_payload_included: false
+      private_payload_included: false,
     },
     result_deltas: deltas,
     diagnostics,
@@ -341,8 +401,8 @@ export function buildPreviewComparison({
       software_makes_certification_claim: false,
       software_makes_sealing_claim: false,
       software_makes_approval_claim: false,
-      software_makes_authentication_claim: false
-    }
+      software_makes_authentication_claim: false,
+    },
   };
 }
 
@@ -352,7 +412,8 @@ function loadBasisRefsFor(result: MechanicsResult): ObjectRef[] {
   for (const item of result.results) {
     const basis = item.basis_ref;
     if (!basis) continue;
-    const objectType = basis.ref_type === "combination" ? "Combination" : "LoadCase";
+    const objectType =
+      basis.ref_type === "combination" ? "Combination" : "LoadCase";
     const key = `${objectType}:${basis.ref_id}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -363,7 +424,7 @@ function loadBasisRefsFor(result: MechanicsResult): ObjectRef[] {
 
 function comparisonDiagnostics({
   unmatchedLeftRefs,
-  unmatchedRightRefs
+  unmatchedRightRefs,
 }: {
   unmatchedLeftRefs: string[];
   unmatchedRightRefs: string[];
@@ -377,7 +438,7 @@ function comparisonDiagnostics({
       message:
         "Some reference load-case result rows do not have a matching user-defined combination row in the preview comparison.",
       source: "apps/desktop/src/services/previewService.ts",
-      affected_refs: unmatchedLeftRefs.slice(0, 12)
+      affected_refs: unmatchedLeftRefs.slice(0, 12),
     });
   }
   if (unmatchedRightRefs.length > 0) {
@@ -388,26 +449,28 @@ function comparisonDiagnostics({
       message:
         "Some user-defined combination result rows could not be mapped back to source result rows for preview comparison.",
       source: "apps/desktop/src/services/previewService.ts",
-      affected_refs: unmatchedRightRefs.slice(0, 12)
+      affected_refs: unmatchedRightRefs.slice(0, 12),
     });
   }
   return diagnostics;
 }
 
 function safeComparisonToken(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "basis";
+  return (
+    value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "basis"
+  );
 }
 
 export async function loadSampleProposal(
   mechanicsResult?: MechanicsResult | null,
-  selectedTarget?: SelectedReviewTarget | null
+  selectedTarget?: SelectedReviewTarget | null,
 ): Promise<AgentProposal> {
   if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
     try {
       return (
         await invoke<{ proposal: AgentProposal }>("sample_agent_proposal", {
           mechanicsResult,
-          selectedTarget
+          selectedTarget,
         })
       ).proposal;
     } catch {
@@ -417,26 +480,35 @@ export async function loadSampleProposal(
   return buildProposalFromMechanics(
     mechanicsResult ?? (await loadMechanicsFixture()),
     await loadAgentProposalFixture(),
-    selectedTarget
+    selectedTarget,
   );
 }
 
 async function loadModelFixture(): Promise<PreviewModel> {
-  return (await import("../../../../fixtures/product_preview/invented_preview_model.json")).default as PreviewModel;
+  return (
+    await import("../../../../fixtures/product_preview/invented_preview_model.json")
+  ).default as PreviewModel;
 }
 
 async function loadKnowledgeFixture(): Promise<DesignKnowledge> {
-  return (await import("../../../../fixtures/product_preview/invented_design_knowledge.json")).default as DesignKnowledge;
+  return (
+    await import("../../../../fixtures/product_preview/invented_design_knowledge.json")
+  ).default as DesignKnowledge;
 }
 
 async function loadMechanicsFixture(): Promise<MechanicsResult> {
-  return (await import("../../../../fixtures/product_preview/invented_mechanics_result.json")).default as MechanicsResult;
+  return (
+    await import("../../../../fixtures/product_preview/invented_mechanics_result.json")
+  ).default as MechanicsResult;
 }
 
-async function runBrowserPreviewMechanics(model?: PreviewModel | null): Promise<MechanicsResult> {
+async function runBrowserPreviewMechanics(
+  model?: PreviewModel | null,
+): Promise<MechanicsResult> {
   if (!model) return loadMechanicsFixture();
   const fixtureModel = await loadModelFixture();
-  if (canonicalJson(model) === canonicalJson(fixtureModel)) return loadMechanicsFixture();
+  if (canonicalJson(model) === canonicalJson(fixtureModel))
+    return loadMechanicsFixture();
   return blockedBrowserEditedModelResult(model);
 }
 
@@ -449,7 +521,7 @@ function blockedBrowserEditedModelResult(model: PreviewModel): MechanicsResult {
     status: {
       mechanics: "MODEL_INCOMPLETE",
       rule_check: "RULE_INPUTS_INCOMPLETE",
-      professional_acceptance: "NOT_PROVIDED"
+      professional_acceptance: "NOT_PROVIDED",
     },
     summary: {
       node_count: model.nodes.length,
@@ -457,7 +529,7 @@ function blockedBrowserEditedModelResult(model: PreviewModel): MechanicsResult {
       support_count: model.supports.length,
       load_case_count: model.load_cases.length,
       max_displacement: null,
-      max_open_formula_stress: null
+      max_open_formula_stress: null,
     },
     results: [],
     diagnostics: [
@@ -468,14 +540,16 @@ function blockedBrowserEditedModelResult(model: PreviewModel): MechanicsResult {
         source: "apps/desktop/src/services/previewService.ts",
         affected_refs: [model.project.id],
         message:
-          "Browser fixture mode will not reuse bundled solved-result rows for an edited model; run through the Tauri backend solve path for model-bound mechanics results."
-      }
-    ]
+          "Browser fixture mode will not reuse bundled solved-result rows for an edited model; run through the Tauri backend solve path for model-bound mechanics results.",
+      },
+    ],
   };
 }
 
 async function loadAgentProposalFixture(): Promise<AgentProposal> {
-  return (await import("../../../../fixtures/product_preview/invented_agent_proposal.json")).default as AgentProposal;
+  return (
+    await import("../../../../fixtures/product_preview/invented_agent_proposal.json")
+  ).default as AgentProposal;
 }
 
 function ref(objectType: string, value: string): ObjectRef {
@@ -485,11 +559,14 @@ function ref(objectType: string, value: string): ObjectRef {
 function resultFamily(result: MechanicsResult["results"][number]): string {
   const kind = result.kind.toLowerCase();
   const id = result.id.toLowerCase();
-  if (kind.includes("displacement") || id.includes("disp")) return "displacement";
+  if (kind.includes("displacement") || id.includes("disp"))
+    return "displacement";
   if (kind.includes("reaction") || id.includes("reaction")) return "reaction";
   if (kind.includes("force") || id.includes("force")) return "force";
   if (kind.includes("moment") || id.includes("moment")) return "moment";
   if (kind.includes("stress") || id.includes("stress")) return "stress";
+  if (kind.includes("nonlinear_support") || id.includes("nonlinear-support"))
+    return "nonlinear_support";
   if (kind.includes("ratio") || id.includes("ratio")) return "ratio";
   return "TBD";
 }
@@ -506,7 +583,7 @@ function sortJson(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value)
         .sort(([left], [right]) => left.localeCompare(right))
-        .map(([key, nested]) => [key, sortJson(nested)])
+        .map(([key, nested]) => [key, sortJson(nested)]),
     );
   }
   return value;
@@ -530,14 +607,17 @@ async function sha256(payload: string): Promise<string> {
 function buildProposalFromMechanics(
   result: MechanicsResult,
   agentProposalFixture: AgentProposal,
-  selectedTarget?: SelectedReviewTarget | null
+  selectedTarget?: SelectedReviewTarget | null,
 ): AgentProposal {
   const forceResult =
-    result.results.find((item) => item.id === "result:force:pipe-P-120:axial") ??
+    result.results.find(
+      (item) => item.id === "result:force:pipe-P-120:axial",
+    ) ??
     result.results.find((item) => item.kind === "element_local_axial_force");
   const primaryDiagnostic =
-    result.diagnostics.find((item) => item.severity === "warning" || item.severity === "blocking") ??
-    result.diagnostics[0];
+    result.diagnostics.find(
+      (item) => item.severity === "warning" || item.severity === "blocking",
+    ) ?? result.diagnostics[0];
   const targetRef =
     selectedTarget?.id ??
     forceResult?.id ??
@@ -546,12 +626,14 @@ function buildProposalFromMechanics(
     result.summary.max_displacement?.result_ref ??
     result.results[0]?.id ??
     "diagnostic:physics:context-unavailable";
-  const targetKind = selectedTarget?.target_type.replaceAll("_", " ") ?? "computed mechanics";
+  const targetKind =
+    selectedTarget?.target_type.replaceAll("_", " ") ?? "computed mechanics";
 
   return {
     ...agentProposalFixture,
     proposal_id: "proposal:physics-diagnostic-review",
-    prompt: "Review current computed mechanics diagnostics and suggest a non-mutating follow-up.",
+    prompt:
+      "Review current computed mechanics diagnostics and suggest a non-mutating follow-up.",
     operation: {
       ...agentProposalFixture.operation,
       operation_id: "op:review-computed-diagnostic",
@@ -563,16 +645,16 @@ function buildProposalFromMechanics(
           change_kind: "attach_design_knowledge",
           target_ref: targetRef,
           before: `No review note attached for the selected ${targetKind} context.`,
-          after: `Attach review note referencing the current computed preview ${targetKind} context.`
-        }
-      ]
+          after: `Attach review note referencing the current computed preview ${targetKind} context.`,
+        },
+      ],
     },
     rationale: `Generated from current preview mechanics context; selected review reference is ${targetRef}. This narrative is review-only and does not mutate accepted model state.`,
     validation: {
       ...agentProposalFixture.validation,
       unit_validation: "not_required_metadata_review_only",
       constraint_validation: "warning_computed_context_requires_human_review",
-      diff_preview_status: "generated_from_computed_context"
-    }
+      diff_preview_status: "generated_from_computed_context",
+    },
   };
 }

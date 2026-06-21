@@ -87,7 +87,21 @@
   "supports": [
     { "id": "support:S-100", "label": "Anchor at pump nozzle", "node": "node:N-100", "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": "invented_example" },
     { "id": "support:S-120", "label": "Guide on riser", "node": "node:N-120", "family": "guide", "restraints": ["UX", "UZ"], "provenance": "invented_example" },
-    { "id": "support:S-130", "label": "Rack shoe", "node": "node:N-130", "family": "guide", "restraints": ["UY"], "provenance": "invented_example" }
+    { "id": "support:S-130", "label": "Rack shoe", "node": "node:N-130", "family": "guide", "restraints": ["UY"], "provenance": "invented_example" },
+    {
+      "id": "support:NL-140",
+      "label": "Preview one-way terminal stop",
+      "node": "node:N-140",
+      "family": "nonlinear",
+      "restraints": [],
+      "nonlinear": {
+        "behavior": "one_way",
+        "dof": "UY",
+        "initial_state": "active",
+        "active_when": "negative_reaction"
+      },
+      "provenance": "invented_example_user_entered_nonlinear_support_no_catalog"
+    }
   ],
   "components": [
     {

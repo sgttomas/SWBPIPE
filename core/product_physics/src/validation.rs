@@ -700,7 +700,10 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
             .mechanics_interface
             .as_ref()
             .and_then(|interface| interface.solver_consumption.as_deref());
-        if is_bend_component(component) || is_branch_component(component) || is_rigid_component(component) {
+        if is_bend_component(component)
+            || is_branch_component(component)
+            || is_rigid_component(component)
+        {
             if solver_consumption
                 .map(|value| value != "mechanics_geometry_only")
                 .unwrap_or(false)

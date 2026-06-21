@@ -17,8 +17,18 @@ use open_pipe_stress_load_case_algebra::{
     AlgebraOperand, AlgebraQuantity, AlgebraResult, AnalysisStatus as AlgebraAnalysisStatus,
     CombinationTerm, FindingCode, RangeMode,
 };
+use open_pipe_stress_nonlinear_integration::{
+    solve_active_set_frame, ConvergenceControl, ConvergencePolicyStatus, FrictionNormalReaction,
+    NonlinearFrameSolveInput, NonlinearIntegrationError,
+};
+use open_pipe_stress_nonlinear_supports::{
+    ActivationSense, ActiveSetState, GapDirection, NonlinearSupport, SupportStateRecord,
+};
 use open_pipe_stress_primitive_loads::{
     prepare_loads, LoadDimension, LoadDirection, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
+};
+use open_pipe_stress_solver_diagnostics::{
+    DiagnosticSeverity as SolverDiagnosticSeverity, SolverDiagnostic, SolverDiagnosticCode,
 };
 use open_pipe_stress_straight_pipe::{StraightPipeElement, StraightPipeSectionProperties};
 use open_pipe_stress_stress_recovery::{
@@ -241,6 +251,8 @@ pub struct PreviewSupport {
     #[serde(default)]
     pub stiffness: Option<SupportStiffnessInput>,
     #[serde(default)]
+    pub nonlinear: Option<NonlinearSupportInput>,
+    #[serde(default)]
     pub provenance: Option<String>,
 }
 
@@ -248,6 +260,26 @@ pub struct PreviewSupport {
 pub struct SupportStiffnessInput {
     pub dof: String,
     pub value: Quantity,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct NonlinearSupportInput {
+    pub behavior: String,
+    pub dof: String,
+    #[serde(default)]
+    pub initial_state: Option<String>,
+    #[serde(default)]
+    pub active_when: Option<String>,
+    #[serde(default)]
+    pub contact_when: Option<String>,
+    #[serde(default)]
+    pub closes_when: Option<String>,
+    #[serde(default)]
+    pub gap: Option<Quantity>,
+    #[serde(default)]
+    pub friction_coefficient: Option<Quantity>,
+    #[serde(default)]
+    pub normal_reaction: Option<Quantity>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -418,6 +450,9 @@ struct BuiltModel {
     pipes: Vec<StraightPipeElement>,
     frame_elements: Vec<FrameElement>,
     supports: Vec<LinearSupport>,
+    nonlinear_supports: Vec<NonlinearSupport>,
+    nonlinear_initial_states: Vec<SupportStateRecord>,
+    nonlinear_friction_normal_reactions: Vec<FrictionNormalReaction>,
     sections: HashMap<String, DerivedSection>,
 }
 
@@ -777,6 +812,15 @@ fn solve_load_case(
         }
     }
 
+    append_nonlinear_support_loop_results(
+        &mut results,
+        diagnostics,
+        built,
+        restrained_dofs,
+        &force,
+        load_case,
+    );
+
     let mut max_stress = None;
     let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
@@ -953,6 +997,544 @@ fn solve_load_case(
     })
 }
 
+#[derive(Debug, Default)]
+struct NonlinearSupportBuild {
+    supports: Vec<NonlinearSupport>,
+    initial_states: Vec<SupportStateRecord>,
+    friction_normal_reactions: Vec<FrictionNormalReaction>,
+}
+
+fn append_nonlinear_support_loop_results(
+    results: &mut Vec<ResultItem>,
+    diagnostics: &mut Vec<Diagnostic>,
+    built: &BuiltModel,
+    restrained_dofs: &[usize],
+    force: &[f64],
+    load_case: &PreviewLoadCase,
+) {
+    if built.nonlinear_supports.is_empty() {
+        return;
+    }
+
+    let convergence = match ConvergenceControl::new(
+        "DEC-046-CV-B-preview-active-set-count-TBD",
+        ConvergencePolicyStatus::Tbd,
+        0.0,
+        0.0,
+        8,
+    ) {
+        Ok(convergence) => convergence,
+        Err(error) => {
+            diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
+            return;
+        }
+    };
+
+    let input = NonlinearFrameSolveInput {
+        node_count: built.nodes.len(),
+        elements: built.frame_elements.clone(),
+        force: force.to_vec(),
+        base_restrained_dofs: restrained_dofs.to_vec(),
+        nonlinear_supports: built.nonlinear_supports.clone(),
+        initial_states: built.nonlinear_initial_states.clone(),
+        friction_normal_reactions: built.nonlinear_friction_normal_reactions.clone(),
+        convergence,
+    };
+
+    match solve_active_set_frame(&input) {
+        Ok(solve) => {
+            for (index, solver_diagnostic) in solve.diagnostics.iter().enumerate() {
+                diagnostics.push(product_diag_from_solver_diag(
+                    solver_diagnostic,
+                    &load_case.id,
+                    index,
+                ));
+            }
+            let final_residual = solve
+                .iterations
+                .last()
+                .map(|iteration| iteration.active_set.residual_norm)
+                .unwrap_or(0.0);
+            append_nonlinear_scalar_result(
+                results,
+                "result:nonlinear-support:iteration-count",
+                "nonlinear_support_active_set_iteration_count",
+                solve.iterations.len() as f64,
+                "count",
+                "nonlinear_supports",
+                "active_set_iteration_count",
+                "load_case",
+                &format!(
+                    "dense_active_set_loop; policy_ref={}; policy_status=TBD; support_count={}",
+                    solve.policy_ref,
+                    built.nonlinear_supports.len()
+                ),
+                "counts completed dense active-set linearization iterations",
+            );
+            append_nonlinear_scalar_result(
+                results,
+                "result:nonlinear-support:final-residual-count",
+                "nonlinear_support_active_set_final_residual_count",
+                final_residual,
+                "count",
+                "nonlinear_supports",
+                "active_set_final_residual_count",
+                "load_case",
+                &format!(
+                    "dense_active_set_loop; policy_ref={}; residual_is_changed_support_count",
+                    solve.policy_ref
+                ),
+                "zero means no nonlinear support state changed in the final iteration",
+            );
+            append_nonlinear_scalar_result(
+                results,
+                "result:nonlinear-support:converged-flag",
+                "nonlinear_support_active_set_converged_flag",
+                if solve.converged { 1.0 } else { 0.0 },
+                "boolean",
+                "nonlinear_supports",
+                "active_set_converged_flag",
+                "load_case",
+                &format!(
+                    "dense_active_set_loop; policy_ref={}; policy_status=TBD",
+                    solve.policy_ref
+                ),
+                "1 means the active-set state-change residual satisfied the supplied preview tolerance",
+            );
+
+            for state in &solve.final_states {
+                let Some(support) = built
+                    .nonlinear_supports
+                    .iter()
+                    .find(|candidate| candidate.support_id == state.support_id)
+                else {
+                    continue;
+                };
+                let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
+                let suffix = stable_suffix(&support.support_id);
+                let dof = support.dof.as_str();
+                append_nonlinear_scalar_result(
+                    results,
+                    &format!("result:nonlinear-support:{suffix}:state-code"),
+                    "nonlinear_support_active_set_state_code",
+                    active_set_state_code(state.state),
+                    "state_code",
+                    &support.support_id,
+                    "active_set_state_code",
+                    dof,
+                    &format!(
+                        "dense_active_set_loop; policy_ref={}; final_state={}",
+                        solve.policy_ref,
+                        state.state.as_str()
+                    ),
+                    "0=inactive, 1=active, 2=sticking, 3=sliding",
+                );
+                let displacement_scale = if support.dof.is_translational() {
+                    1000.0
+                } else {
+                    1.0
+                };
+                let displacement_unit = if support.dof.is_translational() {
+                    "mm"
+                } else {
+                    "rad"
+                };
+                append_nonlinear_scalar_result(
+                    results,
+                    &format!("result:nonlinear-support:{suffix}:{dof}-displacement"),
+                    "nonlinear_support_final_displacement",
+                    solve.displacements[global] * displacement_scale,
+                    displacement_unit,
+                    &support.support_id,
+                    "nonlinear_support_final_displacement",
+                    dof,
+                    &format!(
+                        "dense_active_set_loop; policy_ref={}; final_state={}",
+                        solve.policy_ref,
+                        state.state.as_str()
+                    ),
+                    "positive value follows the global frame DOF sign convention",
+                );
+                let reaction_unit = if support.dof.is_translational() {
+                    "N"
+                } else {
+                    "N*m"
+                };
+                append_nonlinear_scalar_result(
+                    results,
+                    &format!("result:nonlinear-support:{suffix}:{dof}-reaction"),
+                    "nonlinear_support_final_reaction",
+                    solve.reactions[global],
+                    reaction_unit,
+                    &support.support_id,
+                    "nonlinear_support_final_reaction",
+                    dof,
+                    &format!(
+                        "dense_active_set_loop; policy_ref={}; final_state={}",
+                        solve.policy_ref,
+                        state.state.as_str()
+                    ),
+                    "positive value follows the global frame DOF reaction sign convention",
+                );
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:nonlinear:{}:{}:state",
+                        stable_suffix(&load_case.id),
+                        suffix
+                    ),
+                    "NONLINEAR_SUPPORT_STATE_REVIEW",
+                    "info",
+                    format!(
+                        "nonlinear support {} ended in {} state for load case {}; dense preview loop evidence only",
+                        support.support_id,
+                        state.state.as_str(),
+                        load_case.id
+                    ),
+                    vec![support.support_id.clone(), load_case.id.clone()],
+                ));
+            }
+
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:nonlinear:{}:loop",
+                    stable_suffix(&load_case.id)
+                ),
+                if solve.converged {
+                    "NONLINEAR_SUPPORT_LOOP_CONVERGED"
+                } else {
+                    "NONLINEAR_SUPPORT_LOOP_NOT_CONVERGED"
+                },
+                if solve.converged { "info" } else { "warning" },
+                format!(
+                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; policy_ref={} remains release-TBD",
+                    solve.iterations.len(),
+                    final_residual,
+                    solve.policy_ref
+                ),
+                vec![load_case.id.clone(), "DEC-046".to_string()],
+            ));
+        }
+        Err(error) => diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error)),
+    }
+}
+
+fn append_nonlinear_scalar_result(
+    results: &mut Vec<ResultItem>,
+    id: &str,
+    kind: &str,
+    value: f64,
+    unit: &str,
+    entity_ref: &str,
+    component: &str,
+    location: &str,
+    basis: &str,
+    sign_convention: &str,
+) {
+    results.push(ResultItem {
+        id: id.to_string(),
+        kind: kind.to_string(),
+        value: round6(value),
+        unit: unit.to_string(),
+        entity_ref: entity_ref.to_string(),
+        basis_ref: None,
+        source_result_refs: Vec::new(),
+        metadata: Some(ResultMetadata {
+            component: component.to_string(),
+            coordinate_system: "solver_iteration".to_string(),
+            location: location.to_string(),
+            basis: basis.to_string(),
+            sign_convention: sign_convention.to_string(),
+        }),
+    });
+}
+
+fn nonlinear_loop_blocked_diag(load_case_id: &str, error: NonlinearIntegrationError) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:nonlinear:{}:blocked",
+            stable_suffix(load_case_id)
+        ),
+        "NONLINEAR_SUPPORT_LOOP_BLOCKED",
+        "blocking",
+        format!("nonlinear support dense preview loop could not run: {error}"),
+        vec![load_case_id.to_string()],
+    )
+}
+
+fn product_diag_from_solver_diag(
+    diagnostic: &SolverDiagnostic,
+    load_case_id: &str,
+    index: usize,
+) -> Diagnostic {
+    let code = solver_diag_code(diagnostic.code);
+    let mut affected_refs = vec![load_case_id.to_string()];
+    if let Some(affected_ref) = &diagnostic.affected_ref {
+        affected_refs.push(affected_ref.clone());
+    }
+    diag(
+        &format!(
+            "diagnostic:nonlinear:{}:{}:{}",
+            stable_suffix(load_case_id),
+            index + 1,
+            stable_suffix(code)
+        ),
+        code,
+        solver_diag_severity(diagnostic.severity),
+        diagnostic.message.clone(),
+        affected_refs,
+    )
+}
+
+fn solver_diag_code(code: SolverDiagnosticCode) -> &'static str {
+    match code {
+        SolverDiagnosticCode::SingularSystem => "SOLVER_SINGULAR_SYSTEM",
+        SolverDiagnosticCode::IllConditionedSystem => "SOLVER_ILL_CONDITIONED_SYSTEM",
+        SolverDiagnosticCode::ConditioningFailure => "SOLVER_CONDITIONING_FAILURE",
+        SolverDiagnosticCode::InvalidRestraint => "SOLVER_INVALID_RESTRAINT",
+        SolverDiagnosticCode::InvalidModelTopology => "SOLVER_INVALID_MODEL_TOPOLOGY",
+        SolverDiagnosticCode::InvalidNumericInput => "SOLVER_INVALID_NUMERIC_INPUT",
+        SolverDiagnosticCode::NonConvergence => "NONLINEAR_SUPPORT_NONCONVERGENCE",
+        SolverDiagnosticCode::NonPositivePivot => "SOLVER_NONPOSITIVE_PIVOT",
+        SolverDiagnosticCode::SparseSolverTbd => "SPARSE_SOLVER_TBD",
+        SolverDiagnosticCode::TolerancePolicyTbd => "TOLERANCE_POLICY_TBD",
+    }
+}
+
+fn solver_diag_severity(severity: SolverDiagnosticSeverity) -> &'static str {
+    match severity {
+        SolverDiagnosticSeverity::Info => "info",
+        SolverDiagnosticSeverity::Warning => "warning",
+        SolverDiagnosticSeverity::Blocking | SolverDiagnosticSeverity::Failure => "blocking",
+    }
+}
+
+fn active_set_state_code(state: ActiveSetState) -> f64 {
+    match state {
+        ActiveSetState::Inactive => 0.0,
+        ActiveSetState::Active => 1.0,
+        ActiveSetState::Sticking => 2.0,
+        ActiveSetState::Sliding => 3.0,
+    }
+}
+
+fn build_nonlinear_supports(
+    model: &PreviewModel,
+    node_map: &HashMap<&str, usize>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> NonlinearSupportBuild {
+    let mut build = NonlinearSupportBuild::default();
+    for support in &model.supports {
+        let Some(input) = &support.nonlinear else {
+            continue;
+        };
+        let Some(&node_index) = node_map.get(support.node.as_str()) else {
+            diagnostics.push(diag(
+                &format!("diagnostic:support:{}:node", stable_suffix(&support.id)),
+                "SUPPORT_NODE_UNKNOWN",
+                "blocking",
+                "nonlinear support node is not present in preview model",
+                vec![support.id.clone(), support.node.clone()],
+            ));
+            continue;
+        };
+        let dof = match parse_dof(&input.dof) {
+            Ok(dof) => dof,
+            Err(message) => {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:nonlinear-support:{}:dof",
+                        stable_suffix(&support.id)
+                    ),
+                    "NONLINEAR_SUPPORT_DOF_INVALID",
+                    "blocking",
+                    message,
+                    vec![support.id.clone(), input.dof.clone()],
+                ));
+                continue;
+            }
+        };
+        let Some(initial_state_value) = input.initial_state.as_deref() else {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:nonlinear-support:{}:initial-state",
+                    stable_suffix(&support.id)
+                ),
+                "NONLINEAR_SUPPORT_INITIAL_STATE_MISSING",
+                "blocking",
+                "nonlinear support requires an explicit initial active-set state",
+                vec![support.id.clone()],
+            ));
+            continue;
+        };
+        let initial_state = match parse_active_set_state(initial_state_value) {
+            Ok(state) => state,
+            Err(message) => {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:nonlinear-support:{}:initial-state",
+                        stable_suffix(&support.id)
+                    ),
+                    "NONLINEAR_SUPPORT_INITIAL_STATE_INVALID",
+                    "blocking",
+                    message,
+                    vec![support.id.clone(), initial_state_value.to_string()],
+                ));
+                continue;
+            }
+        };
+
+        let nonlinear_support = match input.behavior.as_str() {
+            "one_way" | "one-way" | "oneway" => {
+                let Some(active_when) = input.active_when.as_deref() else {
+                    diagnostics.push(missing_nonlinear_field_diag(&support.id, "active_when"));
+                    continue;
+                };
+                match parse_activation_sense(active_when) {
+                    Ok(sense) => NonlinearSupport::one_way(&support.id, node_index, dof, sense),
+                    Err(message) => {
+                        diagnostics.push(invalid_nonlinear_field_diag(
+                            &support.id,
+                            "active_when",
+                            active_when,
+                            message,
+                        ));
+                        continue;
+                    }
+                }
+            }
+            "gap" => {
+                let Some(closes_when) = input.closes_when.as_deref() else {
+                    diagnostics.push(missing_nonlinear_field_diag(&support.id, "closes_when"));
+                    continue;
+                };
+                let closes_when = match parse_gap_direction(closes_when) {
+                    Ok(direction) => direction,
+                    Err(message) => {
+                        diagnostics.push(invalid_nonlinear_field_diag(
+                            &support.id,
+                            "closes_when",
+                            closes_when,
+                            message,
+                        ));
+                        continue;
+                    }
+                };
+                let Some(gap) = input.gap.as_ref() else {
+                    diagnostics.push(missing_nonlinear_field_diag(&support.id, "gap"));
+                    continue;
+                };
+                match NonlinearSupport::gap(&support.id, node_index, dof, gap.value, closes_when) {
+                    Ok(support) => support,
+                    Err(error) => {
+                        diagnostics.push(diag(
+                            &format!(
+                                "diagnostic:nonlinear-support:{}:gap",
+                                stable_suffix(&support.id)
+                            ),
+                            "NONLINEAR_SUPPORT_INPUT_INVALID",
+                            "blocking",
+                            error.to_string(),
+                            vec![support.id.clone()],
+                        ));
+                        continue;
+                    }
+                }
+            }
+            "lift_off" | "lift-off" | "liftoff" => {
+                let Some(contact_when) = input.contact_when.as_deref() else {
+                    diagnostics.push(missing_nonlinear_field_diag(&support.id, "contact_when"));
+                    continue;
+                };
+                match parse_activation_sense(contact_when) {
+                    Ok(sense) => NonlinearSupport::lift_off(&support.id, node_index, dof, sense),
+                    Err(message) => {
+                        diagnostics.push(invalid_nonlinear_field_diag(
+                            &support.id,
+                            "contact_when",
+                            contact_when,
+                            message,
+                        ));
+                        continue;
+                    }
+                }
+            }
+            "friction" => {
+                let Some(coefficient) = input.friction_coefficient.as_ref() else {
+                    diagnostics.push(missing_nonlinear_field_diag(
+                        &support.id,
+                        "friction_coefficient",
+                    ));
+                    continue;
+                };
+                let Some(normal_reaction) = input.normal_reaction.as_ref() else {
+                    diagnostics.push(diag(
+                        &format!(
+                            "diagnostic:nonlinear-support:{}:normal-reaction",
+                            stable_suffix(&support.id)
+                        ),
+                        "NONLINEAR_FRICTION_NORMAL_REACTION_MISSING",
+                        "blocking",
+                        "friction nonlinear support requires explicit normal reaction evidence until the governed normal-force model is integrated",
+                        vec![support.id.clone()],
+                    ));
+                    continue;
+                };
+                match FrictionNormalReaction::new(&support.id, normal_reaction.value) {
+                    Ok(reaction) => build.friction_normal_reactions.push(reaction),
+                    Err(error) => {
+                        diagnostics.push(diag(
+                            &format!(
+                                "diagnostic:nonlinear-support:{}:normal-reaction",
+                                stable_suffix(&support.id)
+                            ),
+                            "NONLINEAR_FRICTION_NORMAL_REACTION_INVALID",
+                            "blocking",
+                            error.to_string(),
+                            vec![support.id.clone()],
+                        ));
+                        continue;
+                    }
+                }
+                match NonlinearSupport::friction(&support.id, node_index, dof, coefficient.value) {
+                    Ok(support) => support,
+                    Err(error) => {
+                        diagnostics.push(diag(
+                            &format!(
+                                "diagnostic:nonlinear-support:{}:friction",
+                                stable_suffix(&support.id)
+                            ),
+                            "NONLINEAR_SUPPORT_INPUT_INVALID",
+                            "blocking",
+                            error.to_string(),
+                            vec![support.id.clone()],
+                        ));
+                        continue;
+                    }
+                }
+            }
+            _ => {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:nonlinear-support:{}:behavior",
+                        stable_suffix(&support.id)
+                    ),
+                    "NONLINEAR_SUPPORT_BEHAVIOR_INVALID",
+                    "blocking",
+                    format!("unsupported nonlinear support behavior {}", input.behavior),
+                    vec![support.id.clone(), input.behavior.clone()],
+                ));
+                continue;
+            }
+        };
+
+        build
+            .initial_states
+            .push(SupportStateRecord::new(&support.id, initial_state));
+        build.supports.push(nonlinear_support);
+    }
+    build
+}
+
 fn build_model(
     model: &PreviewModel,
     materials: &[MaterialInput],
@@ -1064,10 +1646,14 @@ fn build_model(
         pipes.push(element);
     }
 
+    let nonlinear = build_nonlinear_supports(model, &node_map, diagnostics);
     let supports = model
         .supports
         .iter()
         .filter_map(|support| {
+            if support.nonlinear.is_some() {
+                return None;
+            }
             let Some(&node) = node_map.get(support.node.as_str()) else {
                 diagnostics.push(diag(
                     &format!("diagnostic:support:{}:node", stable_suffix(&support.id)),
@@ -1130,6 +1716,9 @@ fn build_model(
         pipes,
         frame_elements,
         supports,
+        nonlinear_supports: nonlinear.supports,
+        nonlinear_initial_states: nonlinear.initial_states,
+        nonlinear_friction_normal_reactions: nonlinear.friction_normal_reactions,
         sections,
     })
 }
@@ -1201,28 +1790,67 @@ fn normalize_model_units(
     }
 
     for support in &mut model.supports {
-        let Some(stiffness) = &mut support.stiffness else {
-            continue;
-        };
-        let Some(dimension) = parse_dof(&stiffness.dof).ok().map(|dof| {
-            if dof.is_translational() {
-                Dimension::LinearStiffness
-            } else {
-                Dimension::RotationalStiffness
+        if let Some(stiffness) = &mut support.stiffness {
+            let Some(dimension) = parse_dof(&stiffness.dof).ok().map(|dof| {
+                if dof.is_translational() {
+                    Dimension::LinearStiffness
+                } else {
+                    Dimension::RotationalStiffness
+                }
+            }) else {
+                continue;
+            };
+            normalize_quantity(
+                &mut stiffness.value,
+                dimension,
+                &format!(
+                    "diagnostic:unit-conversion:support:{}:stiffness",
+                    stable_suffix(&support.id)
+                ),
+                vec![support.id.clone(), "stiffness".to_string()],
+                diagnostics,
+            );
+        }
+        if let Some(nonlinear) = &mut support.nonlinear {
+            if let Some(gap) = &mut nonlinear.gap {
+                normalize_quantity(
+                    gap,
+                    Dimension::Length,
+                    &format!(
+                        "diagnostic:unit-conversion:support:{}:nonlinear-gap",
+                        stable_suffix(&support.id)
+                    ),
+                    vec![support.id.clone(), "nonlinear.gap".to_string()],
+                    diagnostics,
+                );
             }
-        }) else {
-            continue;
-        };
-        normalize_quantity(
-            &mut stiffness.value,
-            dimension,
-            &format!(
-                "diagnostic:unit-conversion:support:{}:stiffness",
-                stable_suffix(&support.id)
-            ),
-            vec![support.id.clone(), "stiffness".to_string()],
-            diagnostics,
-        );
+            if let Some(coefficient) = &mut nonlinear.friction_coefficient {
+                normalize_dimensionless_quantity(
+                    coefficient,
+                    &format!(
+                        "diagnostic:unit-conversion:support:{}:friction-coefficient",
+                        stable_suffix(&support.id)
+                    ),
+                    vec![
+                        support.id.clone(),
+                        "nonlinear.friction_coefficient".to_string(),
+                    ],
+                    diagnostics,
+                );
+            }
+            if let Some(normal) = &mut nonlinear.normal_reaction {
+                normalize_quantity(
+                    normal,
+                    Dimension::Force,
+                    &format!(
+                        "diagnostic:unit-conversion:support:{}:normal-reaction",
+                        stable_suffix(&support.id)
+                    ),
+                    vec![support.id.clone(), "nonlinear.normal_reaction".to_string()],
+                    diagnostics,
+                );
+            }
+        }
     }
 
     for component in &mut model.components {
@@ -2709,7 +3337,11 @@ fn append_expansion_joint_user_stiffness_results(
     results: &mut Vec<ResultItem>,
 ) -> usize {
     let mut appended = 0;
-    for component in model.components.iter().filter(|component| is_expansion_joint_component(component)) {
+    for component in model
+        .components
+        .iter()
+        .filter(|component| is_expansion_joint_component(component))
+    {
         let solver_consumption = component
             .mechanics_interface
             .as_ref()
@@ -3600,6 +4232,44 @@ fn parse_dof(value: &str) -> Result<FrameDof, String> {
     }
 }
 
+fn parse_active_set_state(value: &str) -> Result<ActiveSetState, String> {
+    match value {
+        "active" | "ACTIVE" => Ok(ActiveSetState::Active),
+        "inactive" | "INACTIVE" => Ok(ActiveSetState::Inactive),
+        "sticking" | "STICKING" => Ok(ActiveSetState::Sticking),
+        "sliding" | "SLIDING" => Ok(ActiveSetState::Sliding),
+        _ => Err(format!(
+            "unsupported nonlinear support initial state {value}"
+        )),
+    }
+}
+
+fn parse_activation_sense(value: &str) -> Result<ActivationSense, String> {
+    match value {
+        "positive_reaction" | "positive" | "POSITIVE_REACTION" | "POSITIVE" => {
+            Ok(ActivationSense::PositiveReaction)
+        }
+        "negative_reaction" | "negative" | "NEGATIVE_REACTION" | "NEGATIVE" => {
+            Ok(ActivationSense::NegativeReaction)
+        }
+        _ => Err(format!(
+            "unsupported nonlinear support activation sense {value}"
+        )),
+    }
+}
+
+fn parse_gap_direction(value: &str) -> Result<GapDirection, String> {
+    match value {
+        "positive_displacement" | "positive" | "POSITIVE_DISPLACEMENT" | "POSITIVE" => {
+            Ok(GapDirection::PositiveDisplacement)
+        }
+        "negative_displacement" | "negative" | "NEGATIVE_DISPLACEMENT" | "NEGATIVE" => {
+            Ok(GapDirection::NegativeDisplacement)
+        }
+        _ => Err(format!("unsupported nonlinear gap direction {value}")),
+    }
+}
+
 fn parse_direction(value: &str) -> Result<LoadDirection, String> {
     match value {
         "global_x" | "GLOBAL_X" => Ok(LoadDirection::GlobalX),
@@ -3717,6 +4387,39 @@ fn diag(
         source: Some("core/product_physics".to_string()),
         affected_refs,
     }
+}
+
+fn missing_nonlinear_field_diag(support_id: &str, field: &str) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:nonlinear-support:{}:{}",
+            stable_suffix(support_id),
+            stable_suffix(field)
+        ),
+        "NONLINEAR_SUPPORT_INPUT_MISSING",
+        "blocking",
+        format!("nonlinear support requires explicit {field}"),
+        vec![support_id.to_string(), field.to_string()],
+    )
+}
+
+fn invalid_nonlinear_field_diag(
+    support_id: &str,
+    field: &str,
+    value: &str,
+    message: String,
+) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:nonlinear-support:{}:{}",
+            stable_suffix(support_id),
+            stable_suffix(field)
+        ),
+        "NONLINEAR_SUPPORT_INPUT_INVALID",
+        "blocking",
+        message,
+        vec![support_id.to_string(), field.to_string(), value.to_string()],
+    )
 }
 
 fn stable_suffix(id: &str) -> String {
@@ -3909,6 +4612,69 @@ mod tests {
             .results
             .iter()
             .any(|item| item.id == "result:disp:node-N-140"));
+    }
+
+    #[test]
+    fn valid_invented_model_exposes_nonlinear_support_loop_evidence() {
+        let result = run_linear_static_preview(request());
+        let result_ids = result
+            .results
+            .iter()
+            .map(|item| item.id.as_str())
+            .collect::<HashSet<_>>();
+        let diagnostic_codes = result
+            .diagnostics
+            .iter()
+            .map(|item| item.code.as_str())
+            .collect::<HashSet<_>>();
+
+        assert!(result_ids.contains("result:nonlinear-support:iteration-count"));
+        assert!(result_ids.contains("result:nonlinear-support:final-residual-count"));
+        assert!(result_ids.contains("result:nonlinear-support:converged-flag"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-140:state-code"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-140:uy-displacement"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-140:uy-reaction"));
+        assert!(result_ids
+            .contains("result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-reaction"));
+        assert!(result_ids.contains(
+            "result:combination:combination-C-OPER-ALT:nonlinear-support:support-NL-140:uy-reaction"
+        ));
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:iteration-count"),
+            1.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:final-residual-count"),
+            0.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:converged-flag"),
+            1.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-140:state-code"
+            ),
+            1.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-140:uy-displacement"
+            ),
+            0.0
+        );
+        assert!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-140:uy-reaction"
+            ) < 0.0
+        );
+        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+        assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
     }
 
     #[test]
@@ -4532,7 +5298,10 @@ mod tests {
             .find(|item| item.id == "result:component-stiffness:component-C-150:torsional")
             .expect("expansion joint torsional stiffness review row should be emitted");
 
-        assert_eq!(result.summary.component_user_stiffness_macro_element_count, 4);
+        assert_eq!(
+            result.summary.component_user_stiffness_macro_element_count,
+            4
+        );
         assert_eq!(axial.kind, "component_user_stiffness_macro_element_review");
         assert_eq!(axial.entity_ref, "component:C-150");
         assert_eq!(axial.value, 3_200_000.0);
@@ -4544,7 +5313,9 @@ mod tests {
         assert_eq!(axial_metadata.component, "axial_user_stiffness");
         assert_eq!(axial_metadata.coordinate_system, "component_local_preview");
         assert_eq!(axial_metadata.location, "pipe:P-130");
-        assert!(axial_metadata.basis.contains("component_family=expansion_joint"));
+        assert!(axial_metadata
+            .basis
+            .contains("component_family=expansion_joint"));
         assert!(axial_metadata
             .basis
             .contains("solver_consumption=mechanics_geometry_and_user_flexibility"));
@@ -4557,17 +5328,16 @@ mod tests {
 
         assert_eq!(torsional.value, 620_000.0);
         assert_eq!(torsional.unit, "N*m/rad");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED"));
         assert!(
             result
                 .diagnostics
                 .iter()
-                .any(|diagnostic| diagnostic.code == "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED")
-        );
-        assert!(
-            result
-                .diagnostics
-                .iter()
-                .all(|diagnostic| diagnostic.code != "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED")
+                .all(|diagnostic| diagnostic.code
+                    != "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED")
         );
     }
 

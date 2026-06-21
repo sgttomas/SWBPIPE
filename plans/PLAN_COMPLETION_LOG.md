@@ -14,6 +14,61 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D6 product-preview nonlinear sidecar (`TP-R4-D6-PHYSINTEG-001`)
+
+Landed the first product/app/result-envelope follow-through for D6 under
+`DEC-044` and `DEC-046`. `core/product_physics` now consumes
+`core/solver/nonlinear_integration` for explicitly declared invented nonlinear
+supports, keeping those supports out of the linear support boundary so they are
+not double-constrained. The dense preview loop emits active-set iteration
+count, final residual count, converged flag, support state, displacement, and
+reaction rows into the mechanics result envelope.
+
+The invented preview model now carries `support:NL-140`, a user-entered
+one-way UY terminal stop at `node:N-140`. The regenerated mechanics fixture has
+770 result rows, including load-case nonlinear support loop rows and explicit
+combination displacement/reaction rows. Desktop analysis-run records classify
+the new rows as `nonlinear_support`, and the browser/app smoke expectations
+were refreshed for the new result totals.
+
+The preview path intentionally keeps the convergence policy unresolved:
+`TOLERANCE_POLICY_TBD` diagnostics remain visible with
+`DEC-046-CV-B-preview-active-set-count-TBD`, and loop diagnostics state that
+the evidence is dense preview loop evidence only. Friction supports still
+require explicit normal-reaction evidence until the governed normal-force model
+is integrated.
+
+Validation: `cargo test --manifest-path core/product_physics/Cargo.toml`
+passed 35/35; `python3 -m pytest tests/product_preview/test_product_preview_service.py`
+passed 9/9; `npm --prefix apps/desktop test -- --run src/services/previewService.test.ts`
+passed 10/10; `npm --prefix apps/desktop test -- --run src/App.test.tsx`
+passed 57/57; `npm run build:wasm && npx playwright test --workers=1`
+passed 18/18 from `apps/desktop`; `npm run test:e2e:dist:desktop` passed 1/1;
+`python3 tools/release/run_evidence_sweep.py --execute` passed all five
+surfaces, writing
+`validation/evidence/sweeps/SWEEP_20260621T071342Z_251dbcd8ce97-dirty.json`.
+An earlier sweep
+`validation/evidence/sweeps/SWEEP_20260621T070045Z_251dbcd8ce97-dirty.json`
+failed at the stale Playwright result-count assertion before the smoke
+expectation was corrected.
+
+Evidence: PKG-04 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-PHYSINTEG-001.md`.
+
+Residual: D6 remains partially landed. Sparse live-path adoption is still gated
+by `D-17`; measured class-tiered convergence values remain `TBD` under
+`DEC-046`; friction normal-force model integration, broader live-solver
+coverage, and D9 assembled nonlinear validation cases remain open. This does
+not close R4.
+
+Boundary: invented dense preview support only; no protected standards table,
+proprietary catalog value, public default, private data, network path,
+telemetry feature, lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-21 - R4 D6 assembled nonlinear loop-core slice (`TP-R4-D6-LOOPCORE-001`)
 
 Landed the first D6 assembled nonlinear loop-core slice under `DEC-044` and
@@ -44,10 +99,11 @@ passed 34/34; `git diff --check` passed.
 Evidence: PKG-04 run record
 `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-LOOPCORE-001.md`.
 
-Residual: D6 is only partially landed. Product/app/result-envelope integration,
-friction normal-force model integration, measured class-tiered convergence
-values under `DEC-046`, sparse live-path adoption (`D-17`), and D9 assembled
-nonlinear validation cases remain open.
+Residual: D6 was only partially landed by this loop-core slice. The first
+product/app/result-envelope preview sidecar later landed as
+`TP-R4-D6-PHYSINTEG-001`; friction normal-force model integration, measured
+class-tiered convergence values under `DEC-046`, sparse live-path adoption
+(`D-17`), and D9 assembled nonlinear validation cases remain open.
 
 Boundary: dense mechanics integration only; no protected standards table,
 proprietary catalog value, public default, private data, network path, telemetry
