@@ -20,7 +20,7 @@ use open_pipe_stress_load_case_algebra::{
 use open_pipe_stress_nonlinear_integration::{
     solve_active_set_frame, ConvergenceControl, ConvergencePolicyStatus,
     DerivedFrictionNormalReaction, FrictionNormalReaction, NonlinearFrameSolveInput,
-    NonlinearIntegrationError,
+    NonlinearIntegrationError, NonlinearResidualObservation,
 };
 use open_pipe_stress_nonlinear_supports::{
     ActivationSense, ActiveSetState, GapDirection, NonlinearSupport, SupportStateRecord,
@@ -1115,6 +1115,13 @@ fn append_nonlinear_support_loop_results(
                 ),
                 "1 means the active-set state-change residual satisfied the supplied preview tolerance",
             );
+            if let Some(final_iteration) = solve.iterations.last() {
+                append_nonlinear_residual_observation_results(
+                    results,
+                    &final_iteration.residuals,
+                    &solve.policy_ref,
+                );
+            }
             append_nonlinear_friction_normal_evidence(
                 results,
                 &built.nonlinear_friction_normal_reactions,
@@ -1267,6 +1274,96 @@ fn append_nonlinear_scalar_result(
             sign_convention: sign_convention.to_string(),
         }),
     });
+}
+
+fn append_nonlinear_residual_observation_results(
+    results: &mut Vec<ResultItem>,
+    residuals: &NonlinearResidualObservation,
+    policy_ref: &str,
+) {
+    let basis = format!(
+        "dense_active_set_loop; policy_ref={policy_ref}; observed_residual_only; threshold=TBD"
+    );
+    if let Some(value) = residuals.max_abs_translation_delta_from_previous {
+        append_nonlinear_scalar_result(
+            results,
+            "result:nonlinear-support:max-translation-delta",
+            "nonlinear_support_observed_max_translation_delta",
+            value * 1000.0,
+            "mm",
+            "nonlinear_supports",
+            "observed_max_translation_delta",
+            "final_iteration",
+            &basis,
+            "nonnegative max absolute translational displacement change from the previous iteration",
+        );
+    }
+    if let Some(value) = residuals.max_abs_rotation_delta_from_previous {
+        append_nonlinear_scalar_result(
+            results,
+            "result:nonlinear-support:max-rotation-delta",
+            "nonlinear_support_observed_max_rotation_delta",
+            value,
+            "rad",
+            "nonlinear_supports",
+            "observed_max_rotation_delta",
+            "final_iteration",
+            &basis,
+            "nonnegative max absolute rotational displacement change from the previous iteration",
+        );
+    }
+    if let Some(value) = residuals.max_abs_force_reaction_delta_from_previous {
+        append_nonlinear_scalar_result(
+            results,
+            "result:nonlinear-support:max-force-reaction-delta",
+            "nonlinear_support_observed_max_force_reaction_delta",
+            value,
+            "N",
+            "nonlinear_supports",
+            "observed_max_force_reaction_delta",
+            "final_iteration",
+            &basis,
+            "nonnegative max absolute translational reaction change from the previous iteration",
+        );
+    }
+    if let Some(value) = residuals.max_abs_moment_reaction_delta_from_previous {
+        append_nonlinear_scalar_result(
+            results,
+            "result:nonlinear-support:max-moment-reaction-delta",
+            "nonlinear_support_observed_max_moment_reaction_delta",
+            value,
+            "N*m",
+            "nonlinear_supports",
+            "observed_max_moment_reaction_delta",
+            "final_iteration",
+            &basis,
+            "nonnegative max absolute rotational reaction change from the previous iteration",
+        );
+    }
+    append_nonlinear_scalar_result(
+        results,
+        "result:nonlinear-support:free-dof-force-residual",
+        "nonlinear_support_observed_free_dof_force_residual",
+        residuals.max_abs_free_dof_force_residual,
+        "N",
+        "nonlinear_supports",
+        "observed_free_dof_force_residual",
+        "final_iteration",
+        &basis,
+        "nonnegative max absolute translational free-DOF equilibrium residual in the final linearized solve",
+    );
+    append_nonlinear_scalar_result(
+        results,
+        "result:nonlinear-support:free-dof-moment-residual",
+        "nonlinear_support_observed_free_dof_moment_residual",
+        residuals.max_abs_free_dof_moment_residual,
+        "N*m",
+        "nonlinear_supports",
+        "observed_free_dof_moment_residual",
+        "final_iteration",
+        &basis,
+        "nonnegative max absolute rotational free-DOF equilibrium residual in the final linearized solve",
+    );
 }
 
 fn nonlinear_loop_blocked_diag(load_case_id: &str, error: NonlinearIntegrationError) -> Diagnostic {
@@ -4211,6 +4308,12 @@ fn is_combination_excluded_result_kind(kind: &str) -> bool {
         kind,
         "nonlinear_support_friction_normal_reaction_input"
             | "nonlinear_support_friction_normal_reaction_derived"
+            | "nonlinear_support_observed_max_translation_delta"
+            | "nonlinear_support_observed_max_rotation_delta"
+            | "nonlinear_support_observed_max_force_reaction_delta"
+            | "nonlinear_support_observed_max_moment_reaction_delta"
+            | "nonlinear_support_observed_free_dof_force_residual"
+            | "nonlinear_support_observed_free_dof_moment_residual"
     )
 }
 
@@ -5194,8 +5297,17 @@ mod tests {
         assert!(result_ids.contains("result:nonlinear-support:support-NL-MIX-FRIC-110:state-code"));
         assert!(result_ids
             .contains("result:nonlinear-support:support-NL-MIX-FRIC-110:friction-normal-reaction"));
+        assert!(result_ids.contains("result:nonlinear-support:max-translation-delta"));
+        assert!(result_ids.contains("result:nonlinear-support:max-rotation-delta"));
+        assert!(result_ids.contains("result:nonlinear-support:max-force-reaction-delta"));
+        assert!(result_ids.contains("result:nonlinear-support:max-moment-reaction-delta"));
+        assert!(result_ids.contains("result:nonlinear-support:free-dof-force-residual"));
+        assert!(result_ids.contains("result:nonlinear-support:free-dof-moment-residual"));
         assert!(!result_ids.contains(
             "result:combination:combination-C-MIXED-NONLINEAR:nonlinear-support:support-NL-MIX-FRIC-110:friction-normal-reaction"
+        ));
+        assert!(!result_ids.contains(
+            "result:combination:combination-C-MIXED-NONLINEAR:nonlinear-support:max-translation-delta"
         ));
         assert_eq!(
             result_value(&result, "result:nonlinear-support:iteration-count"),
@@ -5267,6 +5379,23 @@ mod tests {
                 &result,
                 "result:nonlinear-support:support-NL-MIX-FRIC-110:uz-reaction"
             ),
+            0.0
+        );
+        assert!(result_value(&result, "result:nonlinear-support:max-translation-delta") > 0.0);
+        assert!(result_value(&result, "result:nonlinear-support:max-rotation-delta") >= 0.0);
+        assert!(result_value(&result, "result:nonlinear-support:max-force-reaction-delta") > 0.0);
+        assert!(
+            result_value(
+                &result,
+                "result:nonlinear-support:max-moment-reaction-delta"
+            ) >= 0.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:free-dof-force-residual"),
+            0.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:free-dof-moment-residual"),
             0.0
         );
         let iteration_count = result

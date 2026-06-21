@@ -14,6 +14,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 force/displacement residual observations (`TP-R4-D9-FORCEDISPRESID-001`)
+
+Recorded force/displacement residual observations for the current dense
+assembled nonlinear loop and product-preview nonlinear support surface without
+promoting any new convergence threshold. The solver loop now exposes final
+iteration residual observations, product physics emits non-combined
+`observed_residual_only; threshold=TBD` result rows, and the nonlinear
+benchmark crate exposes `ForceDisplacementResidualObservation` plus
+`assembled_force_displacement_residual_observations()` with
+`threshold_policy: None`.
+
+The nonlinear hand-calc convergence note now records current assembled-fixture
+translation/reaction/free-DOF residual observations. These values are evidence
+only; the accepted governed policy remains
+`DEC-046-CV-B-active-set-count-validation-v1` for active-set changed-support
+count on the current assembled validation seed.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-FORCEDISPRESID-001.md`.
+
+Validation: focused solver/product/benchmark cargo tests passed; focused
+nonlinear Python regression passed; `git diff --check` passed; full DEC-025
+sweep passed and wrote
+`validation/evidence/sweeps/SWEEP_20260621T111451Z_eaf10ef3c49a-dirty.json`.
+
+Residual: force/displacement threshold promotion remains open; product-preview,
+sparse live-path, and external validation thresholds remain outside the
+accepted active-set-count policy. `D-15` and `D-17` remain pending unless
+separately ruled.
+
+Boundary: observation/evidence tranche only; no lifecycle transition,
+target-stage advancement, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - D-17 sparse live-path decision packet prepared (`TP-R4-D17-PACKET-001`)
 
 Prepared `execution/_Coordination/_DECISIONS/D-17_sparse_solver_live_path_adoption.md`

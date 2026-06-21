@@ -239,8 +239,11 @@ def test_assembled_global_loop_seed_uses_governed_policy():
 
     assert "assembled_fixture_inventory" in source
     assert "assembled_convergence_observations" in source
+    assert "assembled_force_displacement_residual_observations" in source
     assert "ConvergenceObservation" in source
+    assert "ForceDisplacementResidualObservation" in source
     assert "observed_iteration_count" in source
+    assert "threshold_policy: None" in source
     assert "governed_convergence_policy_entries" in source
     assert "solve_active_set_frame" in source
     assert "DEC_046_ACTIVE_SET_COUNT_POLICY_REF" in source
@@ -254,10 +257,14 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert CONVERGENCE_POLICY_RECORD.name in benchmark_readme
     assert "## Provenance" in observation_note
     assert "## Invented Inputs" in observation_note
-    assert "## Expected Values" in observation_note
+    assert "## Active-Set Expected Values" in observation_note
+    assert "## Force/Displacement Residual Observations" in observation_note
     assert f"Tolerance policy: `{DEC_046_POLICY_REF}`." in observation_note
     assert "changed-support-count residual" in benchmark_readme
-    assert "force/displacement residuals" in observation_note
+    normalized_observation_note = _normalized_text(observation_note).lower()
+    assert "force/displacement residual" in normalized_observation_note
+    assert "threshold policy" in normalized_observation_note
+    assert "none" in normalized_observation_note
 
     assert policy_record["record_id"] == DEC_046_POLICY_REF
     assert policy_record["decision_ref"] == "DEC-046"

@@ -6,9 +6,9 @@ Record the measured convergence observations for the current assembled
 nonlinear validation fixtures. These observations are fixture evidence under
 `DEC-046` and bind the current assembled validation seed to the governed
 `DEC-046-CV-B-active-set-count-validation-v1` active-set changed-support-count
-policy. This does not define force/displacement residuals, sparse live-path
-behavior, product-preview thresholds, external validation thresholds, or a
-release claim.
+policy. Force/displacement residual values are recorded as observations only;
+they do not define thresholds. This does not define sparse live-path behavior,
+product-preview thresholds, external validation thresholds, or a release claim.
 
 ## Provenance
 
@@ -33,7 +33,7 @@ inventory in `validation/benchmarks/nonlinear/src/lib.rs`.
 | Max iteration cap | 4 | count | dimensionless |
 | Policy status | accepted for current assembled validation seed | label | dimensionless |
 
-## Expected Values
+## Active-Set Expected Values
 
 | Fixture | Class | Observed iterations | Final residual | Converged | Policy status |
 |---|---|---:|---:|---|---|
@@ -47,5 +47,26 @@ inventory in `validation/benchmarks/nonlinear/src/lib.rs`.
 Each row uses the same governed validation-seed policy reference. The table
 records observed fixture behavior only; it is not an external validation
 record or reliance statement.
+
+## Force/Displacement Residual Observations
+
+The following values are final-iteration observations from the same invented
+assembled fixtures. `none` means the fixture converged in one iteration and
+there is no previous iteration to compare against. Translational deltas are
+reported in the fixture-local displacement unit (`mm`); reaction deltas are in
+`N`; rotational and moment residual observations are zero in the current axial
+fixture set.
+
+| Fixture | Max translation delta from previous | Max force-reaction delta from previous | Free-DOF force residual | Threshold policy |
+|---|---:|---:|---:|---|
+| `NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | none |
+| `NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL` | 50.0 mm | 5.0 N | 0.0 N | none |
+| `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | none |
+| `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | none | none | 0.0 N | none |
+| `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | none |
+| `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | none | none | 0.0 N | none |
+
+These values are regression evidence only. They do not loosen, tighten, or
+replace the accepted active-set-count policy.
 
 Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.

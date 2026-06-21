@@ -243,6 +243,43 @@ pub struct ConvergenceObservation {
     pub diagnostic_codes: Vec<SolverDiagnosticCode>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct ForceDisplacementResidualObservation {
+    pub fixture_id: &'static str,
+    pub family: NonlinearRegressionFamily,
+    pub nonlinear_class: &'static str,
+    pub policy_ref: String,
+    pub observed_iteration_count: usize,
+    pub max_abs_translation_delta_from_previous: Option<f64>,
+    pub translation_delta_unit: &'static str,
+    pub max_abs_rotation_delta_from_previous: Option<f64>,
+    pub rotation_delta_unit: &'static str,
+    pub max_abs_force_reaction_delta_from_previous: Option<f64>,
+    pub force_reaction_delta_unit: &'static str,
+    pub max_abs_moment_reaction_delta_from_previous: Option<f64>,
+    pub moment_reaction_delta_unit: &'static str,
+    pub max_abs_free_dof_force_residual: f64,
+    pub free_dof_force_residual_unit: &'static str,
+    pub max_abs_free_dof_moment_residual: f64,
+    pub free_dof_moment_residual_unit: &'static str,
+    pub threshold_policy: Option<&'static str>,
+}
+
+impl ForceDisplacementResidualObservation {
+    pub fn is_observation_without_threshold_claim(&self) -> bool {
+        self.policy_ref == DEC_046_ACTIVE_SET_COUNT_POLICY_REF
+            && self.threshold_policy.is_none()
+            && self.translation_delta_unit == "mm"
+            && self.rotation_delta_unit == "rad"
+            && self.force_reaction_delta_unit == "N"
+            && self.moment_reaction_delta_unit == "N-m"
+            && self.free_dof_force_residual_unit == "N"
+            && self.free_dof_moment_residual_unit == "N-m"
+            && self.max_abs_free_dof_force_residual.is_finite()
+            && self.max_abs_free_dof_moment_residual.is_finite()
+    }
+}
+
 impl ConvergenceObservation {
     pub fn uses_accepted_dec_046_active_set_policy(&self) -> bool {
         self.policy_ref == DEC_046_ACTIVE_SET_COUNT_POLICY_REF
@@ -440,6 +477,47 @@ impl AssembledNonlinearRegressionCase {
                 .collect(),
         })
     }
+
+    pub fn force_displacement_residual_observation(
+        &self,
+    ) -> Result<
+        ForceDisplacementResidualObservation,
+        open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
+    > {
+        let solve = self.run()?;
+        let final_residuals = solve
+            .iterations
+            .last()
+            .expect("assembled solve always records at least one iteration")
+            .residuals
+            .clone();
+
+        Ok(ForceDisplacementResidualObservation {
+            fixture_id: self.fixture_id,
+            family: self.family,
+            nonlinear_class: convergence_class_label(self.fixture_id, self.family),
+            policy_ref: solve.policy_ref,
+            observed_iteration_count: solve.iterations.len(),
+            max_abs_translation_delta_from_previous: final_residuals
+                .max_abs_translation_delta_from_previous
+                .map(|value| value * 1000.0),
+            translation_delta_unit: "mm",
+            max_abs_rotation_delta_from_previous: final_residuals
+                .max_abs_rotation_delta_from_previous,
+            rotation_delta_unit: "rad",
+            max_abs_force_reaction_delta_from_previous: final_residuals
+                .max_abs_force_reaction_delta_from_previous,
+            force_reaction_delta_unit: "N",
+            max_abs_moment_reaction_delta_from_previous: final_residuals
+                .max_abs_moment_reaction_delta_from_previous,
+            moment_reaction_delta_unit: "N-m",
+            max_abs_free_dof_force_residual: final_residuals.max_abs_free_dof_force_residual,
+            free_dof_force_residual_unit: "N",
+            max_abs_free_dof_moment_residual: final_residuals.max_abs_free_dof_moment_residual,
+            free_dof_moment_residual_unit: "N-m",
+            threshold_policy: None,
+        })
+    }
 }
 
 pub fn fixture_inventory() -> Vec<NonlinearRegressionCase> {
@@ -470,6 +548,18 @@ pub fn assembled_convergence_observations() -> Vec<ConvergenceObservation> {
             fixture
                 .convergence_observation()
                 .expect("assembled convergence observation fixtures remain valid")
+        })
+        .collect()
+}
+
+pub fn assembled_force_displacement_residual_observations(
+) -> Vec<ForceDisplacementResidualObservation> {
+    assembled_fixture_inventory()
+        .iter()
+        .map(|fixture| {
+            fixture
+                .force_displacement_residual_observation()
+                .expect("assembled force/displacement residual observation fixtures remain valid")
         })
         .collect()
 }
@@ -1569,6 +1659,55 @@ mod tests {
         assert_eq!(observations[3].observed_iteration_count, 1);
         assert_eq!(observations[4].observed_iteration_count, 2);
         assert_eq!(observations[5].observed_iteration_count, 1);
+    }
+
+    #[test]
+    fn assembled_force_displacement_residual_observations_do_not_set_thresholds() {
+        let observations = assembled_force_displacement_residual_observations();
+
+        assert_eq!(observations.len(), assembled_fixture_inventory().len());
+        for observation in &observations {
+            assert!(
+                observation.is_observation_without_threshold_claim(),
+                "{}",
+                observation.fixture_id
+            );
+            assert_eq!(observation.max_abs_free_dof_force_residual, 0.0);
+            assert_eq!(observation.max_abs_free_dof_moment_residual, 0.0);
+        }
+
+        assert!(
+            observations[0]
+                .max_abs_translation_delta_from_previous
+                .unwrap()
+                > 0.0
+        );
+        assert!(
+            observations[1]
+                .max_abs_translation_delta_from_previous
+                .unwrap()
+                > 0.0
+        );
+        assert!(
+            observations[2]
+                .max_abs_translation_delta_from_previous
+                .unwrap()
+                > 0.0
+        );
+        assert_eq!(
+            observations[3].max_abs_translation_delta_from_previous,
+            None
+        );
+        assert!(
+            observations[4]
+                .max_abs_translation_delta_from_previous
+                .unwrap()
+                > 0.0
+        );
+        assert_eq!(
+            observations[5].max_abs_translation_delta_from_previous,
+            None
+        );
     }
 
     #[test]

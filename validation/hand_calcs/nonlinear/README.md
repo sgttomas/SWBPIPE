@@ -16,14 +16,19 @@ The nonlinear fixtures use explicit fixture-local unit identifiers only:
 | Quantity family | Unit | Canonical dimension |
 |---|---|---|
 | Translational support displacement and clearance | `mm` | length |
+| Translational displacement-delta observations | `mm` | length |
 | Translational support reaction | `N` | force |
+| Translational reaction-delta / free-DOF force-residual observations | `N` | force |
 | Rotational support reaction | `N-m` | moment |
+| Rotational displacement-delta observations | `rad` | rotation |
+| Rotational reaction-delta / free-DOF moment-residual observations | `N-m` | moment |
 | Friction coefficient | `ratio` | dimensionless |
 | Active-set residual and iteration counts | `count` | dimensionless |
 
 The project unit catalog, conversion constants, force/displacement residual
 thresholds, sparse live-path thresholds, product-preview thresholds, and CI gate
-thresholds remain `TBD`. The current assembled validation seed uses
+thresholds remain `TBD`. Force/displacement residual values are observations
+only. The current assembled validation seed uses
 `DEC-046-CV-B-active-set-count-validation-v1` for active-set changed-support
 count only.
 

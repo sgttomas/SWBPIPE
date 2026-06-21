@@ -32,6 +32,27 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
 
+## 2026-06-21 - TP-R4-D9-FORCEDISPRESID-001
+
+- Added final-iteration force/displacement residual observations to the dense
+  nonlinear integration loop: max translation/rotation deltas, max
+  force/moment reaction deltas, free-DOF force/moment residuals, and the
+  existing active-set changed-support count.
+- Carried the observation rows into product-preview nonlinear support results
+  as non-combined evidence rows with `observed_residual_only` basis text.
+- Exposed `ForceDisplacementResidualObservation` and
+  `assembled_force_displacement_residual_observations()` from the nonlinear
+  benchmark crate, and recorded current assembled-fixture residual observations
+  in the hand-calc convergence note.
+- Boundary preserved: no force/displacement threshold is promoted; the governed
+  convergence policy remains
+  `DEC-046-CV-B-active-set-count-validation-v1` for active-set
+  changed-support-count validation-seed evidence only. Product-preview,
+  sparse live-path, and external validation thresholds remain `TBD`; `D-15`
+  and `D-17` remain pending unless separately ruled.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-FORCEDISPRESID-001.md`.
+
 ## 2026-06-21 - TP-R4-D9-EXITGAP-001
 
 - Added derivative R4 readiness/gap packet

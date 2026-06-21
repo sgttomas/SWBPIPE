@@ -132,7 +132,19 @@ pub struct NonlinearFrameIteration {
     pub active_prescribed_displacements: DenseVector,
     pub displacements: DenseVector,
     pub reactions: DenseVector,
+    pub residuals: NonlinearResidualObservation,
     pub active_set: ActiveSetIteration,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct NonlinearResidualObservation {
+    pub active_set_changed_support_count: f64,
+    pub max_abs_translation_delta_from_previous: Option<f64>,
+    pub max_abs_rotation_delta_from_previous: Option<f64>,
+    pub max_abs_force_reaction_delta_from_previous: Option<f64>,
+    pub max_abs_moment_reaction_delta_from_previous: Option<f64>,
+    pub max_abs_free_dof_force_residual: f64,
+    pub max_abs_free_dof_moment_residual: f64,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -238,6 +250,8 @@ pub fn solve_active_set_frame(
         let blocked = active_set.is_blocked();
         let converged = active_set.converged && !blocked;
         current_states = active_set.states.clone();
+        let residuals =
+            residual_observation(&linearized, iterations.last(), active_set.residual_norm);
 
         let iteration = NonlinearFrameIteration {
             iteration: iteration_index,
@@ -245,6 +259,7 @@ pub fn solve_active_set_frame(
             active_prescribed_displacements: boundary.displacements.clone(),
             displacements: linearized.displacements,
             reactions: linearized.reactions,
+            residuals,
             active_set,
         };
         iterations.push(iteration);
@@ -274,7 +289,7 @@ pub fn solve_active_set_frame(
 pub fn assembled_loop_assumptions() -> Vec<String> {
     vec![
         "Active nonlinear support states are represented as prescribed frame DOFs in the current linearized iteration.".to_string(),
-        "The first assembled-loop residual is the nonlinear-support classifier state-change count; force/displacement residual norms remain future D6/D9 evidence work.".to_string(),
+        "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement residual observations are recorded as evidence, not thresholds.".to_string(),
         "Friction support normal reactions are either explicit input evidence or derived as the absolute reaction at a named support-normal DOF supplied by the caller.".to_string(),
         "Released friction supports may persist in sliding state while nonzero displacement remains, preventing active-set chatter without adding hidden friction-load defaults.".to_string(),
     ]
@@ -298,6 +313,8 @@ struct BoundaryState {
 struct LinearizedSolve {
     displacements: DenseVector,
     reactions: DenseVector,
+    max_abs_free_dof_force_residual: f64,
+    max_abs_free_dof_moment_residual: f64,
 }
 
 fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearIntegrationError> {
@@ -548,16 +565,69 @@ fn solve_linearized_system(
         displacements[global_dof] = value;
     }
 
-    let reactions = multiply_matrix_vector(stiffness, &displacements)?
+    let reactions: DenseVector = multiply_matrix_vector(stiffness, &displacements)?
         .into_iter()
         .zip(force.iter())
         .map(|(internal, applied)| internal - applied)
         .collect();
+    let max_abs_free_dof_force_residual =
+        max_abs_by_dof_group(&reactions, &reduced.free_dofs, true);
+    let max_abs_free_dof_moment_residual =
+        max_abs_by_dof_group(&reactions, &reduced.free_dofs, false);
 
     Ok(LinearizedSolve {
         displacements,
         reactions,
+        max_abs_free_dof_force_residual,
+        max_abs_free_dof_moment_residual,
     })
+}
+
+fn residual_observation(
+    linearized: &LinearizedSolve,
+    previous: Option<&NonlinearFrameIteration>,
+    active_set_changed_support_count: f64,
+) -> NonlinearResidualObservation {
+    NonlinearResidualObservation {
+        active_set_changed_support_count,
+        max_abs_translation_delta_from_previous: previous.map(|previous| {
+            max_abs_delta_by_dof_group(&linearized.displacements, &previous.displacements, true)
+        }),
+        max_abs_rotation_delta_from_previous: previous.map(|previous| {
+            max_abs_delta_by_dof_group(&linearized.displacements, &previous.displacements, false)
+        }),
+        max_abs_force_reaction_delta_from_previous: previous.map(|previous| {
+            max_abs_delta_by_dof_group(&linearized.reactions, &previous.reactions, true)
+        }),
+        max_abs_moment_reaction_delta_from_previous: previous.map(|previous| {
+            max_abs_delta_by_dof_group(&linearized.reactions, &previous.reactions, false)
+        }),
+        max_abs_free_dof_force_residual: linearized.max_abs_free_dof_force_residual,
+        max_abs_free_dof_moment_residual: linearized.max_abs_free_dof_moment_residual,
+    }
+}
+
+fn max_abs_delta_by_dof_group(current: &[f64], previous: &[f64], translations: bool) -> f64 {
+    current
+        .iter()
+        .zip(previous.iter())
+        .enumerate()
+        .filter(|(index, _)| is_translation_dof_index(*index) == translations)
+        .map(|(_, (current, previous))| (current - previous).abs())
+        .fold(0.0, f64::max)
+}
+
+fn max_abs_by_dof_group(values: &[f64], dofs: &[usize], translations: bool) -> f64 {
+    dofs.iter()
+        .copied()
+        .filter(|dof| is_translation_dof_index(*dof) == translations)
+        .filter_map(|dof| values.get(dof).copied())
+        .map(f64::abs)
+        .fold(0.0, f64::max)
+}
+
+fn is_translation_dof_index(global_dof: usize) -> bool {
+    matches!(global_dof % DOF_PER_NODE, 0 | 1 | 2)
 }
 
 fn build_trial_states(
@@ -776,6 +846,46 @@ mod tests {
             .unwrap()
             .active_restrained_dofs
             .contains(&node_dof_index(1, FrameDof::Ux)));
+        assert_eq!(
+            result.iterations[0]
+                .residuals
+                .active_set_changed_support_count,
+            1.0
+        );
+        assert_eq!(
+            result.iterations[0]
+                .residuals
+                .max_abs_translation_delta_from_previous,
+            None
+        );
+        assert_eq!(
+            result
+                .iterations
+                .last()
+                .unwrap()
+                .residuals
+                .active_set_changed_support_count,
+            0.0
+        );
+        assert!(
+            result
+                .iterations
+                .last()
+                .unwrap()
+                .residuals
+                .max_abs_translation_delta_from_previous
+                .unwrap()
+                > 0.0
+        );
+        assert_eq!(
+            result
+                .iterations
+                .last()
+                .unwrap()
+                .residuals
+                .max_abs_free_dof_force_residual,
+            0.0
+        );
     }
 
     #[test]
@@ -803,6 +913,19 @@ mod tests {
         );
         assert_eq!(result.displacements[node_dof_index(1, FrameDof::Ux)], 0.0);
         assert_eq!(result.reactions[node_dof_index(1, FrameDof::Ux)], -10.0);
+        assert_eq!(result.iterations.len(), 1);
+        assert_eq!(
+            result.iterations[0]
+                .residuals
+                .max_abs_translation_delta_from_previous,
+            None
+        );
+        assert_eq!(
+            result.iterations[0]
+                .residuals
+                .max_abs_free_dof_force_residual,
+            0.0
+        );
     }
 
     #[test]
@@ -942,6 +1065,15 @@ mod tests {
                 .unwrap()
                 .active_prescribed_displacements,
             vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0]
+        );
+        assert_eq!(
+            result
+                .iterations
+                .last()
+                .unwrap()
+                .residuals
+                .max_abs_translation_delta_from_previous,
+            Some(0.05)
         );
     }
 
