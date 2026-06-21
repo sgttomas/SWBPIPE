@@ -1550,6 +1550,30 @@ function componentMesh(component: PreviewComponent, position: Vec3, active: bool
     group.add(hub);
     return group;
   }
+  if (isBranchComponent(component)) {
+    const group = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({
+      color: active ? 0xf08c22 : 0x24705a,
+      metalness: 0.12,
+      roughness: 0.54
+    });
+    const header = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.42, 16), material);
+    header.position.set(position.x, position.y + 0.2, position.z);
+    header.rotation.z = Math.PI / 2;
+    group.add(header);
+
+    const branch = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.32, 16), material);
+    branch.position.set(position.x, position.y + 0.36, position.z);
+    group.add(branch);
+
+    const hub = new THREE.Mesh(
+      new THREE.SphereGeometry(active ? 0.085 : 0.065, 18, 12),
+      new THREE.MeshStandardMaterial({ color: active ? 0xf08c22 : 0x1f5c4c, roughness: 0.48 })
+    );
+    hub.position.set(position.x, position.y + 0.2, position.z);
+    group.add(hub);
+    return group;
+  }
 
   const box = new THREE.Mesh(
     new THREE.BoxGeometry(0.24, 0.24, 0.24),
@@ -1561,6 +1585,10 @@ function componentMesh(component: PreviewComponent, position: Vec3, active: bool
 
 function isBendComponent(component: PreviewComponent): boolean {
   return component.kind === "bend" || component.kind === "elbow";
+}
+
+function isBranchComponent(component: PreviewComponent): boolean {
+  return component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection";
 }
 
 function deformedPipeMesh(from: Vec3, to: Vec3, active: boolean) {

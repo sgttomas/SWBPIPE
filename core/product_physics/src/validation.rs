@@ -318,6 +318,69 @@ fn validate_units(
                     );
                 }
             }
+        }
+        if is_branch_component(component) {
+            if let Some(geometry) = &component.geometry {
+                if let Some(size) = &geometry.branch_run_size {
+                    expect_unit(
+                        size,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:component:{}:branch-run-size",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.branch_run_size".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(size) = &geometry.branch_header_size {
+                    expect_unit(
+                        size,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:component:{}:branch-header-size",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.branch_header_size".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(angle) = &geometry.branch_connection_angle {
+                    expect_unit(
+                        angle,
+                        Dimension::Angle,
+                        &format!(
+                            "diagnostic:unit:component:{}:branch-connection-angle",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.branch_connection_angle".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(area) = &geometry.branch_reinforcement_area {
+                    expect_unit(
+                        area,
+                        Dimension::Area,
+                        &format!(
+                            "diagnostic:unit:component:{}:branch-reinforcement-area",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.branch_reinforcement_area".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
+        }
+        if is_bend_component(component) || is_branch_component(component) {
             if let Some(modifiers) = &component.modifiers {
                 if let Some(sif) = &modifiers.sif_user_value {
                     expect_dimensionless_unit(
@@ -327,6 +390,34 @@ fn validate_units(
                             stable_suffix(&component.id)
                         ),
                         vec![component.id.clone(), "modifiers.sif_user_value".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(sif) = &modifiers.branch_header_sif_user_value {
+                    expect_dimensionless_unit(
+                        sif,
+                        &format!(
+                            "diagnostic:unit:component:{}:branch-header-sif",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.branch_header_sif_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(sif) = &modifiers.branch_branch_sif_user_value {
+                    expect_dimensionless_unit(
+                        sif,
+                        &format!(
+                            "diagnostic:unit:component:{}:branch-branch-sif",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.branch_branch_sif_user_value".to_string(),
+                        ],
                         diagnostics,
                     );
                 }
@@ -370,6 +461,11 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
         .iter()
         .map(|node| node.id.as_str())
         .collect::<HashSet<_>>();
+    let pipe_map = model
+        .pipe_segments
+        .iter()
+        .map(|pipe| (pipe.id.as_str(), pipe))
+        .collect::<HashMap<_, _>>();
     for component in &model.components {
         if !component.node.trim().is_empty() && !node_ids.contains(component.node.as_str()) {
             diagnostics.push(diag(
@@ -383,7 +479,7 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                 vec![component.id.clone(), component.node.clone()],
             ));
         }
-        if !is_bend_component(component) {
+        if !is_bend_component(component) && !is_branch_component(component) {
             continue;
         }
         if component
@@ -400,45 +496,97 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                 ),
                 "COMPONENT_MECHANICS_INTERFACE_UNSUPPORTED",
                 "warning",
-                "bend/elbow component stress modifier rows currently require solver_consumption=mechanics_geometry_only per DEC-045",
+                "component stress modifier rows currently require solver_consumption=mechanics_geometry_only per DEC-045",
                 vec![component.id.clone()],
             ));
         }
-        if bend_geometry_missing(component) {
-            diagnostics.push(diag(
-                &format!(
-                    "diagnostic:component:{}:bend-geometry",
-                    stable_suffix(&component.id)
-                ),
-                "BEND_GEOMETRY_INPUT_MISSING",
-                "warning",
-                "bend/elbow component requires explicit radius, angle, plane orientation, and invented or cleared geometry source to support component provenance review",
-                vec![component.id.clone()],
-            ));
+        if is_bend_component(component) {
+            if bend_geometry_missing(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:bend-geometry",
+                        stable_suffix(&component.id)
+                    ),
+                    "BEND_GEOMETRY_INPUT_MISSING",
+                    "warning",
+                    "bend/elbow component requires explicit radius, angle, plane orientation, and invented or cleared geometry source to support component provenance review",
+                    vec![component.id.clone()],
+                ));
+            }
+            if bend_modifier_missing(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:bend-modifiers",
+                        stable_suffix(&component.id)
+                    ),
+                    "BEND_USER_MODIFIER_INPUT_MISSING",
+                    "warning",
+                    "bend/elbow component requires user-entered SIF, user-entered flexibility factor, and modifier source reference before stress modifier rows can be generated",
+                    vec![component.id.clone()],
+                ));
+            }
+            if bend_modifier_invalid(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:bend-modifiers-invalid",
+                        stable_suffix(&component.id)
+                    ),
+                    "BEND_USER_MODIFIER_INPUT_INVALID",
+                    "warning",
+                    "bend/elbow user-entered SIF and flexibility factor must be finite positive dimensionless values before stress modifier rows can be generated",
+                    vec![component.id.clone()],
+                ));
+            }
         }
-        if bend_modifier_missing(component) {
-            diagnostics.push(diag(
-                &format!(
-                    "diagnostic:component:{}:bend-modifiers",
-                    stable_suffix(&component.id)
-                ),
-                "BEND_USER_MODIFIER_INPUT_MISSING",
-                "warning",
-                "bend/elbow component requires user-entered SIF, user-entered flexibility factor, and modifier source reference before stress modifier rows can be generated",
-                vec![component.id.clone()],
-            ));
-        }
-        if bend_modifier_invalid(component) {
-            diagnostics.push(diag(
-                &format!(
-                    "diagnostic:component:{}:bend-modifiers-invalid",
-                    stable_suffix(&component.id)
-                ),
-                "BEND_USER_MODIFIER_INPUT_INVALID",
-                "warning",
-                "bend/elbow user-entered SIF and flexibility factor must be finite positive dimensionless values before stress modifier rows can be generated",
-                vec![component.id.clone()],
-            ));
+        if is_branch_component(component) {
+            if branch_geometry_missing(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:branch-geometry",
+                        stable_suffix(&component.id)
+                    ),
+                    "BRANCH_GEOMETRY_INPUT_MISSING",
+                    "warning",
+                    "branch component requires explicit header pipe, branch pipe, run/header sizes, connection angle/type, reinforcement reference, and invented or cleared geometry source to support component provenance review",
+                    vec![component.id.clone()],
+                ));
+            }
+            if branch_mapping_invalid(component, &pipe_map) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:branch-mapping",
+                        stable_suffix(&component.id)
+                    ),
+                    "BRANCH_MAPPING_INPUT_INVALID",
+                    "warning",
+                    "branch component header and branch pipe references must exist and terminate at the component node before stress modifier rows can be generated for those pipe sides",
+                    vec![component.id.clone()],
+                ));
+            }
+            if branch_modifier_missing(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:branch-modifiers",
+                        stable_suffix(&component.id)
+                    ),
+                    "BRANCH_USER_MODIFIER_INPUT_MISSING",
+                    "warning",
+                    "branch component requires user-entered header SIF, branch SIF, flexibility factor, and modifier source reference before stress modifier rows can be generated",
+                    vec![component.id.clone()],
+                ));
+            }
+            if branch_modifier_invalid(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:branch-modifiers-invalid",
+                        stable_suffix(&component.id)
+                    ),
+                    "BRANCH_USER_MODIFIER_INPUT_INVALID",
+                    "warning",
+                    "branch user-entered SIFs and flexibility factor must be finite positive dimensionless values before stress modifier rows can be generated",
+                    vec![component.id.clone()],
+                ));
+            }
         }
     }
 }
@@ -554,6 +702,13 @@ fn is_bend_component(component: &crate::PreviewComponent) -> bool {
     matches!(component.kind.as_str(), "bend" | "elbow")
 }
 
+fn is_branch_component(component: &crate::PreviewComponent) -> bool {
+    matches!(
+        component.kind.as_str(),
+        "branch" | "tee" | "branch_connection"
+    )
+}
+
 fn bend_geometry_missing(component: &crate::PreviewComponent) -> bool {
     let Some(geometry) = &component.geometry else {
         return true;
@@ -591,6 +746,89 @@ fn bend_modifier_invalid(component: &crate::PreviewComponent) -> bool {
     };
     [
         modifiers.sif_user_value.as_ref(),
+        modifiers.flexibility_factor_user_value.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|quantity| !quantity.value.is_finite() || quantity.value <= 0.0)
+}
+
+fn branch_geometry_missing(component: &crate::PreviewComponent) -> bool {
+    let Some(geometry) = &component.geometry else {
+        return true;
+    };
+    geometry
+        .branch_header_pipe_ref
+        .as_deref()
+        .map(|value| value.trim().is_empty())
+        .unwrap_or(true)
+        || geometry
+            .branch_branch_pipe_ref
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry.branch_run_size.is_none()
+        || geometry.branch_header_size.is_none()
+        || geometry.branch_connection_angle.is_none()
+        || geometry
+            .branch_connection_type
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .branch_reinforcement_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .branch_geometry_source_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+}
+
+fn branch_mapping_invalid(
+    component: &crate::PreviewComponent,
+    pipe_map: &HashMap<&str, &crate::PreviewPipe>,
+) -> bool {
+    let Some(geometry) = &component.geometry else {
+        return false;
+    };
+    [
+        geometry.branch_header_pipe_ref.as_deref(),
+        geometry.branch_branch_pipe_ref.as_deref(),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|pipe_ref| {
+        pipe_map
+            .get(pipe_ref)
+            .map(|pipe| pipe.from != component.node && pipe.to != component.node)
+            .unwrap_or(true)
+    })
+}
+
+fn branch_modifier_missing(component: &crate::PreviewComponent) -> bool {
+    let Some(modifiers) = &component.modifiers else {
+        return true;
+    };
+    modifiers.branch_header_sif_user_value.is_none()
+        || modifiers.branch_branch_sif_user_value.is_none()
+        || modifiers.flexibility_factor_user_value.is_none()
+        || modifiers
+            .source_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+}
+
+fn branch_modifier_invalid(component: &crate::PreviewComponent) -> bool {
+    let Some(modifiers) = &component.modifiers else {
+        return false;
+    };
+    [
+        modifiers.branch_header_sif_user_value.as_ref(),
+        modifiers.branch_branch_sif_user_value.as_ref(),
         modifiers.flexibility_factor_user_value.as_ref(),
     ]
     .into_iter()

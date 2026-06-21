@@ -344,13 +344,27 @@ function componentUnitQuantities(component: PreviewModel["components"][number]):
   return [
     component.geometry?.bend_radius,
     component.geometry?.bend_angle,
+    component.geometry?.branch_run_size,
+    component.geometry?.branch_header_size,
+    component.geometry?.branch_connection_angle,
+    component.geometry?.branch_reinforcement_area,
     component.modifiers?.sif_user_value,
+    component.modifiers?.branch_header_sif_user_value,
+    component.modifiers?.branch_branch_sif_user_value,
     component.modifiers?.flexibility_factor_user_value
   ];
 }
 
 function componentModifierProvenanceMissing(component: PreviewModel["components"][number]): boolean {
   const legacyMissingToken = component.provenance.toLowerCase().includes("no_flexibility_factor");
+  if (component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection") {
+    return !(
+      component.modifiers?.branch_header_sif_user_value &&
+      component.modifiers.branch_branch_sif_user_value &&
+      component.modifiers.flexibility_factor_user_value &&
+      component.modifiers.source_reference?.trim()
+    );
+  }
   if (component.kind !== "bend" && component.kind !== "elbow") return legacyMissingToken;
   return !(
     component.modifiers?.sif_user_value &&

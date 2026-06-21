@@ -13,7 +13,7 @@
     "segment_count": 4,
     "support_count": 3,
     "load_case_count": 2,
-    "component_stress_modifier_count": 4,
+    "component_stress_modifier_count": 8,
     "max_displacement": {
       "value": 26.515341,
       "unit": "mm",
@@ -1588,7 +1588,7 @@
         "component": "user_entered_component_stress_multiplier",
         "coordinate_system": "component_review",
         "location": "pipe:P-100:end_j",
-        "basis": "user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "basis": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
         "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
       }
     },
@@ -2524,7 +2524,32 @@
         "component": "user_entered_component_stress_multiplier",
         "coordinate_system": "component_review",
         "location": "pipe:P-110:end_i",
-        "basis": "user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "basis": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
+      }
+    },
+    {
+      "id": "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 7.740604,
+      "unit": "MPa",
+      "entity_ref": "component:C-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-110:end-j:axial-normal",
+        "result:stress:pipe-P-110:end-j:bending-normal-y",
+        "result:stress:pipe-P-110:end-j:bending-normal-z",
+        "result:stress:pipe-P-110:end-j:torsional-shear",
+        "result:stress:pipe-P-110"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-110:end_j",
+        "basis": "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
         "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
       }
     },
@@ -3527,6 +3552,31 @@
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-100"
+      }
+    },
+    {
+      "id": "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 17.21875,
+      "unit": "MPa",
+      "entity_ref": "component:C-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-120:end-i:axial-normal",
+        "result:stress:pipe-P-120:end-i:bending-normal-y",
+        "result:stress:pipe-P-120:end-i:bending-normal-z",
+        "result:stress:pipe-P-120:end-i:torsional-shear",
+        "result:stress:pipe-P-120"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-120:end_i",
+        "basis": "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
       }
     },
     {
@@ -6000,7 +6050,7 @@
         "component": "user_entered_component_stress_multiplier",
         "coordinate_system": "component_review",
         "location": "pipe:P-100:end_j",
-        "basis": "user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "basis": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
         "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
       }
     },
@@ -6936,7 +6986,32 @@
         "component": "user_entered_component_stress_multiplier",
         "coordinate_system": "component_review",
         "location": "pipe:P-110:end_i",
-        "basis": "user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "basis": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 2.764501,
+      "unit": "MPa",
+      "entity_ref": "component:C-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-110:end-j:axial-normal",
+        "result:stress:pipe-P-110:end-j:bending-normal-y",
+        "result:stress:pipe-P-110:end-j:bending-normal-z",
+        "result:stress:pipe-P-110:end-j:torsional-shear",
+        "result:stress:pipe-P-110"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-110:end_j",
+        "basis": "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
         "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
       }
     },
@@ -7939,6 +8014,31 @@
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-200"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 8.609375,
+      "unit": "MPa",
+      "entity_ref": "component:C-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-120:end-i:axial-normal",
+        "result:stress:pipe-P-120:end-i:bending-normal-y",
+        "result:stress:pipe-P-120:end-i:bending-normal-z",
+        "result:stress:pipe-P-120:end-i:torsional-shear",
+        "result:stress:pipe-P-120"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-120:end_i",
+        "basis": "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
       }
     },
     {
@@ -12317,6 +12417,50 @@
       }
     },
     {
+      "id": "result:combination:combination-C-OPER-ALT:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 9.122855,
+      "unit": "MPa",
+      "entity_ref": "component:C-120",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+        "result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-110:end_j",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 21.523438,
+      "unit": "MPa",
+      "entity_ref": "component:C-120",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+        "result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-120:end_i",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
       "value": 0.0,
@@ -14192,7 +14336,7 @@
       "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
       "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
       "severity": "info",
-      "message": "bend component component:C-110 applies user-entered SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "message": "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
       "source": "core/product_physics",
       "affected_refs": [
         "component:C-110",
@@ -14205,20 +14349,46 @@
       "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-110:end-i",
       "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
       "severity": "info",
-      "message": "bend component component:C-110 applies user-entered SIF 1.15 and flexibility factor 1.08 to pipe:P-110 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "message": "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-110 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
       "source": "core/product_physics",
       "affected_refs": [
         "component:C-110",
         "pipe:P-110",
         "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
         "invented_user_entered_preview_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-120:pipe-P-110:end-j",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "branch component component:C-120 applies user-entered branch SIF 1.31 and flexibility factor 1.05 to pipe:P-110 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-120",
+        "pipe:P-110",
+        "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+        "invented_user_entered_branch_modifiers_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-120:pipe-P-120:end-i",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "branch component component:C-120 applies user-entered header SIF 1.22 and flexibility factor 1.05 to pipe:P-120 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-120",
+        "pipe:P-120",
+        "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+        "invented_user_entered_branch_modifiers_no_code_table"
       ]
     },
     {
       "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
       "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
       "severity": "info",
-      "message": "bend component component:C-110 applies user-entered SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "message": "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
       "source": "core/product_physics",
       "affected_refs": [
         "component:C-110",
@@ -14231,13 +14401,39 @@
       "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-110:end-i",
       "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
       "severity": "info",
-      "message": "bend component component:C-110 applies user-entered SIF 1.15 and flexibility factor 1.08 to pipe:P-110 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "message": "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-110 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
       "source": "core/product_physics",
       "affected_refs": [
         "component:C-110",
         "pipe:P-110",
         "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
         "invented_user_entered_preview_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-120:pipe-P-110:end-j",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "branch component component:C-120 applies user-entered branch SIF 1.31 and flexibility factor 1.05 to pipe:P-110 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-120",
+        "pipe:P-110",
+        "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+        "invented_user_entered_branch_modifiers_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-120:pipe-P-120:end-i",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "branch component component:C-120 applies user-entered header SIF 1.22 and flexibility factor 1.05 to pipe:P-120 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-120",
+        "pipe:P-120",
+        "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+        "invented_user_entered_branch_modifiers_no_code_table"
       ]
     },
     {

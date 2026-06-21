@@ -14,6 +14,55 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D2 branch connection stress-recovery/report slice (`TP-R4-D2-BRANCHSTRESS-001`)
+
+Landed the D2 branch connection app-absorption slice for the invented preview
+path under `DEC-045`. The product-physics adapter now parses branch component
+geometry slots, validates branch run/header sizes, connection angle,
+reinforcement/source metadata, user-entered header and branch SIF values, and
+the user-entered local flexibility factor. Branch records require explicit
+header/branch pipe mappings and emit nonblocking diagnostics when mapping,
+geometry, modifier values, or provenance are incomplete.
+
+The base straight-pipe frame solve and base pipe stress rows remain unchanged:
+branch components use multiplier-first `mechanics_geometry_only` consumption.
+For `component:C-120`, side-specific `component_user_stress_multiplier_review`
+rows are emitted at `pipe:P-110` end-j for the branch side and `pipe:P-120`
+end-i for the header side for both authored load cases, with combination rows
+derived by the existing load-combination algebra. The regenerated
+`invented_mechanics_result.json` fixture now exposes 749 result rows and 12
+component multiplier evidence rows including combinations.
+
+The desktop app now surfaces the invented branch marker and branch fields in
+the viewport, model view, property inspector, model tree, editor contract,
+missing-data/rule-check/validation panels, native-package unit witnesses, and
+report packet exports. Report export records now include branch geometry source
+and user-entered header/branch SIF provenance without private or protected
+payload.
+
+Validation: `cargo test --manifest-path core/product_physics/Cargo.toml`
+passed 33/33; `npm test --workspace apps/desktop -- App.test.tsx` passed
+57/57; `npm test --workspace apps/desktop` passed 19/19 files and 406/406
+tests; `npm run build:desktop` passed with the existing Vite chunk-size
+warning; `npm run test:e2e:desktop` passed 18/18.
+
+Evidence: DEL-03-04, DEL-05-03, and DEL-08-03 run records
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D2-BRANCHSTRESS-001.md`;
+`apps/desktop/SMOKE.md` TP-MAC-280.
+
+Residual: D2 branch-object app absorption is landed for the invented preview
+path, but the PRD §16.2 branch-assembly benchmark remains D9 validation
+evidence. The next ordinary unblocked Phase D component item is D3 rigid /
+semi-rigid components; D5 remains gated by `D-15`, D7 by `D-17`.
+
+Boundary: invented/user-entered values only; no protected standards table,
+code-derived branch factor, proprietary catalog value, private data,
+frame-stiffness behavior change, lifecycle transition, release-readiness
+claim, professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D1 bend mechanics/stress-recovery/report residual (`TP-R4-D1-BENDSTRESS-001`)
 
 Landed the D1 bend mechanics/report residual for the invented preview path

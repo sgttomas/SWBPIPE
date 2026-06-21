@@ -132,12 +132,34 @@ pub struct ComponentGeometryInput {
     pub bend_plane_orientation: Option<String>,
     #[serde(default)]
     pub bend_geometry_source_reference: Option<String>,
+    #[serde(default)]
+    pub branch_header_pipe_ref: Option<String>,
+    #[serde(default)]
+    pub branch_branch_pipe_ref: Option<String>,
+    #[serde(default)]
+    pub branch_run_size: Option<Quantity>,
+    #[serde(default)]
+    pub branch_header_size: Option<Quantity>,
+    #[serde(default)]
+    pub branch_connection_angle: Option<Quantity>,
+    #[serde(default)]
+    pub branch_connection_type: Option<String>,
+    #[serde(default)]
+    pub branch_reinforcement_area: Option<Quantity>,
+    #[serde(default)]
+    pub branch_reinforcement_reference: Option<String>,
+    #[serde(default)]
+    pub branch_geometry_source_reference: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct ComponentModifierInput {
     #[serde(default)]
     pub sif_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub branch_header_sif_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub branch_branch_sif_user_value: Option<Quantity>,
     #[serde(default)]
     pub flexibility_factor_user_value: Option<Quantity>,
     #[serde(default)]
@@ -1143,37 +1165,158 @@ fn normalize_model_units(
     }
 
     for component in &mut model.components {
-        if !is_bend_component(component) {
-            continue;
-        }
+        let is_bend = matches!(component.kind.as_str(), "bend" | "elbow");
+        let is_branch = matches!(
+            component.kind.as_str(),
+            "branch" | "tee" | "branch_connection"
+        );
         if let Some(geometry) = &mut component.geometry {
-            if let Some(radius) = &mut geometry.bend_radius {
-                normalize_quantity(
-                    radius,
-                    Dimension::Length,
-                    &format!(
-                        "diagnostic:unit-conversion:component:{}:bend-radius",
-                        stable_suffix(&component.id)
-                    ),
-                    vec![component.id.clone(), "geometry.bend_radius".to_string()],
-                    diagnostics,
-                );
+            if is_bend {
+                if let Some(radius) = &mut geometry.bend_radius {
+                    normalize_quantity(
+                        radius,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:bend-radius",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.bend_radius".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(angle) = &mut geometry.bend_angle {
+                    normalize_quantity(
+                        angle,
+                        Dimension::Angle,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:bend-angle",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.bend_angle".to_string()],
+                        diagnostics,
+                    );
+                }
             }
-            if let Some(angle) = &mut geometry.bend_angle {
-                normalize_quantity(
-                    angle,
-                    Dimension::Angle,
-                    &format!(
-                        "diagnostic:unit-conversion:component:{}:bend-angle",
-                        stable_suffix(&component.id)
-                    ),
-                    vec![component.id.clone(), "geometry.bend_angle".to_string()],
-                    diagnostics,
-                );
+            if is_branch {
+                if let Some(size) = &mut geometry.branch_run_size {
+                    normalize_quantity(
+                        size,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:branch-run-size",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.branch_run_size".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(size) = &mut geometry.branch_header_size {
+                    normalize_quantity(
+                        size,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:branch-header-size",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.branch_header_size".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(angle) = &mut geometry.branch_connection_angle {
+                    normalize_quantity(
+                        angle,
+                        Dimension::Angle,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:branch-connection-angle",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.branch_connection_angle".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(area) = &mut geometry.branch_reinforcement_area {
+                    normalize_quantity(
+                        area,
+                        Dimension::Area,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:branch-reinforcement-area",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.branch_reinforcement_area".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
             }
         }
         if let Some(modifiers) = &mut component.modifiers {
-            if let Some(sif) = &mut modifiers.sif_user_value {
+            if is_bend {
+                if let Some(sif) = &mut modifiers.sif_user_value {
+                    normalize_dimensionless_quantity(
+                        sif,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:sif-user-value",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "modifiers.sif_user_value".to_string()],
+                        diagnostics,
+                    );
+                }
+            }
+            if is_branch {
+                if let Some(sif) = &mut modifiers.branch_header_sif_user_value {
+                    normalize_dimensionless_quantity(
+                        sif,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:branch-header-sif",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.branch_header_sif_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(sif) = &mut modifiers.branch_branch_sif_user_value {
+                    normalize_dimensionless_quantity(
+                        sif,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:branch-branch-sif",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.branch_branch_sif_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
+            if is_bend || is_branch {
+                if let Some(flexibility) = &mut modifiers.flexibility_factor_user_value {
+                    normalize_dimensionless_quantity(
+                        flexibility,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:flexibility-factor",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.flexibility_factor_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            } else if let Some(sif) = &mut modifiers.sif_user_value {
                 normalize_dimensionless_quantity(
                     sif,
                     &format!(
@@ -1183,8 +1326,7 @@ fn normalize_model_units(
                     vec![component.id.clone(), "modifiers.sif_user_value".to_string()],
                     diagnostics,
                 );
-            }
-            if let Some(flexibility) = &mut modifiers.flexibility_factor_user_value {
+            } else if let Some(flexibility) = &mut modifiers.flexibility_factor_user_value {
                 normalize_dimensionless_quantity(
                     flexibility,
                     &format!(
@@ -2056,9 +2198,9 @@ fn append_component_stress_multiplier_results(
         for component in model
             .components
             .iter()
-            .filter(|component| is_bend_component(component) && component.node == node_id)
+            .filter(|component| component.node == node_id)
         {
-            let Some(modifier) = bend_stress_modifier(component) else {
+            let Some(modifier) = component_stress_modifier_for_pipe(component, pipe_id) else {
                 continue;
             };
             append_component_stress_multiplier_result(
@@ -2077,14 +2219,29 @@ fn append_component_stress_multiplier_results(
 }
 
 #[derive(Debug, Clone, Copy)]
-struct BendStressModifier<'a> {
+struct ComponentStressModifier<'a> {
+    family: &'a str,
+    side: &'a str,
     sif: f64,
     flexibility: f64,
     source_reference: &'a str,
     solver_consumption: &'a str,
 }
 
-fn bend_stress_modifier(component: &PreviewComponent) -> Option<BendStressModifier<'_>> {
+fn component_stress_modifier_for_pipe<'a>(
+    component: &'a PreviewComponent,
+    pipe_id: &str,
+) -> Option<ComponentStressModifier<'a>> {
+    if is_bend_component(component) {
+        return bend_stress_modifier(component);
+    }
+    if is_branch_component(component) {
+        return branch_stress_modifier_for_pipe(component, pipe_id);
+    }
+    None
+}
+
+fn bend_stress_modifier(component: &PreviewComponent) -> Option<ComponentStressModifier<'_>> {
     let solver_consumption = component
         .mechanics_interface
         .as_ref()
@@ -2104,7 +2261,65 @@ fn bend_stress_modifier(component: &PreviewComponent) -> Option<BendStressModifi
         .as_deref()
         .filter(|value| !value.trim().is_empty())
         .unwrap_or("source_reference_missing");
-    Some(BendStressModifier {
+    Some(ComponentStressModifier {
+        family: "bend",
+        side: "through",
+        sif,
+        flexibility,
+        source_reference,
+        solver_consumption,
+    })
+}
+
+fn branch_stress_modifier_for_pipe<'a>(
+    component: &'a PreviewComponent,
+    pipe_id: &str,
+) -> Option<ComponentStressModifier<'a>> {
+    let solver_consumption = component
+        .mechanics_interface
+        .as_ref()
+        .and_then(|interface| interface.solver_consumption.as_deref())
+        .unwrap_or("mechanics_geometry_only");
+    if solver_consumption != "mechanics_geometry_only" {
+        return None;
+    }
+    let geometry = component.geometry.as_ref()?;
+    let modifiers = component.modifiers.as_ref()?;
+    let (side, sif) = if geometry
+        .branch_header_pipe_ref
+        .as_deref()
+        .filter(|value| *value == pipe_id)
+        .is_some()
+    {
+        (
+            "header",
+            modifiers.branch_header_sif_user_value.as_ref()?.value,
+        )
+    } else if geometry
+        .branch_branch_pipe_ref
+        .as_deref()
+        .filter(|value| *value == pipe_id)
+        .is_some()
+    {
+        (
+            "branch",
+            modifiers.branch_branch_sif_user_value.as_ref()?.value,
+        )
+    } else {
+        return None;
+    };
+    let flexibility = modifiers.flexibility_factor_user_value.as_ref()?.value;
+    if !positive_finite(sif) || !positive_finite(flexibility) {
+        return None;
+    }
+    let source_reference = modifiers
+        .source_reference
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("source_reference_missing");
+    Some(ComponentStressModifier {
+        family: "branch",
+        side,
         sif,
         flexibility,
         source_reference,
@@ -2119,7 +2334,7 @@ fn append_component_stress_multiplier_result(
     pipe_id: &str,
     location: &str,
     base_value_mpa: f64,
-    modifier: BendStressModifier<'_>,
+    modifier: ComponentStressModifier<'_>,
 ) {
     let component_suffix = stable_suffix(&component.id);
     let pipe_suffix = stable_suffix(pipe_id);
@@ -2141,7 +2356,9 @@ fn append_component_stress_multiplier_result(
             coordinate_system: "component_review".to_string(),
             location: format!("{pipe_id}:{location}"),
             basis: format!(
-                "user_entered_sif={};user_entered_flexibility={};source={};solver_consumption={}",
+                "component_family={};component_side={};user_entered_sif={};user_entered_flexibility={};source={};solver_consumption={}",
+                modifier.family,
+                modifier.side,
                 rounded_scalar(modifier.sif),
                 rounded_scalar(modifier.flexibility),
                 modifier.source_reference,
@@ -2160,8 +2377,10 @@ fn append_component_stress_multiplier_result(
         "COMPONENT_STRESS_MULTIPLIER_APPLIED",
         "info",
         format!(
-            "bend component {} applies user-entered SIF {} and flexibility factor {} to {} {location} stress-recovery review; solver_consumption remains {}; no protected or default component factor is supplied",
+            "{} component {} applies user-entered {} SIF {} and flexibility factor {} to {} {location} stress-recovery review; solver_consumption remains {}; no protected or default component factor is supplied",
+            modifier.family,
             component.id,
+            modifier.side,
             rounded_scalar(modifier.sif),
             rounded_scalar(modifier.flexibility),
             pipe_id,
@@ -2192,6 +2411,13 @@ fn endpoint_stress_source_refs(pipe_id: &str, location: &str) -> Vec<String> {
 
 fn is_bend_component(component: &PreviewComponent) -> bool {
     matches!(component.kind.as_str(), "bend" | "elbow")
+}
+
+fn is_branch_component(component: &PreviewComponent) -> bool {
+    matches!(
+        component.kind.as_str(),
+        "branch" | "tee" | "branch_connection"
+    )
 }
 
 fn positive_finite(value: f64) -> bool {
@@ -3765,7 +3991,7 @@ mod tests {
             .find(|item| item.id == combination_row_id)
             .expect("bend user multiplier row should participate in explicit combinations");
 
-        assert_eq!(result.summary.component_stress_modifier_count, 4);
+        assert_eq!(result.summary.component_stress_modifier_count, 8);
         assert_eq!(default_row.kind, "component_user_stress_multiplier_review");
         assert_eq!(default_row.entity_ref, "component:C-110");
         assert!(default_row.value > 0.0);
@@ -3814,6 +4040,70 @@ mod tests {
                 .filter(|diagnostic| diagnostic.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
                 .count()
                 >= 4
+        );
+    }
+
+    #[test]
+    fn branch_component_user_multipliers_emit_side_specific_stress_review_rows() {
+        let result = run_linear_static_preview(request());
+        let branch_row_id = "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier";
+        let header_row_id = "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier";
+        let combination_row_id =
+            "result:combination:combination-C-OPER-ALT:stress:component-C-120:pipe-P-120:end-i:user-multiplier";
+        let branch_row = result
+            .results
+            .iter()
+            .find(|item| item.id == branch_row_id)
+            .expect(
+                "branch-side user multiplier row should be emitted for the branch pipe endpoint",
+            );
+        let header_row = result
+            .results
+            .iter()
+            .find(|item| item.id == header_row_id)
+            .expect(
+                "header-side user multiplier row should be emitted for the header pipe endpoint",
+            );
+        let combination_row = result
+            .results
+            .iter()
+            .find(|item| item.id == combination_row_id)
+            .expect("branch user multiplier row should participate in explicit combinations");
+
+        assert_eq!(branch_row.kind, "component_user_stress_multiplier_review");
+        assert_eq!(branch_row.entity_ref, "component:C-120");
+        assert_eq!(header_row.entity_ref, "component:C-120");
+        assert!(branch_row.value > 0.0);
+        assert!(header_row.value > 0.0);
+
+        let branch_metadata = branch_row
+            .metadata
+            .as_ref()
+            .expect("branch-side multiplier row carries recovery metadata");
+        assert_eq!(branch_metadata.coordinate_system, "component_review");
+        assert_eq!(branch_metadata.location, "pipe:P-110:end_j");
+        assert!(branch_metadata.basis.contains("component_family=branch"));
+        assert!(branch_metadata.basis.contains("component_side=branch"));
+        assert!(branch_metadata.basis.contains("user_entered_sif=1.31"));
+        assert!(branch_metadata
+            .basis
+            .contains("source=invented_user_entered_branch_modifiers_no_code_table"));
+
+        let header_metadata = header_row
+            .metadata
+            .as_ref()
+            .expect("header-side multiplier row carries recovery metadata");
+        assert_eq!(header_metadata.location, "pipe:P-120:end_i");
+        assert!(header_metadata.basis.contains("component_family=branch"));
+        assert!(header_metadata.basis.contains("component_side=header"));
+        assert!(header_metadata.basis.contains("user_entered_sif=1.22"));
+
+        assert_eq!(
+            combination_row
+                .basis_ref
+                .as_ref()
+                .map(|basis| basis.ref_id.as_str()),
+            Some("combination:C-OPER-ALT")
         );
     }
 

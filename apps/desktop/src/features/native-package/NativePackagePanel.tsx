@@ -509,7 +509,21 @@ function buildUnitPreservationEvidence({
     const componentQuantities = [
       { dimension: "length", fieldPath: "geometry.bend_radius", quantity: component.geometry?.bend_radius },
       { dimension: "angle", fieldPath: "geometry.bend_angle", quantity: component.geometry?.bend_angle },
+      { dimension: "length", fieldPath: "geometry.branch_run_size", quantity: component.geometry?.branch_run_size },
+      { dimension: "length", fieldPath: "geometry.branch_header_size", quantity: component.geometry?.branch_header_size },
+      { dimension: "angle", fieldPath: "geometry.branch_connection_angle", quantity: component.geometry?.branch_connection_angle },
+      { dimension: "area", fieldPath: "geometry.branch_reinforcement_area", quantity: component.geometry?.branch_reinforcement_area },
       { dimension: "dimensionless", fieldPath: "modifiers.sif_user_value", quantity: component.modifiers?.sif_user_value },
+      {
+        dimension: "dimensionless",
+        fieldPath: "modifiers.branch_header_sif_user_value",
+        quantity: component.modifiers?.branch_header_sif_user_value
+      },
+      {
+        dimension: "dimensionless",
+        fieldPath: "modifiers.branch_branch_sif_user_value",
+        quantity: component.modifiers?.branch_branch_sif_user_value
+      },
       {
         dimension: "dimensionless",
         fieldPath: "modifiers.flexibility_factor_user_value",

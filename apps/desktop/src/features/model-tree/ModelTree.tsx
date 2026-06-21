@@ -312,7 +312,23 @@ function componentKeyword(component: PreviewModel["components"][number]): string
     component.geometry?.bend_angle ? `${component.geometry.bend_angle.value} ${component.geometry.bend_angle.unit}` : "",
     component.geometry?.bend_plane_orientation ?? "",
     component.geometry?.bend_geometry_source_reference ?? "",
+    component.geometry?.branch_header_pipe_ref ?? "",
+    component.geometry?.branch_branch_pipe_ref ?? "",
+    component.geometry?.branch_run_size ? `${component.geometry.branch_run_size.value} ${component.geometry.branch_run_size.unit}` : "",
+    component.geometry?.branch_header_size ? `${component.geometry.branch_header_size.value} ${component.geometry.branch_header_size.unit}` : "",
+    component.geometry?.branch_connection_angle
+      ? `${component.geometry.branch_connection_angle.value} ${component.geometry.branch_connection_angle.unit}`
+      : "",
+    component.geometry?.branch_connection_type ?? "",
+    component.geometry?.branch_reinforcement_reference ?? "",
+    component.geometry?.branch_geometry_source_reference ?? "",
     component.modifiers?.sif_user_value ? `${component.modifiers.sif_user_value.value} ${component.modifiers.sif_user_value.unit}` : "",
+    component.modifiers?.branch_header_sif_user_value
+      ? `${component.modifiers.branch_header_sif_user_value.value} ${component.modifiers.branch_header_sif_user_value.unit}`
+      : "",
+    component.modifiers?.branch_branch_sif_user_value
+      ? `${component.modifiers.branch_branch_sif_user_value.value} ${component.modifiers.branch_branch_sif_user_value.unit}`
+      : "",
     component.modifiers?.flexibility_factor_user_value
       ? `${component.modifiers.flexibility_factor_user_value.value} ${component.modifiers.flexibility_factor_user_value.unit}`
       : "",
@@ -715,6 +731,20 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "modifiers.sif_user_value.value",
         "Component",
         "user-entered modifier value; no code table default"
+      ),
+      scalarGridColumn(
+        "header-sif-user",
+        "Header SIF",
+        "modifiers.branch_header_sif_user_value.value",
+        "Component",
+        "user-entered branch header modifier; no code table default"
+      ),
+      scalarGridColumn(
+        "branch-sif-user",
+        "Branch SIF",
+        "modifiers.branch_branch_sif_user_value.value",
+        "Component",
+        "user-entered branch-side modifier; no code table default"
       ),
       scalarGridColumn(
         "flexibility-user",

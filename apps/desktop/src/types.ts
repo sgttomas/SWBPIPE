@@ -13,9 +13,20 @@ export type PreviewComponent = {
     bend_angle?: QuantityValue;
     bend_plane_orientation?: string;
     bend_geometry_source_reference?: string;
+    branch_header_pipe_ref?: string;
+    branch_branch_pipe_ref?: string;
+    branch_run_size?: QuantityValue;
+    branch_header_size?: QuantityValue;
+    branch_connection_angle?: QuantityValue;
+    branch_connection_type?: string;
+    branch_reinforcement_area?: QuantityValue;
+    branch_reinforcement_reference?: string;
+    branch_geometry_source_reference?: string;
   };
   modifiers?: {
     sif_user_value?: QuantityValue;
+    branch_header_sif_user_value?: QuantityValue;
+    branch_branch_sif_user_value?: QuantityValue;
     flexibility_factor_user_value?: QuantityValue;
     source_reference?: string;
   };

@@ -1,5 +1,24 @@
 # MEMORY - DEL-03-04 Branch Connection Component Model Fields
 
+## 2026-06-21 - TP-R4-D2-BRANCHSTRESS-001 branch preview app absorption
+
+WORKING_ITEMS landed the D2 branch connection app-absorption slice for the
+invented preview path under `DEC-045`. The product-physics adapter and desktop
+app now consume `component:C-120` branch geometry/provenance fields,
+header/branch pipe mappings, user-entered header and branch SIFs, user-entered
+flexibility factor, modifier source, and `mechanics_geometry_only` metadata.
+Branch fields are visible in the viewport, model view, property inspector,
+model tree, editor contract, missing-data/rule-check/validation panels,
+native-package witnesses, and report export.
+
+Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D2-BRANCHSTRESS-001.md`.
+Validation passed: product-physics Rust tests, desktop Vitest, desktop build,
+and Playwright e2e. No protected standards values, code-derived branch factors,
+private data, lifecycle state changes, release-readiness claims, professional
+approval, certification, sealing, authentication, or code-compliance claims
+were introduced. The PRD §16.2 branch-assembly benchmark remains D9 validation
+evidence.
+
 ## Session 2026-05-01
 
 ### Scope

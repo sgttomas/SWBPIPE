@@ -9492,3 +9492,46 @@ notes:
   frame-stiffness behavior change, network path, telemetry feature, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-280 R4 D2 branch connection stress-recovery and report provenance slice - PASSED (`TP-R4-D2-BRANCHSTRESS-001`, 2026-06-21)
+
+- Scope: R4/D2 branch-object app-absorption slice under `DEC-045`, landing the
+  invented preview branch geometry/provenance path plus side-specific
+  user-entered stress modifier evidence. This remains multiplier-first
+  `mechanics_geometry_only` behavior: all branch factors are user-entered and
+  no protected/default engineering factors are bundled.
+- App/core behavior: `core/product_physics` now parses branch geometry fields,
+  branch header/branch pipe mappings, user-entered header and branch SIFs,
+  user-entered flexibility factor, and source references. The invented preview
+  model carries `component:C-120`; the viewport renders branch components as a
+  T-shaped marker. Model view, inspector/provenance rows, grid/search, editor
+  contract, missing-data blockers, rule-check diagnostics, validation evidence,
+  native-package witnesses, and report exports now surface the branch fields.
+- Mechanics/report behavior: `component:C-120` emits
+  `component_user_stress_multiplier_review` rows for `pipe:P-110` end-j
+  (branch side) and `pipe:P-120` end-i (header side), including both authored
+  load cases and combination rows. The regenerated mechanics fixture now has
+  749 result rows and 12 component multiplier evidence rows including
+  combinations. Report export records include branch geometry source and
+  user-entered header/branch SIF provenance.
+- Validation:
+  - `cargo test --manifest-path core/product_physics/Cargo.toml` passed 33/33
+    unit tests.
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 57/57 tests.
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 406/406
+    tests.
+  - `npm run build:desktop` passed, retaining the existing Vite chunk-size
+    warning.
+  - `npm run test:e2e:desktop` passed 18/18 Playwright checks.
+- Evidence: DEL-03-04, DEL-05-03, and DEL-08-03 run records
+  `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D2-BRANCHSTRESS-001.md`; plan log entry
+  in `plans/PLAN_COMPLETION_LOG.md`.
+- Residual: D2 branch-object app absorption is landed for the invented preview
+  path. The PRD §16.2 branch-assembly benchmark remains D9 validation
+  evidence. D3 rigid/semi-rigid components are the next ordinary unblocked
+  Phase D component item.
+- Boundary: invented/user-entered preview values only. No protected standards
+  table, code-derived branch factor, proprietary catalog value, private data,
+  frame-stiffness behavior change, network path, telemetry feature, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

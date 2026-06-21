@@ -120,6 +120,41 @@
       ],
       "provenance": "invented_example_user_entered_bend_values_no_code_table"
     },
+    {
+      "id": "component:C-120",
+      "label": "Invented branch connection marker",
+      "kind": "branch",
+      "node": "node:N-120",
+      "geometry": {
+        "branch_header_pipe_ref": "pipe:P-120",
+        "branch_branch_pipe_ref": "pipe:P-110",
+        "branch_run_size": { "value": 0.168, "unit": "m" },
+        "branch_header_size": { "value": 0.168, "unit": "m" },
+        "branch_connection_angle": { "value": 1.5707963268, "unit": "rad" },
+        "branch_connection_type": "invented_unreinforced_tee_preview",
+        "branch_reinforcement_reference": "invented_user_entered_no_reinforcement_for_preview",
+        "branch_geometry_source_reference": "invented_user_entered_branch_preview_geometry"
+      },
+      "modifiers": {
+        "branch_header_sif_user_value": { "value": 1.22, "unit": "none" },
+        "branch_branch_sif_user_value": { "value": 1.31, "unit": "none" },
+        "flexibility_factor_user_value": { "value": 1.05, "unit": "none" },
+        "source_reference": "invented_user_entered_branch_modifiers_no_code_table"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_only",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "completeness": [
+        {
+          "finding_id": "finding:C-120:branch-geometry",
+          "status": "complete",
+          "diagnostic_code": "BRANCH_RULE_INPUT_MISSING",
+          "missing_field_kinds": []
+        }
+      ],
+      "provenance": "invented_example_user_entered_branch_values_no_code_table"
+    },
     { "id": "component:C-140", "label": "Invented tie-in marker", "kind": "terminal", "node": "node:N-140", "provenance": "invented_example" }
   ],
   "load_cases": [

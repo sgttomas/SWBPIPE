@@ -268,11 +268,13 @@ function reportComponentProvenance(model: PreviewModel, result: MechanicsResult)
       component_kind: component.kind,
       node_ref: component.node,
       provenance: component.provenance,
-      geometry_source_ref: component.geometry?.bend_geometry_source_reference ?? "not provided",
+      geometry_source_ref: componentGeometrySourceRef(component),
       modifier_source_ref: component.modifiers?.source_reference ?? "not provided",
       solver_consumption: component.mechanics_interface?.solver_consumption ?? "not provided",
       rule_check_consumption: component.mechanics_interface?.rule_check_consumption ?? "not provided",
       user_entered_sif: component.modifiers?.sif_user_value ?? null,
+      user_entered_header_sif: component.modifiers?.branch_header_sif_user_value ?? null,
+      user_entered_branch_sif: component.modifiers?.branch_branch_sif_user_value ?? null,
       user_entered_flexibility_factor: component.modifiers?.flexibility_factor_user_value ?? null,
       stress_modifier_result_refs: modifierRows.map((item) => item.id),
       private_payload_included: false,
@@ -322,6 +324,14 @@ function formatComponentStressModifierSummary(records: ReturnType<typeof reportC
   const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
   const units = [...new Set(records.map((item) => item.unit))].join(", ");
   return `${records.length} user-entered multiplier row${records.length === 1 ? "" : "s"}; components=${components}; units=${units}`;
+}
+
+function componentGeometrySourceRef(component: PreviewModel["components"][number]): string {
+  return (
+    component.geometry?.bend_geometry_source_reference ??
+    component.geometry?.branch_geometry_source_reference ??
+    "not provided"
+  );
 }
 
 function countDiagnosticsBySeverity(diagnostics: Diagnostic[]): Record<Diagnostic["severity"], number> {
@@ -431,6 +441,7 @@ function reportExportPacket({
       "DEL-10-03",
       "DEL-10-04",
       "DEL-10-05",
+      "DEL-03-04",
       "DEL-15-04",
       "DEL-17-04",
       "DEL-17-05",

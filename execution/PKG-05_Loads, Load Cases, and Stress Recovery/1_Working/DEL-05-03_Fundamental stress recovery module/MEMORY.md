@@ -1,5 +1,23 @@
 # MEMORY - DEL-05-03 Fundamental Stress Recovery Module
 
+## 2026-06-21 - TP-R4-D2-BRANCHSTRESS-001 branch component multiplier review rows
+
+WORKING_ITEMS landed the stress-recovery side of the D2 branch connection
+app-absorption slice. Branch components with complete user-entered header SIF,
+branch SIF, flexibility factor, source reference, and pipe-side mapping now
+emit side-specific `component_user_stress_multiplier_review` rows at mapped
+pipe endpoints. `component:C-120` emits branch-side rows at `pipe:P-110` end-j
+and header-side rows at `pipe:P-120` end-i, with combination rows derived by
+the existing load-combination algebra.
+
+Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D2-BRANCHSTRESS-001.md`.
+Validation passed: product-physics Rust tests, desktop Vitest, desktop build,
+and Playwright e2e. Base pipe stress rows and frame stiffness remain unchanged;
+no protected standards values, code-derived branch factors, private data,
+lifecycle state changes, release-readiness claims, professional approval,
+certification, sealing, authentication, or code-compliance claims were
+introduced.
+
 ## 2026-06-21 - TP-R4-D1-BENDSTRESS-001 component multiplier review rows
 
 WORKING_ITEMS landed the stress-recovery side of the D1 bend mechanics/report

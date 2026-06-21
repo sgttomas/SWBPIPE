@@ -391,6 +391,14 @@ function buildWarnings({
 
 function componentModifierProvenanceMissing(component: PreviewModel["components"][number]): boolean {
   const legacyMissingToken = component.provenance.toLowerCase().includes("no_flexibility_factor");
+  if (component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection") {
+    return !(
+      component.modifiers?.branch_header_sif_user_value &&
+      component.modifiers.branch_branch_sif_user_value &&
+      component.modifiers.flexibility_factor_user_value &&
+      component.modifiers.source_reference?.trim()
+    );
+  }
   if (component.kind !== "bend" && component.kind !== "elbow") return legacyMissingToken;
   return !(
     component.modifiers?.sif_user_value &&

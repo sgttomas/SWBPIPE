@@ -267,6 +267,60 @@ function componentEditors(model: PreviewModel) {
         )
       );
     }
+    if (component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection") {
+      fields.splice(
+        3,
+        0,
+        field(
+          "geometry.branch_run_size.value",
+          "Branch run size",
+          component.geometry?.branch_run_size?.value ?? "TBD",
+          "length",
+          component.geometry?.branch_run_size?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "geometry.branch_header_size.value",
+          "Branch header size",
+          component.geometry?.branch_header_size?.value ?? "TBD",
+          "length",
+          component.geometry?.branch_header_size?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "geometry.branch_connection_angle.value",
+          "Branch angle",
+          component.geometry?.branch_connection_angle?.value ?? "TBD",
+          "angle",
+          component.geometry?.branch_connection_angle?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "modifiers.branch_header_sif_user_value.value",
+          "Header SIF user value",
+          component.modifiers?.branch_header_sif_user_value?.value ?? "TBD",
+          "dimensionless",
+          component.modifiers?.branch_header_sif_user_value?.unit ?? "none",
+          component.id
+        ),
+        field(
+          "modifiers.branch_branch_sif_user_value.value",
+          "Branch SIF user value",
+          component.modifiers?.branch_branch_sif_user_value?.value ?? "TBD",
+          "dimensionless",
+          component.modifiers?.branch_branch_sif_user_value?.unit ?? "none",
+          component.id
+        ),
+        field(
+          "modifiers.flexibility_factor_user_value.value",
+          "Flexibility user value",
+          component.modifiers?.flexibility_factor_user_value?.value ?? "TBD",
+          "dimensionless",
+          component.modifiers?.flexibility_factor_user_value?.unit ?? "none",
+          component.id
+        )
+      );
+    }
     return {
       editor_id: `editor:${safeRefToken(component.id)}:component`,
       editor_kind: "component" as EditorKind,
@@ -392,6 +446,14 @@ function editorDiagnostics(model: PreviewModel): EditorDiagnostic[] {
 
 function componentModifierProvenanceMissing(component: PreviewModel["components"][number]): boolean {
   const legacyMissingToken = component.provenance.toLowerCase().includes("no_flexibility_factor");
+  if (component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection") {
+    return !(
+      component.modifiers?.branch_header_sif_user_value &&
+      component.modifiers.branch_branch_sif_user_value &&
+      component.modifiers.flexibility_factor_user_value &&
+      component.modifiers.source_reference?.trim()
+    );
+  }
   if (component.kind !== "bend" && component.kind !== "elbow") return legacyMissingToken;
   return !(
     component.modifiers?.sif_user_value &&

@@ -109,6 +109,25 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
         ["Completeness", componentCompletenessDisplay(component)]
       );
     }
+    if (isBranchComponent(component)) {
+      rows.push(
+        ["Header pipe", component.geometry?.branch_header_pipe_ref ?? "TBD"],
+        ["Branch pipe", component.geometry?.branch_branch_pipe_ref ?? "TBD"],
+        ["Run size", quantityDisplay(component.geometry?.branch_run_size)],
+        ["Header size", quantityDisplay(component.geometry?.branch_header_size)],
+        ["Branch angle", quantityDisplay(component.geometry?.branch_connection_angle)],
+        ["Connection type", component.geometry?.branch_connection_type ?? "TBD"],
+        ["Reinforcement", component.geometry?.branch_reinforcement_reference ?? "TBD"],
+        ["Geometry source", component.geometry?.branch_geometry_source_reference ?? "TBD"],
+        ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
+        ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
+        ["Header SIF user value", quantityDisplay(component.modifiers?.branch_header_sif_user_value)],
+        ["Branch SIF user value", quantityDisplay(component.modifiers?.branch_branch_sif_user_value)],
+        ["Flexibility user value", quantityDisplay(component.modifiers?.flexibility_factor_user_value)],
+        ["Modifier source", component.modifiers?.source_reference ?? "TBD"],
+        ["Completeness", componentCompletenessDisplay(component)]
+      );
+    }
     rows.push(["Provenance", component.provenance]);
     return rows;
   }
@@ -143,6 +162,10 @@ function quantityDisplay(quantity: { value: number; unit: string } | undefined):
 
 function isBendComponent(component: PreviewComponent): boolean {
   return component.kind === "bend" || component.kind === "elbow";
+}
+
+function isBranchComponent(component: PreviewComponent): boolean {
+  return component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection";
 }
 
 function componentCompletenessDisplay(component: PreviewComponent): string {

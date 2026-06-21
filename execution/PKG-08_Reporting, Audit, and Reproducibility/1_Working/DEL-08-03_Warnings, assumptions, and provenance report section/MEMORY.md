@@ -1,5 +1,21 @@
 # MEMORY - DEL-08-03 Warnings, Assumptions, and Provenance Report Section
 
+## 2026-06-21 - TP-R4-D2-BRANCHSTRESS-001 branch provenance in report packet
+
+WORKING_ITEMS landed the report-provenance side of the D2 branch connection
+app-absorption slice. The preview report packet now displays branch component
+provenance and component stress modifier summaries, and the JSON export carries
+branch geometry source, user-entered header/branch SIF values, user-entered
+flexibility factor, modifier source, `component_provenance`,
+`component_stress_modifier_evidence`, and `component_stress_modifier_count`
+fields with no-private/no-protected/no-claim boundary flags.
+
+Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D2-BRANCHSTRESS-001.md`.
+Validation passed: product-physics Rust tests, desktop Vitest, desktop build,
+and Playwright e2e. The report remains a technical preview artifact and makes
+no release, professional approval, certification, sealing, authentication, or
+code-compliance claim.
+
 ## 2026-06-21 - TP-R4-D1-BENDSTRESS-001 bend provenance in report packet
 
 WORKING_ITEMS landed the report-provenance side of the D1 bend mechanics/report

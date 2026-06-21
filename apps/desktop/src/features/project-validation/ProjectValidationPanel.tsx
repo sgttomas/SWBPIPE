@@ -653,7 +653,13 @@ function componentUnitQuantities(component: PreviewModel["components"][number]):
   return [
     component.geometry?.bend_radius,
     component.geometry?.bend_angle,
+    component.geometry?.branch_run_size,
+    component.geometry?.branch_header_size,
+    component.geometry?.branch_connection_angle,
+    component.geometry?.branch_reinforcement_area,
     component.modifiers?.sif_user_value,
+    component.modifiers?.branch_header_sif_user_value,
+    component.modifiers?.branch_branch_sif_user_value,
     component.modifiers?.flexibility_factor_user_value
   ];
 }

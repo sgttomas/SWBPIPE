@@ -915,6 +915,9 @@ function entityProvenanceRows(model: PreviewModel, selection: EntityRef): Array<
     if (component?.geometry?.bend_geometry_source_reference) {
       rows.push(["Geometry source", component.geometry.bend_geometry_source_reference]);
     }
+    if (component?.geometry?.branch_geometry_source_reference) {
+      rows.push(["Geometry source", component.geometry.branch_geometry_source_reference]);
+    }
     if (component?.modifiers?.source_reference) {
       rows.push(["Modifier source", component.modifiers.source_reference]);
     }
@@ -951,6 +954,27 @@ function requiredFlagsForSelection(model: PreviewModel, selection: EntityRef, pr
       );
       if (!geometryComplete) flags.push("BEND_GEOMETRY_INCOMPLETE");
       if (!modifiersComplete) flags.push("BEND_RULE_INPUT_MISSING");
+    }
+    if (component && isBranchComponent(component)) {
+      const geometry = component.geometry;
+      const geometryComplete = Boolean(
+        geometry?.branch_header_pipe_ref?.trim() &&
+          geometry.branch_branch_pipe_ref?.trim() &&
+          geometry.branch_run_size &&
+          geometry.branch_header_size &&
+          geometry.branch_connection_angle &&
+          geometry.branch_connection_type?.trim() &&
+          geometry.branch_reinforcement_reference?.trim() &&
+          geometry.branch_geometry_source_reference?.trim()
+      );
+      const modifiersComplete = Boolean(
+        component.modifiers?.branch_header_sif_user_value &&
+          component.modifiers.branch_branch_sif_user_value &&
+          component.modifiers.flexibility_factor_user_value &&
+          component.modifiers.source_reference?.trim()
+      );
+      if (!geometryComplete) flags.push("BRANCH_GEOMETRY_INCOMPLETE");
+      if (!modifiersComplete) flags.push("BRANCH_RULE_INPUT_MISSING");
     }
   }
   return Array.from(new Set(flags)).slice(0, 4);
@@ -1220,6 +1244,96 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         )
       );
     }
+    if (isBranchComponent(component)) {
+      fields.splice(
+        2,
+        0,
+        scalarField(
+          "Header pipe",
+          "geometry.branch_header_pipe_ref",
+          component.geometry?.branch_header_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered header pipe reference"
+        ),
+        scalarField(
+          "Branch pipe",
+          "geometry.branch_branch_pipe_ref",
+          component.geometry?.branch_branch_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered branch pipe reference"
+        ),
+        quantityField(
+          "Branch run size",
+          "geometry.branch_run_size.value",
+          component.geometry?.branch_run_size?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.branch_run_size?.unit ?? model.project.units.length ?? "m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Branch header size",
+          "geometry.branch_header_size.value",
+          component.geometry?.branch_header_size?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.branch_header_size?.unit ?? model.project.units.length ?? "m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Branch angle",
+          "geometry.branch_connection_angle.value",
+          component.geometry?.branch_connection_angle?.value ?? "TBD",
+          "Component",
+          "angle",
+          component.geometry?.branch_connection_angle?.unit ?? model.project.units.angle ?? "rad",
+          "set_field",
+          true
+        ),
+        scalarField(
+          "Connection type",
+          "geometry.branch_connection_type",
+          component.geometry?.branch_connection_type ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered branch connection type"
+        ),
+        scalarField(
+          "Header SIF user value",
+          "modifiers.branch_header_sif_user_value.value",
+          String(component.modifiers?.branch_header_sif_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        ),
+        scalarField(
+          "Branch SIF user value",
+          "modifiers.branch_branch_sif_user_value.value",
+          String(component.modifiers?.branch_branch_sif_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        ),
+        scalarField(
+          "Flexibility user value",
+          "modifiers.flexibility_factor_user_value.value",
+          String(component.modifiers?.flexibility_factor_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        )
+      );
+    }
     return fields;
   }
 
@@ -1304,6 +1418,10 @@ function quantityField(
 
 function isBendComponent(component: PreviewComponent): boolean {
   return component.kind === "bend" || component.kind === "elbow";
+}
+
+function isBranchComponent(component: PreviewComponent): boolean {
+  return component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection";
 }
 
 function buildOperationIntent({
