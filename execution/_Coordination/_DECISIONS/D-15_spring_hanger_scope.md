@@ -1,6 +1,6 @@
 # D-15 - Spring-Hanger Scope
 
-**Status:** AWAITING_RULING - packet drafted; no ruling recorded. Only the human project authority rules.
+**Status:** RULED - human project authority approved Option B; ruling recorded as `DEC-049`.
 **Prepared:** 2026-06-21 by WORKING_ITEMS, per the Application Integration And Issuance Loop decision-escalation step.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-15.
 **Plan basis:** `plans/PLAN_2026-06-17_prd_completion.md` §2.3 row D-15 and Phase D row D5.
@@ -317,11 +317,18 @@ blocked and D6 becomes the next implementation item by necessity.
 ## 7. Authority And Ruling Record
 
 Only the **human project authority** rules on D-15. Agents prepared this packet
-and may not certify, approve, or adopt it. Per existing decision practice, the
-accepted ruling is recorded as the next `DEC` entry in
-`execution/_Decomposition/SOFTWARE_DECOMP.md` §12 citing this packet; the
-dispatching persona then updates `execution/_Coordination/_DECISIONS/_REGISTER.md`
-row D-15 from `AWAITING_RULING` to `RULED` with the pointer.
+and may not certify, approve, or adopt it.
+
+**Ruling:** approved Option B on 2026-06-21.
+
+**Ruling record:** `DEC-049` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
+
+Accepted wording: R4 D5 requires a minimal dedicated spring-hanger model with
+explicit user-entered variable spring hanger and constant-effort support
+data/provenance. Generic `spring` alone does not satisfy the D5 scope. No
+catalog sizing, protected standards values, hidden defaults, or
+professional/code-compliance claim is authorized.
 
 This packet creates no lifecycle transition, release-readiness claim,
 professional approval, certification, sealing, authentication, or

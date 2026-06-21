@@ -265,9 +265,10 @@ landed for the invented preview path through `TP-R4-D3-RIGIDVIS-001`, with
 frame-stiffness behavior change. D4 expansion-joint app absorption landed for
 the invented preview path through `TP-R4-D4-EJSTIFF-001`, with user-stiffness
 macro-element review rows and no full assembled global solve or pressure-thrust
-load generation claim. D5 spring-hanger scope is gated by `D-15`, whose packet
-is prepared and awaiting human ruling. If that ruling is still pending, continue
-D6/D9 residuals: the loop-core slice `TP-R4-D6-LOOPCORE-001` added
+load generation claim. D5 spring-hanger scope is ruled by `DEC-049`: R4 D5
+requires a minimal dedicated user-entered spring-hanger model, and generic
+`spring` alone is insufficient. The loop-core slice
+`TP-R4-D6-LOOPCORE-001` added
 `core/solver/nonlinear_integration` as the dense assembled active-set loop owner
 under `DEC-044`/`DEC-046`, and `TP-R4-D6-PHYSINTEG-001` bound that dense loop
 into the invented product/app/result-envelope preview path for one explicit
@@ -290,9 +291,11 @@ relative tolerance `0.0`, absolute floor `0.0`, max iteration cap `4`, keyed to
 one-way/gap/lift-off/friction classes. `TP-R4-D6-LIVEBUNDLE-001` added mixed
 one-way/gap/friction product live-loop coverage in one invented dense solve.
 Sparse live-path adoption, non-seed convergence thresholds, and the R4 exit
-evidence package remain open.
-The remaining spine continues with D7
-sparse live-path timing gate (`D-17`) and broader D9 R4 validation evidence.
+evidence package remain open. D7 sparse live-path timing is ruled by
+`DEC-050`: add a live sparse evidence lane while dense remains default and
+profile-direct assembly/default promotion follow on. The remaining spine
+continues with D5 spring-hanger implementation, D7 sparse evidence-lane
+adoption, and broader D9 R4 validation evidence.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
 `DAG-006`.
 
@@ -347,9 +350,9 @@ bounded tranche.
       `TP-R4-D1-BENDSTRESS-001`; D2 branch-object app absorption landed through
       `TP-R4-D2-BRANCHSTRESS-001`; D3 rigid/semi-rigid component app
       absorption landed through `TP-R4-D3-RIGIDVIS-001`; D4 expansion-joint
-      app absorption landed through `TP-R4-D4-EJSTIFF-001`. D5 is gated by
-      `D-15`; the D-15 decision packet is prepared and awaiting human ruling.
-      If that ruling is still pending, continue D6/D9 residuals after
+      app absorption landed through `TP-R4-D4-EJSTIFF-001`. D5 is unblocked by
+      `DEC-049` and requires a minimal dedicated user-entered spring-hanger
+      model rather than generic `spring` alone. The D6/D9 residuals after
       `TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`,
       `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSEED-001`,
       `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`,
@@ -360,9 +363,10 @@ bounded tranche.
       current assembled fixtures and `TP-R4-D9-CONVPOLICY-001` promotes the
       governed active-set-count policy for that validation seed only:
       sparse live-path adoption, non-seed convergence thresholds, and the R4
-      exit evidence package remain open under `DEC-044`/`DEC-046`.
-      D7 is gated by `D-17`; `D-20` remains a Phase E lead-up decision; held
-      `D-21` does not authorize v0.2/R6/R7 scope;
+      exit evidence package remain open under `DEC-044`/`DEC-046`. D7 is
+      ruled by `DEC-050` as a live sparse evidence lane with dense remaining
+      default; `D-20` remains a Phase E lead-up decision; held `D-21` does not
+      authorize v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or
       smoke-evidence gaps in already-landed surfaces;
    3. residual hardening (missing app-to-core seams, preview workflow gaps,

@@ -20,7 +20,8 @@ through older D6/D9 residual language after later evidence had already landed:
 - `TP-R4-D9-PRODPOLICY-001`
 - `TP-R4-D9-GAPREFRESH-001`
 
-The current authoritative state is discoverable and correct elsewhere:
+At the time this issue was recorded, the current authoritative state was
+discoverable and correct elsewhere:
 
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` records both `D-15` and
   `D-17` as `AWAITING_RULING`.
@@ -68,13 +69,20 @@ roadmap/completion plan, deliverable-local memory, and run records.
 
 ## Current Disposition
 
-No prompt edit is made in this tranche because `_COORDINATION.md` instructs
-agents to leave `NEXT_INSTANCE_PROMPT.md` stable unless the entry protocol
-itself changes. This file records the issue for a future explicit
-coordination-maintenance slice.
+Initial disposition: no prompt edit was made in the issue-plan tranche because
+`_COORDINATION.md` instructs agents to leave `NEXT_INSTANCE_PROMPT.md` stable
+unless the entry protocol itself changes.
+
+Follow-up disposition: during the D-15/D-17 ruling-record tranche on
+2026-06-21, the stale state summary in `NEXT_INSTANCE_PROMPT.md` was updated
+without changing the entry protocol. The prompt now points to `DEC-049`
+and `DEC-050` rather than routing future sessions to already-ruled
+decision-packet work.
 
 ## Validation
 
 - `git diff --check` passed on 2026-06-21.
 - Full DEC-025 evidence sweep passed:
   `validation/evidence/sweeps/SWEEP_20260621T115235Z_0efaab1e6b48-dirty.json`.
+- Follow-up D-15/D-17 prompt refresh validation is recorded in the later
+  ruling-record tranche evidence.

@@ -5128,6 +5128,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(primitiveRow.textContent).toContain("occasional; 350 N");
     fireEvent.click(primitiveRow);
+    expect(
+      await within(manager).findAllByText("Magnitude (N, model metadata)"),
+    ).not.toHaveLength(0);
 
     expect(
       within(manager).getByTestId("load-manager-primitive-delete-preview")

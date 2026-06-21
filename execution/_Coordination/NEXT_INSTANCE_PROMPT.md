@@ -71,9 +71,9 @@
      change. D4 expansion-joint app absorption landed through
      `TP-R4-D4-EJSTIFF-001` with user-stiffness macro-element review rows and
      no full assembled global solve or pressure-thrust load generation claim.
-     D5 is gated by `D-15`; the D-15 spring-hanger scope decision packet is
-     prepared and awaiting human ruling. If that ruling is still pending,
-     continue D6/D9 residuals after `TP-R4-D6-LOOPCORE-001`,
+     D5 is unblocked by `DEC-049`: R4 requires a minimal dedicated
+     user-entered spring-hanger model, and generic `spring` alone is
+     insufficient. D6/D9 residuals after `TP-R4-D6-LOOPCORE-001`,
      `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D9-ASSEMBLEDSEED-001`,
      `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`,
      `TP-R4-D6-FRICTIONNORMAL-001`, and
@@ -90,9 +90,11 @@
      for that assembled validation seed only. Mixed one-way/gap/friction
      product live-loop coverage is landed for one invented dense solve. Sparse
      live-path adoption, non-seed convergence thresholds, and the remaining D9
-     validation package remain open. D7 sparse live-path timing remains
-     gated by `D-17`; `D-20` is held for Phase E; `D-21` remains held and does
-     not authorize v0.2/R6/R7 scope. Continue to honor the
+     validation package remain open. D7 sparse live-path timing is ruled by
+     `DEC-050`: add a live sparse evidence lane while dense remains default,
+     with profile-direct assembly/default promotion as follow-on work. `D-20`
+     is held for Phase E; `D-21` remains held and does not authorize
+     v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default
      writes, no network/telemetry feature, no live external SDK/harness or
      `D-21` promotion, and no release-readiness/professional/code-compliance

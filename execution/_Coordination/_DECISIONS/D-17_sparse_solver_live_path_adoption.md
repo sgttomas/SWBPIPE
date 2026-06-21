@@ -1,6 +1,6 @@
 # D-17 - Sparse Solver Live-Path Adoption Timing
 
-**Status:** AWAITING_RULING - packet drafted; no ruling recorded. Only the human project authority rules.
+**Status:** RULED - human project authority approved Option B; ruling recorded as `DEC-050`.
 **Prepared:** 2026-06-21 by WORKING_ITEMS, per the Application Integration And Issuance Loop decision-escalation step.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-17.
 **Plan basis:** `plans/PLAN_2026-06-17_prd_completion.md` §2.3 row D-17 and Phase D row D7.
@@ -297,10 +297,16 @@ Recommended implementation shape if O-B is accepted:
 
 ## 7. Ruling Record
 
-`TBD`. Human project authority has not ruled D-17. On ruling, record the
-accepted option in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (or the
-successor governing register), update `_REGISTER.md`, then select the follow-on
-D7 implementation tranche.
+**Ruling:** approved Option B on 2026-06-21.
+
+**Ruling record:** `DEC-050` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
+
+Accepted wording: bind `core/solver/sparse_direct` into the R4 live solve
+boundary as an explicit sparse evidence lane while dense remains the default
+product path and parity oracle. Record sparse diagnostics, residuals, and
+sparse-vs-dense parity on invented product/nonlinear fixtures. Leave
+profile-direct assembly and default sparse promotion as follow-on work.
 
 ---
 

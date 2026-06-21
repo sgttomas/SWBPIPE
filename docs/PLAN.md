@@ -156,24 +156,24 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
   `TP-R4-D9-FRICTIONSEED-001`, and
   `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`,
   `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVOBS-001`, and
-  `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D9-FORCEDISPRESID-001`, and `TP-R4-D9-PRODPOLICY-001`; D5 is gated by `D-15`, whose packet is
-  prepared and awaiting human ruling.
+  `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D9-FORCEDISPRESID-001`, and
+  `TP-R4-D9-PRODPOLICY-001`; D5 is unblocked by `DEC-049` and now requires a
+  minimal dedicated user-entered spring-hanger model rather than generic
+  `spring` alone.
 - **The two R2-carried R3-exit residuals are closed for C5** by `DEC-047`.
   The stale TP-MAC-189 path remains bypassed, not passed.
 - **Later stages** follow the completion plan: R5 (engineering beta and
   release machinery).
 - Stage advancement is human-ruled: agents propose with evidence; only a
   human-approved coordination update advances the target stage recorded in
-  `_COORDINATION.md`. If `D-15` is not yet ruled, the current Phase D D9
-  readiness packet is
+  `_COORDINATION.md`. The current Phase D D9 readiness packet is
   [VERIFICATION_2026-06-21_r4_exit_gap.md](../plans/VERIFICATION_2026-06-21_r4_exit_gap.md),
   which records **not ready** rather than R4 closure. `D-17` sparse live-path
-  decision-packet preparation is complete and the packet is awaiting ruling.
-  With `D-15` and `D-17` both awaiting ruling, no current Phase D
-  dependency-spine implementation item should be selected from those gates
-  until a ruling lands; only a clearly unblocked D6/D9 nonlinear residual under
-  `DEC-044` and `DEC-046` may proceed unless superseded by a later
-  human-approved tranche.
+  adoption timing is ruled by `DEC-050`: add a live sparse evidence lane while
+  dense remains default and profile-direct assembly/default promotion follow
+  on. The next ordinary Phase D dependency-spine item is D5 spring-hanger
+  implementation under `DEC-049`, followed by D7 sparse evidence-lane adoption
+  when sequencing reaches it.
 
 ## 5. Non-goals and boundary prohibitions
 

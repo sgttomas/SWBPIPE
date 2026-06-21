@@ -31,16 +31,17 @@ R4 deliverable families named by the same section:
 | Branch objects | `TP-R4-D2-BRANCHSTRESS-001` landed branch-object app/report provenance and side-specific user-entered multiplier evidence; `TP-R4-D9-BRANCHASSEMBLY-001` added the public-original PRD 16.2 branch-assembly mechanics benchmark. | Demonstrated for invented preview path plus one mechanics benchmark |
 | Rigid valves/flanges/reducers | `TP-R4-D3-RIGIDVIS-001` landed rigid/semi-rigid component visibility, provenance, diagnostics, native-package/report evidence, and no frame-stiffness behavior change. | Demonstrated for invented preview path; full rigid macro-element solve remains out of scope |
 | Expansion joints | `TP-R4-D4-EJSTIFF-001` landed expansion-joint mapping, provenance, user-entered stiffness rows, diagnostics, and review rows under `DEC-045`. | Demonstrated for invented preview path; pressure-thrust load generation and full assembled macro-element solve remain out of scope |
-| Spring hangers | `D-15_spring_hanger_scope.md` is prepared and awaiting human ruling. The current public implementation still has only the generic `spring` support path, not dedicated constant-effort / variable-rate hanger behavior. | **Not ready** |
+| Spring hangers | `D-15_spring_hanger_scope.md` is ruled by `DEC-049` Option B: R4 D5 requires a minimal dedicated user-entered spring-hanger model, and generic `spring` alone is insufficient. The current public implementation still has only the generic `spring` support path, not dedicated constant-effort / variable-rate hanger behavior. | **Not ready** |
 | Gaps/lift-off/friction validation | `TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-CONVOBS-001`, and `TP-R4-D9-CONVPOLICY-001` provide current assembled dense-loop validation seeds for one-way, gap, lift-off, and friction classes. The accepted policy is `DEC-046-CV-B-active-set-count-validation-v1`, limited to the current assembled validation seed and active-set changed-support-count residual. | Partially demonstrated; non-seed convergence thresholds remain open |
 | Product-preview nonlinear path | `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D6-LIVEBUNDLE-001`, and `TP-R4-D9-PRODPOLICY-001` show dense-loop product-preview evidence for invented nonlinear supports. The active-set-count preview policy is accepted as `DEC-046-CV-B-product-preview-active-set-count-v1`; force/displacement and release/external threshold axes remain `TBD`. | Evidence exists; not release-policy complete |
 | Component provenance in reports | `TP-R4-D8-COMPPROVREPORT-001` carries component provenance and missing-provenance warnings into `ReportSections` and the deterministic hash-bound rendered HTML report. | Demonstrated for current invented component paths |
 
 ## Blocking Gaps
 
-1. **D5 spring-hanger scope remains human-gated.** `D-15` is prepared and
-   awaiting human ruling. Until the human rules the spring-hanger scope and
-   the selected behavior is implemented or explicitly deferred, R4 cannot be
+1. **D5 spring-hanger implementation remains open.** `D-15` is ruled by
+   `DEC-049` Option B: generic `spring` alone is insufficient, and R4 D5
+   requires a minimal dedicated user-entered spring-hanger model. Until that
+   selected behavior is implemented or explicitly deferred, R4 cannot be
    treated as complete.
 2. **The accepted convergence policy is intentionally narrow.**
    `DEC-046-CV-B-active-set-count-validation-v1` applies only to the current
@@ -48,10 +49,11 @@ R4 deliverable families named by the same section:
    changed-support-count residual. It does not govern force residuals,
    displacement residuals, energy residuals, sparse live-path behavior,
    product-preview non-active-set threshold axes, or external validation thresholds.
-3. **Sparse live-path adoption is still gated by `D-17`.** The sparse solver
-   crate exists from earlier work, but `frame_kernel` / `product_physics` still
-   use the dense live path. The `D-17` packet is prepared and awaiting human
-   ruling before sparse adoption can proceed.
+3. **Sparse live-path adoption remains open under `DEC-050`.** The sparse
+   solver crate exists from earlier work, but `frame_kernel` /
+   `product_physics` still use the dense live path. `D-17` is ruled by
+   `DEC-050` Option B: add an R4 live sparse evidence lane while dense remains
+   default; profile-direct assembly and default sparse promotion follow on.
 4. **No human R4 exit review packet is ready.** This file is a gap packet, not
    the final `VERIFICATION_<date>_r4_exit_chain.md` successor for human R4 exit
    review.
@@ -77,8 +79,7 @@ R4 is **not ready** for human exit review. The strongest current evidence is:
 - current assembled nonlinear validation seeds converge under the accepted
   active-set-count policy for one-way, gap, lift-off, and friction classes.
 
-The decisive blockers are `D-15` / D5 spring-hanger scope, `D-17` / sparse
-live-path adoption, and the intentionally unpromoted convergence-policy
-surfaces outside the current assembled validation seed. Both `D-15` and `D-17`
-are prepared and awaiting human ruling; no current Phase D dependency-spine
-implementation item should be selected from those gates until a ruling lands.
+The decisive blockers are D5 spring-hanger implementation under `DEC-049`,
+D7 sparse live evidence-lane adoption under `DEC-050`, and the intentionally
+unpromoted convergence-policy surfaces outside the current assembled validation
+seed. The next ordinary Phase D dependency-spine implementation item is D5.

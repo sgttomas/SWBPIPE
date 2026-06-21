@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - D-15/D-17 rulings recorded (`TP-R4-D15D17-RULINGS-001`)
+
+Recorded the human project authority rulings for the two pending Phase D
+packets:
+
+- `D-15` approved Option B as `DEC-049`: R4 D5 requires a minimal dedicated
+  user-entered spring-hanger model; generic `spring` alone is insufficient; no
+  catalog sizing, protected defaults, hidden support values, or
+  professional/code-compliance claim is authorized.
+- `D-17` approved Option B as `DEC-050`: add an R4 live sparse evidence lane
+  while dense remains the default product path and parity oracle; profile-direct
+  assembly and default sparse promotion follow on.
+
+Updated the decision register, packet status/ruling sections, completion plan,
+roadmap, current R4 gap packet, coordination record, and the next-instance
+prompt state summary. The next ordinary Phase D dependency-spine item is D5
+spring-hanger implementation under `DEC-049`; D7 sparse evidence-lane adoption
+is ruled and remains later in the spine under `DEC-050`.
+
+Validation: the initial full DEC-025 evidence sweep exposed a desktop Vitest
+timing failure in the primitive-load deletion test; the test now waits for the
+resolved model-metadata unit basis before asserting the preview token. Focused
+Vitest passed for that case; `npm run test:desktop` passed; the final full
+DEC-025 sweep passed in
+`validation/evidence/sweeps/SWEEP_20260621T190328Z_0313bfb0302d-dirty.json`;
+final `git diff --check` passed.
+
+Boundary: ruling-record / planning text only; no source behavior, schema,
+lifecycle transition, target-stage advancement, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D9 gap-packet refresh (`TP-R4-D9-GAPREFRESH-001`)
 
 Refreshed the derivative R4 exit-readiness gap packet after the D-17 decision
