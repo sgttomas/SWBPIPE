@@ -14,6 +14,34 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-20 - C5 closure and R3 exit-chain verification packet (`TP-R3VERIFY-001`)
+
+Recorded the human acceptance of the replacement C5 closure criterion and
+assembled the R3 exit-chain verification packet for human review. The accepted
+replacement criterion is the 3D/model-first product posture from the 2026-06-20
+human direction: the primary screen is centered on the 3D model and visual
+interaction, workflow/data-entry chrome no longer clutters the idle default
+screen, and a primary local `Design Agent` panel is present. The stale
+TP-MAC-189 packaged re-pass path remains bypassed, not passed.
+
+Evidence: `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`; `apps/desktop/SMOKE.md`
+TP-MAC-190; DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-20_TP-R3VERIFY-001.md`; `DEC-047` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
+
+Verdict: F-4/A3 are closed for the replacement C5 criterion, and C5.8 is
+assembled for the human R3 exit review. R3 exit review and any R3-to-R4 stage
+advancement remain human-gated.
+
+Boundary: evidence/coordination only. No app code, schema, solver, evaluator,
+persistence, package artifact, live embedded-agent runtime, external
+SDK/harness consumption, autonomous accepted-model mutation, private-data write
+path, protected-content source, network/telemetry feature, lifecycle,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-20 - Primary canvas contextual authoring drawer (`TP-R3UX-PRIMARYCANVAS-001`)
 
 Landed the next human-feedback pass after `TP-R3UX-AGENTSHELL-001`. The

@@ -6210,6 +6210,28 @@ notes:
   no lifecycle, release-readiness, professional approval, certification,
   sealing, authentication, or code-compliance claim.
 
+## TP-MAC-190 R3 exit-chain verification packet - PREPARED (`TP-R3VERIFY-001`, 2026-06-20)
+
+- Scope: C5.8 evidence assembly after the human accepted the replacement C5
+  closure criterion. This packet prepares the R3 exit review evidence; it does
+  not pass the R3 exit review or advance the stage.
+- Human status: F-4/A3 are closed for the replacement C5 criterion by the
+  2026-06-20 human ruling. The stale TP-MAC-189 packaged re-pass path remains
+  bypassed, not retroactively passed.
+- Evidence package: `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`.
+- Run record: DEL-07-06
+  `_run_records/WORKING_ITEMS_RUN_2026-06-20_TP-R3VERIFY-001.md`.
+- Evidence basis: C1-C4 SMOKE TP-MAC-147..167 and TP-MAC-180; C5 SMOKE
+  TP-MAC-183..188 and TP-MAC-272..277; latest app-code validation/package
+  evidence at commit `3abf5d9bb`, including DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260621T014041Z_9586deb6c15e.json`.
+- Boundary review: evidence and coordination only. No app code, schema, solver,
+  evaluator, persistence, package artifact, private-data behavior, network or
+  telemetry feature, live agent runtime, external SDK/harness consumption,
+  autonomous model mutation, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## TP-MAC-191 support linear-stiffness unit authoring - PASSED (`TP-UNITS-BTAIL-SUPPORTUNITS-001`, 2026-06-17)
 
 - Scope: bounded Phase B-tail support unit I/O slice while C5.7 remains

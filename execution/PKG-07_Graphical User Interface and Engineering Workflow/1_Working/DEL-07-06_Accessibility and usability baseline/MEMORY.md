@@ -1,5 +1,10 @@
 # DEL-07-06 Memory
 
+Current C5 status: C5 is closed by the 2026-06-20 replacement-criterion human
+ruling (`DEC-047`) and the R3 exit-chain packet is assembled as
+`TP-R3VERIFY-001` / SMOKE TP-MAC-190. Older entries below that say F-4/A3
+remain open are historical pre-closure state.
+
 ## 2026-06-20 - TP-R3UX-CREATIONTOOLS-001 object-creation toolbar
 
 WORKING_ITEMS completed the remaining C5.7R CAD-shell builder increment
@@ -486,3 +491,25 @@ successor journey evidence. Next unblocked C5 tranche is
   schema, solver, evaluator, persistence, protected content, private data,
   network/telemetry, lifecycle, release-readiness, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-20 - TP-R3VERIFY-001 C5 closure and R3 exit-chain packet
+
+- Human accepted that the replacement C5 conditions have been fulfilled and
+  authorized C5 closure. F-4/A3 are closed for the replacement C5 criterion;
+  TP-MAC-189 remains bypassed, not passed.
+- Assembled the derivative R3 exit-chain verification packet for human review:
+  `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-20_TP-R3VERIFY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-190; `DEC-047` in
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
+- Evidence basis: C1-C4 SMOKE TP-MAC-147..167 and TP-MAC-180; C5 SMOKE
+  TP-MAC-183..188 and TP-MAC-272..277; latest app-code validation/package
+  evidence at commit `3abf5d9bb`.
+- Boundary preserved: evidence/coordination only. No R3 exit review passed, no
+  R3-to-R4 stage advancement, and no app code, schema, solver, evaluator,
+  persistence, package artifact, live embedded-agent runtime, external
+  SDK/harness consumption, autonomous mutation, private-data write path,
+  protected-content source, network/telemetry feature, lifecycle,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

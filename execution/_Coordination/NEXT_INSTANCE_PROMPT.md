@@ -64,7 +64,8 @@
      explicitly overrides. C5.1-C5.6 are landed. **The C5.7 human packaged
      pass was run and FAILED on usability (2026-06-18): "a wall of
      evidence/telemetry strings, three competing navigation systems, the model
-     a postage stamp" — F-4 and the A3 authoring-usability finding stay open.**
+     a postage stamp" — F-4 and the A3 authoring-usability finding stayed open
+     at that point.**
      The human-approved repair tranche **C5.7R** has landed through the
      2026-06-20 agent-first viewport-shell redirect: workspace redesign Inc
      0-5 (`TP-R3UX-WORKSPACEREDESIGN-001`, TP-MAC-272), Grid mode
@@ -79,10 +80,12 @@
      2026-06-20 human redirect explicitly bypassed the stale TP-MAC-189 re-pass
      path instead of passing it: the primary screen must be a 3D model /
      visual-interaction surface with an agent panel, not a heavily user-laden
-     workflow/data-entry screen. F-4/A3 remain open under `DEC-035` vocabulary
-     until the human accepts a replacement C5.7 closure criterion or records a
-     new gate; C5.8 should not begin until that replacement human closure
-     exists. Honor the scope
+     workflow/data-entry screen. The human then accepted that replacement C5
+     criterion as fulfilled on 2026-06-20; F-4/A3 are closed for C5, and C5.8
+     landed as `TP-R3VERIFY-001` / SMOKE TP-MAC-190 with
+     `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`. The next gate is the
+     human R3 exit review and any R3-to-R4 stage advancement; do not begin Phase
+     D/R4 implementation until that gate is ruled. Honor the scope
      boundaries: agent panel is local deterministic review-only (`DEC-042`);
      no live external SDK/harness or `D-21` promotion; `DEC-037` structured
      rule composer/no writable text; dual units display-only; no new engine
