@@ -106,6 +106,15 @@ pub struct Quantity {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct VectorQuantity {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    #[allow(dead_code)]
+    pub unit: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct PreviewComponent {
     pub id: String,
     #[serde(default)]
@@ -150,6 +159,26 @@ pub struct ComponentGeometryInput {
     pub branch_reinforcement_reference: Option<String>,
     #[serde(default)]
     pub branch_geometry_source_reference: Option<String>,
+    #[serde(default)]
+    pub rigid_pipe_ref: Option<String>,
+    #[serde(default)]
+    pub rigid_body_length: Option<Quantity>,
+    #[serde(default)]
+    pub end_a_size: Option<Quantity>,
+    #[serde(default)]
+    pub end_b_size: Option<Quantity>,
+    #[serde(default)]
+    pub weight: Option<Quantity>,
+    #[serde(default)]
+    pub center_of_gravity: Option<VectorQuantity>,
+    #[serde(default)]
+    pub connection_end_a_reference: Option<String>,
+    #[serde(default)]
+    pub connection_end_b_reference: Option<String>,
+    #[serde(default)]
+    pub stiffness_behavior_reference: Option<String>,
+    #[serde(default)]
+    pub rigid_component_source_reference: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -162,6 +191,12 @@ pub struct ComponentModifierInput {
     pub branch_branch_sif_user_value: Option<Quantity>,
     #[serde(default)]
     pub flexibility_factor_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub stiffness_scaling_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub linear_stiffness_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub rotational_stiffness_user_value: Option<Quantity>,
     #[serde(default)]
     pub source_reference: Option<String>,
 }
@@ -1170,6 +1205,10 @@ fn normalize_model_units(
             component.kind.as_str(),
             "branch" | "tee" | "branch_connection"
         );
+        let is_rigid = matches!(
+            component.kind.as_str(),
+            "valve" | "flange" | "reducer" | "rigid" | "specialty"
+        );
         if let Some(geometry) = &mut component.geometry {
             if is_bend {
                 if let Some(radius) = &mut geometry.bend_radius {
@@ -1251,6 +1290,74 @@ fn normalize_model_units(
                         vec![
                             component.id.clone(),
                             "geometry.branch_reinforcement_area".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
+            if is_rigid {
+                if let Some(length) = &mut geometry.rigid_body_length {
+                    normalize_quantity(
+                        length,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:rigid-body-length",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.rigid_body_length".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(size) = &mut geometry.end_a_size {
+                    normalize_quantity(
+                        size,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:end-a-size",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.end_a_size".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(size) = &mut geometry.end_b_size {
+                    normalize_quantity(
+                        size,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:end-b-size",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.end_b_size".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(weight) = &mut geometry.weight {
+                    normalize_quantity(
+                        weight,
+                        Dimension::Force,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:weight",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.weight".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(cog) = &mut geometry.center_of_gravity {
+                    normalize_vector_quantity(
+                        cog,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:center-of-gravity",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.center_of_gravity".to_string(),
                         ],
                         diagnostics,
                     );
@@ -1340,6 +1447,52 @@ fn normalize_model_units(
                     diagnostics,
                 );
             }
+            if is_rigid {
+                if let Some(scale) = &mut modifiers.stiffness_scaling_user_value {
+                    normalize_dimensionless_quantity(
+                        scale,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:stiffness-scaling",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.stiffness_scaling_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &mut modifiers.linear_stiffness_user_value {
+                    normalize_quantity(
+                        stiffness,
+                        Dimension::LinearStiffness,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:linear-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.linear_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &mut modifiers.rotational_stiffness_user_value {
+                    normalize_quantity(
+                        stiffness,
+                        Dimension::RotationalStiffness,
+                        &format!(
+                            "diagnostic:unit-conversion:component:{}:rotational-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.rotational_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
         }
     }
 
@@ -1422,6 +1575,47 @@ fn normalize_quantity(
             affected_refs,
         )),
     }
+}
+
+fn normalize_vector_quantity(
+    quantity: &mut VectorQuantity,
+    dimension: Dimension,
+    diagnostic_id: &str,
+    affected_refs: Vec<String>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let original_unit = quantity.unit.clone();
+    let mut x = Quantity {
+        value: quantity.x,
+        unit: original_unit.clone(),
+    };
+    let mut y = Quantity {
+        value: quantity.y,
+        unit: original_unit.clone(),
+    };
+    let mut z = Quantity {
+        value: quantity.z,
+        unit: original_unit,
+    };
+    normalize_quantity(
+        &mut x,
+        dimension,
+        diagnostic_id,
+        affected_refs.clone(),
+        diagnostics,
+    );
+    normalize_quantity(
+        &mut y,
+        dimension,
+        diagnostic_id,
+        affected_refs.clone(),
+        diagnostics,
+    );
+    normalize_quantity(&mut z, dimension, diagnostic_id, affected_refs, diagnostics);
+    quantity.x = x.value;
+    quantity.y = y.value;
+    quantity.z = z.value;
+    quantity.unit = x.unit;
 }
 
 fn unit_conversion_diag(

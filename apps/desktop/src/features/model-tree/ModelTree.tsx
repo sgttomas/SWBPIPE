@@ -11,7 +11,15 @@ type Props = {
 };
 
 type LayoutMode = "tree" | "grid";
-type GridEntityType = "materials" | "sections" | "nodes" | "pipes" | "supports" | "components" | "load_cases" | "combinations";
+type GridEntityType =
+  | "materials"
+  | "sections"
+  | "nodes"
+  | "pipes"
+  | "supports"
+  | "components"
+  | "load_cases"
+  | "combinations";
 
 const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = [
   { id: "nodes", label: "Nodes" },
@@ -247,7 +255,15 @@ function buildTree(model: PreviewModel): TreeModel {
         label: support.label,
         detail: support.id,
         icon: <Box size={14} aria-hidden="true" />,
-        keywords: [support.id, support.label, support.node, support.restraints.join(" "), support.provenance, "support", "supports"]
+        keywords: [
+          support.id,
+          support.label,
+          support.node,
+          support.restraints.join(" "),
+          support.provenance,
+          "support",
+          "supports"
+        ]
       }))
     },
     {
@@ -278,7 +294,15 @@ function buildTree(model: PreviewModel): TreeModel {
         label: loadCase.label,
         detail: loadCase.id,
         icon: <Zap size={14} aria-hidden="true" />,
-        keywords: [loadCase.id, loadCase.label, loadCase.kind, loadCase.status, loadCase.provenance, "load", "load case"]
+        keywords: [
+          loadCase.id,
+          loadCase.label,
+          loadCase.kind,
+          loadCase.status,
+          loadCase.provenance,
+          "load",
+          "load case"
+        ]
       }))
     },
     {
@@ -290,7 +314,14 @@ function buildTree(model: PreviewModel): TreeModel {
           label: combination.label,
           detail: combination.id,
           icon: <GitBranch size={14} aria-hidden="true" />,
-          keywords: [combination.id, combination.label, combination.basis, combination.provenance, "combination", "combinations"]
+          keywords: [
+            combination.id,
+            combination.label,
+            combination.basis,
+            combination.provenance,
+            "combination",
+            "combinations"
+          ]
         })) ?? []
     }
   ].filter((group) => group.items.length > 0);
@@ -308,21 +339,49 @@ function provenanceKeyword(provenance: string | Record<string, unknown>): string
 
 function componentKeyword(component: PreviewModel["components"][number]): string {
   return [
-    component.geometry?.bend_radius ? `${component.geometry.bend_radius.value} ${component.geometry.bend_radius.unit}` : "",
-    component.geometry?.bend_angle ? `${component.geometry.bend_angle.value} ${component.geometry.bend_angle.unit}` : "",
+    component.geometry?.bend_radius
+      ? `${component.geometry.bend_radius.value} ${component.geometry.bend_radius.unit}`
+      : "",
+    component.geometry?.bend_angle
+      ? `${component.geometry.bend_angle.value} ${component.geometry.bend_angle.unit}`
+      : "",
     component.geometry?.bend_plane_orientation ?? "",
     component.geometry?.bend_geometry_source_reference ?? "",
     component.geometry?.branch_header_pipe_ref ?? "",
     component.geometry?.branch_branch_pipe_ref ?? "",
-    component.geometry?.branch_run_size ? `${component.geometry.branch_run_size.value} ${component.geometry.branch_run_size.unit}` : "",
-    component.geometry?.branch_header_size ? `${component.geometry.branch_header_size.value} ${component.geometry.branch_header_size.unit}` : "",
+    component.geometry?.branch_run_size
+      ? `${component.geometry.branch_run_size.value} ${component.geometry.branch_run_size.unit}`
+      : "",
+    component.geometry?.branch_header_size
+      ? `${component.geometry.branch_header_size.value} ${component.geometry.branch_header_size.unit}`
+      : "",
     component.geometry?.branch_connection_angle
       ? `${component.geometry.branch_connection_angle.value} ${component.geometry.branch_connection_angle.unit}`
       : "",
     component.geometry?.branch_connection_type ?? "",
     component.geometry?.branch_reinforcement_reference ?? "",
     component.geometry?.branch_geometry_source_reference ?? "",
-    component.modifiers?.sif_user_value ? `${component.modifiers.sif_user_value.value} ${component.modifiers.sif_user_value.unit}` : "",
+    component.geometry?.rigid_pipe_ref ?? "",
+    component.geometry?.rigid_body_length
+      ? `${component.geometry.rigid_body_length.value} ${component.geometry.rigid_body_length.unit}`
+      : "",
+    component.geometry?.end_a_size
+      ? `${component.geometry.end_a_size.value} ${component.geometry.end_a_size.unit}`
+      : "",
+    component.geometry?.end_b_size
+      ? `${component.geometry.end_b_size.value} ${component.geometry.end_b_size.unit}`
+      : "",
+    component.geometry?.weight ? `${component.geometry.weight.value} ${component.geometry.weight.unit}` : "",
+    component.geometry?.center_of_gravity
+      ? `${component.geometry.center_of_gravity.x} ${component.geometry.center_of_gravity.y} ${component.geometry.center_of_gravity.z} ${component.geometry.center_of_gravity.unit}`
+      : "",
+    component.geometry?.connection_end_a_reference ?? "",
+    component.geometry?.connection_end_b_reference ?? "",
+    component.geometry?.stiffness_behavior_reference ?? "",
+    component.geometry?.rigid_component_source_reference ?? "",
+    component.modifiers?.sif_user_value
+      ? `${component.modifiers.sif_user_value.value} ${component.modifiers.sif_user_value.unit}`
+      : "",
     component.modifiers?.branch_header_sif_user_value
       ? `${component.modifiers.branch_header_sif_user_value.value} ${component.modifiers.branch_header_sif_user_value.unit}`
       : "",
@@ -331,6 +390,15 @@ function componentKeyword(component: PreviewModel["components"][number]): string
       : "",
     component.modifiers?.flexibility_factor_user_value
       ? `${component.modifiers.flexibility_factor_user_value.value} ${component.modifiers.flexibility_factor_user_value.unit}`
+      : "",
+    component.modifiers?.stiffness_scaling_user_value
+      ? `${component.modifiers.stiffness_scaling_user_value.value} ${component.modifiers.stiffness_scaling_user_value.unit}`
+      : "",
+    component.modifiers?.linear_stiffness_user_value
+      ? `${component.modifiers.linear_stiffness_user_value.value} ${component.modifiers.linear_stiffness_user_value.unit}`
+      : "",
+    component.modifiers?.rotational_stiffness_user_value
+      ? `${component.modifiers.rotational_stiffness_user_value.value} ${component.modifiers.rotational_stiffness_user_value.unit}`
       : "",
     component.modifiers?.source_reference ?? "",
     component.mechanics_interface?.solver_consumption ?? "",
@@ -376,15 +444,7 @@ function TreeGroup({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function TreeButton({
-  active,
-  item,
-  onClick
-}: {
-  active: boolean;
-  item: TreeItem;
-  onClick: () => void;
-}) {
+function TreeButton({ active, item, onClick }: { active: boolean; item: TreeItem; onClick: () => void }) {
   return (
     <button
       className={`tree-row ${active ? "active" : ""}`}
@@ -472,9 +532,19 @@ function EntityGrid({
   function handleQueueChangedCells() {
     if (!onQueueIntent || changedCells.length === 0) return;
     changedCells.forEach(({ column, row, value }, index) => {
-      onQueueIntent(buildGridOperationIntent({ column, model, row, sequence: index + 1, value }));
+      onQueueIntent(
+        buildGridOperationIntent({
+          column,
+          model,
+          row,
+          sequence: index + 1,
+          value
+        })
+      );
     });
-    setQueuedMessage(`Queued ${changedCells.length} review intent${changedCells.length === 1 ? "" : "s"} from Grid mode.`);
+    setQueuedMessage(
+      `Queued ${changedCells.length} review intent${changedCells.length === 1 ? "" : "s"} from Grid mode.`
+    );
     setDrafts({});
   }
 
@@ -495,7 +565,8 @@ function EntityGrid({
       </div>
       <div className="entity-grid-summary">
         <span data-testid="entity-grid-summary">
-          {visibleRows.length} of {rows.length} {GRID_ENTITY_TYPES.find((item) => item.id === entityType)?.label ?? "rows"}
+          {visibleRows.length} of {rows.length}{" "}
+          {GRID_ENTITY_TYPES.find((item) => item.id === entityType)?.label ?? "rows"}
         </span>
         <span data-testid="entity-grid-change-count">{changedCells.length} changed cells</span>
       </div>
@@ -530,7 +601,9 @@ function EntityGrid({
                   return (
                     <td key={column.key}>
                       {column.readonly ? (
-                        <span data-testid={`entity-grid-cell-${safeToken(row.id)}-${safeToken(column.key)}`}>{value}</span>
+                        <span data-testid={`entity-grid-cell-${safeToken(row.id)}-${safeToken(column.key)}`}>
+                          {value}
+                        </span>
                       ) : (
                         <input
                           aria-label={`${row.id} ${column.label}`}
@@ -573,7 +646,8 @@ function EntityGrid({
         </button>
       </div>
       <p className="muted entity-grid-boundary" data-testid="entity-grid-boundary">
-        Grid mode fans each changed cell into a structured review intent; storage remains local and professional approval is not recorded.
+        Grid mode fans each changed cell into a structured review intent; storage remains local and professional
+        approval is not recorded.
       </p>
       {queuedMessage ? (
         <p className="entity-grid-queued" data-testid="entity-grid-queued-message">
@@ -586,11 +660,9 @@ function EntityGrid({
 
 function gridRows(model: PreviewModel, entityType: GridEntityType): GridRow[] {
   if (entityType === "materials") {
-    return (model.materials ?? []).map((material) => row(material.id, material.label, "material", material, [
-      material.id,
-      material.label,
-      material.provenance
-    ]));
+    return (model.materials ?? []).map((material) =>
+      row(material.id, material.label, "material", material, [material.id, material.label, material.provenance])
+    );
   }
   if (entityType === "sections") {
     return (model.sections ?? []).map((section) =>
@@ -682,8 +754,22 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
     return [
       scalarGridColumn("label", "Label", "label", "Support", "support label only", "update_support"),
       scalarGridColumn("node", "Node", "node", "Support", "target node reference", "update_support"),
-      scalarGridColumn("restraints", "Restraints", "restraints", "Support", "restraint direction set", "update_support"),
-      scalarGridColumn("provenance", "Provenance", "provenance", "Support", "public/private source note", "update_support")
+      scalarGridColumn(
+        "restraints",
+        "Restraints",
+        "restraints",
+        "Support",
+        "restraint direction set",
+        "update_support"
+      ),
+      scalarGridColumn(
+        "provenance",
+        "Provenance",
+        "provenance",
+        "Support",
+        "public/private source note",
+        "update_support"
+      )
     ];
   }
   if (entityType === "materials") {
@@ -691,7 +777,14 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
       scalarGridColumn("label", "Label", "label", "Material", "material label only"),
       quantityGridColumn("elastic", "Elastic", "elastic_modulus.value", "Material", "stress", "Pa"),
       quantityGridColumn("shear", "Shear", "shear_modulus.value", "Material", "stress", "Pa"),
-      quantityGridColumn("thermal", "Thermal", "thermal_expansion_coefficient.value", "Material", "thermal_expansion_coefficient", "1/degC"),
+      quantityGridColumn(
+        "thermal",
+        "Thermal",
+        "thermal_expansion_coefficient.value",
+        "Material",
+        "thermal_expansion_coefficient",
+        "1/degC"
+      ),
       scalarGridColumn("provenance", "Provenance", "provenance", "Material", "public/private source note")
     ];
   }
@@ -699,7 +792,14 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
     return [
       scalarGridColumn("name", "Name", "name", "Section", "section label only"),
       scalarGridColumn("type", "Type", "section_type", "Section", "section type"),
-      quantityGridColumn("outside", "Outside dia.", "properties.outside_diameter.value", "Section", "length", lengthUnit),
+      quantityGridColumn(
+        "outside",
+        "Outside dia.",
+        "properties.outside_diameter.value",
+        "Section",
+        "length",
+        lengthUnit
+      ),
       quantityGridColumn("wall", "Wall", "properties.wall_thickness.value", "Section", "length", lengthUnit),
       scalarGridColumn("provenance", "Provenance", "provenance", "Section", "public/private source note")
     ];
@@ -752,6 +852,54 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "modifiers.flexibility_factor_user_value.value",
         "Component",
         "user-entered modifier value; no code table default"
+      ),
+      scalarGridColumn(
+        "mapped-pipe",
+        "Mapped pipe",
+        "geometry.rigid_pipe_ref",
+        "Component",
+        "generic frame member mapping"
+      ),
+      quantityGridColumn(
+        "rigid-length",
+        "Rigid length",
+        "geometry.rigid_body_length.value",
+        "Component",
+        "length",
+        lengthUnit
+      ),
+      quantityGridColumn("end-a-size", "End A size", "geometry.end_a_size.value", "Component", "length", lengthUnit),
+      quantityGridColumn("end-b-size", "End B size", "geometry.end_b_size.value", "Component", "length", lengthUnit),
+      quantityGridColumn(
+        "weight",
+        "Weight",
+        "geometry.weight.value",
+        "Component",
+        "force",
+        model.project.units.force ?? "N"
+      ),
+      scalarGridColumn(
+        "stiffness-scale",
+        "Stiffness scale",
+        "modifiers.stiffness_scaling_user_value.value",
+        "Component",
+        "user-entered rigid stiffness scaling; no catalog default"
+      ),
+      quantityGridColumn(
+        "linear-stiffness",
+        "Linear stiffness",
+        "modifiers.linear_stiffness_user_value.value",
+        "Component",
+        "linear_stiffness",
+        "N/m"
+      ),
+      quantityGridColumn(
+        "rot-stiffness",
+        "Rot. stiffness",
+        "modifiers.rotational_stiffness_user_value.value",
+        "Component",
+        "rotational_stiffness",
+        "N*m/rad"
       ),
       scalarGridColumn("provenance", "Provenance", "provenance", "Component", "public/private source note")
     ];
@@ -895,7 +1043,8 @@ function buildGridOperationIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: column.dimension === "dimensionless" ? "not_required_dimensionless" : "model_metadata_unit_dimension_declared",
+      unit_validation:
+        column.dimension === "dimensionless" ? "not_required_dimensionless" : "model_metadata_unit_dimension_declared",
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },

@@ -10,7 +10,14 @@ import {
   unitDimensionValidationStatus,
   unitEntryMatchesDimension
 } from "../../services/unitCatalogService";
-import type { EditorOperationIntent, EntityRef, MechanicsResult, PreviewComponent, PreviewModel, Vec3 } from "../../types";
+import type {
+  EditorOperationIntent,
+  EntityRef,
+  MechanicsResult,
+  PreviewComponent,
+  PreviewModel,
+  Vec3
+} from "../../types";
 
 type Props = {
   armedCreationTool?: CreationTool | null;
@@ -86,7 +93,10 @@ export function PipeViewport({
 }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const draftProjectorRef = useRef<DraftProjector | null>(null);
-  const cameraStateRef = useRef<{ position: [number, number, number]; target: [number, number, number] } | null>(null);
+  const cameraStateRef = useRef<{
+    position: [number, number, number];
+    target: [number, number, number];
+  } | null>(null);
   const lastPresetRef = useRef<ViewPreset | null>(null);
   const pickRef = useRef<((event: { clientX: number; clientY: number }) => EntityRef | null) | null>(null);
   const selectionLayerRef = useRef<HTMLDivElement | null>(null);
@@ -200,14 +210,22 @@ export function PipeViewport({
     // Pickable meshes (raycast click-to-select) and the 3D anchor positions used
     // to keep the entity labels pinned to their part as the camera orbits.
     const pickables: THREE.Object3D[] = [];
-    const anchorPositions: Array<{ id: string; position: THREE.Vector3; offsetPct: number }> = [];
+    const anchorPositions: Array<{
+      id: string;
+      position: THREE.Vector3;
+      offsetPct: number;
+    }> = [];
     const tag = (object: THREE.Object3D, ref: EntityRef, position: Vec3) => {
       object.userData.entityRef = ref;
       pickables.push(object);
       // Co-located entities (a support/component sits on its node) would stack
       // their labels at the same screen point; nudge them apart vertically.
       const offsetPct = ref.type === "support" ? 8 : ref.type === "component" ? -8 : 0;
-      anchorPositions.push({ id: ref.id, position: new THREE.Vector3(position.x, position.y, position.z), offsetPct });
+      anchorPositions.push({
+        id: ref.id,
+        position: new THREE.Vector3(position.x, position.y, position.z),
+        offsetPct
+      });
     };
 
     for (const segment of model.pipe_segments) {
@@ -373,14 +391,24 @@ export function PipeViewport({
 
   function addExplicitNodeIntent() {
     if (!nodeDraftValid) return;
-    const intent = buildExplicitNodeIntent(model, nodeDraft, unitCatalogRoute, queuedIntents.length + localIntents.length + 1);
+    const intent = buildExplicitNodeIntent(
+      model,
+      nodeDraft,
+      unitCatalogRoute,
+      queuedIntents.length + localIntents.length + 1
+    );
     queueIntent(intent);
     setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
   }
 
   function addExplicitPipeIntent() {
     if (!pipeDraftValid) return;
-    const intent = buildExplicitPipeIntent(model, pipeDraft, unitCatalogRoute, queuedIntents.length + localIntents.length + 1);
+    const intent = buildExplicitPipeIntent(
+      model,
+      pipeDraft,
+      unitCatalogRoute,
+      queuedIntents.length + localIntents.length + 1
+    );
     queueIntent(intent);
     setPipeDraft(emptyPipeDraft(pipeDraft.lengthUnit || defaultLengthUnit));
     setPipeEndpointPickMode(null);
@@ -420,7 +448,8 @@ export function PipeViewport({
 
   function captureNodeDraftFromViewport(event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0 && event.button !== undefined) return;
-    const projected = draftProjectorRef.current?.(event) ?? fallbackDraftPointFromHostEvent(event.currentTarget, event, model);
+    const projected =
+      draftProjectorRef.current?.(event) ?? fallbackDraftPointFromHostEvent(event.currentTarget, event, model);
     if (!projected) return;
     setNodeDraft((current) =>
       buildDraftNodeFromViewportPoint(
@@ -508,27 +537,35 @@ export function PipeViewport({
           title="Click a part to select it; drag to orbit, scroll to zoom"
         />
         {showLabels ? (
-        <div className="viewport-selection-layer" aria-label="Viewport entity selection" data-testid="viewport-selection-layer" ref={selectionLayerRef}>
-          {selectionTargets.map((target) => {
-            const active = selection.id === target.ref.id;
-            return (
-              <button
-                aria-label={`Select ${target.label} in viewport`}
-                aria-pressed={active}
-                className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
-                data-testid={`viewport-select-${target.ref.id}`}
-                key={`${target.ref.type}:${target.ref.id}`}
-                onClick={() => chooseViewportTarget(target)}
-                style={{ left: `${target.screen.x}%`, top: `${target.screen.y}%` }}
-                title={`${target.label} (${target.ref.id})`}
-                type="button"
-              >
-                <ViewportTargetIcon kind={target.kind} />
-                <span>{shortEntityToken(target.ref.id)}</span>
-              </button>
-            );
-          })}
-        </div>
+          <div
+            className="viewport-selection-layer"
+            aria-label="Viewport entity selection"
+            data-testid="viewport-selection-layer"
+            ref={selectionLayerRef}
+          >
+            {selectionTargets.map((target) => {
+              const active = selection.id === target.ref.id;
+              return (
+                <button
+                  aria-label={`Select ${target.label} in viewport`}
+                  aria-pressed={active}
+                  className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
+                  data-testid={`viewport-select-${target.ref.id}`}
+                  key={`${target.ref.type}:${target.ref.id}`}
+                  onClick={() => chooseViewportTarget(target)}
+                  style={{
+                    left: `${target.screen.x}%`,
+                    top: `${target.screen.y}%`
+                  }}
+                  title={`${target.label} (${target.ref.id})`}
+                  type="button"
+                >
+                  <ViewportTargetIcon kind={target.kind} />
+                  <span>{shortEntityToken(target.ref.id)}</span>
+                </button>
+              );
+            })}
+          </div>
         ) : null}
         <div className="viewport-axis-triad" aria-label="Orientation gizmo" data-testid="viewport-axis-triad">
           <div className="viewport-gizmo-host" ref={gizmoHostRef} aria-hidden="true" />
@@ -911,11 +948,15 @@ export function PipeViewport({
         <div className="viewport-intent-list" data-testid="viewport-intent-list">
           {visibleIntents.length === 0 ? (
             <p data-testid="viewport-intent-empty">
-              Editor gestures create pending service-validation intents; they do not mutate persisted project data directly.
+              Editor gestures create pending service-validation intents; they do not mutate persisted project data
+              directly.
             </p>
           ) : (
             visibleIntents.map((intent) => (
-              <article key={intent.queue_id ?? intent.operation_id} data-testid={`viewport-intent-${intent.change.change_kind}`}>
+              <article
+                key={intent.queue_id ?? intent.operation_id}
+                data-testid={`viewport-intent-${intent.change.change_kind}`}
+              >
                 <strong>{intent.change.change_kind}</strong>
                 <span>pending_service_validation</span>
                 <small data-testid={`viewport-intent-unit-validation-${intent.change.change_kind}`}>
@@ -987,9 +1028,17 @@ function nextPipeDraftWithEndpoint(
   nodeId: string
 ): PipeDraft {
   if (mode === "from") {
-    return { ...current, from: nodeId, to: current.to === nodeId ? "" : current.to };
+    return {
+      ...current,
+      from: nodeId,
+      to: current.to === nodeId ? "" : current.to
+    };
   }
-  return { ...current, to: nodeId, from: current.from === nodeId ? "" : current.from };
+  return {
+    ...current,
+    to: nodeId,
+    from: current.from === nodeId ? "" : current.from
+  };
 }
 
 function isNodeDraftValid(draft: NodeDraft): boolean {
@@ -1003,13 +1052,13 @@ function isPipeDraftValid(draft: PipeDraft): boolean {
   return (
     Boolean(
       draft.id.trim() &&
-        draft.label.trim() &&
-        draft.from.trim() &&
-        draft.to.trim() &&
-        draft.from !== draft.to &&
-        draft.material.trim() &&
-        validUnitSymbol(draft.lengthUnit) &&
-        draft.provenance.trim()
+      draft.label.trim() &&
+      draft.from.trim() &&
+      draft.to.trim() &&
+      draft.from !== draft.to &&
+      draft.material.trim() &&
+      validUnitSymbol(draft.lengthUnit) &&
+      draft.provenance.trim()
     ) &&
     [draft.outsideDiameter, draft.wallThickness].every(isPositiveInput) &&
     [draft.yReferenceX, draft.yReferenceY, draft.yReferenceZ].every(isFiniteInput) &&
@@ -1031,7 +1080,10 @@ function validUnitSymbol(value: string): boolean {
 }
 
 function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
-  const fallback = { symbol: fallbackSymbol.trim() || "TBD", unit_id: "current" };
+  const fallback = {
+    symbol: fallbackSymbol.trim() || "TBD",
+    unit_id: "current"
+  };
   if (route?.route !== "tauri_unit_catalog") return [fallback];
   const options = route.catalog.entries
     .filter((entry) => entry.review_status === "accepted")
@@ -1093,7 +1145,11 @@ function raycastDraftPoint(
   return { x: intersection.x, y: intersection.y, z: intersection.z };
 }
 
-function fallbackDraftPointFromHostEvent(host: HTMLElement, event: { clientX: number; clientY: number }, model: PreviewModel): Vec3 {
+function fallbackDraftPointFromHostEvent(
+  host: HTMLElement,
+  event: { clientX: number; clientY: number },
+  model: PreviewModel
+): Vec3 {
   const position = eventPositionFraction(host, event);
   const bounds = selectionBounds(model.nodes.map((node) => node.position));
   const xPercent = clamp(position.x * 100, 12, 88);
@@ -1105,7 +1161,10 @@ function fallbackDraftPointFromHostEvent(host: HTMLElement, event: { clientX: nu
   };
 }
 
-function eventPositionFraction(element: HTMLElement, event: { clientX: number; clientY: number }): { x: number; y: number } {
+function eventPositionFraction(
+  element: HTMLElement,
+  event: { clientX: number; clientY: number }
+): { x: number; y: number } {
   const rect = element.getBoundingClientRect();
   const width = rect.width || element.clientWidth || 600;
   const height = rect.height || element.clientHeight || 320;
@@ -1125,7 +1184,12 @@ function ViewportTargetIcon({ kind }: { kind: ViewportSelectionTarget["kind"] })
 
 function viewportSelectionTargets(model: PreviewModel): ViewportSelectionTarget[] {
   const nodeMap = new Map(model.nodes.map((node) => [node.id, node.position]));
-  const rawTargets: Array<Omit<ViewportSelectionTarget, "screen"> & { position: Vec3; offsetY: number }> = [
+  const rawTargets: Array<
+    Omit<ViewportSelectionTarget, "screen"> & {
+      position: Vec3;
+      offsetY: number;
+    }
+  > = [
     ...model.nodes.map((node) => ({
       ref: { type: "node" as const, id: node.id },
       label: node.label,
@@ -1372,7 +1436,10 @@ function buildExplicitPipeIntent(
     from: draft.from.trim(),
     to: draft.to.trim(),
     section: {
-      outside_diameter: { value: Number(draft.outsideDiameter), unit: lengthUnit },
+      outside_diameter: {
+        value: Number(draft.outsideDiameter),
+        unit: lengthUnit
+      },
       wall_thickness: { value: Number(draft.wallThickness), unit: lengthUnit }
     },
     material: draft.material.trim(),
@@ -1434,7 +1501,10 @@ function buildExplicitPipeIntent(
 
 function viewportIntents(intents: EditorOperationIntent[]): EditorOperationIntent[] {
   return intents
-    .filter((intent) => intent.source?.source_role === "viewport_editor" || intent.operation_id.startsWith("op:viewport-intent-"))
+    .filter(
+      (intent) =>
+        intent.source?.source_role === "viewport_editor" || intent.operation_id.startsWith("op:viewport-intent-")
+    )
     .slice(0, 4);
 }
 
@@ -1453,14 +1523,24 @@ function viewportCommandUnitValidationStatus(
   return `length=${unitDimensionValidationStatus(unitCatalogRoute, lengthUnit, "length")}`;
 }
 
-function viewportTarget(commandType: ViewportCommandType, nodeRefs: string[], firstComponent: string): EditorOperationIntent["target"] {
+function viewportTarget(
+  commandType: ViewportCommandType,
+  nodeRefs: string[],
+  firstComponent: string
+): EditorOperationIntent["target"] {
   if (commandType === "create_node") {
     return { object_type: "Node", ref: "node:viewport-preview-created" };
   }
   if (commandType === "connect_pipe_run") {
-    return { object_type: "Element", ref: `pipe:viewport-preview:${safeToken(nodeRefs.join("-to-"))}` };
+    return {
+      object_type: "Element",
+      ref: `pipe:viewport-preview:${safeToken(nodeRefs.join("-to-"))}`
+    };
   }
-  return { object_type: "Component", ref: `component:viewport-preview:${safeToken(firstComponent)}` };
+  return {
+    object_type: "Component",
+    ref: `component:viewport-preview:${safeToken(firstComponent)}`
+  };
 }
 
 function viewportChange(
@@ -1513,14 +1593,20 @@ function marker(position: Vec3, color: number, radius: number) {
   return new THREE.Mesh(
     new THREE.SphereGeometry(radius, 24, 16),
     new THREE.MeshStandardMaterial({ color, roughness: 0.48 })
-  ).translateX(position.x).translateY(position.y).translateZ(position.z);
+  )
+    .translateX(position.x)
+    .translateY(position.y)
+    .translateZ(position.z);
 }
 
 function supportMesh(position: Vec3, active: boolean) {
   const group = new THREE.Group();
   const cone = new THREE.Mesh(
     new THREE.ConeGeometry(0.18, 0.34, 4),
-    new THREE.MeshStandardMaterial({ color: active ? 0xf08c22 : 0x6b7d49, roughness: 0.7 })
+    new THREE.MeshStandardMaterial({
+      color: active ? 0xf08c22 : 0x6b7d49,
+      roughness: 0.7
+    })
   );
   cone.position.set(position.x, position.y - 0.26, position.z);
   cone.rotation.y = Math.PI / 4;
@@ -1544,7 +1630,10 @@ function componentMesh(component: PreviewComponent, position: Vec3, active: bool
 
     const hub = new THREE.Mesh(
       new THREE.SphereGeometry(active ? 0.08 : 0.06, 18, 12),
-      new THREE.MeshStandardMaterial({ color: active ? 0xf08c22 : 0x2f6f73, roughness: 0.48 })
+      new THREE.MeshStandardMaterial({
+        color: active ? 0xf08c22 : 0x2f6f73,
+        roughness: 0.48
+      })
     );
     hub.position.set(position.x, position.y + 0.2, position.z);
     group.add(hub);
@@ -1568,16 +1657,56 @@ function componentMesh(component: PreviewComponent, position: Vec3, active: bool
 
     const hub = new THREE.Mesh(
       new THREE.SphereGeometry(active ? 0.085 : 0.065, 18, 12),
-      new THREE.MeshStandardMaterial({ color: active ? 0xf08c22 : 0x1f5c4c, roughness: 0.48 })
+      new THREE.MeshStandardMaterial({
+        color: active ? 0xf08c22 : 0x1f5c4c,
+        roughness: 0.48
+      })
     );
     hub.position.set(position.x, position.y + 0.2, position.z);
     group.add(hub);
     return group;
   }
+  if (isRigidComponent(component)) {
+    const group = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({
+      color: active ? 0xf08c22 : 0x33485f,
+      metalness: 0.2,
+      roughness: 0.46
+    });
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.34, 18), material);
+    body.position.set(position.x, position.y + 0.2, position.z);
+    body.rotation.z = Math.PI / 2;
+    group.add(body);
+
+    const bonnet = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.1, 0.12),
+      new THREE.MeshStandardMaterial({
+        color: active ? 0xf08c22 : 0x4c5d72,
+        roughness: 0.5
+      })
+    );
+    bonnet.position.set(position.x, position.y + 0.31, position.z);
+    group.add(bonnet);
+
+    const handwheel = new THREE.Mesh(
+      new THREE.TorusGeometry(0.07, 0.011, 8, 18),
+      new THREE.MeshStandardMaterial({
+        color: active ? 0xf08c22 : 0x273344,
+        roughness: 0.44
+      })
+    );
+    handwheel.position.set(position.x, position.y + 0.4, position.z);
+    handwheel.rotation.x = Math.PI / 2;
+    group.add(handwheel);
+    return group;
+  }
 
   const box = new THREE.Mesh(
     new THREE.BoxGeometry(0.24, 0.24, 0.24),
-    new THREE.MeshStandardMaterial({ color: active ? 0xf08c22 : 0x874c62, roughness: 0.52 })
+    new THREE.MeshStandardMaterial({
+      color: active ? 0xf08c22 : 0x874c62,
+      roughness: 0.52
+    })
   );
   box.position.set(position.x, position.y + 0.2, position.z);
   return box;
@@ -1589,6 +1718,10 @@ function isBendComponent(component: PreviewComponent): boolean {
 
 function isBranchComponent(component: PreviewComponent): boolean {
   return component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection";
+}
+
+function isRigidComponent(component: PreviewComponent): boolean {
+  return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
 }
 
 function deformedPipeMesh(from: Vec3, to: Vec3, active: boolean) {
@@ -1621,7 +1754,10 @@ function deformationMarker(position: Vec3, active: boolean) {
       roughness: 0.44,
       transparent: true
     })
-  ).translateX(position.x).translateY(position.y).translateZ(position.z);
+  )
+    .translateX(position.x)
+    .translateY(position.y)
+    .translateZ(position.z);
 }
 
 // Ground reference grid on the global XZ plane, centred under the model bounds
@@ -1719,7 +1855,12 @@ function axisLabelSprite(text: string, color: string, position: THREE.Vector3): 
     ctx.textBaseline = "middle";
     ctx.fillText(text, 32, 36);
   }
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true }));
+  const sprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(canvas),
+      transparent: true
+    })
+  );
   sprite.position.copy(position);
   sprite.scale.set(0.55, 0.55, 0.55);
   return sprite;
@@ -1753,7 +1894,11 @@ export function buildDeformationOverlay(model: PreviewModel, result: MechanicsRe
     if (row.kind !== "displacement_magnitude" || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
     const current = nodeValues.get(row.entity_ref);
     if (!current || Math.abs(row.value) > Math.abs(current.value)) {
-      nodeValues.set(row.entity_ref, { value: row.value, unit: row.unit, basisKey: rowBasisKey(row) });
+      nodeValues.set(row.entity_ref, {
+        value: row.value,
+        unit: row.unit,
+        basisKey: rowBasisKey(row)
+      });
     }
   }
   if (nodeValues.size === 0) {
@@ -1772,8 +1917,8 @@ export function buildDeformationOverlay(model: PreviewModel, result: MechanicsRe
   for (const row of result.results) {
     const axis = DISPLACEMENT_COMPONENT_AXES[row.kind];
     if (!axis || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
-    const perBasis: Map<string, Partial<Record<"x" | "y" | "z", number>>> =
-      nodeComponentVectors.get(row.entity_ref) ?? new Map();
+    const perBasis: Map<string, Partial<Record<"x" | "y" | "z", number>>> = nodeComponentVectors.get(row.entity_ref) ??
+    new Map();
     const vector = perBasis.get(rowBasisKey(row)) ?? {};
     vector[axis] = row.value;
     perBasis.set(rowBasisKey(row), vector);

@@ -42,7 +42,11 @@ export function EditorContractPanel({
   const packet = buildEditorContractPacket({ editorIntents, model });
 
   return (
-    <section className="panel editor-contract-panel" aria-label="Editor contract review" data-testid="editor-contract-panel">
+    <section
+      className="panel editor-contract-panel"
+      aria-label="Editor contract review"
+      data-testid="editor-contract-panel"
+    >
       <div className="panel-title">
         <SlidersHorizontal size={16} aria-hidden="true" />
         Editor Contract
@@ -58,8 +62,10 @@ export function EditorContractPanel({
           Editor JSON
         </a>
         <span data-testid="editor-contract-summary">
-          available; editors={packet.summary.editor_count}; surfaces={packet.summary.surface_count}; diagnostics=
-          {packet.summary.diagnostic_count}; private_payload={String(packet.private_payload_included)}
+          available; editors={packet.summary.editor_count}; surfaces=
+          {packet.summary.surface_count}; diagnostics=
+          {packet.summary.diagnostic_count}; private_payload=
+          {String(packet.private_payload_included)}
         </span>
       </div>
       <div className="report-list" data-testid="editor-contract-body">
@@ -119,11 +125,9 @@ function buildEditorContractPacket({
   editorIntents: EditorOperationIntent[];
   model: PreviewModel;
 }) {
-  const editors = [
-    ...materialEditors(model),
-    ...componentEditors(model),
-    rulePackReferenceEditor(model)
-  ].sort((left, right) => left.editor_id.localeCompare(right.editor_id));
+  const editors = [...materialEditors(model), ...componentEditors(model), rulePackReferenceEditor(model)].sort(
+    (left, right) => left.editor_id.localeCompare(right.editor_id)
+  );
   const diagnostics = editorDiagnostics(model);
   const blockedEditorCount = editors.filter((item) => item.validation_state !== "ready_for_service_validation").length;
   return {
@@ -194,8 +198,22 @@ function materialEditors(model: PreviewModel) {
     source_provenance: material.provenance,
     fields: [
       field("label", "Label", material.label, "dimensionless", "none", material.id),
-      field("elastic_modulus", "Elastic modulus", material.elastic_modulus.value, "stress", material.elastic_modulus.unit, material.id),
-      field("shear_modulus", "Shear modulus", material.shear_modulus.value, "stress", material.shear_modulus.unit, material.id),
+      field(
+        "elastic_modulus",
+        "Elastic modulus",
+        material.elastic_modulus.value,
+        "stress",
+        material.elastic_modulus.unit,
+        material.id
+      ),
+      field(
+        "shear_modulus",
+        "Shear modulus",
+        material.shear_modulus.value,
+        "stress",
+        material.shear_modulus.unit,
+        material.id
+      ),
       field(
         "thermal_expansion_coefficient",
         "Thermal expansion",
@@ -321,6 +339,86 @@ function componentEditors(model: PreviewModel) {
         )
       );
     }
+    if (isRigidComponent(component)) {
+      fields.splice(
+        3,
+        0,
+        field(
+          "geometry.rigid_pipe_ref",
+          "Mapped pipe",
+          component.geometry?.rigid_pipe_ref ?? "TBD",
+          "dimensionless",
+          "none",
+          component.id
+        ),
+        field(
+          "geometry.rigid_body_length.value",
+          "Rigid body length",
+          component.geometry?.rigid_body_length?.value ?? "TBD",
+          "length",
+          component.geometry?.rigid_body_length?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "geometry.end_a_size.value",
+          "End A size",
+          component.geometry?.end_a_size?.value ?? "TBD",
+          "length",
+          component.geometry?.end_a_size?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "geometry.end_b_size.value",
+          "End B size",
+          component.geometry?.end_b_size?.value ?? "TBD",
+          "length",
+          component.geometry?.end_b_size?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "geometry.weight.value",
+          "Weight",
+          component.geometry?.weight?.value ?? "TBD",
+          "force",
+          component.geometry?.weight?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "geometry.center_of_gravity",
+          "Center of gravity",
+          component.geometry?.center_of_gravity
+            ? `x=${component.geometry.center_of_gravity.x}, y=${component.geometry.center_of_gravity.y}, z=${component.geometry.center_of_gravity.z}`
+            : "TBD",
+          "length",
+          component.geometry?.center_of_gravity?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "modifiers.stiffness_scaling_user_value.value",
+          "Stiffness scale",
+          component.modifiers?.stiffness_scaling_user_value?.value ?? "TBD",
+          "dimensionless",
+          component.modifiers?.stiffness_scaling_user_value?.unit ?? "none",
+          component.id
+        ),
+        field(
+          "modifiers.linear_stiffness_user_value.value",
+          "Linear stiffness",
+          component.modifiers?.linear_stiffness_user_value?.value ?? "TBD",
+          "linear_stiffness",
+          component.modifiers?.linear_stiffness_user_value?.unit ?? "TBD",
+          component.id
+        ),
+        field(
+          "modifiers.rotational_stiffness_user_value.value",
+          "Rotational stiffness",
+          component.modifiers?.rotational_stiffness_user_value?.value ?? "TBD",
+          "rotational_stiffness",
+          component.modifiers?.rotational_stiffness_user_value?.unit ?? "TBD",
+          component.id
+        )
+      );
+    }
     return {
       editor_id: `editor:${safeRefToken(component.id)}:component`,
       editor_kind: "component" as EditorKind,
@@ -345,10 +443,24 @@ function rulePackReferenceEditor(model: PreviewModel) {
     library_classification: "private_reference_only",
     source_provenance: "private_rule_pack_not_loaded_in_public_preview",
     fields: [
-      field("rule_pack_id", "Rule pack ID", "rule-pack:user-supplied:not-loaded", "dimensionless", "none", model.project.id),
+      field(
+        "rule_pack_id",
+        "Rule pack ID",
+        "rule-pack:user-supplied:not-loaded",
+        "dimensionless",
+        "none",
+        model.project.id
+      ),
       field("version", "Version", "TBD", "dimensionless", "none", model.project.id),
       field("checksum", "Checksum", "TBD", "dimensionless", "none", model.project.id),
-      field("required_inputs", "Required inputs", model.analysis_status.rule_check, "dimensionless", "none", model.project.id)
+      field(
+        "required_inputs",
+        "Required inputs",
+        model.analysis_status.rule_check,
+        "dimensionless",
+        "none",
+        model.project.id
+      )
     ],
     rule_pack_lifecycle: {
       state: "referenced_placeholder",
@@ -435,8 +547,8 @@ function editorDiagnostics(model: PreviewModel): EditorDiagnostic[] {
         "PROVENANCE_WARNING",
         "warning",
         reference("component", component.id),
-        "Component correction data is intentionally absent from the public preview.",
-        "Treat SIF, flexibility, and proprietary component data as user-supplied or privately imported with provenance."
+        "Component correction or stiffness data is intentionally absent from the public preview.",
+        "Treat SIF, flexibility, stiffness, and proprietary component data as user-supplied or privately imported with provenance."
       )
     );
   }
@@ -454,12 +566,24 @@ function componentModifierProvenanceMissing(component: PreviewModel["components"
       component.modifiers.source_reference?.trim()
     );
   }
+  if (isRigidComponent(component)) {
+    return !(
+      component.modifiers?.stiffness_scaling_user_value &&
+      component.modifiers.linear_stiffness_user_value &&
+      component.modifiers.rotational_stiffness_user_value &&
+      component.modifiers.source_reference?.trim()
+    );
+  }
   if (component.kind !== "bend" && component.kind !== "elbow") return legacyMissingToken;
   return !(
     component.modifiers?.sif_user_value &&
     component.modifiers.flexibility_factor_user_value &&
     component.modifiers.source_reference?.trim()
   );
+}
+
+function isRigidComponent(component: PreviewModel["components"][number]): boolean {
+  return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
 }
 
 function field(
@@ -524,7 +648,8 @@ function previewProvenance() {
     source_location: "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
     source_license: "project-invented metadata only",
     contributor: "OpenPipeStress app integration tranche",
-    contributor_certification: "Invented editor metadata only; no protected standards, private project payload, private rule pack, or proprietary library payload.",
+    contributor_certification:
+      "Invented editor metadata only; no protected standards, private project payload, private rule pack, or proprietary library payload.",
     redistribution_status: "invented_non_engineering_example",
     review_status: "pending",
     privacy_classification: "public_metadata"

@@ -380,6 +380,76 @@ fn validate_units(
                 }
             }
         }
+        if is_rigid_component(component) {
+            if let Some(geometry) = &component.geometry {
+                if let Some(length) = &geometry.rigid_body_length {
+                    expect_unit(
+                        length,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:component:{}:rigid-body-length",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.rigid_body_length".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(size) = &geometry.end_a_size {
+                    expect_unit(
+                        size,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:component:{}:end-a-size",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.end_a_size".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(size) = &geometry.end_b_size {
+                    expect_unit(
+                        size,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:component:{}:end-b-size",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.end_b_size".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(weight) = &geometry.weight {
+                    expect_unit(
+                        weight,
+                        Dimension::Force,
+                        &format!(
+                            "diagnostic:unit:component:{}:weight",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.weight".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(cog) = &geometry.center_of_gravity {
+                    expect_vector_unit(
+                        cog,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:component:{}:center-of-gravity",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "geometry.center_of_gravity".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
+        }
         if is_bend_component(component) || is_branch_component(component) {
             if let Some(modifiers) = &component.modifiers {
                 if let Some(sif) = &modifiers.sif_user_value {
@@ -437,6 +507,54 @@ fn validate_units(
                 }
             }
         }
+        if is_rigid_component(component) {
+            if let Some(modifiers) = &component.modifiers {
+                if let Some(scale) = &modifiers.stiffness_scaling_user_value {
+                    expect_dimensionless_unit(
+                        scale,
+                        &format!(
+                            "diagnostic:unit:component:{}:stiffness-scaling",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.stiffness_scaling_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &modifiers.linear_stiffness_user_value {
+                    expect_unit(
+                        stiffness,
+                        Dimension::LinearStiffness,
+                        &format!(
+                            "diagnostic:unit:component:{}:linear-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.linear_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+                if let Some(stiffness) = &modifiers.rotational_stiffness_user_value {
+                    expect_unit(
+                        stiffness,
+                        Dimension::RotationalStiffness,
+                        &format!(
+                            "diagnostic:unit:component:{}:rotational-stiffness",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.rotational_stiffness_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
+        }
     }
     for load in model
         .load_cases
@@ -479,7 +597,10 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                 vec![component.id.clone(), component.node.clone()],
             ));
         }
-        if !is_bend_component(component) && !is_branch_component(component) {
+        if !is_bend_component(component)
+            && !is_branch_component(component)
+            && !is_rigid_component(component)
+        {
             continue;
         }
         if component
@@ -584,6 +705,72 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     "BRANCH_USER_MODIFIER_INPUT_INVALID",
                     "warning",
                     "branch user-entered SIFs and flexibility factor must be finite positive dimensionless values before stress modifier rows can be generated",
+                    vec![component.id.clone()],
+                ));
+            }
+        }
+        if is_rigid_component(component) {
+            if rigid_geometry_missing(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:rigid-geometry",
+                        stable_suffix(&component.id)
+                    ),
+                    "RIGID_COMPONENT_GEOMETRY_INPUT_MISSING",
+                    "warning",
+                    "rigid/semi-rigid component requires explicit mapped pipe, body length, end sizes, weight, center of gravity, connection references, stiffness behavior reference, and invented or cleared source before component provenance review is complete",
+                    vec![component.id.clone()],
+                ));
+            }
+            if rigid_mapping_invalid(component, &pipe_map) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:rigid-mapping",
+                        stable_suffix(&component.id)
+                    ),
+                    "RIGID_COMPONENT_MAPPING_INPUT_INVALID",
+                    "warning",
+                    "rigid/semi-rigid component pipe mapping must reference an existing generic frame member that terminates at the component node; no stiffness scaling is silently applied without a valid mapping",
+                    vec![component.id.clone()],
+                ));
+            }
+            if rigid_modifier_missing(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:rigid-stiffness",
+                        stable_suffix(&component.id)
+                    ),
+                    "RIGID_COMPONENT_STIFFNESS_INPUT_MISSING",
+                    "warning",
+                    "rigid/semi-rigid component requires user-entered stiffness scaling, optional semi-rigid stiffness quantities, and source reference for DEC-045 mechanics_geometry_only review evidence",
+                    vec![component.id.clone()],
+                ));
+            }
+            if rigid_modifier_invalid(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:rigid-stiffness-invalid",
+                        stable_suffix(&component.id)
+                    ),
+                    "RIGID_COMPONENT_STIFFNESS_INPUT_INVALID",
+                    "warning",
+                    "rigid/semi-rigid user-entered stiffness scale and stiffness quantities must be finite positive values before they can be used as mapping evidence",
+                    vec![component.id.clone()],
+                ));
+            }
+            if !rigid_geometry_missing(component)
+                && !rigid_mapping_invalid(component, &pipe_map)
+                && !rigid_modifier_missing(component)
+                && !rigid_modifier_invalid(component)
+            {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:rigid-review",
+                        stable_suffix(&component.id)
+                    ),
+                    "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+                    "info",
+                    "rigid/semi-rigid component carries user-entered dimensions, weight, center of gravity, mapping, stiffness scaling, semi-rigid stiffness quantities, and source notes under DEC-045 mechanics_geometry_only; no protected/default component values are supplied",
                     vec![component.id.clone()],
                 ));
             }
@@ -698,6 +885,38 @@ fn expect_dimensionless_unit(
     );
 }
 
+fn expect_vector_unit(
+    quantity: &crate::VectorQuantity,
+    dimension: Dimension,
+    diagnostic_id: &str,
+    affected_refs: Vec<String>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let components = [
+        Quantity {
+            value: quantity.x,
+            unit: quantity.unit.clone(),
+        },
+        Quantity {
+            value: quantity.y,
+            unit: quantity.unit.clone(),
+        },
+        Quantity {
+            value: quantity.z,
+            unit: quantity.unit.clone(),
+        },
+    ];
+    for component in components {
+        expect_unit(
+            &component,
+            dimension,
+            diagnostic_id,
+            affected_refs.clone(),
+            diagnostics,
+        );
+    }
+}
+
 fn is_bend_component(component: &crate::PreviewComponent) -> bool {
     matches!(component.kind.as_str(), "bend" | "elbow")
 }
@@ -706,6 +925,13 @@ fn is_branch_component(component: &crate::PreviewComponent) -> bool {
     matches!(
         component.kind.as_str(),
         "branch" | "tee" | "branch_connection"
+    )
+}
+
+fn is_rigid_component(component: &crate::PreviewComponent) -> bool {
+    matches!(
+        component.kind.as_str(),
+        "valve" | "flange" | "reducer" | "rigid" | "specialty"
     )
 }
 
@@ -830,6 +1056,90 @@ fn branch_modifier_invalid(component: &crate::PreviewComponent) -> bool {
         modifiers.branch_header_sif_user_value.as_ref(),
         modifiers.branch_branch_sif_user_value.as_ref(),
         modifiers.flexibility_factor_user_value.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|quantity| !quantity.value.is_finite() || quantity.value <= 0.0)
+}
+
+fn rigid_geometry_missing(component: &crate::PreviewComponent) -> bool {
+    let Some(geometry) = &component.geometry else {
+        return true;
+    };
+    geometry
+        .rigid_pipe_ref
+        .as_deref()
+        .map(|value| value.trim().is_empty())
+        .unwrap_or(true)
+        || geometry.rigid_body_length.is_none()
+        || geometry.end_a_size.is_none()
+        || geometry.end_b_size.is_none()
+        || geometry.weight.is_none()
+        || geometry.center_of_gravity.is_none()
+        || geometry
+            .connection_end_a_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .connection_end_b_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .stiffness_behavior_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .rigid_component_source_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+}
+
+fn rigid_mapping_invalid(
+    component: &crate::PreviewComponent,
+    pipe_map: &HashMap<&str, &crate::PreviewPipe>,
+) -> bool {
+    let Some(geometry) = &component.geometry else {
+        return false;
+    };
+    let Some(pipe_ref) = geometry
+        .rigid_pipe_ref
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return false;
+    };
+    pipe_map
+        .get(pipe_ref)
+        .map(|pipe| pipe.from != component.node && pipe.to != component.node)
+        .unwrap_or(true)
+}
+
+fn rigid_modifier_missing(component: &crate::PreviewComponent) -> bool {
+    let Some(modifiers) = &component.modifiers else {
+        return true;
+    };
+    modifiers.stiffness_scaling_user_value.is_none()
+        || modifiers.linear_stiffness_user_value.is_none()
+        || modifiers.rotational_stiffness_user_value.is_none()
+        || modifiers
+            .source_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+}
+
+fn rigid_modifier_invalid(component: &crate::PreviewComponent) -> bool {
+    let Some(modifiers) = &component.modifiers else {
+        return false;
+    };
+    [
+        modifiers.stiffness_scaling_user_value.as_ref(),
+        modifiers.linear_stiffness_user_value.as_ref(),
+        modifiers.rotational_stiffness_user_value.as_ref(),
     ]
     .into_iter()
     .flatten()

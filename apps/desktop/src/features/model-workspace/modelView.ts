@@ -128,6 +128,27 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
         ["Completeness", componentCompletenessDisplay(component)]
       );
     }
+    if (isRigidComponent(component)) {
+      rows.push(
+        ["Mapped pipe", component.geometry?.rigid_pipe_ref ?? "TBD"],
+        ["Rigid body length", quantityDisplay(component.geometry?.rigid_body_length)],
+        ["End A size", quantityDisplay(component.geometry?.end_a_size)],
+        ["End B size", quantityDisplay(component.geometry?.end_b_size)],
+        ["Weight", quantityDisplay(component.geometry?.weight)],
+        ["Center of gravity", vectorQuantityDisplay(component.geometry?.center_of_gravity)],
+        ["End A reference", component.geometry?.connection_end_a_reference ?? "TBD"],
+        ["End B reference", component.geometry?.connection_end_b_reference ?? "TBD"],
+        ["Stiffness behavior", component.geometry?.stiffness_behavior_reference ?? "TBD"],
+        ["Geometry source", component.geometry?.rigid_component_source_reference ?? "TBD"],
+        ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
+        ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
+        ["Stiffness scale", quantityDisplay(component.modifiers?.stiffness_scaling_user_value)],
+        ["Linear stiffness", quantityDisplay(component.modifiers?.linear_stiffness_user_value)],
+        ["Rotational stiffness", quantityDisplay(component.modifiers?.rotational_stiffness_user_value)],
+        ["Modifier source", component.modifiers?.source_reference ?? "TBD"],
+        ["Completeness", componentCompletenessDisplay(component)]
+      );
+    }
     rows.push(["Provenance", component.provenance]);
     return rows;
   }
@@ -160,12 +181,20 @@ function quantityDisplay(quantity: { value: number; unit: string } | undefined):
   return quantity ? `${quantity.value} ${quantity.unit}` : "TBD";
 }
 
+function vectorQuantityDisplay(quantity: { x: number; y: number; z: number; unit: string } | undefined): string {
+  return quantity ? `x=${quantity.x}, y=${quantity.y}, z=${quantity.z} ${quantity.unit}` : "TBD";
+}
+
 function isBendComponent(component: PreviewComponent): boolean {
   return component.kind === "bend" || component.kind === "elbow";
 }
 
 function isBranchComponent(component: PreviewComponent): boolean {
   return component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection";
+}
+
+function isRigidComponent(component: PreviewComponent): boolean {
+  return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
 }
 
 function componentCompletenessDisplay(component: PreviewComponent): string {

@@ -63,9 +63,13 @@
      ruled and Phase D/R4 work is now ordinary in-stage work. D1 bend-object
      app absorption landed for the invented preview path through
      `TP-R4-D1-BENDVIS-001` and `TP-R4-D1-BENDSTRESS-001`; D2 branch-object
-     app absorption landed through `TP-R4-D2-BRANCHSTRESS-001`; the next
-     ordinary unblocked item is D3 rigid / semi-rigid components
-     (multiplier-first `mechanics_geometry_only`, all factors user-entered).
+     app absorption landed through `TP-R4-D2-BRANCHSTRESS-001`; D3 rigid /
+     semi-rigid component app absorption landed through
+     `TP-R4-D3-RIGIDVIS-001` with `mechanics_geometry_only`
+     data/provenance/diagnostic evidence and no frame-stiffness behavior
+     change. The next ordinary unblocked item is D4 expansion joints under
+     `DEC-045` (dedicated user-stiffness macro-element; all factors
+     user-entered).
      D5 spring-hanger scope remains gated by `D-15`; D7 sparse live-path
      timing remains gated by `D-17`; `D-20` is held for Phase E; `D-21` remains
      held and does not authorize v0.2/R6/R7 scope. Continue to honor the

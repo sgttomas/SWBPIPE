@@ -682,7 +682,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=749");
   await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("conversion=false");
   const reviewGeometryExport = page.getByLabel("Review geometry export");
-  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=57");
+  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=60");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
     "target=m"
   );
@@ -692,7 +692,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "project_units=6"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "model_quantities=28"
+    "model_quantities=35"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
     "result_quantities=751"

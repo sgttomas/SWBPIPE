@@ -14333,6 +14333,16 @@
   ],
   "diagnostics": [
     {
+      "id": "diagnostic:component:component-C-130:rigid-review",
+      "code": "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+      "severity": "info",
+      "message": "rigid/semi-rigid component carries user-entered dimensions, weight, center of gravity, mapping, stiffness scaling, semi-rigid stiffness quantities, and source notes under DEC-045 mechanics_geometry_only; no protected/default component values are supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-130"
+      ]
+    },
+    {
       "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
       "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
       "severity": "info",

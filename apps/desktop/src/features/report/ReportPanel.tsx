@@ -111,7 +111,10 @@ export function ReportPanel({
             ) : null}
             <ReportLine label="Mechanics" value={result.status.mechanics.replaceAll("_", " ")} />
             <ReportLine label="Rule check" value={result.status.rule_check.replaceAll("_", " ")} />
-            <ReportLine label="Professional acceptance" value={result.status.professional_acceptance.replaceAll("_", " ")} />
+            <ReportLine
+              label="Professional acceptance"
+              value={result.status.professional_acceptance.replaceAll("_", " ")}
+            />
             <ReportLine
               label="Component provenance"
               value={formatComponentProvenanceSummary(componentProvenance)}
@@ -122,7 +125,11 @@ export function ReportPanel({
               value={formatComponentStressModifierSummary(componentStressModifierEvidence)}
               testId="report-component-stress-modifiers"
             />
-            <ReportLine label="Selected result refs" value={resultRefs.join(", ")} testId="report-selected-result-refs" />
+            <ReportLine
+              label="Selected result refs"
+              value={resultRefs.join(", ")}
+              testId="report-selected-result-refs"
+            />
             <ReportLine
               label="Selected review target"
               value={formatSelectedReviewTarget(selectedReviewTarget)}
@@ -133,7 +140,10 @@ export function ReportPanel({
               value="model, design knowledge, and computed mechanics findings"
               testId="report-diagnostic-scope"
             />
-            <ReportLine label="Diagnostics" value={`${diagnostics.length} review finding${diagnostics.length === 1 ? "" : "s"}`} />
+            <ReportLine
+              label="Diagnostics"
+              value={`${diagnostics.length} review finding${diagnostics.length === 1 ? "" : "s"}`}
+            />
             <ReportLine
               label="Diagnostic severity"
               value={formatDiagnosticSeverity(severitySummary)}
@@ -141,11 +151,24 @@ export function ReportPanel({
             />
             {run ? (
               <>
-                <ReportLine label="Analysis run" value={`${analysisRun.deliverable_id}; ${run.run_id}`} testId="report-analysis-run" />
+                <ReportLine
+                  label="Analysis run"
+                  value={`${analysisRun.deliverable_id}; ${run.run_id}`}
+                  testId="report-analysis-run"
+                />
                 <ReportLine label="Load basis refs" value={loadBasisRefs} testId="report-load-basis-refs" />
-                <ReportLine label="Run immutability" value={run.immutability_policy.mutation_policy.replaceAll("_", " ")} />
-                <ReportLine label="Result hashes" value={`${resultHashCount} result value hash${resultHashCount === 1 ? "" : "es"}`} />
-                <ReportLine label="Envelope hash" value={envelopeHash ? `${envelopeHash.algorithm}; ${envelopeHash.payload_scope}` : "not available"} />
+                <ReportLine
+                  label="Run immutability"
+                  value={run.immutability_policy.mutation_policy.replaceAll("_", " ")}
+                />
+                <ReportLine
+                  label="Result hashes"
+                  value={`${resultHashCount} result value hash${resultHashCount === 1 ? "" : "es"}`}
+                />
+                <ReportLine
+                  label="Envelope hash"
+                  value={envelopeHash ? `${envelopeHash.algorithm}; ${envelopeHash.payload_scope}` : "not available"}
+                />
                 <ReportLine label="Run boundary" value={boundarySummary(run.professional_boundary)} />
               </>
             ) : null}
@@ -205,7 +228,10 @@ export function ReportPanel({
                 />
               </>
             ) : null}
-            <ReportLine label="Boundary" value="technical preview only; human review required; no compliance or professional approval claim" />
+            <ReportLine
+              label="Boundary"
+              value="technical preview only; human review required; no compliance or professional approval claim"
+            />
           </div>
         </>
       ) : (
@@ -214,7 +240,8 @@ export function ReportPanel({
         </p>
       )}
       <small className="report-note">
-        Uses invented or cleared preview data for {model.project.id}; private rule criteria and professional acceptance are not bundled.
+        Uses invented or cleared preview data for {model.project.id}; private rule criteria and professional acceptance
+        are not bundled.
       </small>
     </section>
   );
@@ -240,7 +267,9 @@ function selectedResultRefs(result: MechanicsResult): string[] {
     result.results.find((item) => item.id === "result:force:pipe-P-120:quarter-1:shear-y")?.id,
     result.results.find((item) => item.id === "result:force:pipe-P-120:shear-y")?.id,
     result.results.find((item) => item.id === "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial")?.id,
-    result.results.find((item) => item.id === "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y")?.id,
+    result.results.find(
+      (item) => item.id === "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y"
+    )?.id,
     result.results.find((item) => item.id === "result:stress:pipe-P-120:end-j:torsional-shear")?.id,
     result.results.find((item) => item.id === "result:stress:pipe-P-120:quarter-1:torsional-shear")?.id
   ].filter((value): value is string => Boolean(value));
@@ -276,6 +305,14 @@ function reportComponentProvenance(model: PreviewModel, result: MechanicsResult)
       user_entered_header_sif: component.modifiers?.branch_header_sif_user_value ?? null,
       user_entered_branch_sif: component.modifiers?.branch_branch_sif_user_value ?? null,
       user_entered_flexibility_factor: component.modifiers?.flexibility_factor_user_value ?? null,
+      rigid_pipe_ref: component.geometry?.rigid_pipe_ref ?? null,
+      rigid_body_length: component.geometry?.rigid_body_length ?? null,
+      weight: component.geometry?.weight ?? null,
+      center_of_gravity: component.geometry?.center_of_gravity ?? null,
+      stiffness_behavior_ref: component.geometry?.stiffness_behavior_reference ?? null,
+      user_entered_stiffness_scale: component.modifiers?.stiffness_scaling_user_value ?? null,
+      user_entered_linear_stiffness: component.modifiers?.linear_stiffness_user_value ?? null,
+      user_entered_rotational_stiffness: component.modifiers?.rotational_stiffness_user_value ?? null,
       stress_modifier_result_refs: modifierRows.map((item) => item.id),
       private_payload_included: false,
       protected_content_included: false,
@@ -311,15 +348,21 @@ function formatComponentProvenanceSummary(records: ReturnType<typeof reportCompo
   if (records.length === 0) return "0 components";
   const stressRows = records.reduce((count, item) => count + item.stress_modifier_result_refs.length, 0);
   const bendRecords = records.filter((item) => item.component_kind === "bend" || item.component_kind === "elbow");
-  const primary = bendRecords[0] ?? records[0];
+  const rigidRecords = records.filter((item) => isRigidComponentKind(item.component_kind));
+  const primary = bendRecords[0] ?? rigidRecords[0] ?? records[0];
+  const rigidSummary = rigidRecords.length
+    ? `; rigid=${rigidRecords.map((item) => `${item.component_ref}->${item.rigid_pipe_ref ?? "TBD"}`).join(",")}`
+    : "";
   return [
     `${records.length} component${records.length === 1 ? "" : "s"}`,
     `${stressRows} stress modifier row${stressRows === 1 ? "" : "s"}`,
-    `${primary.component_ref}; source=${primary.modifier_source_ref}; solver=${primary.solver_consumption}`
+    `${primary.component_ref}; source=${primary.modifier_source_ref}; solver=${primary.solver_consumption}${rigidSummary}`
   ].join("; ");
 }
 
-function formatComponentStressModifierSummary(records: ReturnType<typeof reportComponentStressModifierEvidence>): string {
+function formatComponentStressModifierSummary(
+  records: ReturnType<typeof reportComponentStressModifierEvidence>
+): string {
   if (records.length === 0) return "none applied";
   const components = [...new Set(records.map((item) => item.component_ref))].join(", ");
   const units = [...new Set(records.map((item) => item.unit))].join(", ");
@@ -330,8 +373,13 @@ function componentGeometrySourceRef(component: PreviewModel["components"][number
   return (
     component.geometry?.bend_geometry_source_reference ??
     component.geometry?.branch_geometry_source_reference ??
+    component.geometry?.rigid_component_source_reference ??
     "not provided"
   );
+}
+
+function isRigidComponentKind(kind: string): boolean {
+  return ["valve", "flange", "reducer", "rigid", "specialty"].includes(kind);
 }
 
 function countDiagnosticsBySeverity(diagnostics: Diagnostic[]): Record<Diagnostic["severity"], number> {
@@ -442,6 +490,7 @@ function reportExportPacket({
       "DEL-10-04",
       "DEL-10-05",
       "DEL-03-04",
+      "DEL-03-05",
       "DEL-15-04",
       "DEL-17-04",
       "DEL-17-05",
@@ -681,13 +730,7 @@ function formatStorageBoundary(evidence: ReturnType<typeof reportPersistenceEvid
   ].join("; ");
 }
 
-function runAuditExport({
-  analysisRun,
-  result
-}: {
-  analysisRun: AnalysisRunEnvelope | null;
-  result: MechanicsResult;
-}) {
+function runAuditExport({ analysisRun, result }: { analysisRun: AnalysisRunEnvelope | null; result: MechanicsResult }) {
   const run = analysisRun?.analysis_run;
   if (!run) return null;
   return {

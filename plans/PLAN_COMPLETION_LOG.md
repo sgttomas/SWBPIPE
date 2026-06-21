@@ -14,6 +14,56 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D3 rigid/semi-rigid component visibility/provenance slice (`TP-R4-D3-RIGIDVIS-001`)
+
+Landed the D3 rigid/semi-rigid component app-absorption slice for the invented
+preview path under `DEC-045`. The product-physics adapter now parses rigid
+component geometry/modifier fields, normalizes and validates length, force,
+center-of-gravity vector, dimensionless stiffness scaling, linear stiffness,
+and rotational stiffness quantities, and emits `RIGID_COMPONENT_*` diagnostics
+for missing geometry, invalid mapping, missing/invalid stiffness inputs, and
+reviewed user-entered stiffness-scaling evidence.
+
+The invented preview model now carries `component:C-130`, a valve-family
+rigid/semi-rigid marker mapped to `pipe:P-130` with user-entered body length,
+end sizes, weight, center of gravity, connection references, source notes,
+stiffness scaling, linear stiffness, and rotational stiffness. The frame solve
+and base stress rows remain unchanged: this D3 slice records
+`mechanics_geometry_only` data/provenance/diagnostic evidence and does not add
+a rigid component macro-element or stiffness-scaling kernel behavior.
+
+The desktop app surfaces the invented rigid marker and rigid fields in the
+viewport, model view, property inspector, model tree/search/grid, editor
+contract, missing-data/rule-check/validation panels, native-package unit
+witnesses, and report packet exports. Report export records include rigid
+component mapping, geometry/source, weight/COG, and user-entered
+stiffness/scaling provenance without private or protected payload.
+
+Validation: `cargo test --manifest-path core/product_physics/Cargo.toml`
+passed 33/33; `python3 -m pytest tests/product_preview/test_product_preview_service.py tests/test_results_schema.py tests/test_analysis_run_records.py`
+passed 20/20; `npm test --workspace apps/desktop -- App.test.tsx` passed
+57/57; `npm test --workspace apps/desktop` passed 19/19 files and 406/406
+tests; `npm run build:desktop` passed with the existing Vite chunk-size
+warning; focused Chromium R2 desktop preview smoke passed 1/1; `npm run
+test:e2e:desktop` passed 18/18.
+
+Evidence: DEL-03-05 and DEL-08-03 run records
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D3-RIGIDVIS-001.md`;
+`apps/desktop/SMOKE.md` TP-MAC-281.
+
+Residual: D3 rigid/semi-rigid component app absorption is landed for the
+invented preview path. Full rigid macro-element solve behavior remains out of
+scope for this slice. The next ordinary unblocked Phase D component item is D4
+expansion joints; D5 remains gated by `D-15`, D7 by `D-17`.
+
+Boundary: invented/user-entered values only; no protected standards table,
+code-derived rigid component factor, proprietary catalog value, private data,
+frame-stiffness behavior change, lifecycle transition, release-readiness
+claim, professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D2 branch connection stress-recovery/report slice (`TP-R4-D2-BRANCHSTRESS-001`)
 
 Landed the D2 branch connection app-absorption slice for the invented preview

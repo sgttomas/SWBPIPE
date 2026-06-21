@@ -9535,3 +9535,44 @@ notes:
   frame-stiffness behavior change, network path, telemetry feature, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-281 R4 D3 rigid/semi-rigid component visibility and provenance slice - PASSED (`TP-R4-D3-RIGIDVIS-001`, 2026-06-21)
+
+- Scope: R4/D3 rigid/semi-rigid component app-absorption slice under
+  `DEC-045`, landing invented preview evidence for a valve-family rigid
+  component with pipe mapping, user-entered dimensions, weight, center of
+  gravity, stiffness/scaling values, and source notes. This is
+  `mechanics_geometry_only` evidence: no frame-stiffness or solve-result
+  behavior changed.
+- App/core behavior: `core/product_physics` now parses and validates D3 rigid
+  component geometry/modifier fields and emits `RIGID_COMPONENT_*` diagnostics.
+  The invented preview model carries `component:C-130`; the viewport renders
+  rigid/semi-rigid components with a distinct compact valve-like glyph. Model
+  view, inspector/provenance rows, grid/search, editor contract, missing-data
+  blockers, rule-check diagnostics, validation evidence, native-package
+  witnesses, and report exports now surface the D3 rigid fields.
+- Validation:
+  - `cargo test --manifest-path core/product_physics/Cargo.toml` passed 33/33
+    unit tests.
+  - `python3 -m pytest tests/product_preview/test_product_preview_service.py tests/test_results_schema.py tests/test_analysis_run_records.py`
+    passed 20/20 tests.
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 57/57 tests.
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 406/406
+    tests.
+  - `npm run build:desktop` passed, retaining the existing Vite chunk-size
+    warning.
+  - Focused Chromium R2 desktop preview smoke passed 1/1.
+  - `npm run test:e2e:desktop` passed 18/18 Playwright checks.
+- Evidence: DEL-03-05 and DEL-08-03 run records
+  `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D3-RIGIDVIS-001.md`; plan log entry in
+  `plans/PLAN_COMPLETION_LOG.md`.
+- Residual: D3 rigid/semi-rigid component app absorption is landed for the
+  invented preview path. Full rigid macro-element solve behavior remains out of
+  scope for this slice; D4 expansion joints are the next ordinary unblocked
+  Phase D component item.
+- Boundary: invented/user-entered preview values only. No protected standards
+  table, code-derived rigid component factor, proprietary catalog value,
+  private data, frame-stiffness behavior change, network path, telemetry
+  feature, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

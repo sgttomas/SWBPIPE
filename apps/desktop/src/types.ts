@@ -22,12 +22,25 @@ export type PreviewComponent = {
     branch_reinforcement_area?: QuantityValue;
     branch_reinforcement_reference?: string;
     branch_geometry_source_reference?: string;
+    rigid_pipe_ref?: string;
+    rigid_body_length?: QuantityValue;
+    end_a_size?: QuantityValue;
+    end_b_size?: QuantityValue;
+    weight?: QuantityValue;
+    center_of_gravity?: { x: number; y: number; z: number; unit: string };
+    connection_end_a_reference?: string;
+    connection_end_b_reference?: string;
+    stiffness_behavior_reference?: string;
+    rigid_component_source_reference?: string;
   };
   modifiers?: {
     sif_user_value?: QuantityValue;
     branch_header_sif_user_value?: QuantityValue;
     branch_branch_sif_user_value?: QuantityValue;
     flexibility_factor_user_value?: QuantityValue;
+    stiffness_scaling_user_value?: QuantityValue;
+    linear_stiffness_user_value?: QuantityValue;
+    rotational_stiffness_user_value?: QuantityValue;
     source_reference?: string;
   };
   mechanics_interface?: {
@@ -76,7 +89,12 @@ export type PreviewModel = {
     };
     provenance: string | Record<string, unknown>;
   }>;
-  nodes: Array<{ id: string; label: string; position: Vec3; provenance: string }>;
+  nodes: Array<{
+    id: string;
+    label: string;
+    position: Vec3;
+    provenance: string;
+  }>;
   pipe_segments: Array<{
     id: string;
     label: string;
@@ -162,8 +180,18 @@ export type MechanicsResult = {
     professional_acceptance: string;
   };
   summary: Record<string, unknown> & {
-    max_displacement?: { value: number; unit: string; location_ref: string; result_ref: string } | null;
-    max_open_formula_stress?: { value: number; unit: string; location_ref: string; result_ref: string } | null;
+    max_displacement?: {
+      value: number;
+      unit: string;
+      location_ref: string;
+      result_ref: string;
+    } | null;
+    max_open_formula_stress?: {
+      value: number;
+      unit: string;
+      location_ref: string;
+      result_ref: string;
+    } | null;
   };
   results: Array<{
     id: string;
@@ -418,7 +446,13 @@ export type AgentProposal = {
     operation_kind: string;
     operation_status: string;
     affected_entity_ids: string[];
-    changes: Array<{ change_id: string; change_kind: string; target_ref: string; before: string; after: string }>;
+    changes: Array<{
+      change_id: string;
+      change_kind: string;
+      target_ref: string;
+      before: string;
+      after: string;
+    }>;
   };
   rationale: string;
   assumptions: string[];

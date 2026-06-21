@@ -1,11 +1,7 @@
 import { Download, ShieldAlert } from "lucide-react";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 
-type WarningClass =
-  | "RULE_CHECK_BLOCKING"
-  | "PROVENANCE_WARNING"
-  | "ASSUMPTION_WARNING"
-  | "IP_BOUNDARY_WARNING";
+type WarningClass = "RULE_CHECK_BLOCKING" | "PROVENANCE_WARNING" | "ASSUMPTION_WARNING" | "IP_BOUNDARY_WARNING";
 
 type CompletenessFinding = {
   finding_id: string;
@@ -87,7 +83,8 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
             >
               <strong>{finding.warning_class}</strong>
               <small>
-                {finding.severity}; rule_blocking={String(finding.rule_check_blocking)}; private_data=
+                {finding.severity}; rule_blocking=
+                {String(finding.rule_check_blocking)}; private_data=
                 {String(finding.private_data_required)}
               </small>
               <p>
@@ -166,8 +163,7 @@ function buildRuleCompletenessUnitPolicy(model: PreviewModel): RuleCompletenessU
     unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
     source_model_ref: reference("Model", model.project.id),
     storage_convention: "entered_units_preserved",
-    rule_completeness_unit_policy:
-      "rule_completeness_review_records_rule_input_unit_requirements_without_conversion",
+    rule_completeness_unit_policy: "rule_completeness_review_records_rule_input_unit_requirements_without_conversion",
     model_units: sortedStringRecord(model.project.units),
     unit_bearing_record_count: countUnitBearingRecords(model),
     rule_input_unit_policy: "required_rule_inputs_must_carry_explicit_units_or_block_user_rule_checks",
@@ -231,8 +227,10 @@ function buildFindings({
       severity: "warning",
       affected_refs: componentRefs,
       source_refs: componentRefs.map((ref) => `${ref}.provenance`),
-      message: "Component flexibility or stress-intensification provenance is intentionally absent from the public preview.",
-      remediation: "Keep component correction data user-supplied or privately imported; do not infer protected table values.",
+      message:
+        "Component flexibility or stress-intensification provenance is intentionally absent from the public preview.",
+      remediation:
+        "Keep component correction data user-supplied or privately imported; do not infer protected table values.",
       private_data_required: true,
       protected_content_required: false,
       mechanics_solve_blocking: false,
@@ -279,7 +277,8 @@ function buildFindings({
       severity: "warning",
       affected_refs: provenanceRefs,
       source_refs: provenanceRefs.map((ref) => `${ref}.provenance`),
-      message: "Material and pipe-section values are invented public fixture values, not verified project or catalog data.",
+      message:
+        "Material and pipe-section values are invented public fixture values, not verified project or catalog data.",
       remediation: "Replace them with user-controlled data and provenance before engineering reliance.",
       private_data_required: true,
       protected_content_required: false,
@@ -296,7 +295,8 @@ function buildFindings({
       affected_refs: [result.run_id],
       source_refs: [`${result.run_id}.status.professional_acceptance`],
       message: "No human professional acceptance record is attached to this mechanics preview run.",
-      remediation: "Treat all computed values as review context until a human authority records acceptance outside the software.",
+      remediation:
+        "Treat all computed values as review context until a human authority records acceptance outside the software.",
       private_data_required: false,
       protected_content_required: false,
       mechanics_solve_blocking: false,
@@ -337,7 +337,8 @@ function countUnitBearingRecords(model: PreviewModel): number {
   const loadQuantities = model.load_cases.flatMap((loadCase) =>
     (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
   );
-  return [...pipeSectionQuantities, ...materialQuantities, ...componentQuantities, ...loadQuantities].filter(hasUnit).length;
+  return [...pipeSectionQuantities, ...materialQuantities, ...componentQuantities, ...loadQuantities].filter(hasUnit)
+    .length;
 }
 
 function componentUnitQuantities(component: PreviewModel["components"][number]): unknown[] {
@@ -348,10 +349,18 @@ function componentUnitQuantities(component: PreviewModel["components"][number]):
     component.geometry?.branch_header_size,
     component.geometry?.branch_connection_angle,
     component.geometry?.branch_reinforcement_area,
+    component.geometry?.rigid_body_length,
+    component.geometry?.end_a_size,
+    component.geometry?.end_b_size,
+    component.geometry?.weight,
+    component.geometry?.center_of_gravity,
     component.modifiers?.sif_user_value,
     component.modifiers?.branch_header_sif_user_value,
     component.modifiers?.branch_branch_sif_user_value,
-    component.modifiers?.flexibility_factor_user_value
+    component.modifiers?.flexibility_factor_user_value,
+    component.modifiers?.stiffness_scaling_user_value,
+    component.modifiers?.linear_stiffness_user_value,
+    component.modifiers?.rotational_stiffness_user_value
   ];
 }
 
@@ -362,6 +371,14 @@ function componentModifierProvenanceMissing(component: PreviewModel["components"
       component.modifiers?.branch_header_sif_user_value &&
       component.modifiers.branch_branch_sif_user_value &&
       component.modifiers.flexibility_factor_user_value &&
+      component.modifiers.source_reference?.trim()
+    );
+  }
+  if (["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind)) {
+    return !(
+      component.modifiers?.stiffness_scaling_user_value &&
+      component.modifiers.linear_stiffness_user_value &&
+      component.modifiers.rotational_stiffness_user_value &&
       component.modifiers.source_reference?.trim()
     );
   }
@@ -417,5 +434,8 @@ function jsonDataHref(payload: unknown): string {
 }
 
 function safeFileToken(value: string): string {
-  return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+  return value
+    .replace(/[^a-z0-9-]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
 }

@@ -131,3 +131,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-21 - TP-R4-D3-RIGIDVIS-001 app absorption
+
+- WORKING_ITEMS landed the R4/D3 rigid/semi-rigid component app-absorption
+  slice for the invented preview path under `DEC-045`.
+- The preview model now includes invented `component:C-130` with user-entered
+  rigid/semi-rigid dimensions, weight, center of gravity, pipe mapping,
+  stiffness/scaling values, source references, and `mechanics_geometry_only`
+  metadata. Product-physics validation/normalization and the desktop UI now
+  surface those fields through the preview app, native-package witnesses, and
+  report packet.
+- Rigid component behavior remains data/provenance/diagnostic evidence only in
+  this slice. No frame-stiffness behavior, solver macro-element, code-derived
+  factor, protected standards value, proprietary catalog value, lifecycle state,
+  release claim, professional approval, certification, sealing, authentication,
+  or code-compliance claim changed.
+- Durable evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D3-RIGIDVIS-001.md`.

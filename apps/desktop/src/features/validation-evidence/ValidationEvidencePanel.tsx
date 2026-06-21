@@ -69,8 +69,10 @@ export function ValidationEvidencePanel({ model }: { model: PreviewModel }) {
           Evidence JSON
         </a>
         <span data-testid="validation-evidence-summary">
-          manual={packet.summary.manual_section_count}; evidence={packet.summary.evidence_area_count}; profiles=
-          {packet.summary.release_profile_count}; open_tbd={packet.summary.open_validation_decision_count}
+          manual={packet.summary.manual_section_count}; evidence=
+          {packet.summary.evidence_area_count}; profiles=
+          {packet.summary.release_profile_count}; open_tbd=
+          {packet.summary.open_validation_decision_count}
         </span>
       </div>
       <div className="report-list" data-testid="validation-evidence-body">
@@ -298,7 +300,8 @@ function countUnitBearingRecords(model: PreviewModel): number {
   const loadQuantities = model.load_cases.flatMap((loadCase) =>
     (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
   );
-  return [...pipeSectionQuantities, ...materialQuantities, ...componentQuantities, ...loadQuantities].filter(hasUnit).length;
+  return [...pipeSectionQuantities, ...materialQuantities, ...componentQuantities, ...loadQuantities].filter(hasUnit)
+    .length;
 }
 
 function componentUnitQuantities(component: PreviewModel["components"][number]): unknown[] {
@@ -309,10 +312,18 @@ function componentUnitQuantities(component: PreviewModel["components"][number]):
     component.geometry?.branch_header_size,
     component.geometry?.branch_connection_angle,
     component.geometry?.branch_reinforcement_area,
+    component.geometry?.rigid_body_length,
+    component.geometry?.end_a_size,
+    component.geometry?.end_b_size,
+    component.geometry?.weight,
+    component.geometry?.center_of_gravity,
     component.modifiers?.sif_user_value,
     component.modifiers?.branch_header_sif_user_value,
     component.modifiers?.branch_branch_sif_user_value,
-    component.modifiers?.flexibility_factor_user_value
+    component.modifiers?.flexibility_factor_user_value,
+    component.modifiers?.stiffness_scaling_user_value,
+    component.modifiers?.linear_stiffness_user_value,
+    component.modifiers?.rotational_stiffness_user_value
   ];
 }
 
@@ -349,5 +360,8 @@ function jsonDataHref(payload: unknown): string {
 }
 
 function safeFileToken(value: string): string {
-  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+  return value
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
 }

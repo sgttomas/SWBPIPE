@@ -155,6 +155,43 @@
       ],
       "provenance": "invented_example_user_entered_branch_values_no_code_table"
     },
+    {
+      "id": "component:C-130",
+      "label": "Invented semi-rigid valve marker",
+      "kind": "valve",
+      "node": "node:N-130",
+      "geometry": {
+        "rigid_pipe_ref": "pipe:P-130",
+        "rigid_body_length": { "value": 0.72, "unit": "m" },
+        "end_a_size": { "value": 0.168, "unit": "m" },
+        "end_b_size": { "value": 0.168, "unit": "m" },
+        "weight": { "value": 420, "unit": "N" },
+        "center_of_gravity": { "x": 0.12, "y": 0.02, "z": 0.0, "unit": "m" },
+        "connection_end_a_reference": "invented_user_entered_end_a_connection",
+        "connection_end_b_reference": "invented_user_entered_end_b_connection",
+        "stiffness_behavior_reference": "invented_user_entered_semi_rigid_behavior_no_catalog",
+        "rigid_component_source_reference": "invented_user_entered_rigid_component_preview_geometry"
+      },
+      "modifiers": {
+        "stiffness_scaling_user_value": { "value": 15.0, "unit": "none" },
+        "linear_stiffness_user_value": { "value": 15000000, "unit": "N/m" },
+        "rotational_stiffness_user_value": { "value": 850000, "unit": "N*m/rad" },
+        "source_reference": "invented_user_entered_rigid_stiffness_no_catalog_or_code_table"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_only",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "completeness": [
+        {
+          "finding_id": "finding:C-130:rigid-component",
+          "status": "complete",
+          "diagnostic_code": "RIGID_COMPONENT_STIFFNESS_DATA_MISSING",
+          "missing_field_kinds": []
+        }
+      ],
+      "provenance": "invented_example_user_entered_rigid_component_values_no_catalog"
+    },
     { "id": "component:C-140", "label": "Invented tie-in marker", "kind": "terminal", "node": "node:N-140", "provenance": "invented_example" }
   ],
   "load_cases": [

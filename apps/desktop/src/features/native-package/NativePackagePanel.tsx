@@ -63,19 +63,20 @@ export function NativePackagePanel({
   selectedReviewTarget,
   storageCapability
 }: Props) {
-  const basePacket = result && analysisRun
-    ? buildNativePackageReview({
-        analysisRun,
-        editorIntents,
-        model,
-        modelHash,
-        projectSummary,
-        proposal,
-        result,
-        selectedReviewTarget,
-        storageCapability
-      })
-    : null;
+  const basePacket =
+    result && analysisRun
+      ? buildNativePackageReview({
+          analysisRun,
+          editorIntents,
+          model,
+          modelHash,
+          projectSummary,
+          proposal,
+          result,
+          selectedReviewTarget,
+          storageCapability
+        })
+      : null;
   const packageHash = usePackageHash(basePacket?.package_id ?? null, basePacket);
   const packet = basePacket ? withPackageHash(basePacket, packageHash) : null;
   const jsonDataHref = packet
@@ -105,7 +106,8 @@ export function NativePackagePanel({
             </a>
             <span data-testid="native-package-summary">
               ready; members={packet.manifest.package_members.length}; entities=
-              {packet.stable_id_map.entity_ref_count}; results={packet.stable_id_map.result_ref_count}; operations=
+              {packet.stable_id_map.entity_ref_count}; results=
+              {packet.stable_id_map.result_ref_count}; operations=
               {packet.stable_id_map.operation_ref_count}
             </span>
           </div>
@@ -150,16 +152,13 @@ export function NativePackagePanel({
               value={`editor_intents=${packet.source_project.storage_summary.editor_intent_count}; proposals=${packet.source_project.storage_summary.proposal_count}; selected_targets=${packet.source_project.storage_summary.selected_review_target_count}; selected_ref=${packet.source_project.storage_summary.selected_review_target_ref}; mechanics_results=${packet.source_project.storage_summary.persisted_mechanics_result_count}; analysis_runs=${packet.source_project.storage_summary.persisted_analysis_run_count}; run_ref=${packet.source_project.storage_summary.persisted_analysis_run_ref}`}
               testId="native-package-persisted-review-context"
             />
-            <PackageLine
-              label="Boundary"
-              value={nativePackageBoundary(packet)}
-              testId="native-package-boundary"
-            />
+            <PackageLine label="Boundary" value={nativePackageBoundary(packet)} testId="native-package-boundary" />
           </div>
         </>
       ) : (
         <p className="muted" data-testid="native-package-empty">
-          Run mechanics preview to assemble a native JSON package review manifest with stable IDs, loss report, validation report, and local-only export boundaries.
+          Run mechanics preview to assemble a native JSON package review manifest with stable IDs, loss report,
+          validation report, and local-only export boundaries.
         </p>
       )}
     </section>
@@ -210,16 +209,66 @@ export function buildNativePackageReview({
     value: hash.value
   }));
   const memberRecords = [
-    member("manifest.json", "manifest", "package member inventory and boundary summary", "TBD_browser_preview_manifest_not_canonicalized"),
-    member("model/project.json", "model_payload", "invented preview project/model payload", modelHash?.value ?? "TBD_model_hash_not_available"),
-    member("maps/stable_id_map.json", "stable_id_map", "canonical OpenPipeStress entity/result/operation refs", "TBD_id_map_hash_not_available"),
-    member("reports/loss_report.json", "loss_report", "required exported/omitted/approximated/delegated/unsupported/tbd review", "TBD_loss_report_hash_not_available"),
-    member("reports/validation_report.json", "validation_report", "package-shape and source-boundary evidence only", "TBD_validation_report_hash_not_available"),
-    member("diagnostics/diagnostics.json", "diagnostics", "model and mechanics diagnostics by stable ID", "TBD_diagnostics_hash_not_available"),
-    member("runs/analysis_run_ref.json", "analysis_run_ref", "analysis run references and accepted run hashes", runHashStatus(runHashRefs)),
-    member("results/result_envelope_ref.json", "result_envelope_ref", "result-envelope reference, status, and hash scope", runHashStatus(runHashRefs, "result_envelope")),
-    member("maps/unit_preservation_witnesses.json", "unit_preservation_witnesses", "native package unit/value preservation witnesses", "TBD_unit_preservation_witness_hash_not_available"),
-    member("operations/pending_operations.json", "operation_queue", "review-only editor/proposal operations", "TBD_operation_queue_hash_not_available")
+    member(
+      "manifest.json",
+      "manifest",
+      "package member inventory and boundary summary",
+      "TBD_browser_preview_manifest_not_canonicalized"
+    ),
+    member(
+      "model/project.json",
+      "model_payload",
+      "invented preview project/model payload",
+      modelHash?.value ?? "TBD_model_hash_not_available"
+    ),
+    member(
+      "maps/stable_id_map.json",
+      "stable_id_map",
+      "canonical OpenPipeStress entity/result/operation refs",
+      "TBD_id_map_hash_not_available"
+    ),
+    member(
+      "reports/loss_report.json",
+      "loss_report",
+      "required exported/omitted/approximated/delegated/unsupported/tbd review",
+      "TBD_loss_report_hash_not_available"
+    ),
+    member(
+      "reports/validation_report.json",
+      "validation_report",
+      "package-shape and source-boundary evidence only",
+      "TBD_validation_report_hash_not_available"
+    ),
+    member(
+      "diagnostics/diagnostics.json",
+      "diagnostics",
+      "model and mechanics diagnostics by stable ID",
+      "TBD_diagnostics_hash_not_available"
+    ),
+    member(
+      "runs/analysis_run_ref.json",
+      "analysis_run_ref",
+      "analysis run references and accepted run hashes",
+      runHashStatus(runHashRefs)
+    ),
+    member(
+      "results/result_envelope_ref.json",
+      "result_envelope_ref",
+      "result-envelope reference, status, and hash scope",
+      runHashStatus(runHashRefs, "result_envelope")
+    ),
+    member(
+      "maps/unit_preservation_witnesses.json",
+      "unit_preservation_witnesses",
+      "native package unit/value preservation witnesses",
+      "TBD_unit_preservation_witness_hash_not_available"
+    ),
+    member(
+      "operations/pending_operations.json",
+      "operation_queue",
+      "review-only editor/proposal operations",
+      "TBD_operation_queue_hash_not_available"
+    )
   ];
 
   return {
@@ -337,7 +386,8 @@ export function buildNativePackageReview({
           category: "exported",
           severity: "info",
           affected_refs: [model.project.id, result.run_id],
-          reason: "invented model, analysis-run refs, diagnostics, and stable IDs are represented in the review package",
+          reason:
+            "invented model, analysis-run refs, diagnostics, and stable IDs are represented in the review package",
           downstream_implication: "usable for local review and regression discussion only"
         },
         {
@@ -431,13 +481,7 @@ export function buildNativePackageReview({
   };
 }
 
-function buildUnitPreservationEvidence({
-  model,
-  result
-}: {
-  model: PreviewModel;
-  result: MechanicsResult;
-}) {
+function buildUnitPreservationEvidence({ model, result }: { model: PreviewModel; result: MechanicsResult }) {
   const modelQuantityWitnesses: UnitPreservationWitness[] = [];
   const resultQuantityWitnesses: UnitPreservationWitness[] = [];
 
@@ -507,13 +551,61 @@ function buildUnitPreservationEvidence({
 
   for (const component of model.components) {
     const componentQuantities = [
-      { dimension: "length", fieldPath: "geometry.bend_radius", quantity: component.geometry?.bend_radius },
-      { dimension: "angle", fieldPath: "geometry.bend_angle", quantity: component.geometry?.bend_angle },
-      { dimension: "length", fieldPath: "geometry.branch_run_size", quantity: component.geometry?.branch_run_size },
-      { dimension: "length", fieldPath: "geometry.branch_header_size", quantity: component.geometry?.branch_header_size },
-      { dimension: "angle", fieldPath: "geometry.branch_connection_angle", quantity: component.geometry?.branch_connection_angle },
-      { dimension: "area", fieldPath: "geometry.branch_reinforcement_area", quantity: component.geometry?.branch_reinforcement_area },
-      { dimension: "dimensionless", fieldPath: "modifiers.sif_user_value", quantity: component.modifiers?.sif_user_value },
+      {
+        dimension: "length",
+        fieldPath: "geometry.bend_radius",
+        quantity: component.geometry?.bend_radius
+      },
+      {
+        dimension: "angle",
+        fieldPath: "geometry.bend_angle",
+        quantity: component.geometry?.bend_angle
+      },
+      {
+        dimension: "length",
+        fieldPath: "geometry.branch_run_size",
+        quantity: component.geometry?.branch_run_size
+      },
+      {
+        dimension: "length",
+        fieldPath: "geometry.branch_header_size",
+        quantity: component.geometry?.branch_header_size
+      },
+      {
+        dimension: "angle",
+        fieldPath: "geometry.branch_connection_angle",
+        quantity: component.geometry?.branch_connection_angle
+      },
+      {
+        dimension: "area",
+        fieldPath: "geometry.branch_reinforcement_area",
+        quantity: component.geometry?.branch_reinforcement_area
+      },
+      {
+        dimension: "length",
+        fieldPath: "geometry.rigid_body_length",
+        quantity: component.geometry?.rigid_body_length
+      },
+      {
+        dimension: "length",
+        fieldPath: "geometry.end_a_size",
+        quantity: component.geometry?.end_a_size
+      },
+      {
+        dimension: "length",
+        fieldPath: "geometry.end_b_size",
+        quantity: component.geometry?.end_b_size
+      },
+      {
+        dimension: "force",
+        fieldPath: "geometry.weight",
+        quantity: component.geometry?.weight
+      },
+      {
+        dimension: "dimensionless",
+        fieldPath: "modifiers.sif_user_value",
+        quantity: component.modifiers?.sif_user_value
+      },
       {
         dimension: "dimensionless",
         fieldPath: "modifiers.branch_header_sif_user_value",
@@ -528,6 +620,21 @@ function buildUnitPreservationEvidence({
         dimension: "dimensionless",
         fieldPath: "modifiers.flexibility_factor_user_value",
         quantity: component.modifiers?.flexibility_factor_user_value
+      },
+      {
+        dimension: "dimensionless",
+        fieldPath: "modifiers.stiffness_scaling_user_value",
+        quantity: component.modifiers?.stiffness_scaling_user_value
+      },
+      {
+        dimension: "linear_stiffness",
+        fieldPath: "modifiers.linear_stiffness_user_value",
+        quantity: component.modifiers?.linear_stiffness_user_value
+      },
+      {
+        dimension: "rotational_stiffness",
+        fieldPath: "modifiers.rotational_stiffness_user_value",
+        quantity: component.modifiers?.rotational_stiffness_user_value
       }
     ];
     for (const { dimension, fieldPath, quantity } of componentQuantities) {
@@ -559,7 +666,11 @@ function buildUnitPreservationEvidence({
   }
 
   const summaryQuantities = [
-    { fieldPath: "summary.max_displacement", quantity: result.summary.max_displacement, refId: "summary:max_displacement" },
+    {
+      fieldPath: "summary.max_displacement",
+      quantity: result.summary.max_displacement,
+      refId: "summary:max_displacement"
+    },
     {
       fieldPath: "summary.max_open_formula_stress",
       quantity: result.summary.max_open_formula_stress,
@@ -753,10 +864,7 @@ function quantityRecord(value: unknown): QuantityRecord | null {
   return { value: candidate.value, unit: candidate.unit };
 }
 
-function runHashStatus(
-  runHashRefs: Array<{ payload_scope: string; value: string }>,
-  scope?: string
-): string {
+function runHashStatus(runHashRefs: Array<{ payload_scope: string; value: string }>, scope?: string): string {
   if (!scope) return `${runHashRefs.length}_analysis_run_hash_refs_available`;
   const hash = runHashRefs.find((item) => item.payload_scope === scope);
   return hash ? `sha256:${hash.value}` : "TBD_hash_ref_not_available";
@@ -778,7 +886,12 @@ function nativePackageBoundary(packet: ReturnType<typeof buildNativePackageRevie
 }
 
 function safeFileToken(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "project";
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") || "project"
+  );
 }
 
 function round(value: number): number {

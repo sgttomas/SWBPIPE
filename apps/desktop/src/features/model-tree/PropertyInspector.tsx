@@ -48,10 +48,15 @@ export function PropertyInspector({
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const selectedNode = selection.type === "node" ? model.nodes.find((node) => node.id === selection.id) : null;
   const selectedPipe = selection.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === selection.id) : null;
-  const selectedSupport = selection.type === "support" ? model.supports.find((support) => support.id === selection.id) : null;
+  const selectedSupport =
+    selection.type === "support" ? model.supports.find((support) => support.id === selection.id) : null;
   const lengthBasis = describeUnitBasis(unitCatalogRoute, sectionDraft.lengthUnit, "length");
   const stressBasis = describeUnitBasis(unitCatalogRoute, materialDraft.stressUnit, "stress");
-  const supportStiffnessBasis = describeUnitBasis(unitCatalogRoute, supportDraft.linearStiffnessUnit, "linear_stiffness");
+  const supportStiffnessBasis = describeUnitBasis(
+    unitCatalogRoute,
+    supportDraft.linearStiffnessUnit,
+    "linear_stiffness"
+  );
   const thermalExpansionBasis = describeUnitBasis(
     unitCatalogRoute,
     materialDraft.thermalExpansionUnit,
@@ -59,18 +64,16 @@ export function PropertyInspector({
   );
   const lengthUnitOptions = unitOptions(unitCatalogRoute, "length", lengthUnit(model));
   const stressUnitOptions = unitOptions(unitCatalogRoute, "stress", stressUnit(model));
-  const supportStiffnessUnitOptions = unitOptions(
-    unitCatalogRoute,
-    "linear_stiffness",
-    linearStiffnessUnit(model)
-  );
+  const supportStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", linearStiffnessUnit(model));
   const thermalExpansionUnitOptions = unitOptions(
     unitCatalogRoute,
     "thermal_expansion_coefficient",
     thermalExpansionUnit(model)
   );
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
-  const selectedFieldUnitOptions = selectedField ? unitOptions(unitCatalogRoute, selectedField.dimension, selectedField.unit) : [];
+  const selectedFieldUnitOptions = selectedField
+    ? unitOptions(unitCatalogRoute, selectedField.dimension, selectedField.unit)
+    : [];
   const selectedFieldUnitBasis = selectedField
     ? describeUnitBasis(unitCatalogRoute, proposedUnit || selectedField.unit, selectedField.dimension)
     : null;
@@ -102,9 +105,9 @@ export function PropertyInspector({
     : null;
   const fieldChanged = Boolean(
     operationIntent &&
-      selectedField &&
-      ((proposedValue.trim() || "TBD") !== selectedField.before ||
-        (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
+    selectedField &&
+    ((proposedValue.trim() || "TBD") !== selectedField.before ||
+      (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
 
   useEffect(() => {
@@ -207,7 +210,9 @@ export function PropertyInspector({
       const present = current.restraints.includes(restraint);
       return {
         ...current,
-        restraints: present ? current.restraints.filter((item) => item !== restraint) : [...current.restraints, restraint]
+        restraints: present
+          ? current.restraints.filter((item) => item !== restraint)
+          : [...current.restraints, restraint]
       };
     });
   }
@@ -233,7 +238,10 @@ export function PropertyInspector({
         <ProvenanceBlock rows={entityProvenanceRows(model, selection)} />
         <RequiredFlagList flags={requiredFlagsForSelection(model, selection, properties)} />
       </section>
-      <UnitCatalogPanel route={unitCatalogRoute} bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]} />
+      <UnitCatalogPanel
+        route={unitCatalogRoute}
+        bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
+      />
       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel">
         <h3>Review-only edit intent</h3>
         {operationIntent ? (
@@ -255,7 +263,10 @@ export function PropertyInspector({
                 </select>
               </label>
               <label>
-                <span>Proposed value{selectedField?.unitEditable && selectedFieldUnitBasis ? ` (${selectedFieldUnitBasis.label})` : ""}</span>
+                <span>
+                  Proposed value
+                  {selectedField?.unitEditable && selectedFieldUnitBasis ? ` (${selectedFieldUnitBasis.label})` : ""}
+                </span>
                 <input
                   aria-label="Proposed editor value"
                   data-testid="editor-intent-value"
@@ -681,11 +692,15 @@ function InlineValidationPreview({
   return (
     <article className="editor-inline-validation" data-testid="editor-intent-inline-validation">
       <strong data-testid="editor-intent-inline-validation-status">
-        {outcome.mode} — application status: {outcome.validation.application_status}; schema: {outcome.validation.schema_validation};
-        units: {outcome.validation.unit_validation}; prior state: {outcome.validation.before_state_validation}
+        {outcome.mode} — application status: {outcome.validation.application_status}; schema:{" "}
+        {outcome.validation.schema_validation}; units: {outcome.validation.unit_validation}; prior state:{" "}
+        {outcome.validation.before_state_validation}
       </strong>
       {outcome.diff_preview.map((row) => (
-        <small data-testid="editor-intent-inline-validation-diff" key={`${row.entity_ref}-${row.field_path}-${row.after}`}>
+        <small
+          data-testid="editor-intent-inline-validation-diff"
+          key={`${row.entity_ref}-${row.field_path}-${row.after}`}
+        >
           diff: {row.entity_ref} {row.field_path} {row.before} to {row.after} [{row.unit}]
         </small>
       ))}
@@ -758,13 +773,19 @@ function OperationIntentPreview({ intent }: { intent: EditorOperationIntent }) {
   return (
     <article className="editor-intent-preview" data-testid="editor-operation-preview">
       <div className="editor-intent-meta">
-        <IntentFact label="Operation" value={`${intent.operation_id}; ${intent.operation_kind}; ${intent.operation_status}`} />
+        <IntentFact
+          label="Operation"
+          value={`${intent.operation_id}; ${intent.operation_kind}; ${intent.operation_status}`}
+        />
         <IntentFact label="Target" value={`${intent.target.object_type}; ${intent.target.ref}`} />
         <IntentFact
           label="Change"
           value={`${intent.change.change_kind}; ${intent.change.field_label}; ${intent.change.field_path}; before=${intent.change.before}; after=${intent.change.after}`}
         />
-        <IntentFact label="Unit basis" value={`${intent.change.dimension}; unit=${intent.change.unit}; ${intent.change.source_note}`} />
+        <IntentFact
+          label="Unit basis"
+          value={`${intent.change.dimension}; unit=${intent.change.unit}; ${intent.change.source_note}`}
+        />
         <IntentFact
           label="Validation"
           value={`${intent.validation.schema_validation}; ${intent.validation.constraint_validation}; ${intent.validation.unit_validation}; ${intent.validation.diff_preview_status}; ${intent.validation.application_status}`}
@@ -773,7 +794,9 @@ function OperationIntentPreview({ intent }: { intent: EditorOperationIntent }) {
         <IntentFact
           label="Audit boundary"
           value={`Routed through the ${intent.audit_boundary.mutation_route.replaceAll("_", " ")}; ${
-            intent.audit_boundary.direct_model_mutation_allowed ? "allows direct model mutation" : "no direct model mutation"
+            intent.audit_boundary.direct_model_mutation_allowed
+              ? "allows direct model mutation"
+              : "no direct model mutation"
           }; ${intent.audit_boundary.requires_user_acceptance ? "requires your acceptance" : "no acceptance required"}; ${
             intent.audit_boundary.mutates_accepted_model_state
               ? "changes the accepted model"
@@ -784,7 +807,9 @@ function OperationIntentPreview({ intent }: { intent: EditorOperationIntent }) {
         <IntentFact
           label="Professional boundary"
           value={`${intent.professional_boundary.human_review_required ? "Requires human review" : "No human review flagged"}; ${
-            intent.professional_boundary.software_makes_compliance_claim ? "makes a compliance claim" : "no compliance claim"
+            intent.professional_boundary.software_makes_compliance_claim
+              ? "makes a compliance claim"
+              : "no compliance claim"
           }; ${intent.professional_boundary.software_makes_approval_claim ? "makes an approval claim" : "no approval claim"}`}
           testId="editor-intent-professional-boundary"
         />
@@ -829,18 +854,14 @@ function IntentFact({ label, value, testId }: { label: string; value: string; te
   );
 }
 
-function DualUnitValue({
-  value,
-  unit,
-  basis
-}: {
-  value: string;
-  unit: string;
-  basis: UnitBasisDisplay | null;
-}) {
+function DualUnitValue({ value, unit, basis }: { value: string; unit: string; basis: UnitBasisDisplay | null }) {
   const dual = dualUnitDisplay(value, unit);
   return (
-    <section className="inspector-context-card" data-testid="inspector-dual-unit-display" aria-label="Dual-unit display">
+    <section
+      className="inspector-context-card"
+      data-testid="inspector-dual-unit-display"
+      aria-label="Dual-unit display"
+    >
       <span>Dual units</span>
       <strong>
         {dual.enteredValue} {dual.enteredUnit}
@@ -896,7 +917,14 @@ function entityProvenanceRows(model: PreviewModel, selection: EntityRef): Array<
   if (!entity || typeof entity !== "object") return [];
   const record = entity as Record<string, unknown>;
   const rows: Array<[string, string]> = [];
-  for (const key of ["source_name", "source_location", "source_license", "contributor", "redistribution_status", "review_status"]) {
+  for (const key of [
+    "source_name",
+    "source_location",
+    "source_license",
+    "contributor",
+    "redistribution_status",
+    "review_status"
+  ]) {
     const value = record[key];
     if (typeof value === "string" && value.trim()) rows.push([labelFromKey(key), value]);
   }
@@ -918,6 +946,12 @@ function entityProvenanceRows(model: PreviewModel, selection: EntityRef): Array<
     if (component?.geometry?.branch_geometry_source_reference) {
       rows.push(["Geometry source", component.geometry.branch_geometry_source_reference]);
     }
+    if (component?.geometry?.rigid_component_source_reference) {
+      rows.push(["Geometry source", component.geometry.rigid_component_source_reference]);
+    }
+    if (component?.geometry?.stiffness_behavior_reference) {
+      rows.push(["Stiffness behavior", component.geometry.stiffness_behavior_reference]);
+    }
     if (component?.modifiers?.source_reference) {
       rows.push(["Modifier source", component.modifiers.source_reference]);
     }
@@ -928,10 +962,12 @@ function entityProvenanceRows(model: PreviewModel, selection: EntityRef): Array<
   return rows;
 }
 
-function requiredFlagsForSelection(model: PreviewModel, selection: EntityRef, properties: Array<[string, string]>): string[] {
-  const flags = properties
-    .filter(([, value]) => value.trim() === "" || value.trim() === "TBD")
-    .map(([label]) => label);
+function requiredFlagsForSelection(
+  model: PreviewModel,
+  selection: EntityRef,
+  properties: Array<[string, string]>
+): string[] {
+  const flags = properties.filter(([, value]) => value.trim() === "" || value.trim() === "TBD").map(([label]) => label);
   const entity = selectedEntity(model, selection);
   if (entity && typeof entity === "object") {
     const record = entity as Record<string, unknown>;
@@ -943,14 +979,14 @@ function requiredFlagsForSelection(model: PreviewModel, selection: EntityRef, pr
       const geometry = component.geometry;
       const geometryComplete = Boolean(
         geometry?.bend_radius &&
-          geometry.bend_angle &&
-          geometry.bend_plane_orientation?.trim() &&
-          geometry.bend_geometry_source_reference?.trim()
+        geometry.bend_angle &&
+        geometry.bend_plane_orientation?.trim() &&
+        geometry.bend_geometry_source_reference?.trim()
       );
       const modifiersComplete = Boolean(
         component.modifiers?.sif_user_value &&
-          component.modifiers.flexibility_factor_user_value &&
-          component.modifiers.source_reference?.trim()
+        component.modifiers.flexibility_factor_user_value &&
+        component.modifiers.source_reference?.trim()
       );
       if (!geometryComplete) flags.push("BEND_GEOMETRY_INCOMPLETE");
       if (!modifiersComplete) flags.push("BEND_RULE_INPUT_MISSING");
@@ -959,22 +995,45 @@ function requiredFlagsForSelection(model: PreviewModel, selection: EntityRef, pr
       const geometry = component.geometry;
       const geometryComplete = Boolean(
         geometry?.branch_header_pipe_ref?.trim() &&
-          geometry.branch_branch_pipe_ref?.trim() &&
-          geometry.branch_run_size &&
-          geometry.branch_header_size &&
-          geometry.branch_connection_angle &&
-          geometry.branch_connection_type?.trim() &&
-          geometry.branch_reinforcement_reference?.trim() &&
-          geometry.branch_geometry_source_reference?.trim()
+        geometry.branch_branch_pipe_ref?.trim() &&
+        geometry.branch_run_size &&
+        geometry.branch_header_size &&
+        geometry.branch_connection_angle &&
+        geometry.branch_connection_type?.trim() &&
+        geometry.branch_reinforcement_reference?.trim() &&
+        geometry.branch_geometry_source_reference?.trim()
       );
       const modifiersComplete = Boolean(
         component.modifiers?.branch_header_sif_user_value &&
-          component.modifiers.branch_branch_sif_user_value &&
-          component.modifiers.flexibility_factor_user_value &&
-          component.modifiers.source_reference?.trim()
+        component.modifiers.branch_branch_sif_user_value &&
+        component.modifiers.flexibility_factor_user_value &&
+        component.modifiers.source_reference?.trim()
       );
       if (!geometryComplete) flags.push("BRANCH_GEOMETRY_INCOMPLETE");
       if (!modifiersComplete) flags.push("BRANCH_RULE_INPUT_MISSING");
+    }
+    if (component && isRigidComponent(component)) {
+      const geometry = component.geometry;
+      const geometryComplete = Boolean(
+        geometry?.rigid_pipe_ref?.trim() &&
+        geometry.rigid_body_length &&
+        geometry.end_a_size &&
+        geometry.end_b_size &&
+        geometry.weight &&
+        geometry.center_of_gravity &&
+        geometry.connection_end_a_reference?.trim() &&
+        geometry.connection_end_b_reference?.trim() &&
+        geometry.stiffness_behavior_reference?.trim() &&
+        geometry.rigid_component_source_reference?.trim()
+      );
+      const modifiersComplete = Boolean(
+        component.modifiers?.stiffness_scaling_user_value &&
+        component.modifiers.linear_stiffness_user_value &&
+        component.modifiers.rotational_stiffness_user_value &&
+        component.modifiers.source_reference?.trim()
+      );
+      if (!geometryComplete) flags.push("RIGID_COMPONENT_GEOMETRY_INCOMPLETE");
+      if (!modifiersComplete) flags.push("RIGID_COMPONENT_STIFFNESS_DATA_MISSING");
     }
   }
   return Array.from(new Set(flags)).slice(0, 4);
@@ -993,13 +1052,7 @@ function labelFromKey(key: string): string {
   return key.replaceAll("_", " ");
 }
 
-function UnitCatalogPanel({
-  bases,
-  route
-}: {
-  bases: UnitBasisDisplay[];
-  route: UnitCatalogRoute | null;
-}) {
+function UnitCatalogPanel({ bases, route }: { bases: UnitBasisDisplay[]; route: UnitCatalogRoute | null }) {
   return (
     <section className="editor-intent" aria-label="Unit catalog status" data-testid="property-unit-catalog-panel">
       <h3>Unit basis</h3>
@@ -1103,7 +1156,15 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "set_field",
         true
       ),
-      scalarField("Provenance", "provenance", material.provenance, "Material", "dimensionless", "none", "public/private source note")
+      scalarField(
+        "Provenance",
+        "provenance",
+        material.provenance,
+        "Material",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
     ];
   }
 
@@ -1141,7 +1202,15 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "set_field",
         true
       ),
-      scalarField("Provenance", "provenance", node.provenance, "Node", "dimensionless", "none", "public/private source note")
+      scalarField(
+        "Provenance",
+        "provenance",
+        node.provenance,
+        "Node",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
     ];
   }
 
@@ -1170,17 +1239,61 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         true
       ),
       scalarField("Material", "material", pipe.material, "Element", "dimensionless", "none", "material reference"),
-      scalarField("Provenance", "provenance", pipe.provenance, "Element", "dimensionless", "none", "public/private source note")
+      scalarField(
+        "Provenance",
+        "provenance",
+        pipe.provenance,
+        "Element",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
     ];
   }
 
   const support = model.supports.find((item) => item.id === selection.id);
   if (support) {
     return [
-      scalarField("Label", "label", support.label, "Support", "dimensionless", "none", "support label only", "update_support"),
-      scalarField("Node", "node", support.node, "Support", "dimensionless", "none", "target node reference", "update_support"),
-      scalarField("Restraints", "restraints", support.restraints.join(", "), "Support", "dimensionless", "none", "restraint direction set", "update_support"),
-      scalarField("Provenance", "provenance", support.provenance, "Support", "dimensionless", "none", "public/private source note", "update_support")
+      scalarField(
+        "Label",
+        "label",
+        support.label,
+        "Support",
+        "dimensionless",
+        "none",
+        "support label only",
+        "update_support"
+      ),
+      scalarField(
+        "Node",
+        "node",
+        support.node,
+        "Support",
+        "dimensionless",
+        "none",
+        "target node reference",
+        "update_support"
+      ),
+      scalarField(
+        "Restraints",
+        "restraints",
+        support.restraints.join(", "),
+        "Support",
+        "dimensionless",
+        "none",
+        "restraint direction set",
+        "update_support"
+      ),
+      scalarField(
+        "Provenance",
+        "provenance",
+        support.provenance,
+        "Support",
+        "dimensionless",
+        "none",
+        "public/private source note",
+        "update_support"
+      )
     ];
   }
 
@@ -1189,7 +1302,15 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
     const fields: EditableField[] = [
       scalarField("Label", "label", component.label, "Component", "dimensionless", "none", "component label only"),
       scalarField("Node", "node", component.node, "Component", "dimensionless", "none", "target node reference"),
-      scalarField("Provenance", "provenance", component.provenance, "Component", "dimensionless", "none", "public/private source note")
+      scalarField(
+        "Provenance",
+        "provenance",
+        component.provenance,
+        "Component",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
     ];
     if (isBendComponent(component)) {
       fields.splice(
@@ -1334,6 +1455,110 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         )
       );
     }
+    if (isRigidComponent(component)) {
+      fields.splice(
+        2,
+        0,
+        scalarField(
+          "Mapped pipe",
+          "geometry.rigid_pipe_ref",
+          component.geometry?.rigid_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "generic frame member mapping"
+        ),
+        quantityField(
+          "Rigid body length",
+          "geometry.rigid_body_length.value",
+          component.geometry?.rigid_body_length?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.rigid_body_length?.unit ?? model.project.units.length ?? "m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "End A size",
+          "geometry.end_a_size.value",
+          component.geometry?.end_a_size?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.end_a_size?.unit ?? model.project.units.length ?? "m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "End B size",
+          "geometry.end_b_size.value",
+          component.geometry?.end_b_size?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.end_b_size?.unit ?? model.project.units.length ?? "m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Weight",
+          "geometry.weight.value",
+          component.geometry?.weight?.value ?? "TBD",
+          "Component",
+          "force",
+          component.geometry?.weight?.unit ?? model.project.units.force ?? "N",
+          "set_field",
+          true
+        ),
+        scalarField(
+          "Center of gravity",
+          "geometry.center_of_gravity",
+          component.geometry?.center_of_gravity
+            ? `x=${component.geometry.center_of_gravity.x}, y=${component.geometry.center_of_gravity.y}, z=${component.geometry.center_of_gravity.z} ${component.geometry.center_of_gravity.unit}`
+            : "TBD",
+          "Component",
+          "length",
+          component.geometry?.center_of_gravity?.unit ?? model.project.units.length ?? "m",
+          "user-entered COG vector in the component reference convention"
+        ),
+        scalarField(
+          "Stiffness behavior",
+          "geometry.stiffness_behavior_reference",
+          component.geometry?.stiffness_behavior_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered semi-rigid behavior reference"
+        ),
+        scalarField(
+          "Stiffness scale",
+          "modifiers.stiffness_scaling_user_value.value",
+          String(component.modifiers?.stiffness_scaling_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          component.modifiers?.stiffness_scaling_user_value?.unit ?? "none",
+          "user-entered rigid stiffness scaling; no catalog default"
+        ),
+        quantityField(
+          "Linear stiffness",
+          "modifiers.linear_stiffness_user_value.value",
+          component.modifiers?.linear_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "linear_stiffness",
+          component.modifiers?.linear_stiffness_user_value?.unit ?? "N/m",
+          "set_field",
+          true
+        ),
+        quantityField(
+          "Rotational stiffness",
+          "modifiers.rotational_stiffness_user_value.value",
+          component.modifiers?.rotational_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "rotational_stiffness",
+          component.modifiers?.rotational_stiffness_user_value?.unit ?? "N*m/rad",
+          "set_field",
+          true
+        )
+      );
+    }
     return fields;
   }
 
@@ -1342,28 +1567,73 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
     const firstLoad = loadCase.primitive_loads?.[0] ?? {};
     const firstMagnitude = firstLoad.magnitude as { value?: unknown; unit?: unknown } | undefined;
     return [
-      scalarField("Label", "label", loadCase.label, "Load", "dimensionless", "none", "load case label only", "update_load"),
-      scalarField("Status", "status", loadCase.status, "Load", "dimensionless", "none", "load case status", "update_load"),
+      scalarField(
+        "Label",
+        "label",
+        loadCase.label,
+        "Load",
+        "dimensionless",
+        "none",
+        "load case label only",
+        "update_load"
+      ),
+      scalarField(
+        "Status",
+        "status",
+        loadCase.status,
+        "Load",
+        "dimensionless",
+        "none",
+        "load case status",
+        "update_load"
+      ),
       scalarField("Kind", "kind", loadCase.kind, "Load", "dimensionless", "none", "load case kind", "update_load"),
       quantityField(
         "First primitive magnitude",
         "primitive_loads.0.magnitude.value",
-        typeof firstMagnitude?.value === "number" || typeof firstMagnitude?.value === "string" ? firstMagnitude.value : "TBD",
+        typeof firstMagnitude?.value === "number" || typeof firstMagnitude?.value === "string"
+          ? firstMagnitude.value
+          : "TBD",
         "Load",
         typeof firstLoad.dimension === "string" ? firstLoad.dimension : "TBD",
         typeof firstMagnitude?.unit === "string" ? firstMagnitude.unit : "TBD",
         "update_load",
         true
       ),
-      scalarField("Provenance", "provenance", loadCase.provenance, "Load", "dimensionless", "none", "public/private source note", "update_load")
+      scalarField(
+        "Provenance",
+        "provenance",
+        loadCase.provenance,
+        "Load",
+        "dimensionless",
+        "none",
+        "public/private source note",
+        "update_load"
+      )
     ];
   }
 
   const combination = model.combinations?.find((item) => item.id === selection.id);
   if (combination) {
     return [
-      scalarField("Label", "label", combination.label, "Combination", "dimensionless", "none", "combination label only"),
-      scalarField("Basis", "basis", combination.basis, "Combination", "dimensionless", "none", "mechanics or user rule basis"),
+      scalarField(
+        "Label",
+        "label",
+        combination.label,
+        "Combination",
+        "dimensionless",
+        "none",
+        "combination label only"
+      ),
+      scalarField(
+        "Basis",
+        "basis",
+        combination.basis,
+        "Combination",
+        "dimensionless",
+        "none",
+        "mechanics or user rule basis"
+      ),
       scalarField(
         "Terms",
         "terms",
@@ -1373,7 +1643,15 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "none",
         "explicit user-defined terms"
       ),
-      scalarField("Provenance", "provenance", combination.provenance, "Combination", "dimensionless", "none", "public/private source note")
+      scalarField(
+        "Provenance",
+        "provenance",
+        combination.provenance,
+        "Combination",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
     ];
   }
 
@@ -1390,7 +1668,17 @@ function scalarField(
   sourceNote: string,
   changeKind: EditableField["changeKind"] = "set_field"
 ): EditableField {
-  return { label, fieldPath, before, objectType, dimension, unit, sourceNote, changeKind, unitEditable: false };
+  return {
+    label,
+    fieldPath,
+    before,
+    objectType,
+    dimension,
+    unit,
+    sourceNote,
+    changeKind,
+    unitEditable: false
+  };
 }
 
 function quantityField(
@@ -1424,6 +1712,10 @@ function isBranchComponent(component: PreviewComponent): boolean {
   return component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection";
 }
 
+function isRigidComponent(component: PreviewComponent): boolean {
+  return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
+}
+
 function buildOperationIntent({
   field,
   model,
@@ -1444,7 +1736,10 @@ function buildOperationIntent({
   const operationToken = `${safeToken(selection.id)}-${safeToken(field.fieldPath)}`;
   const intentUnit = field.unitEditable ? proposedUnit.trim() || field.unit : field.unit;
   const changeAfter = field.unitEditable
-    ? JSON.stringify({ value: parseQuantityPayloadValue(proposedValue), unit: intentUnit })
+    ? JSON.stringify({
+        value: parseQuantityPayloadValue(proposedValue),
+        unit: intentUnit
+      })
     : proposedValue.trim() || "TBD";
   return {
     operation_id: `op:editor-intent-${operationToken}`,
@@ -1511,12 +1806,7 @@ function materialDraftUnitValidationStatus(draft: MaterialDraft, route: UnitCata
 function propertyUnitValidationStatus(route: UnitCatalogRoute | null, unit: string, dimension: string): string {
   const normalizedUnit = unit.trim();
   const normalizedDimension = dimension.trim();
-  if (
-    !normalizedUnit ||
-    normalizedUnit === "TBD" ||
-    !normalizedDimension ||
-    normalizedDimension === "TBD"
-  ) {
+  if (!normalizedUnit || normalizedUnit === "TBD" || !normalizedDimension || normalizedDimension === "TBD") {
     return "missing_unit_or_dimension";
   }
   if (normalizedUnit === "none" || normalizedDimension === "dimensionless") {
@@ -1551,8 +1841,14 @@ function buildCreateSectionIntent(
     name: draft.name.trim(),
     section_type: draft.sectionType.trim(),
     properties: {
-      outside_diameter: { value: Number(draft.outsideDiameter), unit: draft.lengthUnit },
-      wall_thickness: { value: Number(draft.wallThickness), unit: draft.lengthUnit }
+      outside_diameter: {
+        value: Number(draft.outsideDiameter),
+        unit: draft.lengthUnit
+      },
+      wall_thickness: {
+        value: Number(draft.wallThickness),
+        unit: draft.lengthUnit
+      }
     },
     provenance: draft.provenance.trim()
   };
@@ -1615,12 +1911,21 @@ function buildCreateMaterialIntent(
   const payload: Record<string, unknown> = {
     id: materialId,
     label: draft.label.trim(),
-    elastic_modulus: { value: Number(draft.elasticModulus), unit: draft.stressUnit },
-    shear_modulus: { value: Number(draft.shearModulus), unit: draft.stressUnit },
+    elastic_modulus: {
+      value: Number(draft.elasticModulus),
+      unit: draft.stressUnit
+    },
+    shear_modulus: {
+      value: Number(draft.shearModulus),
+      unit: draft.stressUnit
+    },
     provenance: draft.provenance.trim()
   };
   if (draft.thermalExpansion.trim()) {
-    payload.thermal_expansion_coefficient = { value: Number(draft.thermalExpansion), unit: draft.thermalExpansionUnit };
+    payload.thermal_expansion_coefficient = {
+      value: Number(draft.thermalExpansion),
+      unit: draft.thermalExpansionUnit
+    };
   }
   return {
     operation_id: `op:create-material-${safeToken(materialId)}`,
@@ -1688,7 +1993,10 @@ function buildCreateSupportIntent(
   };
   if (stiffnessProvided) {
     payload.properties = {
-      linear_stiffness: { value: Number(draft.linearStiffness), unit: draft.linearStiffnessUnit }
+      linear_stiffness: {
+        value: Number(draft.linearStiffness),
+        unit: draft.linearStiffnessUnit
+      }
     };
   }
   return {
@@ -1745,7 +2053,10 @@ function buildCreateSupportIntent(
   };
 }
 
-function buildDeleteSupportIntent(support: PreviewModel["supports"][number], model: PreviewModel): EditorOperationIntent {
+function buildDeleteSupportIntent(
+  support: PreviewModel["supports"][number],
+  model: PreviewModel
+): EditorOperationIntent {
   const supportId = support.id.trim();
   return {
     operation_id: `op:delete-support-${safeToken(supportId)}`,
@@ -1850,7 +2161,10 @@ function buildDeleteNodeIntent(node: PreviewModel["nodes"][number], model: Previ
   };
 }
 
-function buildDeletePipeIntent(pipe: PreviewModel["pipe_segments"][number], model: PreviewModel): EditorOperationIntent {
+function buildDeletePipeIntent(
+  pipe: PreviewModel["pipe_segments"][number],
+  model: PreviewModel
+): EditorOperationIntent {
   const pipeId = pipe.id.trim();
   const before = `${pipe.label}; ${pipe.from}->${pipe.to}; material=${pipe.material}`;
   return {
@@ -1964,7 +2278,11 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
   };
 }
 
-function defaultSupportDraft(model: PreviewModel, selection: EntityRef, queuedIntents: EditorOperationIntent[]): SupportDraft {
+function defaultSupportDraft(
+  model: PreviewModel,
+  selection: EntityRef,
+  queuedIntents: EditorOperationIntent[]
+): SupportDraft {
   return defaultSupportDraftWithReserved(model, selection, queuedIntents);
 }
 
@@ -1974,7 +2292,8 @@ function defaultSupportDraftWithReserved(
   queuedIntents: EditorOperationIntent[]
 ): SupportDraft {
   const id = nextSupportId(model, queuedIntents);
-  const selectedNode = selection.type === "node" && model.nodes.some((node) => node.id === selection.id) ? selection.id : null;
+  const selectedNode =
+    selection.type === "node" && model.nodes.some((node) => node.id === selection.id) ? selection.id : null;
   const node = selectedNode ?? model.nodes[0]?.id ?? "";
   return {
     id,
