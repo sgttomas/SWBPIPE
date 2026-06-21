@@ -12,6 +12,7 @@ SOURCE_PATH = BENCHMARK_DIR / "src" / "lib.rs"
 HAND_CALCS_DIR = ROOT / "validation" / "hand_calcs" / "nonlinear"
 HAND_CALCS_README = HAND_CALCS_DIR / "README.md"
 BENCHMARK_README = BENCHMARK_DIR / "README.md"
+CONVERGENCE_OBSERVATION_NOTE = HAND_CALCS_DIR / "convergence_observations.md"
 
 REQUIRED_FAMILIES = {
     "ActiveSet",
@@ -189,6 +190,7 @@ def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
                 *REQUIRED_ASSEMBLED_FIXTURE_NOTES.values(),
             ]
         ),
+        CONVERGENCE_OBSERVATION_NOTE,
     ]
 
     for path in scanned_paths:
@@ -218,10 +220,26 @@ def test_nonlinear_public_provenance_sources_exist_before_fixture_acceptance():
 
 def test_assembled_global_loop_seed_keeps_tbd_policy_visible():
     source = SOURCE_PATH.read_text(encoding="utf-8")
+    benchmark_readme = BENCHMARK_README.read_text(encoding="utf-8")
+    hand_calc_readme = HAND_CALCS_README.read_text(encoding="utf-8")
+    observation_note = CONVERGENCE_OBSERVATION_NOTE.read_text(encoding="utf-8")
 
     assert "assembled_fixture_inventory" in source
+    assert "assembled_convergence_observations" in source
+    assert "ConvergenceObservation" in source
+    assert "observed_iteration_count" in source
     assert "solve_active_set_frame" in source
     assert "DEC-046-CV-B-assembled-validation-seed-TBD" in source
     assert "TolerancePolicyTbd" in source
     for fixture_id in REQUIRED_ASSEMBLED_FIXTURE_NOTES:
         assert fixture_id in source
+        assert fixture_id in observation_note
+
+    assert CONVERGENCE_OBSERVATION_NOTE.name in benchmark_readme
+    assert CONVERGENCE_OBSERVATION_NOTE.name in hand_calc_readme
+    assert "## Provenance" in observation_note
+    assert "## Invented Inputs" in observation_note
+    assert "## Expected Values" in observation_note
+    assert "Tolerance policy: `TBD`." in observation_note
+    assert "does not define release thresholds" in benchmark_readme
+    assert "not a release threshold" in observation_note

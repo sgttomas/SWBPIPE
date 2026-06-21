@@ -216,6 +216,32 @@ pub struct AssembledNonlinearRegressionCase {
     pub observations: Vec<DimensionedObservation>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct ConvergenceObservation {
+    pub fixture_id: &'static str,
+    pub family: NonlinearRegressionFamily,
+    pub nonlinear_class: &'static str,
+    pub policy_ref: String,
+    pub policy_status: ConvergencePolicyStatus,
+    pub max_iterations: usize,
+    pub observed_iteration_count: usize,
+    pub final_residual_norm: f64,
+    pub residual_unit: &'static str,
+    pub residual_dimension: &'static str,
+    pub observed_converged: bool,
+    pub diagnostic_codes: Vec<SolverDiagnosticCode>,
+}
+
+impl ConvergenceObservation {
+    pub fn preserves_dec_046_tbd_policy(&self) -> bool {
+        self.policy_ref == "DEC-046-CV-B-assembled-validation-seed-TBD"
+            && self.policy_status == ConvergencePolicyStatus::Tbd
+            && self
+                .diagnostic_codes
+                .contains(&SolverDiagnosticCode::TolerancePolicyTbd)
+    }
+}
+
 impl NonlinearRegressionCase {
     pub fn run(&self) -> Result<ActiveSetIteration, NonlinearSupportError> {
         evaluate_active_set_iteration(&self.input)
@@ -326,6 +352,39 @@ impl AssembledNonlinearRegressionCase {
             && solve.converged == self.expected_converged
             && diagnostic_codes == self.expected_diagnostic_codes
     }
+
+    pub fn convergence_observation(
+        &self,
+    ) -> Result<
+        ConvergenceObservation,
+        open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
+    > {
+        let solve = self.run()?;
+        let final_residual_norm = solve
+            .iterations
+            .last()
+            .map(|iteration| iteration.active_set.residual_norm)
+            .unwrap_or(f64::NAN);
+
+        Ok(ConvergenceObservation {
+            fixture_id: self.fixture_id,
+            family: self.family,
+            nonlinear_class: convergence_class_label(self.fixture_id, self.family),
+            policy_ref: solve.policy_ref,
+            policy_status: self.input.convergence.policy_status,
+            max_iterations: self.input.convergence.max_iterations,
+            observed_iteration_count: solve.iterations.len(),
+            final_residual_norm,
+            residual_unit: "count",
+            residual_dimension: "dimensionless",
+            observed_converged: solve.converged,
+            diagnostic_codes: solve
+                .diagnostics
+                .iter()
+                .map(|diagnostic| diagnostic.code)
+                .collect(),
+        })
+    }
 }
 
 pub fn fixture_inventory() -> Vec<NonlinearRegressionCase> {
@@ -347,6 +406,17 @@ pub fn assembled_fixture_inventory() -> Vec<AssembledNonlinearRegressionCase> {
         assembled_friction_sliding_fixture(),
         assembled_friction_derived_normal_fixture(),
     ]
+}
+
+pub fn assembled_convergence_observations() -> Vec<ConvergenceObservation> {
+    assembled_fixture_inventory()
+        .iter()
+        .map(|fixture| {
+            fixture
+                .convergence_observation()
+                .expect("assembled convergence observation fixtures remain valid")
+        })
+        .collect()
 }
 
 pub fn missing_required_families(
@@ -380,6 +450,27 @@ pub fn missing_required_assembled_families(
         .into_iter()
         .filter(|family| !fixtures.iter().any(|fixture| fixture.family == *family))
         .collect()
+}
+
+fn convergence_class_label(
+    fixture_id: &'static str,
+    family: NonlinearRegressionFamily,
+) -> &'static str {
+    match fixture_id {
+        "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL" => "one_way",
+        "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL" => "gap",
+        "NL-ASSEMBLED-LIFT-OFF-ORIGINAL" => "lift_off",
+        "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL" => "friction_sticking_explicit_normal",
+        "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL" => "friction_sliding_explicit_normal",
+        "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL" => "friction_sticking_derived_normal",
+        _ => match family {
+            NonlinearRegressionFamily::ActiveSet => "active_set",
+            NonlinearRegressionFamily::Gap => "gap",
+            NonlinearRegressionFamily::LiftOff => "lift_off",
+            NonlinearRegressionFamily::Friction => "friction",
+            NonlinearRegressionFamily::NonConvergence => "nonconvergence",
+        },
+    }
 }
 
 fn assembled_axial_input(
@@ -1285,6 +1376,51 @@ mod tests {
                 .iter()
                 .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::TolerancePolicyTbd));
         }
+    }
+
+    #[test]
+    fn assembled_convergence_observations_record_measured_fixture_values_only() {
+        let observations = assembled_convergence_observations();
+
+        assert_eq!(observations.len(), assembled_fixture_inventory().len());
+        assert_eq!(
+            observations
+                .iter()
+                .map(|observation| observation.fixture_id)
+                .collect::<Vec<_>>(),
+            vec![
+                "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL",
+                "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL",
+                "NL-ASSEMBLED-LIFT-OFF-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
+            ]
+        );
+
+        for observation in &observations {
+            assert!(observation.observed_converged, "{}", observation.fixture_id);
+            assert_eq!(observation.final_residual_norm, 0.0);
+            assert_eq!(observation.residual_unit, "count");
+            assert_eq!(observation.residual_dimension, "dimensionless");
+            assert!(
+                observation.observed_iteration_count <= observation.max_iterations,
+                "{}",
+                observation.fixture_id
+            );
+            assert!(
+                observation.preserves_dec_046_tbd_policy(),
+                "{}",
+                observation.fixture_id
+            );
+        }
+
+        assert_eq!(observations[0].observed_iteration_count, 2);
+        assert_eq!(observations[1].observed_iteration_count, 2);
+        assert_eq!(observations[2].observed_iteration_count, 2);
+        assert_eq!(observations[3].observed_iteration_count, 1);
+        assert_eq!(observations[4].observed_iteration_count, 2);
+        assert_eq!(observations[5].observed_iteration_count, 1);
     }
 
     #[test]

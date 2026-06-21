@@ -195,3 +195,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
   `cargo test` passed; `git diff --check` passed; the five-surface `DEC-025`
   evidence sweep passed and wrote
   `validation/evidence/sweeps/SWEEP_20260621T074615Z_a83ced203fac-dirty.json`.
+
+## 2026-06-21 - TP-R4-D9-CONVOBS-001
+
+- Added a structured convergence-observation inventory for the current
+  assembled nonlinear validation fixture set:
+  `assembled_convergence_observations()` in
+  `validation/benchmarks/nonlinear/src/lib.rs`.
+- Added `validation/hand_calcs/nonlinear/convergence_observations.md`; the
+  note records observed iteration counts and final residuals for one-way
+  deactivation, gap closure, lift-off release, explicit-normal friction
+  sticking/sliding, and derived-normal friction sticking.
+- Every observation preserves
+  `DEC-046-CV-B-assembled-validation-seed-TBD` and visible
+  `TolerancePolicyTbd`; governed class-tier threshold promotion remains
+  unresolved.
+- Focused validation passed for nonlinear benchmark rustfmt, nonlinear
+  benchmark tests, focused nonlinear pytest, and `git diff --check`; the full
+  five-surface evidence sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260621T095800Z_4d3bae24de12-dirty.json`.
+- Residuals remain: sparse live-path adoption (`D-17`), broader live-solver
+  coverage, governed threshold promotion under `DEC-046`, and the R4 exit
+  evidence package.

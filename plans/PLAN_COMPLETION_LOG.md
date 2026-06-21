@@ -14,6 +14,49 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 convergence observation inventory (`TP-R4-D9-CONVOBS-001`)
+
+Landed structured observed convergence evidence for the current assembled
+nonlinear validation fixture set under `DEC-046`, without promoting governed
+thresholds.
+
+`validation/benchmarks/nonlinear` now exposes
+`assembled_convergence_observations()`, returning one row per assembled
+fixture with fixture ID, nonlinear class label, policy reference/status,
+observed iteration count, final active-set residual, convergence flag, and
+diagnostic codes. The recorded current observations are: one-way deactivation
+2 iterations, gap closure 2, lift-off release 2, explicit-normal friction
+sticking 1, explicit-normal friction sliding 2, and derived-normal friction
+sticking 1; each final residual is `0.0` and each row preserves
+`DEC-046-CV-B-assembled-validation-seed-TBD` with `TolerancePolicyTbd`.
+
+The public hand-calculation note is
+`validation/hand_calcs/nonlinear/convergence_observations.md`, and the focused
+pytest guardrails now require that note and scan it with the existing
+protected-content/prohibited-claim checks.
+
+Validation: `cargo fmt --manifest-path validation/benchmarks/nonlinear/Cargo.toml -- --check`
+passed; `cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml`
+passed 8/8 tests; `python3 -m pytest -q tests/test_nonlinear_support_regression.py`
+passed 8/8 tests; `git diff --check` passed; the full five-surface evidence
+sweep passed across 33 cargo crates, repository pytest (362), desktop Vitest
+(407), Playwright dev/dist (18 + 1), and desktop production build, writing
+`validation/evidence/sweeps/SWEEP_20260621T095800Z_4d3bae24de12-dirty.json`.
+
+Evidence: DEL-09-03 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-CONVOBS-001.md`.
+
+Residual: sparse live-path adoption remains gated by `D-17`; broader
+live-solver coverage, governed class-tier threshold promotion, and the R4 exit
+evidence package remain open.
+
+Boundary: public invented mechanics evidence only; no protected standards
+content, private data, lifecycle transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D9 branch-assembly mechanics benchmark (`TP-R4-D9-BRANCHASSEMBLY-001`)
 
 Landed the PRD section 16.2 branch-assembly benchmark residual as

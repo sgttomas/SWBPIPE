@@ -39,3 +39,9 @@ thresholds remain `TBD`.
 | `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | [assembled_friction_sticking.md](assembled_friction_sticking.md) |
 | `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | [assembled_friction_sliding.md](assembled_friction_sliding.md) |
 | `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | [assembled_friction_derived_normal.md](assembled_friction_derived_normal.md) |
+
+## Observation Notes
+
+| Topic | Note |
+|---|---|
+| Assembled convergence observations | [convergence_observations.md](convergence_observations.md) |
