@@ -273,12 +273,13 @@ under `DEC-044`/`DEC-046`, and `TP-R4-D6-PHYSINTEG-001` bound that dense loop
 into the invented product/app/result-envelope preview path for one explicit
 nonlinear support. `TP-R4-D9-ASSEMBLEDSEED-001` added the first assembled
 global-loop validation seed for one-way deactivation, gap closure, and lift-off
-release. Friction normal-force model integration, measured convergence values,
-sparse live-path adoption, broader live-solver coverage, the branch-assembly
-benchmark, component provenance in rendered reports, and the R4 exit evidence
-package remain open. The remaining spine continues with D7 sparse live-path
-timing gate (`D-17`), D8 report provenance, and broader D9 R4 validation
-evidence. `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
+release. `TP-R4-D8-COMPPROVREPORT-001` added component provenance and
+missing-provenance warnings to the hash-bound rendered report path. Friction
+normal-force model integration, measured convergence values, sparse live-path
+adoption, broader live-solver coverage, the branch-assembly benchmark, and the
+R4 exit evidence package remain open. The remaining spine continues with D7
+sparse live-path timing gate (`D-17`) and broader D9 R4 validation evidence.
+`DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
 `DAG-006`.
 
 Interactive authoring of user-created local models — applying editor
@@ -335,10 +336,11 @@ bounded tranche.
       app absorption landed through `TP-R4-D4-EJSTIFF-001`. D5 is gated by
       `D-15`; the D-15 decision packet is prepared and awaiting human ruling.
       If that ruling is still pending, continue D6/D9 residuals after
-      `TP-R4-D6-LOOPCORE-001` and `TP-R4-D6-PHYSINTEG-001`: friction
+      `TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`, and the D8 rendered
+      report-provenance slice `TP-R4-D8-COMPPROVREPORT-001`: friction
       normal-force model integration, measured convergence values, sparse
       live-path adoption, broader live-solver coverage, and D9 validation
-      cases beyond the `TP-R4-D9-ASSEMBLEDSEED-001` seed remain open under
+      cases beyond the current assembled seeds remain open under
       `DEC-044`/`DEC-046`. D7 is gated by
       `D-17`; `D-20` remains a Phase E lead-up decision; held `D-21` does not
       authorize v0.2/R6/R7 scope;

@@ -2,6 +2,7 @@ import type {
   AnalysisRunEnvelope,
   LocalProjectSummary,
   MechanicsResult,
+  PreviewComponent,
   PreviewModel
 } from "../../types";
 import { canonicalSha256Hex } from "../../services/hashService";
@@ -111,6 +112,111 @@ function diagnosticsForSections(result: MechanicsResult, provenance: ReturnType<
   }));
 }
 
+function componentSourceLocation(component: PreviewComponent): string {
+  const refs: string[] = [];
+  if (component.provenance?.trim()) {
+    refs.push(`component.provenance=${component.provenance.trim()}`);
+  }
+  for (const [key, value] of Object.entries(component.geometry ?? {})) {
+    if (typeof value === "string" && key.endsWith("_reference") && value.trim()) {
+      refs.push(`geometry.${key}=${value.trim()}`);
+    }
+  }
+  if (component.modifiers?.source_reference?.trim()) {
+    refs.push(`modifiers.source_reference=${component.modifiers.source_reference.trim()}`);
+  }
+  return refs.join("; ") || "component provenance missing";
+}
+
+function componentProvenancePosture(component: PreviewComponent) {
+  const normalized = componentSourceLocation(component).toLowerCase();
+  if (normalized.includes("protected")) {
+    return {
+      source_license: "protected_suspected",
+      redistribution_status: "protected_suspected",
+      review_status: "pending",
+      privacy_classification: "protected_suspected"
+    };
+  }
+  if (normalized.includes("invented") || normalized.includes("cleared")) {
+    return {
+      source_license: "project_fixture",
+      redistribution_status: "invented_non_engineering_example",
+      review_status: "accepted",
+      privacy_classification: "invented_public_example"
+    };
+  }
+  return {
+    source_license: "user_supplied_or_private",
+    redistribution_status: "private_only",
+    review_status: "pending",
+    privacy_classification: "private_project_data"
+  };
+}
+
+function componentProvenanceRecord(
+  component: PreviewComponent,
+  base: ReturnType<typeof sessionProvenance>
+) {
+  const posture = componentProvenancePosture(component);
+  const label = component.label?.trim() || component.id;
+  return {
+    source_name: `${label} component provenance`,
+    source_location: componentSourceLocation(component),
+    source_license: posture.source_license,
+    contributor: base.contributor,
+    contributor_certification:
+      posture.redistribution_status === "invented_non_engineering_example"
+        ? "Invented component metadata only; no protected standards tables, code-derived factors, or catalog defaults bundled."
+        : "User-local component provenance metadata; redistribution remains private or pending until separately cleared.",
+    redistribution_status: posture.redistribution_status,
+    review_status: posture.review_status,
+    privacy_classification: posture.privacy_classification
+  };
+}
+
+function componentHasProvenance(component: PreviewComponent): boolean {
+  return Boolean(component.provenance?.trim());
+}
+
+function componentProvenanceValues(
+  model: PreviewModel,
+  provenance: ReturnType<typeof sessionProvenance>
+) {
+  return model.components.map((component) => {
+    const record = componentProvenanceRecord(component, provenance);
+    return {
+      value_id: `component-provenance:${component.id}`,
+      value_category: `component_provenance:${component.kind || "TBD"}`,
+      source: { ref_type: "component", ref_id: component.id },
+      quantity: null,
+      provenance: record,
+      privacy_classification: record.privacy_classification,
+      required_for: ["reporting", "human_review"],
+      review_status: record.review_status,
+      missing_data_finding: !componentHasProvenance(component)
+    };
+  });
+}
+
+function componentProvenanceDiagnostics(
+  model: PreviewModel,
+  provenance: ReturnType<typeof sessionProvenance>
+) {
+  return model.components
+    .filter((component) => !componentHasProvenance(component))
+    .map((component) => ({
+      code: "COMPONENT_PROVENANCE_MISSING",
+      class: "PROVENANCE_WARNING",
+      severity: "warning",
+      source: { ref_type: "component", ref_id: component.id },
+      affected_object: { ref_type: "component", ref_id: component.id },
+      message: `Component ${component.label || component.id} has no component.provenance field; report provenance is incomplete for this component.`,
+      remediation: "Enter component source/provenance before relying on this report.",
+      provenance
+    }));
+}
+
 export async function buildRenderableReportInput({
   model,
   result,
@@ -140,7 +246,10 @@ export async function buildRenderableReportInput({
     report_section_id: `sections:${result.run_id}`,
     model_ref: { ref_type: "model", ref_id: result.model_ref },
     run_ref: { ref_type: "analysis_run", ref_id: result.run_id },
-    diagnostics: diagnosticsForSections(result, provenance),
+    diagnostics: [
+      ...diagnosticsForSections(result, provenance),
+      ...componentProvenanceDiagnostics(model, provenance)
+    ],
     analysis_status_disclosures: [
       ...analysisStatus
         .filter((status) => status !== "HUMAN_REVIEW_REQUIRED")
@@ -161,8 +270,11 @@ export async function buildRenderableReportInput({
         human_acceptance_ref: null
       }
     ],
-    provenance_notes: [provenance],
-    user_supplied_values: [],
+    provenance_notes: [
+      provenance,
+      ...model.components.map((component) => componentProvenanceRecord(component, provenance))
+    ],
+    user_supplied_values: componentProvenanceValues(model, provenance),
     assumptions: [],
     limitations: [
       {

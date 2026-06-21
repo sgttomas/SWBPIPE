@@ -482,11 +482,20 @@ fn assemble_sections(input: &RenderableReportInput) -> Vec<AssembledSection> {
                         escape_html(&value.value_category),
                         escape_html(&quantity),
                         escape_html(&section_reference_text(&value.source)),
-                        escape_html(if value.missing_data_finding { "yes" } else { "no" }),
+                        escape_html(if value.missing_data_finding {
+                            "yes"
+                        } else {
+                            "no"
+                        }),
                     ]));
                 }
                 body.push_str("</table>\n<h3>Provenance Notes</h3>\n<table>\n");
-                body.push_str(&header_row(&["Source", "Location", "License", "Contributor"]));
+                body.push_str(&header_row(&[
+                    "Source",
+                    "Location",
+                    "License",
+                    "Contributor",
+                ]));
                 for note in &disclosure.provenance_notes {
                     body.push_str(&row(&[
                         escape_html(&note.source_name),
@@ -583,7 +592,13 @@ approval and pre-fills no field.",
                 ));
                 body.push_str("</p>\n<table class=\"signoff\">\n");
                 body.push_str(&header_row(&["Field", "Entry"]));
-                for field in ["Reviewer name", "Qualification / license", "Date", "Signature", "Notes"] {
+                for field in [
+                    "Reviewer name",
+                    "Qualification / license",
+                    "Date",
+                    "Signature",
+                    "Notes",
+                ] {
                     body.push_str(&row(&[escape_html(field), String::new()]));
                 }
                 body.push_str("</table>\n");
@@ -741,7 +756,11 @@ evidence; only the exact bytes of this HTML file are bound by the recorded SHA-2
             .iter()
             .map(section_outcome_diagnostic)
             .collect(),
-        pre_render_findings: pre_render_run.findings.iter().map(outcome_finding).collect(),
+        pre_render_findings: pre_render_run
+            .findings
+            .iter()
+            .map(outcome_finding)
+            .collect(),
         post_render_findings: post_render_run
             .findings
             .iter()

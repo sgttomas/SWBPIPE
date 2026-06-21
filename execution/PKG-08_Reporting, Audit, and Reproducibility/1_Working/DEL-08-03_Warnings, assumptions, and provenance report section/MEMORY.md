@@ -1,5 +1,26 @@
 # MEMORY - DEL-08-03 Warnings, Assumptions, and Provenance Report Section
 
+## 2026-06-21 - TP-R4-D8-COMPPROVREPORT-001 component provenance in rendered reports
+
+WORKING_ITEMS landed the DEL-08-03 report-section side of the R4 D8 component
+provenance path. The rendered-report adapter now converts preview components
+into report-section `user_supplied_values` rows required for reporting and
+human review, adds component provenance notes from component provenance plus
+geometry/modifier source references, and emits
+`COMPONENT_PROVENANCE_MISSING` warnings when component provenance is absent.
+
+Evidence: package run record
+`execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D8-COMPPROVREPORT-001.md`.
+Validation passed: report-renderer `cargo fmt --check`, report-renderer
+`cargo test` 8/8, focused desktop rendered-report Vitest 8/8, desktop
+production build, and `git diff --check`.
+
+Boundary preserved: missing provenance stays visible as a warning/finding and
+is not marked accepted input; no report clearance, legal review, redaction,
+professional-boundary semantics, lifecycle state, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
 ## 2026-06-21 - TP-R4-D2-BRANCHSTRESS-001 branch provenance in report packet
 
 WORKING_ITEMS landed the report-provenance side of the D2 branch connection

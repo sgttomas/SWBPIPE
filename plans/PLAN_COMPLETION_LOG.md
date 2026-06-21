@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D8 component provenance in rendered reports (`TP-R4-D8-COMPPROVREPORT-001`)
+
+Landed the hash-bound rendered-report path for the R4 D8 component-provenance
+criterion. The desktop rendered-report input now maps every preview component
+to `ReportSections.user_supplied_values` with `component_provenance:<kind>`
+categories, component source refs, reporting/human-review required-use
+metadata, and visible missing-data posture. It also appends per-component
+provenance notes assembled from `component.provenance`, geometry source
+references, and modifier source references.
+
+Missing component provenance is now emitted as
+`COMPONENT_PROVENANCE_MISSING` / `PROVENANCE_WARNING` rather than silently
+omitted. The Rust report renderer regression now proves component provenance
+rows and notes appear in the deterministic single-file HTML warnings,
+assumptions, and provenance section.
+
+Validation: `cargo fmt --manifest-path core/reporting/report_renderer/Cargo.toml -- --check`
+passed after formatting; `cargo test --manifest-path core/reporting/report_renderer/Cargo.toml`
+passed 8/8; `npm test --workspace apps/desktop -- renderedReport` passed
+8/8; `npm run build --workspace apps/desktop` passed with the existing Vite
+large-chunk warning; `git diff --check` passed.
+
+Evidence: PKG-08 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D8-COMPPROVREPORT-001.md`.
+
+Residual: D8 is landed for component provenance in the current rendered-report
+path, but the R4 exit evidence package remains open under D9. D6/D9 still
+carry the derived friction normal-force model, sliding friction validation,
+measured convergence values, broader live-solver coverage, and the PRD
+section 16.2 branch-assembly benchmark.
+
+Boundary: report provenance evidence only; no protected standards data,
+proprietary catalog value, public default, private data default write,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D6 product live-loop coverage (`TP-R4-D6-LIVECOVER-001`)
 
 Broadened D6 product-preview dense-loop coverage under `DEC-044` and

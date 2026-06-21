@@ -23,7 +23,25 @@ fn invented_section_provenance() -> sections::Provenance {
     }
 }
 
+fn invented_component_provenance() -> sections::Provenance {
+    sections::Provenance {
+        source_name: "Invented elbow marker component provenance".to_string(),
+        source_location:
+            "component.provenance=invented_example_user_entered_bend_values_no_code_table; geometry.bend_geometry_source_reference=invented_user_entered_preview_geometry"
+                .to_string(),
+        source_license: "project_fixture".to_string(),
+        contributor: "OpenPipeStress".to_string(),
+        contributor_certification:
+            "Invented component metadata only; no protected standards tables, code-derived factors, or catalog defaults bundled."
+                .to_string(),
+        redistribution_status: sections::RedistributionStatus::InventedNonEngineeringExample,
+        review_status: sections::ReviewStatus::Accepted,
+        privacy_classification: sections::PrivacyClassification::InventedPublicExample,
+    }
+}
+
 fn invented_report_sections() -> sections::ReportSections {
+    let component_provenance = invented_component_provenance();
     sections::ReportSections {
         report_section_id: "invented-report-sections-001".to_string(),
         model_ref: sections::Reference::new("model", "invented-model"),
@@ -48,8 +66,21 @@ fn invented_report_sections() -> sections::ReportSections {
                 human_acceptance_ref: None,
             },
         ],
-        provenance_notes: vec![invented_section_provenance()],
-        user_supplied_values: vec![],
+        provenance_notes: vec![invented_section_provenance(), component_provenance.clone()],
+        user_supplied_values: vec![sections::UserSuppliedValue {
+            value_id: "component-provenance:component:C-110".to_string(),
+            value_category: "component_provenance:bend".to_string(),
+            source: sections::Reference::new("component", "component:C-110"),
+            quantity: None,
+            provenance: component_provenance,
+            privacy_classification: sections::PrivacyClassification::InventedPublicExample,
+            required_for: vec![
+                sections::RequiredFor::Reporting,
+                sections::RequiredFor::HumanReview,
+            ],
+            review_status: sections::ReviewStatus::Accepted,
+            missing_data_finding: false,
+        }],
         assumptions: vec![],
         limitations: vec![sections::Limitation {
             limitation_id: "invented-limitation-001".to_string(),
@@ -113,6 +144,12 @@ fn fixture_report_renders_deterministic_single_file_html() {
     assert!(first.html.contains("force=N, length=m, stress=MPa"));
     assert!(first.html.contains("Result units"));
     assert!(first.html.contains("Report-time conversion"));
+    assert!(first.html.contains("component-provenance:component:C-110"));
+    assert!(first.html.contains("component_provenance:bend"));
+    assert!(first.html.contains("component:component:C-110"));
+    assert!(first
+        .html
+        .contains("Invented elbow marker component provenance"));
     assert!(first.html.contains("Rule Pack References"));
     assert!(first.html.contains("Audit Manifest"));
     assert!(first.html.contains("human_review_required"));

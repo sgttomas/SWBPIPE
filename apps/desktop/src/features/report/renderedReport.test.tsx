@@ -34,7 +34,28 @@ function inventedModel(): PreviewModel {
     nodes: [],
     pipe_segments: [],
     supports: [],
-    components: [],
+    components: [
+      {
+        id: "component:C-110",
+        label: "Invented elbow marker",
+        kind: "bend",
+        node: "node:N-110",
+        geometry: {
+          bend_geometry_source_reference: "invented_user_entered_preview_geometry"
+        },
+        modifiers: {
+          source_reference: "invented_user_entered_preview_no_code_table"
+        },
+        provenance: "invented_example_user_entered_bend_values_no_code_table"
+      },
+      {
+        id: "component:C-999",
+        label: "Invented component with missing provenance",
+        kind: "rigid",
+        node: "node:N-999",
+        provenance: ""
+      }
+    ],
     load_cases: [
       {
         id: "load_case:invented-weight",
@@ -230,6 +251,44 @@ describe("buildRenderableReportInput", () => {
     );
     expect(input.calculation_report.template_slots).toHaveLength(8);
     expect(input.calculation_report.rendered_sections).toHaveLength(8);
+    expect(input.report_sections.user_supplied_values).toEqual([
+      expect.objectContaining({
+        value_id: "component-provenance:component:C-110",
+        value_category: "component_provenance:bend",
+        source: { ref_type: "component", ref_id: "component:C-110" },
+        quantity: null,
+        privacy_classification: "invented_public_example",
+        required_for: ["reporting", "human_review"],
+        review_status: "accepted",
+        missing_data_finding: false
+      }),
+      expect.objectContaining({
+        value_id: "component-provenance:component:C-999",
+        value_category: "component_provenance:rigid",
+        source: { ref_type: "component", ref_id: "component:C-999" },
+        quantity: null,
+        privacy_classification: "private_project_data",
+        required_for: ["reporting", "human_review"],
+        review_status: "pending",
+        missing_data_finding: true
+      })
+    ]);
+    expect(input.report_sections.provenance_notes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source_name: "Invented elbow marker component provenance",
+          source_location: expect.stringContaining(
+            "component.provenance=invented_example_user_entered_bend_values_no_code_table"
+          )
+        })
+      ])
+    );
+    expect(input.report_sections.provenance_notes[1].source_location).toContain(
+      "geometry.bend_geometry_source_reference=invented_user_entered_preview_geometry"
+    );
+    expect(input.report_sections.provenance_notes[1].source_location).toContain(
+      "modifiers.source_reference=invented_user_entered_preview_no_code_table"
+    );
     expect(input.result_rows[0]).toEqual({
       row_id: "row:result:disp:node-1",
       label: "displacement",
@@ -238,6 +297,16 @@ describe("buildRenderableReportInput", () => {
       source_ref: "result:result:disp:node-1"
     });
     expect(input.report_sections.diagnostics[0].code).toBe("INVENTED_WARNING");
+    expect(input.report_sections.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "COMPONENT_PROVENANCE_MISSING",
+          class: "PROVENANCE_WARNING",
+          severity: "warning",
+          affected_object: { ref_type: "component", ref_id: "component:C-999" }
+        })
+      ])
+    );
     expect(
       input.report_sections.analysis_status_disclosures.some(
         (item) => item.status === "HUMAN_REVIEW_REQUIRED"
