@@ -1,5 +1,21 @@
 # MEMORY: DEL-00-08
 
+## 2026-06-20 - D-23 R3 exit review packet
+
+- Prepared the human-gated R3 exit review / R3-to-R4 target-stage advancement
+  packet:
+  `execution/_Coordination/_DECISIONS/D-23_r3_exit_review_stage_advancement.md`.
+- Updated `_DECISIONS/_REGISTER.md` so D-23 is `AWAITING_RULING`.
+- Updated `docs/PLAN.md`, `plans/PLAN_2026-06-17_prd_completion.md`, and
+  `execution/_Coordination/NEXT_INSTANCE_PROMPT.md` so the current next gate is
+  D-23, not additional C5 work.
+- Evidence basis: `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`, SMOKE
+  TP-MAC-190, `DEC-047`, and DEC-025 sweep
+  `SWEEP_20260621T022113Z_f314fc1a67d7.json`.
+- Boundary: decision-prep only. No R3 exit review is passed, no R3-to-R4 stage
+  advancement is recorded, and no lifecycle/release/professional/certification/
+  sealing/authentication/code-compliance claim is created.
+
 ## 2026-06-12 - TP-INTEGRATED-VERIFY-002
 
 - Independent verification session re-ran the R2 exit-chain surfaces (Tauri

@@ -77,7 +77,7 @@ Baseline intake for every new session:
 - `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan
   (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase
   ordering, the dependency spine, the FR completion map, and the human
-  decision register `D-01..D-21`. Update this pointer when a successor plan
+  decision register `D-01..D-23`. Update this pointer when a successor plan
   is accepted.
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
   preparation status and rulings pending with the human project authority.
@@ -257,7 +257,7 @@ steps 1–5 pass; remainder blocked on authoring-journey usability, not
 function). **Two named blocking residuals must close before any R3 exit
 review:** verification finding F-4 (a completed human GUI journey in the
 packaged webview) and the authoring-journey usability finding (completion
-plan A3 row). **Update 2026-06-18:** the C5.7 packaged human pass was attempted and FAILED on usability (a wall of telemetry strings, three competing navs, a postage-stamp model); the human-approved repair tranche is **C5.7R, the workspace redesign** (`plans/PLAN_2026-06-18_workspace_redesign_c5_7.md`). **Update 2026-06-20:** C5.7R and the later agent-first/primary-canvas repairs landed through SMOKE TP-MAC-272..277; the human explicitly bypassed the stale TP-MAC-189 re-pass path and then accepted the replacement C5 criterion as fulfilled. F-4/A3 are closed for C5 by `DEC-047`, and C5.8 is assembled as `TP-R3VERIFY-001` / SMOKE TP-MAC-190 in `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`. The next gate is the human R3 exit review and any R3-to-R4 stage advancement; agents do not begin Phase D/R4 implementation until that gate is ruled. Interactive authoring of user-created local models — applying editor
+plan A3 row). **Update 2026-06-18:** the C5.7 packaged human pass was attempted and FAILED on usability (a wall of telemetry strings, three competing navs, a postage-stamp model); the human-approved repair tranche is **C5.7R, the workspace redesign** (`plans/PLAN_2026-06-18_workspace_redesign_c5_7.md`). **Update 2026-06-20:** C5.7R and the later agent-first/primary-canvas repairs landed through SMOKE TP-MAC-272..277; the human explicitly bypassed the stale TP-MAC-189 re-pass path and then accepted the replacement C5 criterion as fulfilled. F-4/A3 are closed for C5 by `DEC-047`, and C5.8 is assembled as `TP-R3VERIFY-001` / SMOKE TP-MAC-190 in `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`. `D-23` is prepared for the human R3 exit review and any R3-to-R4 stage advancement; agents do not begin Phase D/R4 implementation until that gate is ruled. Interactive authoring of user-created local models — applying editor
 operations to a persisted local model document — is in scope at this stage
 and does not violate the technical-preview boundary. The boundary
 prohibitions concern claims, network surfaces, and data classes, not
@@ -318,7 +318,7 @@ bounded tranche.
    hardening work ahead of an unblocked current-stage plan item without
    recording why in the tranche proposal.
 4. **Decision escalation.** When the next plan item is blocked by a human
-   decision (`D-01..D-21` in the completion plan, or any newly discovered
+   decision (`D-01..D-23` in the completion plan, or any newly discovered
    human-gated TBD):
    - if no decision packet exists, the tranche is a decision-preparation
      tranche: assemble options, evidence, impacts, and a recommendation

@@ -68,7 +68,7 @@ DEL-08-06) as defined-but-unbuilt scope.
 
 ## 2. Current milestone position
 
-Position summary as of 2026-06-13. This table moves only at milestone
+Position summary as of 2026-06-20. This table moves only at milestone
 boundaries (human-ruled stage gates), not per tranche; per-tranche progress
 lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 **authoritative current target stage is R3** (`DEC-035`, recorded in
@@ -78,8 +78,8 @@ lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 |---|---|---|
 | R0 Architecture Prototype | Met in substance | R0's deferred "Unit system" is pulled onto the critical path as Phase B (B1 units crate landed 2026-06-12; B2/B3 unit-aware I/O in progress) |
 | R1 Core Solver MVP | Substantially met (linear static, dense solve) | Tolerance thresholds **RULED** (`DEC-024`/`DEC-026`, D-04) |
-| R2 GUI MVP | Met in substance | Exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](../plans/VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`). Two named residuals carried to the R3 exit review: **F-4** (a completed human packaged-GUI journey, SMOKE TP-MAC-141) and the **A3 authoring-journey usability** finding |
-| R3 Rule packs + private libraries (current target) | In progress | C1-C4 landed: expression grammar, rule-pack editor, private-library GUI, and end-to-end rule checks are GUI-true. Remaining before any R3 exit review: C5 guided-workbench / packaged-journey closure for the two R2-carried residuals above |
+| R2 GUI MVP | Met in substance | Exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](../plans/VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`). The two R2-carried residuals were closed for C5 by the 2026-06-20 replacement-criterion ruling (`DEC-047`) |
+| R3 Rule packs + private libraries (current target) | Evidence packet prepared for human exit review | C1-C4 landed; C5.8 assembled [VERIFICATION_2026-06-20_r3_exit_chain.md](../plans/VERIFICATION_2026-06-20_r3_exit_chain.md); human ruling pending on `D-23` before any R3-to-R4 target-stage advancement |
 | R4 Components + nonlinear supports | Schema/data-model only; sparse-solver strategy decided (`DEC-023`, first slice landed) | No bend/branch/expansion-joint/hanger elements; no assembled nonlinear iterative solve (Phase D) |
 | R5 Engineering Beta | Distant | All release machinery TBD; validation manual; redaction workflow; signed releases (Phase E) |
 
@@ -136,22 +136,17 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
 ## 4. Current roadmap posture
 
 - **Target stage: R3 / Phase C** (`DEC-035`, superseding the `DEC-029` hold).
-  Ordinary development has completed the Phase C implementation spine:
-  **C1** expression grammar freeze, **C2** rule-pack editor GUI, **C3**
-  private-library management GUI, and **C4** end-to-end rule checks on authored
-  models are landed. The next in-stage program is **C5 R3 exit readiness and
-  authoring-usability closure**: guided-workbench redesign, packaged A12/R3
-  journey successor evidence, and an R3 exit evidence package. The Phase B
-  unit-aware-I/O remainder can still run alongside when it does not block C5.
-- **Two blocking residuals gate any R3 exit review:** F-4 (a completed human
-  packaged-GUI journey) and the A3 authoring-journey usability finding. C5 is
-  the ordinary-tranche program that must prepare and record their closure
-  evidence before any human R3 exit review can begin.
+  Ordinary development has completed the Phase C implementation spine and C5
+  exit-readiness program. `TP-R3VERIFY-001` assembled the R3 exit-chain packet
+  and `D-23` now awaits the human R3 exit review / R3-to-R4 target-stage ruling.
+- **The two R2-carried R3-exit residuals are closed for C5** by `DEC-047`.
+  The stale TP-MAC-189 path remains bypassed, not passed.
 - **Later stages** follow the completion plan: R4 (piping components and
   nonlinear supports), R5 (engineering beta and release machinery).
 - Stage advancement is human-ruled: agents propose with evidence; only a
   human-approved coordination update advances the target stage recorded in
-  `_COORDINATION.md`.
+  `_COORDINATION.md`. Phase D/R4 implementation begins only if `D-23` is ruled
+  to advance.
 
 ## 5. Non-goals and boundary prohibitions
 

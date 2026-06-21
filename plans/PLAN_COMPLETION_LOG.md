@@ -14,6 +14,27 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-20 - R3 exit-review decision packet prepared (`D-23`)
+
+Prepared the human-gated R3 exit review / R3-to-R4 target-stage advancement
+packet after `TP-R3VERIFY-001` landed. The packet is
+`execution/_Coordination/_DECISIONS/D-23_r3_exit_review_stage_advancement.md`
+and the decision register row is `AWAITING_RULING`.
+
+Evidence basis: `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`;
+`apps/desktop/SMOKE.md` TP-MAC-190; `DEC-047`; DEC-025 sweep
+`validation/evidence/sweeps/SWEEP_20260621T022113Z_f314fc1a67d7.json`.
+
+Disposition: D-23 is now the next human gate. Phase D/R4 implementation does
+not begin until the human rules the R3 exit review / target-stage advancement.
+
+Boundary: decision-preparation and coordination only. No app code, schema,
+solver, evaluator, persistence, package artifact, lifecycle, release-readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-20 - C5 closure and R3 exit-chain verification packet (`TP-R3VERIFY-001`)
 
 Recorded the human acceptance of the replacement C5 closure criterion and

@@ -8,7 +8,7 @@
 - Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
 - Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
-- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-22` (with `DEC-041/042/043` recorded 2026-06-18 and `DEC-044/045/046` recorded for D-16/D-18/D-19).
+- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-23` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, and `D-23` awaiting the R3 exit-review ruling).
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat `execution/_DAG/DAG-007/` as the validated canonical dependency type-system rectification successor pending human approval. Do not treat it as current authority or update `_DAG/_LATEST.md` unless the human approval record is completed.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
@@ -29,7 +29,7 @@
    default, local-status discovery, DAG-guided context selection, bounded
    workers, fan-in, validation, evidence records, and project-local
    `AGENTS.md` closeout routing for completed validated tranches.
-6. Human decisions (`D-01..D-22` and any newly discovered human-gated `TBD`)
+6. Human decisions (`D-01..D-23` and any newly discovered human-gated `TBD`)
    are never resolved by agents. Prepare decision packets per the loop's
    decision-escalation step, surface pending rulings every session, and
    proceed only on unblocked work.
@@ -83,9 +83,10 @@
      workflow/data-entry screen. The human then accepted that replacement C5
      criterion as fulfilled on 2026-06-20; F-4/A3 are closed for C5, and C5.8
      landed as `TP-R3VERIFY-001` / SMOKE TP-MAC-190 with
-     `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`. The next gate is the
-     human R3 exit review and any R3-to-R4 stage advancement; do not begin Phase
-     D/R4 implementation until that gate is ruled. Honor the scope
+     `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`. The R3 exit-review /
+     R3-to-R4 target-stage packet is now prepared as `D-23` and awaits human
+     ruling; do not begin Phase D/R4 implementation until that gate is ruled.
+     Honor the scope
      boundaries: agent panel is local deterministic review-only (`DEC-042`);
      no live external SDK/harness or `D-21` promotion; `DEC-037` structured
      rule composer/no writable text; dual units display-only; no new engine
