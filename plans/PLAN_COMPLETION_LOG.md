@@ -14,6 +14,28 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-20 - D-23 R3 exit accepted; target stage advanced to R4 (`DEC-048`)
+
+Recorded the human ruling approving `D-23` Option O-A: accept the
+`TP-R3VERIFY-001` R3 exit evidence and advance the Working Desktop Application
+Standard current target stage from PRD R3 to PRD R4.
+
+Updated coordination and selection surfaces so Phase D/R4 is now ordinary
+in-stage work. The next ordinary dependency-spine item is D1 bend objects under
+`DEC-045`. `D-15` remains the D5 spring-hanger scope gate, `D-17` remains the
+D7 sparse live-path timing gate, `D-20` remains a Phase E lead-up decision, and
+`D-21` remains held.
+
+Evidence basis: `execution/_Coordination/_DECISIONS/D-23_r3_exit_review_stage_advancement.md`;
+`plans/VERIFICATION_2026-06-20_r3_exit_chain.md`; `DEC-047`; `DEC-048`.
+
+Boundary: target-stage coordination only. No app code, schema, solver,
+evaluator, persistence, package artifact, lifecycle issuance, release-readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-20 - R3 exit-review decision packet prepared (`D-23`)
 
 Prepared the human-gated R3 exit review / R3-to-R4 target-stage advancement

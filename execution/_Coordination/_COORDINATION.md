@@ -77,8 +77,8 @@ Baseline intake for every new session:
 - `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan
   (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase
   ordering, the dependency spine, the FR completion map, and the human
-  decision register `D-01..D-23`. Update this pointer when a successor plan
-  is accepted.
+  decision register `D-01..D-23` (`D-23` ruled by `DEC-048`). Update this
+  pointer when a successor plan is accepted.
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
   preparation status and rulings pending with the human project authority.
 - `execution/_Coordination/_COORDINATION.md`,
@@ -244,24 +244,25 @@ that:
 - shows the professional, release, protected-content, and private-data
   boundaries visibly.
 
-**Current target stage — PRD R3 exit criterion (advanced 2026-06-12 by
-`DEC-035`, superseding the `DEC-029` hold).** A user can define a private,
-non-code rule pack and run checks from the GUI, with pass/fail blocked on
-missing inputs (PRD §22.4), reached through the completion plan's Phase C
-items. C1-C4 implementation is landed; the next ordinary R3-stage program is
-Phase C5, which prepares guided-workbench usability closure and packaged
-human-journey evidence before any R3 exit review. R2-stage evidence was reviewed per
-`plans/VERIFICATION_2026-06-12_r2_exit_chain.md` and the human packaged-pass
-attempts recorded in `apps/desktop/SMOKE.md` TP-MAC-141 (attempt 3:
-steps 1–5 pass; remainder blocked on authoring-journey usability, not
-function). **Two named blocking residuals must close before any R3 exit
-review:** verification finding F-4 (a completed human GUI journey in the
-packaged webview) and the authoring-journey usability finding (completion
-plan A3 row). **Update 2026-06-18:** the C5.7 packaged human pass was attempted and FAILED on usability (a wall of telemetry strings, three competing navs, a postage-stamp model); the human-approved repair tranche is **C5.7R, the workspace redesign** (`plans/PLAN_2026-06-18_workspace_redesign_c5_7.md`). **Update 2026-06-20:** C5.7R and the later agent-first/primary-canvas repairs landed through SMOKE TP-MAC-272..277; the human explicitly bypassed the stale TP-MAC-189 re-pass path and then accepted the replacement C5 criterion as fulfilled. F-4/A3 are closed for C5 by `DEC-047`, and C5.8 is assembled as `TP-R3VERIFY-001` / SMOKE TP-MAC-190 in `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`. `D-23` is prepared for the human R3 exit review and any R3-to-R4 stage advancement; agents do not begin Phase D/R4 implementation until that gate is ruled. Interactive authoring of user-created local models — applying editor
-operations to a persisted local model document — is in scope at this stage
-and does not violate the technical-preview boundary. The boundary
-prohibitions concern claims, network surfaces, and data classes, not
-interactivity:
+**Current target stage — PRD R4 exit criterion (advanced 2026-06-20 by
+`DEC-048`, after the R3 target-stage advance in `DEC-035`).** Phase C/R3
+evidence was reviewed through `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`
+(`TP-R3VERIFY-001`, SMOKE TP-MAC-190), and the human project authority accepted
+the R3 exit review and R3-to-R4 target-stage advancement by approving `D-23`
+Option O-A. The ordinary in-stage program is now Phase D: piping components and
+nonlinear supports. R4 exit criteria are PRD §22.5: nonlinear support
+validation cases converge, and component provenance appears in reports. The
+Phase D dependency spine begins with component crate/app work (D1 bend objects,
+D2 branch objects, D3 rigid/semi-rigid components, D4 expansion joints), then
+the D5 spring-hanger scope gate (`D-15`), D6 assembled nonlinear solve under
+`DEC-044`/`DEC-046`, D7 sparse live-path timing gate (`D-17`), D8 report
+provenance, and D9 R4 validation evidence. `DAG-007` remains pending human
+approval; `_DAG/_LATEST.md` stays on `DAG-006`.
+
+Interactive authoring of user-created local models — applying editor
+operations to a persisted local model document — remains in scope and does not
+violate the technical-preview boundary. The boundary prohibitions concern
+claims, network surfaces, and data classes, not interactivity:
 
 - no cloud, daemon, network, telemetry, or repository-default private-data
   writes;
@@ -272,11 +273,10 @@ interactivity:
 - no release-readiness claims, professional approval claims, certification,
   sealing, authentication, or code-compliance claims.
 
-**Later stages.** After R3-stage evidence is recorded and human-reviewed,
-subsequent target stages follow the completion plan: R4 (piping components
-and nonlinear supports), R5 (engineering beta). Agents propose stage
-advancement with evidence; only a human-approved coordination update
-advances the target stage recorded here.
+**Later stages.** After R4-stage evidence is recorded and human-reviewed,
+subsequent target stages follow the completion plan: R5 (engineering beta).
+Agents propose stage advancement with evidence; only a human-approved
+coordination update advances the target stage recorded here.
 
 This standard is not a release gate, legal clearance, professional reliance
 record, or final `ISSUED` lifecycle decision.
@@ -303,12 +303,12 @@ bounded tranche.
 3. **Default candidate selection.** For ordinary development, select the
    highest-leverage application-integration tranche in this order:
    1. the earliest unblocked item on the completion plan's dependency spine
-      for the current target stage (R3/Phase C per `DEC-035`). C1-C4 are
-      landed; select Phase C5 R3 exit readiness and authoring-usability
-      closure before any Phase D work unless the human explicitly overrides.
-      The Phase B unit-aware-I/O remainder may run alongside only when it does
-      not block or displace C5, and the A3 usability lane now feeds directly
-      into C5's packaged human-journey closure evidence;
+      for the current target stage (R4/Phase D per `DEC-048`). C1-C4 and C5
+      are landed, and the R3 exit evidence was accepted through `D-23`.
+      Select Phase D/R4 work in plan order. The first ordinary unblocked item
+      is D1 bend objects under `DEC-045`. D5 is gated by `D-15`; D7 is gated by
+      `D-17`; `D-20` remains a Phase E lead-up decision; held `D-21` does not
+      authorize v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or
       smoke-evidence gaps in already-landed surfaces;
    3. residual hardening (missing app-to-core seams, preview workflow gaps,

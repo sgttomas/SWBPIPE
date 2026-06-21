@@ -1,5 +1,22 @@
 # MEMORY: DEL-00-08
 
+## 2026-06-20 - D-23 ruled; R4 target-stage advancement
+
+- Human project authority approved `D-23` Option O-A: accept the
+  `TP-R3VERIFY-001` R3 exit evidence and advance the current target stage to
+  R4.
+- Recorded the ruling as `DEC-048` in
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 and moved the D-23 register
+  row to `RULED`.
+- Updated `_COORDINATION.md`, `NEXT_INSTANCE_PROMPT.md`, `docs/PLAN.md`, the
+  active completion plan, and the completion log so Phase D/R4 is now ordinary
+  in-stage work.
+- Next ordinary dependency-spine item: D1 bend objects under `DEC-045`. D5 is
+  still gated by `D-15`; D7 is still gated by `D-17`; `D-20` remains Phase E;
+  held `D-21` remains out of scope.
+- Boundary: target-stage coordination only. No lifecycle/release/professional/
+  certification/sealing/authentication/code-compliance claim is created.
+
 ## 2026-06-20 - D-23 R3 exit review packet
 
 - Prepared the human-gated R3 exit review / R3-to-R4 target-stage advancement

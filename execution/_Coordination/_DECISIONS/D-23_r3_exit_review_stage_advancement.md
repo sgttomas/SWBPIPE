@@ -119,3 +119,20 @@ directly. The ruling is appended to
 citing this packet. If the ruling advances to R4, the coordination and plan
 surfaces named above are updated in a bounded follow-up. This register row then
 moves from `AWAITING_RULING` to `RULED` with the decision pointer.
+
+## 8. Ruling record
+
+**Ruling:** O-A approved.
+
+**Human project authority statement, 2026-06-20:** "I approve O-A: Accept R3
+exit evidence and advance the current target stage to R4."
+
+**Recorded as:** `DEC-048` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
+
+**Disposition:** R3 exit evidence is accepted for target-stage advancement, and
+the Working Desktop Application Standard current target stage advances to PRD
+R4. Phase D/R4 work is now ordinary in-stage work. This ruling does not issue
+deliverables, promote `DAG-007`, resolve `D-15`, `D-17`, `D-20`, or held
+`D-21`, or create release-readiness, professional approval, certification,
+sealing, authentication, or code-compliance acceptance.

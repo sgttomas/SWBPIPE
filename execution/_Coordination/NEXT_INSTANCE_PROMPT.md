@@ -8,7 +8,7 @@
 - Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
 - Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
-- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-23` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, and `D-23` awaiting the R3 exit-review ruling).
+- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-23` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, and `DEC-048` recording `D-23` Option O-A: R3 exit evidence accepted and current target stage advanced to R4).
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat `execution/_DAG/DAG-007/` as the validated canonical dependency type-system rectification successor pending human approval. Do not treat it as current authority or update `_DAG/_LATEST.md` unless the human approval record is completed.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
@@ -58,40 +58,18 @@
 3. If no active human-approved tranche exists, propose exactly one next bounded
    tranche:
    - select the earliest unblocked item on the completion plan's dependency
-     spine for the current target stage (R3/Phase C per `DEC-035`). C1-C4
-     are landed; continue **Phase C5 — R3 exit readiness and
-     authoring-usability closure** before any Phase D work unless the human
-     explicitly overrides. C5.1-C5.6 are landed. **The C5.7 human packaged
-     pass was run and FAILED on usability (2026-06-18): "a wall of
-     evidence/telemetry strings, three competing navigation systems, the model
-     a postage stamp" — F-4 and the A3 authoring-usability finding stayed open
-     at that point.**
-     The human-approved repair tranche **C5.7R** has landed through the
-     2026-06-20 agent-first viewport-shell redirect: workspace redesign Inc
-     0-5 (`TP-R3UX-WORKSPACEREDESIGN-001`, TP-MAC-272), Grid mode
-     (`TP-R3UX-GRIDMODE-001`, TP-MAC-273), packaged kit
-     (`TP-R3UX-PACKAGEKIT-002`, TP-MAC-274), CAD-grade 3D viewport
-     (`TP-R3UX-VIEWPORT-001`), menu-bar IA (`TP-R3UX-CADSHELL-001`),
-     collapsible rails (`TP-R3UX-CADSHELL-002`), object-creation toolbar
-     (`TP-R3UX-CREATIONTOOLS-001`, TP-MAC-275), and the local agent workbench
-     (`TP-R3UX-AGENTSHELL-001`, TP-MAC-276), followed by primary-canvas
-     declutter that collapses the idle Node/Pipe authoring drawer until a
-     creation tool is armed (`TP-R3UX-PRIMARYCANVAS-001`, TP-MAC-277). The
-     2026-06-20 human redirect explicitly bypassed the stale TP-MAC-189 re-pass
-     path instead of passing it: the primary screen must be a 3D model /
-     visual-interaction surface with an agent panel, not a heavily user-laden
-     workflow/data-entry screen. The human then accepted that replacement C5
-     criterion as fulfilled on 2026-06-20; F-4/A3 are closed for C5, and C5.8
-     landed as `TP-R3VERIFY-001` / SMOKE TP-MAC-190 with
-     `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`. The R3 exit-review /
-     R3-to-R4 target-stage packet is now prepared as `D-23` and awaits human
-     ruling; do not begin Phase D/R4 implementation until that gate is ruled.
-     Honor the scope
-     boundaries: agent panel is local deterministic review-only (`DEC-042`);
-     no live external SDK/harness or `D-21` promotion; `DEC-037` structured
-     rule composer/no writable text; dual units display-only; no new engine
-     contracts. The Phase B unit-aware-I/O remainder is allowed alongside only
-     when it does not block or displace C5;
+     spine for the current target stage (R4/Phase D per `DEC-048`). C1-C4,
+     C5, and the R3 exit evidence packet are complete; `D-23` Option O-A is
+     ruled and Phase D/R4 work is now ordinary in-stage work. The first
+     ordinary unblocked item is **D1 — bend objects** under `DEC-045`
+     (multiplier-first `mechanics_geometry_only`, all factors user-entered).
+     D5 spring-hanger scope remains gated by `D-15`; D7 sparse live-path
+     timing remains gated by `D-17`; `D-20` is held for Phase E; `D-21` remains
+     held and does not authorize v0.2/R6/R7 scope. Continue to honor the
+     R3/R4 boundaries: no protected standards content, no private-data default
+     writes, no network/telemetry feature, no live external SDK/harness or
+     `D-21` promotion, and no release-readiness/professional/code-compliance
+     claim;
    - if that item is blocked by a human decision, run the loop's
      decision-escalation step: prepare the decision packet if none exists;
      if a packet already awaits ruling, take the next unblocked
@@ -123,8 +101,8 @@
    to the repository; no protected standards content or private project data;
    and no release-readiness, professional approval, certification, sealing,
    authentication, or code-compliance claims. Interactive authoring of
-   user-created local models is in scope for the current R3 target stage and
-   does not violate these prohibitions.
+   user-created local models remains in scope for the current R4 target stage
+   and does not violate these prohibitions.
 7. End every session summary with the decision packets awaiting human ruling
    (from `execution/_Coordination/_DECISIONS/_REGISTER.md`) and the next
    unblocked plan item.

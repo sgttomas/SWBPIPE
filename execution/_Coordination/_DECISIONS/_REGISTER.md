@@ -44,7 +44,7 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 | D-20 | Release-artifact protected-content scan ownership & procedure (RGAP-005): owner + recorded procedure for the release-time artifact scan and legal/protected-data release gate | Phase E, E7; R5 exit "no known protected standards data" | NOT_PREPARED | — | — |
 | D-21 | PRD scope-change to the v0.2 milestone set (adopt R6/R7 + the inserted v0.2 R3 States/Comparison) via the governed `SCOPE_CHANGE` path; adopts the v0.2 FR renumber (traceability-breaking, requires an FR crosswalk) | Extended Horizon (Phases G/H/I) | NOT_PREPARED (held) | — | held reaffirmed 2026-06-18; harness-independent embedded-agent prep sanctioned — `DEC-042` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 |
 | D-22 | Embedded-agent runtime substrate: consume the `chirality-app-dev` harness as versioned packages (pure-TS contract pkg → React UI pkg → Node-SDK sidecar at the live-binding stage); keep app-dev on Electron; reject the Tauri-refactor and the Rust-reimplementation alternatives; any stack unification is a separate human-gated app-dev packet; execution gated behind `D-21` and a no-manual-toil automation condition | v0.2/R7 Agent-Assisted Design integration | RULED | — (ruled directly, no packet) | `DEC-041` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (2026-06-18) |
-| D-23 | R3 exit review and R3-to-R4 target-stage advancement: accept the `TP-R3VERIFY-001` evidence packet and decide whether the Working Desktop Application Standard advances from PRD R3 to PRD R4 | Phase D/R4 ordinary work selection | AWAITING_RULING | [D-23_r3_exit_review_stage_advancement.md](D-23_r3_exit_review_stage_advancement.md) (2026-06-20) | — |
+| D-23 | R3 exit review and R3-to-R4 target-stage advancement: accept the `TP-R3VERIFY-001` evidence packet and decide whether the Working Desktop Application Standard advances from PRD R3 to PRD R4 | Phase D/R4 ordinary work selection | RULED | [D-23_r3_exit_review_stage_advancement.md](D-23_r3_exit_review_stage_advancement.md) (2026-06-20) | `DEC-048` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-A: accept R3 exit evidence and advance the current target stage to R4, 2026-06-20) |
 
 **Recommended preparation order** (from the completion plan §2): `D-01` and
 `D-08` first (longest poles, both touch Phase A/B foundations), `D-10` with
@@ -61,5 +61,7 @@ embedded-agent preparation sanctioned as ordinary v0.1 prep. `D-22` (2026-06-18,
 `DEC-041`) records the embedded-agent runtime-substrate ruling: consume the
 app-dev harness as versioned packages, app-dev stays Electron, execution gated
 behind `D-21` and a no-manual-toil automation condition.
-`D-23` is prepared and awaiting human ruling before Phase D/R4 implementation
-begins.
+`D-23` is ruled by `DEC-048`; Phase D/R4 implementation may now proceed as
+ordinary in-stage work. `D-15` and `D-17` remain unprepared for their named
+D5/D7 lead-ups, `D-20` remains a Phase E lead-up decision, and `D-21` remains
+held.
