@@ -47,4 +47,3 @@ proprietary catalog data was introduced.
 
 Branch provenance appears in the preview report packet for the invented model.
 Broader D8 report closure and D9 R4 validation evidence remain open.
-

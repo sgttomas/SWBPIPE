@@ -114,4 +114,3 @@ R_left + R_right = -90.0 N
 | `header_left_uy_reaction` | `-69.42857142857143` | `N` | `force` |
 | `header_right_uy_reaction` | `-20.571428571428573` | `N` | `force` |
 | `header_reaction_sum` | `-90.0` | `N` | `force` |
-

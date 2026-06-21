@@ -79,4 +79,3 @@ PRD §16.2 branch-assembly benchmark remains D9 validation evidence. Broader
 Phase D work remains: D3 rigid/semi-rigid components, D4 expansion joints,
 D5 spring-hanger scope gate, D6 nonlinear solve, D8 broader component
 provenance reporting, and D9 R4 validation evidence.
-

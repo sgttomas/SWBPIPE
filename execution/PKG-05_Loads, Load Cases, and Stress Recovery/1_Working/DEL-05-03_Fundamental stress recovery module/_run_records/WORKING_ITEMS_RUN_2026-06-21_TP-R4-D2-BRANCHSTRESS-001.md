@@ -52,4 +52,3 @@ code-compliance claims were introduced.
 The branch connection stress-recovery review rows are landed for the invented
 preview path. The PRD §16.2 branch-assembly benchmark remains D9 validation
 evidence.
-

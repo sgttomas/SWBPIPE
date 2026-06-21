@@ -1,11 +1,11 @@
 # WORKING_ITEMS Run Record - TP-R4-D8-COMPPROVREPORT-001
 
-**Date:** 2026-06-21  
-**Persona:** WORKING_ITEMS  
-**Tranche:** `TP-R4-D8-COMPPROVREPORT-001`  
-**Primary phase item:** R4 / Phase D / D8 - component provenance in reports  
-**Primary package:** `PKG-08` - Reporting, Audit, and Reproducibility  
-**Touched deliverables:** `DEL-08-01`, `DEL-08-03`  
+**Date:** 2026-06-21
+**Persona:** WORKING_ITEMS
+**Tranche:** `TP-R4-D8-COMPPROVREPORT-001`
+**Primary phase item:** R4 / Phase D / D8 - component provenance in reports
+**Primary package:** `PKG-08` - Reporting, Audit, and Reproducibility
+**Touched deliverables:** `DEL-08-01`, `DEL-08-03`
 
 ## Objective
 

@@ -65,4 +65,3 @@ resolved-skill-version: UNKNOWN
 - This run does not make a lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim.
-
