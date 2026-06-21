@@ -68,7 +68,7 @@ DEL-08-06) as defined-but-unbuilt scope.
 
 ## 2. Current milestone position
 
-Position summary as of 2026-06-20. This table moves only at milestone
+Position summary as of 2026-06-21. This table moves only at milestone
 boundaries (human-ruled stage gates), not per tranche; per-tranche progress
 lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 **authoritative current target stage is R4** (`DEC-048`, recorded in
@@ -80,7 +80,7 @@ lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 | R1 Core Solver MVP | Substantially met (linear static, dense solve) | Tolerance thresholds **RULED** (`DEC-024`/`DEC-026`, D-04) |
 | R2 GUI MVP | Met in substance | Exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](../plans/VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`). The two R2-carried residuals were closed for C5 by the 2026-06-20 replacement-criterion ruling (`DEC-047`) |
 | R3 Rule packs + private libraries | Evidence accepted for target-stage advancement | C1-C4 landed; C5.8 assembled [VERIFICATION_2026-06-20_r3_exit_chain.md](../plans/VERIFICATION_2026-06-20_r3_exit_chain.md); `D-23` ruled O-A by `DEC-048` |
-| R4 Components + nonlinear supports (current target) | Schema/data-model plus first preview-app bend visibility/provenance slice (`TP-R4-D1-BENDVIS-001`); sparse-solver strategy decided (`DEC-023`, first slice landed) | D1 mechanics/stress-recovery/report residuals; no branch/expansion-joint/hanger elements; no assembled nonlinear iterative solve (Phase D) |
+| R4 Components + nonlinear supports (current target) | D1 invented-preview bend path landed across app visibility/provenance (`TP-R4-D1-BENDVIS-001`) and mechanics/stress-recovery/report evidence (`TP-R4-D1-BENDSTRESS-001`); sparse-solver strategy decided (`DEC-023`, first slice landed) | No branch/expansion-joint/hanger elements; no assembled nonlinear iterative solve; broader R4 report/validation evidence remains (Phase D) |
 | R5 Engineering Beta | Distant | All release machinery TBD; validation manual; redaction workflow; signed releases (Phase E) |
 
 ## 3. How the strategic layers relate
@@ -139,13 +139,16 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
   Ordinary development completed the Phase C implementation spine, C5
   exit-readiness program, and `TP-R3VERIFY-001` R3 exit-chain packet; the human
   accepted `D-23` Option O-A for R3 exit evidence and target-stage advancement.
+- **D1 bend objects landed for the invented preview path** through
+  `TP-R4-D1-BENDVIS-001` and `TP-R4-D1-BENDSTRESS-001`; the next ordinary
+  Phase D component item is D2 branch objects under `DEC-045`.
 - **The two R2-carried R3-exit residuals are closed for C5** by `DEC-047`.
   The stale TP-MAC-189 path remains bypassed, not passed.
 - **Later stages** follow the completion plan: R5 (engineering beta and
   release machinery).
 - Stage advancement is human-ruled: agents propose with evidence; only a
   human-approved coordination update advances the target stage recorded in
-  `_COORDINATION.md`. The next ordinary dependency-spine item is Phase D D1
+  `_COORDINATION.md`. The next ordinary dependency-spine item is Phase D D2
   unless superseded by a later human-approved tranche.
 
 ## 5. Non-goals and boundary prohibitions

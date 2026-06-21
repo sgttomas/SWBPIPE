@@ -14,6 +14,52 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D1 bend mechanics/stress-recovery/report residual (`TP-R4-D1-BENDSTRESS-001`)
+
+Landed the D1 bend mechanics/report residual for the invented preview path
+under `DEC-045`. The product-physics adapter now parses preview `components`,
+validates bend geometry and dimensionless user-entered SIF/flexibility values,
+and emits review-labeled `component_user_stress_multiplier_review` rows for
+adjacent bend endpoints. For `component:C-110`, rows are emitted for
+`pipe:P-100` end-j and `pipe:P-110` end-i for both authored load cases, with
+combination rows derived by the existing load-combination algebra.
+
+The base straight-pipe frame solve and base pipe stress rows remain unchanged:
+the bend path consumes user-entered factors only in stress-recovery review rows,
+with `solver_consumption=mechanics_geometry_only`. The regenerated
+`invented_mechanics_result.json` fixture now exposes 743 result rows, including
+component multiplier rows and `COMPONENT_STRESS_MULTIPLIER_APPLIED` info
+diagnostics.
+
+The report packet now surfaces component provenance and component stress
+modifier evidence visibly and in JSON export fields:
+`component_provenance`, `component_stress_modifier_evidence`, and
+`component_stress_modifier_count`. The report export cites `DEL-03-03`,
+`DEL-05-03`, and `DEL-08-03` for this evidence.
+
+Validation: `cargo test --manifest-path core/product_physics/Cargo.toml`
+passed 32/32; `npm test --workspace apps/desktop -- App.test.tsx` passed
+57/57; `npm test --workspace apps/desktop` passed 19/19 files and 406/406
+tests; `npm run build:desktop` passed with the existing Vite chunk-size
+warning; `npm run test:e2e:desktop` passed 18/18.
+
+Evidence: DEL-03-03, DEL-05-03, and DEL-08-03 run records
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D1-BENDSTRESS-001.md`;
+`apps/desktop/SMOKE.md` TP-MAC-279.
+
+Residual: D1 bend-object app absorption is landed for the invented preview
+path. D2 branch objects are the next ordinary unblocked Phase D component item.
+Broader D8/D9 R4 report/validation evidence remains open for later component
+families and nonlinear support validation.
+
+Boundary: invented/user-entered values only; no protected standards table,
+code-derived factor, proprietary catalog value, private data, frame-stiffness
+behavior change, lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-20 - R4 D1 partial bend visibility/provenance slice (`TP-R4-D1-BENDVIS-001`)
 
 Landed the first partial D1 bend-object application-absorption slice under

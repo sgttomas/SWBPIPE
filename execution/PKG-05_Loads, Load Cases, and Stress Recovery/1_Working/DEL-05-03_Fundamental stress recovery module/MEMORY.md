@@ -1,5 +1,22 @@
 # MEMORY - DEL-05-03 Fundamental Stress Recovery Module
 
+## 2026-06-21 - TP-R4-D1-BENDSTRESS-001 component multiplier review rows
+
+WORKING_ITEMS landed the stress-recovery side of the D1 bend mechanics/report
+residual. Bend/elbow components with complete user-entered SIF and flexibility
+factor values now emit `component_user_stress_multiplier_review` rows at
+adjacent pipe endpoints, with source-result refs to endpoint stress component
+rows and the base pipe stress summary. Base pipe stress rows and frame stiffness
+remain unchanged. The existing load-combination algebra derives matching
+combination rows for the component multiplier result identity.
+
+Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D1-BENDSTRESS-001.md`.
+Validation passed: product-physics Rust tests, desktop Vitest, desktop build,
+and Playwright e2e. No protected standards values, code-derived component
+factors, private data, lifecycle state changes, release-readiness claims,
+professional approval, certification, sealing, authentication, or
+code-compliance claims were introduced.
+
 ## 2026-05-02 Implementation
 
 Implemented the bounded stress recovery deliverable within the sealed write

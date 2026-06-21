@@ -13,6 +13,7 @@
     "segment_count": 4,
     "support_count": 3,
     "load_case_count": 2,
+    "component_stress_modifier_count": 4,
     "max_displacement": {
       "value": 26.515341,
       "unit": "mm",
@@ -1567,6 +1568,31 @@
       }
     },
     {
+      "id": "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 16.694526,
+      "unit": "MPa",
+      "entity_ref": "component:C-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-100:end-j:axial-normal",
+        "result:stress:pipe-P-100:end-j:bending-normal-y",
+        "result:stress:pipe-P-100:end-j:bending-normal-z",
+        "result:stress:pipe-P-100:end-j:torsional-shear",
+        "result:stress:pipe-P-100"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-100:end_j",
+        "basis": "user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
+      }
+    },
+    {
       "id": "result:force:pipe-P-110:axial",
       "kind": "element_local_axial_force",
       "value": 0.0,
@@ -2475,6 +2501,31 @@
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-100"
+      }
+    },
+    {
+      "id": "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 3.671389,
+      "unit": "MPa",
+      "entity_ref": "component:C-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-110:end-i:axial-normal",
+        "result:stress:pipe-P-110:end-i:bending-normal-y",
+        "result:stress:pipe-P-110:end-i:bending-normal-z",
+        "result:stress:pipe-P-110:end-i:torsional-shear",
+        "result:stress:pipe-P-110"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-110:end_i",
+        "basis": "user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
       }
     },
     {
@@ -5929,6 +5980,31 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 8.347263,
+      "unit": "MPa",
+      "entity_ref": "component:C-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-100:end-j:axial-normal",
+        "result:stress:pipe-P-100:end-j:bending-normal-y",
+        "result:stress:pipe-P-100:end-j:bending-normal-z",
+        "result:stress:pipe-P-100:end-j:torsional-shear",
+        "result:stress:pipe-P-100"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-100:end_j",
+        "basis": "user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:force:pipe-P-110:axial",
       "kind": "element_local_axial_force",
       "value": 0.0,
@@ -6837,6 +6913,31 @@
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-200"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 2.053731,
+      "unit": "MPa",
+      "entity_ref": "component:C-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-110:end-i:axial-normal",
+        "result:stress:pipe-P-110:end-i:bending-normal-y",
+        "result:stress:pipe-P-110:end-i:bending-normal-z",
+        "result:stress:pipe-P-110:end-i:torsional-shear",
+        "result:stress:pipe-P-110"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-110:end_i",
+        "basis": "user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "sign_convention": "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
       }
     },
     {
@@ -12172,6 +12273,50 @@
       ]
     },
     {
+      "id": "result:combination:combination-C-OPER-ALT:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 20.868158,
+      "unit": "MPa",
+      "entity_ref": "component:C-110",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+        "result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-100:end_j",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+      "kind": "component_user_stress_multiplier_review",
+      "value": 4.698255,
+      "unit": "MPa",
+      "entity_ref": "component:C-110",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+        "result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier"
+      ],
+      "metadata": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-110:end_i",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
       "value": 0.0,
@@ -14043,6 +14188,58 @@
     }
   ],
   "diagnostics": [
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "bend component component:C-110 applies user-entered SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-110",
+        "pipe:P-100",
+        "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+        "invented_user_entered_preview_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-110:end-i",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "bend component component:C-110 applies user-entered SIF 1.15 and flexibility factor 1.08 to pipe:P-110 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-110",
+        "pipe:P-110",
+        "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+        "invented_user_entered_preview_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "bend component component:C-110 applies user-entered SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-110",
+        "pipe:P-100",
+        "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+        "invented_user_entered_preview_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:component-stress-multiplier:component-C-110:pipe-P-110:end-i",
+      "code": "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+      "severity": "info",
+      "message": "bend component component:C-110 applies user-entered SIF 1.15 and flexibility factor 1.08 to pipe:P-110 end_i stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-110",
+        "pipe:P-110",
+        "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+        "invented_user_entered_preview_no_code_table"
+      ]
+    },
     {
       "id": "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-100:COMBINATION_STRESS_SUMMARY_SKIPPED",
       "code": "COMBINATION_STRESS_SUMMARY_SKIPPED",

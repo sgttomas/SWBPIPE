@@ -1,5 +1,20 @@
 # MEMORY - DEL-03-03 Bend and elbow component model fields
 
+## 2026-06-21 - TP-R4-D1-BENDSTRESS-001 bend multiplier parsing evidence
+
+WORKING_ITEMS landed the component-data side of the D1 bend mechanics/report
+residual. `core/product_physics` now parses preview `components`, validates
+bend/elbow geometry and user-entered modifier units/provenance, accepts the
+existing `"none"` fixture spelling only as a dimensionless input synonym, and
+preserves `mechanics_geometry_only` as the bend solver-consumption posture.
+
+Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D1-BENDSTRESS-001.md`.
+Validation passed: product-physics Rust tests, desktop Vitest, desktop build,
+and Playwright e2e. No protected standards values, default SIF/flexibility
+tables, proprietary catalog values, private payloads, lifecycle state changes,
+release-readiness claims, professional approval, certification, sealing,
+authentication, or code-compliance claims were introduced.
+
 ## 2026-06-20 - TP-R4-D1-BENDVIS-001 app absorption evidence
 
 WORKING_ITEMS recorded the first R4/D1 partial app-absorption slice for

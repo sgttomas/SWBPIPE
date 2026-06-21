@@ -17,6 +17,7 @@ pub(crate) fn validate_model_inputs(
     validate_ids(model, materials, diagnostics);
     validate_provenance(model, materials, diagnostics);
     validate_units(model, materials, diagnostics);
+    validate_components(model, diagnostics);
     validate_thermal_inputs(model, materials, diagnostics);
     validate_combinations(model, diagnostics);
 }
@@ -86,6 +87,14 @@ fn validate_ids(
                 .collect::<Vec<_>>(),
         ),
         (
+            "component",
+            model
+                .components
+                .iter()
+                .map(|item| item.id.as_str())
+                .collect::<Vec<_>>(),
+        ),
+        (
             "material",
             materials
                 .iter()
@@ -139,6 +148,14 @@ fn validate_provenance(
             "support",
             &support.id,
             support.provenance.as_deref(),
+            diagnostics,
+        );
+    }
+    for component in &model.components {
+        expect_public_preview_provenance(
+            "component",
+            &component.id,
+            component.provenance.as_deref(),
             diagnostics,
         );
     }
@@ -273,6 +290,63 @@ fn validate_units(
             }
         }
     }
+    for component in &model.components {
+        if is_bend_component(component) {
+            if let Some(geometry) = &component.geometry {
+                if let Some(radius) = &geometry.bend_radius {
+                    expect_unit(
+                        radius,
+                        Dimension::Length,
+                        &format!(
+                            "diagnostic:unit:component:{}:bend-radius",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.bend_radius".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(angle) = &geometry.bend_angle {
+                    expect_unit(
+                        angle,
+                        Dimension::Angle,
+                        &format!(
+                            "diagnostic:unit:component:{}:bend-angle",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "geometry.bend_angle".to_string()],
+                        diagnostics,
+                    );
+                }
+            }
+            if let Some(modifiers) = &component.modifiers {
+                if let Some(sif) = &modifiers.sif_user_value {
+                    expect_dimensionless_unit(
+                        sif,
+                        &format!(
+                            "diagnostic:unit:component:{}:sif-user-value",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![component.id.clone(), "modifiers.sif_user_value".to_string()],
+                        diagnostics,
+                    );
+                }
+                if let Some(flexibility) = &modifiers.flexibility_factor_user_value {
+                    expect_dimensionless_unit(
+                        flexibility,
+                        &format!(
+                            "diagnostic:unit:component:{}:flexibility-factor",
+                            stable_suffix(&component.id)
+                        ),
+                        vec![
+                            component.id.clone(),
+                            "modifiers.flexibility_factor_user_value".to_string(),
+                        ],
+                        diagnostics,
+                    );
+                }
+            }
+        }
+    }
     for load in model
         .load_cases
         .iter()
@@ -286,6 +360,85 @@ fn validate_units(
                 vec![load.id.clone(), "magnitude".to_string()],
                 diagnostics,
             );
+        }
+    }
+}
+
+fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    let node_ids = model
+        .nodes
+        .iter()
+        .map(|node| node.id.as_str())
+        .collect::<HashSet<_>>();
+    for component in &model.components {
+        if !component.node.trim().is_empty() && !node_ids.contains(component.node.as_str()) {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:component:{}:node",
+                    stable_suffix(&component.id)
+                ),
+                "COMPONENT_NODE_UNKNOWN",
+                "warning",
+                "component node is not present in preview model; component stress modifier rows will not be generated for this record",
+                vec![component.id.clone(), component.node.clone()],
+            ));
+        }
+        if !is_bend_component(component) {
+            continue;
+        }
+        if component
+            .mechanics_interface
+            .as_ref()
+            .and_then(|interface| interface.solver_consumption.as_deref())
+            .map(|value| value != "mechanics_geometry_only")
+            .unwrap_or(false)
+        {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:component:{}:mechanics-interface",
+                    stable_suffix(&component.id)
+                ),
+                "COMPONENT_MECHANICS_INTERFACE_UNSUPPORTED",
+                "warning",
+                "bend/elbow component stress modifier rows currently require solver_consumption=mechanics_geometry_only per DEC-045",
+                vec![component.id.clone()],
+            ));
+        }
+        if bend_geometry_missing(component) {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:component:{}:bend-geometry",
+                    stable_suffix(&component.id)
+                ),
+                "BEND_GEOMETRY_INPUT_MISSING",
+                "warning",
+                "bend/elbow component requires explicit radius, angle, plane orientation, and invented or cleared geometry source to support component provenance review",
+                vec![component.id.clone()],
+            ));
+        }
+        if bend_modifier_missing(component) {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:component:{}:bend-modifiers",
+                    stable_suffix(&component.id)
+                ),
+                "BEND_USER_MODIFIER_INPUT_MISSING",
+                "warning",
+                "bend/elbow component requires user-entered SIF, user-entered flexibility factor, and modifier source reference before stress modifier rows can be generated",
+                vec![component.id.clone()],
+            ));
+        }
+        if bend_modifier_invalid(component) {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:component:{}:bend-modifiers-invalid",
+                    stable_suffix(&component.id)
+                ),
+                "BEND_USER_MODIFIER_INPUT_INVALID",
+                "warning",
+                "bend/elbow user-entered SIF and flexibility factor must be finite positive dimensionless values before stress modifier rows can be generated",
+                vec![component.id.clone()],
+            ));
         }
     }
 }
@@ -377,6 +530,72 @@ fn expect_unit(
             affected_refs,
         ));
     }
+}
+
+fn expect_dimensionless_unit(
+    quantity: &Quantity,
+    diagnostic_id: &str,
+    affected_refs: Vec<String>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if matches!(quantity.unit.as_str(), "1" | "none") {
+        return;
+    }
+    expect_unit(
+        quantity,
+        Dimension::Dimensionless,
+        diagnostic_id,
+        affected_refs,
+        diagnostics,
+    );
+}
+
+fn is_bend_component(component: &crate::PreviewComponent) -> bool {
+    matches!(component.kind.as_str(), "bend" | "elbow")
+}
+
+fn bend_geometry_missing(component: &crate::PreviewComponent) -> bool {
+    let Some(geometry) = &component.geometry else {
+        return true;
+    };
+    geometry.bend_radius.is_none()
+        || geometry.bend_angle.is_none()
+        || geometry
+            .bend_plane_orientation
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+        || geometry
+            .bend_geometry_source_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+}
+
+fn bend_modifier_missing(component: &crate::PreviewComponent) -> bool {
+    let Some(modifiers) = &component.modifiers else {
+        return true;
+    };
+    modifiers.sif_user_value.is_none()
+        || modifiers.flexibility_factor_user_value.is_none()
+        || modifiers
+            .source_reference
+            .as_deref()
+            .map(|value| value.trim().is_empty())
+            .unwrap_or(true)
+}
+
+fn bend_modifier_invalid(component: &crate::PreviewComponent) -> bool {
+    let Some(modifiers) = &component.modifiers else {
+        return false;
+    };
+    [
+        modifiers.sif_user_value.as_ref(),
+        modifiers.flexibility_factor_user_value.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|quantity| !quantity.value.is_finite() || quantity.value <= 0.0)
 }
 
 fn validate_thermal_inputs(

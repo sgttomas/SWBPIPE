@@ -43,6 +43,8 @@ pub struct PreviewModel {
     pub pipe_segments: Vec<PreviewPipe>,
     pub supports: Vec<PreviewSupport>,
     #[serde(default)]
+    pub components: Vec<PreviewComponent>,
+    #[serde(default)]
     pub materials: Vec<MaterialInput>,
     #[serde(default)]
     pub load_cases: Vec<PreviewLoadCase>,
@@ -101,6 +103,53 @@ pub struct Quantity {
     pub value: f64,
     #[allow(dead_code)]
     pub unit: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct PreviewComponent {
+    pub id: String,
+    #[serde(default)]
+    pub label: Option<String>,
+    pub kind: String,
+    pub node: String,
+    #[serde(default)]
+    pub geometry: Option<ComponentGeometryInput>,
+    #[serde(default)]
+    pub modifiers: Option<ComponentModifierInput>,
+    #[serde(default)]
+    pub mechanics_interface: Option<ComponentMechanicsInterfaceInput>,
+    #[serde(default)]
+    pub provenance: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ComponentGeometryInput {
+    #[serde(default)]
+    pub bend_radius: Option<Quantity>,
+    #[serde(default)]
+    pub bend_angle: Option<Quantity>,
+    #[serde(default)]
+    pub bend_plane_orientation: Option<String>,
+    #[serde(default)]
+    pub bend_geometry_source_reference: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ComponentModifierInput {
+    #[serde(default)]
+    pub sif_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub flexibility_factor_user_value: Option<Quantity>,
+    #[serde(default)]
+    pub source_reference: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ComponentMechanicsInterfaceInput {
+    #[serde(default)]
+    pub solver_consumption: Option<String>,
+    #[serde(default)]
+    pub rule_check_consumption: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -219,6 +268,7 @@ pub struct Summary {
     pub segment_count: usize,
     pub support_count: usize,
     pub load_case_count: usize,
+    pub component_stress_modifier_count: usize,
     pub max_displacement: Option<LocatedQuantity>,
     pub max_open_formula_stress: Option<LocatedQuantity>,
 }
@@ -297,6 +347,7 @@ struct LoadCaseSolve {
     results: Vec<ResultItem>,
     max_displacement: Option<LocatedQuantity>,
     max_stress: Option<LocatedQuantity>,
+    component_stress_modifier_count: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -440,6 +491,10 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
     let max_stress = load_case_solves
         .first()
         .and_then(|solve| solve.max_stress.clone());
+    let component_stress_modifier_count = load_case_solves
+        .iter()
+        .map(|solve| solve.component_stress_modifier_count)
+        .sum();
     let mut results = Vec::new();
     let mut rows_by_base_id: HashMap<String, HashMap<String, ResultItem>> = HashMap::new();
     for (index, solve) in load_case_solves.into_iter().enumerate() {
@@ -497,6 +552,7 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
             segment_count: model.pipe_segments.len(),
             support_count: model.supports.len(),
             load_case_count: model.load_cases.len(),
+            component_stress_modifier_count,
             max_displacement,
             max_open_formula_stress: max_stress,
         },
@@ -533,6 +589,7 @@ fn solve_load_case(
             results: Vec::new(),
             max_displacement: None,
             max_stress: None,
+            component_stress_modifier_count: 0,
         });
     }
 
@@ -638,6 +695,7 @@ fn solve_load_case(
     }
 
     let mut max_stress = None;
+    let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
         let local = match pipe.recover_local_forces_from_global_model(&displacements) {
             Ok(local) => local,
@@ -792,6 +850,15 @@ fn solve_load_case(
                 metadata: None,
             });
         }
+        component_stress_modifier_count += append_component_stress_multiplier_results(
+            &mut results,
+            diagnostics,
+            model,
+            &pipe.element_id,
+            &end_i_stress,
+            &end_j_stress,
+            include_pressure_longitudinal,
+        );
     }
 
     Ok(LoadCaseSolve {
@@ -799,6 +866,7 @@ fn solve_load_case(
         results,
         max_displacement,
         max_stress,
+        component_stress_modifier_count,
     })
 }
 
@@ -1074,6 +1142,65 @@ fn normalize_model_units(
         );
     }
 
+    for component in &mut model.components {
+        if !is_bend_component(component) {
+            continue;
+        }
+        if let Some(geometry) = &mut component.geometry {
+            if let Some(radius) = &mut geometry.bend_radius {
+                normalize_quantity(
+                    radius,
+                    Dimension::Length,
+                    &format!(
+                        "diagnostic:unit-conversion:component:{}:bend-radius",
+                        stable_suffix(&component.id)
+                    ),
+                    vec![component.id.clone(), "geometry.bend_radius".to_string()],
+                    diagnostics,
+                );
+            }
+            if let Some(angle) = &mut geometry.bend_angle {
+                normalize_quantity(
+                    angle,
+                    Dimension::Angle,
+                    &format!(
+                        "diagnostic:unit-conversion:component:{}:bend-angle",
+                        stable_suffix(&component.id)
+                    ),
+                    vec![component.id.clone(), "geometry.bend_angle".to_string()],
+                    diagnostics,
+                );
+            }
+        }
+        if let Some(modifiers) = &mut component.modifiers {
+            if let Some(sif) = &mut modifiers.sif_user_value {
+                normalize_dimensionless_quantity(
+                    sif,
+                    &format!(
+                        "diagnostic:unit-conversion:component:{}:sif-user-value",
+                        stable_suffix(&component.id)
+                    ),
+                    vec![component.id.clone(), "modifiers.sif_user_value".to_string()],
+                    diagnostics,
+                );
+            }
+            if let Some(flexibility) = &mut modifiers.flexibility_factor_user_value {
+                normalize_dimensionless_quantity(
+                    flexibility,
+                    &format!(
+                        "diagnostic:unit-conversion:component:{}:flexibility-factor",
+                        stable_suffix(&component.id)
+                    ),
+                    vec![
+                        component.id.clone(),
+                        "modifiers.flexibility_factor_user_value".to_string(),
+                    ],
+                    diagnostics,
+                );
+            }
+        }
+    }
+
     for load in model
         .load_cases
         .iter_mut()
@@ -1092,6 +1219,25 @@ fn normalize_model_units(
             );
         }
     }
+}
+
+fn normalize_dimensionless_quantity(
+    quantity: &mut Quantity,
+    diagnostic_id: &str,
+    affected_refs: Vec<String>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if quantity.unit == "none" {
+        quantity.unit = "1".to_string();
+        return;
+    }
+    normalize_quantity(
+        quantity,
+        Dimension::Dimensionless,
+        diagnostic_id,
+        affected_refs,
+        diagnostics,
+    );
 }
 
 fn normalize_quantity(
@@ -1881,6 +2027,186 @@ fn open_formula_summary_mpa(
     )
 }
 
+fn append_component_stress_multiplier_results(
+    results: &mut Vec<ResultItem>,
+    diagnostics: &mut Vec<Diagnostic>,
+    model: &PreviewModel,
+    pipe_id: &str,
+    end_i_stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
+    end_j_stress: &open_pipe_stress_stress_recovery::StressRecoveryResult,
+    include_pressure_longitudinal: bool,
+) -> usize {
+    let Some(pipe) = model
+        .pipe_segments
+        .iter()
+        .find(|candidate| candidate.id == pipe_id)
+    else {
+        return 0;
+    };
+    let endpoint_stresses = [
+        ("end_i", pipe.from.as_str(), end_i_stress),
+        ("end_j", pipe.to.as_str(), end_j_stress),
+    ];
+    let mut appended = 0;
+    for (location, node_id, stress) in endpoint_stresses {
+        let Some(base_value_mpa) = open_formula_summary_mpa(stress, include_pressure_longitudinal)
+        else {
+            continue;
+        };
+        for component in model
+            .components
+            .iter()
+            .filter(|component| is_bend_component(component) && component.node == node_id)
+        {
+            let Some(modifier) = bend_stress_modifier(component) else {
+                continue;
+            };
+            append_component_stress_multiplier_result(
+                results,
+                diagnostics,
+                component,
+                pipe_id,
+                location,
+                base_value_mpa,
+                modifier,
+            );
+            appended += 1;
+        }
+    }
+    appended
+}
+
+#[derive(Debug, Clone, Copy)]
+struct BendStressModifier<'a> {
+    sif: f64,
+    flexibility: f64,
+    source_reference: &'a str,
+    solver_consumption: &'a str,
+}
+
+fn bend_stress_modifier(component: &PreviewComponent) -> Option<BendStressModifier<'_>> {
+    let solver_consumption = component
+        .mechanics_interface
+        .as_ref()
+        .and_then(|interface| interface.solver_consumption.as_deref())
+        .unwrap_or("mechanics_geometry_only");
+    if solver_consumption != "mechanics_geometry_only" {
+        return None;
+    }
+    let modifiers = component.modifiers.as_ref()?;
+    let sif = modifiers.sif_user_value.as_ref()?.value;
+    let flexibility = modifiers.flexibility_factor_user_value.as_ref()?.value;
+    if !positive_finite(sif) || !positive_finite(flexibility) {
+        return None;
+    }
+    let source_reference = modifiers
+        .source_reference
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("source_reference_missing");
+    Some(BendStressModifier {
+        sif,
+        flexibility,
+        source_reference,
+        solver_consumption,
+    })
+}
+
+fn append_component_stress_multiplier_result(
+    results: &mut Vec<ResultItem>,
+    diagnostics: &mut Vec<Diagnostic>,
+    component: &PreviewComponent,
+    pipe_id: &str,
+    location: &str,
+    base_value_mpa: f64,
+    modifier: BendStressModifier<'_>,
+) {
+    let component_suffix = stable_suffix(&component.id);
+    let pipe_suffix = stable_suffix(pipe_id);
+    let endpoint = endpoint_id_location(location);
+    let result_id =
+        format!("result:stress:{component_suffix}:{pipe_suffix}:{endpoint}:user-multiplier");
+    let multiplier = modifier.sif * modifier.flexibility;
+    let value = round6(base_value_mpa * multiplier);
+    results.push(ResultItem {
+        id: result_id.clone(),
+        kind: "component_user_stress_multiplier_review".to_string(),
+        value,
+        unit: "MPa".to_string(),
+        entity_ref: component.id.clone(),
+        basis_ref: None,
+        source_result_refs: endpoint_stress_source_refs(pipe_id, location),
+        metadata: Some(ResultMetadata {
+            component: "user_entered_component_stress_multiplier".to_string(),
+            coordinate_system: "component_review".to_string(),
+            location: format!("{pipe_id}:{location}"),
+            basis: format!(
+                "user_entered_sif={};user_entered_flexibility={};source={};solver_consumption={}",
+                rounded_scalar(modifier.sif),
+                rounded_scalar(modifier.flexibility),
+                modifier.source_reference,
+                modifier.solver_consumption
+            ),
+            sign_convention:
+                "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
+                    .to_string(),
+        }),
+    });
+    diagnostics.push(diag(
+        &format!(
+            "diagnostic:component-stress-multiplier:{}:{}:{}",
+            component_suffix, pipe_suffix, endpoint
+        ),
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "info",
+        format!(
+            "bend component {} applies user-entered SIF {} and flexibility factor {} to {} {location} stress-recovery review; solver_consumption remains {}; no protected or default component factor is supplied",
+            component.id,
+            rounded_scalar(modifier.sif),
+            rounded_scalar(modifier.flexibility),
+            pipe_id,
+            modifier.solver_consumption
+        ),
+        vec![
+            component.id.clone(),
+            pipe_id.to_string(),
+            result_id,
+            modifier.source_reference.to_string(),
+        ],
+    ));
+}
+
+fn endpoint_stress_source_refs(pipe_id: &str, location: &str) -> Vec<String> {
+    let suffix = stable_suffix(pipe_id);
+    let endpoint = endpoint_id_location(location);
+    [
+        format!("result:stress:{suffix}:{endpoint}:axial-normal"),
+        format!("result:stress:{suffix}:{endpoint}:bending-normal-y"),
+        format!("result:stress:{suffix}:{endpoint}:bending-normal-z"),
+        format!("result:stress:{suffix}:{endpoint}:torsional-shear"),
+        format!("result:stress:{suffix}"),
+    ]
+    .into_iter()
+    .collect()
+}
+
+fn is_bend_component(component: &PreviewComponent) -> bool {
+    matches!(component.kind.as_str(), "bend" | "elbow")
+}
+
+fn positive_finite(value: f64) -> bool {
+    value.is_finite() && value > 0.0
+}
+
+fn rounded_scalar(value: f64) -> String {
+    let rounded = round6(value);
+    if (rounded.fract()).abs() < 1.0e-9 {
+        format!("{rounded:.0}")
+    } else {
+        format!("{rounded}")
+    }
+}
+
 fn append_endpoint_stress_results(
     results: &mut Vec<ResultItem>,
     pipe_id: &str,
@@ -2485,6 +2811,7 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
             segment_count: model.pipe_segments.len(),
             support_count: model.supports.len(),
             load_case_count: model.load_cases.len(),
+            component_stress_modifier_count: 0,
             max_displacement: None,
             max_open_formula_stress: None,
         },
@@ -3419,6 +3746,75 @@ mod tests {
             .diagnostics
             .iter()
             .any(|item| item.code == "PRESSURE_LOAD_NOT_APPLIED_TO_FRAME_VECTOR"));
+    }
+
+    #[test]
+    fn bend_component_user_multipliers_emit_stress_review_rows() {
+        let result = run_linear_static_preview(request());
+        let default_row_id = "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier";
+        let combination_row_id =
+            "result:combination:combination-C-OPER-ALT:stress:component-C-110:pipe-P-100:end-j:user-multiplier";
+        let default_row = result
+            .results
+            .iter()
+            .find(|item| item.id == default_row_id)
+            .expect("bend user multiplier row should be emitted for adjacent pipe endpoint");
+        let combination_row = result
+            .results
+            .iter()
+            .find(|item| item.id == combination_row_id)
+            .expect("bend user multiplier row should participate in explicit combinations");
+
+        assert_eq!(result.summary.component_stress_modifier_count, 4);
+        assert_eq!(default_row.kind, "component_user_stress_multiplier_review");
+        assert_eq!(default_row.entity_ref, "component:C-110");
+        assert!(default_row.value > 0.0);
+        assert!(default_row
+            .source_result_refs
+            .contains(&"result:stress:pipe-P-100:end-j:axial-normal".to_string()));
+        assert!(default_row
+            .source_result_refs
+            .contains(&"result:stress:pipe-P-100:end-j:bending-normal-y".to_string()));
+        assert!(default_row
+            .source_result_refs
+            .contains(&"result:stress:pipe-P-100".to_string()));
+        let metadata = default_row
+            .metadata
+            .as_ref()
+            .expect("component multiplier row carries recovery metadata");
+        assert_eq!(
+            metadata.component,
+            "user_entered_component_stress_multiplier"
+        );
+        assert_eq!(metadata.coordinate_system, "component_review");
+        assert_eq!(metadata.location, "pipe:P-100:end_j");
+        assert!(metadata.basis.contains("user_entered_sif=1.15"));
+        assert!(metadata.basis.contains("user_entered_flexibility=1.08"));
+        assert!(metadata
+            .basis
+            .contains("source=invented_user_entered_preview_no_code_table"));
+        assert!(metadata
+            .basis
+            .contains("solver_consumption=mechanics_geometry_only"));
+        assert!(metadata
+            .sign_convention
+            .contains("base frame stiffness unchanged"));
+
+        assert_eq!(
+            combination_row
+                .basis_ref
+                .as_ref()
+                .map(|basis| basis.ref_id.as_str()),
+            Some("combination:C-OPER-ALT")
+        );
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .filter(|diagnostic| diagnostic.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
+                .count()
+                >= 4
+        );
     }
 
     #[test]

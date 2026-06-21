@@ -441,10 +441,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=737");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=743");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("model=angle=rad,force=N,length=m");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=MPa,N,N*m,mm,rad");
-  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=737");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=743");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=33.211157 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
@@ -466,7 +466,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
   await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("model=angle=rad,force=N,length=m");
   await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("results=MPa,N,N*m,mm,rad");
-  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("rows=737");
+  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("rows=743");
   await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("source=result_envelope");
   await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("conversion=false");
   await auditDrawer.getByRole("button", { name: /Close/i }).click();
@@ -482,20 +482,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toBeVisible();
   await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
-  await expect(page.getByTestId("result-unit-policy")).toContainText("737 rows");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("743 rows");
   await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("737 of 737 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("743 of 743 results match filter");
   await expect(page.getByTestId("result-family-count-reaction")).toContainText("9");
   await page.getByTestId("result-family-reaction").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("9 of 737 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("9 of 743 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 9 of 9 matching results; page 1 of 1"
   );
   await expect(page.getByTestId("result-row-result:reaction:support-S-120")).toBeVisible();
   await page.getByTestId("result-family-all").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("737 of 737 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("743 of 743 results match filter");
   await page.getByTestId("result-filter-input").fill("pipe-P-120");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("167 of 737 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("167 of 743 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 50 of 167 matching results; page 1 of 4"
   );
@@ -665,7 +665,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "conversion=false"
   );
   const stressNeutralExport = page.getByLabel("Stress-neutral CSV JSON export");
-  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=737");
+  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=743");
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText(
     "conversion=false"
   );
@@ -674,12 +674,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "unit-system:dec-018-si-dual-display"
   );
   await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("conversion=false");
-  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=737");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=743");
   await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText(
     "conversion=false"
   );
   const handoffPackage = page.getByLabel("Handoff package");
-  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=737");
+  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=743");
   await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("conversion=false");
   const reviewGeometryExport = page.getByLabel("Review geometry export");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=54");
@@ -695,7 +695,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "model_quantities=22"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
-    "result_quantities=739"
+    "result_quantities=745"
   );
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
     "conversion=false"

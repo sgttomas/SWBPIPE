@@ -9452,3 +9452,43 @@ notes:
   path, telemetry feature, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-279 R4 D1 bend stress-recovery and report provenance slice - PASSED (`TP-R4-D1-BENDSTRESS-001`, 2026-06-21)
+
+- Scope: second R4/D1 bend-object app-absorption slice under `DEC-045`,
+  closing the D1 mechanics/stress-recovery and preview report-provenance
+  residual for the invented bend path. This remains multiplier-first
+  `mechanics_geometry_only` behavior: all component factors are user-entered
+  and no protected/default engineering factors are bundled.
+- App/core behavior: `core/product_physics` now parses preview `components`,
+  validates bend/elbow geometry and dimensionless user-entered SIF/flexibility
+  values, and emits `component_user_stress_multiplier_review` result rows for
+  adjacent bend endpoints. `component:C-110` produces rows for `pipe:P-100`
+  end-j and `pipe:P-110` end-i; the base pipe stress rows and frame stiffness
+  remain unchanged. The regenerated invented mechanics fixture now has 743
+  result rows and `COMPONENT_STRESS_MULTIPLIER_APPLIED` info diagnostics.
+- Report behavior: the report packet displays component provenance and
+  component stress modifier summaries, and the JSON export includes
+  `component_provenance`, `component_stress_modifier_evidence`, and
+  `component_stress_modifier_count` with no-private/no-protected/no-claim
+  boundary flags.
+- Validation:
+  - `cargo test --manifest-path core/product_physics/Cargo.toml` passed 32/32
+    unit tests.
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 57/57 tests.
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 406/406
+    tests.
+  - `npm run build:desktop` passed, retaining the existing Vite chunk-size
+    warning.
+  - `npm run test:e2e:desktop` passed 18/18 Playwright checks.
+- Evidence: DEL-03-03, DEL-05-03, and DEL-08-03 run records
+  `WORKING_ITEMS_RUN_2026-06-21_TP-R4-D1-BENDSTRESS-001.md`; plan log entry in
+  `plans/PLAN_COMPLETION_LOG.md`.
+- Residual: D1 bend-object app absorption is landed for the invented preview
+  path. D2 branch objects are the next ordinary unblocked Phase D component
+  item. Broader D8/D9 R4 report/validation evidence remains open.
+- Boundary: invented/user-entered preview values only. No protected standards
+  table, code-derived component factor, proprietary catalog value, private data,
+  frame-stiffness behavior change, network path, telemetry feature, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
