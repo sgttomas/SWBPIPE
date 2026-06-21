@@ -32,6 +32,7 @@ The explicit source inventory is the `fixture_inventory()` list in
 |---|---|
 | Cantilever | `MECH-CANTILEVER-TIP-FORCE` |
 | Frame | `MECH-PORTAL-SWAY-ORIGINAL` |
+| Branch assembly | `MECH-BRANCH-ASSEMBLY-THREE-MEMBER` |
 | Straight pipe | `MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY` |
 | Support boundary | `MECH-SUPPORT-BOUNDARY-MIXED` |
 | Primitive load | `MECH-PRIMITIVE-LOAD-PREP` |

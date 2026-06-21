@@ -107,6 +107,7 @@ const CANONICAL_DIMENSIONS: &[&str] = &[
 pub enum BenchmarkFamily {
     Cantilever,
     Frame,
+    BranchAssembly,
     StraightPipe,
     SupportBoundary,
     PrimitiveLoad,
@@ -266,6 +267,18 @@ pub struct LinearStaticIntegrationResult {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct BranchAssemblyBenchmarkResult {
+    pub branch_axial_stiffness: f64,
+    pub header_lateral_stiffness: f64,
+    pub junction_uy_displacement: f64,
+    pub branch_tip_uy_displacement: f64,
+    pub branch_axial_extension: f64,
+    pub header_left_uy_reaction: f64,
+    pub header_right_uy_reaction: f64,
+    pub header_reaction_sum: f64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct LoadToResultantIntegrationResult {
     pub node_1_uy_displacement: f64,
     pub node_1_rz_rotation: f64,
@@ -395,6 +408,7 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
     vec![
         cantilever_tip_force_fixture(),
         portal_frame_sway_fixture(),
+        branch_assembly_fixture(),
         straight_pipe_weight_recovery_fixture(),
         support_boundary_fixture(),
         primitive_load_preparation_fixture(),
@@ -450,6 +464,7 @@ pub fn missing_required_families(fixtures: &[MechanicsBenchmark]) -> Vec<Benchma
     let required = [
         BenchmarkFamily::Cantilever,
         BenchmarkFamily::Frame,
+        BenchmarkFamily::BranchAssembly,
         BenchmarkFamily::StraightPipe,
         BenchmarkFamily::SupportBoundary,
         BenchmarkFamily::PrimitiveLoad,
@@ -528,6 +543,85 @@ pub fn portal_frame_sway_fixture() -> MechanicsBenchmark {
             dimension: "length",
             tolerance_policy: None,
         }],
+    }
+}
+
+pub fn branch_assembly_fixture() -> MechanicsBenchmark {
+    let result = expected_branch_assembly_result()
+        .expect("branch assembly fixture construction must remain valid");
+
+    MechanicsBenchmark {
+        fixture_id: "MECH-BRANCH-ASSEMBLY-THREE-MEMBER",
+        family: BenchmarkFamily::BranchAssembly,
+        description: "Invented three-member branch assembly with two header legs, one branch leg, a shared junction node, and an elementary closed-form stiffness check.",
+        assumptions: &[
+            "Two collinear header frame members and one perpendicular branch member share the junction node.",
+            "Remote header ends are anchored; the branch tip receives a positive global Y force.",
+            "The junction and branch tip leave only global UY free, making the closed-form check a two-degree stiffness network.",
+            "The fixture verifies assembled topology and elementary member stiffness only; it does not encode code-derived branch factors.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/mechanics/branch_assembly.md",
+        ),
+        unit_basis: FIXTURE_UNIT_BASIS,
+        expected_values: vec![
+            ExpectedValue {
+                name: "branch_axial_stiffness",
+                value: result.branch_axial_stiffness,
+                unit: "N/m",
+                dimension: "linear_stiffness",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "header_lateral_stiffness",
+                value: result.header_lateral_stiffness,
+                unit: "N/m",
+                dimension: "linear_stiffness",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "junction_uy_displacement",
+                value: result.junction_uy_displacement,
+                unit: "m",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "branch_tip_uy_displacement",
+                value: result.branch_tip_uy_displacement,
+                unit: "m",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "branch_axial_extension",
+                value: result.branch_axial_extension,
+                unit: "m",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "header_left_uy_reaction",
+                value: result.header_left_uy_reaction,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "header_right_uy_reaction",
+                value: result.header_right_uy_reaction,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "header_reaction_sum",
+                value: result.header_reaction_sum,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+        ],
     }
 }
 
@@ -1587,6 +1681,55 @@ pub fn solve_portal_frame_sway() -> Result<f64, FrameKernelError> {
         .position(|&dof| dof == 2 * DOF_PER_NODE + UX)
         .expect("top-right UX is free in this fixture");
     Ok(displacement[reduced_index])
+}
+
+pub fn solve_branch_assembly_benchmark() -> Result<BranchAssemblyBenchmarkResult, FrameKernelError>
+{
+    let section = benchmark_section()?;
+    let nodes = branch_assembly_nodes()?;
+    let elements = [
+        FrameElement::new(nodes[0], nodes[1], section, [0.0, 1.0, 0.0])?,
+        FrameElement::new(nodes[1], nodes[2], section, [0.0, 1.0, 0.0])?,
+        FrameElement::new(nodes[1], nodes[3], section, [1.0, 0.0, 0.0])?,
+    ];
+    let stiffness = assemble_global_stiffness(nodes.len(), &elements)?;
+    let mut force = vec![0.0; nodes.len() * DOF_PER_NODE];
+    force[3 * DOF_PER_NODE + UY] = branch_assembly_tip_load();
+    let restraints = branch_assembly_restrained_dofs();
+    let reduced = reduce_system(&stiffness, &force, &restraints)?;
+    let reduced_displacements = solve_dense(&reduced.stiffness, &reduced.force)?;
+
+    let mut global_displacements = vec![0.0; nodes.len() * DOF_PER_NODE];
+    for (&dof, &value) in reduced.free_dofs.iter().zip(reduced_displacements.iter()) {
+        global_displacements[dof] = value;
+    }
+
+    let reactions = stiffness
+        .iter()
+        .enumerate()
+        .map(|(row_index, row)| {
+            row.iter()
+                .zip(global_displacements.iter())
+                .map(|(stiffness, displacement)| stiffness * displacement)
+                .sum::<f64>()
+                - force[row_index]
+        })
+        .collect::<Vec<_>>();
+
+    let junction_uy_displacement = global_displacements[DOF_PER_NODE + UY];
+    let branch_tip_uy_displacement = global_displacements[3 * DOF_PER_NODE + UY];
+    let expected = expected_branch_assembly_result()?;
+
+    Ok(BranchAssemblyBenchmarkResult {
+        branch_axial_stiffness: expected.branch_axial_stiffness,
+        header_lateral_stiffness: expected.header_lateral_stiffness,
+        junction_uy_displacement,
+        branch_tip_uy_displacement,
+        branch_axial_extension: branch_tip_uy_displacement - junction_uy_displacement,
+        header_left_uy_reaction: reactions[UY],
+        header_right_uy_reaction: reactions[2 * DOF_PER_NODE + UY],
+        header_reaction_sum: reactions[UY] + reactions[2 * DOF_PER_NODE + UY],
+    })
 }
 
 pub fn validate_imposed_displacement_fixture() -> bool {
@@ -3055,6 +3198,44 @@ pub fn validate_tp_phys_015a_canonical_solve_result_envelope() -> bool {
         && (result.support_reaction_node_0_rz_moment - 24.0).abs() <= INTERNAL_ASSERTION_EPSILON
 }
 
+pub fn validate_branch_assembly_benchmark() -> bool {
+    let Ok(result) = solve_branch_assembly_benchmark() else {
+        return false;
+    };
+    let Ok(expected) = expected_branch_assembly_result() else {
+        return false;
+    };
+
+    [
+        result.branch_axial_stiffness,
+        result.header_lateral_stiffness,
+        result.junction_uy_displacement,
+        result.branch_tip_uy_displacement,
+        result.branch_axial_extension,
+        result.header_left_uy_reaction,
+        result.header_right_uy_reaction,
+        result.header_reaction_sum,
+    ]
+    .into_iter()
+    .all(f64::is_finite)
+        && (result.branch_axial_stiffness - expected.branch_axial_stiffness).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+        && (result.header_lateral_stiffness - expected.header_lateral_stiffness).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+        && (result.junction_uy_displacement - expected.junction_uy_displacement).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+        && (result.branch_tip_uy_displacement - expected.branch_tip_uy_displacement).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+        && (result.branch_axial_extension - expected.branch_axial_extension).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+        && (result.header_left_uy_reaction - expected.header_left_uy_reaction).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+        && (result.header_right_uy_reaction - expected.header_right_uy_reaction).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+        && (result.header_reaction_sum - expected.header_reaction_sum).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+}
+
 pub fn validate_tp_phys_008_thermal_pressure_axial_effects() -> bool {
     let Ok(result) = solve_tp_phys_008_thermal_pressure_axial_effects() else {
         return false;
@@ -4123,6 +4304,69 @@ fn benchmark_section() -> Result<FrameSection, FrameKernelError> {
     FrameSection::new(1200.0, 500.0, 2.0, 3.0, 4.0, 1.5)
 }
 
+fn branch_assembly_nodes() -> Result<[FrameNode; 4], FrameKernelError> {
+    Ok([
+        FrameNode::new(0, [-2.0, 0.0, 0.0])?,
+        FrameNode::new(1, [0.0, 0.0, 0.0])?,
+        FrameNode::new(2, [3.0, 0.0, 0.0])?,
+        FrameNode::new(3, [0.0, 4.0, 0.0])?,
+    ])
+}
+
+fn branch_assembly_tip_load() -> f64 {
+    90.0
+}
+
+fn expected_branch_assembly_result() -> Result<BranchAssemblyBenchmarkResult, FrameKernelError> {
+    let section = benchmark_section()?;
+    let left_header_length: f64 = 2.0;
+    let right_header_length: f64 = 3.0;
+    let branch_length: f64 = 4.0;
+    let left_header_stiffness =
+        12.0 * section.elastic_modulus * section.second_moment_z / left_header_length.powi(3);
+    let right_header_stiffness =
+        12.0 * section.elastic_modulus * section.second_moment_z / right_header_length.powi(3);
+    let header_lateral_stiffness = left_header_stiffness + right_header_stiffness;
+    let branch_axial_stiffness = section.elastic_modulus * section.area / branch_length;
+    let tip_load = branch_assembly_tip_load();
+    let junction_uy_displacement = tip_load / header_lateral_stiffness;
+    let branch_axial_extension = tip_load / branch_axial_stiffness;
+    let branch_tip_uy_displacement = junction_uy_displacement + branch_axial_extension;
+    let header_left_uy_reaction = -left_header_stiffness * junction_uy_displacement;
+    let header_right_uy_reaction = -right_header_stiffness * junction_uy_displacement;
+
+    Ok(BranchAssemblyBenchmarkResult {
+        branch_axial_stiffness,
+        header_lateral_stiffness,
+        junction_uy_displacement,
+        branch_tip_uy_displacement,
+        branch_axial_extension,
+        header_left_uy_reaction,
+        header_right_uy_reaction,
+        header_reaction_sum: header_left_uy_reaction + header_right_uy_reaction,
+    })
+}
+
+fn branch_assembly_restrained_dofs() -> Vec<usize> {
+    let mut restrained = all_node_dofs(0);
+    restrained.extend(all_node_dofs(2));
+    restrained.extend([
+        DOF_PER_NODE + UX,
+        DOF_PER_NODE + UZ,
+        DOF_PER_NODE + RX,
+        DOF_PER_NODE + RY,
+        DOF_PER_NODE + RZ,
+    ]);
+    restrained.extend([
+        3 * DOF_PER_NODE + UX,
+        3 * DOF_PER_NODE + UZ,
+        3 * DOF_PER_NODE + RX,
+        3 * DOF_PER_NODE + RY,
+        3 * DOF_PER_NODE + RZ,
+    ]);
+    restrained
+}
+
 fn tp_phys_002_model() -> Result<(StraightPipeElement, Vec<Vec<f64>>, Vec<f64>, Vec<f64>), String> {
     let section = StraightPipeSectionProperties::new(1500.0, 600.0, 2.0, 1.8, 2.2, 0.9, None)
         .map_err(|error| error.to_string())?;
@@ -4226,7 +4470,10 @@ mod tests {
     fn inventory_covers_required_mechanics_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 17);
+        assert_eq!(fixtures.len(), 18);
+        assert!(fixtures
+            .iter()
+            .any(|fixture| fixture.fixture_id == "MECH-BRANCH-ASSEMBLY-THREE-MEMBER"));
         assert!(fixtures
             .iter()
             .any(|fixture| fixture.fixture_id == "MECH-TP-PHYS-007-STATION-SWEEP-RESULTANTS"));
@@ -4318,6 +4565,17 @@ mod tests {
         let solved = solve_portal_frame_sway().unwrap();
         assert!((solved - fixture.expected_values[0].value).abs() <= INTERNAL_ASSERTION_EPSILON);
         assert!(solved.is_finite());
+    }
+
+    #[test]
+    fn branch_assembly_fixture_matches_open_stiffness_network() {
+        let fixture = branch_assembly_fixture();
+        assert_eq!(fixture.fixture_id, "MECH-BRANCH-ASSEMBLY-THREE-MEMBER");
+        let result = solve_branch_assembly_benchmark().unwrap();
+        assert!(
+            validate_branch_assembly_benchmark(),
+            "unexpected branch assembly mechanics result: {result:?}"
+        );
     }
 
     #[test]

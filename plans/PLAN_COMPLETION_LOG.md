@@ -14,6 +14,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 branch-assembly mechanics benchmark (`TP-R4-D9-BRANCHASSEMBLY-001`)
+
+Landed the PRD section 16.2 branch-assembly benchmark residual as
+public-original mechanics validation evidence.
+
+`validation/benchmarks/mechanics` now includes
+`MECH-BRANCH-ASSEMBLY-THREE-MEMBER` and a new `BenchmarkFamily::BranchAssembly`.
+The fixture assembles two header frame members and one perpendicular branch
+member into a shared branch-junction node, leaves only the two global `UY`
+degrees of freedom active, and checks the dense frame solve against the
+closed-form two-degree stiffness network. Expected evidence includes branch
+axial stiffness, header lateral stiffness, junction displacement, branch-tip
+displacement, branch extension, and header anchor reactions.
+
+The public hand calculation is recorded in
+`validation/hand_calcs/mechanics/branch_assembly.md` and mirrored in both
+mechanics benchmark inventories. This is validation evidence only: it does not
+add branch-code formulas, protected standards table values, proprietary
+benchmark values, or code-derived branch factors.
+
+Validation: `cargo fmt --manifest-path validation/benchmarks/mechanics/Cargo.toml`
+passed; `cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml`
+passed 21/21 tests; the full five-surface evidence sweep passed across 33
+cargo crates, repository pytest (362), desktop Vitest (407), Playwright dev/dist
+(18 + 1), and desktop production build, writing
+`validation/evidence/sweeps/SWEEP_20260621T094346Z_87eb336e1b0a-dirty.json`.
+
+Evidence: DEL-09-01 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-BRANCHASSEMBLY-001.md`.
+
+Residual: measured class-tiered convergence values remain `TBD`; sparse
+live-path adoption remains gated by `D-17`; broader live-solver coverage and
+the R4 exit evidence package remain open.
+
+Boundary: public invented mechanics only; no protected standards content,
+private data, lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-21 - R4 D6 derived friction normal source (`TP-R4-D6-FRICTIONNORMAL-001`)
 
 Landed the bounded derived friction normal-force model for the dense assembled

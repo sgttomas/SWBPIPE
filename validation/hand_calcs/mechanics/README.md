@@ -45,6 +45,7 @@ has an explicit public-original hand-calculation note.
 |---|---|
 | `MECH-CANTILEVER-TIP-FORCE` | `cantilever_tip_force.md` |
 | `MECH-PORTAL-SWAY-ORIGINAL` | `portal_frame_sway.md` |
+| `MECH-BRANCH-ASSEMBLY-THREE-MEMBER` | `branch_assembly.md` |
 | `MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY` | `straight_pipe_weight_recovery.md` |
 | `MECH-SUPPORT-BOUNDARY-MIXED` | `support_boundary_mixed.md` |
 | `MECH-PRIMITIVE-LOAD-PREP` | `primitive_load_preparation.md` |
@@ -81,3 +82,5 @@ has an explicit public-original hand-calculation note.
   analytical payload consumption case.
 - `tp_phys_015a_canonical_solve_result_envelope.md` records the
   validation-local canonical solve-result envelope evidence.
+- `branch_assembly.md` records the invented three-member branch topology
+  benchmark required by PRD section 16.2.

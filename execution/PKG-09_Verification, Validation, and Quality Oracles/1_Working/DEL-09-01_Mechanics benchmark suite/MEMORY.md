@@ -717,3 +717,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-21 - R4 D9 Branch Assembly Benchmark
+
+- Executed `TP-R4-D9-BRANCHASSEMBLY-001` to close the PRD section 16.2
+  branch-assembly benchmark residual for current D9 validation evidence.
+- Added `MECH-BRANCH-ASSEMBLY-THREE-MEMBER` to
+  `validation/benchmarks/mechanics/src/lib.rs` as a public-original
+  three-member frame assembly with two header legs, one branch leg, a shared
+  junction node, and closed-form stiffness-network expected values.
+- Added `validation/hand_calcs/mechanics/branch_assembly.md` and indexed it in
+  the mechanics benchmark and hand-calculation READMEs.
+- Validation passed:
+  `cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml`
+  with 21 tests passed; full evidence sweep passed all five surfaces with
+  summary
+  `validation/evidence/sweeps/SWEEP_20260621T094346Z_87eb336e1b0a-dirty.json`.
+- No `_STATUS.md`, lifecycle, release-readiness, professional approval,
+  certification, sealing, authentication, protected-standards content, private
+  data, or code-compliance surface was changed.

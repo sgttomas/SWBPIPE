@@ -80,7 +80,7 @@ lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 | R1 Core Solver MVP | Substantially met (linear static, dense solve) | Tolerance thresholds **RULED** (`DEC-024`/`DEC-026`, D-04) |
 | R2 GUI MVP | Met in substance | Exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](../plans/VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`). The two R2-carried residuals were closed for C5 by the 2026-06-20 replacement-criterion ruling (`DEC-047`) |
 | R3 Rule packs + private libraries | Evidence accepted for target-stage advancement | C1-C4 landed; C5.8 assembled [VERIFICATION_2026-06-20_r3_exit_chain.md](../plans/VERIFICATION_2026-06-20_r3_exit_chain.md); `D-23` ruled O-A by `DEC-048` |
-| R4 Components + nonlinear supports (current target) | D1 bend, D2 branch, D3 rigid/semi-rigid, and D4 expansion-joint invented-preview paths landed across app visibility, user-entered evidence, diagnostics, native-package/report provenance, bend/branch stress-recovery review rows, and EJ user-stiffness macro-element review rows (`TP-R4-D1-BENDVIS-001`, `TP-R4-D1-BENDSTRESS-001`, `TP-R4-D2-BRANCHSTRESS-001`, `TP-R4-D3-RIGIDVIS-001`, `TP-R4-D4-EJSTIFF-001`); D6 loop-core crate and invented product/result-envelope sidecar landed (`TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`), with product gap/lift-off live-loop coverage (`TP-R4-D6-LIVECOVER-001`) and derived friction normal-source evidence (`TP-R4-D6-FRICTIONNORMAL-001`); assembled validation seeds landed through explicit/derived-normal friction evidence (`TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`); D8 component provenance now flows into the hash-bound rendered report (`TP-R4-D8-COMPPROVREPORT-001`); sparse-solver strategy decided (`DEC-023`, first slice landed) | No spring-hanger constant-effort/variable-rate behavior; measured convergence values remain `TBD`; sparse live path not bound; broader R4 validation and exit evidence remain (Phase D) |
+| R4 Components + nonlinear supports (current target) | D1 bend, D2 branch, D3 rigid/semi-rigid, and D4 expansion-joint invented-preview paths landed across app visibility, user-entered evidence, diagnostics, native-package/report provenance, bend/branch stress-recovery review rows, and EJ user-stiffness macro-element review rows (`TP-R4-D1-BENDVIS-001`, `TP-R4-D1-BENDSTRESS-001`, `TP-R4-D2-BRANCHSTRESS-001`, `TP-R4-D3-RIGIDVIS-001`, `TP-R4-D4-EJSTIFF-001`); D6 loop-core crate and invented product/result-envelope sidecar landed (`TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`), with product gap/lift-off live-loop coverage (`TP-R4-D6-LIVECOVER-001`) and derived friction normal-source evidence (`TP-R4-D6-FRICTIONNORMAL-001`); assembled validation seeds landed through explicit/derived-normal friction evidence and the PRD §16.2 branch-assembly benchmark (`TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-BRANCHASSEMBLY-001`); D8 component provenance now flows into the hash-bound rendered report (`TP-R4-D8-COMPPROVREPORT-001`); sparse-solver strategy decided (`DEC-023`, first slice landed) | No spring-hanger constant-effort/variable-rate behavior; measured convergence values remain `TBD`; sparse live path not bound; broader R4 validation and exit evidence remain (Phase D) |
 | R5 Engineering Beta | Distant | All release machinery TBD; validation manual; redaction workflow; signed releases (Phase E) |
 
 ## 3. How the strategic layers relate
@@ -142,7 +142,7 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
 - **D1 bend objects, D2 branch objects, D3 rigid/semi-rigid components, D4
   expansion joints, the first D6 product-preview nonlinear sidecar, D8
   rendered-report component provenance, and the D9 assembled validation seeds
-  through explicit-normal friction sticking and sliding
+  through explicit/derived-normal friction plus the branch-assembly benchmark
   landed for the invented preview path**
   through
   `TP-R4-D1-BENDVIS-001`, `TP-R4-D1-BENDSTRESS-001`,
@@ -151,7 +151,8 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
   `TP-R4-D6-LIVECOVER-001`, `TP-R4-D8-COMPPROVREPORT-001`,
   `TP-R4-D9-ASSEMBLEDSEED-001`, and
   `TP-R4-D9-FRICTIONSEED-001`, and
-  `TP-R4-D9-FRICTIONSLIDE-001`; D5 is gated by `D-15`, whose packet is
+  `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, and
+  `TP-R4-D9-BRANCHASSEMBLY-001`; D5 is gated by `D-15`, whose packet is
   prepared and awaiting human ruling.
 - **The two R2-carried R3-exit residuals are closed for C5** by `DEC-047`.
   The stale TP-MAC-189 path remains bypassed, not passed.
