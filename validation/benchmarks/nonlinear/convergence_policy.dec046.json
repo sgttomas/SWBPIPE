@@ -1,0 +1,67 @@
+{
+  "record_kind": "governed_nonlinear_convergence_policy",
+  "record_id": "DEC-046-CV-B-active-set-count-validation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "accepted_for_current_assembled_validation_seed",
+  "scope": "current_public_original_assembled_validation_seed_only",
+  "residual_basis": {
+    "name": "active_set_changed_support_count",
+    "unit": "count",
+    "dimension": "dimensionless",
+    "note": "zero means no nonlinear support state changed in the final assembled-loop iteration"
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed convergence value or raising an iteration cap requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "one_way",
+      "relative_residual_tolerance": 0.0,
+      "absolute_residual_floor": 0.0,
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-CV-B-active-set-count-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "gap",
+      "relative_residual_tolerance": 0.0,
+      "absolute_residual_floor": 0.0,
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-CV-B-active-set-count-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "lift_off",
+      "relative_residual_tolerance": 0.0,
+      "absolute_residual_floor": 0.0,
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-CV-B-active-set-count-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "friction",
+      "relative_residual_tolerance": 0.0,
+      "absolute_residual_floor": 0.0,
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-CV-B-active-set-count-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+        "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+        "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Applies only to the current public-original assembled validation seed and its active-set changed-support-count residual.",
+    "Does not define force, displacement, energy, sparse live-path, product-preview, or external validation convergence thresholds."
+  ],
+  "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

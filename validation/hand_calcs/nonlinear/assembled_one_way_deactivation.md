@@ -38,4 +38,4 @@ inactive and the active-set residual becomes zero.
 | Expected final state | inactive | state label | dimensionless |
 | Expected converged flag | true | boolean | dimensionless |
 
-Tolerance policy: `TBD`.
+Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.

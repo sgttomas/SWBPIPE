@@ -283,11 +283,14 @@ provenance and missing-provenance warnings to the hash-bound rendered report
 path. `TP-R4-D9-BRANCHASSEMBLY-001` added the PRD §16.2 public-original
 three-member branch-assembly mechanics benchmark.
 `TP-R4-D9-CONVOBS-001` records structured observed convergence values for the
-current assembled nonlinear fixture set while preserving the `DEC-046` `TBD`
-policy status. `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction
-product live-loop coverage in one invented dense solve. Sparse live-path
-adoption, governed class-tier threshold promotion, and the R4 exit evidence
-package remain open.
+current assembled nonlinear fixture set. `TP-R4-D9-CONVPOLICY-001` promotes the
+governed `DEC-046-CV-B-active-set-count-validation-v1` policy for that current
+assembled validation seed only: active-set changed-support-count residual,
+relative tolerance `0.0`, absolute floor `0.0`, max iteration cap `4`, keyed to
+one-way/gap/lift-off/friction classes. `TP-R4-D6-LIVEBUNDLE-001` added mixed
+one-way/gap/friction product live-loop coverage in one invented dense solve.
+Sparse live-path adoption, non-seed convergence thresholds, and the R4 exit
+evidence package remain open.
 The remaining spine continues with D7
 sparse live-path timing gate (`D-17`) and broader D9 R4 validation evidence.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
@@ -350,13 +353,14 @@ bounded tranche.
       `TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`,
       `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSEED-001`,
       `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`,
-      `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D6-LIVEBUNDLE-001`, and the D8
-      rendered report-provenance slice `TP-R4-D8-COMPPROVREPORT-001`;
+      `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVPOLICY-001`,
+      `TP-R4-D6-LIVEBUNDLE-001`, and the D8 rendered report-provenance slice
+      `TP-R4-D8-COMPPROVREPORT-001`;
       `TP-R4-D9-CONVOBS-001` records observed convergence values for the
-      current assembled fixtures without promoting governed thresholds:
-      sparse live-path adoption, governed class-tier threshold promotion, and
-      D9 validation cases beyond the current assembled/product seeds remain
-      open under `DEC-044`/`DEC-046`.
+      current assembled fixtures and `TP-R4-D9-CONVPOLICY-001` promotes the
+      governed active-set-count policy for that validation seed only:
+      sparse live-path adoption, non-seed convergence thresholds, and the R4
+      exit evidence package remain open under `DEC-044`/`DEC-046`.
       D7 is gated by `D-17`; `D-20` remains a Phase E lead-up decision; held
       `D-21` does not authorize v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or

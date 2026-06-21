@@ -56,4 +56,4 @@ copy a protected value, or make any professional acceptance claim.
 | Expected tangential reaction | -10.0 | N | force |
 | Expected converged flag | true | boolean | dimensionless |
 
-Tolerance policy: `TBD`.
+Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.

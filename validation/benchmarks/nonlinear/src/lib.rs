@@ -58,6 +58,17 @@ const CANONICAL_DIMENSIONS: &[&str] = &[
     "slope",
     "TBD",
 ];
+pub const DEC_046_ACTIVE_SET_COUNT_POLICY_REF: &str = "DEC-046-CV-B-active-set-count-validation-v1";
+const DEC_046_ACTIVE_SET_COUNT_RESIDUAL_BASIS: &str = "active_set_changed_support_count";
+const DEC_046_ACTIVE_SET_COUNT_RESIDUAL_UNIT: &str = "count";
+const DEC_046_ACTIVE_SET_COUNT_RESIDUAL_DIMENSION: &str = "dimensionless";
+const DEC_046_ACTIVE_SET_COUNT_RELATIVE_TOLERANCE: f64 = 0.0;
+const DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR: f64 = 0.0;
+const DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS: usize = 4;
+const DEC_046_ACTIVE_SET_COUNT_LIMITATIONS: &[&str] = &[
+    "Applies only to the current public-original assembled validation seed and its active-set changed-support-count residual.",
+    "Does not define force, displacement, energy, sparse live-path, product-preview, or external validation convergence thresholds.",
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NonlinearRegressionFamily {
@@ -233,12 +244,42 @@ pub struct ConvergenceObservation {
 }
 
 impl ConvergenceObservation {
-    pub fn preserves_dec_046_tbd_policy(&self) -> bool {
-        self.policy_ref == "DEC-046-CV-B-assembled-validation-seed-TBD"
-            && self.policy_status == ConvergencePolicyStatus::Tbd
-            && self
+    pub fn uses_accepted_dec_046_active_set_policy(&self) -> bool {
+        self.policy_ref == DEC_046_ACTIVE_SET_COUNT_POLICY_REF
+            && self.policy_status == ConvergencePolicyStatus::Accepted
+            && !self
                 .diagnostic_codes
                 .contains(&SolverDiagnosticCode::TolerancePolicyTbd)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ConvergencePolicyEntry {
+    pub policy_ref: &'static str,
+    pub nonlinear_class: &'static str,
+    pub residual_basis: &'static str,
+    pub residual_unit: &'static str,
+    pub residual_dimension: &'static str,
+    pub relative_residual_tolerance: f64,
+    pub absolute_residual_floor: f64,
+    pub max_iterations: usize,
+    pub status: ConvergencePolicyStatus,
+    pub evidence_fixture_ids: &'static [&'static str],
+    pub limitations: &'static [&'static str],
+}
+
+impl ConvergencePolicyEntry {
+    pub fn is_accepted_active_set_count_policy(&self) -> bool {
+        self.policy_ref == DEC_046_ACTIVE_SET_COUNT_POLICY_REF
+            && self.residual_basis == DEC_046_ACTIVE_SET_COUNT_RESIDUAL_BASIS
+            && self.residual_unit == DEC_046_ACTIVE_SET_COUNT_RESIDUAL_UNIT
+            && self.residual_dimension == DEC_046_ACTIVE_SET_COUNT_RESIDUAL_DIMENSION
+            && self.relative_residual_tolerance == DEC_046_ACTIVE_SET_COUNT_RELATIVE_TOLERANCE
+            && self.absolute_residual_floor == DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR
+            && self.max_iterations == DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS
+            && self.status == ConvergencePolicyStatus::Accepted
+            && !self.evidence_fixture_ids.is_empty()
+            && self.limitations == DEC_046_ACTIVE_SET_COUNT_LIMITATIONS
     }
 }
 
@@ -315,6 +356,20 @@ impl AssembledNonlinearRegressionCase {
         self.observations
             .iter()
             .all(|observation| observation.tolerance_policy.is_none())
+    }
+
+    pub fn uses_governed_convergence_policy(&self) -> bool {
+        self.input.convergence.policy_ref == DEC_046_ACTIVE_SET_COUNT_POLICY_REF
+            && self.input.convergence.policy_status == ConvergencePolicyStatus::Accepted
+            && self.input.convergence.residual_tolerance
+                == DEC_046_ACTIVE_SET_COUNT_RELATIVE_TOLERANCE
+            && self.input.convergence.absolute_residual_floor
+                == DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR
+            && self.input.convergence.max_iterations == DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS
+            && self.observations.iter().any(|observation| {
+                observation.name == "final_residual"
+                    && observation.tolerance_policy == Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF)
+            })
     }
 
     pub fn has_dimensioned_observations(&self) -> bool {
@@ -419,6 +474,67 @@ pub fn assembled_convergence_observations() -> Vec<ConvergenceObservation> {
         .collect()
 }
 
+pub fn governed_convergence_policy_entries() -> Vec<ConvergencePolicyEntry> {
+    vec![
+        ConvergencePolicyEntry {
+            policy_ref: DEC_046_ACTIVE_SET_COUNT_POLICY_REF,
+            nonlinear_class: "one_way",
+            residual_basis: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_BASIS,
+            residual_unit: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_UNIT,
+            residual_dimension: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_DIMENSION,
+            relative_residual_tolerance: DEC_046_ACTIVE_SET_COUNT_RELATIVE_TOLERANCE,
+            absolute_residual_floor: DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR,
+            max_iterations: DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"],
+            limitations: DEC_046_ACTIVE_SET_COUNT_LIMITATIONS,
+        },
+        ConvergencePolicyEntry {
+            policy_ref: DEC_046_ACTIVE_SET_COUNT_POLICY_REF,
+            nonlinear_class: "gap",
+            residual_basis: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_BASIS,
+            residual_unit: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_UNIT,
+            residual_dimension: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_DIMENSION,
+            relative_residual_tolerance: DEC_046_ACTIVE_SET_COUNT_RELATIVE_TOLERANCE,
+            absolute_residual_floor: DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR,
+            max_iterations: DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"],
+            limitations: DEC_046_ACTIVE_SET_COUNT_LIMITATIONS,
+        },
+        ConvergencePolicyEntry {
+            policy_ref: DEC_046_ACTIVE_SET_COUNT_POLICY_REF,
+            nonlinear_class: "lift_off",
+            residual_basis: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_BASIS,
+            residual_unit: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_UNIT,
+            residual_dimension: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_DIMENSION,
+            relative_residual_tolerance: DEC_046_ACTIVE_SET_COUNT_RELATIVE_TOLERANCE,
+            absolute_residual_floor: DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR,
+            max_iterations: DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-LIFT-OFF-ORIGINAL"],
+            limitations: DEC_046_ACTIVE_SET_COUNT_LIMITATIONS,
+        },
+        ConvergencePolicyEntry {
+            policy_ref: DEC_046_ACTIVE_SET_COUNT_POLICY_REF,
+            nonlinear_class: "friction",
+            residual_basis: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_BASIS,
+            residual_unit: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_UNIT,
+            residual_dimension: DEC_046_ACTIVE_SET_COUNT_RESIDUAL_DIMENSION,
+            relative_residual_tolerance: DEC_046_ACTIVE_SET_COUNT_RELATIVE_TOLERANCE,
+            absolute_residual_floor: DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR,
+            max_iterations: DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &[
+                "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
+            ],
+            limitations: DEC_046_ACTIVE_SET_COUNT_LIMITATIONS,
+        },
+    ]
+}
+
 pub fn missing_required_families(
     fixtures: &[NonlinearRegressionCase],
 ) -> Vec<NonlinearRegressionFamily> {
@@ -460,9 +576,9 @@ fn convergence_class_label(
         "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL" => "one_way",
         "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL" => "gap",
         "NL-ASSEMBLED-LIFT-OFF-ORIGINAL" => "lift_off",
-        "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL" => "friction_sticking_explicit_normal",
-        "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL" => "friction_sliding_explicit_normal",
-        "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL" => "friction_sticking_derived_normal",
+        "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL"
+        | "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL"
+        | "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL" => "friction",
         _ => match family {
             NonlinearRegressionFamily::ActiveSet => "active_set",
             NonlinearRegressionFamily::Gap => "gap",
@@ -476,7 +592,7 @@ fn convergence_class_label(
 fn assembled_axial_input(
     nonlinear_supports: Vec<NonlinearSupport>,
     initial_states: Vec<SupportStateRecord>,
-    max_iterations: usize,
+    convergence: ConvergenceControl,
 ) -> NonlinearFrameSolveInput {
     let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
     let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
@@ -506,15 +622,25 @@ fn assembled_axial_input(
         initial_states,
         friction_normal_reactions: Vec::new(),
         derived_friction_normal_reactions: Vec::new(),
-        convergence: ConvergenceControl::new(
-            "DEC-046-CV-B-assembled-validation-seed-TBD",
-            ConvergencePolicyStatus::Tbd,
-            0.0,
-            0.0,
-            max_iterations,
-        )
-        .unwrap(),
+        convergence,
     }
+}
+
+fn accepted_convergence_control(
+    nonlinear_class: &'static str,
+) -> Result<ConvergenceControl, open_pipe_stress_nonlinear_integration::NonlinearIntegrationError> {
+    let entry = governed_convergence_policy_entries()
+        .into_iter()
+        .find(|entry| entry.nonlinear_class == nonlinear_class)
+        .expect("assembled validation policy entry exists for class");
+
+    ConvergenceControl::new(
+        entry.policy_ref,
+        entry.status,
+        entry.relative_residual_tolerance,
+        entry.absolute_residual_floor,
+        entry.max_iterations,
+    )
 }
 
 pub fn assembled_one_way_deactivation_fixture() -> AssembledNonlinearRegressionCase {
@@ -528,7 +654,7 @@ pub fn assembled_one_way_deactivation_fixture() -> AssembledNonlinearRegressionC
     let input = assembled_axial_input(
         vec![support],
         vec![SupportStateRecord::new(support_id, ActiveSetState::Active)],
-        4,
+        accepted_convergence_control("one_way").unwrap(),
     );
 
     AssembledNonlinearRegressionCase {
@@ -552,7 +678,7 @@ pub fn assembled_one_way_deactivation_fixture() -> AssembledNonlinearRegressionC
         expected_iteration_count: 2,
         expected_final_residual_norm: 0.0,
         expected_converged: true,
-        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        expected_diagnostic_codes: vec![],
         observations: vec![
             DimensionedObservation {
                 name: "applied_force",
@@ -566,14 +692,14 @@ pub fn assembled_one_way_deactivation_fixture() -> AssembledNonlinearRegressionC
                 value: 2.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
             DimensionedObservation {
                 name: "final_residual",
                 value: 0.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
         ],
     }
@@ -595,7 +721,7 @@ pub fn assembled_gap_closure_fixture() -> AssembledNonlinearRegressionCase {
             support_id,
             ActiveSetState::Inactive,
         )],
-        4,
+        accepted_convergence_control("gap").unwrap(),
     );
 
     AssembledNonlinearRegressionCase {
@@ -618,7 +744,7 @@ pub fn assembled_gap_closure_fixture() -> AssembledNonlinearRegressionCase {
         expected_iteration_count: 2,
         expected_final_residual_norm: 0.0,
         expected_converged: true,
-        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        expected_diagnostic_codes: vec![],
         observations: vec![
             DimensionedObservation {
                 name: "gap_clearance",
@@ -632,14 +758,14 @@ pub fn assembled_gap_closure_fixture() -> AssembledNonlinearRegressionCase {
                 value: 2.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
             DimensionedObservation {
                 name: "final_residual",
                 value: 0.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
         ],
     }
@@ -656,7 +782,7 @@ pub fn assembled_lift_off_loss_fixture() -> AssembledNonlinearRegressionCase {
     let input = assembled_axial_input(
         vec![support],
         vec![SupportStateRecord::new(support_id, ActiveSetState::Active)],
-        4,
+        accepted_convergence_control("lift_off").unwrap(),
     );
 
     AssembledNonlinearRegressionCase {
@@ -680,7 +806,7 @@ pub fn assembled_lift_off_loss_fixture() -> AssembledNonlinearRegressionCase {
         expected_iteration_count: 2,
         expected_final_residual_norm: 0.0,
         expected_converged: true,
-        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        expected_diagnostic_codes: vec![],
         observations: vec![
             DimensionedObservation {
                 name: "applied_force",
@@ -694,14 +820,14 @@ pub fn assembled_lift_off_loss_fixture() -> AssembledNonlinearRegressionCase {
                 value: 2.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
             DimensionedObservation {
                 name: "final_residual",
                 value: 0.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
         ],
     }
@@ -716,7 +842,7 @@ pub fn assembled_friction_sticking_fixture() -> AssembledNonlinearRegressionCase
             support_id,
             ActiveSetState::Sticking,
         )],
-        4,
+        accepted_convergence_control("friction").unwrap(),
     );
     input.friction_normal_reactions = vec![FrictionNormalReaction::new(support_id, 100.0).unwrap()];
 
@@ -741,7 +867,7 @@ pub fn assembled_friction_sticking_fixture() -> AssembledNonlinearRegressionCase
         expected_iteration_count: 1,
         expected_final_residual_norm: 0.0,
         expected_converged: true,
-        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        expected_diagnostic_codes: vec![],
         observations: vec![
             DimensionedObservation {
                 name: "friction_coefficient",
@@ -769,14 +895,14 @@ pub fn assembled_friction_sticking_fixture() -> AssembledNonlinearRegressionCase
                 value: 1.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
             DimensionedObservation {
                 name: "final_residual",
                 value: 0.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
         ],
     }
@@ -791,7 +917,7 @@ pub fn assembled_friction_sliding_fixture() -> AssembledNonlinearRegressionCase 
             support_id,
             ActiveSetState::Sticking,
         )],
-        4,
+        accepted_convergence_control("friction").unwrap(),
     );
     input.friction_normal_reactions = vec![FrictionNormalReaction::new(support_id, 10.0).unwrap()];
 
@@ -816,7 +942,7 @@ pub fn assembled_friction_sliding_fixture() -> AssembledNonlinearRegressionCase 
         expected_iteration_count: 2,
         expected_final_residual_norm: 0.0,
         expected_converged: true,
-        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        expected_diagnostic_codes: vec![],
         observations: vec![
             DimensionedObservation {
                 name: "friction_coefficient",
@@ -851,14 +977,14 @@ pub fn assembled_friction_sliding_fixture() -> AssembledNonlinearRegressionCase 
                 value: 2.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
             DimensionedObservation {
                 name: "final_residual",
                 value: 0.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
         ],
     }
@@ -873,7 +999,7 @@ pub fn assembled_friction_derived_normal_fixture() -> AssembledNonlinearRegressi
             support_id,
             ActiveSetState::Sticking,
         )],
-        4,
+        accepted_convergence_control("friction").unwrap(),
     );
     input.force[node_dof_index(1, FrameDof::Uy)] = -100.0;
     input.derived_friction_normal_reactions =
@@ -907,7 +1033,7 @@ pub fn assembled_friction_derived_normal_fixture() -> AssembledNonlinearRegressi
         expected_iteration_count: 1,
         expected_final_residual_norm: 0.0,
         expected_converged: true,
-        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        expected_diagnostic_codes: vec![],
         observations: vec![
             DimensionedObservation {
                 name: "friction_coefficient",
@@ -935,14 +1061,14 @@ pub fn assembled_friction_derived_normal_fixture() -> AssembledNonlinearRegressi
                 value: 1.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
             DimensionedObservation {
                 name: "final_residual",
                 value: 0.0,
                 unit: "count",
                 dimension: "dimensionless",
-                tolerance_policy: None,
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
             },
         ],
     }
@@ -1318,6 +1444,27 @@ mod tests {
     }
 
     #[test]
+    fn governed_convergence_policy_covers_dec_046_classes() {
+        let entries = governed_convergence_policy_entries();
+
+        assert_eq!(entries.len(), 4);
+        assert_eq!(
+            entries
+                .iter()
+                .map(|entry| entry.nonlinear_class)
+                .collect::<Vec<_>>(),
+            vec!["one_way", "gap", "lift_off", "friction"]
+        );
+        for entry in &entries {
+            assert!(
+                entry.is_accepted_active_set_count_policy(),
+                "{}",
+                entry.nonlinear_class
+            );
+        }
+    }
+
+    #[test]
     fn fixtures_are_public_original_and_unit_aware() {
         let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .ancestors()
@@ -1345,7 +1492,8 @@ mod tests {
                 fixture.provenance.source_location
             );
             assert!(fixture.has_dimensioned_observations());
-            assert!(fixture.tolerance_policy_is_unresolved());
+            assert!(!fixture.tolerance_policy_is_unresolved());
+            assert!(fixture.uses_governed_convergence_policy());
         }
     }
 
@@ -1361,7 +1509,7 @@ mod tests {
     }
 
     #[test]
-    fn assembled_global_loop_seed_cases_converge_with_visible_tbd_policy() {
+    fn assembled_global_loop_seed_cases_converge_under_governed_policy() {
         for fixture in assembled_fixture_inventory() {
             let solve = fixture.run().unwrap();
 
@@ -1371,7 +1519,7 @@ mod tests {
                 solve.iterations.last().unwrap().active_set.residual_norm,
                 0.0
             );
-            assert!(solve
+            assert!(!solve
                 .diagnostics
                 .iter()
                 .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::TolerancePolicyTbd));
@@ -1409,7 +1557,7 @@ mod tests {
                 observation.fixture_id
             );
             assert!(
-                observation.preserves_dec_046_tbd_policy(),
+                observation.uses_accepted_dec_046_active_set_policy(),
                 "{}",
                 observation.fixture_id
             );

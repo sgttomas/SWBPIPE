@@ -25,10 +25,33 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 ## Remaining TBDs
 
-- Production release tolerance policy remains `TBD`.
-- Release thresholds for nonlinear support regression evidence remain `TBD`.
+- Force/displacement residual thresholds, sparse live-path thresholds,
+  product-preview thresholds, and external validation thresholds remain `TBD`.
+- The current assembled validation seed has an accepted active-set
+  changed-support-count policy under `DEC-046-CV-B-active-set-count-validation-v1`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-21 - TP-R4-D9-CONVPOLICY-001
+
+- Promoted the governed DEC-046 convergence policy for the current assembled
+  validation seed only: `DEC-046-CV-B-active-set-count-validation-v1`, residual
+  basis active-set changed-support count, relative tolerance `0.0`, absolute
+  residual floor `0.0`, and max iteration cap `4` across one-way, gap,
+  lift-off, and friction classes.
+- Added machine-readable policy evidence at
+  `validation/benchmarks/nonlinear/convergence_policy.dec046.json` and exposed
+  `governed_convergence_policy_entries()` from the nonlinear benchmark crate.
+- Updated assembled fixture notes and convergence observations to cite the
+  accepted policy; the six assembled validation fixtures now run with
+  `ConvergencePolicyStatus::Accepted` and no longer emit `TolerancePolicyTbd`
+  on the validation-seed surface.
+- Boundaries preserved: product-preview convergence remains `TBD`; sparse live
+  path remains gated by `D-17`; force/displacement residual thresholds,
+  external validation thresholds, lifecycle transitions, release-readiness
+  claims, and professional/code-compliance claims remain out of scope.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-CONVPOLICY-001.md`.
 
 ## 2026-05-11 TP-RECON-01 Reconciliation
 

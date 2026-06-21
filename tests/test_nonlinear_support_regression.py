@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Focused regression checks for invented nonlinear support fixtures."""
 
+import json
 import re
 import subprocess
 from pathlib import Path
@@ -13,6 +14,8 @@ HAND_CALCS_DIR = ROOT / "validation" / "hand_calcs" / "nonlinear"
 HAND_CALCS_README = HAND_CALCS_DIR / "README.md"
 BENCHMARK_README = BENCHMARK_DIR / "README.md"
 CONVERGENCE_OBSERVATION_NOTE = HAND_CALCS_DIR / "convergence_observations.md"
+CONVERGENCE_POLICY_RECORD = BENCHMARK_DIR / "convergence_policy.dec046.json"
+DEC_046_POLICY_REF = "DEC-046-CV-B-active-set-count-validation-v1"
 
 REQUIRED_FAMILIES = {
     "ActiveSet",
@@ -113,11 +116,15 @@ def test_nonlinear_fixture_catalog_is_bounded_and_invented():
     assert "PKG09-NONLINEAR-FIXTURE-UNITS-EXPLICIT-MM-N-NM" in source
     assert "unit catalog remains TBD" in source
     assert "tolerance_policy: None" in source
+    assert "Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF)" in source
     tolerance_assignments = re.findall(
         r"^\s+tolerance_policy:\s*([^,\n]+)", source, re.MULTILINE
     )
     assert tolerance_assignments
-    assert set(tolerance_assignments) == {"None"}
+    assert set(tolerance_assignments) == {
+        "None",
+        "Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF)",
+    }
 
     lowered_source = source.lower()
     for term in FORBIDDEN_TERMS:
@@ -164,18 +171,22 @@ def test_nonlinear_hand_calc_unit_basis_is_explicit_and_unresolved():
     normalized_benchmark_readme = _normalized_text(benchmark_readme)
     assert "does not define project conversion constants" in normalized_benchmark_readme
     assert "canonical unit catalog, which remain `TBD`" in normalized_benchmark_readme
-    assert "release tolerances" in readme
+    assert "force/displacement residual" in readme
     assert "CI gate" in readme
     assert "remain `TBD`" in readme
+    assert DEC_046_POLICY_REF in readme
 
-    for note_name in [
-        *REQUIRED_FIXTURE_NOTES.values(),
-        *REQUIRED_ASSEMBLED_FIXTURE_NOTES.values(),
-    ]:
+    for note_name in REQUIRED_FIXTURE_NOTES.values():
         note = (HAND_CALCS_DIR / note_name).read_text(encoding="utf-8")
         assert "| Quantity |" in note
         assert "Canonical dimension" in note
         assert "Tolerance policy: `TBD`." in note
+
+    for note_name in REQUIRED_ASSEMBLED_FIXTURE_NOTES.values():
+        note = (HAND_CALCS_DIR / note_name).read_text(encoding="utf-8")
+        assert "| Quantity |" in note
+        assert "Canonical dimension" in note
+        assert f"Tolerance policy: `{DEC_046_POLICY_REF}`." in note
 
 
 def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
@@ -191,6 +202,7 @@ def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
             ]
         ),
         CONVERGENCE_OBSERVATION_NOTE,
+        CONVERGENCE_POLICY_RECORD,
     ]
 
     for path in scanned_paths:
@@ -218,28 +230,49 @@ def test_nonlinear_public_provenance_sources_exist_before_fixture_acceptance():
         assert (ROOT / source_location).is_file(), source_location
 
 
-def test_assembled_global_loop_seed_keeps_tbd_policy_visible():
+def test_assembled_global_loop_seed_uses_governed_policy():
     source = SOURCE_PATH.read_text(encoding="utf-8")
     benchmark_readme = BENCHMARK_README.read_text(encoding="utf-8")
     hand_calc_readme = HAND_CALCS_README.read_text(encoding="utf-8")
     observation_note = CONVERGENCE_OBSERVATION_NOTE.read_text(encoding="utf-8")
+    policy_record = json.loads(CONVERGENCE_POLICY_RECORD.read_text(encoding="utf-8"))
 
     assert "assembled_fixture_inventory" in source
     assert "assembled_convergence_observations" in source
     assert "ConvergenceObservation" in source
     assert "observed_iteration_count" in source
+    assert "governed_convergence_policy_entries" in source
     assert "solve_active_set_frame" in source
-    assert "DEC-046-CV-B-assembled-validation-seed-TBD" in source
-    assert "TolerancePolicyTbd" in source
+    assert "DEC_046_ACTIVE_SET_COUNT_POLICY_REF" in source
+    assert "ConvergencePolicyStatus::Accepted" in source
     for fixture_id in REQUIRED_ASSEMBLED_FIXTURE_NOTES:
         assert fixture_id in source
         assert fixture_id in observation_note
 
     assert CONVERGENCE_OBSERVATION_NOTE.name in benchmark_readme
     assert CONVERGENCE_OBSERVATION_NOTE.name in hand_calc_readme
+    assert CONVERGENCE_POLICY_RECORD.name in benchmark_readme
     assert "## Provenance" in observation_note
     assert "## Invented Inputs" in observation_note
     assert "## Expected Values" in observation_note
-    assert "Tolerance policy: `TBD`." in observation_note
-    assert "does not define release thresholds" in benchmark_readme
-    assert "not a release threshold" in observation_note
+    assert f"Tolerance policy: `{DEC_046_POLICY_REF}`." in observation_note
+    assert "changed-support-count residual" in benchmark_readme
+    assert "force/displacement residuals" in observation_note
+
+    assert policy_record["record_id"] == DEC_046_POLICY_REF
+    assert policy_record["decision_ref"] == "DEC-046"
+    assert policy_record["residual_basis"]["name"] == "active_set_changed_support_count"
+    assert policy_record["residual_basis"]["unit"] == "count"
+    assert policy_record["residual_basis"]["dimension"] == "dimensionless"
+    assert [entry["nonlinear_class"] for entry in policy_record["entries"]] == [
+        "one_way",
+        "gap",
+        "lift_off",
+        "friction",
+    ]
+    for entry in policy_record["entries"]:
+        assert entry["policy_ref"] == DEC_046_POLICY_REF
+        assert entry["relative_residual_tolerance"] == 0.0
+        assert entry["absolute_residual_floor"] == 0.0
+        assert entry["max_iterations"] == 4
+        assert entry["evidence_fixture_ids"]

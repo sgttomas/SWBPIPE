@@ -14,6 +14,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 governed convergence policy seed (`TP-R4-D9-CONVPOLICY-001`)
+
+Promoted the governed DEC-046 convergence policy for the current assembled
+nonlinear validation seed only.
+
+`validation/benchmarks/nonlinear` now exposes
+`governed_convergence_policy_entries()` and the machine-readable
+`convergence_policy.dec046.json` record. The accepted policy ref is
+`DEC-046-CV-B-active-set-count-validation-v1`, with active-set
+changed-support-count residual basis, relative tolerance `0.0`, absolute
+residual floor `0.0`, and max iteration cap `4` for the one-way, gap, lift-off,
+and friction classes. The six assembled validation fixtures now run with
+`ConvergencePolicyStatus::Accepted`; their observed final residual remains
+`0.0` and the assembled validation-seed surface no longer emits
+`TolerancePolicyTbd`.
+
+The policy is deliberately narrow: force/displacement residuals, sparse
+live-path behavior, product-preview thresholds, external validation thresholds,
+and any cap loosening or threshold relaxation remain outside this record and
+require future evidence/governance.
+
+Validation so far: `cargo fmt --manifest-path validation/benchmarks/nonlinear/Cargo.toml -- --check`
+passed; `cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml`
+passed 9/9 tests; `python3 -m pytest tests/test_nonlinear_support_regression.py -q`
+passed 8/8 tests; `git diff --check` passed. The full five-surface evidence
+sweep passed on rerun and wrote
+`validation/evidence/sweeps/SWEEP_20260621T103336Z_a02ab8f77612-dirty.json`.
+
+Evidence: DEL-09-03 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-CONVPOLICY-001.md`.
+
+Residual: sparse live-path adoption remains gated by `D-17`; D5 remains gated
+by `D-15`; the R4 exit evidence package remains open.
+
+Boundary: public invented mechanics validation evidence only; no protected
+standards content, private data, lifecycle transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D6 mixed nonlinear live-solver bundle (`TP-R4-D6-LIVEBUNDLE-001`)
 
 Closed the broader D6 live-solver coverage residual by adding a bundled

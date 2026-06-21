@@ -21,8 +21,11 @@ The nonlinear fixtures use explicit fixture-local unit identifiers only:
 | Friction coefficient | `ratio` | dimensionless |
 | Active-set residual and iteration counts | `count` | dimensionless |
 
-The project unit catalog, conversion constants, release tolerances, and CI gate
-thresholds remain `TBD`.
+The project unit catalog, conversion constants, force/displacement residual
+thresholds, sparse live-path thresholds, product-preview thresholds, and CI gate
+thresholds remain `TBD`. The current assembled validation seed uses
+`DEC-046-CV-B-active-set-count-validation-v1` for active-set changed-support
+count only.
 
 ## Notes
 

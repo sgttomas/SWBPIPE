@@ -21,9 +21,15 @@ Hand-calculation and provenance notes are in `validation/hand_calcs/nonlinear/`.
 The crate exposes `assembled_convergence_observations()` as a structured
 inventory of observed iteration counts, final active-set residuals, convergence
 flags, policy references, and diagnostics for the current assembled fixture
-set. The inventory keeps the `DEC-046-CV-B-assembled-validation-seed-TBD`
-policy reference and `TolerancePolicyTbd` diagnostic visible for every row; it
-records fixture evidence only and does not define release thresholds.
+set. The inventory now binds the current assembled validation seed to the
+governed `DEC-046-CV-B-active-set-count-validation-v1` policy: active-set
+changed-support-count residual, relative tolerance `0.0`, absolute floor `0.0`,
+and max iteration cap `4` for the one-way, gap, lift-off, and friction classes.
+This policy applies only to the current public-original assembled validation
+seed; force/displacement residuals, sparse live-path behavior, product-preview
+thresholds, and external validation thresholds remain outside this record.
 
 The companion note is
 `validation/hand_calcs/nonlinear/convergence_observations.md`.
+The machine-readable policy record is
+`validation/benchmarks/nonlinear/convergence_policy.dec046.json`.
