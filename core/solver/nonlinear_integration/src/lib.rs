@@ -17,10 +17,12 @@ use open_pipe_stress_nonlinear_supports::{
     SupportStateRecord, TrialSupportState,
 };
 use open_pipe_stress_solver_diagnostics::{tolerance_policy_tbd_diagnostic, SolverDiagnostic};
-use open_pipe_stress_sparse_direct::solve_symmetric_system;
+use open_pipe_stress_sparse_direct::{solve_symmetric_system_from_entries, SymmetricMatrixEntry};
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fmt;
+
+const DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS: &str = "direct_reduced_profile_entries";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConvergencePolicyStatus {
@@ -156,6 +158,7 @@ pub struct NonlinearResidualObservation {
 pub struct SparseLinearSolveEvidence {
     pub status: SparseEvidenceStatus,
     pub policy_ref: String,
+    pub assembly_basis: String,
     pub reduced_dof_count: usize,
     pub original_max_half_bandwidth: Option<usize>,
     pub ordered_max_half_bandwidth: Option<usize>,
@@ -331,8 +334,8 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
 
 pub fn assembled_loop_limitations() -> Vec<String> {
     vec![
-        "DEC-050 sparse evidence lane observes the reduced linearized systems, but the dense frame solve remains the default active-set path and parity oracle.".to_string(),
-        "Profile-direct sparse assembly and default sparse-solver promotion remain follow-on work.".to_string(),
+        "DEC-050 sparse evidence lane observes direct reduced profile-entry sparse solves for the reduced linearized systems, but the dense frame solve remains the default active-set path and parity oracle.".to_string(),
+        "Element-level sparse default assembly, default sparse-solver promotion, and large-model sparse suitability thresholds remain follow-on work.".to_string(),
         "DEC-046 class-tiered convergence values remain TBD until assembled-loop evidence seeds them; callers must supply explicit controls and policy references.".to_string(),
         "User-stiffness macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
         "The result is mechanics evidence only and does not state rule compliance, professional approval, certification, sealing, authentication, or code compliance.".to_string(),
@@ -594,8 +597,12 @@ fn solve_linearized_system(
         &boundary.displacements,
     )?;
     let reduced_solution = solve_dense(&reduced.stiffness, &reduced.force)?;
-    let sparse_evidence =
-        observe_sparse_linearized_solve(&reduced.stiffness, &reduced.force, &reduced_solution);
+    let sparse_evidence = observe_sparse_linearized_solve(
+        stiffness,
+        &reduced.free_dofs,
+        &reduced.force,
+        &reduced_solution,
+    );
 
     let mut displacements = vec![0.0; force.len()];
     for (&dof, &value) in boundary.dofs.iter().zip(boundary.displacements.iter()) {
@@ -628,11 +635,19 @@ fn solve_linearized_system(
 }
 
 fn observe_sparse_linearized_solve(
-    reduced_stiffness: &DenseMatrix,
+    global_stiffness: &DenseMatrix,
+    free_dofs: &[usize],
     reduced_force: &[f64],
     dense_solution: &[f64],
 ) -> SparseLinearSolveEvidence {
-    match solve_symmetric_system(reduced_stiffness, reduced_force) {
+    let entries = match direct_reduced_profile_entries(global_stiffness, free_dofs) {
+        Ok(entries) => entries,
+        Err(error) => {
+            return sparse_evidence_unavailable(reduced_force.len(), error);
+        }
+    };
+
+    match solve_symmetric_system_from_entries(reduced_force.len(), &entries, reduced_force) {
         Ok(sparse) => {
             let max_abs_dense_sparse_solution_delta =
                 max_abs_delta(dense_solution, &sparse.solution);
@@ -645,6 +660,7 @@ fn observe_sparse_linearized_solve(
             SparseLinearSolveEvidence {
                 status: SparseEvidenceStatus::Observed,
                 policy_ref: "DEC-050".to_string(),
+                assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
                 reduced_dof_count: sparse.solution.len(),
                 original_max_half_bandwidth: Some(sparse.original_max_half_bandwidth),
                 ordered_max_half_bandwidth: Some(sparse.ordered_max_half_bandwidth),
@@ -654,29 +670,71 @@ fn observe_sparse_linearized_solve(
                 pivot_condition_ratio_estimate: sparse.factorization.pivot_condition_ratio_estimate,
                 max_abs_dense_sparse_solution_delta: Some(max_abs_dense_sparse_solution_delta),
                 relative_dense_sparse_solution_delta: Some(relative_dense_sparse_solution_delta),
-                max_abs_sparse_residual: Some(max_abs_residual(
-                    reduced_stiffness,
+                max_abs_sparse_residual: Some(max_abs_entry_residual(
+                    reduced_force.len(),
+                    &entries,
                     &sparse.solution,
                     reduced_force,
                 )),
                 failure_message: None,
             }
         }
-        Err(error) => SparseLinearSolveEvidence {
-            status: SparseEvidenceStatus::Unavailable,
-            policy_ref: "DEC-050".to_string(),
-            reduced_dof_count: reduced_force.len(),
-            original_max_half_bandwidth: None,
-            ordered_max_half_bandwidth: None,
-            original_profile_entry_count: None,
-            ordered_profile_entry_count: None,
-            nonpositive_pivot_count: None,
-            pivot_condition_ratio_estimate: None,
-            max_abs_dense_sparse_solution_delta: None,
-            relative_dense_sparse_solution_delta: None,
-            max_abs_sparse_residual: None,
-            failure_message: Some(error.to_string()),
-        },
+        Err(error) => sparse_evidence_unavailable(reduced_force.len(), error.to_string()),
+    }
+}
+
+fn direct_reduced_profile_entries(
+    global_stiffness: &DenseMatrix,
+    free_dofs: &[usize],
+) -> Result<Vec<SymmetricMatrixEntry>, String> {
+    let mut entries = Vec::new();
+    for (reduced_row, &global_row) in free_dofs.iter().enumerate() {
+        for (reduced_col, &global_col) in free_dofs.iter().take(reduced_row + 1).enumerate() {
+            let value = *global_stiffness
+                .get(global_row)
+                .and_then(|row| row.get(global_col))
+                .ok_or_else(|| {
+                    format!(
+                        "free DOF map references global stiffness entry ({global_row}, {global_col}) outside matrix dimensions"
+                    )
+                })?;
+            if !value.is_finite() {
+                return Err(format!(
+                    "direct reduced sparse entry ({reduced_row}, {reduced_col}) is non-finite"
+                ));
+            }
+            if value == 0.0 {
+                continue;
+            }
+            entries.push(SymmetricMatrixEntry {
+                row: reduced_row,
+                col: reduced_col,
+                value,
+            });
+        }
+    }
+    Ok(entries)
+}
+
+fn sparse_evidence_unavailable(
+    reduced_dof_count: usize,
+    failure_message: String,
+) -> SparseLinearSolveEvidence {
+    SparseLinearSolveEvidence {
+        status: SparseEvidenceStatus::Unavailable,
+        policy_ref: "DEC-050".to_string(),
+        assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
+        reduced_dof_count,
+        original_max_half_bandwidth: None,
+        ordered_max_half_bandwidth: None,
+        original_profile_entry_count: None,
+        ordered_profile_entry_count: None,
+        nonpositive_pivot_count: None,
+        pivot_condition_ratio_estimate: None,
+        max_abs_dense_sparse_solution_delta: None,
+        relative_dense_sparse_solution_delta: None,
+        max_abs_sparse_residual: None,
+        failure_message: Some(failure_message),
     }
 }
 
@@ -737,18 +795,23 @@ fn max_abs_value(values: &[f64]) -> f64 {
     values.iter().copied().map(f64::abs).fold(0.0, f64::max)
 }
 
-fn max_abs_residual(matrix: &DenseMatrix, solution: &[f64], force: &[f64]) -> f64 {
-    matrix
+fn max_abs_entry_residual(
+    dimension: usize,
+    entries: &[SymmetricMatrixEntry],
+    solution: &[f64],
+    force: &[f64],
+) -> f64 {
+    let mut internal = vec![0.0; dimension];
+    for entry in entries {
+        internal[entry.row] += entry.value * solution[entry.col];
+        if entry.row != entry.col {
+            internal[entry.col] += entry.value * solution[entry.row];
+        }
+    }
+    internal
         .iter()
         .zip(force.iter())
-        .map(|(row, force)| {
-            let applied = row
-                .iter()
-                .zip(solution.iter())
-                .map(|(stiffness, displacement)| stiffness * displacement)
-                .sum::<f64>();
-            (applied - force).abs()
-        })
+        .map(|(internal, applied)| (internal - applied).abs())
         .fold(0.0, f64::max)
 }
 
@@ -949,6 +1012,48 @@ mod tests {
     }
 
     #[test]
+    fn direct_reduced_profile_entries_follow_free_dof_map() {
+        let global_stiffness = vec![
+            vec![4.0, 0.0, 0.0, 0.0],
+            vec![0.0, 5.0, 0.0, 0.0],
+            vec![2.0, 0.0, 6.0, 0.0],
+            vec![0.0, 0.0, 7.0, 9.0],
+        ];
+        let entries = direct_reduced_profile_entries(&global_stiffness, &[0, 2, 3]).unwrap();
+
+        assert_eq!(
+            entries,
+            vec![
+                SymmetricMatrixEntry {
+                    row: 0,
+                    col: 0,
+                    value: 4.0
+                },
+                SymmetricMatrixEntry {
+                    row: 1,
+                    col: 0,
+                    value: 2.0
+                },
+                SymmetricMatrixEntry {
+                    row: 1,
+                    col: 1,
+                    value: 6.0
+                },
+                SymmetricMatrixEntry {
+                    row: 2,
+                    col: 1,
+                    value: 7.0
+                },
+                SymmetricMatrixEntry {
+                    row: 2,
+                    col: 2,
+                    value: 9.0
+                },
+            ]
+        );
+    }
+
+    #[test]
     fn one_way_support_deactivates_then_converges_through_frame_loop() {
         let support_id = "NL-ONE-WAY-DEACTIVATE";
         let support = NonlinearSupport::one_way(
@@ -1034,6 +1139,10 @@ mod tests {
         let sparse_evidence = &result.iterations.last().unwrap().sparse_evidence;
         assert_eq!(sparse_evidence.status, SparseEvidenceStatus::Observed);
         assert_eq!(sparse_evidence.policy_ref, "DEC-050");
+        assert_eq!(
+            sparse_evidence.assembly_basis,
+            DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS
+        );
         assert_eq!(sparse_evidence.reduced_dof_count, 1);
         assert!(
             sparse_evidence

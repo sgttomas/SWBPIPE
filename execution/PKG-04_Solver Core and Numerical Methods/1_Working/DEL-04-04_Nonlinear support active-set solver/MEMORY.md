@@ -180,3 +180,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
   normal-force model, sparse live-path binding, measured convergence values,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## 2026-06-22 - TP-R4-D7-NONLINEARPROFILE-001 nonlinear direct-profile sparse evidence
+
+- `core/solver/nonlinear_integration` sparse evidence now records
+  `assembly_basis=direct_reduced_profile_entries` and uses
+  `solve_symmetric_system_from_entries` against entries assembled from the
+  active free-DOF map.
+- Dense remains the active nonlinear solve path and parity oracle; sparse
+  evidence stays non-blocking observation.
+- Validation passed, including nonlinear integration tests 11/11, product
+  physics tests 44/44, nonlinear benchmark tests 16/16, crate fmt check, and
+  full DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260622T102208Z_479c6fd7d97a-dirty.json`.
+- Residuals remain explicit: default sparse promotion / large-model sparse
+  suitability, non-seed convergence thresholds, accepted
+  displacement/reaction-delta thresholds, deeper spring-hanger behavior,
+  external validation thresholds, and final R4 exit evidence remain open.

@@ -110,6 +110,8 @@
      while dense remains default. `TP-R4-D7-SPARSEPROFILE-001` added direct
      reduced profile-entry assembly for product-preview sparse evidence rows
      while dense remains the product solve path and parity oracle.
+     `TP-R4-D7-NONLINEARPROFILE-001` moved nonlinear integration sparse
+     evidence to direct reduced profile entries from the active free-DOF map.
      `TP-R4-D9-DISPREACTIONOBS-001` records displacement/reaction-delta
      observation axes for the current assembled validation seed, accepted
      multi-support fixture set, and product-preview metadata; accepted delta
@@ -118,8 +120,8 @@
      exit verdict as not ready: non-seed force/displacement/energy threshold
      promotion beyond the accepted five-fixture multi-support set, accepted
      displacement/reaction-delta thresholds, broader multi-DOF / multi-support
-     nonlinear acceptance thresholds, default sparse promotion and
-     nonlinear/core profile-direct sparse promotion, deeper spring-hanger
+     nonlinear acceptance thresholds, default sparse promotion / large-model
+     sparse suitability, deeper spring-hanger
      behavior, and the remaining D9 validation
      package remain open. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize

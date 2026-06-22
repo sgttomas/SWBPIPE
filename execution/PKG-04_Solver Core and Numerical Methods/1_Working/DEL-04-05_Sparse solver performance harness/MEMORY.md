@@ -210,3 +210,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
   profile-direct promotion, timing/memory thresholds, practical-size bands,
   conditioning/CI thresholds, and hardware-normalized methodology remain future
   work.
+
+## 2026-06-22 - TP-R4-D7-NONLINEARPROFILE-001 nonlinear direct-profile sparse evidence
+
+- `core/solver/nonlinear_integration` now observes the `DEC-050` sparse lane
+  through direct reduced profile entries assembled from the active free-DOF
+  map, matching the explicit-entry sparse solver surface landed for product
+  evidence.
+- `SparseLinearSolveEvidence` now carries
+  `assembly_basis=direct_reduced_profile_entries`; dense remains default and
+  the sparse lane remains parity evidence.
+- Validation passed, including nonlinear integration tests 11/11, product
+  physics tests 44/44, nonlinear benchmark tests 16/16, crate fmt check, and
+  full DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260622T102208Z_479c6fd7d97a-dirty.json`.
+- Residuals remain explicit: default sparse promotion, timing/memory
+  thresholds, practical-size bands, conditioning/CI thresholds, large-model
+  sparse suitability, and hardware-normalized methodology remain future work.

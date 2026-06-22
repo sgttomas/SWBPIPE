@@ -14,6 +14,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D7 nonlinear direct-profile sparse evidence (`TP-R4-D7-NONLINEARPROFILE-001`)
+
+Landed the nonlinear/core half of the `DEC-050` direct-profile sparse evidence
+follow-on. The assembled nonlinear integration loop now observes sparse parity
+through direct reduced profile entries assembled from the active free-DOF map,
+while dense remains the active solve path and parity oracle.
+
+Changed surfaces:
+
+- `core/solver/nonlinear_integration`: added `assembly_basis` to
+  `SparseLinearSolveEvidence`, set it to `direct_reduced_profile_entries`,
+  assembled sparse entries from the global stiffness/free-DOF map, and called
+  `solve_symmetric_system_from_entries`.
+- Sparse residual evidence is now computed from the direct entry system, with
+  the existing non-blocking unavailable-evidence posture preserved.
+- Regression coverage now asserts the direct-profile evidence basis and covers
+  non-contiguous free-DOF mapping.
+- Coordination, roadmap, type-boundary, and completion-plan surfaces now record
+  nonlinear/core direct-profile evidence as landed; remaining sparse work is
+  default sparse promotion plus large-model suitability thresholds.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D7-NONLINEARPROFILE-001.md`
+and
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D7-NONLINEARPROFILE-001.md`.
+
+Focused validation: nonlinear integration Rust tests passed 11/11; product
+physics Rust tests passed 44/44; nonlinear benchmark Rust tests passed 16/16;
+crate fmt check passed. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T102208Z_479c6fd7d97a-dirty.json`.
+
+Residuals: dense remains default; default sparse promotion, timing/memory
+thresholds, practical-size bands, conditioning/CI thresholds, large-model
+sparse suitability, external validation thresholds, and remaining R4/D9 exit
+evidence remain open. No release, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 rotational multi-support companion (`TP-R4-D9-MULTISUPPORTROT-001`)
 
 Landed a fifth public-original accepted multi-support validation companion in
