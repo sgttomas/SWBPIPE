@@ -332,13 +332,17 @@ under the same narrow multi-support policies.
 companion that combines friction sliding, gap closure, one-way release, and
 rotational lift-off release in one fixture under the same narrow multi-support
 policies.
+`TP-R4-D9-MULTISUPPORTOPPGAP-001` adds an eleventh public-original accepted
+companion that closes positive-direction Ux and negative-direction Uy gaps in
+one gap-only opposing-direction fixture under the same narrow multi-support
+policies.
 `TP-R4-D9-DISPREACTIONOBS-001` adds observation-only displacement/reaction-delta
 axis ledgers for the current assembled validation seed and accepted
 multi-support fixture set, plus product-preview metadata that initially marked
 those axes `threshold_policy_status=tbd`.
 `TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
 displacement/reaction delta threshold policies for the current assembled
-validation seed and accepted ten-fixture multi-support set only; product
+validation seed and accepted eleven-fixture multi-support set only; product
 preview, broader non-seed, sparse-default, release, and external delta
 thresholds remain open.
 `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes an accepted product-preview-only
@@ -352,10 +356,10 @@ promotes a bounded final-iteration free-DOF work residual policy for the current
 assembled validation seed, invented product-preview surface, and accepted
 multi-support fixture set only. `TP-R4-D9-GENERALENERGYPOLICY-001` promotes
 bounded general-energy residual policies for the current assembled validation
-seed, invented product-preview surface, and accepted ten-fixture multi-support
+seed, invented product-preview surface, and accepted eleven-fixture multi-support
 set only. Accepted displacement/reaction-delta thresholds beyond the current
-seed, accepted ten-fixture set, and product-preview surface, non-seed
-force/displacement beyond the accepted ten-fixture set, broader non-seed
+seed, accepted eleven-fixture set, and product-preview surface, non-seed
+force/displacement beyond the accepted eleven-fixture set, broader non-seed
 general-energy residual thresholds, release, sparse-default, external, total
 strain-energy, modal-energy, and CI threshold axes remain open.
 `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction product live-loop
@@ -376,11 +380,11 @@ observations for reduced dense matrices and sparse profile entries in the
 performance harness; allocator/RSS memory, timing, conditioning, CI,
 hardware-normalized, and default-promotion thresholds remain `TBD`.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
-non-seed force/displacement threshold promotion beyond the accepted ten-fixture set,
+non-seed force/displacement threshold promotion beyond the accepted eleven-fixture set,
 broader displacement/reaction-delta threshold promotion beyond the accepted
-current-seed, ten-fixture, and product-preview
+current-seed, eleven-fixture, and product-preview
 surfaces, broader multi-DOF /
-multi-support nonlinear acceptance thresholds beyond the accepted ten-fixture set,
+multi-support nonlinear acceptance thresholds beyond the accepted eleven-fixture set,
 default sparse promotion plus sparse timing/memory/conditioning/CI and
 hardware-normalized threshold promotion,
 deeper spring-hanger behavior, and
@@ -494,12 +498,15 @@ bounded tranche.
       multi-support policies.
       `TP-R4-D9-MULTISUPPORT4CLASS-001` adds a tenth accepted non-seed
       four-class companion under the same narrow multi-support policies.
+      `TP-R4-D9-MULTISUPPORTOPPGAP-001` adds an eleventh accepted non-seed
+      gap-only opposing-direction companion under the same narrow
+      multi-support policies.
       `TP-R4-D9-DISPREACTIONOBS-001` records
       displacement/reaction-delta observation axes for the current seed,
       accepted multi-support fixture set, and product-preview metadata.
       `TP-R4-D9-DISPREACTIONPOLICY-001` promotes accepted
       displacement/reaction delta threshold envelopes for the current seed and
-      accepted ten-fixture multi-support set only.
+      accepted eleven-fixture multi-support set only.
       `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes accepted
       displacement/reaction delta threshold metadata for emitted rows from the
       invented mixed product-preview surface only. `TP-R4-D9-ENERGYOBS-001` adds
@@ -509,7 +516,7 @@ bounded tranche.
       multi-support fixture set only. `TP-R4-D9-GENERALENERGYPOLICY-001`
       promotes bounded general-energy residual policies for the current
       assembled validation seed, invented product-preview surface, and accepted
-      ten-fixture multi-support set only; broader non-seed, release, external,
+      eleven-fixture multi-support set only; broader non-seed, release, external,
       sparse-default, total strain-energy, modal-energy, and CI energy
       threshold axes remain `TBD`.
       `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
@@ -531,11 +538,11 @@ bounded tranche.
       default-promotion thresholds remain `TBD`.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
-      ten-fixture set, broader displacement/reaction-delta thresholds beyond
-      the accepted current-seed, ten-fixture, and product-preview surfaces,
+      eleven-fixture set, broader displacement/reaction-delta thresholds beyond
+      the accepted current-seed, eleven-fixture, and product-preview surfaces,
       broader multi-DOF /
       multi-support nonlinear acceptance thresholds beyond the accepted
-      ten-fixture set,
+      eleven-fixture set,
       default sparse promotion plus sparse timing/memory/conditioning/CI and
       hardware-normalized thresholds, deeper
       spring-hanger behavior, and the R4 exit evidence

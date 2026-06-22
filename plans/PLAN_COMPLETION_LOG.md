@@ -14,6 +14,49 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 opposing-gaps multi-support companion (`TP-R4-D9-MULTISUPPORTOPPGAP-001`)
+
+Added a bounded gap-only opposing-direction companion to the accepted
+`DEC-046` multi-support validation set.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: added
+  `NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL`, an invented
+  assembled frame fixture that closes a positive-direction `Ux` gap and a
+  negative-direction `Uy` gap in one multi-support solve.
+- The multi-support active-set-count, free-DOF force/moment, free-DOF work,
+  general-energy, displacement/reaction-delta observation, and
+  displacement/reaction-delta policy records now name the accepted
+  eleven-fixture public-original companion set.
+- Benchmark README text, hand-calculation notes, nonlinear regression guards,
+  coordination, active R4 planning, the R4 gap packet, and DEL-09-03 memory now
+  record the gap-only opposing-direction companion and preserved policy
+  boundary.
+
+Focused validation: nonlinear benchmark formatting passed; nonlinear benchmark
+Rust tests passed 18/18; focused nonlinear pytest passed 8/8; JSON syntax
+checks passed for the six modified multi-support records; `git diff --check`
+passed before the full sweep. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T143831Z_7f73b463bd54-dirty.json`.
+
+Residuals: R4 is still not ready for exit. Remaining D6/D9 gaps include
+non-seed force/displacement thresholds beyond the accepted eleven-fixture set,
+broader displacement/reaction-delta thresholds beyond accepted
+current/product/fixture surfaces, broader energy thresholds outside accepted
+current/product/fixture surfaces, default sparse promotion plus sparse
+timing/memory/conditioning/CI/hardware-normalized thresholds, deeper
+spring-hanger behavior, external validation thresholds, broader R4 validation
+package work, and final R4 exit-chain evidence.
+
+Boundary: no protected standards content, proprietary benchmark output, private
+project data, hidden support defaults, lifecycle transition, release-readiness
+claim, professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTOPPGAP-001.md`.
+
 ## 2026-06-22 - R4 D9 general-energy residual policies (`TP-R4-D9-GENERALENERGYPOLICY-001`)
 
 Promoted bounded `DEC-046` general-energy residual policies for the current
