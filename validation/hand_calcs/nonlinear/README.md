@@ -61,6 +61,7 @@ public-original multi-DOF / multi-support validation fixture set only.
 | `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL` | [assembled_multi_support_multi_dof_acceptance.md](assembled_multi_support_multi_dof_acceptance.md) |
 | `NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL` | [assembled_multi_support_gap_lift_off_acceptance.md](assembled_multi_support_gap_lift_off_acceptance.md) |
 | `NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL` | [assembled_multi_support_friction_gap_acceptance.md](assembled_multi_support_friction_gap_acceptance.md) |
+| `NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL` | [assembled_multi_support_three_dof_acceptance.md](assembled_multi_support_three_dof_acceptance.md) |
 
 ## Observation Notes
 

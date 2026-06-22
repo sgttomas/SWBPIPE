@@ -14,6 +14,52 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 three-support multi-support companion (`TP-R4-D9-MULTISUPPORT3DOF-001`)
+
+Landed a fourth public-original accepted multi-support validation companion in
+the nonlinear benchmark crate:
+`NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL`, an invented two-node
+frame case with simultaneous Ux one-way release, Uy gap closure, and Uz
+friction sliding. The accepted multi-support policy records now cover a
+four-fixture set: one-way/gap, lift-off/gap, friction/gap, and
+three-support/three-translation.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: added the three-support acceptance
+  fixture, a three-translation fixture helper, and four-fixture acceptance
+  inventory/observation coverage under the existing narrow `DEC-046`
+  multi-support active-set, free-DOF force/moment, and free-DOF work policies.
+- `validation/hand_calcs/nonlinear`: added the public-original three-support
+  acceptance note and updated the multi-support evidence index.
+- Updated the multi-support active-set-count, free-DOF force/moment,
+  free-DOF work, and displacement/reaction-delta observation records so their
+  evidence fixture IDs name the four-fixture public-original set.
+- Coordination and planning surfaces: R4/D6/D9 current-state wording now
+  records the accepted four-fixture multi-support set while keeping general
+  non-seed thresholds and R4 exit evidence open.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORT3DOF-001.md`.
+
+Focused validation: nonlinear benchmark Rust tests passed 16/16; focused
+nonlinear pytest passed 8/8; `cargo fmt --check` passed; JSON validation
+passed for the four updated multi-support records. Full DEC-025 sweep passed
+5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T094835Z_68f720407e61-dirty.json`.
+
+Residuals: non-seed force/displacement threshold promotion beyond the accepted
+four-fixture set, general energy threshold promotion,
+displacement/reaction-delta thresholds, default sparse promotion,
+nonlinear/core profile-direct sparse promotion, deeper spring-hanger behavior,
+external validation thresholds, broader R4 validation package work, and final
+R4 exit evidence remain open.
+
+Boundary: invented/public-original validation evidence only. No protected
+standards content, proprietary benchmark output, private project data,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 displacement/reaction delta observation ledger (`TP-R4-D9-DISPREACTIONOBS-001`)
 
 Landed an observation-only `DEC-046` displacement/reaction-delta ledger for the

@@ -76,6 +76,7 @@ REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES = {
     "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL": "assembled_multi_support_multi_dof_acceptance.md",
     "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL": "assembled_multi_support_gap_lift_off_acceptance.md",
     "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL": "assembled_multi_support_friction_gap_acceptance.md",
+    "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL": "assembled_multi_support_three_dof_acceptance.md",
 }
 EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS = list(
     REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES
