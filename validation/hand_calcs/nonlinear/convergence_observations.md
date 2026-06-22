@@ -9,7 +9,8 @@ nonlinear validation fixtures. These observations are fixture evidence under
 policy. The same current seed now also binds final-iteration free-DOF force and
 moment equilibrium residuals to
 `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`. Displacement and
-reaction deltas remain observation-only. This does not define energy, sparse
+reaction deltas remain observation-only. Free-DOF work residuals are recorded
+as observation-only evidence in `N-m`. This does not define energy/work, sparse
 live-path behavior, product-preview thresholds, external validation thresholds,
 release thresholds, or a release claim.
 
@@ -38,6 +39,8 @@ inventory in `validation/benchmarks/nonlinear/src/lib.rs`.
 | Free-DOF force residual threshold | 0.0 | N | force |
 | Free-DOF moment residual threshold | 0.0 | N-m | moment |
 | Free-DOF force/moment residual policy reference | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | label | dimensionless |
+| Free-DOF work residual policy status | TBD / observation-only | label | dimensionless |
+| Free-DOF work residual unit | N-m | moment |
 
 ## Active-Set Expected Values
 
@@ -63,19 +66,20 @@ reported in the fixture-local displacement unit (`mm`); reaction deltas are in
 `N`; rotational and moment residual observations are zero in the current axial
 fixture set.
 
-| Fixture | Max translation delta from previous | Max force-reaction delta from previous | Free-DOF force residual | Free-DOF moment residual | Threshold policy |
-|---|---:|---:|---:|---:|---|
-| `NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
-| `NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL` | 50.0 mm | 5.0 N | 0.0 N | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
-| `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
-| `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
-| `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
-| `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
+| Fixture | Max translation delta from previous | Max force-reaction delta from previous | Free-DOF force residual | Free-DOF moment residual | Free-DOF work residual | Threshold policy |
+|---|---:|---:|---:|---:|---:|---|
+| `NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
+| `NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL` | 50.0 mm | 5.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
+| `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
+| `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
+| `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
+| `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
 
 The free-DOF force/moment residual threshold policy applies only to the current
-public-original assembled validation seed. Displacement and reaction deltas
-remain observation-only; they do not loosen, tighten, or replace the accepted
-active-set-count policy.
+public-original assembled validation seed. Displacement deltas, reaction
+deltas, and free-DOF work residuals remain observation-only; they do not
+loosen, tighten, or replace the accepted active-set-count policy.
 
 Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.
 Free-DOF force/moment residual policy: `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`.
+Free-DOF work residual threshold policy: `TBD`.

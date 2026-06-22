@@ -268,6 +268,8 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "ForceDisplacementResidualObservation" in source
     assert "observed_iteration_count" in source
     assert "free_dof_force_moment_threshold_policy" in source
+    assert "max_abs_free_dof_work_residual" in source
+    assert "free_dof_work_threshold_policy" in source
     assert DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF in source
     assert "governed_convergence_policy_entries" in source
     assert "governed_free_dof_force_moment_policy_entries" in source
@@ -293,6 +295,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "## Invented Inputs" in observation_note
     assert "## Active-Set Expected Values" in observation_note
     assert "## Force/Displacement Residual Observations" in observation_note
+    assert "Free-DOF work residual threshold policy: `TBD`." in observation_note
     assert f"Tolerance policy: `{DEC_046_POLICY_REF}`." in observation_note
     assert f"Free-DOF force/moment residual policy: `{DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF}`." in observation_note
     assert "changed-support-count residual" in benchmark_readme
@@ -300,11 +303,12 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "force/displacement residual" in normalized_observation_note
     assert "threshold policy" in normalized_observation_note
     assert DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF.lower() in normalized_observation_note
-    assert "displacement and reaction deltas remain observation-only" in normalized_observation_note
+    assert "free-dof work residuals remain observation-only" in normalized_observation_note
     normalized_benchmark_readme = _normalized_text(benchmark_readme).lower()
     assert "multi-support depth observation inventory" in normalized_benchmark_readme
     assert "outside `assembled_fixture_inventory()`" in normalized_benchmark_readme
     assert "without promoting non-seed force/displacement" in normalized_benchmark_readme
+    assert "free-dof work/energy" in normalized_benchmark_readme
 
     assert policy_record["record_id"] == DEC_046_POLICY_REF
     assert policy_record["decision_ref"] == "DEC-046"

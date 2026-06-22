@@ -149,6 +149,7 @@ pub struct NonlinearResidualObservation {
     pub max_abs_moment_reaction_delta_from_previous: Option<f64>,
     pub max_abs_free_dof_force_residual: f64,
     pub max_abs_free_dof_moment_residual: f64,
+    pub max_abs_free_dof_work_residual: f64,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -321,7 +322,7 @@ pub fn solve_active_set_frame(
 pub fn assembled_loop_assumptions() -> Vec<String> {
     vec![
         "Active nonlinear support states are represented as prescribed frame DOFs in the current linearized iteration.".to_string(),
-        "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement residual observations are recorded as evidence, not thresholds.".to_string(),
+        "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement/work residual observations are recorded as evidence, not thresholds.".to_string(),
         "Friction support normal reactions are either explicit input evidence or derived as the absolute reaction at a named support-normal DOF supplied by the caller.".to_string(),
         "Released friction supports may persist in sliding state while nonzero displacement remains, preventing active-set chatter without adding hidden friction-load defaults.".to_string(),
         "Explicit user-stiffness macro-elements are assembled with frame elements when supplied by the caller.".to_string(),
@@ -350,6 +351,7 @@ struct LinearizedSolve {
     reactions: DenseVector,
     max_abs_free_dof_force_residual: f64,
     max_abs_free_dof_moment_residual: f64,
+    max_abs_free_dof_work_residual: f64,
     sparse_evidence: SparseLinearSolveEvidence,
 }
 
@@ -612,12 +614,15 @@ fn solve_linearized_system(
         max_abs_by_dof_group(&reactions, &reduced.free_dofs, true);
     let max_abs_free_dof_moment_residual =
         max_abs_by_dof_group(&reactions, &reduced.free_dofs, false);
+    let max_abs_free_dof_work_residual =
+        max_abs_free_dof_work_residual(&reactions, &displacements, &reduced.free_dofs);
 
     Ok(LinearizedSolve {
         displacements,
         reactions,
         max_abs_free_dof_force_residual,
         max_abs_free_dof_moment_residual,
+        max_abs_free_dof_work_residual,
         sparse_evidence,
     })
 }
@@ -696,7 +701,19 @@ fn residual_observation(
         }),
         max_abs_free_dof_force_residual: linearized.max_abs_free_dof_force_residual,
         max_abs_free_dof_moment_residual: linearized.max_abs_free_dof_moment_residual,
+        max_abs_free_dof_work_residual: linearized.max_abs_free_dof_work_residual,
     }
+}
+
+fn max_abs_free_dof_work_residual(
+    reactions: &[f64],
+    displacements: &[f64],
+    free_dofs: &[usize],
+) -> f64 {
+    free_dofs
+        .iter()
+        .map(|&dof| (reactions[dof] * displacements[dof]).abs())
+        .fold(0.0, f64::max)
 }
 
 fn max_abs_delta_by_dof_group(current: &[f64], previous: &[f64], translations: bool) -> f64 {
@@ -1005,6 +1022,15 @@ mod tests {
                 .max_abs_free_dof_force_residual,
             0.0
         );
+        assert_eq!(
+            result
+                .iterations
+                .last()
+                .unwrap()
+                .residuals
+                .max_abs_free_dof_work_residual,
+            0.0
+        );
         let sparse_evidence = &result.iterations.last().unwrap().sparse_evidence;
         assert_eq!(sparse_evidence.status, SparseEvidenceStatus::Observed);
         assert_eq!(sparse_evidence.policy_ref, "DEC-050");
@@ -1062,6 +1088,12 @@ mod tests {
             result.iterations[0]
                 .residuals
                 .max_abs_free_dof_force_residual,
+            0.0
+        );
+        assert_eq!(
+            result.iterations[0]
+                .residuals
+                .max_abs_free_dof_work_residual,
             0.0
         );
     }

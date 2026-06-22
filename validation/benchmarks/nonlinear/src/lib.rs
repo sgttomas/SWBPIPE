@@ -67,7 +67,7 @@ const DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR: f64 = 0.0;
 const DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS: usize = 4;
 const DEC_046_ACTIVE_SET_COUNT_LIMITATIONS: &[&str] = &[
     "Applies only to the current public-original assembled validation seed and its active-set changed-support-count residual.",
-    "Does not define free-DOF force/moment, displacement, energy, sparse live-path, product-preview, or external validation convergence thresholds.",
+    "Does not define free-DOF force/moment, displacement, free-DOF work/energy, sparse live-path, product-preview, or external validation convergence thresholds.",
 ];
 pub const DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF: &str =
     "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1";
@@ -81,7 +81,7 @@ const DEC_046_FREE_DOF_MOMENT_RESIDUAL_DIMENSION: &str = "moment";
 const DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS: &[&str] = &[
     "Applies only to current public-original assembled validation-seed final-iteration free-DOF force and moment equilibrium residuals.",
-    "Does not define displacement-delta, reaction-delta, energy, sparse live-path, product-preview, release, or external validation thresholds.",
+    "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds.",
 ];
 const MULTI_SUPPORT_DEPTH_POLICY_REF: &str = "TP-R4-D9-MULTISUPPORT-OBS-TBD";
 
@@ -278,7 +278,10 @@ pub struct ForceDisplacementResidualObservation {
     pub free_dof_force_residual_unit: &'static str,
     pub max_abs_free_dof_moment_residual: f64,
     pub free_dof_moment_residual_unit: &'static str,
+    pub max_abs_free_dof_work_residual: f64,
+    pub free_dof_work_residual_unit: &'static str,
     pub free_dof_force_moment_threshold_policy: Option<&'static str>,
+    pub free_dof_work_threshold_policy: Option<&'static str>,
 }
 
 impl ForceDisplacementResidualObservation {
@@ -292,8 +295,11 @@ impl ForceDisplacementResidualObservation {
             && self.moment_reaction_delta_unit == "N-m"
             && self.free_dof_force_residual_unit == DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT
             && self.free_dof_moment_residual_unit == DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT
+            && self.free_dof_work_residual_unit == "N-m"
+            && self.free_dof_work_threshold_policy.is_none()
             && self.max_abs_free_dof_force_residual.is_finite()
             && self.max_abs_free_dof_moment_residual.is_finite()
+            && self.max_abs_free_dof_work_residual.is_finite()
             && self.max_abs_free_dof_force_residual <= DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT
             && self.max_abs_free_dof_moment_residual <= DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT
     }
@@ -589,7 +595,10 @@ impl AssembledNonlinearRegressionCase {
             free_dof_force_residual_unit: "N",
             max_abs_free_dof_moment_residual: final_residuals.max_abs_free_dof_moment_residual,
             free_dof_moment_residual_unit: "N-m",
+            max_abs_free_dof_work_residual: final_residuals.max_abs_free_dof_work_residual,
+            free_dof_work_residual_unit: "N-m",
             free_dof_force_moment_threshold_policy: threshold_policy,
+            free_dof_work_threshold_policy: None,
         })
     }
 }
@@ -1890,7 +1899,9 @@ mod tests {
         let residuals = assembled_multisupport_depth_residual_observations();
         assert_eq!(residuals.len(), 1);
         assert_eq!(residuals[0].free_dof_force_moment_threshold_policy, None);
+        assert_eq!(residuals[0].free_dof_work_threshold_policy, None);
         assert!(!residuals[0].uses_accepted_free_dof_force_moment_threshold_policy());
+        assert_eq!(residuals[0].max_abs_free_dof_work_residual, 0.0);
         assert!(
             residuals[0]
                 .max_abs_translation_delta_from_previous
@@ -2080,6 +2091,8 @@ mod tests {
             );
             assert_eq!(observation.max_abs_free_dof_force_residual, 0.0);
             assert_eq!(observation.max_abs_free_dof_moment_residual, 0.0);
+            assert_eq!(observation.max_abs_free_dof_work_residual, 0.0);
+            assert_eq!(observation.free_dof_work_threshold_policy, None);
         }
 
         assert!(

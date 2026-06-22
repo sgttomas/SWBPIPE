@@ -63,7 +63,7 @@
   ],
   "limitations": [
     "Applies only to current public-original assembled validation-seed final-iteration free-DOF force and moment equilibrium residuals.",
-    "Does not define displacement-delta, reaction-delta, energy, sparse live-path, product-preview, release, or external validation thresholds."
+    "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds."
   ],
   "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
 }

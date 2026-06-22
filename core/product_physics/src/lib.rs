@@ -1325,7 +1325,7 @@ fn append_nonlinear_support_loop_results(
                 },
                 if solve.converged { "info" } else { "warning" },
                 format!(
-                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; displacement, reaction-delta, energy, sparse, release, and external thresholds remain TBD",
+                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; displacement, reaction-delta, free-DOF work/energy, sparse, release, and external thresholds remain TBD",
                     solve.iterations.len(),
                     final_residual,
                     solve.policy_ref,
@@ -1465,6 +1465,9 @@ fn append_nonlinear_residual_observation_results(
     let observation_only_basis = format!(
         "dense_active_set_loop; policy_ref={policy_ref}; observed_residual_only; threshold=TBD; threshold_axes=displacement_and_reaction_delta"
     );
+    let free_dof_work_observation_basis = format!(
+        "dense_active_set_loop; policy_ref={policy_ref}; observed_residual_only; threshold=TBD; threshold_axes=free_dof_work_residual"
+    );
     let force_moment_threshold_basis = format!(
         "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold={} N; moment_threshold={} N*m; product_preview_only",
         DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF,
@@ -1550,6 +1553,18 @@ fn append_nonlinear_residual_observation_results(
         "final_iteration",
         &force_moment_threshold_basis,
         "nonnegative max absolute rotational free-DOF equilibrium residual in the final linearized solve",
+    );
+    append_nonlinear_scalar_result(
+        results,
+        "result:nonlinear-support:free-dof-work-residual",
+        "nonlinear_support_observed_free_dof_work_residual",
+        residuals.max_abs_free_dof_work_residual,
+        "N*m",
+        "nonlinear_supports",
+        "observed_free_dof_work_residual",
+        "final_iteration",
+        &free_dof_work_observation_basis,
+        "nonnegative max absolute free-DOF residual work product in the final linearized solve",
     );
 }
 
@@ -5059,6 +5074,7 @@ fn is_combination_excluded_result_kind(kind: &str) -> bool {
             | "nonlinear_support_observed_max_moment_reaction_delta"
             | "nonlinear_support_observed_free_dof_force_residual"
             | "nonlinear_support_observed_free_dof_moment_residual"
+            | "nonlinear_support_observed_free_dof_work_residual"
             | "sparse_live_path_dense_parity_relative_delta"
     )
 }
@@ -6206,6 +6222,10 @@ mod tests {
             result_value(&result, "result:nonlinear-support:free-dof-moment-residual"),
             0.0
         );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:free-dof-work-residual"),
+            0.0
+        );
         let translation_delta = result
             .results
             .iter()
@@ -6227,6 +6247,11 @@ mod tests {
             .iter()
             .find(|item| item.id == "result:nonlinear-support:free-dof-moment-residual")
             .expect("moment residual row exists");
+        let work_residual = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:nonlinear-support:free-dof-work-residual")
+            .expect("work residual row exists");
         for residual in [force_residual, moment_residual] {
             let basis = &residual.metadata.as_ref().unwrap().basis;
             assert!(basis.contains(DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF));
@@ -6234,6 +6259,9 @@ mod tests {
             assert!(basis.contains("residual_basis=free_dof_force_moment_equilibrium"));
             assert!(!basis.contains("threshold=TBD"));
         }
+        let work_basis = &work_residual.metadata.as_ref().unwrap().basis;
+        assert!(work_basis.contains("threshold=TBD"));
+        assert!(work_basis.contains("threshold_axes=free_dof_work_residual"));
         let iteration_count = result
             .results
             .iter()

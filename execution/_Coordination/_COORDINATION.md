@@ -295,16 +295,19 @@ relative tolerance `0.0`, absolute floor `0.0`, max iteration cap `4`, keyed to
 one-way/gap/lift-off/friction classes. `TP-R4-D9-FREEDOFRESIDPOLICY-001`
 promotes free-DOF force/moment residual threshold policies for the current
 assembled validation seed and invented product-preview surface only, leaving
-displacement/reaction-delta, energy, release, sparse-default, and external
+displacement/reaction-delta, free-DOF work/energy, release, sparse-default, and external
 threshold axes open. `TP-R4-D9-MULTISUPPORTOBS-001` adds an observation-only
 multi-DOF / multi-support assembled validation-depth fixture, with a two-support
 Ux/Uy state-change case kept outside the accepted seed policy and marked
-`TolerancePolicyTbd`. `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction
+`TolerancePolicyTbd`. `TP-R4-D9-ENERGYOBS-001` records final-iteration
+free-DOF work residual observations in the dense loop, nonlinear validation
+inventory, and invented product-preview surface without promoting a work/energy
+threshold policy. `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction
 product live-loop coverage in one invented dense solve. `TP-R4-D7-SPARSELIVE-001`
 landed the `DEC-050` sparse evidence lane while dense remains default and
 profile-direct assembly/default promotion follow on.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
-non-seed force/displacement/energy threshold promotion, broader multi-DOF /
+non-seed force/displacement and free-DOF work/energy threshold promotion, broader multi-DOF /
 multi-support nonlinear acceptance coverage, deeper spring-hanger behavior, and
 the remaining D9 validation evidence remain open.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
@@ -371,7 +374,7 @@ bounded tranche.
       `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`,
       `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVPOLICY-001`,
       `TP-R4-D6-LIVEBUNDLE-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`,
-      `TP-R4-D9-MULTISUPPORTOBS-001`, and the D8 rendered report-provenance slice
+      `TP-R4-D9-MULTISUPPORTOBS-001`, `TP-R4-D9-ENERGYOBS-001`, and the D8 rendered report-provenance slice
       `TP-R4-D8-COMPPROVREPORT-001`;
       `TP-R4-D9-CONVOBS-001` records observed convergence values for the
       current assembled fixtures and `TP-R4-D9-CONVPOLICY-001` promotes the
@@ -381,12 +384,14 @@ bounded tranche.
       invented product-preview surface only.
       `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
       multi-support validation-depth fixture outside those accepted threshold
-      policies.
+      policies. `TP-R4-D9-ENERGYOBS-001` adds observation-only free-DOF work
+      residual rows while keeping free-DOF work/energy thresholds `TBD`.
       `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
       assembled nonlinear integration and product-preview reduced solve paths
       as the `DEC-050` sparse evidence lane, with dense remaining default.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
-      non-seed force/displacement/energy thresholds, displacement/reaction-delta
+      non-seed force/displacement and free-DOF work/energy threshold promotion,
+      displacement/reaction-delta
       threshold axes, broader multi-DOF / multi-support nonlinear acceptance coverage,
       profile-direct sparse/default promotion, deeper spring-hanger behavior,
       and the R4 exit evidence package remain open

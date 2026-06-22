@@ -36,6 +36,7 @@ validation seed.
 | First-iteration changed support count | 2 | count | dimensionless |
 | Final changed support count | 0 | count | dimensionless |
 | Expected iteration count | 2 | count | dimensionless |
+| Final free-DOF work residual | 0.0 | N-m | moment |
 | Final one-way state | inactive | label | dimensionless |
 | Final gap state | active | label | dimensionless |
 | Expected convergence flag | true | label | dimensionless |
@@ -43,7 +44,8 @@ validation seed.
 
 This fixture proves that the assembled loop can carry simultaneous nonlinear
 state changes on more than one support and more than one translational DOF. It
-does not promote non-seed force, displacement, reaction-delta, energy, sparse
-default, external validation, release, or CI thresholds.
+does not promote non-seed force, displacement, reaction-delta, free-DOF
+work/energy, sparse default, external validation, release, or CI thresholds.
 
 Tolerance policy: `TBD`.
+Free-DOF work residual threshold policy: `TBD`.

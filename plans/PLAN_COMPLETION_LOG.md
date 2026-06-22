@@ -14,6 +14,55 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 free-DOF work residual observations (`TP-R4-D9-ENERGYOBS-001`)
+
+Landed a bounded D9 observation slice for the assembled nonlinear residual
+surface. The dense active-set loop now records
+`max_abs_free_dof_work_residual` as the max absolute free-DOF
+`reaction * displacement` residual product in `N-m` for the final linearized
+solve. The nonlinear benchmark crate exposes the value through
+`ForceDisplacementResidualObservation`, and the product-preview surface emits a
+`nonlinear_support_observed_free_dof_work_residual` result row that is excluded
+from load-case combination algebra.
+
+The free-DOF work residual axis is deliberately observation-only:
+`free_dof_work_threshold_policy = None` in validation, product-preview metadata
+uses `threshold=TBD`, and the accepted `DEC-046` force/moment residual policy
+remains limited to current-seed free-DOF force and moment equilibrium residuals.
+
+Changed surfaces:
+
+- `core/solver/nonlinear_integration`: per-iteration work residual observation
+  computed from reactions and displacements at free DOFs.
+- `validation/benchmarks/nonlinear`: work residual fields, unit metadata, and
+  tests preserving the observation-only threshold boundary.
+- `core/product_physics`: product-preview work residual result row, diagnostic
+  wording, algebra exclusion, and regression coverage.
+- `validation/hand_calcs/nonlinear` and policy JSON/readme notes: evidence
+  wording updated to distinguish work/energy observations from threshold
+  promotion.
+- Coordination and planning surfaces: R4/D9 residual wording updated so
+  free-DOF work is observed but energy/work thresholds remain open.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-ENERGYOBS-001.md`.
+
+Focused validation: nonlinear integration Rust tests passed 10/10; nonlinear
+benchmark Rust tests passed 12/12; product-physics Rust tests passed 44/44;
+focused nonlinear pytest passed 8/8. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T072805Z_be55844f721d-dirty.json`.
+
+Residuals: non-seed force/displacement and free-DOF work/energy threshold
+promotion, displacement/reaction-delta thresholds, release/external thresholds,
+profile-direct/default sparse promotion, deeper spring-hanger behavior, broader
+multi-support acceptance coverage, and final R4 exit evidence remain open.
+
+Boundary: invented/public-original validation and product-preview evidence
+only. No protected standards content, proprietary benchmark output, private
+project data, lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
 ## 2026-06-22 - R4 D9 multi-support observation fixture (`TP-R4-D9-MULTISUPPORTOBS-001`)
 
 Landed a bounded D9 validation-depth slice for the assembled nonlinear
