@@ -14,6 +14,53 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 multi-support observation fixture (`TP-R4-D9-MULTISUPPORTOBS-001`)
+
+Landed a bounded D9 validation-depth slice for the assembled nonlinear
+benchmark crate. The crate now exposes
+`assembled_multisupport_depth_inventory()`,
+`assembled_multisupport_depth_convergence_observations()`, and
+`assembled_multisupport_depth_residual_observations()` for
+`NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL`, an invented two-node frame
+case with simultaneous Ux one-way release and Uy gap closure.
+
+The fixture is deliberately outside `assembled_fixture_inventory()` and uses
+`TP-R4-D9-MULTISUPPORT-OBS-TBD` with `ConvergencePolicyStatus::Tbd`. It records
+mechanical convergence, first-iteration changed-support count `2`, final
+active-set residual `0`, and force/displacement residual observations without
+attaching the accepted free-DOF force/moment threshold policy. This reduces the
+multi-DOF / multi-support fixture-depth gap but does not promote a non-seed
+threshold.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: separate multi-support depth inventory,
+  observation-only residual helper, and Rust tests proving the fixture is not
+  part of the accepted seed inventory.
+- `validation/hand_calcs/nonlinear`: new public-original fixture note and
+  README index entry.
+- `tests/test_nonlinear_support_regression.py`: source/doc guardrails for the
+  observation-only boundary.
+- Coordination and planning surfaces: R4/D9 residual wording updated to treat
+  multi-support depth as partially evidenced but not accepted-policy coverage.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTOBS-001.md`.
+
+Focused validation: nonlinear benchmark Rust tests passed 12/12; focused
+nonlinear pytest passed 8/8. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T071252Z_00effc54b1ad-dirty.json`.
+
+Residuals: non-seed force/displacement/energy thresholds,
+displacement/reaction-delta thresholds, release/external thresholds,
+profile-direct/default sparse promotion, deeper spring-hanger behavior, broader
+multi-support acceptance coverage, and final R4 exit evidence remain open.
+
+Boundary: invented/public-original validation evidence only. No protected
+standards content, proprietary benchmark output, private project data, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 free-DOF force/moment residual policy (`TP-R4-D9-FREEDOFRESIDPOLICY-001`)
 
 Landed a bounded `DEC-046` threshold-promotion slice for the current invented

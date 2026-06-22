@@ -42,3 +42,18 @@ The companion note is
 The machine-readable policy records are
 `validation/benchmarks/nonlinear/convergence_policy.dec046.json` and
 `validation/benchmarks/nonlinear/free_dof_force_moment_policy.dec046.json`.
+
+## Multi-Support Depth Observation Inventory
+
+The crate also exposes `assembled_multisupport_depth_inventory()` plus
+`assembled_multisupport_depth_convergence_observations()` and
+`assembled_multisupport_depth_residual_observations()` for the R4/D9
+multi-DOF / multi-support depth residual. This inventory is intentionally
+outside `assembled_fixture_inventory()` and uses
+`TP-R4-D9-MULTISUPPORT-OBS-TBD` with `ConvergencePolicyStatus::Tbd`. It records
+mechanical convergence and residual observations for an invented two-support,
+two-DOF frame case without promoting non-seed force/displacement, energy,
+reaction-delta, sparse-default, external validation, release, or CI thresholds.
+
+The companion note is
+`validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof.md`.

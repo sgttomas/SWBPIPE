@@ -46,6 +46,10 @@ REQUIRED_ASSEMBLED_FIXTURE_NOTES = {
     "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL": "assembled_friction_derived_normal.md",
 }
 
+REQUIRED_DEPTH_OBSERVATION_NOTES = {
+    "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL": "assembled_multi_support_multi_dof.md",
+}
+
 REQUIRED_UNIT_BASIS_LINES = {
     "Translational support displacement and clearance | `mm` | length",
     "Translational support reaction | `N` | force",
@@ -142,6 +146,7 @@ def test_nonlinear_fixture_notes_cover_each_public_original_fixture():
     for fixture_id, note_name in {
         **REQUIRED_FIXTURE_NOTES,
         **REQUIRED_ASSEMBLED_FIXTURE_NOTES,
+        **REQUIRED_DEPTH_OBSERVATION_NOTES,
     }.items():
         note_path = HAND_CALCS_DIR / note_name
         assert note_path.is_file(), note_name
@@ -192,6 +197,13 @@ def test_nonlinear_hand_calc_unit_basis_is_explicit_and_unresolved():
         assert "Canonical dimension" in note
         assert f"Tolerance policy: `{DEC_046_POLICY_REF}`." in note
 
+    for note_name in REQUIRED_DEPTH_OBSERVATION_NOTES.values():
+        note = (HAND_CALCS_DIR / note_name).read_text(encoding="utf-8")
+        assert "| Quantity |" in note
+        assert "Canonical dimension" in note
+        assert "Tolerance policy: `TBD`." in note
+        assert "TP-R4-D9-MULTISUPPORT-OBS-TBD" in note
+
 
 def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
     scanned_paths = [
@@ -203,6 +215,7 @@ def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
             for note_name in [
                 *REQUIRED_FIXTURE_NOTES.values(),
                 *REQUIRED_ASSEMBLED_FIXTURE_NOTES.values(),
+                *REQUIRED_DEPTH_OBSERVATION_NOTES.values(),
             ]
         ),
         CONVERGENCE_OBSERVATION_NOTE,
@@ -248,6 +261,9 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "assembled_fixture_inventory" in source
     assert "assembled_convergence_observations" in source
     assert "assembled_force_displacement_residual_observations" in source
+    assert "assembled_multisupport_depth_inventory" in source
+    assert "assembled_multisupport_depth_convergence_observations" in source
+    assert "assembled_multisupport_depth_residual_observations" in source
     assert "ConvergenceObservation" in source
     assert "ForceDisplacementResidualObservation" in source
     assert "observed_iteration_count" in source
@@ -261,6 +277,13 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     for fixture_id in REQUIRED_ASSEMBLED_FIXTURE_NOTES:
         assert fixture_id in source
         assert fixture_id in observation_note
+    for fixture_id in REQUIRED_DEPTH_OBSERVATION_NOTES:
+        assert fixture_id in source
+        assert fixture_id not in observation_note
+
+    assert "TP-R4-D9-MULTISUPPORT-OBS-TBD" in source
+    assert "ConvergencePolicyStatus::Tbd" in source
+    assert "observation_only_force_displacement_residual" in source
 
     assert CONVERGENCE_OBSERVATION_NOTE.name in benchmark_readme
     assert CONVERGENCE_OBSERVATION_NOTE.name in hand_calc_readme
@@ -278,6 +301,10 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "threshold policy" in normalized_observation_note
     assert DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF.lower() in normalized_observation_note
     assert "displacement and reaction deltas remain observation-only" in normalized_observation_note
+    normalized_benchmark_readme = _normalized_text(benchmark_readme).lower()
+    assert "multi-support depth observation inventory" in normalized_benchmark_readme
+    assert "outside `assembled_fixture_inventory()`" in normalized_benchmark_readme
+    assert "without promoting non-seed force/displacement" in normalized_benchmark_readme
 
     assert policy_record["record_id"] == DEC_046_POLICY_REF
     assert policy_record["decision_ref"] == "DEC-046"

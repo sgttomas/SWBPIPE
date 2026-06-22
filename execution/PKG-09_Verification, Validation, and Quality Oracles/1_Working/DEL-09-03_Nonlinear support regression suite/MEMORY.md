@@ -39,8 +39,27 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - The current invented product-preview nonlinear path has an accepted free-DOF
   force/moment residual policy under
   `DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1`.
+- `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
+  multi-support assembled fixture under `TP-R4-D9-MULTISUPPORT-OBS-TBD`; it is
+  not part of the accepted current assembled validation seed policy.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-MULTISUPPORTOBS-001
+
+- Added `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL`, an invented
+  assembled frame fixture with simultaneous Ux one-way release and Uy gap
+  closure in the first iteration.
+- Exposed separate multi-support depth inventories and observations so the
+  fixture remains outside `assembled_fixture_inventory()` and outside the
+  accepted `DEC-046` current-seed threshold policies.
+- Added the hand-calc/provenance note
+  `validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof.md` and
+  focused Python guardrails for the observation-only boundary.
+- Boundary preserved: no non-seed threshold promotion, R4 exit readiness,
+  lifecycle, professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTOBS-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-FREEDOFRESIDPOLICY-001
 
