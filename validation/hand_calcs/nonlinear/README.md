@@ -27,18 +27,20 @@ The nonlinear fixtures use explicit fixture-local unit identifiers only:
 | Active-set residual and iteration counts | `count` | dimensionless |
 
 The project unit catalog, conversion constants, displacement-delta thresholds,
-reaction-delta thresholds, free-DOF work/energy thresholds, sparse live-path
+reaction-delta thresholds, general energy thresholds, sparse live-path
 thresholds, product-preview release thresholds, external validation thresholds,
 and CI gate thresholds remain `TBD`. The current assembled validation seed uses
 `DEC-046-CV-B-active-set-count-validation-v1` for active-set changed-support
 count and
 `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1` for final-iteration
-free-DOF force/moment equilibrium residuals only. Free-DOF work residuals are
-recorded as observation-only evidence and do not have an accepted threshold
-policy. A separate multi-support companion fixture uses
+free-DOF force/moment equilibrium residuals, plus
+`DEC-046-CV-B-free-dof-work-residual-validation-v1` for final-iteration
+free-DOF work residual products only. A separate multi-support companion
+fixture uses
 `DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
-`DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1` for
-one public-original multi-DOF / multi-support validation case only.
+`DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`, plus
+`DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1`, for one
+public-original multi-DOF / multi-support validation case only.
 
 ## Notes
 

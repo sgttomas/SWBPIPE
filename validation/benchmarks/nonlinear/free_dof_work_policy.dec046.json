@@ -1,0 +1,59 @@
+{
+  "record_kind": "governed_nonlinear_free_dof_work_residual_policy",
+  "record_id": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "accepted_for_current_assembled_validation_seed",
+  "scope": "current_public_original_assembled_validation_seed_only",
+  "work_residual_basis": {
+    "name": "free_dof_work_residual",
+    "unit": "N-m",
+    "dimension": "moment",
+    "note": "zero means no free-DOF residual work product remains in the final linearized solve"
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed work residual threshold requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "one_way",
+      "work_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "gap",
+      "work_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "lift_off",
+      "work_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "friction",
+      "work_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+        "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+        "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Applies only to current public-original assembled validation-seed final-iteration free-DOF residual work products.",
+    "Does not define displacement-delta, reaction-delta, general energy convergence, sparse live-path, product-preview, release, or external validation thresholds."
+  ],
+  "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

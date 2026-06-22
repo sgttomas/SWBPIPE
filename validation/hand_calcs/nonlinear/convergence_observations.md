@@ -8,11 +8,12 @@ nonlinear validation fixtures. These observations are fixture evidence under
 `DEC-046-CV-B-active-set-count-validation-v1` active-set changed-support-count
 policy. The same current seed now also binds final-iteration free-DOF force and
 moment equilibrium residuals to
-`DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`. Displacement and
-reaction deltas remain observation-only. Free-DOF work residuals are recorded
-as observation-only evidence in `N-m`. This does not define energy/work, sparse
-live-path behavior, product-preview thresholds, external validation thresholds,
-release thresholds, or a release claim.
+`DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`, and
+final-iteration free-DOF work residual products to
+`DEC-046-CV-B-free-dof-work-residual-validation-v1`. Displacement and reaction
+deltas remain observation-only. This does not define general energy
+convergence, sparse live-path behavior, product-preview thresholds, external
+validation thresholds, release thresholds, or a release claim.
 
 ## Provenance
 
@@ -39,7 +40,8 @@ inventory in `validation/benchmarks/nonlinear/src/lib.rs`.
 | Free-DOF force residual threshold | 0.0 | N | force |
 | Free-DOF moment residual threshold | 0.0 | N-m | moment |
 | Free-DOF force/moment residual policy reference | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | label | dimensionless |
-| Free-DOF work residual policy status | TBD / observation-only | label | dimensionless |
+| Free-DOF work residual threshold | 0.0 | N-m | moment |
+| Free-DOF work residual policy reference | DEC-046-CV-B-free-dof-work-residual-validation-v1 | label | dimensionless |
 | Free-DOF work residual unit | N-m | moment |
 
 ## Active-Set Expected Values
@@ -76,10 +78,12 @@ fixture set.
 | `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 |
 
 The free-DOF force/moment residual threshold policy applies only to the current
-public-original assembled validation seed. Displacement deltas, reaction
-deltas, and free-DOF work residuals remain observation-only; they do not
-loosen, tighten, or replace the accepted active-set-count policy.
+public-original assembled validation seed. The free-DOF work residual threshold
+policy likewise applies only to final-iteration residual work products in that
+seed. Displacement deltas and reaction deltas remain observation-only; these
+records do not loosen, tighten, or replace the accepted active-set-count
+policy.
 
 Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.
 Free-DOF force/moment residual policy: `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`.
-Free-DOF work residual threshold policy: `TBD`.
+Free-DOF work residual policy: `DEC-046-CV-B-free-dof-work-residual-validation-v1`.

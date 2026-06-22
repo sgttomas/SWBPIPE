@@ -39,3 +39,4 @@ inactive and the active-set residual becomes zero.
 | Expected converged flag | true | boolean | dimensionless |
 
 Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.
+Free-DOF work residual policy: `DEC-046-CV-B-free-dof-work-residual-validation-v1`.

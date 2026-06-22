@@ -32,8 +32,8 @@ R4 deliverable families named by the same section:
 | Rigid valves/flanges/reducers | `TP-R4-D3-RIGIDVIS-001` landed rigid/semi-rigid component visibility, provenance, diagnostics, native-package/report evidence, and no frame-stiffness behavior change. | Demonstrated for invented preview path; full rigid macro-element solve remains out of scope |
 | Expansion joints | `TP-R4-D4-EJSTIFF-001`, `TP-R4-D4-EJMACRO-001`, and `TP-R4-D4-EJTHRUST-001` landed expansion-joint mapping, provenance, user-entered stiffness rows, diagnostics, review rows, the dedicated user-stiffness macro-element, and load-side pressure-thrust evidence under `DEC-045`. | Demonstrated for invented preview path |
 | Spring hangers | `D-15_spring_hanger_scope.md` is ruled by `DEC-049` Option B, and `TP-R4-D5-HANGERDATA-001` landed the minimal dedicated user-entered spring-hanger model for invented variable spring and constant-effort supports, including schema slots, validation diagnostics, user-entered review rows, and report/native-package/rendered-report provenance. | Demonstrated for minimal user-data path; catalog sizing and deeper constant-effort solve behavior remain out of scope |
-| Gaps/lift-off/friction validation | `TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-CONVOBS-001`, `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`, `TP-R4-D9-ENERGYOBS-001`, and `TP-R4-D9-MULTISUPPORTPOLICY-001` provide current assembled dense-loop validation seeds for one-way, gap, lift-off, and friction classes, final-iteration free-DOF work residual observations, and one accepted non-seed Ux/Uy multi-support companion fixture. `TP-R4-D9-MULTISUPPORTOBS-001` remains an observation-only Ux/Uy multi-support assembled depth fixture under `TolerancePolicyTbd`. Accepted policies are limited to the current assembled validation seed plus the single multi-support companion fixture; free-DOF work residuals remain observation-only. | Partially demonstrated; broader non-seed convergence thresholds remain open |
-| Product-preview nonlinear path | `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D6-LIVEBUNDLE-001`, `TP-R4-D9-PRODPOLICY-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`, and `TP-R4-D9-ENERGYOBS-001` show dense-loop product-preview evidence for invented nonlinear supports. The active-set-count preview policy is accepted as `DEC-046-CV-B-product-preview-active-set-count-v1`; the free-DOF force/moment residual policy is accepted as `DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1`. Displacement-delta, reaction-delta, free-DOF work/energy, release, and external threshold axes remain `TBD`. | Evidence exists; not release-policy complete |
+| Gaps/lift-off/friction validation | `TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-CONVOBS-001`, `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`, `TP-R4-D9-ENERGYOBS-001`, `TP-R4-D9-MULTISUPPORTPOLICY-001`, and `TP-R4-D9-WORKPOLICY-001` provide current assembled dense-loop validation seeds for one-way, gap, lift-off, and friction classes, accepted final-iteration free-DOF work residual products for the current seed, and one accepted non-seed Ux/Uy multi-support companion fixture with active-set, free-DOF force/moment, and free-DOF work policies. `TP-R4-D9-MULTISUPPORTOBS-001` remains an observation-only Ux/Uy multi-support assembled depth fixture under `TolerancePolicyTbd`. Accepted policies are limited to the current assembled validation seed plus the single multi-support companion fixture; general energy thresholds remain `TBD`. | Partially demonstrated; broader non-seed convergence thresholds remain open |
+| Product-preview nonlinear path | `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D6-LIVEBUNDLE-001`, `TP-R4-D9-PRODPOLICY-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`, `TP-R4-D9-ENERGYOBS-001`, and `TP-R4-D9-WORKPOLICY-001` show dense-loop product-preview evidence for invented nonlinear supports. The active-set-count preview policy is accepted as `DEC-046-CV-B-product-preview-active-set-count-v1`; the free-DOF force/moment residual policy is accepted as `DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1`; the free-DOF work residual policy is accepted as `DEC-046-CV-B-product-preview-free-dof-work-residual-v1`. Displacement-delta, reaction-delta, general energy, release, and external threshold axes remain `TBD`. | Evidence exists; not release-policy complete |
 | Sparse evidence lane | `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the assembled nonlinear integration and product-preview reduced solve paths as `DEC-050` evidence. Product-preview result envelopes now carry sparse parity evidence rows for the invented load cases. Dense remains default; profile-direct sparse assembly and default sparse promotion remain follow-on work. | Demonstrated as evidence lane; not default sparse promotion |
 | Component provenance in reports | `TP-R4-D8-COMPPROVREPORT-001` carries component provenance and missing-provenance warnings into `ReportSections` and the deterministic hash-bound rendered HTML report. | Demonstrated for current invented component paths |
 
@@ -45,8 +45,11 @@ R4 deliverable families named by the same section:
    the current public-original assembled validation seed; the multi-support
    `DEC-046` policies apply only to one public-original companion fixture.
    Product-preview policies apply only to the current invented preview
-   dense-loop surface. They do not govern broader non-seed force/displacement
-   or free-DOF work/energy thresholds, displacement-delta thresholds,
+   dense-loop surface. The accepted free-DOF work residual policies are bounded
+   to the current validation seed, the accepted companion, and the invented
+   product-preview surface. They do not govern broader non-seed
+   force/displacement thresholds, general energy thresholds,
+   displacement-delta thresholds,
    reaction-delta thresholds, sparse default behavior, release thresholds, or
    external validation thresholds.
 2. **The current assembled nonlinear fixtures are validation seeds plus one
@@ -55,7 +58,7 @@ R4 deliverable families named by the same section:
    state transitions. `TP-R4-D9-MULTISUPPORTPOLICY-001` adds one accepted
    multi-DOF / multi-support companion fixture; `TP-R4-D9-MULTISUPPORTOBS-001`
    remains observation-only. Together they still do not demonstrate broad
-   non-seed force, displacement, or free-DOF work/energy residual acceptance
+   non-seed force, displacement, or general energy residual acceptance
    criteria.
 3. **Sparse default promotion remains follow-on under `DEC-050`.**
    `TP-R4-D7-SPARSELIVE-001` closes the R4 sparse evidence-lane adoption item:
@@ -78,9 +81,9 @@ A 2026-06-21 adversarial review of the Phase D evidence upheld this packet's
 
 - do not read Phase D green tests as whole-plan green;
 - D6/D9 convergence acceptance evidence is still narrow even after
-  active-set-count, free-DOF force/moment residual, and one multi-support
-  companion policy promotion; the multi-support depth fixture and free-DOF work
-  residual rows are observation-only;
+  active-set-count, free-DOF force/moment residual, free-DOF work residual, and
+  one multi-support companion policy promotion; the multi-support depth fixture
+  remains observation-only and general energy thresholds remain open;
 - the old D4 caveat about a missing solver-consumed EJ stiffness macro-element
   is superseded by `TP-R4-D4-EJMACRO-001`; pressure-thrust load generation is
   superseded by `TP-R4-D4-EJTHRUST-001`;
@@ -113,14 +116,15 @@ R4 is **not ready** for human exit review. The strongest current evidence is:
 - current assembled nonlinear validation seeds converge under the accepted
   active-set-count policy for one-way, gap, lift-off, and friction classes;
 - current assembled nonlinear validation seeds and invented product-preview
-  rows carry accepted free-DOF force/moment residual policies for the measured
-  zero residual surface.
+  rows carry accepted free-DOF force/moment and free-DOF work residual policies
+  for the measured zero residual surface.
 
 The decisive blockers are the intentionally unpromoted convergence-policy
-surfaces outside the current assembled validation seed and accepted
-multi-support companion fixture, broader multi-DOF / multi-support nonlinear
-acceptance coverage beyond that single companion, profile-direct sparse/default promotion if required by the R4 exit
+surfaces outside the current assembled validation seed, accepted
+multi-support companion fixture, and invented product-preview surface, broader
+multi-DOF / multi-support nonlinear acceptance coverage beyond that single
+companion, profile-direct sparse/default promotion if required by the R4 exit
 review, and deeper spring-hanger behavior if the R4 exit review requires more
 than the minimal user-data path. The next ordinary Phase D dependency-spine item
-is remaining D9 threshold/acceptance evidence after the landed multi-support
-policy slice.
+is remaining D9 threshold/acceptance evidence after the landed multi-support and
+free-DOF work policy slices.

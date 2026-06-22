@@ -14,6 +14,52 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 free-DOF work residual policy (`TP-R4-D9-WORKPOLICY-001`)
+
+Landed a bounded `DEC-046` threshold-promotion slice for final-iteration
+free-DOF work residual products. The current assembled validation seed now
+carries `DEC-046-CV-B-free-dof-work-residual-validation-v1`; the accepted
+Ux/Uy multi-support companion now carries
+`DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1`; and the
+invented product-preview nonlinear surface now carries
+`DEC-046-CV-B-product-preview-free-dof-work-residual-v1`. Each accepted work
+residual limit is `0.0 N-m` for the measured final-iteration surface.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: work-policy records, policy helpers,
+  accepted-observation guards, and Rust tests proving current-seed plus
+  multi-support companion coverage.
+- `core/product_physics` and `fixtures/product_preview`: product-preview work
+  residual result metadata now records accepted policy status while preserving
+  `general_energy_threshold=TBD`.
+- Desktop and product-preview tests: expected result counts and unit-witness
+  counts updated for the two accepted work residual result rows.
+- `validation/hand_calcs/nonlinear`, benchmark README content, coordination
+  surfaces, R4 gap planning, and DEL-09-03 memory: bounded work-policy status
+  recorded without closing general energy, displacement/reaction-delta, sparse,
+  external, release, or broader multi-support gaps.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-WORKPOLICY-001.md`.
+
+Focused validation: nonlinear benchmark Rust tests passed 15/15; product
+physics Rust tests passed 44/44; focused pytest passed 28/28; desktop Vitest
+passed 407/407; Playwright desktop dev lane passed 18/18; JSON validation and
+`git diff --check` passed. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T081626Z_719254ef37f8-dirty.json`.
+
+Residuals: profile-direct sparse assembly/default sparse promotion, non-seed
+force/displacement threshold promotion beyond the accepted companion, general
+energy threshold promotion, displacement/reaction-delta thresholds, deeper
+spring-hanger behavior, external validation thresholds, broader multi-support
+acceptance coverage, and final R4 exit evidence remain open.
+
+Boundary: invented/public-original validation evidence only. No protected
+standards content, proprietary benchmark output, private project data,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 multi-support accepted companion (`TP-R4-D9-MULTISUPPORTPOLICY-001`)
 
 Landed a bounded `DEC-046` threshold-promotion companion for the assembled

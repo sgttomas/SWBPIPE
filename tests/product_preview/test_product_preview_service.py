@@ -115,6 +115,9 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     nonlinear_free_moment_residual = next(
         item for item in result["results"] if item["id"] == "result:nonlinear-support:free-dof-moment-residual"
     )
+    nonlinear_free_work_residual = next(
+        item for item in result["results"] if item["id"] == "result:nonlinear-support:free-dof-work-residual"
+    )
     assert "DEC-046-CV-B-product-preview-active-set-count-v1" in nonlinear_iteration_count["metadata"]["basis"]
     assert "policy_status=accepted" in nonlinear_iteration_count["metadata"]["basis"]
     for residual in (nonlinear_free_force_residual, nonlinear_free_moment_residual):
@@ -125,6 +128,11 @@ def test_mechanics_result_keeps_status_boundaries_separate():
         assert "threshold_policy_status=accepted" in residual["metadata"]["basis"]
         assert "residual_basis=free_dof_force_moment_equilibrium" in residual["metadata"]["basis"]
         assert "threshold=TBD" not in residual["metadata"]["basis"]
+    assert "DEC-046-CV-B-product-preview-free-dof-work-residual-v1" in nonlinear_free_work_residual["metadata"]["basis"]
+    assert "threshold_policy_status=accepted" in nonlinear_free_work_residual["metadata"]["basis"]
+    assert "residual_basis=free_dof_work_residual" in nonlinear_free_work_residual["metadata"]["basis"]
+    assert "general_energy_threshold=TBD" in nonlinear_free_work_residual["metadata"]["basis"]
+    assert "observed_residual_only" not in nonlinear_free_work_residual["metadata"]["basis"]
     nonlinear_reaction = next(
         item for item in result["results"] if item["id"] == "result:nonlinear-support:support-NL-140:uy-reaction"
     )

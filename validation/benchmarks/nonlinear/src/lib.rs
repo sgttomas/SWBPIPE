@@ -83,11 +83,23 @@ const DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS: &[&str] = &[
     "Applies only to current public-original assembled validation-seed final-iteration free-DOF force and moment equilibrium residuals.",
     "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds.",
 ];
+pub const DEC_046_FREE_DOF_WORK_POLICY_REF: &str =
+    "DEC-046-CV-B-free-dof-work-residual-validation-v1";
+const DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS: &str = "free_dof_work_residual";
+const DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT: &str = "N-m";
+const DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION: &str = "moment";
+const DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT: f64 = 0.0;
+const DEC_046_FREE_DOF_WORK_LIMITATIONS: &[&str] = &[
+    "Applies only to current public-original assembled validation-seed final-iteration free-DOF residual work products.",
+    "Does not define displacement-delta, reaction-delta, general energy convergence, sparse live-path, product-preview, release, or external validation thresholds.",
+];
 const MULTI_SUPPORT_DEPTH_POLICY_REF: &str = "TP-R4-D9-MULTISUPPORT-OBS-TBD";
 pub const DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF: &str =
     "DEC-046-CV-B-multisupport-active-set-count-validation-v1";
 pub const DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF: &str =
     "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1";
+pub const DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF: &str =
+    "DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1";
 const DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_LIMITATIONS: &[&str] = &[
     "Applies only to the public-original multi-DOF / multi-support validation fixture and its active-set changed-support-count residual.",
     "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds.",
@@ -95,6 +107,10 @@ const DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_LIMITATIONS: &[&str] = &[
 const DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_LIMITATIONS: &[&str] = &[
     "Applies only to the public-original multi-DOF / multi-support validation fixture final-iteration free-DOF force and moment equilibrium residuals.",
     "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds.",
+];
+const DEC_046_MULTISUPPORT_FREE_DOF_WORK_LIMITATIONS: &[&str] = &[
+    "Applies only to the public-original multi-DOF / multi-support validation fixture final-iteration free-DOF residual work product.",
+    "Does not define displacement-delta, reaction-delta, general energy convergence, sparse live-path, product-preview, release, or external validation thresholds.",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -307,13 +323,14 @@ impl ForceDisplacementResidualObservation {
             && self.moment_reaction_delta_unit == "N-m"
             && self.free_dof_force_residual_unit == DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT
             && self.free_dof_moment_residual_unit == DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT
-            && self.free_dof_work_residual_unit == "N-m"
-            && self.free_dof_work_threshold_policy.is_none()
+            && self.free_dof_work_residual_unit == DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT
+            && self.free_dof_work_threshold_policy == Some(DEC_046_FREE_DOF_WORK_POLICY_REF)
             && self.max_abs_free_dof_force_residual.is_finite()
             && self.max_abs_free_dof_moment_residual.is_finite()
             && self.max_abs_free_dof_work_residual.is_finite()
             && self.max_abs_free_dof_force_residual <= DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT
             && self.max_abs_free_dof_moment_residual <= DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT
+            && self.max_abs_free_dof_work_residual <= DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT
     }
 
     pub fn uses_accepted_multisupport_free_dof_force_moment_threshold_policy(&self) -> bool {
@@ -326,13 +343,15 @@ impl ForceDisplacementResidualObservation {
             && self.moment_reaction_delta_unit == "N-m"
             && self.free_dof_force_residual_unit == DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT
             && self.free_dof_moment_residual_unit == DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT
-            && self.free_dof_work_residual_unit == "N-m"
-            && self.free_dof_work_threshold_policy.is_none()
+            && self.free_dof_work_residual_unit == DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT
+            && self.free_dof_work_threshold_policy
+                == Some(DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF)
             && self.max_abs_free_dof_force_residual.is_finite()
             && self.max_abs_free_dof_moment_residual.is_finite()
             && self.max_abs_free_dof_work_residual.is_finite()
             && self.max_abs_free_dof_force_residual <= DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT
             && self.max_abs_free_dof_moment_residual <= DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT
+            && self.max_abs_free_dof_work_residual <= DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT
     }
 }
 
@@ -381,6 +400,19 @@ pub struct ForceMomentResidualPolicyEntry {
     pub moment_residual_unit: &'static str,
     pub moment_residual_dimension: &'static str,
     pub moment_absolute_limit: f64,
+    pub status: ConvergencePolicyStatus,
+    pub evidence_fixture_ids: &'static [&'static str],
+    pub limitations: &'static [&'static str],
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct WorkResidualPolicyEntry {
+    pub policy_ref: &'static str,
+    pub nonlinear_class: &'static str,
+    pub work_residual_basis: &'static str,
+    pub work_residual_unit: &'static str,
+    pub work_residual_dimension: &'static str,
+    pub work_absolute_limit: f64,
     pub status: ConvergencePolicyStatus,
     pub evidence_fixture_ids: &'static [&'static str],
     pub limitations: &'static [&'static str],
@@ -445,6 +477,31 @@ impl ForceMomentResidualPolicyEntry {
             && self.status == ConvergencePolicyStatus::Accepted
             && !self.evidence_fixture_ids.is_empty()
             && self.limitations == DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_LIMITATIONS
+    }
+}
+
+impl WorkResidualPolicyEntry {
+    pub fn is_accepted_free_dof_work_policy(&self) -> bool {
+        self.policy_ref == DEC_046_FREE_DOF_WORK_POLICY_REF
+            && self.work_residual_basis == DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS
+            && self.work_residual_unit == DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT
+            && self.work_residual_dimension == DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION
+            && self.work_absolute_limit == DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT
+            && self.status == ConvergencePolicyStatus::Accepted
+            && !self.evidence_fixture_ids.is_empty()
+            && self.limitations == DEC_046_FREE_DOF_WORK_LIMITATIONS
+    }
+
+    pub fn is_accepted_multisupport_free_dof_work_policy(&self) -> bool {
+        self.policy_ref == DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF
+            && self.nonlinear_class == "multi_support_multi_dof"
+            && self.work_residual_basis == DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS
+            && self.work_residual_unit == DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT
+            && self.work_residual_dimension == DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION
+            && self.work_absolute_limit == DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT
+            && self.status == ConvergencePolicyStatus::Accepted
+            && !self.evidence_fixture_ids.is_empty()
+            && self.limitations == DEC_046_MULTISUPPORT_FREE_DOF_WORK_LIMITATIONS
     }
 }
 
@@ -627,9 +684,10 @@ impl AssembledNonlinearRegressionCase {
         ForceDisplacementResidualObservation,
         open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
     > {
-        self.force_displacement_residual_observation_with_policy(Some(
-            DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF,
-        ))
+        self.force_displacement_residual_observation_with_policy(
+            Some(DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF),
+            Some(DEC_046_FREE_DOF_WORK_POLICY_REF),
+        )
     }
 
     pub fn observation_only_force_displacement_residual(
@@ -638,7 +696,7 @@ impl AssembledNonlinearRegressionCase {
         ForceDisplacementResidualObservation,
         open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
     > {
-        self.force_displacement_residual_observation_with_policy(None)
+        self.force_displacement_residual_observation_with_policy(None, None)
     }
 
     pub fn multisupport_force_displacement_residual_observation(
@@ -647,14 +705,16 @@ impl AssembledNonlinearRegressionCase {
         ForceDisplacementResidualObservation,
         open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
     > {
-        self.force_displacement_residual_observation_with_policy(Some(
-            DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF,
-        ))
+        self.force_displacement_residual_observation_with_policy(
+            Some(DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF),
+            Some(DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF),
+        )
     }
 
     fn force_displacement_residual_observation_with_policy(
         &self,
-        threshold_policy: Option<&'static str>,
+        force_moment_threshold_policy: Option<&'static str>,
+        work_threshold_policy: Option<&'static str>,
     ) -> Result<
         ForceDisplacementResidualObservation,
         open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
@@ -692,8 +752,8 @@ impl AssembledNonlinearRegressionCase {
             free_dof_moment_residual_unit: "N-m",
             max_abs_free_dof_work_residual: final_residuals.max_abs_free_dof_work_residual,
             free_dof_work_residual_unit: "N-m",
-            free_dof_force_moment_threshold_policy: threshold_policy,
-            free_dof_work_threshold_policy: None,
+            free_dof_force_moment_threshold_policy: force_moment_threshold_policy,
+            free_dof_work_threshold_policy: work_threshold_policy,
         })
     }
 }
@@ -926,6 +986,59 @@ pub fn governed_free_dof_force_moment_policy_entries() -> Vec<ForceMomentResidua
     ]
 }
 
+pub fn governed_free_dof_work_policy_entries() -> Vec<WorkResidualPolicyEntry> {
+    vec![
+        WorkResidualPolicyEntry {
+            policy_ref: DEC_046_FREE_DOF_WORK_POLICY_REF,
+            nonlinear_class: "one_way",
+            work_residual_basis: DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS,
+            work_residual_unit: DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT,
+            work_residual_dimension: DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION,
+            work_absolute_limit: DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"],
+            limitations: DEC_046_FREE_DOF_WORK_LIMITATIONS,
+        },
+        WorkResidualPolicyEntry {
+            policy_ref: DEC_046_FREE_DOF_WORK_POLICY_REF,
+            nonlinear_class: "gap",
+            work_residual_basis: DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS,
+            work_residual_unit: DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT,
+            work_residual_dimension: DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION,
+            work_absolute_limit: DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"],
+            limitations: DEC_046_FREE_DOF_WORK_LIMITATIONS,
+        },
+        WorkResidualPolicyEntry {
+            policy_ref: DEC_046_FREE_DOF_WORK_POLICY_REF,
+            nonlinear_class: "lift_off",
+            work_residual_basis: DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS,
+            work_residual_unit: DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT,
+            work_residual_dimension: DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION,
+            work_absolute_limit: DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-LIFT-OFF-ORIGINAL"],
+            limitations: DEC_046_FREE_DOF_WORK_LIMITATIONS,
+        },
+        WorkResidualPolicyEntry {
+            policy_ref: DEC_046_FREE_DOF_WORK_POLICY_REF,
+            nonlinear_class: "friction",
+            work_residual_basis: DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS,
+            work_residual_unit: DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT,
+            work_residual_dimension: DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION,
+            work_absolute_limit: DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &[
+                "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
+            ],
+            limitations: DEC_046_FREE_DOF_WORK_LIMITATIONS,
+        },
+    ]
+}
+
 pub fn governed_multisupport_convergence_policy_entries() -> Vec<ConvergencePolicyEntry> {
     vec![ConvergencePolicyEntry {
         policy_ref: DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF,
@@ -958,6 +1071,20 @@ pub fn governed_multisupport_free_dof_force_moment_policy_entries(
         status: ConvergencePolicyStatus::Accepted,
         evidence_fixture_ids: &["NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"],
         limitations: DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_LIMITATIONS,
+    }]
+}
+
+pub fn governed_multisupport_free_dof_work_policy_entries() -> Vec<WorkResidualPolicyEntry> {
+    vec![WorkResidualPolicyEntry {
+        policy_ref: DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF,
+        nonlinear_class: "multi_support_multi_dof",
+        work_residual_basis: DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS,
+        work_residual_unit: DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT,
+        work_residual_dimension: DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION,
+        work_absolute_limit: DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT,
+        status: ConvergencePolicyStatus::Accepted,
+        evidence_fixture_ids: &["NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"],
+        limitations: DEC_046_MULTISUPPORT_FREE_DOF_WORK_LIMITATIONS,
     }]
 }
 
@@ -2237,7 +2364,10 @@ mod tests {
             residuals[0].free_dof_force_moment_threshold_policy,
             Some(DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF)
         );
-        assert_eq!(residuals[0].free_dof_work_threshold_policy, None);
+        assert_eq!(
+            residuals[0].free_dof_work_threshold_policy,
+            Some(DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF)
+        );
         assert!(residuals[0].uses_accepted_multisupport_free_dof_force_moment_threshold_policy());
         assert_eq!(residuals[0].max_abs_free_dof_force_residual, 0.0);
         assert_eq!(residuals[0].max_abs_free_dof_moment_residual, 0.0);
@@ -2287,20 +2417,48 @@ mod tests {
     }
 
     #[test]
+    fn governed_free_dof_work_policy_covers_dec_046_classes() {
+        let entries = governed_free_dof_work_policy_entries();
+
+        assert_eq!(entries.len(), 4);
+        assert_eq!(
+            entries
+                .iter()
+                .map(|entry| entry.nonlinear_class)
+                .collect::<Vec<_>>(),
+            vec!["one_way", "gap", "lift_off", "friction"]
+        );
+        for entry in &entries {
+            assert!(
+                entry.is_accepted_free_dof_work_policy(),
+                "{}",
+                entry.nonlinear_class
+            );
+        }
+    }
+
+    #[test]
     fn governed_multisupport_policy_covers_dec_046_non_seed_fixture() {
         let convergence_entries = governed_multisupport_convergence_policy_entries();
         let force_moment_entries = governed_multisupport_free_dof_force_moment_policy_entries();
+        let work_entries = governed_multisupport_free_dof_work_policy_entries();
 
         assert_eq!(convergence_entries.len(), 1);
         assert_eq!(force_moment_entries.len(), 1);
+        assert_eq!(work_entries.len(), 1);
         assert!(convergence_entries[0].is_accepted_multisupport_active_set_count_policy());
         assert!(force_moment_entries[0].is_accepted_multisupport_free_dof_force_moment_policy());
+        assert!(work_entries[0].is_accepted_multisupport_free_dof_work_policy());
         assert_eq!(
             convergence_entries[0].evidence_fixture_ids,
             &["NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"]
         );
         assert_eq!(
             force_moment_entries[0].evidence_fixture_ids,
+            &["NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"]
+        );
+        assert_eq!(
+            work_entries[0].evidence_fixture_ids,
             &["NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"]
         );
     }
@@ -2452,7 +2610,10 @@ mod tests {
             assert_eq!(observation.max_abs_free_dof_force_residual, 0.0);
             assert_eq!(observation.max_abs_free_dof_moment_residual, 0.0);
             assert_eq!(observation.max_abs_free_dof_work_residual, 0.0);
-            assert_eq!(observation.free_dof_work_threshold_policy, None);
+            assert_eq!(
+                observation.free_dof_work_threshold_policy,
+                Some(DEC_046_FREE_DOF_WORK_POLICY_REF)
+            );
         }
 
         assert!(

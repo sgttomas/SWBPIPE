@@ -25,7 +25,8 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 ## Remaining TBDs
 
-- Non-seed force/displacement/energy thresholds, displacement-delta thresholds,
+- Non-seed force/displacement thresholds beyond the accepted multi-support
+  companion, general energy thresholds, displacement-delta thresholds,
   reaction-delta thresholds, sparse default/promotion thresholds, release
   thresholds, and external validation thresholds remain `TBD`.
 - The current assembled validation seed has an accepted active-set
@@ -33,17 +34,46 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - The current assembled validation seed has an accepted free-DOF force/moment
   residual policy under
   `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`.
+- The current assembled validation seed has an accepted final-iteration
+  free-DOF work residual policy under
+  `DEC-046-CV-B-free-dof-work-residual-validation-v1`.
 - The current invented product-preview nonlinear path has an accepted
   active-set changed-support-count policy under
   `DEC-046-CV-B-product-preview-active-set-count-v1`.
 - The current invented product-preview nonlinear path has an accepted free-DOF
   force/moment residual policy under
   `DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1`.
+- The current invented product-preview nonlinear path has an accepted free-DOF
+  work residual policy under
+  `DEC-046-CV-B-product-preview-free-dof-work-residual-v1`.
+- `TP-R4-D9-MULTISUPPORTPOLICY-001` plus `TP-R4-D9-WORKPOLICY-001` add one
+  accepted multi-DOF / multi-support companion fixture under narrow active-set,
+  free-DOF force/moment, and free-DOF work residual policies.
 - `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
   multi-support assembled fixture under `TP-R4-D9-MULTISUPPORT-OBS-TBD`; it is
   not part of the accepted current assembled validation seed policy.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-WORKPOLICY-001
+
+- Promoted bounded `DEC-046` final-iteration free-DOF work residual policies
+  for the current public-original assembled validation seed, the current
+  invented product-preview nonlinear surface, and the accepted Ux/Uy
+  multi-support companion fixture.
+- Added machine-readable policy evidence at
+  `validation/benchmarks/nonlinear/free_dof_work_policy.dec046.json` and
+  `validation/benchmarks/nonlinear/multisupport_free_dof_work_policy.dec046.json`.
+- Updated nonlinear benchmark observations, hand-calculation notes,
+  product-preview metadata, and regression guards so accepted work residual
+  products carry `0.0 N-m` limits while general energy,
+  displacement/reaction-delta, sparse-default, external validation, release,
+  and broader non-seed threshold axes remain open.
+- Boundary preserved: no general energy, displacement-delta, reaction-delta,
+  sparse-default, external validation, release-readiness, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-WORKPOLICY-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORTOBS-001
 

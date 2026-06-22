@@ -46,10 +46,11 @@ fixture.
 | Expected diagnostic | none | label | dimensionless |
 
 This fixture demonstrates a narrow accepted multi-support / multi-DOF
-validation policy under `DEC-046`. It does not promote displacement-delta,
-reaction-delta, free-DOF work/energy, sparse default, product-preview, release,
-external validation, or CI thresholds.
+validation policy under `DEC-046`, including final-iteration free-DOF residual
+work products. It does not promote displacement-delta, reaction-delta, general
+energy, sparse default, product-preview, release, external validation, or CI
+thresholds.
 
 Tolerance policy: `DEC-046-CV-B-multisupport-active-set-count-validation-v1`.
 Free-DOF force/moment residual policy: `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`.
-Free-DOF work residual threshold policy: `TBD`.
+Free-DOF work residual policy: `DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1`.
