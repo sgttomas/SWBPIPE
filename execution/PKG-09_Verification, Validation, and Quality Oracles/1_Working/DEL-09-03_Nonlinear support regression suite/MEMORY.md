@@ -85,6 +85,22 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
 
+## 2026-06-22 - TP-R4-D9-DISPREACTIONOBSLEDGER-001
+
+- Refreshed
+  `validation/benchmarks/nonlinear/multisupport_displacement_reaction_delta_observation.dec046.json`
+  so the source observation ledger names the same ten accepted multi-support
+  fixture IDs as the accepted displacement/reaction-delta policy record.
+- Added focused Python regression coverage that compares the multi-support
+  displacement/reaction observation ledger fixture IDs against the accepted
+  policy fixture IDs and the expected ten-fixture inventory.
+- Boundary preserved: the observation record remains an observation ledger with
+  threshold policy semantics recorded separately; no new displacement/reaction
+  threshold, general energy threshold, release-readiness, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-DISPREACTIONOBSLEDGER-001.md`.
+
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORT4CLASS-001
 
 - Added `NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL`, an invented

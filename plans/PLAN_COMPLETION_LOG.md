@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 displacement/reaction observation ledger refresh (`TP-R4-D9-DISPREACTIONOBSLEDGER-001`)
+
+Refreshed the standalone multi-support displacement/reaction-delta observation
+ledger so its evidence fixture IDs match the accepted ten-fixture
+multi-support policy set.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear/multisupport_displacement_reaction_delta_observation.dec046.json`
+  now names the negative-direction gap/one-way and four-class fixtures in
+  addition to the prior eight accepted multi-support companions.
+- `tests/test_nonlinear_support_regression.py` now compares the observation
+  ledger fixture IDs against the accepted displacement/reaction-delta policy
+  fixture IDs and the expected ten-fixture inventory.
+- DEL-09-03 memory and run records document the metadata refresh and preserved
+  boundary.
+
+Focused validation: focused nonlinear pytest passed 8/8; JSON syntax
+validation passed for the refreshed observation ledger; `git diff --check`
+passed. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T131130Z_d4165f4fa5fe-dirty.json`.
+
+Residuals: this refresh does not alter the remaining D6/D9 gaps: non-seed
+force/displacement thresholds beyond the accepted ten-fixture set, broader
+displacement/reaction-delta thresholds beyond the accepted current-seed,
+ten-fixture, and product-preview surfaces, general energy thresholds, default
+sparse promotion plus sparse timing/memory/conditioning/CI/hardware-normalized
+thresholds, deeper spring-hanger behavior, external validation thresholds,
+broader R4 validation package work, and final R4 exit evidence remain open.
+
+Boundary: metadata parity only. No protected standards content, proprietary
+benchmark output, private project data, lifecycle transition, release-readiness
+claim, professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-DISPREACTIONOBSLEDGER-001.md`.
+
 ## 2026-06-22 - R4 D9 four-class multi-support companion (`TP-R4-D9-MULTISUPPORT4CLASS-001`)
 
 Broadened the accepted `DEC-046` multi-support companion set with a

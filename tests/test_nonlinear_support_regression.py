@@ -54,6 +54,12 @@ MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_RECORD = (
 DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF = (
     "DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1"
 )
+MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_RECORD = (
+    BENCHMARK_DIR / "multisupport_displacement_reaction_delta_observation.dec046.json"
+)
+DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF = (
+    "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1"
+)
 
 REQUIRED_FAMILIES = {
     "ActiveSet",
@@ -363,6 +369,11 @@ def test_assembled_global_loop_seed_uses_governed_policy():
             encoding="utf-8"
         )
     )
+    multisupport_displacement_reaction_delta_observation_record = json.loads(
+        MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_RECORD.read_text(
+            encoding="utf-8"
+        )
+    )
 
     assert "assembled_fixture_inventory" in source
     assert "assembled_convergence_observations" in source
@@ -422,6 +433,10 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_RECORD.name in benchmark_readme
     assert MULTISUPPORT_FREE_DOF_WORK_POLICY_RECORD.name in benchmark_readme
     assert MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_RECORD.name in benchmark_readme
+    assert (
+        MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_RECORD.name
+        in benchmark_readme
+    )
     assert "## Provenance" in observation_note
     assert "## Invented Inputs" in observation_note
     assert "## Active-Set Expected Values" in observation_note
@@ -625,5 +640,34 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert multisupport_delta_entry["moment_reaction_delta_absolute_limit"] == 3.0
     assert (
         multisupport_delta_entry["evidence_fixture_ids"]
+        == EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS
+    )
+    assert (
+        multisupport_displacement_reaction_delta_observation_record["record_id"]
+        == DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF
+    )
+    assert (
+        multisupport_displacement_reaction_delta_observation_record["decision_ref"]
+        == "DEC-046"
+    )
+    assert (
+        multisupport_displacement_reaction_delta_observation_record["status"]
+        == "observation_only_threshold_tbd"
+    )
+    assert [
+        entry["nonlinear_class"]
+        for entry in multisupport_displacement_reaction_delta_observation_record["entries"]
+    ] == ["multi_support_multi_dof"]
+    multisupport_delta_observation_entry = (
+        multisupport_displacement_reaction_delta_observation_record["entries"][0]
+    )
+    assert (
+        multisupport_delta_observation_entry["observation_ref"]
+        == DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF
+    )
+    assert multisupport_delta_observation_entry["threshold_policy_ref"] is None
+    assert (
+        multisupport_delta_observation_entry["evidence_fixture_ids"]
+        == multisupport_delta_entry["evidence_fixture_ids"]
         == EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS
     )
