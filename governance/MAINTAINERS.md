@@ -18,7 +18,7 @@ This file defines the initial maintainer policy skeleton for OpenPipeStress. It 
 
 This draft maintainer policy is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-006` coordination authority. Those artifacts define current package and
+`DAG-007` coordination authority. Those artifacts define current package and
 deliverable scope and active dependency relationships; they do not by
 themselves approve releases, lifecycle transitions, professional reliance,
 code-compliance claims, or final governance decisions.
@@ -29,7 +29,7 @@ code-compliance claims, or final governance decisions.
 |---|---|
 | Project intent | Source-available noncommercial piping stress analysis platform |
 | Decomposition authority | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` |
-| Coordination graph authority | `execution/_DAG/DAG-006/` active edge set; candidate rows remain non-gating |
+| Coordination graph authority | `execution/_DAG/DAG-007/` active edge set; candidate rows remain non-gating |
 | License | `PolyForm-Noncommercial-1.0.0`; see `LICENSE.md` and `https://polyformproject.org/licenses/noncommercial/1.0.0` |
 | Contributor certification mechanism | Interim project certification template in `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; final DCO/CLA/other mechanism remains `TBD` |
 | Maintainer roster | `TBD` |

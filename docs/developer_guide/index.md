@@ -23,7 +23,7 @@ OpenPipeStress keeps three responsibilities separate:
   output.
 
 Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.7` and approved `execution/_DAG/DAG-006/`. `DAG-006` is graph
+revision `0.7` and approved `execution/_DAG/DAG-007/`. `DAG-007` is graph
 coordination authority only; it does not dispatch implementation work, move
 lifecycle states, approve deliverables, or create professional, release, or
 code-compliance claims.

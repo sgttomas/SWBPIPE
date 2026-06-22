@@ -19,8 +19,8 @@ refs:
 Verification proves that the software solves the stated mechanics problem correctly within declared tolerances. Validation evaluates whether the software workflow is fit for its intended engineering support role. Neither replaces project-specific professional judgment.
 
 This draft is aligned to `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.7` and approved `execution/_DAG/DAG-006/` graph coordination
-authority. `DAG-006` preserves dependency coordination and does not itself
+revision `0.7` and approved `execution/_DAG/DAG-007/` graph coordination
+authority. `DAG-007` preserves dependency coordination and does not itself
 authorize lifecycle changes, release labels, professional approval, legal
 clearance, certification, sealing, authentication, or code-compliance claims.
 

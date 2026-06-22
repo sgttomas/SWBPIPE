@@ -68,9 +68,9 @@ subscopes are separable, briefs are explicit, and write scopes are disjoint.
 Dependency-register work is governed by the canonical v3.1 type system. New or
 refreshed dependency rows must emit only canonical core enum values; legacy
 labels from historical DAGs are read-only migration inputs and must be preserved
-as provenance notes rather than re-emitted. `DAG-007` is the canonical
-type-system rectification successor pending human approval; do not treat it as
-current graph authority or update `_DAG/_LATEST.md` until that approval exists.
+as provenance notes rather than re-emitted. `DAG-007` is the current approved
+canonical type-system rectification graph authority; `DAG-001` through
+`DAG-006` remain immutable historical snapshots.
 
 Agents may write inside the selected tranche scope, required evidence and
 coordination artifacts, and project-local plans created under the issue-plan

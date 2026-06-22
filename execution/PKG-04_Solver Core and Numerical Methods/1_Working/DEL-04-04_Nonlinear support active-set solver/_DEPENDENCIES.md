@@ -50,7 +50,7 @@
 ## Downstream Handoff Notes
 
 - This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
-- `DAG-007` remains a canonical type-system rectification successor pending human approval; this refresh does not update `_DAG/_LATEST.md`.
+- `DAG-007` is the current approved canonical graph authority; this deliverable-local register remains reconciliation evidence, not aggregate DAG authority.
 - Candidate/non-gating relationships remain outside `Status=CANDIDATE`; promotion requires explicit graph approval and revalidation.
 - Validation: PASS (`python3 tools/validation/validate_dependencies_schema.py Dependencies.csv`).
 - This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.

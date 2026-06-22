@@ -1,15 +1,15 @@
 ---
-doc_id: DEV-001-AGGREGATE-DAG-AUDIT
+doc_id: DAG-007-AGGREGATE-DAG-AUDIT
 doc_kind: coordination.audit
 status: generated
-created: 2026-04-30
+created: 2026-06-16
 ---
 
-# DEV-001 Aggregate DAG Audit
+# DAG-007 Aggregate DAG Audit
 
 ## Authority
 
-- Source of truth: `execution/_DAG/DAG-001/DependencyEdges.csv`.
+- Source of truth: `execution/_DAG/DAG-007/DependencyEdges.csv`.
 - Local `Dependencies.csv` files are synchronized mirrors, not independent sequencing authority.
 - `CANDIDATE` rows remain non-gating.
 - Canonical dependency enum mode: True.
@@ -77,4 +77,3 @@ created: 2026-04-30
 - DEL-04-01: in=12 out=8 total=20
 - DEL-06-01: in=8 out=12 total=20
 - DEL-13-04: in=5 out=15 total=20
-

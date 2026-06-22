@@ -33,7 +33,7 @@ This deliverable defines persistence architecture only; it does not implement sc
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for package and deliverable authority.
 - `docs/_Registers/Deliverables.csv` row DEL-00-04 for scope identity.
 - `docs/_Registers/ScopeLedger.csv` rows SOW-059 for scope mapping.
-- `execution/_Coordination/_COORDINATION.md` for approved DAG-006 graph authority and `SEMANTIC_READY` architecture-basis handling.
+- `execution/_Coordination/_COORDINATION.md` for approved DAG-007 graph authority and `SEMANTIC_READY` architecture-basis handling.
 
 ## TBD and Human-Ruling Slots
 - TBD: Physical project file format

@@ -24,7 +24,8 @@ New contributors should start with the tutorial path in
 agentic workflow map in
 [`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](docs/AGENTIC_DEVELOPMENT_WORKFLOW.md)
 before changing files. These onboarding documents are navigation aids only;
-the governance documents above, an assigned sealed brief, approved DAG records,
+the governance documents above, an assigned sealed brief, the approved DAG-007
+graph record,
 deliverable-local lifecycle files, review dispositions, and human
 project-authority decisions remain controlling when they conflict.
 
@@ -36,7 +37,7 @@ code-compliance determination.
 
 This draft contributor workflow is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-006` coordination authority. The project license has been selected as
+`DAG-007` coordination authority. The project license has been selected as
 `PolyForm-Noncommercial-1.0.0`; this is a project governance notice, not legal
 advice or a contributor legal mechanism.
 

@@ -22,7 +22,7 @@ preserved.
 
 This draft notice template is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-006` coordination authority. The project license has been selected as
+`DAG-007` coordination authority. The project license has been selected as
 `PolyForm-Noncommercial-1.0.0`; report notices may cite that project license
 notice, but it is not legal advice, professional approval, or code-compliance
 evidence.

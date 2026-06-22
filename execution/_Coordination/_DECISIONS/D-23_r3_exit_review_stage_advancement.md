@@ -61,8 +61,9 @@ These remain explicit and do not disappear if the stage advances:
 - Formal deliverable lifecycle remains unchanged. The status helper currently
   reports `CHECKING=8`, `IN_PROGRESS=92`, `ISSUED=1`; no lifecycle states are
   changed by this decision packet.
-- `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
-  `DAG-006`.
+- At the time of this D-23 packet, `DAG-007` remained pending human approval
+  and `_DAG/_LATEST.md` stayed on `DAG-006`. The separate 2026-06-22 DAG-007
+  approval later promoted `DAG-007`; D-23 did not itself promote it.
 - Phase B-tail unit-aware I/O residuals are recorded as not R3-blocking in the
   completion plan.
 - Future Phase D decisions remain at their named lead-ups: `D-15` spring-hanger

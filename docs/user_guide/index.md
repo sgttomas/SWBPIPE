@@ -14,7 +14,7 @@ This guide is the initial user-facing structure for OpenPipeStress. It is
 grounded in the current repository surfaces: schema contracts, bounded core
 modules, invented examples, policy documents, and draft workflow contracts.
 Current guide authority is `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.7` with approved `execution/_DAG/DAG-006/` coordination authority.
+revision `0.7` with approved `execution/_DAG/DAG-007/` coordination authority.
 
 OpenPipeStress is decision-support software for open, auditable piping
 mechanics. Users supply project data, private libraries, rule packs, owner

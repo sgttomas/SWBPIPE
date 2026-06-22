@@ -14,6 +14,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - DAG-007 approved as current dependency graph authority (`TP-DAG007-APPROVAL-001`)
+
+Human approval promoted `execution/_DAG/DAG-007/` from validated canonical
+dependency type-system rectification successor to current graph authority.
+`execution/_DAG/_LATEST.md`, the DAG-007 approval package, coordination entry
+protocol, project-local agent posture, current-facing docs, the active
+completion plan, generated `_DEPENDENCIES.md` graph-authority summaries,
+PKG-00 current kit references, governance/contribution templates, the tool
+registry, and the dependency-type rectification plan now route to approved
+`DAG-007`.
+
+Graph facts at approval: 101 deliverable nodes, 1,480 edge rows, 1,395 active
+register rows, 85 retired rows, zero candidate rows, 972 unique directed active
+graph edges, zero active SCCs, zero duplicate active directed edges, zero
+bidirectional active pairs, and 15 topological waves.
+
+Validation: dependency schema validation passed for
+`execution/_DAG/DAG-007/DependencyEdges.csv`; canonical strict DAG audit passed
+via the repo-root `tools/coordination/audit_dag.py`; `dag.json` and `DAG_Audit.json`
+passed JSON syntax checks; `list_deliverable_status.py --dag DAG-007` reported
+101 rows (`CHECKING=8`, `IN_PROGRESS=92`, `ISSUED=1`); focused
+`tests/test_release_readiness_script.py` passed after updating its latest-DAG
+expectations; full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T135307Z_95d0a6b5e0c0-dirty.json`.
+
+Boundary: `DAG-001` through `DAG-006` remain immutable historical snapshots.
+This approval does not change lifecycle state, dispatch Type 2 work, promote
+candidate rows, create release-readiness claims, or create professional,
+certification, sealing, authentication, or code-compliance claims.
+
 ## 2026-06-22 - R4 D7 sparse storage-footprint observations (`TP-R4-D7-SPARSESTORAGEOBS-001`)
 
 Added deterministic storage-footprint observations to the DEC-050 sparse

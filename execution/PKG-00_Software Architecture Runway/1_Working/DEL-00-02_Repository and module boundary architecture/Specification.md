@@ -29,9 +29,9 @@ This specification governs only `DEL-00-02` inside `PKG-00 - Software Architectu
 - `OPS-K-AGENT-3`: Type 2 execution stays within sealed deliverable scope.
 
 ## Interface Commitments
-- Upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, the SCA-001/SCA-003/SCA-004 architecture-basis records, and approved `execution/_DAG/DAG-006/` graph authority.
+- Upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, the SCA-001/SCA-003/SCA-004 architecture-basis records, and approved `execution/_DAG/DAG-007/` graph authority.
 - Downstream consumers may use this deliverable as AB-00-02 architecture-basis context only through sealed briefs and governed review/dispatch surfaces; this does not make PKG-00 ISSUED.
-- DAG-006 is approved graph authority for relationship context; lifecycle state remains deliverable-local, and PKG-00 architecture-basis rows are not implementation or release-readiness claims.
+- DAG-007 is approved graph authority for relationship context; lifecycle state remains deliverable-local, and PKG-00 architecture-basis rows are not implementation or release-readiness claims.
 
 ## Human Review Gate
 Human review must decide whether the architecture content is sufficient to support later PKG-01 through PKG-12 planning. `SEMANTIC_READY` means prepared for review; it does not mean accepted or issued.

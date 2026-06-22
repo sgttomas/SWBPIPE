@@ -305,7 +305,7 @@ def render_dependencies_md(path: Path, rows: list[dict[str, str]], candidate_cou
             "",
             "## Coordination Mode",
             "- **Mode:** FULL_GRAPH",
-            "- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.",
+            "- **Graph Authority:** `execution/_DAG/DAG-007/` is the current approved canonical graph authority.",
             "- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.",
             "",
             "## Declared Upstream Dependencies",

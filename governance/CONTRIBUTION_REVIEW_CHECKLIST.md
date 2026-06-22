@@ -24,7 +24,7 @@ Use this checklist before accepting contributions that add or modify public data
 
 This draft checklist is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-006` coordination authority. The project license has been selected as
+`DAG-007` coordination authority. The project license has been selected as
 `PolyForm-Noncommercial-1.0.0`; this checklist records contribution-source
 rights and redistribution evidence separately from that project license notice.
 

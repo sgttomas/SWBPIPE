@@ -20,9 +20,9 @@
 - docs/_Registers/ContextBudgetQA.csv - Context budget row for DEL-00-01.
 
 ## Coordination References
-- execution/_Coordination/_COORDINATION.md - approved DAG-006 graph authority, architecture-basis context rules, and lifecycle-state discovery.
+- execution/_Coordination/_COORDINATION.md - approved DAG-007 graph authority, architecture-basis context rules, and lifecycle-state discovery.
 - execution/_Coordination/NEXT_INSTANCE_PROMPT.md - Stable ORCHESTRATOR control-loop instructions.
-- Current state is discovered from deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, and approved DAG-006 surfaces; there is no separate mutable handoff-state authority.
+- Current state is discovered from deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, and approved DAG-007 surfaces; there is no separate mutable handoff-state authority.
 
 ## Notes
 - No source material beyond governing documents, registers, and coordination records is introduced by PREPARATION.

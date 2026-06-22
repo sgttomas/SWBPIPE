@@ -42,11 +42,10 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 
 The current decomposition authority is
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`, coordinated by
-approved `DAG-006` under `execution/_DAG/DAG-006/`. `DAG-006` is an immutable
-historical snapshot with legacy dependency enum values. `DAG-007` has been
-generated as the canonical dependency type-system rectification successor and
-is pending human approval before `_DAG/_LATEST.md` or current-authority
-coordination pointers move to it. Revision `0.7` carries the accepted
+approved `DAG-007` under `execution/_DAG/DAG-007/`. `DAG-007` is the current
+canonical dependency type-system rectification graph authority. `DAG-001`
+through `DAG-006` remain immutable historical snapshots; `DAG-006` preserves
+the prior approved legacy-enum graph context. Revision `0.7` carries the accepted
 architecture runway, design-engine and persistence amendments, and
 export-format interoperability scope into the active working surface.
 

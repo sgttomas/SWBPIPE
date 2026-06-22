@@ -1,14 +1,17 @@
 ---
 doc_id: DAG-007-TOPOLOGICAL-WAVES
 doc_kind: coordination.topological_waves
-status: proposed_pending_approval
+status: approved_active_graph_authority
 created: 2026-06-16
+approval_status: approved_2026-06-22
 ---
 
 # DAG-007 Topological Waves
 
-These waves are computed from the refreshed deliverable-local `Dependencies.csv` registers; `DAG-006` supplies the node/path baseline only.
-Candidate rows are excluded from the active graph and remain in the non-authoritative candidate worklist.
+These waves are computed from the refreshed deliverable-local `Dependencies.csv`
+registers. `DAG-006` supplied the node/path baseline only. Candidate rows are
+excluded from the active graph and remain in the non-authoritative candidate
+worklist.
 
 | Wave | Node count | Deliverables |
 |---|---:|---|

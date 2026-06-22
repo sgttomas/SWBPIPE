@@ -93,7 +93,7 @@ non-authoritative worklist items until promoted by a human-gated graph refresh;
 they are not emitted as `Status=CANDIDATE`.
 
 `DAG-001` through `DAG-006` remain immutable historical snapshots with legacy
-read compatibility. Current successors, beginning with the proposed `DAG-007`
+read compatibility. Current successors, beginning with the approved `DAG-007`
 rectification package, must validate in canonical mode and may preserve legacy
 labels only as provenance notes or extension metadata.
 

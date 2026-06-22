@@ -22,7 +22,7 @@ This deliverable defines GUI interaction architecture only; it does not implemen
 ## Guardrails
 - Do not copy or paraphrase protected standards tables, code text, or proprietary engineering values.
 - Do not claim code compliance or professional approval.
-- Use approved `DAG-006` only for relationship context; do not infer lifecycle promotion, implementation readiness, or release acceptance from graph edges.
+- Use approved `DAG-007` only for relationship context; do not infer lifecycle promotion, implementation readiness, or release acceptance from graph edges.
 - Do not advance PKG-01 through PKG-12 from this deliverable.
 
 ## Human-Ruling Queue

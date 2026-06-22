@@ -21,8 +21,8 @@ software quality. It does not certify a piping model, decide code compliance,
 authenticate a professional judgment, or approve project-specific reliance.
 
 Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.7` and approved `execution/_DAG/DAG-006/` graph coordination
-authority. `DAG-006` supplies active dependency context only; it does not
+revision `0.7` and approved `execution/_DAG/DAG-007/` graph coordination
+authority. `DAG-007` supplies active dependency context only; it does not
 settle lifecycle state, release labels, legal clearance, professional approval,
 certification, sealing, authentication, or code-compliance claims.
 

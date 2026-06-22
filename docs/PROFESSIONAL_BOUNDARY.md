@@ -33,7 +33,7 @@ code-compliance determination.
 
 This draft policy is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-006` coordination authority. The project license has been selected as
+`DAG-007` coordination authority. The project license has been selected as
 `PolyForm-Noncommercial-1.0.0`; this is a project governance notice and not
 legal advice, professional approval, or code-compliance evidence.
 

@@ -2,8 +2,17 @@
 
 **Date:** 2026-06-16
 **Scope:** `projects/chirality-piping`
-**Status:** implementation brief for a later agent; not yet applied
+**Status:** implemented; `DAG-007` approved as current graph authority on 2026-06-22
 **Owner workflow:** WORKING_ITEMS or RECONCILIATION, with CHANGE closeout after validation
+
+## 2026-06-22 Approval Closeout
+
+The prepared `DAG-007` package was human-approved on 2026-06-22 and
+`execution/_DAG/_LATEST.md` now points to `execution/_DAG/DAG-007/`.
+`DAG-001` through `DAG-006` remain immutable historical snapshots with legacy
+dependency enum values; current dependency writes use the canonical v3.1 enum
+surface. A later decomposition revision or SCA remains the trigger for
+`DAG-008` or a later graph successor.
 
 ## Objective
 
@@ -227,7 +236,7 @@ Update `projects/chirality-piping/docs/SPEC.md`:
 Update workflow docs:
 
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`: dependency-resolution phase must require canonical enum validation.
-- `docs/PLAN.md`: route "what depends on what" to the current approved canonical DAG after `DAG-007` exists; before then, name `DAG-006` as legacy pending rectification.
+- `docs/PLAN.md`: route "what depends on what" to the current approved canonical DAG. As of the 2026-06-22 approval closeout, that graph is `DAG-007`.
 - `docs/README.md`: mention that current dependency authority must pass canonical enum validation.
 - `AGENTS.md`: add a project-local instruction that dependency edits must preserve root canonical enum fields.
 - `_COORDINATION.md` and `NEXT_INSTANCE_PROMPT.md`: after `DAG-007` approval, update current DAG references from `DAG-006` to `DAG-007`.
@@ -368,4 +377,3 @@ The work is complete only when all criteria below hold:
 - Do not rewrite historical approved DAG snapshots.
 - Do not silently linearize cycles.
 - Do not discard legacy provenance; preserve it in notes, worklists, or audit evidence.
-

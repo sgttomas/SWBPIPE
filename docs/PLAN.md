@@ -32,7 +32,7 @@ This document does not restate the authorities below; it routes to them.
 | What must be built; the release yardstick | [PRD.md](PRD.md) §10 (functional requirements), §22 (release milestones) |
 | Binding invariants | [CONTRACT.md](CONTRACT.md) |
 | Public/private data and protected-content boundary | [IP_AND_DATA_BOUNDARY.md](IP_AND_DATA_BOUNDARY.md), [PROFESSIONAL_BOUNDARY.md](PROFESSIONAL_BOUNDARY.md) |
-| What depends on what | [execution/_Decomposition/SOFTWARE_DECOMP.md](../execution/_Decomposition/SOFTWARE_DECOMP.md), approved [DAG-006](../execution/_DAG/DAG-006/) until the canonical [DAG-007](../execution/_DAG/DAG-007/) rectification package receives human approval |
+| What depends on what | [execution/_Decomposition/SOFTWARE_DECOMP.md](../execution/_Decomposition/SOFTWARE_DECOMP.md), approved canonical [DAG-007](../execution/_DAG/DAG-007/) graph authority |
 | How work executes; the current target-stage standard | [execution/_Coordination/_COORDINATION.md](../execution/_Coordination/_COORDINATION.md) ("Working Desktop Application Standard") — **authoritative for the stage gate** |
 | Tactical tranche selection | the active [plans/PLAN_2026-06-17_prd_completion.md](../plans/PLAN_2026-06-17_prd_completion.md) |
 | Human decision preparation and rulings | [execution/_Coordination/_DECISIONS/_REGISTER.md](../execution/_Coordination/_DECISIONS/_REGISTER.md) |
@@ -91,8 +91,8 @@ tranches through a fixed chain of surfaces:
 - **Intent → Requirements.** `INTENT.md` (why / what must remain true) and the
   `PRD.md` (what must be built, §10 FRs and §22 milestones) define the target.
 - **Requirements → Structure.** `SOFTWARE_DECOMP.md` decomposes the PRD into a
-  flat package/deliverable set; approved `DAG-006` records what depends on what
-  until the canonical `DAG-007` rectification package is human-approved.
+  flat package/deliverable set; approved `DAG-007` records what depends on
+  what.
 - **Structure → Execution.** `_COORDINATION.md` is the operational control
   plane: the Application Integration And Issuance Loop, the staged Working
   Desktop Application Standard (the current target stage lives here), bounded
@@ -123,8 +123,8 @@ edges non-gating until resolved. This localizes the subjective calls to
 cycle-closing edges and keeps them auditable. `DAG-007` was generated for the
 2026-06-16 dependency type-system rectification, preserving the approved
 `DAG-006` active topology while moving current write-form registers to the
-canonical enum model; `_DAG/_LATEST.md` stays on `DAG-006` until human
-approval. Later DAG versions remain event-driven by a decomposition revision /
+canonical enum model; it was approved as the current graph authority on
+2026-06-22. Later DAG versions remain event-driven by a decomposition revision /
 SCA or another explicit governance rectification, not periodic. The canonical
 doctrine is the shared repo-root
 [CYCLE_DRIVEN_RESOLUTION.md](../../../docs/CYCLE_DRIVEN_RESOLUTION.md); the

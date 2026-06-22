@@ -24,7 +24,7 @@ standards-body endorsement, or a code-compliance determination.
 
 This draft template is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-006` coordination authority. The project license has been selected as
+`DAG-007` coordination authority. The project license has been selected as
 `PolyForm-Noncommercial-1.0.0`; source-license and redistribution fields below
 record the submitted material's basis and do not replace that project license
 notice.
