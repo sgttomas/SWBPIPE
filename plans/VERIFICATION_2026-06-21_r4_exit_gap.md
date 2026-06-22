@@ -45,19 +45,45 @@ R4 deliverable families named by the same section:
    changed-support-count residual. It does not govern force residuals,
    displacement residuals, energy residuals, sparse live-path behavior,
    product-preview non-active-set threshold axes, or external validation thresholds.
-2. **Sparse default promotion remains follow-on under `DEC-050`.**
+2. **The current assembled nonlinear fixtures are validation seeds, not
+   PRD-depth convergence coverage.** The current assembled seed cases exercise
+   small invented systems and active-set state transitions. They do not yet
+   demonstrate multi-DOF / multi-support nonlinear equilibrium behavior under
+   force, displacement, or energy residual acceptance criteria.
+3. **The expansion-joint macro-element ruling is not implemented as assembled
+   mechanics.** `DEC-045` selected a dedicated EJ user-stiffness macro-element
+   direction, but the landed D4 slice records user-stiffness review rows and
+   provenance only. A solver-consumed EJ stiffness element and pressure-thrust
+   load generation remain open.
+4. **Sparse default promotion remains follow-on under `DEC-050`.**
    `TP-R4-D7-SPARSELIVE-001` closes the R4 sparse evidence-lane adoption item:
-   the sparse skyline solver observes reduced live systems while dense remains
-   default. Profile-direct sparse assembly and default sparse promotion are not
-   closed by this packet.
-3. **Deeper spring-hanger behavior is not closed by D5.**
+   the sparse skyline solver observes dense-reduced live systems while dense
+   remains default. It does not provide profile-direct sparse assembly or a
+   scale benefit yet, and default sparse promotion is not closed by this packet.
+5. **Deeper spring-hanger behavior is not closed by D5.**
    `TP-R4-D5-HANGERDATA-001` intentionally lands user-entered variable spring
    and constant-effort support data/review evidence only. It does not authorize
    catalog sizing, protected/default values, or full constant-effort solve
    behavior.
-4. **No human R4 exit review packet is ready.** This file is a gap packet, not
+6. **No human R4 exit review packet is ready.** This file is a gap packet, not
    the final `VERIFICATION_<date>_r4_exit_chain.md` successor for human R4 exit
    review.
+
+## External Review Caveats
+
+A 2026-06-21 adversarial review of the Phase D evidence upheld this packet's
+`not ready` verdict and added these planning caveats:
+
+- do not read Phase D green tests as whole-plan green;
+- D6/D9 convergence evidence is currently active-set bookkeeping plus
+  observations, not governed force/displacement/energy equilibrium acceptance;
+- D4 does not yet contain a solver-consumed EJ stiffness macro-element;
+- D7 computes sparse evidence after dense reduction/assembly and is not a
+  default or scale path;
+- D8 provenance reaches the hash-bound report path, but a cross-layer
+  TypeScript-to-Rust provenance test remains useful;
+- Phase E/R5, B-tail breadth, and R3 exit usability substance were outside that
+  audit's verified scope.
 
 ## Boundary Review
 
@@ -82,8 +108,9 @@ R4 is **not ready** for human exit review. The strongest current evidence is:
   active-set-count policy for one-way, gap, lift-off, and friction classes.
 
 The decisive blockers are the intentionally unpromoted convergence-policy
-surfaces outside the current assembled validation seed, profile-direct
-sparse/default promotion if required by the R4 exit review, and deeper
-spring-hanger behavior if the R4 exit review requires more than the minimal
-user-data path. The next ordinary Phase D dependency-spine item is D9 exit
-evidence/readiness after the landed D7 sparse evidence lane.
+surfaces outside the current assembled validation seed, multi-DOF /
+multi-support nonlinear fixture depth, the unimplemented assembled EJ
+macro-element, profile-direct sparse/default promotion if required by the R4
+exit review, and deeper spring-hanger behavior if the R4 exit review requires
+more than the minimal user-data path. The next ordinary Phase D dependency-spine
+item is D9 exit evidence/readiness after the landed D7 sparse evidence lane.

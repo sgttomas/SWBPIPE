@@ -69,8 +69,8 @@
      `TP-R4-D3-RIGIDVIS-001` with `mechanics_geometry_only`
      data/provenance/diagnostic evidence and no frame-stiffness behavior
      change. D4 expansion-joint app absorption landed through
-     `TP-R4-D4-EJSTIFF-001` with user-stiffness macro-element review rows and
-     no full assembled global solve or pressure-thrust load generation claim.
+     `TP-R4-D4-EJSTIFF-001` with user-stiffness review rows; the `DEC-045`
+     EJ solver macro-element and pressure-thrust load generation remain open.
      D5 spring-hanger user-data model evidence landed through
      `TP-R4-D5-HANGERDATA-001` under `DEC-049`, with invented variable spring
      and constant-effort support records and no catalog sizing, protected
@@ -92,9 +92,12 @@
      for that assembled validation seed only. Mixed one-way/gap/friction
      product live-loop coverage is landed for one invented dense solve.
      `TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` live sparse evidence lane
-     while dense remains default. Non-seed convergence thresholds,
-     profile-direct sparse/default promotion, deeper spring-hanger behavior,
-     and the remaining D9 validation package remain open. `D-20` is held for
+     while dense remains default. `TP-R4-D9-EXITGAP-001` records the current R4
+     exit verdict as not ready: non-seed force/displacement/energy threshold
+     promotion, multi-DOF / multi-support nonlinear fixture depth,
+     profile-direct sparse/default promotion, EJ assembled macro-element
+     mechanics, deeper spring-hanger behavior, and the remaining D9 validation
+     package remain open. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

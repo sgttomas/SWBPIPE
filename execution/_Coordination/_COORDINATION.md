@@ -264,8 +264,8 @@ landed for the invented preview path through `TP-R4-D3-RIGIDVIS-001`, with
 `mechanics_geometry_only` data/provenance/diagnostic evidence and no
 frame-stiffness behavior change. D4 expansion-joint app absorption landed for
 the invented preview path through `TP-R4-D4-EJSTIFF-001`, with user-stiffness
-macro-element review rows and no full assembled global solve or pressure-thrust
-load generation claim. D5 spring-hanger user-data model evidence landed through
+review rows; the `DEC-045` EJ solver macro-element and pressure-thrust load
+generation remain open. D5 spring-hanger user-data model evidence landed through
 `TP-R4-D5-HANGERDATA-001` under `DEC-049`, covering invented variable spring
 and constant-effort support records without catalog sizing, protected defaults,
 hidden support values, or professional/code-compliance claims. The loop-core
@@ -292,13 +292,13 @@ assembled validation seed only: active-set changed-support-count residual,
 relative tolerance `0.0`, absolute floor `0.0`, max iteration cap `4`, keyed to
 one-way/gap/lift-off/friction classes. `TP-R4-D6-LIVEBUNDLE-001` added mixed
 one-way/gap/friction product live-loop coverage in one invented dense solve.
-Sparse live-path adoption, non-seed convergence thresholds, deeper
-spring-hanger behavior, and the R4 exit evidence package remain open. D7
-sparse live-path timing is ruled by
-`DEC-050`: add a live sparse evidence lane while dense remains default and
-profile-direct assembly/default promotion follow on. The remaining spine
-continues with D7 sparse evidence-lane adoption and broader D9 R4 validation
-evidence.
+`TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` sparse evidence lane while dense
+remains default and profile-direct assembly/default promotion follow on.
+`TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
+non-seed force/displacement/energy threshold promotion, multi-DOF /
+multi-support nonlinear fixture depth, EJ assembled macro-element mechanics,
+deeper spring-hanger behavior, and the remaining D9 validation evidence remain
+open.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
 `DAG-006`.
 
@@ -368,10 +368,13 @@ bounded tranche.
       governed active-set-count policy for that validation seed only.
       `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
       assembled nonlinear integration and product-preview reduced solve paths
-      as the `DEC-050` sparse evidence lane, with dense remaining default:
-      non-seed convergence thresholds, profile-direct sparse/default
-      promotion, deeper spring-hanger behavior, and the R4 exit evidence
-      package remain open under `DEC-044`/`DEC-046`/`DEC-050`. `D-20`
+      as the `DEC-050` sparse evidence lane, with dense remaining default.
+      `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
+      non-seed force/displacement/energy thresholds, multi-DOF / multi-support
+      nonlinear fixture depth, profile-direct sparse/default promotion, EJ
+      assembled macro-element mechanics, deeper spring-hanger behavior, and the
+      R4 exit evidence package remain open under `DEC-044`/`DEC-046`/`DEC-050`.
+      `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize
       v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or
