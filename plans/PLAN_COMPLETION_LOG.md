@@ -14,6 +14,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 displacement/reaction delta policy (`TP-R4-D9-DISPREACTIONPOLICY-001`)
+
+Landed governed fixture-evidence-envelope displacement/reaction delta threshold
+policies for the current assembled validation seed and the accepted
+eight-fixture multi-support validation set under `DEC-046`.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: added
+  `DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1` and
+  `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`
+  policy records, plus Rust policy-entry APIs and predicates.
+- Current assembled validation seed limits are class-tiered from current
+  deterministic fixture evidence: one-way/lift-off/friction `100.0 mm`,
+  `0.0 rad`, `10.0 N`, `0.0 N-m`; gap `50.0 mm`, `0.0 rad`, `5.0 N`,
+  `0.0 N-m`.
+- Accepted multi-support set limits are `100.0 mm`, `0.005 rad`, `10.0 N`,
+  and `3.0 N-m` across the accepted eight-fixture set.
+- `validation/hand_calcs/nonlinear`, benchmark README, and
+  `tests/test_nonlinear_support_regression.py` now cite and guard the accepted
+  delta policies while preserving the observation-only depth fixture and
+  product-preview `TBD` delta boundary.
+
+Focused validation: nonlinear benchmark Rust tests passed 17/17; focused
+nonlinear pytest passed 8/8. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T115411Z_b7426f628f24-dirty.json`.
+
+Residuals: product-preview displacement/reaction delta thresholds, broader
+non-seed force/displacement thresholds beyond the accepted eight-fixture set,
+general energy thresholds, default sparse promotion / sparse threshold policy,
+deeper spring-hanger behavior, external validation thresholds, broader R4
+validation package work, and final R4 exit evidence remain open.
+
+Boundary: invented/public-original validation evidence only. No protected
+standards content, proprietary benchmark output, private project data,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-DISPREACTIONPOLICY-001.md`.
+
 ## 2026-06-22 - R4 D7 sparse suitability observations (`TP-R4-D7-SPARSESUITABILITYOBS-001`)
 
 Landed observation-only `DEC-050` sparse suitability records over generated

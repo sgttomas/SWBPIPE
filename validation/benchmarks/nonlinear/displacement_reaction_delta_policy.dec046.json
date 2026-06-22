@@ -1,0 +1,92 @@
+{
+  "record_kind": "governed_nonlinear_displacement_reaction_delta_policy",
+  "record_id": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "accepted_for_current_assembled_validation_seed",
+  "scope": "current_public_original_assembled_validation_seed_only",
+  "source_observation_record": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+  "delta_semantics": "final-iteration max absolute change from the previous linearized active-set solve; nonzero values can coexist with active-set convergence",
+  "translation_delta_basis": {
+    "name": "max_abs_translation_delta_from_previous",
+    "unit": "mm",
+    "dimension": "displacement"
+  },
+  "rotation_delta_basis": {
+    "name": "max_abs_rotation_delta_from_previous",
+    "unit": "rad",
+    "dimension": "rotation"
+  },
+  "force_reaction_delta_basis": {
+    "name": "max_abs_force_reaction_delta_from_previous",
+    "unit": "N",
+    "dimension": "force"
+  },
+  "moment_reaction_delta_basis": {
+    "name": "max_abs_moment_reaction_delta_from_previous",
+    "unit": "N-m",
+    "dimension": "moment"
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed displacement or reaction delta threshold requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "one_way",
+      "translation_delta_absolute_limit": 100.0,
+      "rotation_delta_absolute_limit": 0.0,
+      "force_reaction_delta_absolute_limit": 10.0,
+      "moment_reaction_delta_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+      "observation_ref": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "gap",
+      "translation_delta_absolute_limit": 50.0,
+      "rotation_delta_absolute_limit": 0.0,
+      "force_reaction_delta_absolute_limit": 5.0,
+      "moment_reaction_delta_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+      "observation_ref": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "lift_off",
+      "translation_delta_absolute_limit": 100.0,
+      "rotation_delta_absolute_limit": 0.0,
+      "force_reaction_delta_absolute_limit": 10.0,
+      "moment_reaction_delta_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+      "observation_ref": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "friction",
+      "translation_delta_absolute_limit": 100.0,
+      "rotation_delta_absolute_limit": 0.0,
+      "force_reaction_delta_absolute_limit": 10.0,
+      "moment_reaction_delta_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+      "observation_ref": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+        "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+        "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Applies only to the current public-original assembled validation seed final-iteration displacement and reaction deltas from the previous active-set solve.",
+    "Limits are fixture-evidence envelopes for the accepted seed classes; fixture-local overrides may only tighten them.",
+    "Does not define general energy, sparse live-path, product-preview, release, external validation, or CI thresholds."
+  ],
+  "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

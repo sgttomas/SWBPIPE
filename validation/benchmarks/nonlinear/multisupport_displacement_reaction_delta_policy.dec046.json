@@ -1,0 +1,61 @@
+{
+  "record_kind": "governed_nonlinear_multisupport_displacement_reaction_delta_policy",
+  "record_id": "DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+  "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+  "source_observation_record": "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1",
+  "delta_semantics": "final-iteration max absolute change from the previous linearized active-set solve; nonzero values can coexist with active-set convergence",
+  "translation_delta_basis": {
+    "name": "max_abs_translation_delta_from_previous",
+    "unit": "mm",
+    "dimension": "displacement"
+  },
+  "rotation_delta_basis": {
+    "name": "max_abs_rotation_delta_from_previous",
+    "unit": "rad",
+    "dimension": "rotation"
+  },
+  "force_reaction_delta_basis": {
+    "name": "max_abs_force_reaction_delta_from_previous",
+    "unit": "N",
+    "dimension": "force"
+  },
+  "moment_reaction_delta_basis": {
+    "name": "max_abs_moment_reaction_delta_from_previous",
+    "unit": "N-m",
+    "dimension": "moment"
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed displacement or reaction delta threshold requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "multi_support_multi_dof",
+      "translation_delta_absolute_limit": 100.0,
+      "rotation_delta_absolute_limit": 0.005,
+      "force_reaction_delta_absolute_limit": 10.0,
+      "moment_reaction_delta_absolute_limit": 3.0,
+      "policy_ref": "DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1",
+      "observation_ref": "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration displacement and reaction deltas from the previous active-set solve.",
+    "Limits are fixture-evidence envelopes for the accepted eight-fixture multi-support set; fixture-local overrides may only tighten them.",
+    "Does not define general energy, sparse default, product-preview, release, external validation, or CI thresholds."
+  ],
+  "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

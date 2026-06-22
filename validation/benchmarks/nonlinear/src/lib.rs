@@ -95,6 +95,8 @@ const DEC_046_FREE_DOF_WORK_LIMITATIONS: &[&str] = &[
 ];
 pub const DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF: &str =
     "DEC-046-CV-B-displacement-reaction-delta-observation-v1";
+pub const DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF: &str =
+    "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1";
 const DEC_046_TRANSLATION_DELTA_BASIS: &str = "max_abs_translation_delta_from_previous";
 const DEC_046_TRANSLATION_DELTA_UNIT: &str = "mm";
 const DEC_046_TRANSLATION_DELTA_DIMENSION: &str = "displacement";
@@ -107,10 +109,21 @@ const DEC_046_FORCE_REACTION_DELTA_DIMENSION: &str = "force";
 const DEC_046_MOMENT_REACTION_DELTA_BASIS: &str = "max_abs_moment_reaction_delta_from_previous";
 const DEC_046_MOMENT_REACTION_DELTA_UNIT: &str = "N-m";
 const DEC_046_MOMENT_REACTION_DELTA_DIMENSION: &str = "moment";
+const DEC_046_SEED_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 100.0;
+const DEC_046_SEED_GAP_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 50.0;
+const DEC_046_SEED_ROTATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.0;
+const DEC_046_SEED_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 10.0;
+const DEC_046_SEED_GAP_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 5.0;
+const DEC_046_SEED_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_DISPLACEMENT_REACTION_DELTA_LIMITATIONS: &[&str] = &[
     "Observation-only record for current public-original assembled validation-seed final-iteration deltas from the previous active-set solve.",
     "The observed deltas are transition magnitudes between consecutive linearized active-set solves; nonzero final values can coexist with active-set convergence.",
     "Does not define displacement-delta, reaction-delta, general energy, sparse live-path, product-preview, release, or external validation thresholds.",
+];
+const DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS: &[&str] = &[
+    "Applies only to the current public-original assembled validation seed final-iteration displacement and reaction deltas from the previous active-set solve.",
+    "Limits are fixture-evidence envelopes for the accepted seed classes; fixture-local overrides may only tighten them.",
+    "Does not define general energy, sparse live-path, product-preview, release, external validation, or CI thresholds.",
 ];
 const MULTI_SUPPORT_DEPTH_POLICY_REF: &str = "TP-R4-D9-MULTISUPPORT-OBS-TBD";
 pub const DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF: &str =
@@ -121,6 +134,8 @@ pub const DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF: &str =
     "DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1";
 pub const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF: &str =
     "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1";
+pub const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF: &str =
+    "DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1";
 const DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_LIMITATIONS: &[&str] = &[
     "Applies only to the public-original multi-DOF / multi-support validation fixture set and its active-set changed-support-count residual.",
     "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds.",
@@ -137,6 +152,15 @@ const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_LIMITATIONS: &[&str] = &[
     "Observation-only record for public-original multi-DOF / multi-support validation fixture-set final-iteration deltas from the previous active-set solve.",
     "The observed deltas are transition magnitudes between consecutive linearized active-set solves; nonzero final values can coexist with active-set convergence.",
     "Does not define displacement-delta, reaction-delta, general energy, sparse live-path, product-preview, release, or external validation thresholds.",
+];
+const DEC_046_MULTISUPPORT_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 100.0;
+const DEC_046_MULTISUPPORT_ROTATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.005;
+const DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 10.0;
+const DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 3.0;
+const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS: &[&str] = &[
+    "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration displacement and reaction deltas from the previous active-set solve.",
+    "Limits are fixture-evidence envelopes for the accepted eight-fixture multi-support set; fixture-local overrides may only tighten them.",
+    "Does not define general energy, sparse default, product-preview, release, external validation, or CI thresholds.",
 ];
 const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
     "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
@@ -379,6 +403,37 @@ impl ForceDisplacementResidualObservation {
             && self.has_dimensioned_displacement_reaction_delta_axes()
     }
 
+    pub fn uses_accepted_displacement_reaction_delta_threshold_policy(&self) -> bool {
+        let Some((translation_limit, rotation_limit, force_reaction_limit, moment_reaction_limit)) =
+            seed_displacement_reaction_delta_limits(self.nonlinear_class)
+        else {
+            return false;
+        };
+
+        self.policy_ref == DEC_046_ACTIVE_SET_COUNT_POLICY_REF
+            && self.displacement_reaction_delta_observation_ref
+                == Some(DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF)
+            && self.displacement_reaction_delta_threshold_policy
+                == Some(DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF)
+            && self.has_dimensioned_displacement_reaction_delta_axes()
+            && optional_delta_within_limit(
+                self.max_abs_translation_delta_from_previous,
+                translation_limit,
+            )
+            && optional_delta_within_limit(
+                self.max_abs_rotation_delta_from_previous,
+                rotation_limit,
+            )
+            && optional_delta_within_limit(
+                self.max_abs_force_reaction_delta_from_previous,
+                force_reaction_limit,
+            )
+            && optional_delta_within_limit(
+                self.max_abs_moment_reaction_delta_from_previous,
+                moment_reaction_limit,
+            )
+    }
+
     pub fn uses_accepted_multisupport_free_dof_force_moment_threshold_policy(&self) -> bool {
         self.policy_ref == DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF
             && self.free_dof_force_moment_threshold_policy
@@ -406,6 +461,31 @@ impl ForceDisplacementResidualObservation {
                 == Some(DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF)
             && self.displacement_reaction_delta_threshold_policy.is_none()
             && self.has_dimensioned_displacement_reaction_delta_axes()
+    }
+
+    pub fn uses_accepted_multisupport_displacement_reaction_delta_threshold_policy(&self) -> bool {
+        self.policy_ref == DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF
+            && self.displacement_reaction_delta_observation_ref
+                == Some(DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF)
+            && self.displacement_reaction_delta_threshold_policy
+                == Some(DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF)
+            && self.has_dimensioned_displacement_reaction_delta_axes()
+            && optional_delta_within_limit(
+                self.max_abs_translation_delta_from_previous,
+                DEC_046_MULTISUPPORT_TRANSLATION_DELTA_ABSOLUTE_LIMIT,
+            )
+            && optional_delta_within_limit(
+                self.max_abs_rotation_delta_from_previous,
+                DEC_046_MULTISUPPORT_ROTATION_DELTA_ABSOLUTE_LIMIT,
+            )
+            && optional_delta_within_limit(
+                self.max_abs_force_reaction_delta_from_previous,
+                DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT,
+            )
+            && optional_delta_within_limit(
+                self.max_abs_moment_reaction_delta_from_previous,
+                DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT,
+            )
     }
 
     fn has_dimensioned_displacement_reaction_delta_axes(&self) -> bool {
@@ -500,6 +580,32 @@ pub struct DisplacementReactionDeltaObservationEntry {
     pub moment_reaction_delta_basis: &'static str,
     pub moment_reaction_delta_unit: &'static str,
     pub moment_reaction_delta_dimension: &'static str,
+    pub evidence_fixture_ids: &'static [&'static str],
+    pub limitations: &'static [&'static str],
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct DisplacementReactionDeltaPolicyEntry {
+    pub policy_ref: &'static str,
+    pub observation_ref: &'static str,
+    pub nonlinear_class: &'static str,
+    pub translation_delta_basis: &'static str,
+    pub translation_delta_unit: &'static str,
+    pub translation_delta_dimension: &'static str,
+    pub translation_delta_absolute_limit: f64,
+    pub rotation_delta_basis: &'static str,
+    pub rotation_delta_unit: &'static str,
+    pub rotation_delta_dimension: &'static str,
+    pub rotation_delta_absolute_limit: f64,
+    pub force_reaction_delta_basis: &'static str,
+    pub force_reaction_delta_unit: &'static str,
+    pub force_reaction_delta_dimension: &'static str,
+    pub force_reaction_delta_absolute_limit: f64,
+    pub moment_reaction_delta_basis: &'static str,
+    pub moment_reaction_delta_unit: &'static str,
+    pub moment_reaction_delta_dimension: &'static str,
+    pub moment_reaction_delta_absolute_limit: f64,
+    pub status: ConvergencePolicyStatus,
     pub evidence_fixture_ids: &'static [&'static str],
     pub limitations: &'static [&'static str],
 }
@@ -607,6 +713,62 @@ impl DisplacementReactionDeltaObservationEntry {
             && self.has_expected_axes()
             && !self.evidence_fixture_ids.is_empty()
             && self.limitations == DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_LIMITATIONS
+    }
+
+    fn has_expected_axes(&self) -> bool {
+        self.translation_delta_basis == DEC_046_TRANSLATION_DELTA_BASIS
+            && self.translation_delta_unit == DEC_046_TRANSLATION_DELTA_UNIT
+            && self.translation_delta_dimension == DEC_046_TRANSLATION_DELTA_DIMENSION
+            && self.rotation_delta_basis == DEC_046_ROTATION_DELTA_BASIS
+            && self.rotation_delta_unit == DEC_046_ROTATION_DELTA_UNIT
+            && self.rotation_delta_dimension == DEC_046_ROTATION_DELTA_DIMENSION
+            && self.force_reaction_delta_basis == DEC_046_FORCE_REACTION_DELTA_BASIS
+            && self.force_reaction_delta_unit == DEC_046_FORCE_REACTION_DELTA_UNIT
+            && self.force_reaction_delta_dimension == DEC_046_FORCE_REACTION_DELTA_DIMENSION
+            && self.moment_reaction_delta_basis == DEC_046_MOMENT_REACTION_DELTA_BASIS
+            && self.moment_reaction_delta_unit == DEC_046_MOMENT_REACTION_DELTA_UNIT
+            && self.moment_reaction_delta_dimension == DEC_046_MOMENT_REACTION_DELTA_DIMENSION
+    }
+}
+
+impl DisplacementReactionDeltaPolicyEntry {
+    pub fn is_accepted_seed_displacement_reaction_delta_policy(&self) -> bool {
+        let Some((translation_limit, rotation_limit, force_reaction_limit, moment_reaction_limit)) =
+            seed_displacement_reaction_delta_limits(self.nonlinear_class)
+        else {
+            return false;
+        };
+
+        self.policy_ref == DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF
+            && self.observation_ref == DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF
+            && self.status == ConvergencePolicyStatus::Accepted
+            && self.has_expected_axes()
+            && self.translation_delta_absolute_limit == translation_limit
+            && self.rotation_delta_absolute_limit == rotation_limit
+            && self.force_reaction_delta_absolute_limit == force_reaction_limit
+            && self.moment_reaction_delta_absolute_limit == moment_reaction_limit
+            && !self.evidence_fixture_ids.is_empty()
+            && self.limitations == DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS
+    }
+
+    pub fn is_accepted_multisupport_displacement_reaction_delta_policy(&self) -> bool {
+        self.policy_ref == DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF
+            && self.observation_ref
+                == DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF
+            && self.nonlinear_class == "multi_support_multi_dof"
+            && self.status == ConvergencePolicyStatus::Accepted
+            && self.has_expected_axes()
+            && self.translation_delta_absolute_limit
+                == DEC_046_MULTISUPPORT_TRANSLATION_DELTA_ABSOLUTE_LIMIT
+            && self.rotation_delta_absolute_limit
+                == DEC_046_MULTISUPPORT_ROTATION_DELTA_ABSOLUTE_LIMIT
+            && self.force_reaction_delta_absolute_limit
+                == DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT
+            && self.moment_reaction_delta_absolute_limit
+                == DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT
+            && !self.evidence_fixture_ids.is_empty()
+            && self.limitations
+                == DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS
     }
 
     fn has_expected_axes(&self) -> bool {
@@ -808,6 +970,7 @@ impl AssembledNonlinearRegressionCase {
             Some(DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF),
             Some(DEC_046_FREE_DOF_WORK_POLICY_REF),
             Some(DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF),
+            Some(DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF),
         )
     }
 
@@ -817,7 +980,7 @@ impl AssembledNonlinearRegressionCase {
         ForceDisplacementResidualObservation,
         open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
     > {
-        self.force_displacement_residual_observation_with_policy(None, None, None)
+        self.force_displacement_residual_observation_with_policy(None, None, None, None)
     }
 
     pub fn multisupport_force_displacement_residual_observation(
@@ -830,6 +993,7 @@ impl AssembledNonlinearRegressionCase {
             Some(DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF),
             Some(DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF),
             Some(DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF),
+            Some(DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF),
         )
     }
 
@@ -838,6 +1002,7 @@ impl AssembledNonlinearRegressionCase {
         force_moment_threshold_policy: Option<&'static str>,
         work_threshold_policy: Option<&'static str>,
         displacement_reaction_delta_observation_ref: Option<&'static str>,
+        displacement_reaction_delta_threshold_policy: Option<&'static str>,
     ) -> Result<
         ForceDisplacementResidualObservation,
         open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
@@ -876,7 +1041,7 @@ impl AssembledNonlinearRegressionCase {
             max_abs_free_dof_work_residual: final_residuals.max_abs_free_dof_work_residual,
             free_dof_work_residual_unit: "N-m",
             displacement_reaction_delta_observation_ref,
-            displacement_reaction_delta_threshold_policy: None,
+            displacement_reaction_delta_threshold_policy,
             free_dof_force_moment_threshold_policy: force_moment_threshold_policy,
             free_dof_work_threshold_policy: work_threshold_policy,
         })
@@ -1266,6 +1431,69 @@ pub fn multisupport_displacement_reaction_delta_observation_entries(
     )]
 }
 
+pub fn governed_displacement_reaction_delta_policy_entries(
+) -> Vec<DisplacementReactionDeltaPolicyEntry> {
+    vec![
+        displacement_reaction_delta_policy_entry(
+            DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF,
+            DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF,
+            "one_way",
+            seed_displacement_reaction_delta_limits("one_way")
+                .expect("one_way seed displacement/reaction delta limits exist"),
+            &["NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"],
+            DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS,
+        ),
+        displacement_reaction_delta_policy_entry(
+            DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF,
+            DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF,
+            "gap",
+            seed_displacement_reaction_delta_limits("gap")
+                .expect("gap seed displacement/reaction delta limits exist"),
+            &["NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"],
+            DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS,
+        ),
+        displacement_reaction_delta_policy_entry(
+            DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF,
+            DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF,
+            "lift_off",
+            seed_displacement_reaction_delta_limits("lift_off")
+                .expect("lift-off seed displacement/reaction delta limits exist"),
+            &["NL-ASSEMBLED-LIFT-OFF-ORIGINAL"],
+            DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS,
+        ),
+        displacement_reaction_delta_policy_entry(
+            DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF,
+            DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF,
+            "friction",
+            seed_displacement_reaction_delta_limits("friction")
+                .expect("friction seed displacement/reaction delta limits exist"),
+            &[
+                "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
+            ],
+            DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS,
+        ),
+    ]
+}
+
+pub fn governed_multisupport_displacement_reaction_delta_policy_entries(
+) -> Vec<DisplacementReactionDeltaPolicyEntry> {
+    vec![displacement_reaction_delta_policy_entry(
+        DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF,
+        DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF,
+        "multi_support_multi_dof",
+        (
+            DEC_046_MULTISUPPORT_TRANSLATION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_MULTISUPPORT_ROTATION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT,
+        ),
+        DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS,
+        DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS,
+    )]
+}
+
 fn displacement_reaction_delta_observation_entry(
     observation_ref: &'static str,
     nonlinear_class: &'static str,
@@ -1288,6 +1516,45 @@ fn displacement_reaction_delta_observation_entry(
         moment_reaction_delta_basis: DEC_046_MOMENT_REACTION_DELTA_BASIS,
         moment_reaction_delta_unit: DEC_046_MOMENT_REACTION_DELTA_UNIT,
         moment_reaction_delta_dimension: DEC_046_MOMENT_REACTION_DELTA_DIMENSION,
+        evidence_fixture_ids,
+        limitations,
+    }
+}
+
+fn displacement_reaction_delta_policy_entry(
+    policy_ref: &'static str,
+    observation_ref: &'static str,
+    nonlinear_class: &'static str,
+    (
+        translation_delta_absolute_limit,
+        rotation_delta_absolute_limit,
+        force_reaction_delta_absolute_limit,
+        moment_reaction_delta_absolute_limit,
+    ): (f64, f64, f64, f64),
+    evidence_fixture_ids: &'static [&'static str],
+    limitations: &'static [&'static str],
+) -> DisplacementReactionDeltaPolicyEntry {
+    DisplacementReactionDeltaPolicyEntry {
+        policy_ref,
+        observation_ref,
+        nonlinear_class,
+        translation_delta_basis: DEC_046_TRANSLATION_DELTA_BASIS,
+        translation_delta_unit: DEC_046_TRANSLATION_DELTA_UNIT,
+        translation_delta_dimension: DEC_046_TRANSLATION_DELTA_DIMENSION,
+        translation_delta_absolute_limit,
+        rotation_delta_basis: DEC_046_ROTATION_DELTA_BASIS,
+        rotation_delta_unit: DEC_046_ROTATION_DELTA_UNIT,
+        rotation_delta_dimension: DEC_046_ROTATION_DELTA_DIMENSION,
+        rotation_delta_absolute_limit,
+        force_reaction_delta_basis: DEC_046_FORCE_REACTION_DELTA_BASIS,
+        force_reaction_delta_unit: DEC_046_FORCE_REACTION_DELTA_UNIT,
+        force_reaction_delta_dimension: DEC_046_FORCE_REACTION_DELTA_DIMENSION,
+        force_reaction_delta_absolute_limit,
+        moment_reaction_delta_basis: DEC_046_MOMENT_REACTION_DELTA_BASIS,
+        moment_reaction_delta_unit: DEC_046_MOMENT_REACTION_DELTA_UNIT,
+        moment_reaction_delta_dimension: DEC_046_MOMENT_REACTION_DELTA_DIMENSION,
+        moment_reaction_delta_absolute_limit,
+        status: ConvergencePolicyStatus::Accepted,
         evidence_fixture_ids,
         limitations,
     }
@@ -3346,6 +3613,30 @@ fn optional_finite(value: Option<f64>) -> bool {
     value.map(|value| value.is_finite()).unwrap_or(true)
 }
 
+fn optional_delta_within_limit(value: Option<f64>, absolute_limit: f64) -> bool {
+    value
+        .map(|value| value.is_finite() && value >= 0.0 && value <= absolute_limit)
+        .unwrap_or(true)
+}
+
+fn seed_displacement_reaction_delta_limits(nonlinear_class: &str) -> Option<(f64, f64, f64, f64)> {
+    match nonlinear_class {
+        "one_way" | "lift_off" | "friction" => Some((
+            DEC_046_SEED_TRANSLATION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_SEED_ROTATION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_SEED_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_SEED_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT,
+        )),
+        "gap" => Some((
+            DEC_046_SEED_GAP_TRANSLATION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_SEED_ROTATION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_SEED_GAP_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT,
+            DEC_046_SEED_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT,
+        )),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -3552,8 +3843,13 @@ mod tests {
                 Some(DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF)
             );
             assert!(residual.uses_accepted_multisupport_free_dof_force_moment_threshold_policy());
-            assert!(residual.records_tbd_multisupport_displacement_reaction_delta_observation());
-            assert_eq!(residual.displacement_reaction_delta_threshold_policy, None);
+            assert!(
+                residual.uses_accepted_multisupport_displacement_reaction_delta_threshold_policy()
+            );
+            assert_eq!(
+                residual.displacement_reaction_delta_threshold_policy,
+                Some(DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF)
+            );
             assert_eq!(residual.max_abs_free_dof_force_residual, 0.0);
             assert_eq!(residual.max_abs_free_dof_moment_residual, 0.0);
             assert_eq!(residual.max_abs_free_dof_work_residual, 0.0);
@@ -3628,13 +3924,18 @@ mod tests {
         let convergence_entries = governed_multisupport_convergence_policy_entries();
         let force_moment_entries = governed_multisupport_free_dof_force_moment_policy_entries();
         let work_entries = governed_multisupport_free_dof_work_policy_entries();
+        let displacement_reaction_entries =
+            governed_multisupport_displacement_reaction_delta_policy_entries();
 
         assert_eq!(convergence_entries.len(), 1);
         assert_eq!(force_moment_entries.len(), 1);
         assert_eq!(work_entries.len(), 1);
+        assert_eq!(displacement_reaction_entries.len(), 1);
         assert!(convergence_entries[0].is_accepted_multisupport_active_set_count_policy());
         assert!(force_moment_entries[0].is_accepted_multisupport_free_dof_force_moment_policy());
         assert!(work_entries[0].is_accepted_multisupport_free_dof_work_policy());
+        assert!(displacement_reaction_entries[0]
+            .is_accepted_multisupport_displacement_reaction_delta_policy());
         assert_eq!(
             convergence_entries[0].evidence_fixture_ids,
             DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS
@@ -3645,6 +3946,10 @@ mod tests {
         );
         assert_eq!(
             work_entries[0].evidence_fixture_ids,
+            DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS
+        );
+        assert_eq!(
+            displacement_reaction_entries[0].evidence_fixture_ids,
             DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS
         );
     }
@@ -3677,6 +3982,62 @@ mod tests {
         assert_eq!(
             multisupport_entries[0].evidence_fixture_ids,
             DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS
+        );
+    }
+
+    #[test]
+    fn governed_displacement_reaction_delta_policy_covers_accepted_fixture_sets() {
+        let seed_entries = governed_displacement_reaction_delta_policy_entries();
+        let multisupport_entries =
+            governed_multisupport_displacement_reaction_delta_policy_entries();
+
+        assert_eq!(seed_entries.len(), 4);
+        assert_eq!(
+            seed_entries
+                .iter()
+                .map(|entry| entry.nonlinear_class)
+                .collect::<Vec<_>>(),
+            vec!["one_way", "gap", "lift_off", "friction"]
+        );
+        for entry in &seed_entries {
+            assert!(
+                entry.is_accepted_seed_displacement_reaction_delta_policy(),
+                "{}",
+                entry.nonlinear_class
+            );
+        }
+        let gap_entry = seed_entries
+            .iter()
+            .find(|entry| entry.nonlinear_class == "gap")
+            .expect("gap displacement/reaction delta policy entry exists");
+        assert_eq!(
+            gap_entry.translation_delta_absolute_limit,
+            DEC_046_SEED_GAP_TRANSLATION_DELTA_ABSOLUTE_LIMIT
+        );
+        assert_eq!(
+            gap_entry.force_reaction_delta_absolute_limit,
+            DEC_046_SEED_GAP_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT
+        );
+
+        assert_eq!(multisupport_entries.len(), 1);
+        assert!(
+            multisupport_entries[0].is_accepted_multisupport_displacement_reaction_delta_policy()
+        );
+        assert_eq!(
+            multisupport_entries[0].translation_delta_absolute_limit,
+            DEC_046_MULTISUPPORT_TRANSLATION_DELTA_ABSOLUTE_LIMIT
+        );
+        assert_eq!(
+            multisupport_entries[0].rotation_delta_absolute_limit,
+            DEC_046_MULTISUPPORT_ROTATION_DELTA_ABSOLUTE_LIMIT
+        );
+        assert_eq!(
+            multisupport_entries[0].force_reaction_delta_absolute_limit,
+            DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT
+        );
+        assert_eq!(
+            multisupport_entries[0].moment_reaction_delta_absolute_limit,
+            DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT
         );
     }
 
@@ -3831,10 +4192,10 @@ mod tests {
                 observation.free_dof_work_threshold_policy,
                 Some(DEC_046_FREE_DOF_WORK_POLICY_REF)
             );
-            assert!(observation.records_tbd_displacement_reaction_delta_observation());
+            assert!(observation.uses_accepted_displacement_reaction_delta_threshold_policy());
             assert_eq!(
                 observation.displacement_reaction_delta_threshold_policy,
-                None
+                Some(DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF)
             );
         }
 

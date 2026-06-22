@@ -32,6 +32,7 @@ non-seed acceptance companion in the multi-support validation fixture set.
 | Active-set policy reference | DEC-046-CV-B-multisupport-active-set-count-validation-v1 | label | dimensionless |
 | Free-DOF force/moment policy reference | DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1 | label | dimensionless |
 | Free-DOF work policy reference | DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1 | label | dimensionless |
+| Displacement/reaction delta policy reference | DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1 | label | dimensionless |
 
 ## Expected Values
 
@@ -43,6 +44,10 @@ non-seed acceptance companion in the multi-support validation fixture set.
 | Free-DOF force residual | 0.0 | N | force |
 | Free-DOF moment residual | 0.0 | N-m | moment |
 | Final free-DOF work residual | 0.0 | N-m | moment |
+| Multi-support translation delta threshold | 100.0 | mm | displacement |
+| Multi-support rotation delta threshold | 0.005 | rad | rotation |
+| Multi-support force-reaction delta threshold | 10.0 | N | force |
+| Multi-support moment-reaction delta threshold | 3.0 | N-m | moment |
 | Final friction state | sliding | label | dimensionless |
 | Final gap state | active | label | dimensionless |
 | Expected convergence flag | true | label | dimensionless |
@@ -50,9 +55,10 @@ non-seed acceptance companion in the multi-support validation fixture set.
 
 This fixture broadens the accepted multi-support / multi-DOF evidence set under
 `DEC-046` from one-way/gap and lift-off/gap companions to include a
-friction/gap companion with explicit invented normal reaction evidence. It does
-not promote displacement-delta, reaction-delta, general energy, sparse default,
+friction/gap companion with explicit invented normal reaction evidence. The companion also carries the fixture-set displacement/reaction delta threshold policy as an observed-envelope record. It does not define general energy, sparse default,
 product-preview, release, external validation, or CI thresholds.
+
+Displacement/reaction delta policy: `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`.
 
 Tolerance policy: `DEC-046-CV-B-multisupport-active-set-count-validation-v1`.
 Free-DOF force/moment residual policy: `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`.

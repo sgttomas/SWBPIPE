@@ -36,6 +36,7 @@ validation fixture set.
 | Active-set policy reference | DEC-046-CV-B-multisupport-active-set-count-validation-v1 | label | dimensionless |
 | Free-DOF force/moment policy reference | DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1 | label | dimensionless |
 | Free-DOF work policy reference | DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1 | label | dimensionless |
+| Displacement/reaction delta policy reference | DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1 | label | dimensionless |
 
 ## Expected Values
 
@@ -47,6 +48,10 @@ validation fixture set.
 | Free-DOF force residual | 0.0 | N | force |
 | Free-DOF moment residual | 0.0 | N-m | moment |
 | Final free-DOF work residual | 0.0 | N-m | moment |
+| Multi-support translation delta threshold | 100.0 | mm | displacement |
+| Multi-support rotation delta threshold | 0.005 | rad | rotation |
+| Multi-support force-reaction delta threshold | 10.0 | N | force |
+| Multi-support moment-reaction delta threshold | 3.0 | N-m | moment |
 | Final one-way state | inactive | label | dimensionless |
 | Final gap state | active | label | dimensionless |
 | Final friction state | sliding | label | dimensionless |
@@ -55,9 +60,10 @@ validation fixture set.
 
 This fixture broadens the accepted multi-support / multi-DOF evidence set under
 `DEC-046` from two-support Ux/Uy companions to a three-support, three-translation
-companion. It preserves the same narrow threshold scope and does not promote
-displacement-delta, reaction-delta, general energy, sparse default,
+companion. It preserves the same narrow active-set, free-DOF, and displacement/reaction delta threshold scope. It does not define general energy, sparse default,
 product-preview, release, external validation, or CI thresholds.
+
+Displacement/reaction delta policy: `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`.
 
 Tolerance policy: `DEC-046-CV-B-multisupport-active-set-count-validation-v1`.
 Free-DOF force/moment residual policy: `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`.

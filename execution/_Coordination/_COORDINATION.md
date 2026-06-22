@@ -295,8 +295,8 @@ relative tolerance `0.0`, absolute floor `0.0`, max iteration cap `4`, keyed to
 one-way/gap/lift-off/friction classes. `TP-R4-D9-FREEDOFRESIDPOLICY-001`
 promotes free-DOF force/moment residual threshold policies for the current
 assembled validation seed and invented product-preview surface only, leaving
-displacement/reaction-delta, general energy, release, sparse-default, and
-external threshold axes open. `TP-R4-D9-MULTISUPPORTOBS-001` adds an observation-only
+general energy, release, sparse-default, and external threshold axes open.
+`TP-R4-D9-MULTISUPPORTOBS-001` adds an observation-only
 multi-DOF / multi-support assembled validation-depth fixture, with a two-support
 Ux/Uy state-change case kept outside the accepted seed policy and marked
 `TolerancePolicyTbd`. `TP-R4-D9-MULTISUPPORTPOLICY-001` adds a separate
@@ -328,15 +328,20 @@ multi-support policies.
 axis ledgers for the current assembled validation seed and accepted
 multi-support fixture set, plus product-preview metadata that marks those axes
 `threshold_policy_status=tbd`.
+`TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
+displacement/reaction delta threshold policies for the current assembled
+validation seed and accepted eight-fixture multi-support set only; product
+preview, broader non-seed, general energy, sparse-default, release, and external
+delta thresholds remain open.
 `TP-R4-D9-ENERGYOBS-001` records final-iteration
 free-DOF work residual observations in the dense loop, nonlinear validation
 inventory, and invented product-preview surface. `TP-R4-D9-WORKPOLICY-001`
 promotes a bounded final-iteration free-DOF work residual policy for the current
 assembled validation seed, invented product-preview surface, and accepted
 multi-support fixture set only, while general energy thresholds, accepted
-displacement/reaction-delta thresholds, non-seed force/displacement beyond the
-accepted eight-fixture set, release, sparse-default, and external threshold axes
-remain open.
+displacement/reaction-delta thresholds beyond the current seed and accepted
+eight-fixture set, non-seed force/displacement beyond the accepted eight-fixture
+set, release, sparse-default, and external threshold axes remain open.
 `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction product live-loop
 coverage in one invented dense solve. `TP-R4-D7-SPARSELIVE-001`
 landed the `DEC-050` sparse evidence lane while dense remains default.
@@ -426,6 +431,7 @@ bounded tranche.
       `TP-R4-D9-MULTISUPPORTROT-001`,
       `TP-R4-D9-MULTISUPPORTDERIVED-001`,
       `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`,
+      `TP-R4-D9-DISPREACTIONPOLICY-001`,
       and the D8 rendered report-provenance slice
       `TP-R4-D8-COMPPROVREPORT-001`;
       `TP-R4-D9-CONVOBS-001` records observed convergence values for the
@@ -458,7 +464,10 @@ bounded tranche.
       `TP-R4-D9-DISPREACTIONOBS-001` records
       displacement/reaction-delta observation axes for the current seed,
       accepted multi-support fixture set, and product-preview metadata while
-      accepted delta thresholds remain `TBD`. `TP-R4-D9-ENERGYOBS-001` adds
+      product-preview delta thresholds remain `TBD`.
+      `TP-R4-D9-DISPREACTIONPOLICY-001` promotes accepted
+      displacement/reaction delta threshold envelopes for the current seed and
+      accepted eight-fixture multi-support set only. `TP-R4-D9-ENERGYOBS-001` adds
       final-iteration free-DOF work residual rows. `TP-R4-D9-WORKPOLICY-001`
       promotes bounded free-DOF work residual policies for the current
       assembled validation seed, invented product-preview surface, and accepted
@@ -477,9 +486,10 @@ bounded tranche.
       promotion stays `TBD`.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
-      eight-fixture set, general energy threshold promotion, accepted displacement/reaction-delta
-      thresholds, broader multi-DOF / multi-support nonlinear acceptance thresholds
-      beyond the accepted eight-fixture set,
+      eight-fixture set, general energy threshold promotion, product-preview and
+      broader displacement/reaction-delta thresholds, broader multi-DOF /
+      multi-support nonlinear acceptance thresholds beyond the accepted
+      eight-fixture set,
       default sparse promotion / sparse threshold policy, deeper
       spring-hanger behavior, and the R4 exit evidence
       package remain open

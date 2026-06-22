@@ -58,3 +58,4 @@ copy a protected value, or make any professional acceptance claim.
 
 Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.
 Free-DOF work residual policy: `DEC-046-CV-B-free-dof-work-residual-validation-v1`.
+Displacement/reaction delta policy: `DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1`.

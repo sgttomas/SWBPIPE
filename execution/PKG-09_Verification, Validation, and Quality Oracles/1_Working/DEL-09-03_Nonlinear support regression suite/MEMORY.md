@@ -26,9 +26,10 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 ## Remaining TBDs
 
 - Non-seed force/displacement thresholds beyond the accepted eight-fixture
-  multi-support companion set, general energy thresholds, accepted
-  displacement/reaction-delta thresholds, sparse default/promotion thresholds,
-  release thresholds, and external validation thresholds remain `TBD`.
+  multi-support companion set, general energy thresholds,
+  displacement/reaction-delta thresholds beyond the current seed and accepted
+  eight-fixture set, sparse default/promotion thresholds, release thresholds,
+  and external validation thresholds remain `TBD`.
 - The current assembled validation seed has an accepted active-set
   changed-support-count policy under `DEC-046-CV-B-active-set-count-validation-v1`.
 - The current assembled validation seed has an accepted free-DOF force/moment
@@ -37,6 +38,9 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - The current assembled validation seed has an accepted final-iteration
   free-DOF work residual policy under
   `DEC-046-CV-B-free-dof-work-residual-validation-v1`.
+- The current assembled validation seed has accepted fixture-evidence-envelope
+  displacement/reaction delta threshold policies under
+  `DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1`.
 - The current invented product-preview nonlinear path has an accepted
   active-set changed-support-count policy under
   `DEC-046-CV-B-product-preview-active-set-count-v1`.
@@ -55,7 +59,9 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`, and
   `TP-R4-D9-MULTISUPPORTCASCADE-001` add eight accepted multi-DOF /
   multi-support companion fixtures under narrow active-set, free-DOF
-  force/moment, and free-DOF work residual policies (`TP-R4-D9-WORKPOLICY-001`).
+  force/moment, free-DOF work residual, and displacement/reaction delta
+  threshold policies (`TP-R4-D9-WORKPOLICY-001` and
+  `TP-R4-D9-DISPREACTIONPOLICY-001`).
 - `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
   multi-support assembled fixture under `TP-R4-D9-MULTISUPPORT-OBS-TBD`; it is
   not part of the accepted current assembled validation seed policy.
@@ -63,8 +69,35 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   displacement/reaction-delta ledgers for the current assembled validation
   seed and accepted multi-support fixture set, plus product-preview metadata
   with `threshold_policy_status=tbd`.
+- `TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
+  displacement/reaction delta threshold policies for the current assembled
+  seed and accepted eight-fixture multi-support set only; product-preview,
+  broader non-seed, release, and external thresholds remain `TBD`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-DISPREACTIONPOLICY-001
+
+- Added governed `DEC-046` displacement/reaction delta threshold policy records:
+  `validation/benchmarks/nonlinear/displacement_reaction_delta_policy.dec046.json`
+  and
+  `validation/benchmarks/nonlinear/multisupport_displacement_reaction_delta_policy.dec046.json`.
+- Promoted the current assembled validation seed to accepted class-tiered
+  fixture-evidence-envelope limits: one-way/lift-off/friction `100.0 mm`,
+  `0.0 rad`, `10.0 N`, `0.0 N-m`; gap `50.0 mm`, `0.0 rad`, `5.0 N`,
+  `0.0 N-m`.
+- Promoted the accepted eight-fixture multi-support set to fixture-evidence
+  envelope limits: `100.0 mm`, `0.005 rad`, `10.0 N`, and `3.0 N-m`.
+- Updated Rust policy predicates, focused Python guards, benchmark README, and
+  hand-calc notes so accepted seed and accepted multi-support residual
+  observations cite the policy while the separate multi-support depth fixture
+  and product-preview metadata remain observation-only / `TBD`.
+- Boundary preserved: no product-preview delta threshold, broader non-seed
+  force/displacement threshold, general energy threshold, sparse-default,
+  external validation, release-readiness, lifecycle, professional, or
+  code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-DISPREACTIONPOLICY-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORTCASCADE-001
 
