@@ -311,6 +311,9 @@ evidence under those same narrow multi-support policies.
 `TP-R4-D9-MULTISUPPORT3DOF-001` adds a fourth public-original accepted
 companion that changes three nonlinear supports across three translational
 DOFs under the same narrow multi-support policies.
+`TP-R4-D9-MULTISUPPORTROT-001` adds a fifth public-original accepted
+companion that changes supports across translation and rotation groups under
+the same narrow multi-support policies.
 `TP-R4-D9-DISPREACTIONOBS-001` adds observation-only displacement/reaction-delta
 axis ledgers for the current assembled validation seed and accepted
 multi-support fixture set, plus product-preview metadata that marks those axes
@@ -322,7 +325,7 @@ promotes a bounded final-iteration free-DOF work residual policy for the current
 assembled validation seed, invented product-preview surface, and accepted
 multi-support fixture set only, while general energy thresholds, accepted
 displacement/reaction-delta thresholds, non-seed force/displacement beyond the
-accepted four-fixture set, release, sparse-default, and external threshold axes
+accepted five-fixture set, release, sparse-default, and external threshold axes
 remain open.
 `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction product live-loop
 coverage in one invented dense solve. `TP-R4-D7-SPARSELIVE-001`
@@ -331,9 +334,9 @@ landed the `DEC-050` sparse evidence lane while dense remains default.
 product-preview sparse evidence rows; default sparse promotion and
 nonlinear/core profile-direct sparse promotion follow on.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
-non-seed force/displacement threshold promotion beyond the accepted four-fixture set,
+non-seed force/displacement threshold promotion beyond the accepted five-fixture set,
 general energy threshold promotion, broader multi-DOF /
-multi-support nonlinear acceptance thresholds beyond the accepted four-fixture set,
+multi-support nonlinear acceptance thresholds beyond the accepted five-fixture set,
 default sparse promotion and nonlinear/core profile-direct sparse promotion,
 deeper spring-hanger behavior, and
 the remaining D9 validation evidence remain open.
@@ -406,6 +409,7 @@ bounded tranche.
       `TP-R4-D9-MULTISUPPORTBREADTH-001`,
       `TP-R4-D9-MULTISUPPORTFRICTION-001`,
       `TP-R4-D9-MULTISUPPORT3DOF-001`,
+      `TP-R4-D9-MULTISUPPORTROT-001`,
       and the D8 rendered report-provenance slice
       `TP-R4-D8-COMPPROVREPORT-001`;
       `TP-R4-D9-CONVOBS-001` records observed convergence values for the
@@ -425,7 +429,9 @@ bounded tranche.
       accepted non-seed friction/gap companion under those same narrow
       multi-support policies. `TP-R4-D9-MULTISUPPORT3DOF-001` adds a fourth
       accepted non-seed three-support / three-translation companion under the
-      same narrow multi-support policies. `TP-R4-D9-DISPREACTIONOBS-001` records
+      same narrow multi-support policies. `TP-R4-D9-MULTISUPPORTROT-001`
+      adds a fifth accepted non-seed mixed translation/rotation companion
+      under the same narrow multi-support policies. `TP-R4-D9-DISPREACTIONOBS-001` records
       displacement/reaction-delta observation axes for the current seed,
       accepted multi-support fixture set, and product-preview metadata while
       accepted delta thresholds remain `TBD`. `TP-R4-D9-ENERGYOBS-001` adds
@@ -442,9 +448,9 @@ bounded tranche.
       solve path and parity oracle.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
-      four-fixture set, general energy threshold promotion, accepted displacement/reaction-delta
+      five-fixture set, general energy threshold promotion, accepted displacement/reaction-delta
       thresholds, broader multi-DOF / multi-support nonlinear acceptance thresholds
-      beyond the accepted four-fixture set,
+      beyond the accepted five-fixture set,
       default sparse promotion and nonlinear/core profile-direct sparse
       promotion, deeper spring-hanger behavior, and the R4 exit evidence
       package remain open

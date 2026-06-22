@@ -143,6 +143,7 @@ const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
     "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+    "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -933,6 +934,7 @@ pub fn assembled_multisupport_acceptance_inventory() -> Vec<AssembledNonlinearRe
         assembled_multi_dof_gap_lift_off_acceptance_fixture(),
         assembled_multi_dof_friction_gap_acceptance_fixture(),
         assembled_multi_dof_three_support_acceptance_fixture(),
+        assembled_multi_dof_rotational_acceptance_fixture(),
     ]
 }
 
@@ -1333,7 +1335,8 @@ fn convergence_class_label(
         | "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL"
-        | "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL" => "multi_support_multi_dof",
+        | "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL"
+        | "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL" => "multi_support_multi_dof",
         _ => match family {
             NonlinearRegressionFamily::ActiveSet => "active_set",
             NonlinearRegressionFamily::Gap => "gap",
@@ -1450,6 +1453,44 @@ fn assembled_xyz_tip_input(
             node_dof_index(1, FrameDof::Rx),
             node_dof_index(1, FrameDof::Ry),
             node_dof_index(1, FrameDof::Rz),
+        ],
+        nonlinear_supports,
+        initial_states,
+        friction_normal_reactions: Vec::new(),
+        derived_friction_normal_reactions: Vec::new(),
+        convergence,
+    }
+}
+
+fn assembled_ux_rz_tip_input(
+    nonlinear_supports: Vec<NonlinearSupport>,
+    initial_states: Vec<SupportStateRecord>,
+    convergence: ConvergenceControl,
+) -> NonlinearFrameSolveInput {
+    let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+    let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
+    let section = FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap();
+    let element = FrameElement::new(node_i, node_j, section, [0.0, 1.0, 0.0]).unwrap();
+    let mut force: DenseVector = vec![0.0; 2 * DOF_PER_NODE];
+    force[node_dof_index(1, FrameDof::Ux)] = 10.0;
+    force[node_dof_index(1, FrameDof::Rz)] = 2.0;
+
+    NonlinearFrameSolveInput {
+        node_count: 2,
+        elements: vec![element],
+        user_stiffness_elements: Vec::new(),
+        force,
+        base_restrained_dofs: vec![
+            node_dof_index(0, FrameDof::Ux),
+            node_dof_index(0, FrameDof::Uy),
+            node_dof_index(0, FrameDof::Uz),
+            node_dof_index(0, FrameDof::Rx),
+            node_dof_index(0, FrameDof::Ry),
+            node_dof_index(0, FrameDof::Rz),
+            node_dof_index(1, FrameDof::Uy),
+            node_dof_index(1, FrameDof::Uz),
+            node_dof_index(1, FrameDof::Rx),
+            node_dof_index(1, FrameDof::Ry),
         ],
         nonlinear_supports,
         initial_states,
@@ -2464,6 +2505,92 @@ pub fn assembled_multi_dof_three_support_acceptance_fixture() -> AssembledNonlin
     }
 }
 
+pub fn assembled_multi_dof_rotational_acceptance_fixture() -> AssembledNonlinearRegressionCase {
+    let one_way_id = "NL-ASSEMBLED-MULTI-ONE-WAY-UX-F";
+    let lift_off_id = "NL-ASSEMBLED-MULTI-LIFT-OFF-RZ-F";
+    let one_way = NonlinearSupport::one_way(
+        one_way_id,
+        1,
+        FrameDof::Ux,
+        ActivationSense::PositiveReaction,
+    );
+    let lift_off = NonlinearSupport::lift_off(
+        lift_off_id,
+        1,
+        FrameDof::Rz,
+        ActivationSense::PositiveReaction,
+    );
+    let input = assembled_ux_rz_tip_input(
+        vec![one_way, lift_off],
+        vec![
+            SupportStateRecord::new(one_way_id, ActiveSetState::Active),
+            SupportStateRecord::new(lift_off_id, ActiveSetState::Active),
+        ],
+        accepted_multisupport_convergence_control().unwrap(),
+    );
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+        family: NonlinearRegressionFamily::MixedSupport,
+        description:
+            "Invented assembled frame solve accepts simultaneous Ux one-way release and Rz lift-off release under a narrow multi-support DEC-046 policy.",
+        assumptions: &[
+            "The frame fixture is a two-node member with one free translational and one free rotational tip DOF.",
+            "The first linearized iteration can change two nonlinear supports across translation and rotation groups.",
+            "This acceptance companion broadens fixture breadth to include the rotational moment residual axis; displacement, reaction-delta, and general energy thresholds remain TBD.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_multi_support_rotational_acceptance.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![
+            ExpectedState {
+                support_id: lift_off_id,
+                state: ActiveSetState::Inactive,
+            },
+            ExpectedState {
+                support_id: one_way_id,
+                state: ActiveSetState::Inactive,
+            },
+        ],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![],
+        observations: vec![
+            DimensionedObservation {
+                name: "applied_ux_force",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_rz_moment",
+                value: 2.0,
+                unit: "N-m",
+                dimension: "moment",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+        ],
+    }
+}
+
 pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
     let support_id = "NL-ACTIVE-ONE-WAY-A";
     let support = NonlinearSupport::one_way(
@@ -2906,7 +3033,7 @@ mod tests {
     fn multisupport_acceptance_inventory_uses_narrow_dec_046_policy() {
         let fixtures = assembled_multisupport_acceptance_inventory();
 
-        assert_eq!(fixtures.len(), 4);
+        assert_eq!(fixtures.len(), 5);
         assert_eq!(
             fixtures
                 .iter()
@@ -2948,8 +3075,29 @@ mod tests {
                 .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::TolerancePolicyTbd));
         }
 
+        let rotational_fixture = fixtures
+            .iter()
+            .find(|fixture| {
+                fixture.fixture_id == "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL"
+            })
+            .expect("rotational acceptance companion remains in inventory");
+        let rotational_solve = rotational_fixture.run().unwrap();
+        let final_residuals = &rotational_solve.iterations.last().unwrap().residuals;
+        assert!(
+            final_residuals
+                .max_abs_rotation_delta_from_previous
+                .unwrap()
+                > 0.0
+        );
+        assert!(
+            final_residuals
+                .max_abs_moment_reaction_delta_from_previous
+                .unwrap()
+                > 0.0
+        );
+
         let observations = assembled_multisupport_acceptance_convergence_observations();
-        assert_eq!(observations.len(), 4);
+        assert_eq!(observations.len(), 5);
         for observation in &observations {
             assert_eq!(
                 observation.policy_ref,
@@ -2962,7 +3110,7 @@ mod tests {
         }
 
         let residuals = assembled_multisupport_acceptance_residual_observations();
-        assert_eq!(residuals.len(), 4);
+        assert_eq!(residuals.len(), 5);
         for residual in &residuals {
             assert_eq!(
                 residual.free_dof_force_moment_threshold_policy,
