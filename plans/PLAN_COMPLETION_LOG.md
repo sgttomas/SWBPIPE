@@ -214,6 +214,40 @@ This approval does not change lifecycle state, dispatch Type 2 work, promote
 candidate rows, create release-readiness claims, or create professional,
 certification, sealing, authentication, or code-compliance claims.
 
+## 2026-06-22 - R4 D9 two-span opposing-gap companion (`TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001`)
+
+Landed a thirteenth public-original accepted multi-support validation companion
+inside the narrow `DEC-046` multi-support policy envelope.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: added
+  `NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL`, an
+  invented two-span frame fixture with a positive-direction Ux gap at the
+  intermediate node and a negative-direction Uy gap at the tip node.
+- Multi-support policy/observation records now name the thirteen-fixture
+  public-original set for active-set-count, free-DOF force/moment, free-DOF
+  work, general-energy, and displacement/reaction-delta evidence.
+- Nonlinear regression guards, benchmark README text, hand-calculation notes,
+  DEL-09-03 memory, current coordination surfaces, the R4 exit-scope decision
+  packet, and the R4 exit-gap packet were updated to reflect the thirteen-fixture
+  envelope while preserving `TBD` residuals.
+
+Validation: nonlinear benchmark Rust tests passed 18/18; focused Python
+regression passed 8/8; JSON syntax validation passed for the six modified
+multi-support policy/observation records; `git diff --check` passed. Full
+DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T165533Z_25634e332118-dirty.json`.
+
+Residuals: no non-seed force/displacement threshold beyond the accepted
+thirteen-fixture set, broader displacement/reaction-delta threshold, broader
+general-energy threshold, sparse-default behavior, release/external threshold,
+or R4 exit decision was added. `D-25` remains the human ruling gate for whether
+the residuals block R4 or defer to post-R4/R5.
+
+Run record:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001.md`.
+
 ## 2026-06-22 - R4 D7 sparse storage-footprint observations (`TP-R4-D7-SPARSESTORAGEOBS-001`)
 
 Added deterministic storage-footprint observations to the DEC-050 sparse

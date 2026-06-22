@@ -113,6 +113,7 @@ REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES = {
     "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL": "assembled_multi_support_four_class_acceptance.md",
     "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL": "assembled_multi_support_opposing_gaps_acceptance.md",
     "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL": "assembled_multi_support_two_span_acceptance.md",
+    "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL": "assembled_multi_support_two_span_opposing_gaps_acceptance.md",
 }
 EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS = list(
     REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES

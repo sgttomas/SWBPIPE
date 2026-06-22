@@ -84,12 +84,13 @@ accepted multi-support validation fixture set:
 `NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL`, plus
 `NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL`, plus
 `NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL`, plus
-`NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL`. This is
+`NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL`, plus
+`NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL`. This is
 narrow non-seed acceptance evidence spanning translational-only, mixed
 translation/rotation, derived-normal friction, derived-normal rotational, and
 sequential active-set cascade, negative gap-direction, and four-class
 companions, plus gap-only opposing-direction and multi-node / two-span
-companions under
+companions, including a two-span opposing-gap companion, under
 `DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
 `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`.
 It accepts active-set changed-support-count convergence, final-iteration
@@ -129,7 +130,9 @@ and
 and
 `validation/hand_calcs/nonlinear/assembled_multi_support_opposing_gaps_acceptance.md`,
 and
-`validation/hand_calcs/nonlinear/assembled_multi_support_two_span_acceptance.md`.
+`validation/hand_calcs/nonlinear/assembled_multi_support_two_span_acceptance.md`,
+and
+`validation/hand_calcs/nonlinear/assembled_multi_support_two_span_opposing_gaps_acceptance.md`.
 The machine-readable policy records are
 `validation/benchmarks/nonlinear/multisupport_convergence_policy.dec046.json`
 and

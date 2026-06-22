@@ -110,8 +110,13 @@
      `TP-R4-D9-MULTISUPPORT3DOF-001`,
      `TP-R4-D9-MULTISUPPORTROT-001`,
      `TP-R4-D9-MULTISUPPORTDERIVED-001`,
-     `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`, and
-     `TP-R4-D9-MULTISUPPORTCASCADE-001`).
+     `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`,
+     `TP-R4-D9-MULTISUPPORTCASCADE-001`,
+     `TP-R4-D9-MULTISUPPORTNEGAP-001`,
+     `TP-R4-D9-MULTISUPPORT4CLASS-001`,
+     `TP-R4-D9-MULTISUPPORTOPPGAP-001`,
+     `TP-R4-D9-MULTISUPPORTSPAN-001`, and
+     `TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001`).
      `TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` live sparse evidence lane
      while dense remains default. `TP-R4-D7-SPARSEPROFILE-001` added direct
      reduced profile-entry assembly for product-preview sparse evidence rows
@@ -131,10 +136,10 @@
      thresholds remain `TBD`.
      `TP-R4-D9-EXITGAP-001` records the current R4
      exit verdict as not ready: non-seed force/displacement threshold
-     promotion beyond the accepted twelve-fixture set, broader
+     promotion beyond the accepted thirteen-fixture set, broader
      displacement/reaction-delta and energy threshold promotion beyond current
-     seed/product/twelve-fixture evidence, broader multi-DOF / multi-support
-     nonlinear acceptance thresholds beyond the accepted twelve-fixture set,
+     seed/product/thirteen-fixture evidence, broader multi-DOF / multi-support
+     nonlinear acceptance thresholds beyond the accepted thirteen-fixture set,
      default sparse promotion plus sparse timing/memory/CI/hardware-normalized
      policy and conditioning evidence beyond the generated-grid pivot-ratio
      policy, deeper spring-hanger behavior, external validation evidence, and

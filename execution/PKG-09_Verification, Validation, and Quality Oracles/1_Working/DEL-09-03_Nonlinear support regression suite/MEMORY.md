@@ -25,11 +25,11 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 ## Remaining TBDs
 
-- Non-seed force/displacement thresholds beyond the accepted twelve-fixture
+- Non-seed force/displacement thresholds beyond the accepted thirteen-fixture
   multi-support companion set, broader general-energy residual thresholds
-  beyond the current seed, accepted twelve-fixture set, and invented
+  beyond the current seed, accepted thirteen-fixture set, and invented
   product-preview surface, displacement/reaction-delta thresholds beyond the
-  current seed, accepted twelve-fixture set, and invented product-preview mixed
+  current seed, accepted thirteen-fixture set, and invented product-preview mixed
   surface, sparse default/promotion thresholds, release thresholds, total
   strain-energy or modal-energy thresholds, CI thresholds, and external
   validation thresholds remain `TBD`.
@@ -72,7 +72,8 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   `TP-R4-D9-MULTISUPPORTNEGAP-001`, and
   `TP-R4-D9-MULTISUPPORT4CLASS-001`, and
   `TP-R4-D9-MULTISUPPORTOPPGAP-001`, and
-  `TP-R4-D9-MULTISUPPORTSPAN-001` add twelve accepted multi-DOF /
+  `TP-R4-D9-MULTISUPPORTSPAN-001`, and
+  `TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001` add thirteen accepted multi-DOF /
   multi-support companion fixtures under narrow active-set, free-DOF
   force/moment, free-DOF work residual, general-energy residual, and
   displacement/reaction delta threshold policies (`TP-R4-D9-WORKPOLICY-001`,
@@ -87,13 +88,35 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   that was promoted in `TP-R4-D9-PRODDISPREACTIONPOLICY-001`.
 - `TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
   displacement/reaction delta threshold policies for the current assembled
-  seed and accepted twelve-fixture multi-support set only.
+  seed and accepted thirteen-fixture multi-support set only.
 - `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes the invented mixed
   product-preview displacement/reaction delta rows to an accepted product-only
   threshold policy; broader non-seed, release, external, sparse-default, total
   strain-energy, modal-energy, and CI thresholds remain `TBD`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001
+
+- Added
+  `NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL`, an
+  invented assembled two-span frame fixture with a positive-direction Ux gap
+  on the intermediate node and a negative-direction Uy gap on the tip node.
+- Broadened the accepted multi-support validation fixture set from twelve
+  companions to thirteen companions by adding a two-span opposing-gap fixture
+  inside the existing active-set, free-DOF force/moment, free-DOF work,
+  general-energy, and displacement/reaction-delta policy envelopes.
+- Updated the multi-support active-set-count, free-DOF force/moment,
+  free-DOF work, general-energy, displacement/reaction-delta observation, and
+  displacement/reaction-delta policy records so their evidence fixture IDs name
+  the thirteen-fixture public-original set.
+- Boundary preserved: no non-seed force/displacement threshold beyond the
+  accepted thirteen-fixture set, broader displacement-delta or reaction-delta
+  threshold, broader general-energy threshold, sparse-default, external
+  validation, release-readiness, lifecycle, professional, or code-compliance
+  claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORTSPAN-001
 

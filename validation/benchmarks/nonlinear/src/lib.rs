@@ -175,7 +175,7 @@ const DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 10.0;
 const DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 3.0;
 const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS: &[&str] = &[
     "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration displacement and reaction deltas from the previous active-set solve.",
-    "Limits are fixture-evidence envelopes for the accepted twelve-fixture multi-support set; fixture-local overrides may only tighten them.",
+    "Limits are fixture-evidence envelopes for the accepted thirteen-fixture multi-support set; fixture-local overrides may only tighten them.",
     "Does not define general energy, sparse default, product-preview, release, external validation, or CI thresholds.",
 ];
 const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
@@ -191,6 +191,7 @@ const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
     "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
+    "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1176,6 +1177,7 @@ pub fn assembled_multisupport_acceptance_inventory() -> Vec<AssembledNonlinearRe
         assembled_multi_dof_four_class_acceptance_fixture(),
         assembled_multi_dof_opposing_gaps_acceptance_fixture(),
         assembled_multi_dof_two_span_acceptance_fixture(),
+        assembled_multi_dof_two_span_opposing_gaps_acceptance_fixture(),
     ]
 }
 
@@ -1753,7 +1755,10 @@ fn convergence_class_label(
         | "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL"
-        | "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL" => "multi_support_multi_dof",
+        | "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL"
+        | "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL" => {
+            "multi_support_multi_dof"
+        }
         _ => match family {
             NonlinearRegressionFamily::ActiveSet => "active_set",
             NonlinearRegressionFamily::Gap => "gap",
@@ -3956,6 +3961,133 @@ pub fn assembled_multi_dof_two_span_acceptance_fixture() -> AssembledNonlinearRe
     }
 }
 
+pub fn assembled_multi_dof_two_span_opposing_gaps_acceptance_fixture(
+) -> AssembledNonlinearRegressionCase {
+    let mid_positive_gap_id = "NL-ASSEMBLED-MULTI-NODE-GAP-POS-UX-N";
+    let tip_negative_gap_id = "NL-ASSEMBLED-MULTI-NODE-GAP-NEG-UY-N";
+    let mid_positive_gap = NonlinearSupport::gap(
+        mid_positive_gap_id,
+        1,
+        FrameDof::Ux,
+        0.0002,
+        GapDirection::PositiveDisplacement,
+    )
+    .unwrap();
+    let tip_negative_gap = NonlinearSupport::gap(
+        tip_negative_gap_id,
+        2,
+        FrameDof::Uy,
+        0.0002,
+        GapDirection::NegativeDisplacement,
+    )
+    .unwrap();
+    let mut input = assembled_two_span_xy_input(
+        vec![mid_positive_gap, tip_negative_gap],
+        vec![
+            SupportStateRecord::new(mid_positive_gap_id, ActiveSetState::Inactive),
+            SupportStateRecord::new(tip_negative_gap_id, ActiveSetState::Inactive),
+        ],
+        accepted_multisupport_convergence_control().unwrap(),
+    );
+    input.force[node_dof_index(2, FrameDof::Uy)] = -1.0;
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
+        family: NonlinearRegressionFamily::MixedSupport,
+        description:
+            "Invented assembled two-span frame solve accepts opposing-direction gap closures on separate frame nodes under a narrow multi-support DEC-046 policy.",
+        assumptions: &[
+            "The frame fixture is a three-node, two-element member chain with Ux/Uy free at the intermediate and tip nodes.",
+            "A positive-direction Ux gap is on the intermediate node while a negative-direction Uy gap is on the tip node.",
+            "This acceptance companion combines the multi-node / two-span topology with opposing gap directions; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_multi_support_two_span_opposing_gaps_acceptance.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![
+            ExpectedState {
+                support_id: tip_negative_gap_id,
+                state: ActiveSetState::Active,
+            },
+            ExpectedState {
+                support_id: mid_positive_gap_id,
+                state: ActiveSetState::Active,
+            },
+        ],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![],
+        observations: vec![
+            DimensionedObservation {
+                name: "span_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "nonlinear_support_node_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_tip_ux_force",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_tip_uy_force",
+                value: -1.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "mid_positive_gap_clearance",
+                value: 0.0002,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "tip_negative_gap_clearance",
+                value: 0.0002,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "opposing_gap_directions",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+        ],
+    }
+}
+
 pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
     let support_id = "NL-ACTIVE-ONE-WAY-A";
     let support = NonlinearSupport::one_way(
@@ -4422,7 +4554,7 @@ mod tests {
     fn multisupport_acceptance_inventory_uses_narrow_dec_046_policy() {
         let fixtures = assembled_multisupport_acceptance_inventory();
 
-        assert_eq!(fixtures.len(), 12);
+        assert_eq!(fixtures.len(), 13);
         assert_eq!(
             fixtures
                 .iter()
@@ -4518,7 +4650,7 @@ mod tests {
         );
 
         let observations = assembled_multisupport_acceptance_convergence_observations();
-        assert_eq!(observations.len(), 12);
+        assert_eq!(observations.len(), 13);
         for observation in &observations {
             assert_eq!(
                 observation.policy_ref,
@@ -4531,7 +4663,7 @@ mod tests {
         }
 
         let residuals = assembled_multisupport_acceptance_residual_observations();
-        assert_eq!(residuals.len(), 12);
+        assert_eq!(residuals.len(), 13);
         for residual in &residuals {
             assert_eq!(
                 residual.free_dof_force_moment_threshold_policy,

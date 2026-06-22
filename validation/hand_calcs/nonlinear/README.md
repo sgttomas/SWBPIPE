@@ -76,6 +76,7 @@ for the public-original multi-DOF / multi-support validation fixture set only.
 | `NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL` | [assembled_multi_support_four_class_acceptance.md](assembled_multi_support_four_class_acceptance.md) |
 | `NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL` | [assembled_multi_support_opposing_gaps_acceptance.md](assembled_multi_support_opposing_gaps_acceptance.md) |
 | `NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL` | [assembled_multi_support_two_span_acceptance.md](assembled_multi_support_two_span_acceptance.md) |
+| `NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL` | [assembled_multi_support_two_span_opposing_gaps_acceptance.md](assembled_multi_support_two_span_opposing_gaps_acceptance.md) |
 
 ## Observation Notes
 
