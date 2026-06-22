@@ -337,3 +337,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
   promotion are follow-on work; no release-readiness, professional approval,
   certification, sealing, authentication, code-compliance claim, protected
   standards content, private data, network path, or telemetry feature changed.
+
+## 2026-06-22 - TP-R4-D7-SPARSEPROFILE-001 product direct-profile sparse evidence
+
+- Added a direct explicit-entry sparse solve surface in `core/solver/sparse_direct`
+  and product reduced-entry assembly from frame, user-stiffness, and spring
+  contributions.
+- `core/product_physics` sparse evidence rows now record
+  `assembly=direct_reduced_profile_entries` and
+  `profile_direct_assembly=observed` while preserving
+  `default_sparse_promotion=follow_on`.
+- Regenerated the invented product-preview mechanics fixture and updated sparse
+  diagnostics wording/error mapping.
+- Full DEC-025 sweep passed:
+  `validation/evidence/sweeps/SWEEP_20260622T085210Z_799ebcc0dee5-dirty.json`.
+- Residuals remain explicit: dense remains default; default sparse promotion,
+  nonlinear/core profile-direct sparse promotion, external validation
+  thresholds, and final R4 exit evidence remain open.

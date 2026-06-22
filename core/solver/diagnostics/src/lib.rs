@@ -530,13 +530,13 @@ pub fn convergence_diagnostic(
 /// The sparse solver *selection* is resolved by the human ruling `DEC-023`
 /// (D-03 Option C: in-repo skyline LDL^T direct solver,
 /// `core/solver/sparse_direct`). `DEC-050` binds an R4 sparse evidence lane;
-/// what remains `TBD` is profile-direct assembly and default sparse promotion.
+/// what remains `TBD` is default sparse promotion.
 pub fn sparse_solver_tbd_diagnostic() -> SolverDiagnostic {
     SolverDiagnostic::new(
         SolverDiagnosticCode::SparseSolverTbd,
         DiagnosticSeverity::Warning,
         DiagnosticSource::SolverConfiguration,
-        "sparse solver strategy is resolved by DEC-023 (in-repo skyline LDLT direct solver, core/solver/sparse_direct); DEC-050 sparse evidence lane is live; profile-direct assembly and default sparse promotion remain TBD",
+        "sparse solver strategy is resolved by DEC-023 (in-repo skyline LDLT direct solver, core/solver/sparse_direct); DEC-050 sparse evidence lane is live; product direct profile assembly is observed; default sparse promotion remains TBD",
     )
 }
 
@@ -576,6 +576,18 @@ pub fn diagnostic_from_sparse_error(error: &SparseDirectError) -> SolverDiagnost
             DiagnosticSeverity::Blocking,
             DiagnosticSource::ModelValidation,
             format!("{name} must be finite, got {value}"),
+        ),
+        SparseDirectError::InvalidMatrixEntryIndex {
+            row,
+            col,
+            dimension,
+        } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidNumericInput,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::MechanicsSolver,
+            format!(
+                "sparse matrix entry index ({row}, {col}) is outside dimension {dimension}"
+            ),
         ),
         SparseDirectError::InvalidOrdering { detail } => SolverDiagnostic::new(
             SolverDiagnosticCode::InvalidNumericInput,
@@ -1019,12 +1031,15 @@ mod tests {
         assert!(diagnostic.message.contains("core/solver/sparse_direct"));
         assert!(diagnostic
             .message
-            .contains("default sparse promotion remain TBD"));
+            .contains("product direct profile assembly is observed"));
+        assert!(diagnostic
+            .message
+            .contains("default sparse promotion remains TBD"));
         assert!(diagnostic
             .remediation
             .as_deref()
             .unwrap()
-            .contains("profile-direct sparse assembly"));
+            .contains("default sparse-solver promotion"));
     }
 
     #[test]
@@ -1065,6 +1080,16 @@ mod tests {
         });
         assert_eq!(ordering.code, SolverDiagnosticCode::InvalidNumericInput);
         assert!(ordering.message.contains("ordering repeats an index"));
+
+        let entry_index =
+            diagnostic_from_sparse_error(&SparseDirectError::InvalidMatrixEntryIndex {
+                row: 3,
+                col: 1,
+                dimension: 2,
+            });
+        assert_eq!(entry_index.code, SolverDiagnosticCode::InvalidNumericInput);
+        assert_eq!(entry_index.source, DiagnosticSource::MechanicsSolver);
+        assert!(entry_index.message.contains("(3, 1)"));
 
         let non_finite = diagnostic_from_sparse_error(&SparseDirectError::NonFiniteInput {
             name: "matrix entry",

@@ -17,7 +17,7 @@ This crate is the bounded implementation slice for `DEL-04-06`. It provides code
 - Stable affected references for primitive-load missing-ID findings.
 - Basic finite/nonnegative condition-ratio classification for small verification paths; the same classifier serves the sparse pivot-ratio conditioning proxy (thresholds remain caller-supplied and governed by D-04).
 - Nonconvergence diagnostics for iterative methods without implementing nonlinear support behavior.
-- Explicit status diagnostics for the sparse-solver adoption state and tolerance policy: per `DEC-023` the sparse solver *selection* is resolved (in-repo skyline LDLᵀ, `core/solver/sparse_direct`), and `DEC-050` binds the R4 sparse evidence lane while dense remains default; the `SparseSolverTbd` code now records that profile-direct assembly and default sparse promotion remain `TBD`. The tolerance-policy `TBD` diagnostic continues to fire per `DEC-026` until governed values are filled by measurement.
+- Explicit status diagnostics for the sparse-solver adoption state and tolerance policy: per `DEC-023` the sparse solver *selection* is resolved (in-repo skyline LDLᵀ, `core/solver/sparse_direct`), and `DEC-050` binds the R4 sparse evidence lane while dense remains default; the `SparseSolverTbd` code now records that product direct profile assembly is observed and default sparse promotion remains `TBD`. The tolerance-policy `TBD` diagnostic continues to fire per `DEC-026` until governed values are filled by measurement.
 
 ## Boundary
 

@@ -6,11 +6,13 @@
 //! professional acceptance.
 
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, reduce_system, solve_dense, FrameElement,
-    FrameKernelError, FrameNode, UserStiffnessElement, DOF_PER_NODE, RX, RY, RZ, UX, UY, UZ,
+    assemble_global_stiffness_with_user_elements, element_dof_map, reduce_system, solve_dense,
+    FrameElement, FrameKernelError, FrameNode, Matrix12, UserStiffnessElement, DOF_PER_NODE,
+    ELEMENT_DOF, RX, RY, RZ, UX, UY, UZ,
 };
 use open_pipe_stress_linear_supports::{
-    prepare_boundary, FrameDof, LinearSupport, QuantityDimension, SupportFamily, SupportQuantity,
+    prepare_boundary, FrameDof, LinearSupport, QuantityDimension, SpringEntry, SupportFamily,
+    SupportQuantity,
 };
 use open_pipe_stress_load_case_algebra::{
     evaluate_linear_combination, evaluate_range_envelope, evaluate_result_state_subtraction,
@@ -32,7 +34,7 @@ use open_pipe_stress_primitive_loads::{
 use open_pipe_stress_solver_diagnostics::{
     DiagnosticSeverity as SolverDiagnosticSeverity, SolverDiagnostic, SolverDiagnosticCode,
 };
-use open_pipe_stress_sparse_direct::solve_symmetric_system;
+use open_pipe_stress_sparse_direct::{solve_symmetric_system_from_entries, SymmetricMatrixEntry};
 use open_pipe_stress_straight_pipe::{StraightPipeElement, StraightPipeSectionProperties};
 use open_pipe_stress_stress_recovery::{
     recover_stresses, AnalysisStatus, ForceResultants, PressureBasis, StressComponents,
@@ -670,6 +672,7 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
             &materials,
             &stiffness,
             &boundary.restrained_dofs,
+            &boundary.springs,
             load_case,
             &mut diagnostics,
         ) {
@@ -776,6 +779,7 @@ fn solve_load_case(
     materials: &[MaterialInput],
     stiffness: &[Vec<f64>],
     restrained_dofs: &[usize],
+    spring_entries: &[SpringEntry],
     load_case: &PreviewLoadCase,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
@@ -839,8 +843,10 @@ fn solve_load_case(
         &mut results,
         diagnostics,
         &load_case.id,
-        &reduced.stiffness,
-        &reduced.force,
+        built,
+        spring_entries,
+        &force,
+        restrained_dofs,
         &reduced_displacements,
     );
     let component_pressure_thrust_load_count = append_expansion_joint_pressure_thrust_results(
@@ -1372,11 +1378,54 @@ fn append_sparse_live_path_evidence(
     results: &mut Vec<ResultItem>,
     diagnostics: &mut Vec<Diagnostic>,
     load_case_id: &str,
-    reduced_stiffness: &[Vec<f64>],
-    reduced_force: &[f64],
+    built: &BuiltModel,
+    spring_entries: &[SpringEntry],
+    force: &[f64],
+    restrained_dofs: &[usize],
     dense_solution: &[f64],
 ) {
-    let sparse = match solve_symmetric_system(reduced_stiffness, reduced_force) {
+    let direct_system = match assemble_reduced_sparse_entry_system(
+        built.nodes.len(),
+        &built.frame_elements,
+        &built.user_stiffness_elements,
+        spring_entries,
+        force,
+        restrained_dofs,
+    ) {
+        Ok(system) => system,
+        Err(error) => {
+            diagnostics.push(diag(
+                &format!("diagnostic:sparse-live:{}:unavailable", stable_suffix(load_case_id)),
+                "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE",
+                "warning",
+                format!(
+                    "DEC-050 direct profile sparse evidence lane could not assemble load case {load_case_id}; dense solve remains the default product path and parity oracle: {error}"
+                ),
+                vec![load_case_id.to_string(), "DEC-050".to_string()],
+            ));
+            return;
+        }
+    };
+    if direct_system.dimension != dense_solution.len() {
+        diagnostics.push(diag(
+            &format!("diagnostic:sparse-live:{}:unavailable", stable_suffix(load_case_id)),
+            "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE",
+            "warning",
+            format!(
+                "DEC-050 direct profile sparse evidence lane dimension {} did not match dense solution length {}; dense solve remains the default product path and parity oracle",
+                direct_system.dimension,
+                dense_solution.len()
+            ),
+            vec![load_case_id.to_string(), "DEC-050".to_string()],
+        ));
+        return;
+    }
+
+    let sparse = match solve_symmetric_system_from_entries(
+        direct_system.dimension,
+        &direct_system.entries,
+        &direct_system.force,
+    ) {
         Ok(sparse) => sparse,
         Err(error) => {
             diagnostics.push(diag(
@@ -1384,7 +1433,7 @@ fn append_sparse_live_path_evidence(
                 "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE",
                 "warning",
                 format!(
-                    "DEC-050 sparse evidence lane could not observe load case {load_case_id}; dense solve remains the default product path and parity oracle: {error}"
+                    "DEC-050 direct profile sparse evidence lane could not observe load case {load_case_id}; dense solve remains the default product path and parity oracle: {error}"
                 ),
                 vec![load_case_id.to_string(), "DEC-050".to_string()],
             ));
@@ -1398,8 +1447,12 @@ fn append_sparse_live_path_evidence(
     } else {
         max_abs_dense_sparse_solution_delta
     };
-    let sparse_residual =
-        max_abs_linear_residual(reduced_stiffness, &sparse.solution, reduced_force);
+    let sparse_residual = max_abs_entry_residual(
+        direct_system.dimension,
+        &direct_system.entries,
+        &sparse.solution,
+        &direct_system.force,
+    );
 
     results.push(ResultItem {
         id: "result:sparse-live:dense-parity-relative-delta".to_string(),
@@ -1414,8 +1467,9 @@ fn append_sparse_live_path_evidence(
             coordinate_system: "reduced_system".to_string(),
             location: "load_case".to_string(),
             basis: format!(
-                "DEC-050 sparse_evidence_lane; dense_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; ordering=reverse_cuthill_mckee; reduced_dofs={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; max_abs_dense_sparse_delta={}; max_abs_sparse_residual={}; nonpositive_pivots={}; profile_direct_assembly=follow_on; default_sparse_promotion=follow_on",
+                "DEC-050 sparse_evidence_lane; dense_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs={}; sparse_entry_count={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; max_abs_dense_sparse_delta={}; max_abs_sparse_residual={}; nonpositive_pivots={}; profile_direct_assembly=observed; default_sparse_promotion=follow_on",
                 sparse.solution.len(),
+                direct_system.entries.len(),
                 sparse.original_profile_entry_count,
                 sparse.ordered_profile_entry_count,
                 sparse.original_max_half_bandwidth,
@@ -1429,6 +1483,184 @@ fn append_sparse_live_path_evidence(
                     .to_string(),
         }),
     });
+}
+
+#[derive(Debug, Clone)]
+struct ReducedSparseEntrySystem {
+    dimension: usize,
+    entries: Vec<SymmetricMatrixEntry>,
+    force: Vec<f64>,
+}
+
+fn assemble_reduced_sparse_entry_system(
+    node_count: usize,
+    frame_elements: &[FrameElement],
+    user_stiffness_elements: &[UserStiffnessElement],
+    spring_entries: &[SpringEntry],
+    force: &[f64],
+    restrained_dofs: &[usize],
+) -> Result<ReducedSparseEntrySystem, FrameKernelError> {
+    let total_dofs = node_count * DOF_PER_NODE;
+    if force.len() != total_dofs {
+        return Err(FrameKernelError::InvalidVectorLength {
+            expected: total_dofs,
+            actual: force.len(),
+        });
+    }
+    for &value in force {
+        if !value.is_finite() {
+            return Err(FrameKernelError::NonFiniteInput {
+                name: "force entry",
+                value,
+            });
+        }
+    }
+
+    let mut constrained = vec![false; total_dofs];
+    for &dof in restrained_dofs {
+        if dof >= total_dofs {
+            return Err(FrameKernelError::RestrainedDofOutOfRange { dof, total_dofs });
+        }
+        if constrained[dof] {
+            return Err(FrameKernelError::RepeatedRestrainedDof { dof });
+        }
+        constrained[dof] = true;
+    }
+
+    let mut global_to_reduced = vec![None; total_dofs];
+    let mut reduced_force = Vec::new();
+    for global_dof in 0..total_dofs {
+        if constrained[global_dof] {
+            continue;
+        }
+        global_to_reduced[global_dof] = Some(reduced_force.len());
+        reduced_force.push(force[global_dof]);
+    }
+
+    let mut entries = Vec::new();
+    for element in frame_elements {
+        validate_element_nodes(element.node_i.index, element.node_j.index, node_count)?;
+        let element_stiffness = element.global_stiffness()?;
+        append_reduced_element_entries(
+            &mut entries,
+            &global_to_reduced,
+            element.node_i.index,
+            element.node_j.index,
+            &element_stiffness,
+        )?;
+    }
+    for element in user_stiffness_elements {
+        validate_element_nodes(element.node_i.index, element.node_j.index, node_count)?;
+        let element_stiffness = element.global_stiffness()?;
+        append_reduced_element_entries(
+            &mut entries,
+            &global_to_reduced,
+            element.node_i.index,
+            element.node_j.index,
+            &element_stiffness,
+        )?;
+    }
+    for spring in spring_entries {
+        if spring.node_dof.node_index >= node_count {
+            return Err(FrameKernelError::InvalidNodeIndex {
+                node_index: spring.node_dof.node_index,
+                node_count,
+            });
+        }
+        let global_dof = spring.node_dof.global_index();
+        if let Some(reduced_dof) = global_to_reduced[global_dof] {
+            entries.push(SymmetricMatrixEntry {
+                row: reduced_dof,
+                col: reduced_dof,
+                value: spring.stiffness.value,
+            });
+        }
+    }
+
+    Ok(ReducedSparseEntrySystem {
+        dimension: reduced_force.len(),
+        entries,
+        force: reduced_force,
+    })
+}
+
+fn validate_element_nodes(
+    node_i: usize,
+    node_j: usize,
+    node_count: usize,
+) -> Result<(), FrameKernelError> {
+    if node_i >= node_count {
+        return Err(FrameKernelError::InvalidNodeIndex {
+            node_index: node_i,
+            node_count,
+        });
+    }
+    if node_j >= node_count {
+        return Err(FrameKernelError::InvalidNodeIndex {
+            node_index: node_j,
+            node_count,
+        });
+    }
+    Ok(())
+}
+
+fn append_reduced_element_entries(
+    entries: &mut Vec<SymmetricMatrixEntry>,
+    global_to_reduced: &[Option<usize>],
+    node_i: usize,
+    node_j: usize,
+    element_stiffness: &Matrix12,
+) -> Result<(), FrameKernelError> {
+    let dof_map = element_dof_map(node_i, node_j);
+    for local_row in 0..ELEMENT_DOF {
+        let global_row = dof_map[local_row];
+        let Some(reduced_row) = global_to_reduced[global_row] else {
+            continue;
+        };
+        for local_col in 0..=local_row {
+            let global_col = dof_map[local_col];
+            let Some(reduced_col) = global_to_reduced[global_col] else {
+                continue;
+            };
+            let value = element_stiffness[local_row][local_col];
+            if !value.is_finite() {
+                return Err(FrameKernelError::NonFiniteInput {
+                    name: "matrix entry",
+                    value,
+                });
+            }
+            if value == 0.0 {
+                continue;
+            }
+            let (row, col) = if reduced_row >= reduced_col {
+                (reduced_row, reduced_col)
+            } else {
+                (reduced_col, reduced_row)
+            };
+            entries.push(SymmetricMatrixEntry { row, col, value });
+        }
+    }
+    Ok(())
+}
+
+fn max_abs_entry_residual(
+    dimension: usize,
+    entries: &[SymmetricMatrixEntry],
+    solution: &[f64],
+    force: &[f64],
+) -> f64 {
+    let mut internal = vec![0.0; dimension];
+    for entry in entries {
+        internal[entry.row] += entry.value * solution[entry.col];
+        if entry.row != entry.col {
+            internal[entry.col] += entry.value * solution[entry.row];
+        }
+    }
+    internal
+        .iter()
+        .zip(force.iter())
+        .map(|(internal, applied)| (internal - applied).abs())
+        .fold(0.0, f64::max)
 }
 
 fn append_nonlinear_scalar_result(
@@ -5325,21 +5557,6 @@ fn max_abs_value(values: &[f64]) -> f64 {
     values.iter().copied().map(f64::abs).fold(0.0, f64::max)
 }
 
-fn max_abs_linear_residual(matrix: &[Vec<f64>], solution: &[f64], force: &[f64]) -> f64 {
-    matrix
-        .iter()
-        .zip(force.iter())
-        .map(|(row, force)| {
-            let applied = row
-                .iter()
-                .zip(solution.iter())
-                .map(|(stiffness, displacement)| stiffness * displacement)
-                .sum::<f64>();
-            (applied - force).abs()
-        })
-        .fold(0.0, f64::max)
-}
-
 fn node_index(model: &PreviewModel, id: &str) -> Option<usize> {
     model.nodes.iter().position(|node| node.id == id)
 }
@@ -5762,7 +5979,10 @@ mod tests {
         assert_eq!(metadata.coordinate_system, "reduced_system");
         assert!(metadata.basis.contains("DEC-050 sparse_evidence_lane"));
         assert!(metadata.basis.contains("dense_default=true"));
-        assert!(metadata.basis.contains("profile_direct_assembly=follow_on"));
+        assert!(metadata
+            .basis
+            .contains("assembly=direct_reduced_profile_entries"));
+        assert!(metadata.basis.contains("profile_direct_assembly=observed"));
         assert!(metadata
             .basis
             .contains("default_sparse_promotion=follow_on"));

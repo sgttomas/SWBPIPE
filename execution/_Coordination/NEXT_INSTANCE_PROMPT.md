@@ -98,11 +98,15 @@
      and invented product-preview surface only. Mixed one-way/gap/friction
      product live-loop coverage is landed for one invented dense solve.
      `TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` live sparse evidence lane
-     while dense remains default. `TP-R4-D9-EXITGAP-001` records the current R4
+     while dense remains default. `TP-R4-D7-SPARSEPROFILE-001` added direct
+     reduced profile-entry assembly for product-preview sparse evidence rows
+     while dense remains the product solve path and parity oracle.
+     `TP-R4-D9-EXITGAP-001` records the current R4
      exit verdict as not ready: non-seed force/displacement/energy threshold
      promotion, displacement/reaction-delta threshold axes, multi-DOF /
-     multi-support nonlinear fixture depth, profile-direct sparse/default
-     promotion, deeper spring-hanger behavior, and the remaining D9 validation
+     multi-support nonlinear fixture depth, default sparse promotion and
+     nonlinear/core profile-direct sparse promotion, deeper spring-hanger
+     behavior, and the remaining D9 validation
      package remain open. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the

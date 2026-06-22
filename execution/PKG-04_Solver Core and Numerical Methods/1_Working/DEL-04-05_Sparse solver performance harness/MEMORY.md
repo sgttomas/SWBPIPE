@@ -194,3 +194,19 @@ Durable context preserved after PKG-02 grounded finding resolution:
   release-readiness, professional approval, certification, sealing,
   authentication, code-compliance claim, protected standards content, private
   data, network path, or telemetry feature changed.
+
+## 2026-06-22 - TP-R4-D7-SPARSEPROFILE-001 product direct-profile sparse evidence
+
+- Added explicit-entry profile assembly and solve APIs to
+  `core/solver/sparse_direct`; duplicate lower-triangle entries are summed and
+  invalid entry indices map to sparse numeric diagnostics.
+- Product-preview sparse evidence now uses direct reduced profile entries
+  assembled from frame elements, user-stiffness elements, and spring entries.
+- Diagnostics now record that product direct profile assembly is observed while
+  default sparse promotion remains `TBD`.
+- Validation passed, including full DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260622T085210Z_799ebcc0dee5-dirty.json`.
+- Residuals remain explicit: default sparse promotion, nonlinear/core
+  profile-direct promotion, timing/memory thresholds, practical-size bands,
+  conditioning/CI thresholds, and hardware-normalized methodology remain future
+  work.

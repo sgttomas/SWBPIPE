@@ -315,12 +315,15 @@ non-seed force/displacement beyond the accepted fixture set, release,
 sparse-default, and external threshold axes remain open.
 `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction product live-loop
 coverage in one invented dense solve. `TP-R4-D7-SPARSELIVE-001`
-landed the `DEC-050` sparse evidence lane while dense remains default and
-profile-direct assembly/default promotion follow on.
+landed the `DEC-050` sparse evidence lane while dense remains default.
+`TP-R4-D7-SPARSEPROFILE-001` adds direct reduced profile-entry assembly for
+product-preview sparse evidence rows; default sparse promotion and
+nonlinear/core profile-direct sparse promotion follow on.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted fixture set,
 general energy threshold promotion, broader multi-DOF /
 multi-support nonlinear acceptance thresholds beyond the accepted fixture set,
+default sparse promotion and nonlinear/core profile-direct sparse promotion,
 deeper spring-hanger behavior, and
 the remaining D9 validation evidence remain open.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
@@ -414,13 +417,17 @@ bounded tranche.
       `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
       assembled nonlinear integration and product-preview reduced solve paths
       as the `DEC-050` sparse evidence lane, with dense remaining default.
+      `TP-R4-D7-SPARSEPROFILE-001` adds direct reduced profile-entry assembly
+      for product-preview sparse evidence rows while dense remains the product
+      solve path and parity oracle.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
       fixture set, general energy threshold promotion, displacement/reaction-delta
       threshold axes, broader multi-DOF / multi-support nonlinear acceptance thresholds
       beyond the accepted fixture set,
-      profile-direct sparse/default promotion, deeper spring-hanger behavior,
-      and the R4 exit evidence package remain open
+      default sparse promotion and nonlinear/core profile-direct sparse
+      promotion, deeper spring-hanger behavior, and the R4 exit evidence
+      package remain open
       under `DEC-044`/`DEC-046`/`DEC-050`.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize

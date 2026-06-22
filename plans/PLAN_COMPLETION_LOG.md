@@ -14,6 +14,48 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D7 product direct-profile sparse evidence (`TP-R4-D7-SPARSEPROFILE-001`)
+
+Landed a bounded follow-on to the `DEC-050` sparse evidence lane: product
+preview sparse evidence rows now assemble their reduced profile entries
+directly from frame elements, expansion-joint user-stiffness elements, and
+spring support entries, then solve through `core/solver/sparse_direct`. Dense
+remains the product solve path and parity oracle.
+
+Changed surfaces:
+
+- `core/solver/sparse_direct`: added explicit symmetric-entry profile storage
+  and solve APIs, with duplicate-entry summation and invented-frame parity
+  tests against the existing dense-derived sparse path.
+- `core/product_physics`: changed sparse live evidence to use direct reduced
+  profile entries and record `assembly=direct_reduced_profile_entries`,
+  `profile_direct_assembly=observed`, and `default_sparse_promotion=follow_on`.
+- `fixtures/product_preview/invented_mechanics_result.json`: regenerated the
+  invented mechanics result fixture so both sparse evidence rows carry the new
+  direct-profile assembly metadata.
+- `core/solver/diagnostics`: mapped the new sparse entry-index error and
+  updated the sparse status diagnostic to say product direct profile assembly is
+  observed while default sparse promotion remains `TBD`.
+- Coordination and planning surfaces: narrowed the sparse residual to default
+  sparse promotion plus nonlinear/core profile-direct promotion, without
+  closing R4/D9 exit evidence.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D7-SPARSEPROFILE-001.md`
+and
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D7-SPARSEPROFILE-001.md`.
+
+Focused validation: sparse direct Rust tests passed 20/20; diagnostics Rust
+tests passed 24/24; product physics Rust tests passed 44/44 after regenerating
+the fixture. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T085210Z_799ebcc0dee5-dirty.json`.
+
+Residuals: dense remains default; default sparse promotion, nonlinear/core
+profile-direct sparse promotion, timing/memory thresholds, external validation
+thresholds, and the remaining R4/D9 exit evidence remain open. No release,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 multi-support acceptance breadth (`TP-R4-D9-MULTISUPPORTBREADTH-001`)
 
 Landed a second public-original accepted multi-support validation companion in

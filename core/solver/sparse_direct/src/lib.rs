@@ -34,6 +34,11 @@ pub enum SparseDirectError {
         name: &'static str,
         value: f64,
     },
+    InvalidMatrixEntryIndex {
+        row: usize,
+        col: usize,
+        dimension: usize,
+    },
     InvalidOrdering {
         detail: &'static str,
     },
@@ -60,6 +65,14 @@ impl fmt::Display for SparseDirectError {
             Self::NonFiniteInput { name, value } => {
                 write!(f, "{name} must be finite, got {value}")
             }
+            Self::InvalidMatrixEntryIndex {
+                row,
+                col,
+                dimension,
+            } => write!(
+                f,
+                "matrix entry index ({row}, {col}) is outside dimension {dimension}"
+            ),
             Self::InvalidOrdering { detail } => write!(f, "invalid ordering: {detail}"),
             Self::SingularPivot {
                 ordered_index,
@@ -73,6 +86,18 @@ impl fmt::Display for SparseDirectError {
 }
 
 impl Error for SparseDirectError {}
+
+/// One lower-triangle contribution to a symmetric matrix.
+///
+/// Duplicate entries are summed. Callers assembling from already-symmetric
+/// element matrices should pass each symmetric pair once, not both mirrored
+/// positions.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SymmetricMatrixEntry {
+    pub row: usize,
+    pub col: usize,
+    pub value: f64,
+}
 
 /// Pivot location reported in both the profile-ordered numbering and the
 /// caller's original (pre-ordering) numbering.
@@ -170,6 +195,82 @@ impl SymmetricProfileMatrix {
             row_starts,
             values,
         })
+    }
+
+    /// Builds profile storage directly from explicit symmetric matrix entries
+    /// in identity ordering. Duplicate entries are summed.
+    pub fn from_entries(
+        dimension: usize,
+        entries: &[SymmetricMatrixEntry],
+    ) -> Result<Self, SparseDirectError> {
+        let identity: Vec<usize> = (0..dimension).collect();
+        Self::from_entries_with_order(dimension, entries, &identity)
+    }
+
+    /// Builds profile storage directly from explicit symmetric matrix entries
+    /// under the given ordering permutation, where `order[k]` is the original
+    /// index of the `k`-th ordered row/column. Duplicate entries are summed.
+    pub fn from_entries_with_order(
+        dimension: usize,
+        entries: &[SymmetricMatrixEntry],
+        order: &[usize],
+    ) -> Result<Self, SparseDirectError> {
+        validate_permutation(order, dimension)?;
+
+        let mut ordered_position = vec![0usize; dimension];
+        for (ordered_index, &original_index) in order.iter().enumerate() {
+            ordered_position[original_index] = ordered_index;
+        }
+
+        let mut first_columns: Vec<usize> = (0..dimension).collect();
+        for entry in entries {
+            validate_entry(dimension, entry)?;
+            if entry.value == 0.0 {
+                continue;
+            }
+            let ordered_row = ordered_position[entry.row];
+            let ordered_col = ordered_position[entry.col];
+            let (hi, lo) = if ordered_row >= ordered_col {
+                (ordered_row, ordered_col)
+            } else {
+                (ordered_col, ordered_row)
+            };
+            if lo < first_columns[hi] {
+                first_columns[hi] = lo;
+            }
+        }
+
+        let mut row_starts = Vec::with_capacity(dimension + 1);
+        row_starts.push(0usize);
+        let mut values = Vec::new();
+        for row in 0..dimension {
+            values.resize(values.len() + row - first_columns[row] + 1, 0.0);
+            row_starts.push(values.len());
+        }
+
+        let mut matrix = Self {
+            dimension,
+            original_indices: order.to_vec(),
+            first_columns,
+            row_starts,
+            values,
+        };
+        for entry in entries {
+            if entry.value == 0.0 {
+                continue;
+            }
+            let ordered_row = ordered_position[entry.row];
+            let ordered_col = ordered_position[entry.col];
+            let (hi, lo) = if ordered_row >= ordered_col {
+                (ordered_row, ordered_col)
+            } else {
+                (ordered_col, ordered_row)
+            };
+            let value = matrix.stored(hi, lo) + entry.value;
+            matrix.set_stored(hi, lo, value);
+        }
+
+        Ok(matrix)
     }
 
     pub fn dimension(&self) -> usize {
@@ -360,6 +461,23 @@ pub fn adjacency_from_dense(dense: &[Vec<f64>]) -> Result<Vec<Vec<usize>>, Spars
                 adjacency[row].push(col);
                 adjacency[col].push(row);
             }
+        }
+    }
+    Ok(adjacency)
+}
+
+/// Builds the undirected node adjacency of explicit symmetric entries from
+/// their exact nonzero pattern. Duplicate entries are allowed.
+pub fn adjacency_from_symmetric_entries(
+    dimension: usize,
+    entries: &[SymmetricMatrixEntry],
+) -> Result<Vec<Vec<usize>>, SparseDirectError> {
+    let mut adjacency = vec![Vec::new(); dimension];
+    for entry in entries {
+        validate_entry(dimension, entry)?;
+        if entry.value != 0.0 && entry.row != entry.col {
+            adjacency[entry.row].push(entry.col);
+            adjacency[entry.col].push(entry.row);
         }
     }
     Ok(adjacency)
@@ -567,6 +685,56 @@ pub fn solve_symmetric_system(
     })
 }
 
+/// Orders, stores, factors, and solves an explicitly assembled symmetric
+/// system without first materializing a dense matrix. Duplicate entries are
+/// summed in profile storage.
+pub fn solve_symmetric_system_from_entries(
+    dimension: usize,
+    entries: &[SymmetricMatrixEntry],
+    force: &[f64],
+) -> Result<SparseSolveResult, SparseDirectError> {
+    if force.len() != dimension {
+        return Err(SparseDirectError::InvalidVectorLength {
+            expected: dimension,
+            actual: force.len(),
+        });
+    }
+    validate_finite_slice("force entry", force)?;
+
+    let adjacency = adjacency_from_symmetric_entries(dimension, entries)?;
+    let ordering = reverse_cuthill_mckee(&adjacency)?;
+
+    let original_profile = SymmetricProfileMatrix::from_entries(dimension, entries)?;
+    let ordered_profile =
+        SymmetricProfileMatrix::from_entries_with_order(dimension, entries, &ordering)?;
+    let original_max_half_bandwidth = original_profile.max_half_bandwidth();
+    let original_profile_entry_count = original_profile.profile_entry_count();
+    let ordered_max_half_bandwidth = ordered_profile.max_half_bandwidth();
+    let ordered_profile_entry_count = ordered_profile.profile_entry_count();
+
+    let factorization = factorize_ldlt(&ordered_profile)?;
+
+    let mut ordered_force = vec![0.0f64; dimension];
+    for (ordered_index, &original_index) in ordering.iter().enumerate() {
+        ordered_force[ordered_index] = force[original_index];
+    }
+    let ordered_solution = factorization.solve_ordered(&ordered_force)?;
+    let mut solution = vec![0.0f64; dimension];
+    for (ordered_index, &original_index) in ordering.iter().enumerate() {
+        solution[original_index] = ordered_solution[ordered_index];
+    }
+
+    Ok(SparseSolveResult {
+        solution,
+        ordering,
+        original_max_half_bandwidth,
+        ordered_max_half_bandwidth,
+        original_profile_entry_count,
+        ordered_profile_entry_count,
+        factorization: factorization.report,
+    })
+}
+
 fn symmetric_entry(dense: &[Vec<f64>], a: usize, b: usize) -> f64 {
     let (hi, lo) = if a >= b { (a, b) } else { (b, a) };
     dense[hi][lo]
@@ -591,6 +759,23 @@ fn validate_finite_slice(name: &'static str, values: &[f64]) -> Result<(), Spars
         if !value.is_finite() {
             return Err(SparseDirectError::NonFiniteInput { name, value });
         }
+    }
+    Ok(())
+}
+
+fn validate_entry(dimension: usize, entry: &SymmetricMatrixEntry) -> Result<(), SparseDirectError> {
+    if entry.row >= dimension || entry.col >= dimension {
+        return Err(SparseDirectError::InvalidMatrixEntryIndex {
+            row: entry.row,
+            col: entry.col,
+            dimension,
+        });
+    }
+    if !entry.value.is_finite() {
+        return Err(SparseDirectError::NonFiniteInput {
+            name: "matrix entry",
+            value: entry.value,
+        });
     }
     Ok(())
 }
@@ -714,6 +899,19 @@ mod tests {
         );
     }
 
+    fn lower_entries_from_dense(stiffness: &[Vec<f64>]) -> Vec<SymmetricMatrixEntry> {
+        let mut entries = Vec::new();
+        for row in 0..stiffness.len() {
+            for col in 0..=row {
+                let value = stiffness[row][col];
+                if value != 0.0 {
+                    entries.push(SymmetricMatrixEntry { row, col, value });
+                }
+            }
+        }
+        entries
+    }
+
     #[test]
     fn rcm_orders_path_graph_deterministically() {
         let adjacency = vec![vec![1], vec![0, 2], vec![1, 3], vec![2]];
@@ -792,6 +990,40 @@ mod tests {
                 assert_eq!(profile.get(row, col), dense[row][col]);
             }
         }
+    }
+
+    #[test]
+    fn profile_storage_sums_direct_entries() {
+        let entries = vec![
+            SymmetricMatrixEntry {
+                row: 0,
+                col: 0,
+                value: 4.0,
+            },
+            SymmetricMatrixEntry {
+                row: 1,
+                col: 0,
+                value: 1.0,
+            },
+            SymmetricMatrixEntry {
+                row: 1,
+                col: 0,
+                value: 2.0,
+            },
+            SymmetricMatrixEntry {
+                row: 1,
+                col: 1,
+                value: 6.0,
+            },
+        ];
+        let profile = SymmetricProfileMatrix::from_entries(2, &entries).unwrap();
+
+        assert_eq!(profile.dimension(), 2);
+        assert_eq!(profile.profile_entry_count(), 3);
+        assert_eq!(profile.get(0, 0), 4.0);
+        assert_eq!(profile.get(1, 0), 3.0);
+        assert_eq!(profile.get(0, 1), 3.0);
+        assert_eq!(profile.get(1, 1), 6.0);
     }
 
     #[test]
@@ -930,6 +1162,32 @@ mod tests {
     fn sparse_path_matches_dense_solve_on_small_invented_chain() {
         let (stiffness, force) = invented_chain(4);
         assert_dense_parity(&stiffness, &force);
+    }
+
+    #[test]
+    fn entry_assembled_sparse_path_matches_dense_derived_path() {
+        let (stiffness, force) = invented_grid(4, 3);
+        let dense_derived = solve_symmetric_system(&stiffness, &force).unwrap();
+        let entries = lower_entries_from_dense(&stiffness);
+        let entry_assembled =
+            solve_symmetric_system_from_entries(stiffness.len(), &entries, &force).unwrap();
+
+        assert_eq!(entry_assembled.solution.len(), dense_derived.solution.len());
+        for (entry_value, dense_value) in entry_assembled
+            .solution
+            .iter()
+            .zip(dense_derived.solution.iter())
+        {
+            assert!((entry_value - dense_value).abs() <= 1.0e-12);
+        }
+        assert_eq!(
+            entry_assembled.original_profile_entry_count,
+            dense_derived.original_profile_entry_count
+        );
+        assert_eq!(
+            entry_assembled.ordered_profile_entry_count,
+            dense_derived.ordered_profile_entry_count
+        );
     }
 
     #[test]
