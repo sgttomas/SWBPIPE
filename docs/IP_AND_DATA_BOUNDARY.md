@@ -86,6 +86,10 @@ Private material libraries, rule packs, component catalogs, and owner design bas
 
 Importers, examples, reports, telemetry, and issue templates must default to excluding private project, material, component, rule-pack, owner-standard, and company design-basis data unless a user intentionally exports or contributes it with documented redistribution rights.
 
+### 6.1 Runtime residency vs public redistribution (per `D-T0-04` / `DEC-051`)
+
+The default-exclusion rule above governs *public redistribution and committed/exported artifacts* — it is unchanged. It is distinct from *runtime data residency*. Per the owner's tier-0 ruling `D-T0-04` (open residency), an embedded agent worker MAY read the owner's own private model and private Class-B inputs (allowables, SIFs, design basis) at runtime, and once the owner configures a model provider (local, Anthropic, or other) that data MAY be transmitted to it; the app does not enforce privacy/residency on this channel. This is owner-configured runtime handling of the owner's *own* data — it is NOT a public commit, NOT redistribution, and creates NO exception to §3 (public repository must not contain), §5 (quarantine), or the third-party protected-content prohibitions (`OPS-K-IP-1/2/3`). Third-party copyrighted standards content remains barred from the public repository regardless of this ruling; the owner cannot waive third parties' rights by configuration.
+
 ## 7. Report boundary
 
 Generated reports may reference a user rule-pack ID, version, checksum, and source note. Public report templates must not embed protected formulas or tables. Users are responsible for private report templates that quote licensed standards.

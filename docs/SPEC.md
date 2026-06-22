@@ -373,12 +373,19 @@ external and hash-bound. They invalidate on bound-hash changes and do not imply
 software certification, sealing, authentication, professional approval, or
 automatic code compliance.
 
-The MVP storage posture is local-only and offline-capable, with no hosted
-database, daemon, required network, cloud sync, or telemetry path. Operating
-system roots, application data directories, product and DB migration mechanics,
-portable export/copy workflows, encryption, key management, secret storage,
-cloud exception workflows, and release packaging remain separate `TBD`
-decisions.
+The MVP storage posture is local-first and offline-capable: core model
+authoring, solve, rule-check, and reporting require no network, and there is no
+hosted database, daemon, cloud sync, or telemetry path by default. Per
+`D-T0-04` (open residency) / `DEC-051`, the app does not enforce data
+residency: the owner may configure a networked model provider (local,
+Anthropic, or other) for an embedded agent, and once configured the agent may
+transmit the owner's own private model and Class-B data to that provider with
+no further app-side guard. Such transmission is never a public commit
+(`OPS-K-IP-1/2/3` unaffected) and is distinct from telemetry (off by default,
+`OPS-K-PRIV-2`). Operating system roots, application data directories, product
+and DB migration mechanics, portable export/copy workflows, encryption, key
+management, secret storage, provider/egress configuration surfaces, cloud
+exception workflows, and release packaging remain separate `TBD` decisions.
 
 ### 4.5 Plugin and extension domain contracts
 
