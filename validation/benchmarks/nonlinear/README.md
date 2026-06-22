@@ -54,7 +54,8 @@ The crate exposes `assembled_multisupport_acceptance_inventory()` plus
 `assembled_multisupport_acceptance_residual_observations()` for the
 accepted multi-support validation fixture set:
 `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL` and
-`NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL`. This is narrow
+`NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL`, plus
+`NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL`. This is narrow
 non-seed acceptance evidence under
 `DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
 `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`.
@@ -67,7 +68,9 @@ external validation, or CI thresholds.
 The companion notes are
 `validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md`
 and
-`validation/hand_calcs/nonlinear/assembled_multi_support_gap_lift_off_acceptance.md`.
+`validation/hand_calcs/nonlinear/assembled_multi_support_gap_lift_off_acceptance.md`,
+and
+`validation/hand_calcs/nonlinear/assembled_multi_support_friction_gap_acceptance.md`.
 The machine-readable policy records are
 `validation/benchmarks/nonlinear/multisupport_convergence_policy.dec046.json`
 and

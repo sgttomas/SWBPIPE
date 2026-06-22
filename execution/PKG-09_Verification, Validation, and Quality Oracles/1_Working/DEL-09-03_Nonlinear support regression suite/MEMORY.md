@@ -47,7 +47,8 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   work residual policy under
   `DEC-046-CV-B-product-preview-free-dof-work-residual-v1`.
 - `TP-R4-D9-MULTISUPPORTPOLICY-001`, `TP-R4-D9-WORKPOLICY-001`, and
-  `TP-R4-D9-MULTISUPPORTBREADTH-001` add two accepted multi-DOF /
+  `TP-R4-D9-MULTISUPPORTBREADTH-001`, plus
+  `TP-R4-D9-MULTISUPPORTFRICTION-001`, add three accepted multi-DOF /
   multi-support companion fixtures under narrow active-set, free-DOF
   force/moment, and free-DOF work residual policies.
 - `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
@@ -55,6 +56,23 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   not part of the accepted current assembled validation seed policy.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-MULTISUPPORTFRICTION-001
+
+- Added `NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL`, an invented
+  assembled frame fixture with simultaneous Ux friction sliding and Uy gap
+  closure in the first iteration.
+- Broadened the accepted multi-support validation fixture set from two
+  companions to three companions: one-way/gap, lift-off/gap, and friction/gap.
+- Updated the multi-support active-set-count, free-DOF force/moment, and
+  free-DOF work policy records so their evidence fixture IDs name the
+  three-fixture public-original set.
+- Boundary preserved: no non-seed force/displacement threshold beyond the
+  accepted fixture set, displacement-delta, reaction-delta, general energy,
+  sparse-default, external validation, release-readiness, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTFRICTION-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORTBREADTH-001
 

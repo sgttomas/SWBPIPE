@@ -305,7 +305,10 @@ public-original Ux/Uy multi-support validation fixture with accepted
 non-seed fixture only. `TP-R4-D9-MULTISUPPORTBREADTH-001` broadens that
 accepted multi-support fixture set with a second public-original lift-off/gap
 companion under the same narrow active-set, free-DOF force/moment, and
-free-DOF work policies. `TP-R4-D9-ENERGYOBS-001` records final-iteration
+free-DOF work policies. `TP-R4-D9-MULTISUPPORTFRICTION-001` adds a third
+public-original friction/gap companion with explicit invented normal-reaction
+evidence under those same narrow multi-support policies.
+`TP-R4-D9-ENERGYOBS-001` records final-iteration
 free-DOF work residual observations in the dense loop, nonlinear validation
 inventory, and invented product-preview surface. `TP-R4-D9-WORKPOLICY-001`
 promotes a bounded final-iteration free-DOF work residual policy for the current
@@ -393,6 +396,7 @@ bounded tranche.
       `TP-R4-D9-MULTISUPPORTOBS-001`, `TP-R4-D9-ENERGYOBS-001`,
       `TP-R4-D9-MULTISUPPORTPOLICY-001`, `TP-R4-D9-WORKPOLICY-001`,
       `TP-R4-D9-MULTISUPPORTBREADTH-001`,
+      `TP-R4-D9-MULTISUPPORTFRICTION-001`,
       and the D8 rendered report-provenance slice
       `TP-R4-D8-COMPPROVREPORT-001`;
       `TP-R4-D9-CONVOBS-001` records observed convergence values for the
@@ -408,7 +412,9 @@ bounded tranche.
       free-DOF force/moment policies. `TP-R4-D9-MULTISUPPORTBREADTH-001`
       adds a second accepted non-seed lift-off/gap companion under the same
       narrow multi-support active-set, free-DOF force/moment, and free-DOF
-      work policies. `TP-R4-D9-ENERGYOBS-001` adds
+      work policies. `TP-R4-D9-MULTISUPPORTFRICTION-001` adds a third
+      accepted non-seed friction/gap companion under those same narrow
+      multi-support policies. `TP-R4-D9-ENERGYOBS-001` adds
       final-iteration free-DOF work residual rows. `TP-R4-D9-WORKPOLICY-001`
       promotes bounded free-DOF work residual policies for the current
       assembled validation seed, invented product-preview surface, and accepted

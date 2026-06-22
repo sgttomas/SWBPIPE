@@ -97,6 +97,10 @@
      threshold policies are promoted for the current assembled validation seed
      and invented product-preview surface only. Mixed one-way/gap/friction
      product live-loop coverage is landed for one invented dense solve.
+     Accepted multi-support validation companion coverage now includes
+     one-way/gap, lift-off/gap, and friction/gap public-original fixtures under
+     the narrow `DEC-046` multisupport active-set, free-DOF force/moment, and
+     free-DOF work policies.
      `TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` live sparse evidence lane
      while dense remains default. `TP-R4-D7-SPARSEPROFILE-001` added direct
      reduced profile-entry assembly for product-preview sparse evidence rows

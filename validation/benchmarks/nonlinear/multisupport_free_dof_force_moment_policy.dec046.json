@@ -29,7 +29,8 @@
       "policy_ref": "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1",
       "evidence_fixture_ids": [
         "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
-        "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
+        "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL"
       ]
     }
   ],

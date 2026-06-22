@@ -14,6 +14,49 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 multi-support friction/gap companion (`TP-R4-D9-MULTISUPPORTFRICTION-001`)
+
+Landed a third public-original accepted multi-support validation companion in
+the nonlinear benchmark crate:
+`NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL`, an invented two-node
+frame case with simultaneous Ux friction sliding and Uy gap closure. The
+accepted multi-support policy records now cover a three-fixture set:
+one-way/gap, lift-off/gap, and friction/gap.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: added the friction/gap acceptance fixture,
+  wired it into `assembled_multisupport_acceptance_inventory()`, and updated
+  active-set, free-DOF force/moment, and free-DOF work policy evidence fixture
+  IDs to the three-fixture set.
+- `validation/hand_calcs/nonlinear`: added the public-original friction/gap
+  acceptance note and updated the multi-support evidence index.
+- `tests/test_nonlinear_support_regression.py`: expanded guardrails so the
+  source, hand-calc note, and JSON policy records must all carry the accepted
+  fixture set.
+- Coordination and planning surfaces: R4/D6/D9 current-state wording updated
+  so the project records broader accepted multi-support coverage without
+  closing general non-seed thresholds or R4 exit evidence.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTFRICTION-001.md`.
+
+Focused validation: nonlinear benchmark Rust tests passed 15/15; focused
+nonlinear pytest passed 8/8; `cargo fmt --check` passed after formatting. Full
+DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T090832Z_9b32ef0b35d0-dirty.json`.
+
+Residuals: non-seed force/displacement threshold promotion beyond the accepted
+three-fixture set, general energy threshold promotion, displacement/reaction-delta
+thresholds, default sparse promotion, nonlinear/core profile-direct sparse
+promotion, deeper spring-hanger behavior, external validation thresholds,
+broader R4 validation package work, and final R4 exit evidence remain open.
+
+Boundary: invented/public-original validation evidence only. No protected
+standards content, proprietary benchmark output, private project data,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D7 product direct-profile sparse evidence (`TP-R4-D7-SPARSEPROFILE-001`)
 
 Landed a bounded follow-on to the `DEC-050` sparse evidence lane: product
