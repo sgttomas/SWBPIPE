@@ -39,8 +39,8 @@ free-DOF work residual products only. A separate multi-support companion
 fixture uses
 `DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
 `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`, plus
-`DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1`, for one
-public-original multi-DOF / multi-support validation case only.
+`DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1`, for the
+public-original multi-DOF / multi-support validation fixture set only.
 
 ## Notes
 
@@ -59,6 +59,7 @@ public-original multi-DOF / multi-support validation case only.
 | `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | [assembled_friction_derived_normal.md](assembled_friction_derived_normal.md) |
 | `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL` | [assembled_multi_support_multi_dof.md](assembled_multi_support_multi_dof.md) |
 | `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL` | [assembled_multi_support_multi_dof_acceptance.md](assembled_multi_support_multi_dof_acceptance.md) |
+| `NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL` | [assembled_multi_support_gap_lift_off_acceptance.md](assembled_multi_support_gap_lift_off_acceptance.md) |
 
 ## Observation Notes
 

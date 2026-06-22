@@ -46,14 +46,32 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - The current invented product-preview nonlinear path has an accepted free-DOF
   work residual policy under
   `DEC-046-CV-B-product-preview-free-dof-work-residual-v1`.
-- `TP-R4-D9-MULTISUPPORTPOLICY-001` plus `TP-R4-D9-WORKPOLICY-001` add one
-  accepted multi-DOF / multi-support companion fixture under narrow active-set,
-  free-DOF force/moment, and free-DOF work residual policies.
+- `TP-R4-D9-MULTISUPPORTPOLICY-001`, `TP-R4-D9-WORKPOLICY-001`, and
+  `TP-R4-D9-MULTISUPPORTBREADTH-001` add two accepted multi-DOF /
+  multi-support companion fixtures under narrow active-set, free-DOF
+  force/moment, and free-DOF work residual policies.
 - `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
   multi-support assembled fixture under `TP-R4-D9-MULTISUPPORT-OBS-TBD`; it is
   not part of the accepted current assembled validation seed policy.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-MULTISUPPORTBREADTH-001
+
+- Added `NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL`, an invented
+  assembled frame fixture with simultaneous Ux lift-off release and Uy gap
+  closure in the first iteration.
+- Broadened the accepted multi-support validation fixture set from one
+  one-way/gap companion to two companions: one-way/gap plus lift-off/gap.
+- Updated the multi-support active-set-count, free-DOF force/moment, and
+  free-DOF work policy records so their evidence fixture IDs name the
+  two-fixture public-original set.
+- Boundary preserved: no non-seed force/displacement threshold beyond the
+  accepted fixture set, displacement-delta, reaction-delta, general energy,
+  sparse-default, external validation, release-readiness, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTBREADTH-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-WORKPOLICY-001
 

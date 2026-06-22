@@ -302,23 +302,26 @@ Ux/Uy state-change case kept outside the accepted seed policy and marked
 `TolerancePolicyTbd`. `TP-R4-D9-MULTISUPPORTPOLICY-001` adds a separate
 public-original Ux/Uy multi-support validation fixture with accepted
 `DEC-046` active-set-count and free-DOF force/moment policies for that
-non-seed fixture only. `TP-R4-D9-ENERGYOBS-001` records final-iteration
+non-seed fixture only. `TP-R4-D9-MULTISUPPORTBREADTH-001` broadens that
+accepted multi-support fixture set with a second public-original lift-off/gap
+companion under the same narrow active-set, free-DOF force/moment, and
+free-DOF work policies. `TP-R4-D9-ENERGYOBS-001` records final-iteration
 free-DOF work residual observations in the dense loop, nonlinear validation
 inventory, and invented product-preview surface. `TP-R4-D9-WORKPOLICY-001`
 promotes a bounded final-iteration free-DOF work residual policy for the current
 assembled validation seed, invented product-preview surface, and accepted
-multi-support companion only, while general energy, displacement/reaction-delta,
-non-seed force/displacement beyond the accepted companion, release,
+multi-support fixture set only, while general energy, displacement/reaction-delta,
+non-seed force/displacement beyond the accepted fixture set, release,
 sparse-default, and external threshold axes remain open.
 `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction product live-loop
 coverage in one invented dense solve. `TP-R4-D7-SPARSELIVE-001`
 landed the `DEC-050` sparse evidence lane while dense remains default and
 profile-direct assembly/default promotion follow on.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
-non-seed force/displacement threshold promotion beyond the accepted companion,
+non-seed force/displacement threshold promotion beyond the accepted fixture set,
 general energy threshold promotion, broader multi-DOF /
-multi-support nonlinear acceptance coverage beyond the accepted companion
-fixture, deeper spring-hanger behavior, and
+multi-support nonlinear acceptance thresholds beyond the accepted fixture set,
+deeper spring-hanger behavior, and
 the remaining D9 validation evidence remain open.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
 `DAG-006`.
@@ -386,6 +389,7 @@ bounded tranche.
       `TP-R4-D6-LIVEBUNDLE-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`,
       `TP-R4-D9-MULTISUPPORTOBS-001`, `TP-R4-D9-ENERGYOBS-001`,
       `TP-R4-D9-MULTISUPPORTPOLICY-001`, `TP-R4-D9-WORKPOLICY-001`,
+      `TP-R4-D9-MULTISUPPORTBREADTH-001`,
       and the D8 rendered report-provenance slice
       `TP-R4-D8-COMPPROVREPORT-001`;
       `TP-R4-D9-CONVOBS-001` records observed convergence values for the
@@ -398,20 +402,23 @@ bounded tranche.
       multi-support validation-depth fixture outside those accepted threshold
       policies. `TP-R4-D9-MULTISUPPORTPOLICY-001` adds one accepted non-seed
       multi-support validation companion under narrow `DEC-046` active-set and
-      free-DOF force/moment policies. `TP-R4-D9-ENERGYOBS-001` adds
+      free-DOF force/moment policies. `TP-R4-D9-MULTISUPPORTBREADTH-001`
+      adds a second accepted non-seed lift-off/gap companion under the same
+      narrow multi-support active-set, free-DOF force/moment, and free-DOF
+      work policies. `TP-R4-D9-ENERGYOBS-001` adds
       final-iteration free-DOF work residual rows. `TP-R4-D9-WORKPOLICY-001`
       promotes bounded free-DOF work residual policies for the current
       assembled validation seed, invented product-preview surface, and accepted
-      multi-support companion only, while general energy thresholds remain
+      multi-support fixture set only, while general energy thresholds remain
       `TBD`.
       `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
       assembled nonlinear integration and product-preview reduced solve paths
       as the `DEC-050` sparse evidence lane, with dense remaining default.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
-      companion, general energy threshold promotion, displacement/reaction-delta
-      threshold axes, broader multi-DOF / multi-support nonlinear acceptance coverage
-      beyond the accepted companion fixture,
+      fixture set, general energy threshold promotion, displacement/reaction-delta
+      threshold axes, broader multi-DOF / multi-support nonlinear acceptance thresholds
+      beyond the accepted fixture set,
       profile-direct sparse/default promotion, deeper spring-hanger behavior,
       and the R4 exit evidence package remain open
       under `DEC-044`/`DEC-046`/`DEC-050`.

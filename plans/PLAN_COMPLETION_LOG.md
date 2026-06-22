@@ -14,6 +14,49 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 multi-support acceptance breadth (`TP-R4-D9-MULTISUPPORTBREADTH-001`)
+
+Landed a second public-original accepted multi-support validation companion in
+the nonlinear benchmark crate:
+`NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL`, an invented two-node
+frame case with simultaneous Ux lift-off release and Uy gap closure. The
+accepted multi-support policy records now cover a two-fixture set: the earlier
+one-way/gap companion plus this lift-off/gap companion.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: added the lift-off/gap acceptance fixture,
+  wired it into `assembled_multisupport_acceptance_inventory()`, and updated
+  active-set, free-DOF force/moment, and free-DOF work policy evidence fixture
+  IDs to the two-fixture set.
+- `validation/hand_calcs/nonlinear`: added the public-original
+  lift-off/gap acceptance note and updated the multi-support evidence index.
+- `tests/test_nonlinear_support_regression.py`: expanded guardrails so the
+  source, hand-calc note, and JSON policy records must all carry the accepted
+  fixture set.
+- Coordination and planning surfaces: R4/D6/D9 residual wording updated so the
+  project records broader accepted multi-support coverage without closing
+  general non-seed thresholds or R4 exit evidence.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTBREADTH-001.md`.
+
+Focused validation: nonlinear benchmark Rust tests passed 15/15; focused
+nonlinear pytest passed 8/8; JSON validation, `cargo fmt --check`, and
+`git diff --check` passed. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T083239Z_5a955e5e84b1-dirty.json`.
+
+Residuals: non-seed force/displacement threshold promotion beyond the accepted
+two-fixture set, general energy threshold promotion, displacement/reaction-delta
+thresholds, profile-direct sparse assembly/default sparse promotion, deeper
+spring-hanger behavior, external validation thresholds, broader R4 validation
+package work, and final R4 exit evidence remain open.
+
+Boundary: invented/public-original validation evidence only. No protected
+standards content, proprietary benchmark output, private project data,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 free-DOF work residual policy (`TP-R4-D9-WORKPOLICY-001`)
 
 Landed a bounded `DEC-046` threshold-promotion slice for final-iteration

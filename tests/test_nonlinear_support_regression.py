@@ -74,7 +74,11 @@ REQUIRED_DEPTH_OBSERVATION_NOTES = {
 
 REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES = {
     "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL": "assembled_multi_support_multi_dof_acceptance.md",
+    "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL": "assembled_multi_support_gap_lift_off_acceptance.md",
 }
+EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS = list(
+    REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES
+)
 
 REQUIRED_UNIT_BASIS_LINES = {
     "Translational support displacement and clearance | `mm` | length",
@@ -452,7 +456,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert multisupport_policy_record["record_id"] == DEC_046_MULTISUPPORT_POLICY_REF
     assert multisupport_policy_record["decision_ref"] == "DEC-046"
     assert multisupport_policy_record["status"] == (
-        "accepted_for_public_original_multisupport_validation_fixture"
+        "accepted_for_public_original_multisupport_validation_fixture_set"
     )
     assert [entry["nonlinear_class"] for entry in multisupport_policy_record["entries"]] == [
         "multi_support_multi_dof"
@@ -461,9 +465,10 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert multisupport_policy_record["entries"][0]["relative_residual_tolerance"] == 0.0
     assert multisupport_policy_record["entries"][0]["absolute_residual_floor"] == 0.0
     assert multisupport_policy_record["entries"][0]["max_iterations"] == 4
-    assert multisupport_policy_record["entries"][0]["evidence_fixture_ids"] == [
-        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
-    ]
+    assert (
+        multisupport_policy_record["entries"][0]["evidence_fixture_ids"]
+        == EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS
+    )
 
     assert (
         multisupport_force_moment_policy_record["record_id"]
@@ -471,7 +476,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     )
     assert multisupport_force_moment_policy_record["decision_ref"] == "DEC-046"
     assert multisupport_force_moment_policy_record["status"] == (
-        "accepted_for_public_original_multisupport_validation_fixture"
+        "accepted_for_public_original_multisupport_validation_fixture_set"
     )
     assert [
         entry["nonlinear_class"]
@@ -484,9 +489,10 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     )
     assert multisupport_force_moment_entry["force_absolute_limit"] == 0.0
     assert multisupport_force_moment_entry["moment_absolute_limit"] == 0.0
-    assert multisupport_force_moment_entry["evidence_fixture_ids"] == [
-        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
-    ]
+    assert (
+        multisupport_force_moment_entry["evidence_fixture_ids"]
+        == EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS
+    )
 
     assert (
         multisupport_work_policy_record["record_id"]
@@ -494,7 +500,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     )
     assert multisupport_work_policy_record["decision_ref"] == "DEC-046"
     assert multisupport_work_policy_record["status"] == (
-        "accepted_for_public_original_multisupport_validation_fixture"
+        "accepted_for_public_original_multisupport_validation_fixture_set"
     )
     assert [
         entry["nonlinear_class"] for entry in multisupport_work_policy_record["entries"]
@@ -502,6 +508,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     multisupport_work_entry = multisupport_work_policy_record["entries"][0]
     assert multisupport_work_entry["policy_ref"] == DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF
     assert multisupport_work_entry["work_absolute_limit"] == 0.0
-    assert multisupport_work_entry["evidence_fixture_ids"] == [
-        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
-    ]
+    assert (
+        multisupport_work_entry["evidence_fixture_ids"]
+        == EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS
+    )

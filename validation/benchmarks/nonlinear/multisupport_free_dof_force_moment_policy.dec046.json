@@ -3,8 +3,8 @@
   "record_id": "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1",
   "decision_ref": "DEC-046",
   "decision_option": "CV-B",
-  "status": "accepted_for_public_original_multisupport_validation_fixture",
-  "scope": "public_original_multi_dof_multi_support_validation_fixture_only",
+  "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+  "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
   "force_residual_basis": {
     "name": "free_dof_force_residual",
     "unit": "N",
@@ -28,12 +28,13 @@
       "moment_absolute_limit": 0.0,
       "policy_ref": "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1",
       "evidence_fixture_ids": [
-        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
+        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
       ]
     }
   ],
   "limitations": [
-    "Applies only to the public-original multi-DOF / multi-support validation fixture final-iteration free-DOF force and moment equilibrium residuals.",
+    "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration free-DOF force and moment equilibrium residuals.",
     "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds."
   ],
   "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."

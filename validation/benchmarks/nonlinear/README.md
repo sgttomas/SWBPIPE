@@ -51,19 +51,23 @@ and `validation/benchmarks/nonlinear/free_dof_work_policy.dec046.json`.
 
 The crate exposes `assembled_multisupport_acceptance_inventory()` plus
 `assembled_multisupport_acceptance_convergence_observations()` and
-`assembled_multisupport_acceptance_residual_observations()` for
-`NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL`. This is a narrow
-non-seed acceptance fixture under
+`assembled_multisupport_acceptance_residual_observations()` for the
+accepted multi-support validation fixture set:
+`NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL` and
+`NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL`. This is narrow
+non-seed acceptance evidence under
 `DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
 `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`.
 It accepts active-set changed-support-count convergence, final-iteration
 free-DOF force/moment residuals, and final-iteration free-DOF work residual
-products for that fixture only. It does not define displacement-delta,
+products for that fixture set only. It does not define displacement-delta,
 reaction-delta, general energy, sparse-default, product-preview, release,
 external validation, or CI thresholds.
 
-The companion note is
-`validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md`.
+The companion notes are
+`validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md`
+and
+`validation/hand_calcs/nonlinear/assembled_multi_support_gap_lift_off_acceptance.md`.
 The machine-readable policy records are
 `validation/benchmarks/nonlinear/multisupport_convergence_policy.dec046.json`
 and

@@ -6,7 +6,7 @@ This note documents `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL`,
 an invented assembled nonlinear validation fixture that exercises two nonlinear
 supports on two translational tip DOFs in one frame solve. It is a narrow
 non-seed acceptance companion to the observation-only multi-support depth
-fixture.
+fixture and part of the accepted multi-support validation fixture set.
 
 ## Provenance
 
@@ -29,6 +29,7 @@ fixture.
 | Initial gap state | inactive | label | dimensionless |
 | Active-set policy reference | DEC-046-CV-B-multisupport-active-set-count-validation-v1 | label | dimensionless |
 | Free-DOF force/moment policy reference | DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1 | label | dimensionless |
+| Free-DOF work policy reference | DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1 | label | dimensionless |
 
 ## Expected Values
 
