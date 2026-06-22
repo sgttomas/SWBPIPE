@@ -175,7 +175,7 @@ const DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 10.0;
 const DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 3.0;
 const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS: &[&str] = &[
     "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration displacement and reaction deltas from the previous active-set solve.",
-    "Limits are fixture-evidence envelopes for the accepted eleven-fixture multi-support set; fixture-local overrides may only tighten them.",
+    "Limits are fixture-evidence envelopes for the accepted twelve-fixture multi-support set; fixture-local overrides may only tighten them.",
     "Does not define general energy, sparse default, product-preview, release, external validation, or CI thresholds.",
 ];
 const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
@@ -190,6 +190,7 @@ const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
     "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
+    "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1174,6 +1175,7 @@ pub fn assembled_multisupport_acceptance_inventory() -> Vec<AssembledNonlinearRe
         assembled_multi_dof_negative_gap_acceptance_fixture(),
         assembled_multi_dof_four_class_acceptance_fixture(),
         assembled_multi_dof_opposing_gaps_acceptance_fixture(),
+        assembled_multi_dof_two_span_acceptance_fixture(),
     ]
 }
 
@@ -1750,7 +1752,8 @@ fn convergence_class_label(
         | "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL"
-        | "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL" => "multi_support_multi_dof",
+        | "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL"
+        | "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL" => "multi_support_multi_dof",
         _ => match family {
             NonlinearRegressionFamily::ActiveSet => "active_set",
             NonlinearRegressionFamily::Gap => "gap",
@@ -1829,6 +1832,50 @@ fn assembled_xy_tip_input(
             node_dof_index(1, FrameDof::Rx),
             node_dof_index(1, FrameDof::Ry),
             node_dof_index(1, FrameDof::Rz),
+        ],
+        nonlinear_supports,
+        initial_states,
+        friction_normal_reactions: Vec::new(),
+        derived_friction_normal_reactions: Vec::new(),
+        convergence,
+    }
+}
+
+fn assembled_two_span_xy_input(
+    nonlinear_supports: Vec<NonlinearSupport>,
+    initial_states: Vec<SupportStateRecord>,
+    convergence: ConvergenceControl,
+) -> NonlinearFrameSolveInput {
+    let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+    let node_mid = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
+    let node_j = FrameNode::new(2, [2.0, 0.0, 0.0]).unwrap();
+    let section = FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap();
+    let element_i_mid = FrameElement::new(node_i, node_mid, section, [0.0, 1.0, 0.0]).unwrap();
+    let element_mid_j = FrameElement::new(node_mid, node_j, section, [0.0, 1.0, 0.0]).unwrap();
+    let mut force: DenseVector = vec![0.0; 3 * DOF_PER_NODE];
+    force[node_dof_index(2, FrameDof::Ux)] = 10.0;
+    force[node_dof_index(2, FrameDof::Uy)] = 1.0;
+
+    NonlinearFrameSolveInput {
+        node_count: 3,
+        elements: vec![element_i_mid, element_mid_j],
+        user_stiffness_elements: Vec::new(),
+        force,
+        base_restrained_dofs: vec![
+            node_dof_index(0, FrameDof::Ux),
+            node_dof_index(0, FrameDof::Uy),
+            node_dof_index(0, FrameDof::Uz),
+            node_dof_index(0, FrameDof::Rx),
+            node_dof_index(0, FrameDof::Ry),
+            node_dof_index(0, FrameDof::Rz),
+            node_dof_index(1, FrameDof::Uz),
+            node_dof_index(1, FrameDof::Rx),
+            node_dof_index(1, FrameDof::Ry),
+            node_dof_index(1, FrameDof::Rz),
+            node_dof_index(2, FrameDof::Uz),
+            node_dof_index(2, FrameDof::Rx),
+            node_dof_index(2, FrameDof::Ry),
+            node_dof_index(2, FrameDof::Rz),
         ],
         nonlinear_supports,
         initial_states,
@@ -3800,6 +3847,115 @@ pub fn assembled_multi_dof_opposing_gaps_acceptance_fixture() -> AssembledNonlin
     }
 }
 
+pub fn assembled_multi_dof_two_span_acceptance_fixture() -> AssembledNonlinearRegressionCase {
+    let mid_one_way_id = "NL-ASSEMBLED-MULTI-NODE-ONE-WAY-UX-M";
+    let tip_gap_id = "NL-ASSEMBLED-MULTI-NODE-GAP-UY-M";
+    let mid_one_way = NonlinearSupport::one_way(
+        mid_one_way_id,
+        1,
+        FrameDof::Ux,
+        ActivationSense::PositiveReaction,
+    );
+    let tip_gap = NonlinearSupport::gap(
+        tip_gap_id,
+        2,
+        FrameDof::Uy,
+        0.0002,
+        GapDirection::PositiveDisplacement,
+    )
+    .unwrap();
+    let input = assembled_two_span_xy_input(
+        vec![mid_one_way, tip_gap],
+        vec![
+            SupportStateRecord::new(mid_one_way_id, ActiveSetState::Active),
+            SupportStateRecord::new(tip_gap_id, ActiveSetState::Inactive),
+        ],
+        accepted_multisupport_convergence_control().unwrap(),
+    );
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
+        family: NonlinearRegressionFamily::MixedSupport,
+        description:
+            "Invented assembled two-span frame solve accepts nonlinear state changes on separate frame nodes under a narrow multi-support DEC-046 policy.",
+        assumptions: &[
+            "The frame fixture is a three-node, two-element member chain with Ux/Uy free at the intermediate and tip nodes.",
+            "The initial active Ux one-way support is on the intermediate node while the Uy gap support is on the tip node.",
+            "This acceptance companion broadens the multi-support fixture set from single-tip support topology to a multi-node / two-span topology; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_multi_support_two_span_acceptance.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![
+            ExpectedState {
+                support_id: tip_gap_id,
+                state: ActiveSetState::Active,
+            },
+            ExpectedState {
+                support_id: mid_one_way_id,
+                state: ActiveSetState::Inactive,
+            },
+        ],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![],
+        observations: vec![
+            DimensionedObservation {
+                name: "span_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "nonlinear_support_node_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_tip_ux_force",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_tip_uy_force",
+                value: 1.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "tip_gap_clearance",
+                value: 0.0002,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+        ],
+    }
+}
+
 pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
     let support_id = "NL-ACTIVE-ONE-WAY-A";
     let support = NonlinearSupport::one_way(
@@ -4266,7 +4422,7 @@ mod tests {
     fn multisupport_acceptance_inventory_uses_narrow_dec_046_policy() {
         let fixtures = assembled_multisupport_acceptance_inventory();
 
-        assert_eq!(fixtures.len(), 11);
+        assert_eq!(fixtures.len(), 12);
         assert_eq!(
             fixtures
                 .iter()
@@ -4362,7 +4518,7 @@ mod tests {
         );
 
         let observations = assembled_multisupport_acceptance_convergence_observations();
-        assert_eq!(observations.len(), 11);
+        assert_eq!(observations.len(), 12);
         for observation in &observations {
             assert_eq!(
                 observation.policy_ref,
@@ -4375,7 +4531,7 @@ mod tests {
         }
 
         let residuals = assembled_multisupport_acceptance_residual_observations();
-        assert_eq!(residuals.len(), 11);
+        assert_eq!(residuals.len(), 12);
         for residual in &residuals {
             assert_eq!(
                 residual.free_dof_force_moment_threshold_policy,
