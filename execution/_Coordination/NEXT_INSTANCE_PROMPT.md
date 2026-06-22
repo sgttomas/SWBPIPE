@@ -99,8 +99,9 @@
      product live-loop coverage is landed for one invented dense solve.
      Accepted multi-support validation companion coverage now includes
      one-way/gap, lift-off/gap, friction/gap, three-support/three-translation,
-     mixed translation/rotation, derived-normal friction/gap, and
-     derived-normal friction/rotational lift-off
+     mixed translation/rotation, derived-normal friction/gap,
+     derived-normal friction/rotational lift-off, and sequential gap/lift-off
+     cascade
      public-original fixtures under the narrow `DEC-046` multisupport
      active-set, free-DOF force/moment, and free-DOF work policies
      (`TP-R4-D9-MULTISUPPORTPOLICY-001`,
@@ -108,8 +109,9 @@
      `TP-R4-D9-MULTISUPPORTFRICTION-001`,
      `TP-R4-D9-MULTISUPPORT3DOF-001`,
      `TP-R4-D9-MULTISUPPORTROT-001`,
-     `TP-R4-D9-MULTISUPPORTDERIVED-001`, and
-     `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`).
+     `TP-R4-D9-MULTISUPPORTDERIVED-001`,
+     `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`, and
+     `TP-R4-D9-MULTISUPPORTCASCADE-001`).
      `TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` live sparse evidence lane
      while dense remains default. `TP-R4-D7-SPARSEPROFILE-001` added direct
      reduced profile-entry assembly for product-preview sparse evidence rows
@@ -122,7 +124,7 @@
      thresholds remain `TBD`.
      `TP-R4-D9-EXITGAP-001` records the current R4
      exit verdict as not ready: non-seed force/displacement/energy threshold
-     promotion beyond the accepted seven-fixture multi-support set, accepted
+     promotion beyond the accepted eight-fixture multi-support set, accepted
      displacement/reaction-delta thresholds, broader multi-DOF / multi-support
      nonlinear acceptance thresholds, default sparse promotion / large-model
      sparse suitability, deeper spring-hanger

@@ -25,7 +25,7 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 ## Remaining TBDs
 
-- Non-seed force/displacement thresholds beyond the accepted seven-fixture
+- Non-seed force/displacement thresholds beyond the accepted eight-fixture
   multi-support companion set, general energy thresholds, accepted
   displacement/reaction-delta thresholds, sparse default/promotion thresholds,
   release thresholds, and external validation thresholds remain `TBD`.
@@ -46,15 +46,16 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - The current invented product-preview nonlinear path has an accepted free-DOF
   work residual policy under
   `DEC-046-CV-B-product-preview-free-dof-work-residual-v1`.
-- `TP-R4-D9-MULTISUPPORTPOLICY-001`, `TP-R4-D9-WORKPOLICY-001`,
+- `TP-R4-D9-MULTISUPPORTPOLICY-001`,
   `TP-R4-D9-MULTISUPPORTBREADTH-001`,
-  `TP-R4-D9-MULTISUPPORTFRICTION-001`, and
-  `TP-R4-D9-MULTISUPPORT3DOF-001`, and
+  `TP-R4-D9-MULTISUPPORTFRICTION-001`,
+  `TP-R4-D9-MULTISUPPORT3DOF-001`,
   `TP-R4-D9-MULTISUPPORTROT-001`,
-  `TP-R4-D9-MULTISUPPORTDERIVED-001`, and
-  `TP-R4-D9-MULTISUPPORTDERIVEDROT-001` add seven accepted multi-DOF /
+  `TP-R4-D9-MULTISUPPORTDERIVED-001`,
+  `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`, and
+  `TP-R4-D9-MULTISUPPORTCASCADE-001` add eight accepted multi-DOF /
   multi-support companion fixtures under narrow active-set, free-DOF
-  force/moment, and free-DOF work residual policies.
+  force/moment, and free-DOF work residual policies (`TP-R4-D9-WORKPOLICY-001`).
 - `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
   multi-support assembled fixture under `TP-R4-D9-MULTISUPPORT-OBS-TBD`; it is
   not part of the accepted current assembled validation seed policy.
@@ -64,6 +65,27 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   with `threshold_policy_status=tbd`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-MULTISUPPORTCASCADE-001
+
+- Added `NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL`, an
+  invented assembled frame fixture with a measured sequential active-set
+  cascade: first Rz lift-off release, then Uy gap closure, then final
+  convergence.
+- Broadened the accepted multi-support validation fixture set from seven
+  companions to eight companions: one-way/gap, lift-off/gap, friction/gap,
+  three-support/three-translation, mixed translation/rotation,
+  derived-normal friction/gap, derived-normal friction/rotational lift-off, and
+  sequential gap/lift-off cascade.
+- Updated the multi-support active-set-count, free-DOF force/moment,
+  free-DOF work, and displacement/reaction-delta observation records so their
+  evidence fixture IDs name the eight-fixture public-original set.
+- Boundary preserved: no non-seed force/displacement threshold beyond the
+  accepted eight-fixture set, displacement-delta, reaction-delta, general
+  energy, sparse-default, external validation, release-readiness, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTCASCADE-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORTDERIVEDROT-001
 

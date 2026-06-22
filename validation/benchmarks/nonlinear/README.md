@@ -69,10 +69,11 @@ accepted multi-support validation fixture set:
 `NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL`, plus
 `NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL`, plus
 `NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL`, plus
-`NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL`. This is narrow
-non-seed acceptance evidence spanning translational-only, mixed
-translation/rotation, derived-normal friction, and derived-normal rotational
-companions under
+`NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL`, plus
+`NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL`. This is
+narrow non-seed acceptance evidence spanning translational-only, mixed
+translation/rotation, derived-normal friction, derived-normal rotational, and
+sequential active-set cascade companions under
 `DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
 `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`.
 It accepts active-set changed-support-count convergence, final-iteration
@@ -98,7 +99,9 @@ and
 and
 `validation/hand_calcs/nonlinear/assembled_multi_support_derived_normal_gap_acceptance.md`,
 and
-`validation/hand_calcs/nonlinear/assembled_multi_support_derived_normal_rotational_acceptance.md`.
+`validation/hand_calcs/nonlinear/assembled_multi_support_derived_normal_rotational_acceptance.md`,
+and
+`validation/hand_calcs/nonlinear/assembled_multi_support_cascade_gap_lift_off_acceptance.md`.
 The machine-readable policy records are
 `validation/benchmarks/nonlinear/multisupport_convergence_policy.dec046.json`
 and
