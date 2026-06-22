@@ -34,6 +34,7 @@ pub const SPARSE_SUITABILITY_RELATIVE_DELTA_LIMIT: f64 = 1.0e-9;
 pub const SPARSE_SUITABILITY_RESIDUAL_ABSOLUTE_LIMIT: f64 = 1.0e-6;
 pub const SPARSE_SUITABILITY_REPEAT_DELTA_ABSOLUTE_LIMIT: f64 = 0.0;
 pub const SPARSE_SUITABILITY_NONPOSITIVE_PIVOT_COUNT_LIMIT: usize = 0;
+pub const F64_VALUE_STORAGE_BYTES: usize = std::mem::size_of::<f64>();
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FixtureProvenanceStatus {
@@ -99,6 +100,8 @@ pub struct SparseSolveObservation {
     pub ordered_max_half_bandwidth: usize,
     pub original_profile_entry_count: usize,
     pub ordered_profile_entry_count: usize,
+    pub original_profile_value_storage_bytes: usize,
+    pub ordered_profile_value_storage_bytes: usize,
     pub min_abs_pivot: Option<f64>,
     pub max_abs_pivot: Option<f64>,
     /// Pivot-ratio conditioning proxy from the factorization report
@@ -129,6 +132,10 @@ pub struct HarnessRunRecord {
     pub reduced_dofs: usize,
     pub stiffness_nonzero_count: usize,
     pub reduced_stiffness_nonzero_count: usize,
+    /// Deterministic value-storage footprint for the reduced dense matrix:
+    /// `reduced_dofs * reduced_dofs * size_of::<f64>()`. This excludes
+    /// allocator/container overhead and is observation evidence only.
+    pub reduced_dense_matrix_value_storage_bytes: usize,
     pub force_nonzero_count: usize,
     pub repeat_count: usize,
     pub max_abs_solution_delta: f64,
@@ -180,6 +187,8 @@ pub struct HarnessSuiteSummary {
     pub records_with_sparse_observation_count: usize,
     pub total_original_profile_entry_count: usize,
     pub total_ordered_profile_entry_count: usize,
+    pub total_reduced_dense_matrix_value_storage_bytes: usize,
+    pub total_ordered_profile_value_storage_bytes: usize,
     pub max_abs_sparse_dense_solution_delta: f64,
     pub max_abs_sparse_residual: f64,
 }
@@ -198,6 +207,10 @@ pub struct SparseSuitabilityObservationRecord {
     pub ordered_max_half_bandwidth: usize,
     pub original_profile_entry_count: usize,
     pub ordered_profile_entry_count: usize,
+    pub dense_reduced_matrix_value_storage_bytes: usize,
+    pub sparse_original_profile_value_storage_bytes: usize,
+    pub sparse_ordered_profile_value_storage_bytes: usize,
+    pub sparse_ordered_vs_dense_value_storage_ratio: f64,
     pub dense_solution_scale: f64,
     pub max_abs_sparse_dense_solution_delta: f64,
     pub sparse_dense_relative_delta: f64,
@@ -486,6 +499,15 @@ pub fn run_sparse_suitability_observation(
         ordered_max_half_bandwidth: sparse.ordered_max_half_bandwidth,
         original_profile_entry_count: sparse.original_profile_entry_count,
         ordered_profile_entry_count: sparse.ordered_profile_entry_count,
+        dense_reduced_matrix_value_storage_bytes: run_record
+            .reduced_dense_matrix_value_storage_bytes,
+        sparse_original_profile_value_storage_bytes: sparse
+            .original_profile_value_storage_bytes,
+        sparse_ordered_profile_value_storage_bytes: sparse.ordered_profile_value_storage_bytes,
+        sparse_ordered_vs_dense_value_storage_ratio: storage_ratio(
+            sparse.ordered_profile_value_storage_bytes,
+            run_record.reduced_dense_matrix_value_storage_bytes,
+        ),
         dense_solution_scale,
         max_abs_sparse_dense_solution_delta: sparse_dense_delta,
         sparse_dense_relative_delta,
@@ -507,7 +529,7 @@ pub fn run_sparse_suitability_observation(
         limitations: vec![
             "accepted thresholds apply only to the generated-grid observation set; not a practical-size threshold"
                 .to_string(),
-            "elapsed-time fields are environment-dependent and do not define timing or memory thresholds"
+            "elapsed-time fields are environment-dependent and deterministic value-storage fields exclude allocator overhead; neither defines timing or memory thresholds"
                 .to_string(),
             "default sparse promotion remains not promoted; dense remains the product/default solve path"
                 .to_string(),
@@ -684,6 +706,12 @@ fn observe_sparse_path(
         ordered_max_half_bandwidth: first.ordered_max_half_bandwidth,
         original_profile_entry_count: first.original_profile_entry_count,
         ordered_profile_entry_count: first.ordered_profile_entry_count,
+        original_profile_value_storage_bytes: profile_value_storage_bytes(
+            first.original_profile_entry_count,
+        ),
+        ordered_profile_value_storage_bytes: profile_value_storage_bytes(
+            first.ordered_profile_entry_count,
+        ),
         min_abs_pivot: first.factorization.min_abs_pivot,
         max_abs_pivot: first.factorization.max_abs_pivot,
         pivot_condition_ratio_estimate: first.factorization.pivot_condition_ratio_estimate,
@@ -818,6 +846,15 @@ fn suite_summary(
             .filter_map(|record| record.sparse_observation.as_ref())
             .map(|observation| observation.ordered_profile_entry_count)
             .sum(),
+        total_reduced_dense_matrix_value_storage_bytes: fixture_records
+            .iter()
+            .map(|record| record.reduced_dense_matrix_value_storage_bytes)
+            .sum(),
+        total_ordered_profile_value_storage_bytes: fixture_records
+            .iter()
+            .filter_map(|record| record.sparse_observation.as_ref())
+            .map(|observation| observation.ordered_profile_value_storage_bytes)
+            .sum(),
         max_abs_sparse_dense_solution_delta: fixture_records
             .iter()
             .filter_map(|record| record.sparse_observation.as_ref())
@@ -857,6 +894,9 @@ fn run_record(
         reduced_dofs: reduced_stiffness.len(),
         stiffness_nonzero_count: nonzero_count(stiffness),
         reduced_stiffness_nonzero_count: nonzero_count(reduced_stiffness),
+        reduced_dense_matrix_value_storage_bytes: dense_matrix_value_storage_bytes(
+            reduced_stiffness.len(),
+        ),
         force_nonzero_count,
         repeat_count: settings.repeat_count,
         max_abs_solution_delta,
@@ -880,6 +920,8 @@ fn run_record(
             "DEC-023 selects the sparse skyline solver and DEC-050 binds it as a live evidence lane; profile-direct assembly and default sparse promotion remain follow-on work".to_string(),
             "release timing, memory, and conditioning thresholds remain TBD".to_string(),
             "elapsed-time observations are environment-dependent measurements, not asserted thresholds"
+                .to_string(),
+            "deterministic value-storage observations exclude allocator/container overhead and are not memory thresholds"
                 .to_string(),
             "hardware-normalized performance gates are not claimed".to_string(),
         ],
@@ -1005,6 +1047,24 @@ fn nonzero_count(matrix: &DenseMatrix) -> usize {
         .count()
 }
 
+fn dense_matrix_value_storage_bytes(dimension: usize) -> usize {
+    dimension
+        .saturating_mul(dimension)
+        .saturating_mul(F64_VALUE_STORAGE_BYTES)
+}
+
+fn profile_value_storage_bytes(entry_count: usize) -> usize {
+    entry_count.saturating_mul(F64_VALUE_STORAGE_BYTES)
+}
+
+fn storage_ratio(numerator_bytes: usize, denominator_bytes: usize) -> f64 {
+    if denominator_bytes == 0 {
+        0.0
+    } else {
+        numerator_bytes as f64 / denominator_bytes as f64
+    }
+}
+
 fn max_abs_delta(left: &[f64], right: &[f64]) -> f64 {
     left.iter()
         .zip(right.iter())
@@ -1051,6 +1111,10 @@ mod tests {
         assert_eq!(record.node_count, 5);
         assert_eq!(record.element_count, 4);
         assert_eq!(record.repeat_count, 3);
+        assert_eq!(
+            record.reduced_dense_matrix_value_storage_bytes,
+            record.reduced_dofs * record.reduced_dofs * F64_VALUE_STORAGE_BYTES
+        );
         assert_eq!(record.repeat_observations.len(), 3);
         assert_eq!(record.repeat_observations[0].repeat_index, 0);
         assert_eq!(record.repeat_observations[1].repeat_index, 1);
@@ -1155,6 +1219,10 @@ mod tests {
             assert_eq!(record.element_count, expected_element_count);
             assert_eq!(record.repeat_observations.len(), 3);
             assert!(record.reduced_stiffness_nonzero_count > 0);
+            assert_eq!(
+                record.reduced_dense_matrix_value_storage_bytes,
+                record.reduced_dofs * record.reduced_dofs * F64_VALUE_STORAGE_BYTES
+            );
             assert_eq!(
                 record.conditioning_observation.matrix_dimension,
                 record.reduced_dofs
@@ -1388,6 +1456,19 @@ mod tests {
         assert_eq!(record.reduced_dofs, 8 * DOF_PER_NODE);
         assert_eq!(observation.reduced_dofs, record.reduced_dofs);
         assert!(observation.ordered_profile_entry_count > 0);
+        assert_eq!(
+            observation.original_profile_value_storage_bytes,
+            observation.original_profile_entry_count * F64_VALUE_STORAGE_BYTES
+        );
+        assert_eq!(
+            observation.ordered_profile_value_storage_bytes,
+            observation.ordered_profile_entry_count * F64_VALUE_STORAGE_BYTES
+        );
+        assert!(observation.ordered_profile_value_storage_bytes > 0);
+        assert!(
+            observation.ordered_profile_value_storage_bytes
+                <= record.reduced_dense_matrix_value_storage_bytes
+        );
         assert!(observation.max_abs_sparse_dense_solution_delta.is_some());
         assert_eq!(observation.nonpositive_pivot_count, 0);
         assert!(record
@@ -1497,6 +1578,20 @@ mod tests {
                 observation.nonpositive_pivot_count <= observation.nonpositive_pivot_count_limit
             );
             assert!(observation.ordered_profile_entry_count > 0);
+            assert_eq!(
+                observation.dense_reduced_matrix_value_storage_bytes,
+                observation.reduced_dofs * observation.reduced_dofs * F64_VALUE_STORAGE_BYTES
+            );
+            assert_eq!(
+                observation.sparse_original_profile_value_storage_bytes,
+                observation.original_profile_entry_count * F64_VALUE_STORAGE_BYTES
+            );
+            assert_eq!(
+                observation.sparse_ordered_profile_value_storage_bytes,
+                observation.ordered_profile_entry_count * F64_VALUE_STORAGE_BYTES
+            );
+            assert!(observation.sparse_ordered_vs_dense_value_storage_ratio > 0.0);
+            assert!(observation.sparse_ordered_vs_dense_value_storage_ratio <= 1.0);
             assert!(observation
                 .limitations
                 .iter()
@@ -1529,6 +1624,27 @@ mod tests {
                 <= suite.summary.total_original_profile_entry_count
         );
         assert!(suite.summary.max_abs_sparse_residual < 1.0e-6);
+        assert_eq!(
+            suite.summary.total_reduced_dense_matrix_value_storage_bytes,
+            suite
+                .fixture_records
+                .iter()
+                .map(|record| record.reduced_dense_matrix_value_storage_bytes)
+                .sum::<usize>()
+        );
+        assert_eq!(
+            suite.summary.total_ordered_profile_value_storage_bytes,
+            suite
+                .fixture_records
+                .iter()
+                .filter_map(|record| record.sparse_observation.as_ref())
+                .map(|observation| observation.ordered_profile_value_storage_bytes)
+                .sum::<usize>()
+        );
+        assert!(
+            suite.summary.total_ordered_profile_value_storage_bytes
+                <= suite.summary.total_reduced_dense_matrix_value_storage_bytes
+        );
         for record in &suite.fixture_records {
             let observation = record.sparse_observation.as_ref().unwrap();
             assert_eq!(observation.repeat_count, record.repeat_count);

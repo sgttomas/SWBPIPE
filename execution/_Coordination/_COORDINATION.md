@@ -366,6 +366,10 @@ generated-grid sparse suitability thresholds for dense-vs-sparse relative delta,
 sparse residual, repeatability, and nonpositive pivots while keeping dense
 default and timing/memory/conditioning/CI/hardware/default-promotion thresholds
 `TBD`.
+`TP-R4-D7-SPARSESTORAGEOBS-001` adds deterministic f64 value-storage
+observations for reduced dense matrices and sparse profile entries in the
+performance harness; allocator/RSS memory, timing, conditioning, CI,
+hardware-normalized, and default-promotion thresholds remain `TBD`.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted ten-fixture set,
 general energy threshold promotion, broader displacement/reaction-delta threshold
@@ -510,6 +514,10 @@ bounded tranche.
       promotes bounded generated-grid sparse suitability thresholds while dense
       remains default and timing/memory/conditioning/CI/hardware/default
       promotion stays `TBD`.
+      `TP-R4-D7-SPARSESTORAGEOBS-001` records deterministic f64 value-storage
+      observations for reduced dense matrices and sparse profile entries while
+      allocator/RSS memory, timing, conditioning, CI, hardware-normalized, and
+      default-promotion thresholds remain `TBD`.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
       ten-fixture set, general energy threshold promotion, broader

@@ -14,6 +14,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D7 sparse storage-footprint observations (`TP-R4-D7-SPARSESTORAGEOBS-001`)
+
+Added deterministic storage-footprint observations to the DEC-050 sparse
+performance harness evidence without promoting sparse as default or setting
+memory thresholds.
+
+Changed surfaces:
+
+- `core/solver/performance_harness`: added f64 value-storage byte counts for
+  reduced dense matrices and original/ordered sparse profile entries on
+  `HarnessRunRecord`, `HarnessSuiteSummary`, `SparseSolveObservation`, and
+  `SparseSuitabilityObservationRecord`.
+- `validation/benchmarks/sparse_suitability_observation.dec050.json`: records
+  the new deterministic storage-footprint metric names and marks memory
+  observations as `deterministic_value_storage_observed_threshold_tbd`.
+- `tests/test_sparse_suitability_observation.py` and performance-harness Rust
+  tests guard the storage metrics and dense-default boundary.
+- Coordination, plan, gap-packet, memory, and run-record surfaces document that
+  allocator/RSS memory thresholds, timing thresholds, conditioning/CI thresholds,
+  hardware-normalized methodology, and default sparse promotion remain open.
+
+Focused validation: performance harness Rust tests passed 19/19; focused
+sparse-suitability pytest passed 1/1; JSON syntax validation passed;
+`git diff --check` passed. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T132612Z_052c8cb5e277-dirty.json`.
+
+Residuals: dense remains default; default sparse promotion, allocator/RSS memory
+thresholds, timing thresholds, practical-size bands, conditioning/CI thresholds,
+hardware-normalized scale methodology, D6/D9 nonlinear threshold residuals,
+deeper spring-hanger behavior, external validation thresholds, broader R4
+validation package work, and final R4 exit evidence remain open.
+
+Boundary: deterministic f64 value-storage observation evidence only. No
+protected standards content, proprietary benchmark output, private project
+data, lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D7-SPARSESTORAGEOBS-001.md`.
+
 ## 2026-06-22 - R4 D9 displacement/reaction observation ledger refresh (`TP-R4-D9-DISPREACTIONOBSLEDGER-001`)
 
 Refreshed the standalone multi-support displacement/reaction-delta observation

@@ -24,6 +24,11 @@ def test_sparse_suitability_observation_record_preserves_dense_default_boundary(
     )
     assert record["threshold_policy_status"] == "accepted_for_generated_grid_observation_set"
     assert record["default_sparse_promotion_status"] == "not_promoted_dense_default"
+    assert (
+        record["memory_observation_status"]
+        == "deterministic_value_storage_observed_threshold_tbd"
+    )
+    assert "f64 value-storage bytes only" in record["memory_observation_basis"]
     assert record["timing_memory_threshold_status"] == "tbd"
     assert record["conditioning_ci_threshold_status"] == "tbd"
     assert record["hardware_normalization_status"] == "tbd"
@@ -37,8 +42,18 @@ def test_sparse_suitability_observation_record_preserves_dense_default_boundary(
     assert "SPARSE_SUITABILITY_RESIDUAL_ABSOLUTE_LIMIT: f64 = 1.0e-6" in source
     assert "SPARSE_SUITABILITY_REPEAT_DELTA_ABSOLUTE_LIMIT: f64 = 0.0" in source
     assert "SPARSE_SUITABILITY_NONPOSITIVE_PIVOT_COUNT_LIMIT: usize = 0" in source
+    assert "F64_VALUE_STORAGE_BYTES: usize = std::mem::size_of::<f64>()" in source
+    assert "dense_reduced_matrix_value_storage_bytes" in record["observed_metrics"]
+    assert "sparse_original_profile_value_storage_bytes" in record["observed_metrics"]
+    assert "sparse_ordered_profile_value_storage_bytes" in record["observed_metrics"]
+    assert "sparse_ordered_vs_dense_value_storage_ratio" in record["observed_metrics"]
     assert "run_sparse_suitability_observation_suite" in source
     assert "no default sparse promotion is made" in " ".join(record["boundary"])
+    assert (
+        "deterministic value-storage memory observations are recorded"
+        in " ".join(record["boundary"])
+    )
+    assert "no timing, memory" in " ".join(record["boundary"])
 
     assert (
         policy["record_id"]

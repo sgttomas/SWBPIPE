@@ -21,6 +21,10 @@
     "reduced_dofs",
     "original_profile_entry_count",
     "ordered_profile_entry_count",
+    "dense_reduced_matrix_value_storage_bytes",
+    "sparse_original_profile_value_storage_bytes",
+    "sparse_ordered_profile_value_storage_bytes",
+    "sparse_ordered_vs_dense_value_storage_ratio",
     "original_max_half_bandwidth",
     "ordered_max_half_bandwidth",
     "dense_solution_scale",
@@ -36,6 +40,8 @@
   "threshold_policy_tranche_id": "TP-R4-D7-SPARSETHRESHOLDPOLICY-001",
   "threshold_policy_status": "accepted_for_generated_grid_observation_set",
   "default_sparse_promotion_status": "not_promoted_dense_default",
+  "memory_observation_status": "deterministic_value_storage_observed_threshold_tbd",
+  "memory_observation_basis": "f64 value-storage bytes only; excludes allocator/container overhead, resident-set size, platform memory counters, and hardware normalization",
   "timing_memory_threshold_status": "tbd",
   "conditioning_ci_threshold_status": "tbd",
   "hardware_normalization_status": "tbd",
@@ -44,6 +50,7 @@
     "generated-grid observations are invented public verification evidence only",
     "no default sparse promotion is made",
     "thresholds apply only to dense-vs-sparse relative delta, sparse residual, repeat sparse-solution delta, and nonpositive pivot count for the named generated-grid observation set",
+    "deterministic value-storage memory observations are recorded for the named generated-grid fixtures only",
     "no timing, memory, conditioning, CI, release, external-validation, professional, or code-compliance threshold is set",
     "no protected standards content, proprietary benchmark model, private project data, network path, or telemetry feature is introduced"
   ]

@@ -269,3 +269,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   practical-size bands, conditioning/CI thresholds, hardware-normalized
   methodology, release/external thresholds, and professional/code-compliance
   acceptance remain outside this policy.
+
+## 2026-06-22 - TP-R4-D7-SPARSESTORAGEOBS-001 sparse storage-footprint observations
+
+- `core/solver/performance_harness` now records deterministic f64
+  value-storage observations for reduced dense matrices and sparse profile
+  entries on harness run records, suite summaries, and generated-grid sparse
+  suitability observations.
+- `validation/benchmarks/sparse_suitability_observation.dec050.json` now lists
+  the storage-footprint metrics and marks them as
+  `deterministic_value_storage_observed_threshold_tbd`; the accepted generated
+  grid threshold policy remains limited to dense-vs-sparse relative delta,
+  sparse residual, repeatability, and nonpositive pivots.
+- Validation passed: performance harness Rust tests 19/19, focused
+  sparse-suitability pytest 1/1, JSON syntax check, `git diff --check`, and
+  full DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260622T132612Z_052c8cb5e277-dirty.json`.
+- Residuals remain explicit: dense remains default; default sparse promotion,
+  allocator/RSS memory thresholds, timing thresholds, practical-size bands,
+  conditioning/CI thresholds, hardware-normalized methodology, release/external
+  thresholds, and professional/code-compliance acceptance remain outside this
+  observation slice.
