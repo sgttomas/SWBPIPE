@@ -40,12 +40,22 @@ free-DOF work residual products, with an accepted `0.0 N-m` limit. These
 records do not define displacement-delta, reaction-delta, general energy,
 sparse live-path, product-preview, release, or external validation thresholds.
 
+The current assembled validation seed also exposes
+`DEC-046-CV-B-displacement-reaction-delta-observation-v1` as an
+observation-only ledger for final-iteration displacement and reaction deltas
+from the previous active-set solve. These axes remain
+`threshold_policy_status=tbd`: nonzero deltas can be a transition magnitude
+between consecutive linearized active-set solves, not a failed convergence
+residual.
+
 The companion note is
 `validation/hand_calcs/nonlinear/convergence_observations.md`.
 The machine-readable policy records are
 `validation/benchmarks/nonlinear/convergence_policy.dec046.json` and
 `validation/benchmarks/nonlinear/free_dof_force_moment_policy.dec046.json`,
-and `validation/benchmarks/nonlinear/free_dof_work_policy.dec046.json`.
+and `validation/benchmarks/nonlinear/free_dof_work_policy.dec046.json`. The
+machine-readable displacement/reaction observation record is
+`validation/benchmarks/nonlinear/displacement_reaction_delta_observation.dec046.json`.
 
 ## Multi-Support Acceptance Inventory
 
@@ -64,6 +74,10 @@ free-DOF force/moment residuals, and final-iteration free-DOF work residual
 products for that fixture set only. It does not define displacement-delta,
 reaction-delta, general energy, sparse-default, product-preview, release,
 external validation, or CI thresholds.
+The fixture set also has
+`DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1` as an
+observation-only displacement/reaction-delta ledger with thresholds still
+`TBD`.
 
 The companion notes are
 `validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md`
@@ -77,6 +91,8 @@ and
 `validation/benchmarks/nonlinear/multisupport_free_dof_force_moment_policy.dec046.json`,
 and
 `validation/benchmarks/nonlinear/multisupport_free_dof_work_policy.dec046.json`.
+The machine-readable multi-support displacement/reaction observation record is
+`validation/benchmarks/nonlinear/multisupport_displacement_reaction_delta_observation.dec046.json`.
 
 ## Multi-Support Depth Observation Inventory
 

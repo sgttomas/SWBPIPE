@@ -105,9 +105,13 @@
      while dense remains default. `TP-R4-D7-SPARSEPROFILE-001` added direct
      reduced profile-entry assembly for product-preview sparse evidence rows
      while dense remains the product solve path and parity oracle.
+     `TP-R4-D9-DISPREACTIONOBS-001` records displacement/reaction-delta
+     observation axes for the current assembled validation seed, accepted
+     multi-support fixture set, and product-preview metadata; accepted delta
+     thresholds remain `TBD`.
      `TP-R4-D9-EXITGAP-001` records the current R4
      exit verdict as not ready: non-seed force/displacement/energy threshold
-     promotion, displacement/reaction-delta threshold axes, multi-DOF /
+     promotion, accepted displacement/reaction-delta thresholds, multi-DOF /
      multi-support nonlinear fixture depth, default sparse promotion and
      nonlinear/core profile-direct sparse promotion, deeper spring-hanger
      behavior, and the remaining D9 validation

@@ -14,6 +14,50 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 displacement/reaction delta observation ledger (`TP-R4-D9-DISPREACTIONOBS-001`)
+
+Landed an observation-only `DEC-046` displacement/reaction-delta ledger for the
+current assembled validation seed and accepted three-fixture multi-support
+companion set. The tranche records the axes and product-preview metadata while
+leaving accepted displacement/reaction-delta thresholds `TBD`.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: added typed observation-ledger entries,
+  seed and multi-support observation references, and Rust tests proving the
+  axes are dimensioned observations with no accepted threshold policy.
+- Added machine-readable records:
+  `validation/benchmarks/nonlinear/displacement_reaction_delta_observation.dec046.json`
+  and
+  `validation/benchmarks/nonlinear/multisupport_displacement_reaction_delta_observation.dec046.json`.
+- `core/product_physics`: product-preview displacement/reaction delta result
+  rows now carry an observation reference and `threshold_policy_status=tbd`
+  instead of the older generic `threshold=TBD` basis.
+- Coordination and planning surfaces: current-state and residual wording now
+  distinguish landed observation ledgers from still-open accepted delta
+  thresholds.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-DISPREACTIONOBS-001.md`.
+
+Focused validation: nonlinear benchmark Rust tests passed 16/16; product
+physics Rust tests passed 44/44; focused nonlinear pytest passed 8/8; JSON
+validation passed for both new observation records. Full DEC-025 sweep passed
+5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T093149Z_c1f9fe81811d-dirty.json`.
+
+Residuals: accepted displacement/reaction-delta thresholds remain open, as do
+non-seed force/displacement threshold promotion beyond the accepted
+three-fixture set, general energy threshold promotion, default sparse
+promotion, nonlinear/core profile-direct sparse promotion, deeper spring-hanger
+behavior, external validation thresholds, broader R4 validation package work,
+and final R4 exit evidence.
+
+Boundary: invented/public-original validation observation evidence only. No
+protected standards content, proprietary benchmark output, private project
+data, lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 multi-support friction/gap companion (`TP-R4-D9-MULTISUPPORTFRICTION-001`)
 
 Landed a third public-original accepted multi-support validation companion in

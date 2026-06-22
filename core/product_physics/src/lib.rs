@@ -60,6 +60,8 @@ const DEC_046_PRODUCT_PREVIEW_FREE_DOF_MOMENT_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF: &str =
     "DEC-046-CV-B-product-preview-free-dof-work-residual-v1";
 const DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_ABSOLUTE_LIMIT: f64 = 0.0;
+const DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF: &str =
+    "DEC-046-CV-B-product-preview-displacement-reaction-delta-observation-v1";
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PreviewModel {
@@ -1334,7 +1336,7 @@ fn append_nonlinear_support_loop_results(
                 },
                 if solve.converged { "info" } else { "warning" },
                 format!(
-                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; displacement, reaction-delta, general energy, sparse, release, and external thresholds remain TBD",
+                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; displacement/reaction-delta axes are observation-only with threshold_policy_status=tbd; general energy, sparse, release, and external thresholds remain TBD",
                     solve.iterations.len(),
                     final_residual,
                     solve.policy_ref,
@@ -1699,7 +1701,8 @@ fn append_nonlinear_residual_observation_results(
     policy_ref: &str,
 ) {
     let observation_only_basis = format!(
-        "dense_active_set_loop; policy_ref={policy_ref}; observed_residual_only; threshold=TBD; threshold_axes=displacement_and_reaction_delta"
+        "dense_active_set_loop; policy_ref={policy_ref}; observation_ref={}; observed_delta_only; threshold_policy_status=tbd; threshold_policy_ref=TBD; residual_basis=displacement_reaction_delta_from_previous_iteration; threshold_axes=displacement_and_reaction_delta; product_preview_only",
+        DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF
     );
     let free_dof_work_threshold_basis = format!(
         "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold={} N*m; product_preview_only; general_energy_threshold=TBD",
@@ -6457,12 +6460,13 @@ mod tests {
             .iter()
             .find(|item| item.id == "result:nonlinear-support:max-translation-delta")
             .expect("translation delta row exists");
-        assert!(translation_delta
-            .metadata
-            .as_ref()
-            .unwrap()
-            .basis
-            .contains("threshold=TBD"));
+        let translation_delta_basis = &translation_delta.metadata.as_ref().unwrap().basis;
+        assert!(translation_delta_basis
+            .contains(DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF));
+        assert!(translation_delta_basis.contains("threshold_policy_status=tbd"));
+        assert!(translation_delta_basis.contains("threshold_policy_ref=TBD"));
+        assert!(translation_delta_basis.contains("observed_delta_only"));
+        assert!(!translation_delta_basis.contains("threshold_policy_status=accepted"));
         let force_residual = result
             .results
             .iter()

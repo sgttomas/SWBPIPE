@@ -26,9 +26,9 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 ## Remaining TBDs
 
 - Non-seed force/displacement thresholds beyond the accepted multi-support
-  companion, general energy thresholds, displacement-delta thresholds,
-  reaction-delta thresholds, sparse default/promotion thresholds, release
-  thresholds, and external validation thresholds remain `TBD`.
+  companion, general energy thresholds, accepted displacement/reaction-delta
+  thresholds, sparse default/promotion thresholds, release thresholds, and
+  external validation thresholds remain `TBD`.
 - The current assembled validation seed has an accepted active-set
   changed-support-count policy under `DEC-046-CV-B-active-set-count-validation-v1`.
 - The current assembled validation seed has an accepted free-DOF force/moment
@@ -54,8 +54,30 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
   multi-support assembled fixture under `TP-R4-D9-MULTISUPPORT-OBS-TBD`; it is
   not part of the accepted current assembled validation seed policy.
+- `TP-R4-D9-DISPREACTIONOBS-001` adds observation-only
+  displacement/reaction-delta ledgers for the current assembled validation
+  seed and accepted multi-support fixture set, plus product-preview metadata
+  with `threshold_policy_status=tbd`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-DISPREACTIONOBS-001
+
+- Added machine-readable observation-only displacement/reaction-delta records:
+  `validation/benchmarks/nonlinear/displacement_reaction_delta_observation.dec046.json`
+  and
+  `validation/benchmarks/nonlinear/multisupport_displacement_reaction_delta_observation.dec046.json`.
+- Added typed nonlinear benchmark ledger entries and tests proving those axes
+  are dimensioned observations with `ConvergencePolicyStatus::Tbd`, not
+  accepted threshold policies.
+- Updated product-preview nonlinear residual metadata so translation/reaction
+  delta rows name the product observation reference and carry
+  `threshold_policy_status=tbd`.
+- Boundary preserved: no accepted displacement-delta, reaction-delta, general
+  energy, sparse-default, external validation, release-readiness, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-DISPREACTIONOBS-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORTFRICTION-001
 

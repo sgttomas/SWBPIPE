@@ -1,0 +1,50 @@
+{
+  "record_kind": "nonlinear_multisupport_displacement_reaction_delta_observation",
+  "record_id": "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "observation_only_threshold_tbd",
+  "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+  "threshold_policy_status": "tbd",
+  "delta_semantics": "final-iteration max absolute change from the previous linearized active-set solve; nonzero values can coexist with active-set convergence",
+  "axes": {
+    "translation_delta": {
+      "name": "max_abs_translation_delta_from_previous",
+      "unit": "mm",
+      "dimension": "displacement"
+    },
+    "rotation_delta": {
+      "name": "max_abs_rotation_delta_from_previous",
+      "unit": "rad",
+      "dimension": "rotation"
+    },
+    "force_reaction_delta": {
+      "name": "max_abs_force_reaction_delta_from_previous",
+      "unit": "N",
+      "dimension": "force"
+    },
+    "moment_reaction_delta": {
+      "name": "max_abs_moment_reaction_delta_from_previous",
+      "unit": "N-m",
+      "dimension": "moment"
+    }
+  },
+  "entries": [
+    {
+      "nonlinear_class": "multi_support_multi_dof",
+      "observation_ref": "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1",
+      "threshold_policy_ref": null,
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Observation-only record for public-original multi-DOF / multi-support validation fixture-set final-iteration deltas from the previous active-set solve.",
+    "The observed deltas are transition magnitudes between consecutive linearized active-set solves; nonzero final values can coexist with active-set convergence.",
+    "Does not define displacement-delta, reaction-delta, general energy, sparse live-path, product-preview, release, or external validation thresholds."
+  ],
+  "boundary_notice": "Mechanics validation observation evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}
