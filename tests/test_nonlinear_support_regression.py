@@ -16,6 +16,10 @@ BENCHMARK_README = BENCHMARK_DIR / "README.md"
 CONVERGENCE_OBSERVATION_NOTE = HAND_CALCS_DIR / "convergence_observations.md"
 CONVERGENCE_POLICY_RECORD = BENCHMARK_DIR / "convergence_policy.dec046.json"
 DEC_046_POLICY_REF = "DEC-046-CV-B-active-set-count-validation-v1"
+FREE_DOF_FORCE_MOMENT_POLICY_RECORD = BENCHMARK_DIR / "free_dof_force_moment_policy.dec046.json"
+DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF = (
+    "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1"
+)
 
 REQUIRED_FAMILIES = {
     "ActiveSet",
@@ -171,9 +175,9 @@ def test_nonlinear_hand_calc_unit_basis_is_explicit_and_unresolved():
     normalized_benchmark_readme = _normalized_text(benchmark_readme)
     assert "does not define project conversion constants" in normalized_benchmark_readme
     assert "canonical unit catalog, which remain `TBD`" in normalized_benchmark_readme
-    assert "force/displacement residual" in readme
+    assert "free-DOF force/moment equilibrium residuals" in readme
     assert "CI gate" in readme
-    assert "remain `TBD`" in readme
+    assert "remain `TBD`" in _normalized_text(readme)
     assert DEC_046_POLICY_REF in readme
 
     for note_name in REQUIRED_FIXTURE_NOTES.values():
@@ -203,6 +207,7 @@ def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
         ),
         CONVERGENCE_OBSERVATION_NOTE,
         CONVERGENCE_POLICY_RECORD,
+        FREE_DOF_FORCE_MOMENT_POLICY_RECORD,
     ]
 
     for path in scanned_paths:
@@ -236,6 +241,9 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     hand_calc_readme = HAND_CALCS_README.read_text(encoding="utf-8")
     observation_note = CONVERGENCE_OBSERVATION_NOTE.read_text(encoding="utf-8")
     policy_record = json.loads(CONVERGENCE_POLICY_RECORD.read_text(encoding="utf-8"))
+    force_moment_policy_record = json.loads(
+        FREE_DOF_FORCE_MOMENT_POLICY_RECORD.read_text(encoding="utf-8")
+    )
 
     assert "assembled_fixture_inventory" in source
     assert "assembled_convergence_observations" in source
@@ -243,8 +251,10 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "ConvergenceObservation" in source
     assert "ForceDisplacementResidualObservation" in source
     assert "observed_iteration_count" in source
-    assert "threshold_policy: None" in source
+    assert "free_dof_force_moment_threshold_policy" in source
+    assert DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF in source
     assert "governed_convergence_policy_entries" in source
+    assert "governed_free_dof_force_moment_policy_entries" in source
     assert "solve_active_set_frame" in source
     assert "DEC_046_ACTIVE_SET_COUNT_POLICY_REF" in source
     assert "ConvergencePolicyStatus::Accepted" in source
@@ -255,16 +265,19 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert CONVERGENCE_OBSERVATION_NOTE.name in benchmark_readme
     assert CONVERGENCE_OBSERVATION_NOTE.name in hand_calc_readme
     assert CONVERGENCE_POLICY_RECORD.name in benchmark_readme
+    assert FREE_DOF_FORCE_MOMENT_POLICY_RECORD.name in benchmark_readme
     assert "## Provenance" in observation_note
     assert "## Invented Inputs" in observation_note
     assert "## Active-Set Expected Values" in observation_note
     assert "## Force/Displacement Residual Observations" in observation_note
     assert f"Tolerance policy: `{DEC_046_POLICY_REF}`." in observation_note
+    assert f"Free-DOF force/moment residual policy: `{DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF}`." in observation_note
     assert "changed-support-count residual" in benchmark_readme
     normalized_observation_note = _normalized_text(observation_note).lower()
     assert "force/displacement residual" in normalized_observation_note
     assert "threshold policy" in normalized_observation_note
-    assert "none" in normalized_observation_note
+    assert DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF.lower() in normalized_observation_note
+    assert "displacement and reaction deltas remain observation-only" in normalized_observation_note
 
     assert policy_record["record_id"] == DEC_046_POLICY_REF
     assert policy_record["decision_ref"] == "DEC-046"
@@ -282,4 +295,23 @@ def test_assembled_global_loop_seed_uses_governed_policy():
         assert entry["relative_residual_tolerance"] == 0.0
         assert entry["absolute_residual_floor"] == 0.0
         assert entry["max_iterations"] == 4
+        assert entry["evidence_fixture_ids"]
+
+    assert force_moment_policy_record["record_id"] == DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF
+    assert force_moment_policy_record["decision_ref"] == "DEC-046"
+    assert force_moment_policy_record["status"] == "accepted_for_current_assembled_validation_seed"
+    assert force_moment_policy_record["force_residual_basis"]["name"] == "free_dof_force_residual"
+    assert force_moment_policy_record["force_residual_basis"]["unit"] == "N"
+    assert force_moment_policy_record["moment_residual_basis"]["name"] == "free_dof_moment_residual"
+    assert force_moment_policy_record["moment_residual_basis"]["unit"] == "N-m"
+    assert [entry["nonlinear_class"] for entry in force_moment_policy_record["entries"]] == [
+        "one_way",
+        "gap",
+        "lift_off",
+        "friction",
+    ]
+    for entry in force_moment_policy_record["entries"]:
+        assert entry["policy_ref"] == DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF
+        assert entry["force_absolute_limit"] == 0.0
+        assert entry["moment_absolute_limit"] == 0.0
         assert entry["evidence_fixture_ids"]

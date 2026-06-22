@@ -67,7 +67,21 @@ const DEC_046_ACTIVE_SET_COUNT_ABSOLUTE_FLOOR: f64 = 0.0;
 const DEC_046_ACTIVE_SET_COUNT_MAX_ITERATIONS: usize = 4;
 const DEC_046_ACTIVE_SET_COUNT_LIMITATIONS: &[&str] = &[
     "Applies only to the current public-original assembled validation seed and its active-set changed-support-count residual.",
-    "Does not define force, displacement, energy, sparse live-path, product-preview, or external validation convergence thresholds.",
+    "Does not define free-DOF force/moment, displacement, energy, sparse live-path, product-preview, or external validation convergence thresholds.",
+];
+pub const DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF: &str =
+    "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1";
+const DEC_046_FREE_DOF_FORCE_RESIDUAL_BASIS: &str = "free_dof_force_residual";
+const DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT: &str = "N";
+const DEC_046_FREE_DOF_FORCE_RESIDUAL_DIMENSION: &str = "force";
+const DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT: f64 = 0.0;
+const DEC_046_FREE_DOF_MOMENT_RESIDUAL_BASIS: &str = "free_dof_moment_residual";
+const DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT: &str = "N-m";
+const DEC_046_FREE_DOF_MOMENT_RESIDUAL_DIMENSION: &str = "moment";
+const DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT: f64 = 0.0;
+const DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS: &[&str] = &[
+    "Applies only to current public-original assembled validation-seed final-iteration free-DOF force and moment equilibrium residuals.",
+    "Does not define displacement-delta, reaction-delta, energy, sparse live-path, product-preview, release, or external validation thresholds.",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -262,21 +276,24 @@ pub struct ForceDisplacementResidualObservation {
     pub free_dof_force_residual_unit: &'static str,
     pub max_abs_free_dof_moment_residual: f64,
     pub free_dof_moment_residual_unit: &'static str,
-    pub threshold_policy: Option<&'static str>,
+    pub free_dof_force_moment_threshold_policy: Option<&'static str>,
 }
 
 impl ForceDisplacementResidualObservation {
-    pub fn is_observation_without_threshold_claim(&self) -> bool {
+    pub fn uses_accepted_free_dof_force_moment_threshold_policy(&self) -> bool {
         self.policy_ref == DEC_046_ACTIVE_SET_COUNT_POLICY_REF
-            && self.threshold_policy.is_none()
+            && self.free_dof_force_moment_threshold_policy
+                == Some(DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF)
             && self.translation_delta_unit == "mm"
             && self.rotation_delta_unit == "rad"
             && self.force_reaction_delta_unit == "N"
             && self.moment_reaction_delta_unit == "N-m"
-            && self.free_dof_force_residual_unit == "N"
-            && self.free_dof_moment_residual_unit == "N-m"
+            && self.free_dof_force_residual_unit == DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT
+            && self.free_dof_moment_residual_unit == DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT
             && self.max_abs_free_dof_force_residual.is_finite()
             && self.max_abs_free_dof_moment_residual.is_finite()
+            && self.max_abs_free_dof_force_residual <= DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT
+            && self.max_abs_free_dof_moment_residual <= DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT
     }
 }
 
@@ -305,6 +322,23 @@ pub struct ConvergencePolicyEntry {
     pub limitations: &'static [&'static str],
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct ForceMomentResidualPolicyEntry {
+    pub policy_ref: &'static str,
+    pub nonlinear_class: &'static str,
+    pub force_residual_basis: &'static str,
+    pub force_residual_unit: &'static str,
+    pub force_residual_dimension: &'static str,
+    pub force_absolute_limit: f64,
+    pub moment_residual_basis: &'static str,
+    pub moment_residual_unit: &'static str,
+    pub moment_residual_dimension: &'static str,
+    pub moment_absolute_limit: f64,
+    pub status: ConvergencePolicyStatus,
+    pub evidence_fixture_ids: &'static [&'static str],
+    pub limitations: &'static [&'static str],
+}
+
 impl ConvergencePolicyEntry {
     pub fn is_accepted_active_set_count_policy(&self) -> bool {
         self.policy_ref == DEC_046_ACTIVE_SET_COUNT_POLICY_REF
@@ -317,6 +351,23 @@ impl ConvergencePolicyEntry {
             && self.status == ConvergencePolicyStatus::Accepted
             && !self.evidence_fixture_ids.is_empty()
             && self.limitations == DEC_046_ACTIVE_SET_COUNT_LIMITATIONS
+    }
+}
+
+impl ForceMomentResidualPolicyEntry {
+    pub fn is_accepted_free_dof_force_moment_policy(&self) -> bool {
+        self.policy_ref == DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF
+            && self.force_residual_basis == DEC_046_FREE_DOF_FORCE_RESIDUAL_BASIS
+            && self.force_residual_unit == DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT
+            && self.force_residual_dimension == DEC_046_FREE_DOF_FORCE_RESIDUAL_DIMENSION
+            && self.force_absolute_limit == DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT
+            && self.moment_residual_basis == DEC_046_FREE_DOF_MOMENT_RESIDUAL_BASIS
+            && self.moment_residual_unit == DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT
+            && self.moment_residual_dimension == DEC_046_FREE_DOF_MOMENT_RESIDUAL_DIMENSION
+            && self.moment_absolute_limit == DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT
+            && self.status == ConvergencePolicyStatus::Accepted
+            && !self.evidence_fixture_ids.is_empty()
+            && self.limitations == DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS
     }
 }
 
@@ -515,7 +566,7 @@ impl AssembledNonlinearRegressionCase {
             free_dof_force_residual_unit: "N",
             max_abs_free_dof_moment_residual: final_residuals.max_abs_free_dof_moment_residual,
             free_dof_moment_residual_unit: "N-m",
-            threshold_policy: None,
+            free_dof_force_moment_threshold_policy: Some(DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF),
         })
     }
 }
@@ -621,6 +672,75 @@ pub fn governed_convergence_policy_entries() -> Vec<ConvergencePolicyEntry> {
                 "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
             ],
             limitations: DEC_046_ACTIVE_SET_COUNT_LIMITATIONS,
+        },
+    ]
+}
+
+pub fn governed_free_dof_force_moment_policy_entries() -> Vec<ForceMomentResidualPolicyEntry> {
+    vec![
+        ForceMomentResidualPolicyEntry {
+            policy_ref: DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF,
+            nonlinear_class: "one_way",
+            force_residual_basis: DEC_046_FREE_DOF_FORCE_RESIDUAL_BASIS,
+            force_residual_unit: DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT,
+            force_residual_dimension: DEC_046_FREE_DOF_FORCE_RESIDUAL_DIMENSION,
+            force_absolute_limit: DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT,
+            moment_residual_basis: DEC_046_FREE_DOF_MOMENT_RESIDUAL_BASIS,
+            moment_residual_unit: DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT,
+            moment_residual_dimension: DEC_046_FREE_DOF_MOMENT_RESIDUAL_DIMENSION,
+            moment_absolute_limit: DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"],
+            limitations: DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS,
+        },
+        ForceMomentResidualPolicyEntry {
+            policy_ref: DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF,
+            nonlinear_class: "gap",
+            force_residual_basis: DEC_046_FREE_DOF_FORCE_RESIDUAL_BASIS,
+            force_residual_unit: DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT,
+            force_residual_dimension: DEC_046_FREE_DOF_FORCE_RESIDUAL_DIMENSION,
+            force_absolute_limit: DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT,
+            moment_residual_basis: DEC_046_FREE_DOF_MOMENT_RESIDUAL_BASIS,
+            moment_residual_unit: DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT,
+            moment_residual_dimension: DEC_046_FREE_DOF_MOMENT_RESIDUAL_DIMENSION,
+            moment_absolute_limit: DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"],
+            limitations: DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS,
+        },
+        ForceMomentResidualPolicyEntry {
+            policy_ref: DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF,
+            nonlinear_class: "lift_off",
+            force_residual_basis: DEC_046_FREE_DOF_FORCE_RESIDUAL_BASIS,
+            force_residual_unit: DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT,
+            force_residual_dimension: DEC_046_FREE_DOF_FORCE_RESIDUAL_DIMENSION,
+            force_absolute_limit: DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT,
+            moment_residual_basis: DEC_046_FREE_DOF_MOMENT_RESIDUAL_BASIS,
+            moment_residual_unit: DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT,
+            moment_residual_dimension: DEC_046_FREE_DOF_MOMENT_RESIDUAL_DIMENSION,
+            moment_absolute_limit: DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-LIFT-OFF-ORIGINAL"],
+            limitations: DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS,
+        },
+        ForceMomentResidualPolicyEntry {
+            policy_ref: DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF,
+            nonlinear_class: "friction",
+            force_residual_basis: DEC_046_FREE_DOF_FORCE_RESIDUAL_BASIS,
+            force_residual_unit: DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT,
+            force_residual_dimension: DEC_046_FREE_DOF_FORCE_RESIDUAL_DIMENSION,
+            force_absolute_limit: DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT,
+            moment_residual_basis: DEC_046_FREE_DOF_MOMENT_RESIDUAL_BASIS,
+            moment_residual_unit: DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT,
+            moment_residual_dimension: DEC_046_FREE_DOF_MOMENT_RESIDUAL_DIMENSION,
+            moment_absolute_limit: DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &[
+                "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
+            ],
+            limitations: DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS,
         },
     ]
 }
@@ -1556,6 +1676,27 @@ mod tests {
     }
 
     #[test]
+    fn governed_free_dof_force_moment_policy_covers_dec_046_classes() {
+        let entries = governed_free_dof_force_moment_policy_entries();
+
+        assert_eq!(entries.len(), 4);
+        assert_eq!(
+            entries
+                .iter()
+                .map(|entry| entry.nonlinear_class)
+                .collect::<Vec<_>>(),
+            vec!["one_way", "gap", "lift_off", "friction"]
+        );
+        for entry in &entries {
+            assert!(
+                entry.is_accepted_free_dof_force_moment_policy(),
+                "{}",
+                entry.nonlinear_class
+            );
+        }
+    }
+
+    #[test]
     fn fixtures_are_public_original_and_unit_aware() {
         let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .ancestors()
@@ -1663,13 +1804,13 @@ mod tests {
     }
 
     #[test]
-    fn assembled_force_displacement_residual_observations_do_not_set_thresholds() {
+    fn assembled_force_displacement_residual_observations_use_free_dof_force_moment_thresholds() {
         let observations = assembled_force_displacement_residual_observations();
 
         assert_eq!(observations.len(), assembled_fixture_inventory().len());
         for observation in &observations {
             assert!(
-                observation.is_observation_without_threshold_claim(),
+                observation.uses_accepted_free_dof_force_moment_threshold_policy(),
                 "{}",
                 observation.fixture_id
             );

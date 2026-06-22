@@ -51,6 +51,10 @@ const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =
 const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS: usize = 4;
 const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_RESIDUAL_TOLERANCE: f64 = 0.0;
 const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_ABSOLUTE_FLOOR: f64 = 0.0;
+const DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF: &str =
+    "DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1";
+const DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_ABSOLUTE_LIMIT: f64 = 0.0;
+const DEC_046_PRODUCT_PREVIEW_FREE_DOF_MOMENT_ABSOLUTE_LIMIT: f64 = 0.0;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PreviewModel {
@@ -1321,10 +1325,11 @@ fn append_nonlinear_support_loop_results(
                 },
                 if solve.converged { "info" } else { "warning" },
                 format!(
-                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; force/displacement and release thresholds remain TBD",
+                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; displacement, reaction-delta, energy, sparse, release, and external thresholds remain TBD",
                     solve.iterations.len(),
                     final_residual,
-                    solve.policy_ref
+                    solve.policy_ref,
+                    DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF
                 ),
                 vec![load_case.id.clone(), "DEC-046".to_string()],
             ));
@@ -1457,8 +1462,14 @@ fn append_nonlinear_residual_observation_results(
     residuals: &NonlinearResidualObservation,
     policy_ref: &str,
 ) {
-    let basis = format!(
-        "dense_active_set_loop; policy_ref={policy_ref}; observed_residual_only; threshold=TBD"
+    let observation_only_basis = format!(
+        "dense_active_set_loop; policy_ref={policy_ref}; observed_residual_only; threshold=TBD; threshold_axes=displacement_and_reaction_delta"
+    );
+    let force_moment_threshold_basis = format!(
+        "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold={} N; moment_threshold={} N*m; product_preview_only",
+        DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF,
+        DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_ABSOLUTE_LIMIT,
+        DEC_046_PRODUCT_PREVIEW_FREE_DOF_MOMENT_ABSOLUTE_LIMIT
     );
     if let Some(value) = residuals.max_abs_translation_delta_from_previous {
         append_nonlinear_scalar_result(
@@ -1470,7 +1481,7 @@ fn append_nonlinear_residual_observation_results(
             "nonlinear_supports",
             "observed_max_translation_delta",
             "final_iteration",
-            &basis,
+            &observation_only_basis,
             "nonnegative max absolute translational displacement change from the previous iteration",
         );
     }
@@ -1484,7 +1495,7 @@ fn append_nonlinear_residual_observation_results(
             "nonlinear_supports",
             "observed_max_rotation_delta",
             "final_iteration",
-            &basis,
+            &observation_only_basis,
             "nonnegative max absolute rotational displacement change from the previous iteration",
         );
     }
@@ -1498,7 +1509,7 @@ fn append_nonlinear_residual_observation_results(
             "nonlinear_supports",
             "observed_max_force_reaction_delta",
             "final_iteration",
-            &basis,
+            &observation_only_basis,
             "nonnegative max absolute translational reaction change from the previous iteration",
         );
     }
@@ -1512,7 +1523,7 @@ fn append_nonlinear_residual_observation_results(
             "nonlinear_supports",
             "observed_max_moment_reaction_delta",
             "final_iteration",
-            &basis,
+            &observation_only_basis,
             "nonnegative max absolute rotational reaction change from the previous iteration",
         );
     }
@@ -1525,7 +1536,7 @@ fn append_nonlinear_residual_observation_results(
         "nonlinear_supports",
         "observed_free_dof_force_residual",
         "final_iteration",
-        &basis,
+        &force_moment_threshold_basis,
         "nonnegative max absolute translational free-DOF equilibrium residual in the final linearized solve",
     );
     append_nonlinear_scalar_result(
@@ -1537,7 +1548,7 @@ fn append_nonlinear_residual_observation_results(
         "nonlinear_supports",
         "observed_free_dof_moment_residual",
         "final_iteration",
-        &basis,
+        &force_moment_threshold_basis,
         "nonnegative max absolute rotational free-DOF equilibrium residual in the final linearized solve",
     );
 }
@@ -6195,6 +6206,34 @@ mod tests {
             result_value(&result, "result:nonlinear-support:free-dof-moment-residual"),
             0.0
         );
+        let translation_delta = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:nonlinear-support:max-translation-delta")
+            .expect("translation delta row exists");
+        assert!(translation_delta
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("threshold=TBD"));
+        let force_residual = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:nonlinear-support:free-dof-force-residual")
+            .expect("force residual row exists");
+        let moment_residual = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:nonlinear-support:free-dof-moment-residual")
+            .expect("moment residual row exists");
+        for residual in [force_residual, moment_residual] {
+            let basis = &residual.metadata.as_ref().unwrap().basis;
+            assert!(basis.contains(DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF));
+            assert!(basis.contains("threshold_policy_status=accepted"));
+            assert!(basis.contains("residual_basis=free_dof_force_moment_equilibrium"));
+            assert!(!basis.contains("threshold=TBD"));
+        }
         let iteration_count = result
             .results
             .iter()

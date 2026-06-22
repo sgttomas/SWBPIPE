@@ -810,7 +810,7 @@
         "component": "observed_free_dof_force_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; observed_residual_only; threshold=TBD",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute translational free-DOF equilibrium residual in the final linearized solve"
       }
     },
@@ -828,7 +828,7 @@
         "component": "observed_free_dof_moment_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; observed_residual_only; threshold=TBD",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute rotational free-DOF equilibrium residual in the final linearized solve"
       }
     },
@@ -5661,7 +5661,7 @@
         "component": "observed_free_dof_force_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; observed_residual_only; threshold=TBD",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute translational free-DOF equilibrium residual in the final linearized solve"
       }
     },
@@ -5679,7 +5679,7 @@
         "component": "observed_free_dof_moment_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; observed_residual_only; threshold=TBD",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute rotational free-DOF equilibrium residual in the final linearized solve"
       }
     },
@@ -15630,7 +15630,7 @@
       "id": "diagnostic:nonlinear:load-L-100:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; force/displacement and release thresholds remain TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; displacement, reaction-delta, energy, sparse, release, and external thresholds remain TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-100",
@@ -15730,7 +15730,7 @@
       "id": "diagnostic:nonlinear:load-L-200:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; force/displacement and release thresholds remain TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; displacement, reaction-delta, energy, sparse, release, and external thresholds remain TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-200",

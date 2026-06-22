@@ -25,16 +25,43 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 ## Remaining TBDs
 
-- Force/displacement residual thresholds, sparse live-path thresholds,
-  product-preview non-active-set threshold axes, and external validation
-  thresholds remain `TBD`.
+- Non-seed force/displacement/energy thresholds, displacement-delta thresholds,
+  reaction-delta thresholds, sparse default/promotion thresholds, release
+  thresholds, and external validation thresholds remain `TBD`.
 - The current assembled validation seed has an accepted active-set
   changed-support-count policy under `DEC-046-CV-B-active-set-count-validation-v1`.
+- The current assembled validation seed has an accepted free-DOF force/moment
+  residual policy under
+  `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`.
 - The current invented product-preview nonlinear path has an accepted
   active-set changed-support-count policy under
   `DEC-046-CV-B-product-preview-active-set-count-v1`.
+- The current invented product-preview nonlinear path has an accepted free-DOF
+  force/moment residual policy under
+  `DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-FREEDOFRESIDPOLICY-001
+
+- Promoted a bounded `DEC-046` free-DOF force/moment residual policy for the
+  current public-original assembled validation seed:
+  `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`, with limits of
+  `0.0 N` and `0.0 N-m` for final-iteration residuals across the current
+  one-way, gap, lift-off, and friction seed classes.
+- Added machine-readable policy evidence at
+  `validation/benchmarks/nonlinear/free_dof_force_moment_policy.dec046.json`
+  and updated `convergence_observations.md` to cite the policy while preserving
+  displacement/reaction deltas as observation-only.
+- Updated product-preview residual metadata to cite
+  `DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1` for the
+  invented dense-loop preview surface; displacement/reaction delta rows still
+  carry `threshold=TBD`.
+- Boundary preserved: no non-seed, displacement-delta, reaction-delta, energy,
+  sparse-default, external validation, release-readiness, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-FREEDOFRESIDPOLICY-001.md`.
 
 ## 2026-06-21 - TP-R4-D9-PRODPOLICY-001
 

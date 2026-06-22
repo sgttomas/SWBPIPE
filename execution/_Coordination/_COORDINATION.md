@@ -292,10 +292,14 @@ current assembled nonlinear fixture set. `TP-R4-D9-CONVPOLICY-001` promotes the
 governed `DEC-046-CV-B-active-set-count-validation-v1` policy for that current
 assembled validation seed only: active-set changed-support-count residual,
 relative tolerance `0.0`, absolute floor `0.0`, max iteration cap `4`, keyed to
-one-way/gap/lift-off/friction classes. `TP-R4-D6-LIVEBUNDLE-001` added mixed
-one-way/gap/friction product live-loop coverage in one invented dense solve.
-`TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` sparse evidence lane while dense
-remains default and profile-direct assembly/default promotion follow on.
+one-way/gap/lift-off/friction classes. `TP-R4-D9-FREEDOFRESIDPOLICY-001`
+promotes free-DOF force/moment residual threshold policies for the current
+assembled validation seed and invented product-preview surface only, leaving
+displacement/reaction-delta, energy, release, sparse-default, and external
+threshold axes open. `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction
+product live-loop coverage in one invented dense solve. `TP-R4-D7-SPARSELIVE-001`
+landed the `DEC-050` sparse evidence lane while dense remains default and
+profile-direct assembly/default promotion follow on.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement/energy threshold promotion, multi-DOF /
 multi-support nonlinear fixture depth, deeper spring-hanger behavior, and the
@@ -363,18 +367,22 @@ bounded tranche.
       `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSEED-001`,
       `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`,
       `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVPOLICY-001`,
-      `TP-R4-D6-LIVEBUNDLE-001`, and the D8 rendered report-provenance slice
+      `TP-R4-D6-LIVEBUNDLE-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`, and the D8 rendered report-provenance slice
       `TP-R4-D8-COMPPROVREPORT-001`;
       `TP-R4-D9-CONVOBS-001` records observed convergence values for the
       current assembled fixtures and `TP-R4-D9-CONVPOLICY-001` promotes the
       governed active-set-count policy for that validation seed only.
+      `TP-R4-D9-FREEDOFRESIDPOLICY-001` promotes free-DOF force/moment
+      residual threshold policies for the current assembled validation seed and
+      invented product-preview surface only.
       `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
       assembled nonlinear integration and product-preview reduced solve paths
       as the `DEC-050` sparse evidence lane, with dense remaining default.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
-      non-seed force/displacement/energy thresholds, multi-DOF / multi-support
-      nonlinear fixture depth, profile-direct sparse/default promotion, deeper
-      spring-hanger behavior, and the R4 exit evidence package remain open
+      non-seed force/displacement/energy thresholds, displacement/reaction-delta
+      threshold axes, multi-DOF / multi-support nonlinear fixture depth,
+      profile-direct sparse/default promotion, deeper spring-hanger behavior,
+      and the R4 exit evidence package remain open
       under `DEC-044`/`DEC-046`/`DEC-050`.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize

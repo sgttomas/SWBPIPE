@@ -61,7 +61,7 @@
   ],
   "limitations": [
     "Applies only to the current public-original assembled validation seed and its active-set changed-support-count residual.",
-    "Does not define force, displacement, energy, sparse live-path, product-preview, or external validation convergence thresholds."
+    "Does not define free-DOF force/moment, displacement, energy, sparse live-path, product-preview, or external validation convergence thresholds."
   ],
   "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
 }

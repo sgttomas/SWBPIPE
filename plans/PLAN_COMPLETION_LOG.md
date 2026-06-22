@@ -14,6 +14,55 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 free-DOF force/moment residual policy (`TP-R4-D9-FREEDOFRESIDPOLICY-001`)
+
+Landed a bounded `DEC-046` threshold-promotion slice for the current invented
+nonlinear validation/product-preview surfaces. The nonlinear benchmark crate
+now carries a separate machine-readable policy record,
+`validation/benchmarks/nonlinear/free_dof_force_moment_policy.dec046.json`,
+for `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`. The accepted
+validation-seed limits are `0.0 N` for final-iteration free-DOF force residuals
+and `0.0 N-m` for final-iteration free-DOF moment residuals across the current
+one-way, gap, lift-off, and friction assembled seed classes.
+
+Product preview now emits free-DOF force/moment residual rows with
+`DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1` metadata and
+`threshold_policy_status=accepted` for the invented dense-loop preview surface.
+Displacement and reaction deltas remain observation-only with `threshold=TBD`.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: distinct free-DOF force/moment residual
+  policy entries, source tests, and JSON policy evidence.
+- `validation/hand_calcs/nonlinear`: convergence observation note and index
+  updated to cite the accepted force/moment residual policy and remaining TBD
+  axes.
+- `core/product_physics`: product-preview free-DOF residual result metadata and
+  nonlinear-loop diagnostic text updated; generated preview fixture refreshed.
+- `tests/product_preview` and `tests/test_nonlinear_support_regression.py`:
+  regression coverage for the promoted policy and remaining observation-only
+  boundary.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-FREEDOFRESIDPOLICY-001.md`.
+
+Focused validation before DEC-025 closeout: nonlinear benchmark Rust tests
+passed 11/11; product-physics Rust tests passed 44/44; focused nonlinear
+pytest passed 8/8; product-preview/results/run-record pytest passed 20/20;
+regenerated fixture JSON parsed cleanly.
+Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T065649Z_150b107259dd-dirty.json`.
+
+Residuals: non-seed force/displacement/energy thresholds, displacement and
+reaction-delta threshold axes, external validation thresholds, multi-DOF /
+multi-support nonlinear fixture depth, deeper spring-hanger behavior,
+profile-direct/default sparse promotion, and final R4 exit evidence remain
+open.
+
+Boundary: invented/current-seed validation and product-preview evidence only.
+No lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D4 EJ pressure-thrust load generation (`TP-R4-D4-EJTHRUST-001`)
 
 Landed the bounded D4 load-side follow-on under `DEC-045`: expansion-joint

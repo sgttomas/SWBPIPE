@@ -83,7 +83,8 @@
      `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`,
      `TP-R4-D6-FRICTIONNORMAL-001`, and
      `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVOBS-001`,
-     `TP-R4-D9-CONVPOLICY-001`, and `TP-R4-D6-LIVEBUNDLE-001`: the loop-core crate
+     `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D6-LIVEBUNDLE-001`, and
+     `TP-R4-D9-FREEDOFRESIDPOLICY-001`: the loop-core crate
      `core/solver/nonlinear_integration` exists under `DEC-044`/`DEC-046`, the
      first invented product/app/result-envelope sidecar is landed, explicit
      friction normal-reaction input evidence is visible without being combined
@@ -92,14 +93,16 @@
      branch-assembly benchmark is landed as public-original mechanics evidence.
      Structured observed convergence values are recorded for the current
      assembled fixtures, and the governed active-set-count policy is promoted
-     for that assembled validation seed only. Mixed one-way/gap/friction
+     for that assembled validation seed only. Free-DOF force/moment residual
+     threshold policies are promoted for the current assembled validation seed
+     and invented product-preview surface only. Mixed one-way/gap/friction
      product live-loop coverage is landed for one invented dense solve.
      `TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` live sparse evidence lane
      while dense remains default. `TP-R4-D9-EXITGAP-001` records the current R4
      exit verdict as not ready: non-seed force/displacement/energy threshold
-     promotion, multi-DOF / multi-support nonlinear fixture depth,
-     profile-direct sparse/default promotion, deeper spring-hanger behavior,
-     and the remaining D9 validation
+     promotion, displacement/reaction-delta threshold axes, multi-DOF /
+     multi-support nonlinear fixture depth, profile-direct sparse/default
+     promotion, deeper spring-hanger behavior, and the remaining D9 validation
      package remain open. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the

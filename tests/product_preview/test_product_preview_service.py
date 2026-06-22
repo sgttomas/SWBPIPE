@@ -109,8 +109,22 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     nonlinear_iteration_count = next(
         item for item in result["results"] if item["id"] == "result:nonlinear-support:iteration-count"
     )
+    nonlinear_free_force_residual = next(
+        item for item in result["results"] if item["id"] == "result:nonlinear-support:free-dof-force-residual"
+    )
+    nonlinear_free_moment_residual = next(
+        item for item in result["results"] if item["id"] == "result:nonlinear-support:free-dof-moment-residual"
+    )
     assert "DEC-046-CV-B-product-preview-active-set-count-v1" in nonlinear_iteration_count["metadata"]["basis"]
     assert "policy_status=accepted" in nonlinear_iteration_count["metadata"]["basis"]
+    for residual in (nonlinear_free_force_residual, nonlinear_free_moment_residual):
+        assert (
+            "DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1"
+            in residual["metadata"]["basis"]
+        )
+        assert "threshold_policy_status=accepted" in residual["metadata"]["basis"]
+        assert "residual_basis=free_dof_force_moment_equilibrium" in residual["metadata"]["basis"]
+        assert "threshold=TBD" not in residual["metadata"]["basis"]
     nonlinear_reaction = next(
         item for item in result["results"] if item["id"] == "result:nonlinear-support:support-NL-140:uy-reaction"
     )
