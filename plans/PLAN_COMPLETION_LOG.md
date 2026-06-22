@@ -238,6 +238,9 @@ regression passed 8/8; JSON syntax validation passed for the six modified
 multi-support policy/observation records; `git diff --check` passed. Full
 DEC-025 sweep passed 5/5 surfaces:
 `validation/evidence/sweeps/SWEEP_20260622T165533Z_25634e332118-dirty.json`.
+A committed-head follow-up sweep also passed 5/5 surfaces with
+`working_tree_dirty=false`:
+`validation/evidence/sweeps/SWEEP_20260622T170222Z_f69e970d3347.json`.
 
 Residuals: no non-seed force/displacement threshold beyond the accepted
 thirteen-fixture set, broader displacement/reaction-delta threshold, broader

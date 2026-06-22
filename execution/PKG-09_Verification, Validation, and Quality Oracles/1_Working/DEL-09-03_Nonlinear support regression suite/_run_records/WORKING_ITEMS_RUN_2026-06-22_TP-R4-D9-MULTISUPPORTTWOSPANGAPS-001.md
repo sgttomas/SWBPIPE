@@ -66,6 +66,9 @@ Full DEC-025 evidence sweep:
   - desktop production build.
 - Passing sweep summary:
   `validation/evidence/sweeps/SWEEP_20260622T165533Z_25634e332118-dirty.json`
+- Committed-head follow-up summary, with `working_tree_dirty=false` at
+  capture:
+  `validation/evidence/sweeps/SWEEP_20260622T170222Z_f69e970d3347.json`
 
 ## Boundaries
 
