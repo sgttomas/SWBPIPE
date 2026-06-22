@@ -395,6 +395,9 @@ the remaining D9 validation evidence remain open. Broader non-seed, release,
 external, sparse-default, total strain-energy, modal-energy, and CI
 general-energy threshold axes remain outside the accepted
 `TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
+`D-25` is prepared and awaiting human ruling to decide whether those residuals
+are R4 blockers, explicit post-R4/R5 residuals, or a smaller human-selected
+must-close subset before the final R4 exit-chain verification packet.
 `DAG-007` is the current approved dependency graph pointer; `DAG-001` through
 `DAG-006` remain historical snapshots.
 
@@ -557,6 +560,10 @@ bounded tranche.
       external, sparse-default, total strain-energy, modal-energy, and CI
       general-energy threshold axes remain outside the accepted
       `TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
+      `D-25` is prepared and awaiting human ruling on the R4 exit-scope bar:
+      whether those residuals block R4, become explicit post-R4/R5 residuals,
+      or form a smaller human-selected must-close subset before the final R4
+      exit-chain packet.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize
       v0.2/R6/R7 scope;

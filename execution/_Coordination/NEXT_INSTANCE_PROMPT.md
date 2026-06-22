@@ -126,13 +126,15 @@
      multi-support fixture set, and product-preview metadata; accepted delta
      thresholds remain `TBD`.
      `TP-R4-D9-EXITGAP-001` records the current R4
-     exit verdict as not ready: non-seed force/displacement/energy threshold
-     promotion beyond the accepted eight-fixture multi-support set, accepted
-     displacement/reaction-delta thresholds, broader multi-DOF / multi-support
-     nonlinear acceptance thresholds, default sparse promotion / sparse
-     threshold policy, deeper spring-hanger
-     behavior, and the remaining D9 validation
-     package remain open. `D-20` is held for
+     exit verdict as not ready: non-seed force/displacement threshold
+     promotion beyond the accepted twelve-fixture set, broader
+     displacement/reaction-delta and energy threshold promotion beyond current
+     seed/product/twelve-fixture evidence, broader multi-DOF / multi-support
+     nonlinear acceptance thresholds beyond the accepted twelve-fixture set,
+     default sparse promotion plus sparse timing/memory/conditioning/CI
+     policy, deeper spring-hanger behavior, external validation evidence, and
+     the remaining D9 validation
+     package remain open. `D-25` is prepared and awaiting human ruling on whether those residuals block R4, become explicit post-R4/R5 residuals, or form a smaller must-close subset before the final R4 exit-chain packet. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default
