@@ -34,7 +34,7 @@ R4 deliverable families named by the same section:
 | Spring hangers | `D-15_spring_hanger_scope.md` is ruled by `DEC-049` Option B, and `TP-R4-D5-HANGERDATA-001` landed the minimal dedicated user-entered spring-hanger model for invented variable spring and constant-effort supports, including schema slots, validation diagnostics, user-entered review rows, and report/native-package/rendered-report provenance. | Demonstrated for minimal user-data path; catalog sizing and deeper constant-effort solve behavior remain out of scope |
 | Gaps/lift-off/friction validation | `TP-R4-D9-ASSEMBLEDSEED-001`, `TP-R4-D9-FRICTIONSEED-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D9-CONVOBS-001`, `TP-R4-D9-CONVPOLICY-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`, `TP-R4-D9-ENERGYOBS-001`, `TP-R4-D9-MULTISUPPORTPOLICY-001`, `TP-R4-D9-WORKPOLICY-001`, `TP-R4-D9-MULTISUPPORTBREADTH-001`, `TP-R4-D9-MULTISUPPORTFRICTION-001`, `TP-R4-D9-MULTISUPPORT3DOF-001`, `TP-R4-D9-MULTISUPPORTROT-001`, `TP-R4-D9-MULTISUPPORTDERIVED-001`, `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`, and `TP-R4-D9-MULTISUPPORTCASCADE-001` provide current assembled dense-loop validation seeds for one-way, gap, lift-off, and friction classes, accepted final-iteration free-DOF work residual products for the current seed, and eight accepted non-seed multi-support companion fixtures: one-way/gap, lift-off/gap, friction/gap, three-support/three-translation, mixed translation/rotation, derived-normal friction/gap, derived-normal friction/rotational lift-off, and sequential gap/lift-off cascade. All eight companions carry active-set, free-DOF force/moment, and free-DOF work policies. `TP-R4-D9-MULTISUPPORTOBS-001` remains an observation-only Ux/Uy multi-support assembled depth fixture under `TolerancePolicyTbd`. Accepted policies are limited to the current assembled validation seed plus the eight-fixture multi-support companion set; general energy thresholds remain `TBD`. | Partially demonstrated; broader non-seed convergence thresholds remain open |
 | Product-preview nonlinear path | `TP-R4-D6-PHYSINTEG-001`, `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`, `TP-R4-D6-LIVEBUNDLE-001`, `TP-R4-D9-PRODPOLICY-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`, `TP-R4-D9-ENERGYOBS-001`, and `TP-R4-D9-WORKPOLICY-001` show dense-loop product-preview evidence for invented nonlinear supports. The active-set-count preview policy is accepted as `DEC-046-CV-B-product-preview-active-set-count-v1`; the free-DOF force/moment residual policy is accepted as `DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1`; the free-DOF work residual policy is accepted as `DEC-046-CV-B-product-preview-free-dof-work-residual-v1`. Displacement-delta, reaction-delta, general energy, release, and external threshold axes remain `TBD`. | Evidence exists; not release-policy complete |
-| Sparse evidence lane | `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the assembled nonlinear integration and product-preview reduced solve paths as `DEC-050` evidence. Product-preview result envelopes now carry sparse parity evidence rows for the invented load cases. Dense remains default; profile-direct sparse assembly and default sparse promotion remain follow-on work. | Demonstrated as evidence lane; not default sparse promotion |
+| Sparse evidence lane | `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the assembled nonlinear integration and product-preview reduced solve paths as `DEC-050` evidence. `TP-R4-D7-SPARSEPROFILE-001` and `TP-R4-D7-NONLINEARPROFILE-001` add direct reduced profile-entry sparse evidence for product-preview and nonlinear/core paths. `TP-R4-D7-SPARSESUITABILITYOBS-001` records generated-grid sparse suitability observations in the performance harness. Dense remains default; default sparse promotion and sparse threshold policy remain follow-on work. | Demonstrated as evidence lane and observation surface; not default sparse promotion |
 | Component provenance in reports | `TP-R4-D8-COMPPROVREPORT-001` carries component provenance and missing-provenance warnings into `ReportSections` and the deterministic hash-bound rendered HTML report. | Demonstrated for current invented component paths |
 
 ## Blocking Gaps
@@ -76,8 +76,10 @@ R4 deliverable families named by the same section:
 3. **Sparse default promotion remains follow-on under `DEC-050`.**
    `TP-R4-D7-SPARSELIVE-001` closes the R4 sparse evidence-lane adoption item:
    the sparse skyline solver observes dense-reduced live systems while dense
-   remains default. It does not provide profile-direct sparse assembly or a
-   scale benefit yet, and default sparse promotion is not closed by this packet.
+   remains default. Direct product/nonlinear profile-entry assembly and
+   generated-grid sparse suitability observations now exist, but default
+   promotion, timing/memory/conditioning/CI thresholds, and hardware-normalized
+   scale-benefit methodology are not closed by this packet.
 4. **Deeper spring-hanger behavior is not closed by D5.**
    `TP-R4-D5-HANGERDATA-001` intentionally lands user-entered variable spring
    and constant-effort support data/review evidence only. It does not authorize
@@ -136,8 +138,8 @@ The decisive blockers are the intentionally unpromoted convergence-policy
 surfaces outside the current assembled validation seed, accepted
 multi-support eight-fixture set, and invented product-preview surface, broader
 multi-DOF / multi-support nonlinear acceptance thresholds beyond that fixture
-set, profile-direct sparse/default promotion if required by the R4 exit
-review, and deeper spring-hanger behavior if the R4 exit review requires more
+set, default sparse promotion / sparse threshold policy if required by the R4
+exit review, and deeper spring-hanger behavior if the R4 exit review requires more
 than the minimal user-data path. The next ordinary Phase D dependency-spine item
 is remaining D9 threshold/acceptance evidence after the landed multi-support and
 free-DOF work policy slices.

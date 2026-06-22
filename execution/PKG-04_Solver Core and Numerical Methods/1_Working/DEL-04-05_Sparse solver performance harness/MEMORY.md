@@ -38,10 +38,12 @@
 ## Open TBDs
 
 - Accepted sparse numerical strategy is `DEC-023`
-  (`core/solver/sparse_direct`); live solve-path adoption remains `TBD` pending
-  D-17 ruling and follow-on implementation.
-- Release timing, memory, practical-size bands, conditioning, and CI threshold
-  policies remain `TBD`.
+  (`core/solver/sparse_direct`); `DEC-050` binds a live sparse evidence lane
+  while dense remains the default solve path and parity oracle.
+- Sparse suitability observations now exist for generated invented grid bands
+  under `TP-R4-D7-SPARSESUITABILITYOBS-001`.
+- Default sparse promotion, release timing, memory, practical-size bands,
+  conditioning, and CI threshold policies remain `TBD`.
 - Hardware-normalized performance methodology remains `TBD`.
 - Future sparse-adapter integration remains downstream work.
 
@@ -227,3 +229,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Residuals remain explicit: default sparse promotion, timing/memory
   thresholds, practical-size bands, conditioning/CI thresholds, large-model
   sparse suitability, and hardware-normalized methodology remain future work.
+
+## 2026-06-22 - TP-R4-D7-SPARSESUITABILITYOBS-001 sparse suitability observations
+
+- `core/solver/performance_harness` now exposes
+  `SparseSuitabilityObservationRecord` and
+  `run_sparse_suitability_observation_suite` for generated invented planar grid
+  frames.
+- The governed observation record
+  `validation/benchmarks/sparse_suitability_observation.dec050.json` names
+  `invented-grid-frame-4x3` and `invented-grid-frame-6x8` evidence fixtures and
+  records DEC-050 sparse/dense parity, sparse residual, repeatability, profile,
+  bandwidth, pivot, and elapsed-time observation fields.
+- Dense remains the default solver and parity oracle. No default sparse
+  promotion, timing/memory threshold, practical-size band, conditioning/CI
+  threshold, hardware-normalized methodology, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+- Validation passed: performance harness Rust tests 19/19, focused
+  sparse-suitability pytest, JSON syntax check, and full DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260622T113515Z_521fdfe1e613-dirty.json`.

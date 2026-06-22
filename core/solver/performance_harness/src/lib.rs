@@ -22,6 +22,11 @@ use std::time::Instant;
 /// path (see `core/solver/sparse_direct` README for its determinism
 /// properties).
 pub const SPARSE_ORDERING_ALGORITHM_ID: &str = "reverse-cuthill-mckee-deterministic";
+pub const DEC_050_SPARSE_SUITABILITY_OBSERVATION_ID: &str =
+    "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1";
+pub const SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS: &str = "tbd";
+pub const SPARSE_DEFAULT_PROMOTION_STATUS: &str = "not_promoted_dense_default";
+pub const SPARSE_SUITABILITY_GRID_BANDS: [(usize, usize); 2] = [(4, 3), (6, 8)];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FixtureProvenanceStatus {
@@ -171,6 +176,35 @@ pub struct HarnessSuiteSummary {
     pub total_ordered_profile_entry_count: usize,
     pub max_abs_sparse_dense_solution_delta: f64,
     pub max_abs_sparse_residual: f64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SparseSuitabilityObservationRecord {
+    pub observation_id: String,
+    pub fixture_id: String,
+    pub grid_x_count: usize,
+    pub grid_y_count: usize,
+    pub node_count: usize,
+    pub element_count: usize,
+    pub total_dofs: usize,
+    pub reduced_dofs: usize,
+    pub original_max_half_bandwidth: usize,
+    pub ordered_max_half_bandwidth: usize,
+    pub original_profile_entry_count: usize,
+    pub ordered_profile_entry_count: usize,
+    pub dense_solution_scale: f64,
+    pub max_abs_sparse_dense_solution_delta: f64,
+    pub sparse_dense_relative_delta: f64,
+    pub max_abs_sparse_residual: f64,
+    pub max_abs_sparse_repeat_solution_delta: f64,
+    pub nonpositive_pivot_count: usize,
+    pub dense_first_solve_elapsed_nanos: u128,
+    pub sparse_first_solve_elapsed_nanos: u128,
+    pub threshold_policy_status: String,
+    pub default_sparse_promotion_status: String,
+    pub suitability_basis: String,
+    pub limitations: Vec<String>,
+    pub provenance_notes: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -391,6 +425,81 @@ pub fn run_invented_fixture_suite(
     ))
 }
 
+pub fn run_sparse_suitability_observation_suite(
+    settings: &HarnessSettings,
+) -> Result<Vec<SparseSuitabilityObservationRecord>, HarnessError> {
+    SPARSE_SUITABILITY_GRID_BANDS
+        .iter()
+        .map(|(x_count, y_count)| run_sparse_suitability_observation(*x_count, *y_count, settings))
+        .collect()
+}
+
+pub fn run_sparse_suitability_observation(
+    x_count: usize,
+    y_count: usize,
+    settings: &HarnessSettings,
+) -> Result<SparseSuitabilityObservationRecord, HarnessError> {
+    let fixture = invented_grid_frame_fixture(x_count, y_count)?;
+    let run_record = run_fixture_repeat(&fixture, settings)?;
+    let sparse = run_record
+        .sparse_observation
+        .as_ref()
+        .ok_or(HarnessError::InvalidSetting {
+            name: "sparse_observation",
+            detail: "sparse suitability observations require a completed sparse solve",
+        })?;
+    let dense_solution_scale = dense_solution_scale_for_fixture(&fixture)?;
+    let sparse_dense_delta =
+        sparse
+            .max_abs_sparse_dense_solution_delta
+            .ok_or(HarnessError::InvalidSetting {
+                name: "sparse_dense_delta",
+                detail: "sparse suitability observations require dense parity",
+            })?;
+    let sparse_dense_relative_delta = if dense_solution_scale > 0.0 {
+        sparse_dense_delta / dense_solution_scale
+    } else {
+        0.0
+    };
+
+    Ok(SparseSuitabilityObservationRecord {
+        observation_id: DEC_050_SPARSE_SUITABILITY_OBSERVATION_ID.to_string(),
+        fixture_id: fixture.fixture_id,
+        grid_x_count: x_count,
+        grid_y_count: y_count,
+        node_count: run_record.node_count,
+        element_count: run_record.element_count,
+        total_dofs: run_record.total_dofs,
+        reduced_dofs: run_record.reduced_dofs,
+        original_max_half_bandwidth: sparse.original_max_half_bandwidth,
+        ordered_max_half_bandwidth: sparse.ordered_max_half_bandwidth,
+        original_profile_entry_count: sparse.original_profile_entry_count,
+        ordered_profile_entry_count: sparse.ordered_profile_entry_count,
+        dense_solution_scale,
+        max_abs_sparse_dense_solution_delta: sparse_dense_delta,
+        sparse_dense_relative_delta,
+        max_abs_sparse_residual: sparse.max_abs_residual,
+        max_abs_sparse_repeat_solution_delta: sparse.max_abs_repeat_solution_delta,
+        nonpositive_pivot_count: sparse.nonpositive_pivot_count,
+        dense_first_solve_elapsed_nanos: run_record.dense_first_solve_elapsed_nanos,
+        sparse_first_solve_elapsed_nanos: sparse.first_solve_elapsed_nanos,
+        threshold_policy_status: SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS.to_string(),
+        default_sparse_promotion_status: SPARSE_DEFAULT_PROMOTION_STATUS.to_string(),
+        suitability_basis:
+            "DEC-050 generated-grid observation; dense remains default and parity oracle"
+                .to_string(),
+        limitations: vec![
+            "observation-only generated-grid size-band evidence; not a practical-size threshold"
+                .to_string(),
+            "elapsed-time fields are environment-dependent and do not define timing or memory thresholds"
+                .to_string(),
+            "default sparse promotion remains TBD; dense remains the product/default solve path"
+                .to_string(),
+        ],
+        provenance_notes: run_record.provenance_notes,
+    })
+}
+
 /// Runs the dense path and the DEC-023 sparse skyline path on the same
 /// reduced system and records both. Diagnostic ordering in the record is
 /// fixed and deterministic:
@@ -572,6 +681,13 @@ fn observe_sparse_path(
     };
 
     Ok((Some(observation), diagnostics))
+}
+
+fn dense_solution_scale_for_fixture(fixture: &BenchmarkFixture) -> Result<f64, HarnessError> {
+    let stiffness = assemble_global_stiffness(fixture.node_count, &fixture.elements)?;
+    let reduced = reduce_system(&stiffness, &fixture.force, &fixture.restrained_dofs)?;
+    let solution = solve_dense(&reduced.stiffness, &reduced.force)?;
+    Ok(solution.iter().map(|value| value.abs()).fold(0.0, f64::max))
 }
 
 fn suite_record(
@@ -1293,6 +1409,53 @@ mod tests {
         assert!(observation.max_abs_sparse_dense_solution_delta.unwrap() <= 1.0e-9 * scale);
         assert_eq!(observation.max_abs_repeat_solution_delta, 0.0);
         assert_eq!(observation.nonpositive_pivot_count, 0);
+    }
+
+    #[test]
+    fn sparse_suitability_observations_keep_default_promotion_tbd() {
+        let settings = HarnessSettings {
+            solver_version: "sparse-suitability-observation-test".to_string(),
+            repeat_count: 2,
+            ..HarnessSettings::default()
+        };
+
+        let observations = run_sparse_suitability_observation_suite(&settings).unwrap();
+
+        assert_eq!(observations.len(), SPARSE_SUITABILITY_GRID_BANDS.len());
+        assert_eq!(
+            observations
+                .iter()
+                .map(|observation| observation.fixture_id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["invented-grid-frame-4x3", "invented-grid-frame-6x8"]
+        );
+        assert!(observations
+            .iter()
+            .any(|observation| observation.reduced_dofs >= 252));
+        for observation in observations {
+            assert_eq!(
+                observation.observation_id,
+                DEC_050_SPARSE_SUITABILITY_OBSERVATION_ID
+            );
+            assert_eq!(
+                observation.threshold_policy_status,
+                SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS
+            );
+            assert_eq!(
+                observation.default_sparse_promotion_status,
+                SPARSE_DEFAULT_PROMOTION_STATUS
+            );
+            assert!(observation.dense_solution_scale > 0.0);
+            assert!(observation.sparse_dense_relative_delta <= 1.0e-9);
+            assert!(observation.max_abs_sparse_residual < 1.0e-6);
+            assert_eq!(observation.max_abs_sparse_repeat_solution_delta, 0.0);
+            assert_eq!(observation.nonpositive_pivot_count, 0);
+            assert!(observation.ordered_profile_entry_count > 0);
+            assert!(observation
+                .limitations
+                .iter()
+                .any(|limitation| limitation.contains("default sparse promotion remains TBD")));
+        }
     }
 
     #[test]

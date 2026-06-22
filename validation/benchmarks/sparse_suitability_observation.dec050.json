@@ -1,0 +1,47 @@
+{
+  "record_id": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+  "record_kind": "sparse_suitability_observation",
+  "tranche_id": "TP-R4-D7-SPARSESUITABILITYOBS-001",
+  "status": "observation_only",
+  "decision_basis": [
+    "DEC-023",
+    "DEC-050",
+    "DEC-026"
+  ],
+  "observation_surface": "core/solver/performance_harness::run_sparse_suitability_observation_suite",
+  "fixture_family": "invented_planar_grid_frame",
+  "evidence_fixture_ids": [
+    "invented-grid-frame-4x3",
+    "invented-grid-frame-6x8"
+  ],
+  "observed_metrics": [
+    "node_count",
+    "element_count",
+    "total_dofs",
+    "reduced_dofs",
+    "original_profile_entry_count",
+    "ordered_profile_entry_count",
+    "original_max_half_bandwidth",
+    "ordered_max_half_bandwidth",
+    "dense_solution_scale",
+    "max_abs_sparse_dense_solution_delta",
+    "sparse_dense_relative_delta",
+    "max_abs_sparse_residual",
+    "max_abs_sparse_repeat_solution_delta",
+    "nonpositive_pivot_count",
+    "dense_first_solve_elapsed_nanos",
+    "sparse_first_solve_elapsed_nanos"
+  ],
+  "threshold_policy_status": "tbd",
+  "default_sparse_promotion_status": "not_promoted_dense_default",
+  "timing_memory_threshold_status": "tbd",
+  "conditioning_ci_threshold_status": "tbd",
+  "hardware_normalization_status": "tbd",
+  "dense_path_role": "default_solver_and_parity_oracle",
+  "boundary": [
+    "generated-grid observations are invented public verification evidence only",
+    "no default sparse promotion is made",
+    "no timing, memory, conditioning, CI, release, external-validation, professional, or code-compliance threshold is set",
+    "no protected standards content, proprietary benchmark model, private project data, network path, or telemetry feature is introduced"
+  ]
+}

@@ -343,13 +343,15 @@ landed the `DEC-050` sparse evidence lane while dense remains default.
 `TP-R4-D7-SPARSEPROFILE-001` adds direct reduced profile-entry assembly for
 product-preview sparse evidence rows. `TP-R4-D7-NONLINEARPROFILE-001` moves
 the nonlinear integration sparse evidence lane to direct reduced profile
-entries from the active free-DOF map; default sparse promotion and large-model
-sparse suitability thresholds follow on.
+entries from the active free-DOF map. `TP-R4-D7-SPARSESUITABILITYOBS-001`
+adds generated-grid sparse suitability observations from the performance
+harness while keeping dense default and timing/memory/conditioning/default-promotion
+thresholds `TBD`.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted eight-fixture set,
 general energy threshold promotion, broader multi-DOF /
 multi-support nonlinear acceptance thresholds beyond the accepted eight-fixture set,
-default sparse promotion / large-model sparse suitability,
+default sparse promotion / sparse threshold policy,
 deeper spring-hanger behavior, and
 the remaining D9 validation evidence remain open.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
@@ -470,12 +472,15 @@ bounded tranche.
       solve path and parity oracle.
       `TP-R4-D7-NONLINEARPROFILE-001` moves nonlinear integration sparse
       evidence to direct reduced profile entries from the active free-DOF map.
+      `TP-R4-D7-SPARSESUITABILITYOBS-001` records generated-grid sparse
+      suitability observations while dense remains default and threshold/default
+      promotion stays `TBD`.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
       eight-fixture set, general energy threshold promotion, accepted displacement/reaction-delta
       thresholds, broader multi-DOF / multi-support nonlinear acceptance thresholds
       beyond the accepted eight-fixture set,
-      default sparse promotion / large-model sparse suitability, deeper
+      default sparse promotion / sparse threshold policy, deeper
       spring-hanger behavior, and the R4 exit evidence
       package remain open
       under `DEC-044`/`DEC-046`/`DEC-050`.

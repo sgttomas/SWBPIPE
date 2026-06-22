@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D7 sparse suitability observations (`TP-R4-D7-SPARSESUITABILITYOBS-001`)
+
+Landed observation-only `DEC-050` sparse suitability records over generated
+invented planar grid bands `invented-grid-frame-4x3` and
+`invented-grid-frame-6x8`.
+
+Changed surfaces:
+
+- `core/solver/performance_harness`: added
+  `SparseSuitabilityObservationRecord` and
+  `run_sparse_suitability_observation_suite` for dense-vs-sparse parity,
+  sparse residual, repeatability, profile/bandwidth, pivot, and elapsed-time
+  observations on generated grid fixtures.
+- `validation/benchmarks/sparse_suitability_observation.dec050.json`: added the
+  governed observation record for the two generated-grid fixture bands.
+- `tests/test_sparse_suitability_observation.py`: added a guard for the DEC-050
+  observation record, fixture IDs, dense-default boundary, and harness surface.
+
+Focused validation: performance harness Rust tests passed 19/19; focused
+sparse-suitability pytest passed 1/1; JSON syntax validation passed. Full
+DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T113515Z_521fdfe1e613-dirty.json`.
+
+Residuals: dense remains default; default sparse promotion,
+timing/memory/conditioning/CI thresholds, hardware-normalized scale methodology,
+D6/D9 nonlinear threshold residuals, deeper spring-hanger behavior, external
+validation thresholds, broader R4 validation package work, and final R4 exit
+evidence remain open.
+
+Boundary: invented/public-original generated observation evidence only. No
+protected standards content, proprietary benchmark output, private project
+data, lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 sequential cascade multi-support companion (`TP-R4-D9-MULTISUPPORTCASCADE-001`)
 
 Landed an eighth public-original accepted multi-support validation companion in
