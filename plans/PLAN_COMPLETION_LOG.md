@@ -14,6 +14,55 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 multi-support accepted companion (`TP-R4-D9-MULTISUPPORTPOLICY-001`)
+
+Landed a bounded `DEC-046` threshold-promotion companion for the assembled
+nonlinear validation crate. The crate now exposes
+`assembled_multisupport_acceptance_inventory()`,
+`assembled_multisupport_acceptance_convergence_observations()`, and
+`assembled_multisupport_acceptance_residual_observations()` for
+`NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL`, an invented
+two-node frame case with simultaneous Ux one-way release and Uy gap closure.
+
+The companion is accepted under narrow multi-support policy records:
+`DEC-046-CV-B-multisupport-active-set-count-validation-v1` for changed-support
+count and `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`
+for final free-DOF force/moment residuals. The earlier
+`NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL` fixture remains
+observation-only, and free-DOF work/energy plus displacement/reaction-delta
+axes remain `TBD`.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: accepted multi-support companion fixture,
+  policy helpers, policy records, and Rust tests proving the narrow `DEC-046`
+  coverage.
+- `validation/hand_calcs/nonlinear`: new public-original acceptance note and
+  README index entries for the multi-support policy records.
+- `tests/test_nonlinear_support_regression.py`: source/doc guardrails for the
+  accepted companion and remaining observation-only boundaries.
+- Coordination and planning surfaces: R4/D9 residual wording updated so this
+  companion is recorded without closing broader multi-support acceptance,
+  work/energy, sparse, external, or release threshold gaps.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTPOLICY-001.md`.
+
+Focused validation: nonlinear benchmark Rust tests passed 14/14; focused
+nonlinear pytest passed 8/8. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T074318Z_c2e41707f1d5-dirty.json`.
+
+Residuals: profile-direct sparse assembly/default sparse promotion, non-seed
+force/displacement and free-DOF work/energy threshold promotion beyond this
+companion, displacement/reaction-delta thresholds, deeper spring-hanger
+behavior, external validation thresholds, broader multi-support acceptance
+coverage, and final R4 exit evidence remain open.
+
+Boundary: invented/public-original validation evidence only. No protected
+standards content, proprietary benchmark output, private project data,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D9 free-DOF work residual observations (`TP-R4-D9-ENERGYOBS-001`)
 
 Landed a bounded D9 observation slice for the assembled nonlinear residual

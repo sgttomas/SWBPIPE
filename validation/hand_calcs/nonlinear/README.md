@@ -35,7 +35,10 @@ count and
 `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1` for final-iteration
 free-DOF force/moment equilibrium residuals only. Free-DOF work residuals are
 recorded as observation-only evidence and do not have an accepted threshold
-policy.
+policy. A separate multi-support companion fixture uses
+`DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
+`DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1` for
+one public-original multi-DOF / multi-support validation case only.
 
 ## Notes
 
@@ -53,6 +56,7 @@ policy.
 | `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | [assembled_friction_sliding.md](assembled_friction_sliding.md) |
 | `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | [assembled_friction_derived_normal.md](assembled_friction_derived_normal.md) |
 | `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL` | [assembled_multi_support_multi_dof.md](assembled_multi_support_multi_dof.md) |
+| `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL` | [assembled_multi_support_multi_dof_acceptance.md](assembled_multi_support_multi_dof_acceptance.md) |
 
 ## Observation Notes
 

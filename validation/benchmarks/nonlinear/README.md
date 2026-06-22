@@ -46,6 +46,27 @@ The machine-readable policy records are
 `validation/benchmarks/nonlinear/convergence_policy.dec046.json` and
 `validation/benchmarks/nonlinear/free_dof_force_moment_policy.dec046.json`.
 
+## Multi-Support Acceptance Inventory
+
+The crate exposes `assembled_multisupport_acceptance_inventory()` plus
+`assembled_multisupport_acceptance_convergence_observations()` and
+`assembled_multisupport_acceptance_residual_observations()` for
+`NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL`. This is a narrow
+non-seed acceptance fixture under
+`DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
+`DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`.
+It accepts active-set changed-support-count convergence and final-iteration
+free-DOF force/moment residuals for that fixture only. It does not define
+displacement-delta, reaction-delta, free-DOF work/energy, sparse-default,
+product-preview, release, external validation, or CI thresholds.
+
+The companion note is
+`validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md`.
+The machine-readable policy records are
+`validation/benchmarks/nonlinear/multisupport_convergence_policy.dec046.json`
+and
+`validation/benchmarks/nonlinear/multisupport_free_dof_force_moment_policy.dec046.json`.
+
 ## Multi-Support Depth Observation Inventory
 
 The crate also exposes `assembled_multisupport_depth_inventory()` plus

@@ -1,0 +1,40 @@
+{
+  "record_kind": "governed_nonlinear_multisupport_free_dof_force_moment_residual_policy",
+  "record_id": "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "accepted_for_public_original_multisupport_validation_fixture",
+  "scope": "public_original_multi_dof_multi_support_validation_fixture_only",
+  "force_residual_basis": {
+    "name": "free_dof_force_residual",
+    "unit": "N",
+    "dimension": "force",
+    "note": "zero means no translational free-DOF equilibrium residual remains in the final linearized solve"
+  },
+  "moment_residual_basis": {
+    "name": "free_dof_moment_residual",
+    "unit": "N-m",
+    "dimension": "moment",
+    "note": "zero means no rotational free-DOF equilibrium residual remains in the final linearized solve"
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed force or moment residual threshold requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "multi_support_multi_dof",
+      "force_absolute_limit": 0.0,
+      "moment_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Applies only to the public-original multi-DOF / multi-support validation fixture final-iteration free-DOF force and moment equilibrium residuals.",
+    "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds."
+  ],
+  "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

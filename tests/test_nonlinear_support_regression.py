@@ -20,6 +20,18 @@ FREE_DOF_FORCE_MOMENT_POLICY_RECORD = BENCHMARK_DIR / "free_dof_force_moment_pol
 DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF = (
     "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1"
 )
+MULTISUPPORT_CONVERGENCE_POLICY_RECORD = (
+    BENCHMARK_DIR / "multisupport_convergence_policy.dec046.json"
+)
+DEC_046_MULTISUPPORT_POLICY_REF = (
+    "DEC-046-CV-B-multisupport-active-set-count-validation-v1"
+)
+MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_RECORD = (
+    BENCHMARK_DIR / "multisupport_free_dof_force_moment_policy.dec046.json"
+)
+DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF = (
+    "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1"
+)
 
 REQUIRED_FAMILIES = {
     "ActiveSet",
@@ -48,6 +60,10 @@ REQUIRED_ASSEMBLED_FIXTURE_NOTES = {
 
 REQUIRED_DEPTH_OBSERVATION_NOTES = {
     "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL": "assembled_multi_support_multi_dof.md",
+}
+
+REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES = {
+    "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL": "assembled_multi_support_multi_dof_acceptance.md",
 }
 
 REQUIRED_UNIT_BASIS_LINES = {
@@ -132,6 +148,7 @@ def test_nonlinear_fixture_catalog_is_bounded_and_invented():
     assert set(tolerance_assignments) == {
         "None",
         "Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF)",
+        "Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF)",
     }
 
     lowered_source = source.lower()
@@ -147,6 +164,7 @@ def test_nonlinear_fixture_notes_cover_each_public_original_fixture():
         **REQUIRED_FIXTURE_NOTES,
         **REQUIRED_ASSEMBLED_FIXTURE_NOTES,
         **REQUIRED_DEPTH_OBSERVATION_NOTES,
+        **REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES,
     }.items():
         note_path = HAND_CALCS_DIR / note_name
         assert note_path.is_file(), note_name
@@ -204,6 +222,17 @@ def test_nonlinear_hand_calc_unit_basis_is_explicit_and_unresolved():
         assert "Tolerance policy: `TBD`." in note
         assert "TP-R4-D9-MULTISUPPORT-OBS-TBD" in note
 
+    for note_name in REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES.values():
+        note = (HAND_CALCS_DIR / note_name).read_text(encoding="utf-8")
+        assert "| Quantity |" in note
+        assert "Canonical dimension" in note
+        assert f"Tolerance policy: `{DEC_046_MULTISUPPORT_POLICY_REF}`." in note
+        assert (
+            f"Free-DOF force/moment residual policy: `{DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF}`."
+            in note
+        )
+        assert "Free-DOF work residual threshold policy: `TBD`." in note
+
 
 def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
     scanned_paths = [
@@ -216,11 +245,14 @@ def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
                 *REQUIRED_FIXTURE_NOTES.values(),
                 *REQUIRED_ASSEMBLED_FIXTURE_NOTES.values(),
                 *REQUIRED_DEPTH_OBSERVATION_NOTES.values(),
+                *REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES.values(),
             ]
         ),
         CONVERGENCE_OBSERVATION_NOTE,
         CONVERGENCE_POLICY_RECORD,
         FREE_DOF_FORCE_MOMENT_POLICY_RECORD,
+        MULTISUPPORT_CONVERGENCE_POLICY_RECORD,
+        MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_RECORD,
     ]
 
     for path in scanned_paths:
@@ -257,6 +289,12 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     force_moment_policy_record = json.loads(
         FREE_DOF_FORCE_MOMENT_POLICY_RECORD.read_text(encoding="utf-8")
     )
+    multisupport_policy_record = json.loads(
+        MULTISUPPORT_CONVERGENCE_POLICY_RECORD.read_text(encoding="utf-8")
+    )
+    multisupport_force_moment_policy_record = json.loads(
+        MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_RECORD.read_text(encoding="utf-8")
+    )
 
     assert "assembled_fixture_inventory" in source
     assert "assembled_convergence_observations" in source
@@ -264,6 +302,9 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "assembled_multisupport_depth_inventory" in source
     assert "assembled_multisupport_depth_convergence_observations" in source
     assert "assembled_multisupport_depth_residual_observations" in source
+    assert "assembled_multisupport_acceptance_inventory" in source
+    assert "assembled_multisupport_acceptance_convergence_observations" in source
+    assert "assembled_multisupport_acceptance_residual_observations" in source
     assert "ConvergenceObservation" in source
     assert "ForceDisplacementResidualObservation" in source
     assert "observed_iteration_count" in source
@@ -271,8 +312,12 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "max_abs_free_dof_work_residual" in source
     assert "free_dof_work_threshold_policy" in source
     assert DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF in source
+    assert DEC_046_MULTISUPPORT_POLICY_REF in source
+    assert DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF in source
     assert "governed_convergence_policy_entries" in source
     assert "governed_free_dof_force_moment_policy_entries" in source
+    assert "governed_multisupport_convergence_policy_entries" in source
+    assert "governed_multisupport_free_dof_force_moment_policy_entries" in source
     assert "solve_active_set_frame" in source
     assert "DEC_046_ACTIVE_SET_COUNT_POLICY_REF" in source
     assert "ConvergencePolicyStatus::Accepted" in source
@@ -282,15 +327,21 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     for fixture_id in REQUIRED_DEPTH_OBSERVATION_NOTES:
         assert fixture_id in source
         assert fixture_id not in observation_note
+    for fixture_id in REQUIRED_MULTISUPPORT_ACCEPTANCE_NOTES:
+        assert fixture_id in source
+        assert fixture_id not in observation_note
 
     assert "TP-R4-D9-MULTISUPPORT-OBS-TBD" in source
     assert "ConvergencePolicyStatus::Tbd" in source
     assert "observation_only_force_displacement_residual" in source
+    assert "multisupport_force_displacement_residual_observation" in source
 
     assert CONVERGENCE_OBSERVATION_NOTE.name in benchmark_readme
     assert CONVERGENCE_OBSERVATION_NOTE.name in hand_calc_readme
     assert CONVERGENCE_POLICY_RECORD.name in benchmark_readme
     assert FREE_DOF_FORCE_MOMENT_POLICY_RECORD.name in benchmark_readme
+    assert MULTISUPPORT_CONVERGENCE_POLICY_RECORD.name in benchmark_readme
+    assert MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_RECORD.name in benchmark_readme
     assert "## Provenance" in observation_note
     assert "## Invented Inputs" in observation_note
     assert "## Active-Set Expected Values" in observation_note
@@ -308,6 +359,9 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "multi-support depth observation inventory" in normalized_benchmark_readme
     assert "outside `assembled_fixture_inventory()`" in normalized_benchmark_readme
     assert "without promoting non-seed force/displacement" in normalized_benchmark_readme
+    assert "multi-support acceptance inventory" in normalized_benchmark_readme
+    assert DEC_046_MULTISUPPORT_POLICY_REF.lower() in normalized_benchmark_readme
+    assert DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF.lower() in normalized_benchmark_readme
     assert "free-dof work/energy" in normalized_benchmark_readme
 
     assert policy_record["record_id"] == DEC_046_POLICY_REF
@@ -346,3 +400,42 @@ def test_assembled_global_loop_seed_uses_governed_policy():
         assert entry["force_absolute_limit"] == 0.0
         assert entry["moment_absolute_limit"] == 0.0
         assert entry["evidence_fixture_ids"]
+
+    assert multisupport_policy_record["record_id"] == DEC_046_MULTISUPPORT_POLICY_REF
+    assert multisupport_policy_record["decision_ref"] == "DEC-046"
+    assert multisupport_policy_record["status"] == (
+        "accepted_for_public_original_multisupport_validation_fixture"
+    )
+    assert [entry["nonlinear_class"] for entry in multisupport_policy_record["entries"]] == [
+        "multi_support_multi_dof"
+    ]
+    assert multisupport_policy_record["entries"][0]["policy_ref"] == DEC_046_MULTISUPPORT_POLICY_REF
+    assert multisupport_policy_record["entries"][0]["relative_residual_tolerance"] == 0.0
+    assert multisupport_policy_record["entries"][0]["absolute_residual_floor"] == 0.0
+    assert multisupport_policy_record["entries"][0]["max_iterations"] == 4
+    assert multisupport_policy_record["entries"][0]["evidence_fixture_ids"] == [
+        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
+    ]
+
+    assert (
+        multisupport_force_moment_policy_record["record_id"]
+        == DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF
+    )
+    assert multisupport_force_moment_policy_record["decision_ref"] == "DEC-046"
+    assert multisupport_force_moment_policy_record["status"] == (
+        "accepted_for_public_original_multisupport_validation_fixture"
+    )
+    assert [
+        entry["nonlinear_class"]
+        for entry in multisupport_force_moment_policy_record["entries"]
+    ] == ["multi_support_multi_dof"]
+    multisupport_force_moment_entry = multisupport_force_moment_policy_record["entries"][0]
+    assert (
+        multisupport_force_moment_entry["policy_ref"]
+        == DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF
+    )
+    assert multisupport_force_moment_entry["force_absolute_limit"] == 0.0
+    assert multisupport_force_moment_entry["moment_absolute_limit"] == 0.0
+    assert multisupport_force_moment_entry["evidence_fixture_ids"] == [
+        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
+    ]
