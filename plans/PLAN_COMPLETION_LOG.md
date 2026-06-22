@@ -14,6 +14,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D7 sparse pivot-conditioning policy (`TP-R4-D7-SPARSECONDITIONPOLICY-001`)
+
+Added a bounded `DEC-050` sparse generated-grid pivot-ratio conditioning policy
+for the existing sparse suitability observation set.
+
+Changed surfaces:
+
+- `core/solver/performance_harness` now emits
+  `DEC-050-SPARSE-GENERATED-GRID-PIVOT-CONDITIONING-POLICY-v1`,
+  `sparse_pivot_condition_ratio_estimate`, policy status, and the generated-grid
+  pivot-ratio limit `1.0e16` with sparse suitability observations.
+- `validation/benchmarks/sparse_conditioning_threshold_policy.dec050.json`
+  records the governed bounded policy, and the sparse suitability observation
+  record cites it while preserving dense as default.
+- `validation/benchmarks/sparse_suitability_threshold_policy.dec050.json`,
+  `tests/test_sparse_suitability_observation.py`, and the performance-harness
+  README now distinguish the accepted generated-grid pivot-ratio proxy from
+  remaining sparse timing, memory, CI, hardware-normalized, and true
+  condition-number threshold work.
+
+Validation passed: performance harness formatting, performance harness Rust
+tests 19/19, focused sparse-suitability pytest 1/1, JSON syntax checks for the
+sparse suitability, sparse threshold, and sparse conditioning policy records,
+`git diff --check`, and full DEC-025 sweep
+`validation/evidence/sweeps/SWEEP_20260622T163532Z_3068ec39ed5e-dirty.json`.
+
+Residuals remain explicit: dense remains default; default sparse promotion,
+timing thresholds, allocator/RSS memory thresholds, practical-size bands, CI
+gates, hardware-normalized methodology, true condition-number thresholds,
+release/external thresholds, and professional/code-compliance acceptance remain
+outside this policy.
+
+Boundary: no protected standards content, proprietary benchmark output, private
+project data, lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D7-SPARSECONDITIONPOLICY-001.md`.
+
 ## 2026-06-22 - R4 D9 two-span multi-support companion (`TP-R4-D9-MULTISUPPORTSPAN-001`)
 
 Added a bounded multi-node / two-span companion to the accepted `DEC-046`

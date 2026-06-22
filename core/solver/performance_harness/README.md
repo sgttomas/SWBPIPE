@@ -13,8 +13,10 @@ This crate is the bounded implementation slice for `DEL-04-05`. It provides a de
 - Sparse-path observations per record (`SparseSolveObservation`): deterministic RCM ordering identity, original/ordered profile entry counts and half-bandwidths, deterministic f64 value-storage byte counts, accepted-pivot extrema, the pivot-ratio conditioning proxy, nonpositive-pivot count, sparse-vs-dense parity delta, sparse residual, repeat determinism delta, and elapsed-time measurement.
 - Sparse-suitability observation records over explicit invented planar-grid
   size bands (`SparseSuitabilityObservationRecord`) for the `DEC-050` evidence
-  lane. These records preserve dense as default and mark threshold/default
-  promotion status as `TBD`.
+  lane. These records preserve dense as default and carry bounded generated-grid
+  threshold status for sparse-vs-dense parity, sparse residual, repeatability,
+  nonpositive pivots, and the sparse factorization pivot-ratio conditioning
+  proxy.
 - Elapsed-time measurements for the first dense solve and the first sparse order+factor+solve, plus deterministic reduced-dense and sparse-profile f64 value-storage byte counts. Timing observations are environment-dependent; storage observations exclude allocator/container overhead. No timing or memory thresholds are asserted (thresholds remain governed by D-04).
 - Deterministic suite runs over explicit invented cantilever-chain fixture
   sizes with per-fixture records and suite-level summary counts, including
@@ -23,9 +25,17 @@ This crate is the bounded implementation slice for `DEL-04-05`. It provides a de
 
 ## Boundary
 
-This crate does not set release-quality timing or memory thresholds, alter the frame kernel or the sparse solver, define code-specific checks, encode protected standards examples, or make professional/code-compliance claims.
+This crate does not set release-quality timing, allocator/RSS memory, CI, or
+hardware-normalized thresholds, alter the frame kernel or the sparse solver,
+define code-specific checks, encode protected standards examples, or make
+professional/code-compliance claims.
 
-Per `DEC-023` the dense path serves as the parity oracle for the in-repo sparse skyline path measured here. Per `DEC-050`, sparse is present as a live evidence lane in product/nonlinear paths while dense remains the default product solve path. Default sparse promotion, timing/memory thresholds, practical-size bands, conditioning/CI thresholds, and hardware-normalized methodology remain `TBD`.
+Per `DEC-023` the dense path serves as the parity oracle for the in-repo sparse skyline path measured here. Per `DEC-050`, sparse is present as a live evidence lane in product/nonlinear paths while dense remains the default product solve path. Default sparse promotion, timing/memory thresholds, practical-size bands, conditioning thresholds beyond the generated-grid pivot-ratio proxy, CI thresholds, and hardware-normalized methodology remain `TBD`.
+
+The bounded generated-grid pivot-conditioning policy uses the sparse
+factorization pivot-ratio proxy (`max |d| / min |d|`) only. It is not a true
+matrix condition-number policy, does not set a CI gate, and does not promote the
+sparse path beyond the named generated-grid observation set.
 
 Fixture unit metadata declares the calculation basis for reproducibility only. The harness does not define a project conversion catalog, convert units, supply protected benchmark values, or promote fixture results to release-quality performance evidence.
 

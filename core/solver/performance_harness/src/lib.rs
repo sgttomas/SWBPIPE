@@ -26,14 +26,19 @@ pub const DEC_050_SPARSE_SUITABILITY_OBSERVATION_ID: &str =
     "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1";
 pub const DEC_050_SPARSE_SUITABILITY_THRESHOLD_POLICY_REF: &str =
     "DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1";
+pub const DEC_050_SPARSE_CONDITIONING_THRESHOLD_POLICY_REF: &str =
+    "DEC-050-SPARSE-GENERATED-GRID-PIVOT-CONDITIONING-POLICY-v1";
 pub const SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS: &str =
     "accepted_for_generated_grid_observation_set";
+pub const SPARSE_CONDITIONING_THRESHOLD_POLICY_STATUS: &str =
+    "accepted_for_generated_grid_pivot_ratio_observation_set";
 pub const SPARSE_DEFAULT_PROMOTION_STATUS: &str = "not_promoted_dense_default";
 pub const SPARSE_SUITABILITY_GRID_BANDS: [(usize, usize); 2] = [(4, 3), (6, 8)];
 pub const SPARSE_SUITABILITY_RELATIVE_DELTA_LIMIT: f64 = 1.0e-9;
 pub const SPARSE_SUITABILITY_RESIDUAL_ABSOLUTE_LIMIT: f64 = 1.0e-6;
 pub const SPARSE_SUITABILITY_REPEAT_DELTA_ABSOLUTE_LIMIT: f64 = 0.0;
 pub const SPARSE_SUITABILITY_NONPOSITIVE_PIVOT_COUNT_LIMIT: usize = 0;
+pub const SPARSE_SUITABILITY_PIVOT_CONDITION_RATIO_LIMIT: f64 = 1.0e16;
 pub const F64_VALUE_STORAGE_BYTES: usize = std::mem::size_of::<f64>();
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -219,12 +224,16 @@ pub struct SparseSuitabilityObservationRecord {
     pub nonpositive_pivot_count: usize,
     pub dense_first_solve_elapsed_nanos: u128,
     pub sparse_first_solve_elapsed_nanos: u128,
+    pub sparse_pivot_condition_ratio_estimate: Option<f64>,
     pub threshold_policy_ref: String,
     pub threshold_policy_status: String,
+    pub conditioning_threshold_policy_ref: String,
+    pub conditioning_threshold_policy_status: String,
     pub sparse_dense_relative_delta_limit: f64,
     pub sparse_residual_absolute_limit: f64,
     pub sparse_repeat_solution_delta_absolute_limit: f64,
     pub nonpositive_pivot_count_limit: usize,
+    pub sparse_pivot_condition_ratio_limit: f64,
     pub default_sparse_promotion_status: String,
     pub suitability_basis: String,
     pub limitations: Vec<String>,
@@ -516,20 +525,28 @@ pub fn run_sparse_suitability_observation(
         nonpositive_pivot_count: sparse.nonpositive_pivot_count,
         dense_first_solve_elapsed_nanos: run_record.dense_first_solve_elapsed_nanos,
         sparse_first_solve_elapsed_nanos: sparse.first_solve_elapsed_nanos,
+        sparse_pivot_condition_ratio_estimate: sparse.pivot_condition_ratio_estimate,
         threshold_policy_ref: DEC_050_SPARSE_SUITABILITY_THRESHOLD_POLICY_REF.to_string(),
         threshold_policy_status: SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS.to_string(),
+        conditioning_threshold_policy_ref: DEC_050_SPARSE_CONDITIONING_THRESHOLD_POLICY_REF
+            .to_string(),
+        conditioning_threshold_policy_status: SPARSE_CONDITIONING_THRESHOLD_POLICY_STATUS
+            .to_string(),
         sparse_dense_relative_delta_limit: SPARSE_SUITABILITY_RELATIVE_DELTA_LIMIT,
         sparse_residual_absolute_limit: SPARSE_SUITABILITY_RESIDUAL_ABSOLUTE_LIMIT,
         sparse_repeat_solution_delta_absolute_limit: SPARSE_SUITABILITY_REPEAT_DELTA_ABSOLUTE_LIMIT,
         nonpositive_pivot_count_limit: SPARSE_SUITABILITY_NONPOSITIVE_PIVOT_COUNT_LIMIT,
+        sparse_pivot_condition_ratio_limit: SPARSE_SUITABILITY_PIVOT_CONDITION_RATIO_LIMIT,
         default_sparse_promotion_status: SPARSE_DEFAULT_PROMOTION_STATUS.to_string(),
         suitability_basis:
-            "DEC-050 generated-grid threshold policy; dense remains default and parity oracle"
+            "DEC-050 generated-grid threshold policies; dense remains default and parity oracle"
                 .to_string(),
         limitations: vec![
-            "accepted thresholds apply only to the generated-grid observation set; not a practical-size threshold"
+            "accepted thresholds apply only to the generated-grid observation set; not practical-size or release thresholds"
                 .to_string(),
             "elapsed-time fields are environment-dependent and deterministic value-storage fields exclude allocator overhead; neither defines timing or memory thresholds"
+                .to_string(),
+            "pivot-condition threshold uses the sparse factorization pivot-ratio proxy only; no true condition-number, CI, or hardware-normalized threshold is claimed"
                 .to_string(),
             "default sparse promotion remains not promoted; dense remains the product/default solve path"
                 .to_string(),
@@ -1543,6 +1560,14 @@ mod tests {
                 SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS
             );
             assert_eq!(
+                observation.conditioning_threshold_policy_ref,
+                DEC_050_SPARSE_CONDITIONING_THRESHOLD_POLICY_REF
+            );
+            assert_eq!(
+                observation.conditioning_threshold_policy_status,
+                SPARSE_CONDITIONING_THRESHOLD_POLICY_STATUS
+            );
+            assert_eq!(
                 observation.default_sparse_promotion_status,
                 SPARSE_DEFAULT_PROMOTION_STATUS
             );
@@ -1576,6 +1601,16 @@ mod tests {
             );
             assert!(
                 observation.nonpositive_pivot_count <= observation.nonpositive_pivot_count_limit
+            );
+            assert!(
+                observation
+                    .sparse_pivot_condition_ratio_estimate
+                    .expect("generated-grid sparse observation must record pivot conditioning")
+                    <= observation.sparse_pivot_condition_ratio_limit
+            );
+            assert_eq!(
+                observation.sparse_pivot_condition_ratio_limit,
+                SPARSE_SUITABILITY_PIVOT_CONDITION_RATIO_LIMIT
             );
             assert!(observation.ordered_profile_entry_count > 0);
             assert_eq!(

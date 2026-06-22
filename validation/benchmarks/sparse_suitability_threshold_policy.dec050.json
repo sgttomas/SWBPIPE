@@ -48,7 +48,8 @@
   "still_tbd": [
     "default_sparse_promotion",
     "timing_memory_thresholds",
-    "conditioning_ci_thresholds",
+    "conditioning_thresholds_beyond_generated_grid_pivot_ratio",
+    "ci_gate_thresholds",
     "hardware_normalization_methodology",
     "practical_size_band_thresholds",
     "release_or_external_validation_thresholds"
@@ -56,7 +57,7 @@
   "limitations": [
     "Applies only to the generated-grid sparse suitability observation set named in the source observation record.",
     "Does not make the sparse path the default product or release solve path.",
-    "Does not define timing, memory, conditioning, CI, release, external validation, professional, or code-compliance thresholds."
+    "Does not define timing, memory, CI, hardware-normalized, release, external validation, professional, or code-compliance thresholds."
   ],
   "boundary_notice": "Sparse suitability verification policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
 }

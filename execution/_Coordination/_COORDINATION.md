@@ -376,20 +376,24 @@ adds generated-grid sparse suitability observations from the performance
 harness. `TP-R4-D7-SPARSETHRESHOLDPOLICY-001` promotes bounded DEC-050
 generated-grid sparse suitability thresholds for dense-vs-sparse relative delta,
 sparse residual, repeatability, and nonpositive pivots while keeping dense
-default and timing/memory/conditioning/CI/hardware/default-promotion thresholds
-`TBD`.
+default and timing/memory/CI/hardware/default-promotion thresholds `TBD`.
 `TP-R4-D7-SPARSESTORAGEOBS-001` adds deterministic f64 value-storage
 observations for reduced dense matrices and sparse profile entries in the
 performance harness; allocator/RSS memory, timing, conditioning, CI,
 hardware-normalized, and default-promotion thresholds remain `TBD`.
+`TP-R4-D7-SPARSECONDITIONPOLICY-001` promotes a bounded DEC-050
+generated-grid sparse pivot-ratio conditioning policy for the same observation
+set; true condition-number, CI, hardware-normalized, timing, allocator/RSS
+memory, and default-promotion thresholds remain `TBD`.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted twelve-fixture set,
 broader displacement/reaction-delta threshold promotion beyond the accepted
 current-seed, twelve-fixture, and product-preview
 surfaces, broader multi-DOF /
 multi-support nonlinear acceptance thresholds beyond the accepted twelve-fixture set,
-default sparse promotion plus sparse timing/memory/conditioning/CI and
-hardware-normalized threshold promotion,
+default sparse promotion plus sparse timing/memory/CI/hardware-normalized
+threshold promotion and conditioning evidence beyond the generated-grid
+pivot-ratio policy,
 deeper spring-hanger behavior, and
 the remaining D9 validation evidence remain open. Broader non-seed, release,
 external, sparse-default, total strain-energy, modal-energy, and CI
@@ -539,12 +543,16 @@ bounded tranche.
       `TP-R4-D7-SPARSESUITABILITYOBS-001` records generated-grid sparse
       suitability observations. `TP-R4-D7-SPARSETHRESHOLDPOLICY-001`
       promotes bounded generated-grid sparse suitability thresholds while dense
-      remains default and timing/memory/conditioning/CI/hardware/default
-      promotion stays `TBD`.
+      remains default and timing/memory/CI/hardware/default promotion stays
+      `TBD`.
       `TP-R4-D7-SPARSESTORAGEOBS-001` records deterministic f64 value-storage
       observations for reduced dense matrices and sparse profile entries while
       allocator/RSS memory, timing, conditioning, CI, hardware-normalized, and
       default-promotion thresholds remain `TBD`.
+      `TP-R4-D7-SPARSECONDITIONPOLICY-001` promotes a bounded generated-grid
+      sparse pivot-ratio conditioning policy while true condition-number, CI,
+      hardware-normalized, timing, allocator/RSS memory, and default-promotion
+      thresholds remain `TBD`.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
       twelve-fixture set, broader displacement/reaction-delta thresholds beyond
@@ -552,8 +560,9 @@ bounded tranche.
       broader multi-DOF /
       multi-support nonlinear acceptance thresholds beyond the accepted
       twelve-fixture set,
-      default sparse promotion plus sparse timing/memory/conditioning/CI and
-      hardware-normalized thresholds, deeper
+      default sparse promotion plus sparse timing/memory/CI/hardware-normalized
+      thresholds and conditioning evidence beyond the generated-grid
+      pivot-ratio policy, deeper
       spring-hanger behavior, and the R4 exit evidence
       package remain open
       under `DEC-044`/`DEC-046`/`DEC-050`. Broader non-seed, release,

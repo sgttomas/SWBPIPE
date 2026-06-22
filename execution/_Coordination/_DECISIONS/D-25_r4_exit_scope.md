@@ -77,8 +77,9 @@ completion surfaces:
    and product-preview surfaces.
 4. Broader multi-DOF / multi-support nonlinear acceptance thresholds beyond the
    accepted twelve-fixture set.
-5. Sparse default promotion plus sparse timing, memory/allocator/RSS,
-   conditioning, CI, and hardware-normalized threshold evidence.
+5. Sparse default promotion plus sparse timing, memory/allocator/RSS, CI,
+   hardware-normalized, and conditioning evidence beyond the bounded
+   generated-grid pivot-ratio policy.
 6. Deeper spring-hanger catalog sizing or constant-effort solve behavior beyond
    the minimal user-entered model ruled by `DEC-049`.
 7. External validation threshold evidence.
@@ -88,7 +89,7 @@ completion surfaces:
 
 | ID | Option | Consequence |
 |---|---|---|
-| **O-A** | **Strict R4 closure: every listed residual must be closed before R4 exit review.** | R4 remains open until sparse default/timing/memory/conditioning/CI, external validation thresholds, broader nonlinear thresholds, and deeper spring-hanger behavior are implemented and evidenced. This maximizes rigor but likely pulls R5/release-style evidence into R4. |
+| **O-A** | **Strict R4 closure: every listed residual must be closed before R4 exit review.** | R4 remains open until sparse default/timing/memory/CI/hardware-normalized/remaining-conditioning, external validation thresholds, broader nonlinear thresholds, and deeper spring-hanger behavior are implemented and evidenced. This maximizes rigor but likely pulls R5/release-style evidence into R4. |
 | **O-B** | **Bounded R4 exit envelope: current seed/product/twelve-fixture nonlinear evidence and current invented component-provenance evidence can be sufficient for R4 exit review if the final exit-chain packet is green and all residuals are explicitly deferred.** | R4 exit review can proceed after a successor `VERIFICATION_<date>_r4_exit_chain.md` proves the bounded PRD §22.5 evidence, records full validation, and lists sparse default, external validation, deeper spring-hanger behavior, broader thresholds, and release-quality axes as non-R4 blockers. No release or professional claim is created. |
 | **O-C** | **Targeted additional R4 blockers: name a smaller must-close subset, then defer the rest.** | The human names which residuals are R4 blockers, for example one more nonlinear threshold surface, a spring-hanger sufficiency statement, or a sparse threshold subset. Agents close only that subset before preparing the exit-chain packet; all other residuals remain explicit post-R4/R5 work. |
 

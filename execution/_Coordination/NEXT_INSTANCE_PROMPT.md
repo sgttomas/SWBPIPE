@@ -119,8 +119,12 @@
      `TP-R4-D7-NONLINEARPROFILE-001` moved nonlinear integration sparse
      evidence to direct reduced profile entries from the active free-DOF map.
      `TP-R4-D7-SPARSESUITABILITYOBS-001` records generated-grid sparse
-     suitability observations in the performance harness while keeping dense
-     default and threshold/default-promotion status `TBD`.
+     suitability observations in the performance harness;
+     `TP-R4-D7-SPARSETHRESHOLDPOLICY-001` and
+     `TP-R4-D7-SPARSECONDITIONPOLICY-001` promote bounded generated-grid sparse
+     suitability and pivot-ratio conditioning policies while keeping dense
+     default, CI/hardware/timing/memory, true-condition-number, and default
+     promotion status `TBD`.
      `TP-R4-D9-DISPREACTIONOBS-001` records displacement/reaction-delta
      observation axes for the current assembled validation seed, accepted
      multi-support fixture set, and product-preview metadata; accepted delta
@@ -131,7 +135,8 @@
      displacement/reaction-delta and energy threshold promotion beyond current
      seed/product/twelve-fixture evidence, broader multi-DOF / multi-support
      nonlinear acceptance thresholds beyond the accepted twelve-fixture set,
-     default sparse promotion plus sparse timing/memory/conditioning/CI
+     default sparse promotion plus sparse timing/memory/CI/hardware-normalized
+     policy and conditioning evidence beyond the generated-grid pivot-ratio
      policy, deeper spring-hanger behavior, external validation evidence, and
      the remaining D9 validation
      package remain open. `D-25` is prepared and awaiting human ruling on whether those residuals block R4, become explicit post-R4/R5 residuals, or form a smaller must-close subset before the final R4 exit-chain packet. `D-20` is held for

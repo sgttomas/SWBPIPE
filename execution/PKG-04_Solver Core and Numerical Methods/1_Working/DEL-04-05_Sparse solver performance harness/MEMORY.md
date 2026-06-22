@@ -42,8 +42,13 @@
   while dense remains the default solve path and parity oracle.
 - Sparse suitability observations now exist for generated invented grid bands
   under `TP-R4-D7-SPARSESUITABILITYOBS-001`.
-- Default sparse promotion, release timing, memory, practical-size bands,
-  conditioning, and CI threshold policies remain `TBD`.
+- Bounded generated-grid sparse suitability thresholds, deterministic
+  sparse-value storage observations, and a bounded generated-grid sparse
+  pivot-ratio conditioning policy now exist under `DEC-050`.
+- Default sparse promotion, release timing, allocator/RSS memory thresholds,
+  practical-size bands, CI gates, hardware-normalized methodology, true
+  condition-number thresholds, and conditioning evidence beyond the generated
+  grid pivot-ratio proxy remain `TBD`.
 - Hardware-normalized performance methodology remains `TBD`.
 - Future sparse-adapter integration remains downstream work.
 
@@ -287,6 +292,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
   `validation/evidence/sweeps/SWEEP_20260622T132612Z_052c8cb5e277-dirty.json`.
 - Residuals remain explicit: dense remains default; default sparse promotion,
   allocator/RSS memory thresholds, timing thresholds, practical-size bands,
-  conditioning/CI thresholds, hardware-normalized methodology, release/external
-  thresholds, and professional/code-compliance acceptance remain outside this
-  observation slice.
+  CI gates, hardware-normalized methodology, true condition-number thresholds,
+  conditioning evidence beyond the generated-grid pivot-ratio proxy,
+  release/external thresholds, and professional/code-compliance acceptance
+  remain outside this observation slice.
+
+## 2026-06-22 - TP-R4-D7-SPARSECONDITIONPOLICY-001 sparse pivot-conditioning policy
+
+- `core/solver/performance_harness` now emits
+  `DEC-050-SPARSE-GENERATED-GRID-PIVOT-CONDITIONING-POLICY-v1` for generated
+  grid sparse suitability observations.
+- The accepted generated-grid limit is
+  `sparse_pivot_condition_ratio_estimate <= 1.0e16`, where the metric is the
+  sparse factorization pivot proxy `max(abs(accepted_pivots)) /
+  min(abs(accepted_pivots))`, not a true matrix condition number.
+- `validation/benchmarks/sparse_conditioning_threshold_policy.dec050.json`
+  records the governed bounded policy, and
+  `validation/benchmarks/sparse_suitability_observation.dec050.json` cites the
+  policy while preserving dense as the default solve path and parity oracle.
+- Focused validation passed: performance harness fmt check, performance
+  harness Rust tests 19/19, focused sparse-suitability pytest 1/1, and JSON
+  syntax checks for the sparse suitability, sparse threshold, and sparse
+  conditioning policy records. Full DEC-025 sweep passed 5/5 surfaces:
+  `validation/evidence/sweeps/SWEEP_20260622T163532Z_3068ec39ed5e-dirty.json`.
+- Residuals remain explicit: default sparse promotion, timing thresholds,
+  allocator/RSS memory thresholds, practical-size bands, CI gates,
+  hardware-normalized methodology, true condition-number thresholds,
+  release/external thresholds, and professional/code-compliance acceptance
+  remain outside this policy.
