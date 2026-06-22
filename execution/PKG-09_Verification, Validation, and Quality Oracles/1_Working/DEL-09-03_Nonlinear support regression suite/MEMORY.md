@@ -25,7 +25,7 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 ## Remaining TBDs
 
-- Non-seed force/displacement thresholds beyond the accepted five-fixture
+- Non-seed force/displacement thresholds beyond the accepted six-fixture
   multi-support companion set, general energy thresholds, accepted
   displacement/reaction-delta thresholds, sparse default/promotion thresholds,
   release thresholds, and external validation thresholds remain `TBD`.
@@ -50,7 +50,8 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   `TP-R4-D9-MULTISUPPORTBREADTH-001`,
   `TP-R4-D9-MULTISUPPORTFRICTION-001`, and
   `TP-R4-D9-MULTISUPPORT3DOF-001`, and
-  `TP-R4-D9-MULTISUPPORTROT-001` add five accepted multi-DOF /
+  `TP-R4-D9-MULTISUPPORTROT-001`, and
+  `TP-R4-D9-MULTISUPPORTDERIVED-001` add six accepted multi-DOF /
   multi-support companion fixtures under narrow active-set, free-DOF
   force/moment, and free-DOF work residual policies.
 - `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
@@ -62,6 +63,25 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   with `threshold_policy_status=tbd`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-MULTISUPPORTDERIVED-001
+
+- Added `NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL`, an
+  invented assembled frame fixture with derived-normal friction sliding on Ux
+  and gap closure on Uz in the first iteration.
+- Broadened the accepted multi-support validation fixture set from five
+  companions to six companions: one-way/gap, lift-off/gap, friction/gap,
+  three-support/three-translation, mixed translation/rotation, and
+  derived-normal friction/gap.
+- Updated the multi-support active-set-count, free-DOF force/moment,
+  free-DOF work, and displacement/reaction-delta observation records so their
+  evidence fixture IDs name the six-fixture public-original set.
+- Boundary preserved: no non-seed force/displacement threshold beyond the
+  accepted six-fixture set, displacement-delta, reaction-delta, general
+  energy, sparse-default, external validation, release-readiness, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTDERIVED-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORTROT-001
 
