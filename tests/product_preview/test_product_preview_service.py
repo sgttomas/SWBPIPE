@@ -133,6 +133,15 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "residual_basis=free_dof_work_residual" in nonlinear_free_work_residual["metadata"]["basis"]
     assert "general_energy_threshold=TBD" in nonlinear_free_work_residual["metadata"]["basis"]
     assert "observed_residual_only" not in nonlinear_free_work_residual["metadata"]["basis"]
+    nonlinear_loop_messages = [
+        item["message"]
+        for item in result["diagnostics"]
+        if item["code"] == "NONLINEAR_SUPPORT_LOOP_CONVERGED"
+    ]
+    assert any(
+        "DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1" in message
+        for message in nonlinear_loop_messages
+    )
     nonlinear_reaction = next(
         item for item in result["results"] if item["id"] == "result:nonlinear-support:support-NL-140:uy-reaction"
     )

@@ -14,6 +14,50 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 product-preview displacement/reaction delta policy (`TP-R4-D9-PRODDISPREACTIONPOLICY-001`)
+
+Landed an accepted product-preview-only `DEC-046` displacement/reaction delta
+threshold policy for emitted rows from the invented mixed one-way/gap/friction
+preview surface.
+
+Changed surfaces:
+
+- `core/product_physics`: added
+  `DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1` and
+  explicit product-preview delta limits of `50.0 mm`, `0.05 rad`,
+  `110000.0 N`, and `110000.0 N*m`.
+- Product-preview residual-row metadata now carries both the existing
+  observation ref and the accepted threshold-policy ref; the regression proves
+  the deterministic mixed preview deltas remain inside that product-only
+  envelope.
+- `fixtures/product_preview/invented_mechanics_result.json` was regenerated so
+  the canned product-preview diagnostics surface the accepted product delta
+  policy for emitted delta rows. The one-iteration fixture cases still do not
+  synthesize displacement/reaction delta rows.
+- `tests/product_preview/test_product_preview_service.py` now guards the
+  diagnostic policy ref surfaced through the fixture-backed service.
+
+Focused validation: product physics Rust tests passed 44/44; product-preview,
+result-schema, and analysis-run pytest slice passed 20/20; JSON validation
+passed for the regenerated product-preview mechanics fixture. Full DEC-025
+sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T121215Z_3bc51d2b2eed-dirty.json`.
+
+Residuals: broader non-seed force/displacement thresholds beyond the accepted
+eight-fixture set, broader displacement/reaction-delta thresholds beyond the
+accepted current-seed, eight-fixture, and product-preview surfaces, general
+energy thresholds, default sparse promotion / sparse threshold policy, deeper
+spring-hanger behavior, external validation thresholds, broader R4 validation
+package work, and final R4 exit evidence remain open.
+
+Boundary: invented product-preview evidence only. No protected standards
+content, proprietary benchmark output, private project data, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-PRODDISPREACTIONPOLICY-001.md`.
+
 ## 2026-06-22 - R4 D9 displacement/reaction delta policy (`TP-R4-D9-DISPREACTIONPOLICY-001`)
 
 Landed governed fixture-evidence-envelope displacement/reaction delta threshold

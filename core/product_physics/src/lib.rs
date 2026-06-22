@@ -62,6 +62,12 @@ const DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF: &str =
 const DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF: &str =
     "DEC-046-CV-B-product-preview-displacement-reaction-delta-observation-v1";
+const DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_POLICY_REF: &str =
+    "DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1";
+const DEC_046_PRODUCT_PREVIEW_TRANSLATION_DELTA_ABSOLUTE_LIMIT_MM: f64 = 50.0;
+const DEC_046_PRODUCT_PREVIEW_ROTATION_DELTA_ABSOLUTE_LIMIT_RAD: f64 = 0.05;
+const DEC_046_PRODUCT_PREVIEW_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT_N: f64 = 110_000.0;
+const DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M: f64 = 110_000.0;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PreviewModel {
@@ -1336,12 +1342,13 @@ fn append_nonlinear_support_loop_results(
                 },
                 if solve.converged { "info" } else { "warning" },
                 format!(
-                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; displacement/reaction-delta axes are observation-only with threshold_policy_status=tbd; general energy, sparse, release, and external thresholds remain TBD",
+                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; accepted displacement/reaction-delta policy_ref={} for emitted product-preview delta rows; general energy, sparse, release, and external thresholds remain TBD",
                     solve.iterations.len(),
                     final_residual,
                     solve.policy_ref,
                     DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF,
-                    DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF
+                    DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF,
+                    DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_POLICY_REF
                 ),
                 vec![load_case.id.clone(), "DEC-046".to_string()],
             ));
@@ -1700,9 +1707,14 @@ fn append_nonlinear_residual_observation_results(
     residuals: &NonlinearResidualObservation,
     policy_ref: &str,
 ) {
-    let observation_only_basis = format!(
-        "dense_active_set_loop; policy_ref={policy_ref}; observation_ref={}; observed_delta_only; threshold_policy_status=tbd; threshold_policy_ref=TBD; residual_basis=displacement_reaction_delta_from_previous_iteration; threshold_axes=displacement_and_reaction_delta; product_preview_only",
-        DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF
+    let displacement_reaction_delta_threshold_basis = format!(
+        "dense_active_set_loop; policy_ref={policy_ref}; observation_ref={}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=displacement_reaction_delta_from_previous_iteration; threshold_axes=displacement_and_reaction_delta; translation_delta_threshold={} mm; rotation_delta_threshold={} rad; force_reaction_delta_threshold={} N; moment_reaction_delta_threshold={} N*m; product_preview_only",
+        DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF,
+        DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_POLICY_REF,
+        DEC_046_PRODUCT_PREVIEW_TRANSLATION_DELTA_ABSOLUTE_LIMIT_MM,
+        DEC_046_PRODUCT_PREVIEW_ROTATION_DELTA_ABSOLUTE_LIMIT_RAD,
+        DEC_046_PRODUCT_PREVIEW_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT_N,
+        DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M
     );
     let free_dof_work_threshold_basis = format!(
         "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold={} N*m; product_preview_only; general_energy_threshold=TBD",
@@ -1725,7 +1737,7 @@ fn append_nonlinear_residual_observation_results(
             "nonlinear_supports",
             "observed_max_translation_delta",
             "final_iteration",
-            &observation_only_basis,
+            &displacement_reaction_delta_threshold_basis,
             "nonnegative max absolute translational displacement change from the previous iteration",
         );
     }
@@ -1739,7 +1751,7 @@ fn append_nonlinear_residual_observation_results(
             "nonlinear_supports",
             "observed_max_rotation_delta",
             "final_iteration",
-            &observation_only_basis,
+            &displacement_reaction_delta_threshold_basis,
             "nonnegative max absolute rotational displacement change from the previous iteration",
         );
     }
@@ -1753,7 +1765,7 @@ fn append_nonlinear_residual_observation_results(
             "nonlinear_supports",
             "observed_max_force_reaction_delta",
             "final_iteration",
-            &observation_only_basis,
+            &displacement_reaction_delta_threshold_basis,
             "nonnegative max absolute translational reaction change from the previous iteration",
         );
     }
@@ -1767,7 +1779,7 @@ fn append_nonlinear_residual_observation_results(
             "nonlinear_supports",
             "observed_max_moment_reaction_delta",
             "final_iteration",
-            &observation_only_basis,
+            &displacement_reaction_delta_threshold_basis,
             "nonnegative max absolute rotational reaction change from the previous iteration",
         );
     }
@@ -6434,14 +6446,37 @@ mod tests {
             ),
             0.0
         );
-        assert!(result_value(&result, "result:nonlinear-support:max-translation-delta") > 0.0);
-        assert!(result_value(&result, "result:nonlinear-support:max-rotation-delta") >= 0.0);
-        assert!(result_value(&result, "result:nonlinear-support:max-force-reaction-delta") > 0.0);
+        let max_translation_delta =
+            result_value(&result, "result:nonlinear-support:max-translation-delta");
+        let max_rotation_delta =
+            result_value(&result, "result:nonlinear-support:max-rotation-delta");
+        let max_force_reaction_delta =
+            result_value(&result, "result:nonlinear-support:max-force-reaction-delta");
+        let max_moment_reaction_delta = result_value(
+            &result,
+            "result:nonlinear-support:max-moment-reaction-delta",
+        );
+        assert!(max_translation_delta > 0.0);
         assert!(
-            result_value(
-                &result,
-                "result:nonlinear-support:max-moment-reaction-delta"
-            ) >= 0.0
+            max_translation_delta <= DEC_046_PRODUCT_PREVIEW_TRANSLATION_DELTA_ABSOLUTE_LIMIT_MM,
+            "max translation delta {max_translation_delta}"
+        );
+        assert!(max_rotation_delta >= 0.0);
+        assert!(
+            max_rotation_delta <= DEC_046_PRODUCT_PREVIEW_ROTATION_DELTA_ABSOLUTE_LIMIT_RAD,
+            "max rotation delta {max_rotation_delta}"
+        );
+        assert!(max_force_reaction_delta > 0.0);
+        assert!(
+            max_force_reaction_delta
+                <= DEC_046_PRODUCT_PREVIEW_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT_N,
+            "max force reaction delta {max_force_reaction_delta}"
+        );
+        assert!(max_moment_reaction_delta >= 0.0);
+        assert!(
+            max_moment_reaction_delta
+                <= DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M,
+            "max moment reaction delta {max_moment_reaction_delta}"
         );
         assert_eq!(
             result_value(&result, "result:nonlinear-support:free-dof-force-residual"),
@@ -6463,10 +6498,17 @@ mod tests {
         let translation_delta_basis = &translation_delta.metadata.as_ref().unwrap().basis;
         assert!(translation_delta_basis
             .contains(DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF));
-        assert!(translation_delta_basis.contains("threshold_policy_status=tbd"));
-        assert!(translation_delta_basis.contains("threshold_policy_ref=TBD"));
-        assert!(translation_delta_basis.contains("observed_delta_only"));
-        assert!(!translation_delta_basis.contains("threshold_policy_status=accepted"));
+        assert!(translation_delta_basis
+            .contains(DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_POLICY_REF));
+        assert!(translation_delta_basis.contains("threshold_policy_status=accepted"));
+        assert!(translation_delta_basis.contains("residual_basis=displacement_reaction_delta"));
+        assert!(translation_delta_basis.contains("translation_delta_threshold=50 mm"));
+        assert!(translation_delta_basis.contains("rotation_delta_threshold=0.05 rad"));
+        assert!(translation_delta_basis.contains("force_reaction_delta_threshold=110000 N"));
+        assert!(translation_delta_basis.contains("moment_reaction_delta_threshold=110000 N*m"));
+        assert!(!translation_delta_basis.contains("threshold_policy_status=tbd"));
+        assert!(!translation_delta_basis.contains("threshold_policy_ref=TBD"));
+        assert!(!translation_delta_basis.contains("observed_delta_only"));
         let force_residual = result
             .results
             .iter()

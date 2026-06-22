@@ -27,9 +27,10 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 - Non-seed force/displacement thresholds beyond the accepted eight-fixture
   multi-support companion set, general energy thresholds,
-  displacement/reaction-delta thresholds beyond the current seed and accepted
-  eight-fixture set, sparse default/promotion thresholds, release thresholds,
-  and external validation thresholds remain `TBD`.
+  displacement/reaction-delta thresholds beyond the current seed, accepted
+  eight-fixture set, and invented product-preview mixed surface, sparse
+  default/promotion thresholds, release thresholds, and external validation
+  thresholds remain `TBD`.
 - The current assembled validation seed has an accepted active-set
   changed-support-count policy under `DEC-046-CV-B-active-set-count-validation-v1`.
 - The current assembled validation seed has an accepted free-DOF force/moment
@@ -50,6 +51,9 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - The current invented product-preview nonlinear path has an accepted free-DOF
   work residual policy under
   `DEC-046-CV-B-product-preview-free-dof-work-residual-v1`.
+- The invented mixed product-preview nonlinear path has an accepted
+  displacement/reaction delta threshold policy under
+  `DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1`.
 - `TP-R4-D9-MULTISUPPORTPOLICY-001`,
   `TP-R4-D9-MULTISUPPORTBREADTH-001`,
   `TP-R4-D9-MULTISUPPORTFRICTION-001`,
@@ -68,13 +72,33 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - `TP-R4-D9-DISPREACTIONOBS-001` adds observation-only
   displacement/reaction-delta ledgers for the current assembled validation
   seed and accepted multi-support fixture set, plus product-preview metadata
-  with `threshold_policy_status=tbd`.
+  that was promoted in `TP-R4-D9-PRODDISPREACTIONPOLICY-001`.
 - `TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
   displacement/reaction delta threshold policies for the current assembled
-  seed and accepted eight-fixture multi-support set only; product-preview,
-  broader non-seed, release, and external thresholds remain `TBD`.
+  seed and accepted eight-fixture multi-support set only.
+- `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes the invented mixed
+  product-preview displacement/reaction delta rows to an accepted product-only
+  threshold policy; broader non-seed, release, external, sparse-default, and
+  general energy thresholds remain `TBD`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-PRODDISPREACTIONPOLICY-001
+
+- Added `DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1`
+  to `core/product_physics` as the product-preview-only policy for emitted
+  displacement/reaction delta rows.
+- Bound the mixed one-way/gap/friction product preview regression to explicit
+  limits: `50.0 mm`, `0.05 rad`, `110000.0 N`, and `110000.0 N*m`.
+- Regenerated `fixtures/product_preview/invented_mechanics_result.json` so the
+  canned preview diagnostics surface the policy ref for emitted delta rows,
+  while one-iteration fixture cases still emit no synthetic delta rows.
+- Boundary preserved: no broader non-seed validation threshold, release
+  threshold, external validation threshold, sparse-default threshold, general
+  energy threshold, lifecycle, professional, or code-compliance claim was
+  added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-PRODDISPREACTIONPOLICY-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-DISPREACTIONPOLICY-001
 

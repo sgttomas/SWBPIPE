@@ -15666,7 +15666,7 @@
       "id": "diagnostic:nonlinear:load-L-100:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; displacement, reaction-delta, general energy, sparse, release, and external thresholds remain TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; general energy, sparse, release, and external thresholds remain TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-100",
@@ -15766,7 +15766,7 @@
       "id": "diagnostic:nonlinear:load-L-200:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; displacement, reaction-delta, general energy, sparse, release, and external thresholds remain TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; general energy, sparse, release, and external thresholds remain TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-200",

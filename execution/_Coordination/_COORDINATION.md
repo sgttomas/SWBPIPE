@@ -326,13 +326,17 @@ followed by Uy gap closure before final convergence under the same narrow
 multi-support policies.
 `TP-R4-D9-DISPREACTIONOBS-001` adds observation-only displacement/reaction-delta
 axis ledgers for the current assembled validation seed and accepted
-multi-support fixture set, plus product-preview metadata that marks those axes
-`threshold_policy_status=tbd`.
+multi-support fixture set, plus product-preview metadata that initially marked
+those axes `threshold_policy_status=tbd`.
 `TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
 displacement/reaction delta threshold policies for the current assembled
 validation seed and accepted eight-fixture multi-support set only; product
 preview, broader non-seed, general energy, sparse-default, release, and external
 delta thresholds remain open.
+`TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes an accepted product-preview-only
+displacement/reaction delta policy for emitted rows from the invented mixed
+one-way/gap/friction surface; broader non-seed, general energy, sparse-default,
+release, and external delta thresholds remain open.
 `TP-R4-D9-ENERGYOBS-001` records final-iteration
 free-DOF work residual observations in the dense loop, nonlinear validation
 inventory, and invented product-preview surface. `TP-R4-D9-WORKPOLICY-001`
@@ -354,7 +358,9 @@ harness while keeping dense default and timing/memory/conditioning/default-promo
 thresholds `TBD`.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted eight-fixture set,
-general energy threshold promotion, broader multi-DOF /
+general energy threshold promotion, broader displacement/reaction-delta threshold
+promotion beyond the accepted current-seed, eight-fixture, and product-preview
+surfaces, broader multi-DOF /
 multi-support nonlinear acceptance thresholds beyond the accepted eight-fixture set,
 default sparse promotion / sparse threshold policy,
 deeper spring-hanger behavior, and
@@ -463,11 +469,13 @@ bounded tranche.
       under the same narrow multi-support policies.
       `TP-R4-D9-DISPREACTIONOBS-001` records
       displacement/reaction-delta observation axes for the current seed,
-      accepted multi-support fixture set, and product-preview metadata while
-      product-preview delta thresholds remain `TBD`.
+      accepted multi-support fixture set, and product-preview metadata.
       `TP-R4-D9-DISPREACTIONPOLICY-001` promotes accepted
       displacement/reaction delta threshold envelopes for the current seed and
-      accepted eight-fixture multi-support set only. `TP-R4-D9-ENERGYOBS-001` adds
+      accepted eight-fixture multi-support set only.
+      `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes accepted
+      displacement/reaction delta threshold metadata for emitted rows from the
+      invented mixed product-preview surface only. `TP-R4-D9-ENERGYOBS-001` adds
       final-iteration free-DOF work residual rows. `TP-R4-D9-WORKPOLICY-001`
       promotes bounded free-DOF work residual policies for the current
       assembled validation seed, invented product-preview surface, and accepted
@@ -486,8 +494,9 @@ bounded tranche.
       promotion stays `TBD`.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
-      eight-fixture set, general energy threshold promotion, product-preview and
-      broader displacement/reaction-delta thresholds, broader multi-DOF /
+      eight-fixture set, general energy threshold promotion, broader
+      displacement/reaction-delta thresholds beyond the accepted current-seed,
+      eight-fixture, and product-preview surfaces, broader multi-DOF /
       multi-support nonlinear acceptance thresholds beyond the accepted
       eight-fixture set,
       default sparse promotion / sparse threshold policy, deeper
