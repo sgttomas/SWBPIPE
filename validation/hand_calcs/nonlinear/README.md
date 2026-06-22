@@ -67,6 +67,7 @@ public-original multi-DOF / multi-support validation fixture set only.
 | `NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL` | [assembled_multi_support_derived_normal_rotational_acceptance.md](assembled_multi_support_derived_normal_rotational_acceptance.md) |
 | `NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL` | [assembled_multi_support_cascade_gap_lift_off_acceptance.md](assembled_multi_support_cascade_gap_lift_off_acceptance.md) |
 | `NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL` | [assembled_multi_support_negative_gap_acceptance.md](assembled_multi_support_negative_gap_acceptance.md) |
+| `NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL` | [assembled_multi_support_four_class_acceptance.md](assembled_multi_support_four_class_acceptance.md) |
 
 ## Observation Notes
 

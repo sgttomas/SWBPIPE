@@ -159,7 +159,7 @@ const DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 10.0;
 const DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 3.0;
 const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS: &[&str] = &[
     "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration displacement and reaction deltas from the previous active-set solve.",
-    "Limits are fixture-evidence envelopes for the accepted nine-fixture multi-support set; fixture-local overrides may only tighten them.",
+    "Limits are fixture-evidence envelopes for the accepted ten-fixture multi-support set; fixture-local overrides may only tighten them.",
     "Does not define general energy, sparse default, product-preview, release, external validation, or CI thresholds.",
 ];
 const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
@@ -172,6 +172,7 @@ const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
     "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+    "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1108,6 +1109,7 @@ pub fn assembled_multisupport_acceptance_inventory() -> Vec<AssembledNonlinearRe
         assembled_multi_dof_derived_normal_rotational_acceptance_fixture(),
         assembled_multi_dof_cascade_gap_lift_off_acceptance_fixture(),
         assembled_multi_dof_negative_gap_acceptance_fixture(),
+        assembled_multi_dof_four_class_acceptance_fixture(),
     ]
 }
 
@@ -1615,7 +1617,8 @@ fn convergence_class_label(
         | "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
-        | "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL" => "multi_support_multi_dof",
+        | "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL"
+        | "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL" => "multi_support_multi_dof",
         _ => match family {
             NonlinearRegressionFamily::ActiveSet => "active_set",
             NonlinearRegressionFamily::Gap => "gap",
@@ -1732,6 +1735,44 @@ fn assembled_xyz_tip_input(
             node_dof_index(1, FrameDof::Rx),
             node_dof_index(1, FrameDof::Ry),
             node_dof_index(1, FrameDof::Rz),
+        ],
+        nonlinear_supports,
+        initial_states,
+        friction_normal_reactions: Vec::new(),
+        derived_friction_normal_reactions: Vec::new(),
+        convergence,
+    }
+}
+
+fn assembled_xyz_rz_tip_input(
+    nonlinear_supports: Vec<NonlinearSupport>,
+    initial_states: Vec<SupportStateRecord>,
+    convergence: ConvergenceControl,
+) -> NonlinearFrameSolveInput {
+    let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+    let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
+    let section = FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap();
+    let element = FrameElement::new(node_i, node_j, section, [0.0, 1.0, 0.0]).unwrap();
+    let mut force: DenseVector = vec![0.0; 2 * DOF_PER_NODE];
+    force[node_dof_index(1, FrameDof::Ux)] = 10.0;
+    force[node_dof_index(1, FrameDof::Uy)] = 1.0;
+    force[node_dof_index(1, FrameDof::Uz)] = 3.0;
+    force[node_dof_index(1, FrameDof::Rz)] = 1.8;
+
+    NonlinearFrameSolveInput {
+        node_count: 2,
+        elements: vec![element],
+        user_stiffness_elements: Vec::new(),
+        force,
+        base_restrained_dofs: vec![
+            node_dof_index(0, FrameDof::Ux),
+            node_dof_index(0, FrameDof::Uy),
+            node_dof_index(0, FrameDof::Uz),
+            node_dof_index(0, FrameDof::Rx),
+            node_dof_index(0, FrameDof::Ry),
+            node_dof_index(0, FrameDof::Rz),
+            node_dof_index(1, FrameDof::Rx),
+            node_dof_index(1, FrameDof::Ry),
         ],
         nonlinear_supports,
         initial_states,
@@ -3364,6 +3405,157 @@ pub fn assembled_multi_dof_negative_gap_acceptance_fixture() -> AssembledNonline
     }
 }
 
+pub fn assembled_multi_dof_four_class_acceptance_fixture() -> AssembledNonlinearRegressionCase {
+    let one_way_id = "NL-ASSEMBLED-MULTI-ONE-WAY-UZ-K";
+    let gap_id = "NL-ASSEMBLED-MULTI-GAP-UY-K";
+    let friction_id = "NL-ASSEMBLED-MULTI-FRICTION-UX-K";
+    let lift_off_id = "NL-ASSEMBLED-MULTI-LIFT-OFF-RZ-K";
+    let one_way = NonlinearSupport::one_way(
+        one_way_id,
+        1,
+        FrameDof::Uz,
+        ActivationSense::PositiveReaction,
+    );
+    let gap = NonlinearSupport::gap(
+        gap_id,
+        1,
+        FrameDof::Uy,
+        0.0002,
+        GapDirection::PositiveDisplacement,
+    )
+    .unwrap();
+    let friction = NonlinearSupport::friction(friction_id, 1, FrameDof::Ux, 0.30).unwrap();
+    let lift_off = NonlinearSupport::lift_off(
+        lift_off_id,
+        1,
+        FrameDof::Rz,
+        ActivationSense::PositiveReaction,
+    );
+    let mut input = assembled_xyz_rz_tip_input(
+        vec![one_way, gap, friction, lift_off],
+        vec![
+            SupportStateRecord::new(one_way_id, ActiveSetState::Active),
+            SupportStateRecord::new(gap_id, ActiveSetState::Inactive),
+            SupportStateRecord::new(friction_id, ActiveSetState::Sticking),
+            SupportStateRecord::new(lift_off_id, ActiveSetState::Active),
+        ],
+        accepted_multisupport_convergence_control().unwrap(),
+    );
+    input.friction_normal_reactions = vec![FrictionNormalReaction::new(friction_id, 10.0).unwrap()];
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
+        family: NonlinearRegressionFamily::MixedSupport,
+        description:
+            "Invented assembled frame solve accepts friction sliding, gap closure, one-way release, and rotational lift-off release in one multi-support DEC-046 fixture.",
+        assumptions: &[
+            "The frame fixture is a two-node member with three free translational tip DOFs and one free rotational tip DOF.",
+            "The first linearized iteration can change all four nonlinear support classes across four different DOFs.",
+            "The friction normal reaction is explicit invented input evidence.",
+            "This acceptance companion broadens fixture breadth to combine the one-way, gap, friction, and lift-off classes; general energy, release, and external thresholds remain TBD.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_multi_support_four_class_acceptance.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![
+            ExpectedState {
+                support_id: friction_id,
+                state: ActiveSetState::Sliding,
+            },
+            ExpectedState {
+                support_id: gap_id,
+                state: ActiveSetState::Active,
+            },
+            ExpectedState {
+                support_id: lift_off_id,
+                state: ActiveSetState::Inactive,
+            },
+            ExpectedState {
+                support_id: one_way_id,
+                state: ActiveSetState::Inactive,
+            },
+        ],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![],
+        observations: vec![
+            DimensionedObservation {
+                name: "applied_ux_force",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_uy_force",
+                value: 1.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_uz_force",
+                value: 3.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_rz_moment",
+                value: 1.8,
+                unit: "N-m",
+                dimension: "moment",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "friction_coefficient",
+                value: 0.30,
+                unit: "ratio",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "explicit_normal_reaction",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "friction_limit",
+                value: 3.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "gap_clearance",
+                value: 0.0002,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+        ],
+    }
+}
+
 pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
     let support_id = "NL-ACTIVE-ONE-WAY-A";
     let support = NonlinearSupport::one_way(
@@ -3830,7 +4022,7 @@ mod tests {
     fn multisupport_acceptance_inventory_uses_narrow_dec_046_policy() {
         let fixtures = assembled_multisupport_acceptance_inventory();
 
-        assert_eq!(fixtures.len(), 9);
+        assert_eq!(fixtures.len(), 10);
         assert_eq!(
             fixtures
                 .iter()
@@ -3852,16 +4044,19 @@ mod tests {
             let solve = fixture.run().unwrap();
             assert!(solve.converged);
             assert_eq!(solve.iterations.len(), fixture.expected_iteration_count);
-            let expected_initial_residual =
-                if fixture.fixture_id == "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL" {
-                    3.0
-                } else if fixture.fixture_id
-                    == "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
-                {
-                    1.0
-                } else {
-                    2.0
-                };
+            let expected_initial_residual = if fixture.fixture_id
+                == "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL"
+            {
+                3.0
+            } else if fixture.fixture_id == "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL" {
+                4.0
+            } else if fixture.fixture_id
+                == "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
+            {
+                1.0
+            } else {
+                2.0
+            };
             assert_eq!(
                 solve.iterations[0].active_set.residual_norm,
                 expected_initial_residual
@@ -3923,7 +4118,7 @@ mod tests {
         );
 
         let observations = assembled_multisupport_acceptance_convergence_observations();
-        assert_eq!(observations.len(), 9);
+        assert_eq!(observations.len(), 10);
         for observation in &observations {
             assert_eq!(
                 observation.policy_ref,
@@ -3936,7 +4131,7 @@ mod tests {
         }
 
         let residuals = assembled_multisupport_acceptance_residual_observations();
-        assert_eq!(residuals.len(), 9);
+        assert_eq!(residuals.len(), 10);
         for residual in &residuals {
             assert_eq!(
                 residual.free_dof_force_moment_threshold_policy,

@@ -25,10 +25,10 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 ## Remaining TBDs
 
-- Non-seed force/displacement thresholds beyond the accepted nine-fixture
+- Non-seed force/displacement thresholds beyond the accepted ten-fixture
   multi-support companion set, general energy thresholds,
   displacement/reaction-delta thresholds beyond the current seed, accepted
-  nine-fixture set, and invented product-preview mixed surface, sparse
+  ten-fixture set, and invented product-preview mixed surface, sparse
   default/promotion thresholds, release thresholds, and external validation
   thresholds remain `TBD`.
 - The current assembled validation seed has an accepted active-set
@@ -62,7 +62,8 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   `TP-R4-D9-MULTISUPPORTDERIVED-001`,
   `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`, and
   `TP-R4-D9-MULTISUPPORTCASCADE-001`, and
-  `TP-R4-D9-MULTISUPPORTNEGAP-001` add nine accepted multi-DOF /
+  `TP-R4-D9-MULTISUPPORTNEGAP-001`, and
+  `TP-R4-D9-MULTISUPPORT4CLASS-001` add ten accepted multi-DOF /
   multi-support companion fixtures under narrow active-set, free-DOF
   force/moment, free-DOF work residual, and displacement/reaction delta
   threshold policies (`TP-R4-D9-WORKPOLICY-001` and
@@ -76,13 +77,33 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   that was promoted in `TP-R4-D9-PRODDISPREACTIONPOLICY-001`.
 - `TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
   displacement/reaction delta threshold policies for the current assembled
-  seed and accepted nine-fixture multi-support set only.
+  seed and accepted ten-fixture multi-support set only.
 - `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes the invented mixed
   product-preview displacement/reaction delta rows to an accepted product-only
   threshold policy; broader non-seed, release, external, sparse-default, and
   general energy thresholds remain `TBD`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-MULTISUPPORT4CLASS-001
+
+- Added `NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL`, an invented
+  assembled frame fixture that combines friction sliding, gap closure, one-way
+  release, and rotational lift-off release in one accepted multi-support solve.
+- Broadened the accepted multi-support validation fixture set from nine
+  companions to ten companions by adding a single four-class fixture inside the
+  existing active-set, free-DOF force/moment, free-DOF work, and
+  displacement/reaction-delta envelopes.
+- Updated the multi-support active-set-count, free-DOF force/moment,
+  free-DOF work, and displacement/reaction-delta policy records so their
+  evidence fixture IDs name the ten-fixture public-original set.
+- Boundary preserved: no non-seed force/displacement threshold beyond the
+  accepted ten-fixture set, broader displacement-delta or reaction-delta
+  threshold, general energy threshold, sparse-default, external validation,
+  release-readiness, lifecycle, professional, or code-compliance claim was
+  added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORT4CLASS-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-MULTISUPPORTNEGAP-001
 
