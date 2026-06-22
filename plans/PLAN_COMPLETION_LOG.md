@@ -14,6 +14,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D7 sparse suitability threshold policy (`TP-R4-D7-SPARSETHRESHOLDPOLICY-001`)
+
+Promoted a bounded `DEC-050` sparse suitability threshold policy for the
+generated-grid observation set while keeping dense as the product/default solve
+path.
+
+Changed surfaces:
+
+- `core/solver/performance_harness`: added
+  `DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1` and explicit
+  generated-grid sparse suitability limits for dense-vs-sparse relative delta
+  (`1.0e-9`), sparse residual (`1.0e-6`), repeat sparse-solution delta (`0.0`),
+  and nonpositive pivots (`0`).
+- `validation/benchmarks/sparse_suitability_threshold_policy.dec050.json` records
+  the governed policy and names the two generated-grid evidence fixtures.
+- `validation/benchmarks/sparse_suitability_observation.dec050.json` now cites
+  the accepted threshold policy while preserving the observation record and
+  dense-default boundary.
+- `tests/test_sparse_suitability_observation.py` guards the policy record,
+  observation linkage, numeric limits, and the remaining dense-default boundary.
+
+Focused validation: performance harness Rust tests passed 19/19; focused
+sparse-suitability pytest passed 1/1; JSON syntax validation passed. Full
+DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T122628Z_2fb363448820-dirty.json`.
+
+Residuals: dense remains default; default sparse promotion,
+timing/memory/conditioning/CI thresholds, hardware-normalized scale methodology,
+D6/D9 nonlinear threshold residuals, deeper spring-hanger behavior, external
+validation thresholds, broader R4 validation package work, and final R4 exit
+evidence remain open.
+
+Boundary: invented/public-original generated-grid evidence only. No protected
+standards content, proprietary benchmark output, private project data, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D7-SPARSETHRESHOLDPOLICY-001.md`.
+
 ## 2026-06-22 - R4 D9 product-preview displacement/reaction delta policy (`TP-R4-D9-PRODDISPREACTIONPOLICY-001`)
 
 Landed an accepted product-preview-only `DEC-046` displacement/reaction delta

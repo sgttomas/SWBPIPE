@@ -24,9 +24,16 @@ use std::time::Instant;
 pub const SPARSE_ORDERING_ALGORITHM_ID: &str = "reverse-cuthill-mckee-deterministic";
 pub const DEC_050_SPARSE_SUITABILITY_OBSERVATION_ID: &str =
     "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1";
-pub const SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS: &str = "tbd";
+pub const DEC_050_SPARSE_SUITABILITY_THRESHOLD_POLICY_REF: &str =
+    "DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1";
+pub const SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS: &str =
+    "accepted_for_generated_grid_observation_set";
 pub const SPARSE_DEFAULT_PROMOTION_STATUS: &str = "not_promoted_dense_default";
 pub const SPARSE_SUITABILITY_GRID_BANDS: [(usize, usize); 2] = [(4, 3), (6, 8)];
+pub const SPARSE_SUITABILITY_RELATIVE_DELTA_LIMIT: f64 = 1.0e-9;
+pub const SPARSE_SUITABILITY_RESIDUAL_ABSOLUTE_LIMIT: f64 = 1.0e-6;
+pub const SPARSE_SUITABILITY_REPEAT_DELTA_ABSOLUTE_LIMIT: f64 = 0.0;
+pub const SPARSE_SUITABILITY_NONPOSITIVE_PIVOT_COUNT_LIMIT: usize = 0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FixtureProvenanceStatus {
@@ -82,9 +89,8 @@ pub struct ConditioningObservation {
 }
 
 /// Sparse-path (DEC-023 in-repo skyline LDL^T solver) observations recorded
-/// alongside the dense path for the same fixture. All fields are
-/// measurements; no thresholds are asserted (thresholds remain governed by
-/// D-04).
+/// alongside the dense path for the same fixture. All fields are measurements;
+/// governed threshold status is carried by higher-level observation records.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SparseSolveObservation {
     pub ordering_algorithm: String,
@@ -200,7 +206,12 @@ pub struct SparseSuitabilityObservationRecord {
     pub nonpositive_pivot_count: usize,
     pub dense_first_solve_elapsed_nanos: u128,
     pub sparse_first_solve_elapsed_nanos: u128,
+    pub threshold_policy_ref: String,
     pub threshold_policy_status: String,
+    pub sparse_dense_relative_delta_limit: f64,
+    pub sparse_residual_absolute_limit: f64,
+    pub sparse_repeat_solution_delta_absolute_limit: f64,
+    pub nonpositive_pivot_count_limit: usize,
     pub default_sparse_promotion_status: String,
     pub suitability_basis: String,
     pub limitations: Vec<String>,
@@ -483,17 +494,22 @@ pub fn run_sparse_suitability_observation(
         nonpositive_pivot_count: sparse.nonpositive_pivot_count,
         dense_first_solve_elapsed_nanos: run_record.dense_first_solve_elapsed_nanos,
         sparse_first_solve_elapsed_nanos: sparse.first_solve_elapsed_nanos,
+        threshold_policy_ref: DEC_050_SPARSE_SUITABILITY_THRESHOLD_POLICY_REF.to_string(),
         threshold_policy_status: SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS.to_string(),
+        sparse_dense_relative_delta_limit: SPARSE_SUITABILITY_RELATIVE_DELTA_LIMIT,
+        sparse_residual_absolute_limit: SPARSE_SUITABILITY_RESIDUAL_ABSOLUTE_LIMIT,
+        sparse_repeat_solution_delta_absolute_limit: SPARSE_SUITABILITY_REPEAT_DELTA_ABSOLUTE_LIMIT,
+        nonpositive_pivot_count_limit: SPARSE_SUITABILITY_NONPOSITIVE_PIVOT_COUNT_LIMIT,
         default_sparse_promotion_status: SPARSE_DEFAULT_PROMOTION_STATUS.to_string(),
         suitability_basis:
-            "DEC-050 generated-grid observation; dense remains default and parity oracle"
+            "DEC-050 generated-grid threshold policy; dense remains default and parity oracle"
                 .to_string(),
         limitations: vec![
-            "observation-only generated-grid size-band evidence; not a practical-size threshold"
+            "accepted thresholds apply only to the generated-grid observation set; not a practical-size threshold"
                 .to_string(),
             "elapsed-time fields are environment-dependent and do not define timing or memory thresholds"
                 .to_string(),
-            "default sparse promotion remains TBD; dense remains the product/default solve path"
+            "default sparse promotion remains not promoted; dense remains the product/default solve path"
                 .to_string(),
         ],
         provenance_notes: run_record.provenance_notes,
@@ -1412,9 +1428,9 @@ mod tests {
     }
 
     #[test]
-    fn sparse_suitability_observations_keep_default_promotion_tbd() {
+    fn sparse_suitability_observations_emit_accepted_threshold_policy() {
         let settings = HarnessSettings {
-            solver_version: "sparse-suitability-observation-test".to_string(),
+            solver_version: "sparse-suitability-threshold-policy-test".to_string(),
             repeat_count: 2,
             ..HarnessSettings::default()
         };
@@ -1438,6 +1454,10 @@ mod tests {
                 DEC_050_SPARSE_SUITABILITY_OBSERVATION_ID
             );
             assert_eq!(
+                observation.threshold_policy_ref,
+                DEC_050_SPARSE_SUITABILITY_THRESHOLD_POLICY_REF
+            );
+            assert_eq!(
                 observation.threshold_policy_status,
                 SPARSE_SUITABILITY_THRESHOLD_POLICY_STATUS
             );
@@ -1446,15 +1466,42 @@ mod tests {
                 SPARSE_DEFAULT_PROMOTION_STATUS
             );
             assert!(observation.dense_solution_scale > 0.0);
-            assert!(observation.sparse_dense_relative_delta <= 1.0e-9);
-            assert!(observation.max_abs_sparse_residual < 1.0e-6);
-            assert_eq!(observation.max_abs_sparse_repeat_solution_delta, 0.0);
-            assert_eq!(observation.nonpositive_pivot_count, 0);
+            assert_eq!(
+                observation.sparse_dense_relative_delta_limit,
+                SPARSE_SUITABILITY_RELATIVE_DELTA_LIMIT
+            );
+            assert_eq!(
+                observation.sparse_residual_absolute_limit,
+                SPARSE_SUITABILITY_RESIDUAL_ABSOLUTE_LIMIT
+            );
+            assert_eq!(
+                observation.sparse_repeat_solution_delta_absolute_limit,
+                SPARSE_SUITABILITY_REPEAT_DELTA_ABSOLUTE_LIMIT
+            );
+            assert_eq!(
+                observation.nonpositive_pivot_count_limit,
+                SPARSE_SUITABILITY_NONPOSITIVE_PIVOT_COUNT_LIMIT
+            );
+            assert!(
+                observation.sparse_dense_relative_delta
+                    <= observation.sparse_dense_relative_delta_limit
+            );
+            assert!(
+                observation.max_abs_sparse_residual <= observation.sparse_residual_absolute_limit
+            );
+            assert!(
+                observation.max_abs_sparse_repeat_solution_delta
+                    <= observation.sparse_repeat_solution_delta_absolute_limit
+            );
+            assert!(
+                observation.nonpositive_pivot_count <= observation.nonpositive_pivot_count_limit
+            );
             assert!(observation.ordered_profile_entry_count > 0);
             assert!(observation
                 .limitations
                 .iter()
-                .any(|limitation| limitation.contains("default sparse promotion remains TBD")));
+                .any(|limitation| limitation
+                    .contains("default sparse promotion remains not promoted")));
         }
     }
 

@@ -249,3 +249,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Validation passed: performance harness Rust tests 19/19, focused
   sparse-suitability pytest, JSON syntax check, and full DEC-025 sweep
   `validation/evidence/sweeps/SWEEP_20260622T113515Z_521fdfe1e613-dirty.json`.
+
+## 2026-06-22 - TP-R4-D7-SPARSETHRESHOLDPOLICY-001 sparse suitability threshold policy
+
+- `core/solver/performance_harness` now emits
+  `DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1` with each
+  generated-grid sparse suitability observation.
+- The accepted generated-grid limits are dense-vs-sparse relative delta
+  `1.0e-9`, sparse residual `1.0e-6`, repeat sparse-solution delta `0.0`, and
+  nonpositive pivots `0`.
+- `validation/benchmarks/sparse_suitability_threshold_policy.dec050.json` records
+  the governed bounded policy, and the source observation record now cites the
+  accepted policy while keeping dense as default.
+- Validation passed: performance harness fmt check, performance harness Rust
+  tests 19/19, focused sparse-suitability pytest 1/1, JSON syntax check,
+  `git diff --check`, and full DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260622T122628Z_2fb363448820-dirty.json`.
+- Residuals remain explicit: default sparse promotion, timing/memory thresholds,
+  practical-size bands, conditioning/CI thresholds, hardware-normalized
+  methodology, release/external thresholds, and professional/code-compliance
+  acceptance remain outside this policy.

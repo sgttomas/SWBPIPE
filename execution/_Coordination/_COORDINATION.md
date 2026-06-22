@@ -354,15 +354,19 @@ product-preview sparse evidence rows. `TP-R4-D7-NONLINEARPROFILE-001` moves
 the nonlinear integration sparse evidence lane to direct reduced profile
 entries from the active free-DOF map. `TP-R4-D7-SPARSESUITABILITYOBS-001`
 adds generated-grid sparse suitability observations from the performance
-harness while keeping dense default and timing/memory/conditioning/default-promotion
-thresholds `TBD`.
+harness. `TP-R4-D7-SPARSETHRESHOLDPOLICY-001` promotes bounded DEC-050
+generated-grid sparse suitability thresholds for dense-vs-sparse relative delta,
+sparse residual, repeatability, and nonpositive pivots while keeping dense
+default and timing/memory/conditioning/CI/hardware/default-promotion thresholds
+`TBD`.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted eight-fixture set,
 general energy threshold promotion, broader displacement/reaction-delta threshold
 promotion beyond the accepted current-seed, eight-fixture, and product-preview
 surfaces, broader multi-DOF /
 multi-support nonlinear acceptance thresholds beyond the accepted eight-fixture set,
-default sparse promotion / sparse threshold policy,
+default sparse promotion plus sparse timing/memory/conditioning/CI and
+hardware-normalized threshold promotion,
 deeper spring-hanger behavior, and
 the remaining D9 validation evidence remain open.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
@@ -490,7 +494,9 @@ bounded tranche.
       `TP-R4-D7-NONLINEARPROFILE-001` moves nonlinear integration sparse
       evidence to direct reduced profile entries from the active free-DOF map.
       `TP-R4-D7-SPARSESUITABILITYOBS-001` records generated-grid sparse
-      suitability observations while dense remains default and threshold/default
+      suitability observations. `TP-R4-D7-SPARSETHRESHOLDPOLICY-001`
+      promotes bounded generated-grid sparse suitability thresholds while dense
+      remains default and timing/memory/conditioning/CI/hardware/default
       promotion stays `TBD`.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
@@ -499,7 +505,8 @@ bounded tranche.
       eight-fixture, and product-preview surfaces, broader multi-DOF /
       multi-support nonlinear acceptance thresholds beyond the accepted
       eight-fixture set,
-      default sparse promotion / sparse threshold policy, deeper
+      default sparse promotion plus sparse timing/memory/conditioning/CI and
+      hardware-normalized thresholds, deeper
       spring-hanger behavior, and the R4 exit evidence
       package remain open
       under `DEC-044`/`DEC-046`/`DEC-050`.

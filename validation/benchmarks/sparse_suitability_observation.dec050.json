@@ -2,7 +2,7 @@
   "record_id": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
   "record_kind": "sparse_suitability_observation",
   "tranche_id": "TP-R4-D7-SPARSESUITABILITYOBS-001",
-  "status": "observation_only",
+  "status": "bounded_threshold_policy_accepted",
   "decision_basis": [
     "DEC-023",
     "DEC-050",
@@ -32,7 +32,9 @@
     "dense_first_solve_elapsed_nanos",
     "sparse_first_solve_elapsed_nanos"
   ],
-  "threshold_policy_status": "tbd",
+  "threshold_policy_ref": "DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1",
+  "threshold_policy_tranche_id": "TP-R4-D7-SPARSETHRESHOLDPOLICY-001",
+  "threshold_policy_status": "accepted_for_generated_grid_observation_set",
   "default_sparse_promotion_status": "not_promoted_dense_default",
   "timing_memory_threshold_status": "tbd",
   "conditioning_ci_threshold_status": "tbd",
@@ -41,6 +43,7 @@
   "boundary": [
     "generated-grid observations are invented public verification evidence only",
     "no default sparse promotion is made",
+    "thresholds apply only to dense-vs-sparse relative delta, sparse residual, repeat sparse-solution delta, and nonpositive pivot count for the named generated-grid observation set",
     "no timing, memory, conditioning, CI, release, external-validation, professional, or code-compliance threshold is set",
     "no protected standards content, proprietary benchmark model, private project data, network path, or telemetry feature is introduced"
   ]
