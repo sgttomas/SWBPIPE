@@ -66,9 +66,9 @@ non-seed acceptance companion in the multi-support validation fixture set.
 This fixture broadens the accepted multi-support / multi-DOF evidence set under
 `DEC-046` to a single companion that combines the one-way, gap, friction, and
 lift-off support classes. It preserves the same narrow active-set, free-DOF
-residual, and displacement/reaction delta threshold scope. It does not define
-general energy, sparse default, product-preview, release, external validation,
-or CI thresholds.
+residual, general-energy, and displacement/reaction delta threshold scope. It
+does not define sparse default, product-preview, release, external validation,
+total strain-energy, modal-energy, or CI thresholds.
 
 Displacement/reaction delta policy: `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`.
 

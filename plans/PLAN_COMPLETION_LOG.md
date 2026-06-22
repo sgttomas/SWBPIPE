@@ -14,6 +14,51 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 general-energy residual policies (`TP-R4-D9-GENERALENERGYPOLICY-001`)
+
+Promoted bounded `DEC-046` general-energy residual policies for the current
+public-original assembled validation seed, the current invented product-preview
+nonlinear surface, and the accepted ten-fixture multi-support companion set.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear`: added
+  `general_energy_policy.dec046.json` and
+  `multisupport_general_energy_policy.dec046.json`, plus Rust policy helpers
+  and tests that bind the current seed and ten-fixture companion set to
+  `0.0 N-m` accepted residual-energy envelopes.
+- `core/product_physics`: promoted the invented product-preview residual row
+  metadata to `DEC-046-CV-B-product-preview-general-energy-residual-v1` and
+  regenerated `fixtures/product_preview/invented_mechanics_result.json`.
+- Hand-calculation notes, benchmark READMEs, product-preview tests, nonlinear
+  regression guards, coordination, R4 planning, the R4 gap packet, and DEL-09-03
+  memory now record that general-energy residual policy is accepted only for
+  the governed current/product/ten-fixture surfaces.
+
+Focused validation: Rust formatting checks passed for nonlinear benchmarks,
+product physics, and nonlinear integration; focused Rust tests passed 18/18,
+44/44, and 11/11 respectively; focused pytest passed 28/28; JSON syntax checks
+passed for the two new policy records and regenerated product-preview fixture;
+`git diff --check` passed. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T142119Z_1b32c80965d5-dirty.json`.
+
+Residuals: R4 is still not ready for exit. Remaining D6/D9 gaps include
+non-seed force/displacement thresholds beyond the accepted ten-fixture set,
+broader displacement/reaction-delta thresholds beyond accepted
+current/product/fixture surfaces, broader non-seed/release/external/sparse
+default/total/modal/CI energy threshold axes, deeper spring-hanger behavior,
+default sparse promotion plus sparse timing/memory/conditioning/CI and
+hardware-normalized thresholds, external validation thresholds, broader R4
+validation packaging, and final R4 exit-chain evidence.
+
+Boundary: no protected standards content, proprietary benchmark output, private
+project data, hidden support defaults, lifecycle transition, release-readiness
+claim, professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-GENERALENERGYPOLICY-001.md`.
+
 ## 2026-06-22 - DAG-007 approved as current dependency graph authority (`TP-DAG007-APPROVAL-001`)
 
 Human approval promoted `execution/_DAG/DAG-007/` from validated canonical

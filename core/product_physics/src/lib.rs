@@ -60,6 +60,9 @@ const DEC_046_PRODUCT_PREVIEW_FREE_DOF_MOMENT_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF: &str =
     "DEC-046-CV-B-product-preview-free-dof-work-residual-v1";
 const DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_ABSOLUTE_LIMIT: f64 = 0.0;
+const DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF: &str =
+    "DEC-046-CV-B-product-preview-general-energy-residual-v1";
+const DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF: &str =
     "DEC-046-CV-B-product-preview-displacement-reaction-delta-observation-v1";
 const DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_POLICY_REF: &str =
@@ -1342,12 +1345,13 @@ fn append_nonlinear_support_loop_results(
                 },
                 if solve.converged { "info" } else { "warning" },
                 format!(
-                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; accepted displacement/reaction-delta policy_ref={} for emitted product-preview delta rows; general energy, sparse, release, and external thresholds remain TBD",
+                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; accepted general-energy residual policy_ref={}; accepted displacement/reaction-delta policy_ref={} for emitted product-preview delta rows; sparse, release, and external thresholds remain TBD",
                     solve.iterations.len(),
                     final_residual,
                     solve.policy_ref,
                     DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF,
                     DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF,
+                    DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF,
                     DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_POLICY_REF
                 ),
                 vec![load_case.id.clone(), "DEC-046".to_string()],
@@ -1717,9 +1721,11 @@ fn append_nonlinear_residual_observation_results(
         DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M
     );
     let free_dof_work_threshold_basis = format!(
-        "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold={} N*m; product_preview_only; general_energy_threshold=TBD",
+        "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold={} N*m; general_energy_threshold_policy_ref={}; general_energy_threshold_policy_status=accepted; general_energy_threshold={} N*m; product_preview_only",
         DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF,
-        DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_ABSOLUTE_LIMIT
+        DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_ABSOLUTE_LIMIT,
+        DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF,
+        DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_ABSOLUTE_LIMIT
     );
     let force_moment_threshold_basis = format!(
         "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold={} N; moment_threshold={} N*m; product_preview_only",
@@ -6533,9 +6539,11 @@ mod tests {
         }
         let work_basis = &work_residual.metadata.as_ref().unwrap().basis;
         assert!(work_basis.contains(DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF));
+        assert!(work_basis.contains(DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF));
         assert!(work_basis.contains("threshold_policy_status=accepted"));
         assert!(work_basis.contains("residual_basis=free_dof_work_residual"));
-        assert!(work_basis.contains("general_energy_threshold=TBD"));
+        assert!(work_basis.contains("general_energy_threshold_policy_status=accepted"));
+        assert!(work_basis.contains("general_energy_threshold=0 N*m"));
         assert!(!work_basis.contains("observed_residual_only"));
         let iteration_count = result
             .results

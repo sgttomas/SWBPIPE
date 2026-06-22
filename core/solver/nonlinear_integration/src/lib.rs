@@ -325,7 +325,7 @@ pub fn solve_active_set_frame(
 pub fn assembled_loop_assumptions() -> Vec<String> {
     vec![
         "Active nonlinear support states are represented as prescribed frame DOFs in the current linearized iteration.".to_string(),
-        "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement/work residual observations are recorded as evidence, not thresholds.".to_string(),
+        "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement/work residual axes are reported for callers to bind to explicit evidence policies.".to_string(),
         "Friction support normal reactions are either explicit input evidence or derived as the absolute reaction at a named support-normal DOF supplied by the caller.".to_string(),
         "Released friction supports may persist in sliding state while nonzero displacement remains, preventing active-set chatter without adding hidden friction-load defaults.".to_string(),
         "Explicit user-stiffness macro-elements are assembled with frame elements when supplied by the caller.".to_string(),
@@ -336,7 +336,7 @@ pub fn assembled_loop_limitations() -> Vec<String> {
     vec![
         "DEC-050 sparse evidence lane observes direct reduced profile-entry sparse solves for the reduced linearized systems, but the dense frame solve remains the default active-set path and parity oracle.".to_string(),
         "Element-level sparse default assembly, default sparse-solver promotion, and large-model sparse suitability thresholds remain follow-on work.".to_string(),
-        "DEC-046 class-tiered convergence values remain TBD until assembled-loop evidence seeds them; callers must supply explicit controls and policy references.".to_string(),
+        "DEC-046 threshold authority exists only where callers supply explicit controls and policy references; unmeasured classes and broader release/external thresholds remain out of scope.".to_string(),
         "User-stiffness macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
         "The result is mechanics evidence only and does not state rule compliance, professional approval, certification, sealing, authentication, or code compliance.".to_string(),
     ]

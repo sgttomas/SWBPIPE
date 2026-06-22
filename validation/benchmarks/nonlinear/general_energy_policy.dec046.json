@@ -1,0 +1,60 @@
+{
+  "record_kind": "governed_nonlinear_general_energy_residual_policy",
+  "record_id": "DEC-046-CV-B-general-energy-residual-validation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "accepted_for_current_assembled_validation_seed",
+  "scope": "current_public_original_assembled_validation_seed_only",
+  "energy_residual_basis": {
+    "name": "general_energy_residual_envelope",
+    "source_measure": "max_abs_free_dof_work_residual",
+    "unit": "N-m",
+    "dimension": "moment",
+    "note": "zero means no free-DOF residual work/energy product remains in the final linearized solve for the accepted seed fixture"
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed general-energy residual threshold requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "one_way",
+      "energy_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-general-energy-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "gap",
+      "energy_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-general-energy-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "lift_off",
+      "energy_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-general-energy-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+      ]
+    },
+    {
+      "nonlinear_class": "friction",
+      "energy_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-general-energy-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+        "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+        "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Applies only to current public-original assembled validation-seed final-iteration free-DOF residual work/energy envelopes.",
+    "Does not define sparse live-path, product-preview, release, external validation, total strain-energy, modal-energy, or CI thresholds."
+  ],
+  "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

@@ -53,7 +53,10 @@ fixture and part of the accepted multi-support validation fixture set.
 
 This fixture demonstrates a narrow accepted multi-support / multi-DOF
 validation policy under `DEC-046`, including final-iteration free-DOF residual
-work products. The companion also carries the fixture-set displacement/reaction delta threshold policy as an observed-envelope record. It does not define general energy, sparse default, product-preview, release, external validation, or CI
+work products. The companion also carries the fixture-set general-energy
+residual policy and displacement/reaction delta threshold policy as
+observed-envelope records. It does not define sparse default, product-preview,
+release, external validation, total strain-energy, modal-energy, or CI
 thresholds.
 
 Displacement/reaction delta policy: `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`.

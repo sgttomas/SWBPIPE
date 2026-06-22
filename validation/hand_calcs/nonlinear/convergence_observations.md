@@ -10,12 +10,14 @@ policy. The same current seed now also binds final-iteration free-DOF force and
 moment equilibrium residuals to
 `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`, and
 final-iteration free-DOF work residual products to
-`DEC-046-CV-B-free-dof-work-residual-validation-v1`, and final-iteration
+`DEC-046-CV-B-free-dof-work-residual-validation-v1`, and the same
+final-iteration residual-work energy envelope to
+`DEC-046-CV-B-general-energy-residual-validation-v1`, and final-iteration
 displacement/reaction deltas to
 `DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1`. This does
-not define general energy convergence, sparse live-path behavior,
-product-preview thresholds, external validation thresholds, release thresholds,
-or a release claim.
+not define sparse live-path behavior, product-preview thresholds, external
+validation thresholds, release thresholds, total strain-energy thresholds,
+modal-energy thresholds, CI thresholds, or a release claim.
 
 ## Provenance
 
@@ -45,6 +47,9 @@ inventory in `validation/benchmarks/nonlinear/src/lib.rs`.
 | Free-DOF work residual threshold | 0.0 | N-m | moment |
 | Free-DOF work residual policy reference | DEC-046-CV-B-free-dof-work-residual-validation-v1 | label | dimensionless |
 | Free-DOF work residual unit | N-m | moment |
+| General energy residual threshold | 0.0 | N-m | moment |
+| General energy residual policy reference | DEC-046-CV-B-general-energy-residual-validation-v1 | label | dimensionless |
+| General energy residual basis | general_energy_residual_envelope from max_abs_free_dof_work_residual | label | dimensionless |
 | Displacement/reaction delta policy reference | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 | label | dimensionless |
 | Seed translation delta threshold, one_way/lift_off/friction | 100.0 | mm | displacement |
 | Seed translation delta threshold, gap | 50.0 | mm | displacement |
@@ -89,12 +94,14 @@ fixture set.
 The free-DOF force/moment residual threshold policy applies only to the current
 public-original assembled validation seed. The free-DOF work residual threshold
 policy likewise applies only to final-iteration residual work products in that
-seed. The displacement/reaction delta threshold policy applies only to
-fixture-evidence envelopes in that seed and cites the companion observation
-ledger as source evidence. These records do not replace the accepted
-active-set-count policy.
+seed. The general energy residual policy uses the same final-iteration
+residual-work evidence envelope for that seed only. The displacement/reaction
+delta threshold policy applies only to fixture-evidence envelopes in that seed
+and cites the companion observation ledger as source evidence. These records do
+not replace the accepted active-set-count policy.
 
 Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.
 Free-DOF force/moment residual policy: `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1`.
 Free-DOF work residual policy: `DEC-046-CV-B-free-dof-work-residual-validation-v1`.
+General energy residual policy: `DEC-046-CV-B-general-energy-residual-validation-v1`.
 Displacement/reaction delta policy: `DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1`.

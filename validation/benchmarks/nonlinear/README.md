@@ -37,8 +37,11 @@ accepted limits are `0.0 N` and `0.0 N-m` on the current invented seed. This
 current seed also carries
 `DEC-046-CV-B-free-dof-work-residual-validation-v1` for final-iteration
 free-DOF work residual products, with an accepted `0.0 N-m` limit. These
-records do not define displacement-delta, reaction-delta, general energy,
-sparse live-path, product-preview, release, or external validation thresholds.
+records now also bind the same final-iteration residual-work evidence envelope
+to `DEC-046-CV-B-general-energy-residual-validation-v1`, with an accepted
+`0.0 N-m` limit for the current assembled validation seed only. These records
+do not define sparse live-path, product-preview, release, external validation,
+total strain-energy, modal-energy, or CI thresholds.
 
 The current assembled validation seed also carries
 `DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1` for
@@ -57,6 +60,8 @@ The machine-readable policy records are
 `validation/benchmarks/nonlinear/convergence_policy.dec046.json` and
 `validation/benchmarks/nonlinear/free_dof_force_moment_policy.dec046.json`,
 and `validation/benchmarks/nonlinear/free_dof_work_policy.dec046.json`. The
+machine-readable general-energy record is
+`validation/benchmarks/nonlinear/general_energy_policy.dec046.json`. The
 machine-readable displacement/reaction records are
 `validation/benchmarks/nonlinear/displacement_reaction_delta_observation.dec046.json`
 and
@@ -87,14 +92,16 @@ companions under
 It accepts active-set changed-support-count convergence, final-iteration
 free-DOF force/moment residuals, and final-iteration free-DOF work residual
 products for that fixture set only. It also accepts
+`DEC-046-CV-B-multisupport-general-energy-residual-validation-v1` for the same
+fixture-set final-iteration residual-work energy envelope. It also accepts
 `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`
 as a fixture-evidence-envelope displacement/reaction delta policy for the same
 set, using
 `DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1` as the
 source observation ledger. The accepted multi-support limits are `100.0 mm`,
-`0.005 rad`, `10.0 N`, and `3.0 N-m`. These records do not define general
-energy, sparse-default, product-preview, release, external validation, or CI
-thresholds.
+`0.005 rad`, `10.0 N`, and `3.0 N-m`, with a `0.0 N-m` general-energy residual
+limit. These records do not define sparse-default, product-preview, release,
+external validation, total strain-energy, modal-energy, or CI thresholds.
 
 The companion notes are
 `validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md`
@@ -122,6 +129,8 @@ and
 `validation/benchmarks/nonlinear/multisupport_free_dof_force_moment_policy.dec046.json`,
 and
 `validation/benchmarks/nonlinear/multisupport_free_dof_work_policy.dec046.json`.
+The machine-readable multi-support general-energy record is
+`validation/benchmarks/nonlinear/multisupport_general_energy_policy.dec046.json`.
 The machine-readable multi-support displacement/reaction records are
 `validation/benchmarks/nonlinear/multisupport_displacement_reaction_delta_observation.dec046.json`
 and

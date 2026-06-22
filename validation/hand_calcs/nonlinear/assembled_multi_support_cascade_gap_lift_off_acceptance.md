@@ -57,8 +57,11 @@ acceptance companion in the multi-support validation fixture set.
 
 This fixture broadens the accepted multi-support / multi-DOF evidence set under
 `DEC-046` to a measured sequential active-set cascade within the existing
-max-iteration cap. The companion also carries the fixture-set displacement/reaction delta threshold policy as an observed-envelope record. It does not define general energy, sparse default, product-preview, release, external validation,
-or CI thresholds.
+max-iteration cap. The companion also carries the fixture-set general-energy
+residual policy and displacement/reaction delta threshold policy as
+observed-envelope records. It does not define sparse default, product-preview,
+release, external validation, total strain-energy, modal-energy, or CI
+thresholds.
 
 Displacement/reaction delta policy: `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`.
 

@@ -55,8 +55,9 @@ acceptance companion in the multi-support validation fixture set.
 This fixture broadens the accepted multi-support / multi-DOF evidence set under
 `DEC-046` to the negative gap-direction branch while preserving the same narrow
 active-set, free-DOF residual, and displacement/reaction delta threshold scope.
-It does not define general energy, sparse default, product-preview, release,
-external validation, or CI thresholds.
+It carries the fixture-set general-energy residual policy, but does not define
+sparse default, product-preview, release, external validation, total
+strain-energy, modal-energy, or CI thresholds.
 
 Displacement/reaction delta policy: `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`.
 

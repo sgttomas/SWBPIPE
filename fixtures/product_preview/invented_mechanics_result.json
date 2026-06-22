@@ -846,7 +846,7 @@
         "component": "free_dof_work_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold=0 N*m; product_preview_only; general_energy_threshold=TBD",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold=0 N*m; general_energy_threshold_policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; general_energy_threshold_policy_status=accepted; general_energy_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute free-DOF residual work product in the final linearized solve"
       }
     },
@@ -5715,7 +5715,7 @@
         "component": "free_dof_work_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold=0 N*m; product_preview_only; general_energy_threshold=TBD",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold=0 N*m; general_energy_threshold_policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; general_energy_threshold_policy_status=accepted; general_energy_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute free-DOF residual work product in the final linearized solve"
       }
     },
@@ -15666,7 +15666,7 @@
       "id": "diagnostic:nonlinear:load-L-100:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; general energy, sparse, release, and external thresholds remain TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; sparse, release, and external thresholds remain TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-100",
@@ -15766,7 +15766,7 @@
       "id": "diagnostic:nonlinear:load-L-200:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; general energy, sparse, release, and external thresholds remain TBD",
+      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; sparse, release, and external thresholds remain TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-200",

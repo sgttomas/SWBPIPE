@@ -60,9 +60,10 @@ This fixture broadens the accepted multi-support / multi-DOF evidence set under
 `DEC-046` from explicit-normal friction companions to a derived-normal companion
 whose normal force is the absolute reaction at a named restrained support DOF.
 The companion also carries the fixture-set displacement/reaction delta
-threshold policy as an observed-envelope record. It does not define general
-energy, sparse default, product-preview, release, external validation, or CI
-thresholds.
+threshold policy as an observed-envelope record and carries the fixture-set
+general-energy residual policy. It does not define sparse default,
+product-preview, release, external validation, total strain-energy,
+modal-energy, or CI thresholds.
 
 Displacement/reaction delta policy: `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`.
 

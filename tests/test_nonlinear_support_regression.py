@@ -24,6 +24,10 @@ FREE_DOF_WORK_POLICY_RECORD = BENCHMARK_DIR / "free_dof_work_policy.dec046.json"
 DEC_046_FREE_DOF_WORK_POLICY_REF = (
     "DEC-046-CV-B-free-dof-work-residual-validation-v1"
 )
+GENERAL_ENERGY_POLICY_RECORD = BENCHMARK_DIR / "general_energy_policy.dec046.json"
+DEC_046_GENERAL_ENERGY_POLICY_REF = (
+    "DEC-046-CV-B-general-energy-residual-validation-v1"
+)
 DISPLACEMENT_REACTION_DELTA_POLICY_RECORD = (
     BENCHMARK_DIR / "displacement_reaction_delta_policy.dec046.json"
 )
@@ -47,6 +51,12 @@ MULTISUPPORT_FREE_DOF_WORK_POLICY_RECORD = (
 )
 DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF = (
     "DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1"
+)
+MULTISUPPORT_GENERAL_ENERGY_POLICY_RECORD = (
+    BENCHMARK_DIR / "multisupport_general_energy_policy.dec046.json"
+)
+DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF = (
+    "DEC-046-CV-B-multisupport-general-energy-residual-validation-v1"
 )
 MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_RECORD = (
     BENCHMARK_DIR / "multisupport_displacement_reaction_delta_policy.dec046.json"
@@ -308,10 +318,12 @@ def test_nonlinear_validation_artifacts_avoid_protected_and_claim_terms():
         CONVERGENCE_POLICY_RECORD,
         FREE_DOF_FORCE_MOMENT_POLICY_RECORD,
         FREE_DOF_WORK_POLICY_RECORD,
+        GENERAL_ENERGY_POLICY_RECORD,
         DISPLACEMENT_REACTION_DELTA_POLICY_RECORD,
         MULTISUPPORT_CONVERGENCE_POLICY_RECORD,
         MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_RECORD,
         MULTISUPPORT_FREE_DOF_WORK_POLICY_RECORD,
+        MULTISUPPORT_GENERAL_ENERGY_POLICY_RECORD,
         MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_RECORD,
     ]
 
@@ -352,6 +364,9 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     work_policy_record = json.loads(
         FREE_DOF_WORK_POLICY_RECORD.read_text(encoding="utf-8")
     )
+    general_energy_policy_record = json.loads(
+        GENERAL_ENERGY_POLICY_RECORD.read_text(encoding="utf-8")
+    )
     displacement_reaction_delta_policy_record = json.loads(
         DISPLACEMENT_REACTION_DELTA_POLICY_RECORD.read_text(encoding="utf-8")
     )
@@ -363,6 +378,9 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     )
     multisupport_work_policy_record = json.loads(
         MULTISUPPORT_FREE_DOF_WORK_POLICY_RECORD.read_text(encoding="utf-8")
+    )
+    multisupport_general_energy_policy_record = json.loads(
+        MULTISUPPORT_GENERAL_ENERGY_POLICY_RECORD.read_text(encoding="utf-8")
     )
     multisupport_displacement_reaction_delta_policy_record = json.loads(
         MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_RECORD.read_text(
@@ -390,20 +408,25 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "free_dof_force_moment_threshold_policy" in source
     assert "max_abs_free_dof_work_residual" in source
     assert "free_dof_work_threshold_policy" in source
+    assert "general_energy_threshold_policy" in source
     assert DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF in source
     assert DEC_046_FREE_DOF_WORK_POLICY_REF in source
+    assert DEC_046_GENERAL_ENERGY_POLICY_REF in source
     assert DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF in source
     assert DEC_046_MULTISUPPORT_POLICY_REF in source
     assert DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF in source
     assert DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF in source
+    assert DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF in source
     assert DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF in source
     assert "governed_convergence_policy_entries" in source
     assert "governed_free_dof_force_moment_policy_entries" in source
     assert "governed_free_dof_work_policy_entries" in source
+    assert "governed_general_energy_policy_entries" in source
     assert "governed_displacement_reaction_delta_policy_entries" in source
     assert "governed_multisupport_convergence_policy_entries" in source
     assert "governed_multisupport_free_dof_force_moment_policy_entries" in source
     assert "governed_multisupport_free_dof_work_policy_entries" in source
+    assert "governed_multisupport_general_energy_policy_entries" in source
     assert "governed_multisupport_displacement_reaction_delta_policy_entries" in source
     assert "solve_active_set_frame" in source
     assert "DEC_046_ACTIVE_SET_COUNT_POLICY_REF" in source
@@ -428,10 +451,12 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert CONVERGENCE_POLICY_RECORD.name in benchmark_readme
     assert FREE_DOF_FORCE_MOMENT_POLICY_RECORD.name in benchmark_readme
     assert FREE_DOF_WORK_POLICY_RECORD.name in benchmark_readme
+    assert GENERAL_ENERGY_POLICY_RECORD.name in benchmark_readme
     assert DISPLACEMENT_REACTION_DELTA_POLICY_RECORD.name in benchmark_readme
     assert MULTISUPPORT_CONVERGENCE_POLICY_RECORD.name in benchmark_readme
     assert MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_RECORD.name in benchmark_readme
     assert MULTISUPPORT_FREE_DOF_WORK_POLICY_RECORD.name in benchmark_readme
+    assert MULTISUPPORT_GENERAL_ENERGY_POLICY_RECORD.name in benchmark_readme
     assert MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_RECORD.name in benchmark_readme
     assert (
         MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_RECORD.name
@@ -442,6 +467,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "## Active-Set Expected Values" in observation_note
     assert "## Force/Displacement Residual Observations" in observation_note
     assert f"Free-DOF work residual policy: `{DEC_046_FREE_DOF_WORK_POLICY_REF}`." in observation_note
+    assert f"General energy residual policy: `{DEC_046_GENERAL_ENERGY_POLICY_REF}`." in observation_note
     assert f"Tolerance policy: `{DEC_046_POLICY_REF}`." in observation_note
     assert f"Free-DOF force/moment residual policy: `{DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF}`." in observation_note
     assert (
@@ -454,6 +480,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "threshold policy" in normalized_observation_note
     assert DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF.lower() in normalized_observation_note
     assert DEC_046_FREE_DOF_WORK_POLICY_REF.lower() in normalized_observation_note
+    assert DEC_046_GENERAL_ENERGY_POLICY_REF.lower() in normalized_observation_note
     assert DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF.lower() in normalized_observation_note
     normalized_benchmark_readme = _normalized_text(benchmark_readme).lower()
     assert "multi-support depth observation inventory" in normalized_benchmark_readme
@@ -462,6 +489,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert "multi-support acceptance inventory" in normalized_benchmark_readme
     assert DEC_046_MULTISUPPORT_POLICY_REF.lower() in normalized_benchmark_readme
     assert DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF.lower() in normalized_benchmark_readme
+    assert DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF.lower() in normalized_benchmark_readme
     assert (
         DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF.lower()
         in normalized_benchmark_readme
@@ -519,6 +547,27 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     for entry in work_policy_record["entries"]:
         assert entry["policy_ref"] == DEC_046_FREE_DOF_WORK_POLICY_REF
         assert entry["work_absolute_limit"] == 0.0
+        assert entry["evidence_fixture_ids"]
+
+    assert general_energy_policy_record["record_id"] == DEC_046_GENERAL_ENERGY_POLICY_REF
+    assert general_energy_policy_record["decision_ref"] == "DEC-046"
+    assert general_energy_policy_record["status"] == "accepted_for_current_assembled_validation_seed"
+    assert general_energy_policy_record["energy_residual_basis"]["name"] == (
+        "general_energy_residual_envelope"
+    )
+    assert general_energy_policy_record["energy_residual_basis"]["source_measure"] == (
+        "max_abs_free_dof_work_residual"
+    )
+    assert general_energy_policy_record["energy_residual_basis"]["unit"] == "N-m"
+    assert [entry["nonlinear_class"] for entry in general_energy_policy_record["entries"]] == [
+        "one_way",
+        "gap",
+        "lift_off",
+        "friction",
+    ]
+    for entry in general_energy_policy_record["entries"]:
+        assert entry["policy_ref"] == DEC_046_GENERAL_ENERGY_POLICY_REF
+        assert entry["energy_absolute_limit"] == 0.0
         assert entry["evidence_fixture_ids"]
 
     assert (
@@ -609,6 +658,28 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert multisupport_work_entry["work_absolute_limit"] == 0.0
     assert (
         multisupport_work_entry["evidence_fixture_ids"]
+        == EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS
+    )
+
+    assert (
+        multisupport_general_energy_policy_record["record_id"]
+        == DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF
+    )
+    assert multisupport_general_energy_policy_record["decision_ref"] == "DEC-046"
+    assert multisupport_general_energy_policy_record["status"] == (
+        "accepted_for_public_original_multisupport_validation_fixture_set"
+    )
+    assert [
+        entry["nonlinear_class"]
+        for entry in multisupport_general_energy_policy_record["entries"]
+    ] == ["multi_support_multi_dof"]
+    multisupport_energy_entry = multisupport_general_energy_policy_record["entries"][0]
+    assert multisupport_energy_entry["policy_ref"] == (
+        DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF
+    )
+    assert multisupport_energy_entry["energy_absolute_limit"] == 0.0
+    assert (
+        multisupport_energy_entry["evidence_fixture_ids"]
         == EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS
     )
 

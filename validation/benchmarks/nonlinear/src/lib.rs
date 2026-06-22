@@ -91,7 +91,17 @@ const DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION: &str = "moment";
 const DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_FREE_DOF_WORK_LIMITATIONS: &[&str] = &[
     "Applies only to current public-original assembled validation-seed final-iteration free-DOF residual work products.",
-    "Does not define displacement-delta, reaction-delta, general energy convergence, sparse live-path, product-preview, release, or external validation thresholds.",
+    "Does not define displacement-delta, reaction-delta, sparse live-path, product-preview, release, or external validation thresholds.",
+];
+pub const DEC_046_GENERAL_ENERGY_POLICY_REF: &str =
+    "DEC-046-CV-B-general-energy-residual-validation-v1";
+const DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS: &str = "general_energy_residual_envelope";
+const DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT: &str = "N-m";
+const DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION: &str = "moment";
+const DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT: f64 = 0.0;
+const DEC_046_GENERAL_ENERGY_LIMITATIONS: &[&str] = &[
+    "Applies only to current public-original assembled validation-seed final-iteration free-DOF residual work/energy envelopes.",
+    "Does not define sparse live-path, product-preview, release, external validation, total strain-energy, modal-energy, or CI thresholds.",
 ];
 pub const DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF: &str =
     "DEC-046-CV-B-displacement-reaction-delta-observation-v1";
@@ -132,6 +142,8 @@ pub const DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF: &str =
     "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1";
 pub const DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF: &str =
     "DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1";
+pub const DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF: &str =
+    "DEC-046-CV-B-multisupport-general-energy-residual-validation-v1";
 pub const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF: &str =
     "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1";
 pub const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF: &str =
@@ -146,7 +158,11 @@ const DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_LIMITATIONS: &[&str] = &[
 ];
 const DEC_046_MULTISUPPORT_FREE_DOF_WORK_LIMITATIONS: &[&str] = &[
     "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration free-DOF residual work products.",
-    "Does not define displacement-delta, reaction-delta, general energy convergence, sparse live-path, product-preview, release, or external validation thresholds.",
+    "Does not define displacement-delta, reaction-delta, sparse live-path, product-preview, release, or external validation thresholds.",
+];
+const DEC_046_MULTISUPPORT_GENERAL_ENERGY_LIMITATIONS: &[&str] = &[
+    "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration free-DOF residual work/energy envelopes.",
+    "Does not define sparse default, product-preview, release, external validation, total strain-energy, modal-energy, or CI thresholds.",
 ];
 const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_LIMITATIONS: &[&str] = &[
     "Observation-only record for public-original multi-DOF / multi-support validation fixture-set final-iteration deltas from the previous active-set solve.",
@@ -374,6 +390,7 @@ pub struct ForceDisplacementResidualObservation {
     pub displacement_reaction_delta_threshold_policy: Option<&'static str>,
     pub free_dof_force_moment_threshold_policy: Option<&'static str>,
     pub free_dof_work_threshold_policy: Option<&'static str>,
+    pub general_energy_threshold_policy: Option<&'static str>,
 }
 
 impl ForceDisplacementResidualObservation {
@@ -389,6 +406,7 @@ impl ForceDisplacementResidualObservation {
             && self.free_dof_moment_residual_unit == DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT
             && self.free_dof_work_residual_unit == DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT
             && self.free_dof_work_threshold_policy == Some(DEC_046_FREE_DOF_WORK_POLICY_REF)
+            && self.general_energy_threshold_policy == Some(DEC_046_GENERAL_ENERGY_POLICY_REF)
             && self.max_abs_free_dof_force_residual.is_finite()
             && self.max_abs_free_dof_moment_residual.is_finite()
             && self.max_abs_free_dof_work_residual.is_finite()
@@ -449,6 +467,8 @@ impl ForceDisplacementResidualObservation {
             && self.free_dof_work_residual_unit == DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT
             && self.free_dof_work_threshold_policy
                 == Some(DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF)
+            && self.general_energy_threshold_policy
+                == Some(DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF)
             && self.max_abs_free_dof_force_residual.is_finite()
             && self.max_abs_free_dof_moment_residual.is_finite()
             && self.max_abs_free_dof_work_residual.is_finite()
@@ -560,6 +580,19 @@ pub struct WorkResidualPolicyEntry {
     pub work_residual_unit: &'static str,
     pub work_residual_dimension: &'static str,
     pub work_absolute_limit: f64,
+    pub status: ConvergencePolicyStatus,
+    pub evidence_fixture_ids: &'static [&'static str],
+    pub limitations: &'static [&'static str],
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct EnergyResidualPolicyEntry {
+    pub policy_ref: &'static str,
+    pub nonlinear_class: &'static str,
+    pub energy_residual_basis: &'static str,
+    pub energy_residual_unit: &'static str,
+    pub energy_residual_dimension: &'static str,
+    pub energy_absolute_limit: f64,
     pub status: ConvergencePolicyStatus,
     pub evidence_fixture_ids: &'static [&'static str],
     pub limitations: &'static [&'static str],
@@ -696,6 +729,31 @@ impl WorkResidualPolicyEntry {
             && self.status == ConvergencePolicyStatus::Accepted
             && !self.evidence_fixture_ids.is_empty()
             && self.limitations == DEC_046_MULTISUPPORT_FREE_DOF_WORK_LIMITATIONS
+    }
+}
+
+impl EnergyResidualPolicyEntry {
+    pub fn is_accepted_general_energy_policy(&self) -> bool {
+        self.policy_ref == DEC_046_GENERAL_ENERGY_POLICY_REF
+            && self.energy_residual_basis == DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS
+            && self.energy_residual_unit == DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT
+            && self.energy_residual_dimension == DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION
+            && self.energy_absolute_limit == DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT
+            && self.status == ConvergencePolicyStatus::Accepted
+            && !self.evidence_fixture_ids.is_empty()
+            && self.limitations == DEC_046_GENERAL_ENERGY_LIMITATIONS
+    }
+
+    pub fn is_accepted_multisupport_general_energy_policy(&self) -> bool {
+        self.policy_ref == DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF
+            && self.nonlinear_class == "multi_support_multi_dof"
+            && self.energy_residual_basis == DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS
+            && self.energy_residual_unit == DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT
+            && self.energy_residual_dimension == DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION
+            && self.energy_absolute_limit == DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT
+            && self.status == ConvergencePolicyStatus::Accepted
+            && !self.evidence_fixture_ids.is_empty()
+            && self.limitations == DEC_046_MULTISUPPORT_GENERAL_ENERGY_LIMITATIONS
     }
 }
 
@@ -971,6 +1029,7 @@ impl AssembledNonlinearRegressionCase {
         self.force_displacement_residual_observation_with_policy(
             Some(DEC_046_FREE_DOF_FORCE_MOMENT_POLICY_REF),
             Some(DEC_046_FREE_DOF_WORK_POLICY_REF),
+            Some(DEC_046_GENERAL_ENERGY_POLICY_REF),
             Some(DEC_046_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF),
             Some(DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF),
         )
@@ -982,7 +1041,7 @@ impl AssembledNonlinearRegressionCase {
         ForceDisplacementResidualObservation,
         open_pipe_stress_nonlinear_integration::NonlinearIntegrationError,
     > {
-        self.force_displacement_residual_observation_with_policy(None, None, None, None)
+        self.force_displacement_residual_observation_with_policy(None, None, None, None, None)
     }
 
     pub fn multisupport_force_displacement_residual_observation(
@@ -994,6 +1053,7 @@ impl AssembledNonlinearRegressionCase {
         self.force_displacement_residual_observation_with_policy(
             Some(DEC_046_MULTISUPPORT_FREE_DOF_FORCE_MOMENT_POLICY_REF),
             Some(DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF),
+            Some(DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF),
             Some(DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF),
             Some(DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF),
         )
@@ -1003,6 +1063,7 @@ impl AssembledNonlinearRegressionCase {
         &self,
         force_moment_threshold_policy: Option<&'static str>,
         work_threshold_policy: Option<&'static str>,
+        general_energy_threshold_policy: Option<&'static str>,
         displacement_reaction_delta_observation_ref: Option<&'static str>,
         displacement_reaction_delta_threshold_policy: Option<&'static str>,
     ) -> Result<
@@ -1046,6 +1107,7 @@ impl AssembledNonlinearRegressionCase {
             displacement_reaction_delta_threshold_policy,
             free_dof_force_moment_threshold_policy: force_moment_threshold_policy,
             free_dof_work_threshold_policy: work_threshold_policy,
+            general_energy_threshold_policy,
         })
     }
 }
@@ -1342,6 +1404,59 @@ pub fn governed_free_dof_work_policy_entries() -> Vec<WorkResidualPolicyEntry> {
     ]
 }
 
+pub fn governed_general_energy_policy_entries() -> Vec<EnergyResidualPolicyEntry> {
+    vec![
+        EnergyResidualPolicyEntry {
+            policy_ref: DEC_046_GENERAL_ENERGY_POLICY_REF,
+            nonlinear_class: "one_way",
+            energy_residual_basis: DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS,
+            energy_residual_unit: DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT,
+            energy_residual_dimension: DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION,
+            energy_absolute_limit: DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"],
+            limitations: DEC_046_GENERAL_ENERGY_LIMITATIONS,
+        },
+        EnergyResidualPolicyEntry {
+            policy_ref: DEC_046_GENERAL_ENERGY_POLICY_REF,
+            nonlinear_class: "gap",
+            energy_residual_basis: DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS,
+            energy_residual_unit: DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT,
+            energy_residual_dimension: DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION,
+            energy_absolute_limit: DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"],
+            limitations: DEC_046_GENERAL_ENERGY_LIMITATIONS,
+        },
+        EnergyResidualPolicyEntry {
+            policy_ref: DEC_046_GENERAL_ENERGY_POLICY_REF,
+            nonlinear_class: "lift_off",
+            energy_residual_basis: DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS,
+            energy_residual_unit: DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT,
+            energy_residual_dimension: DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION,
+            energy_absolute_limit: DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &["NL-ASSEMBLED-LIFT-OFF-ORIGINAL"],
+            limitations: DEC_046_GENERAL_ENERGY_LIMITATIONS,
+        },
+        EnergyResidualPolicyEntry {
+            policy_ref: DEC_046_GENERAL_ENERGY_POLICY_REF,
+            nonlinear_class: "friction",
+            energy_residual_basis: DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS,
+            energy_residual_unit: DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT,
+            energy_residual_dimension: DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION,
+            energy_absolute_limit: DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT,
+            status: ConvergencePolicyStatus::Accepted,
+            evidence_fixture_ids: &[
+                "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
+            ],
+            limitations: DEC_046_GENERAL_ENERGY_LIMITATIONS,
+        },
+    ]
+}
+
 pub fn governed_multisupport_convergence_policy_entries() -> Vec<ConvergencePolicyEntry> {
     vec![ConvergencePolicyEntry {
         policy_ref: DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF,
@@ -1388,6 +1503,20 @@ pub fn governed_multisupport_free_dof_work_policy_entries() -> Vec<WorkResidualP
         status: ConvergencePolicyStatus::Accepted,
         evidence_fixture_ids: DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS,
         limitations: DEC_046_MULTISUPPORT_FREE_DOF_WORK_LIMITATIONS,
+    }]
+}
+
+pub fn governed_multisupport_general_energy_policy_entries() -> Vec<EnergyResidualPolicyEntry> {
+    vec![EnergyResidualPolicyEntry {
+        policy_ref: DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF,
+        nonlinear_class: "multi_support_multi_dof",
+        energy_residual_basis: DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS,
+        energy_residual_unit: DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT,
+        energy_residual_dimension: DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION,
+        energy_absolute_limit: DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT,
+        status: ConvergencePolicyStatus::Accepted,
+        evidence_fixture_ids: DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS,
+        limitations: DEC_046_MULTISUPPORT_GENERAL_ENERGY_LIMITATIONS,
     }]
 }
 
@@ -2461,7 +2590,7 @@ pub fn assembled_multi_dof_multi_support_acceptance_fixture() -> AssembledNonlin
         assumptions: &[
             "The frame fixture is a two-node member with two free translational tip DOFs.",
             "The first linearized iteration can change two nonlinear supports in different DOFs.",
-            "This is non-seed multi-support acceptance evidence only; displacement, reaction-delta, and work/energy thresholds remain TBD.",
+            "This is non-seed multi-support acceptance evidence only; active-set, free-DOF force/moment, free-DOF work, general-energy, and displacement/reaction-delta policies are fixture-set scoped.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md",
@@ -2556,7 +2685,7 @@ pub fn assembled_multi_dof_gap_lift_off_acceptance_fixture() -> AssembledNonline
         assumptions: &[
             "The frame fixture is a two-node member with two free translational tip DOFs.",
             "This acceptance companion uses a different support-behavior pair than the one-way/gap multi-support companion.",
-            "This is non-seed multi-support acceptance evidence only; displacement, reaction-delta, and general energy thresholds remain TBD.",
+            "This is non-seed multi-support acceptance evidence only; active-set, free-DOF force/moment, free-DOF work, general-energy, and displacement/reaction-delta policies are fixture-set scoped.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_gap_lift_off_acceptance.md",
@@ -2648,7 +2777,7 @@ pub fn assembled_multi_dof_friction_gap_acceptance_fixture() -> AssembledNonline
             "The frame fixture is a two-node member with two free translational tip DOFs.",
             "The friction normal reaction is explicit invented input evidence.",
             "This acceptance companion adds a friction/gap behavior pair to the accepted multi-support fixture set.",
-            "This is non-seed multi-support acceptance evidence only; displacement, reaction-delta, and general energy thresholds remain TBD.",
+            "This is non-seed multi-support acceptance evidence only; active-set, free-DOF force/moment, free-DOF work, general-energy, and displacement/reaction-delta policies are fixture-set scoped.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_friction_gap_acceptance.md",
@@ -2769,7 +2898,7 @@ pub fn assembled_multi_dof_three_support_acceptance_fixture() -> AssembledNonlin
             "The frame fixture is a two-node member with three free translational tip DOFs.",
             "The first linearized iteration can change three nonlinear supports across three different DOFs.",
             "The friction normal reaction is explicit invented input evidence.",
-            "This acceptance companion broadens fixture depth only; displacement, reaction-delta, and general energy thresholds remain TBD.",
+            "This acceptance companion broadens fixture depth only; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_three_dof_acceptance.md",
@@ -2894,7 +3023,7 @@ pub fn assembled_multi_dof_rotational_acceptance_fixture() -> AssembledNonlinear
         assumptions: &[
             "The frame fixture is a two-node member with one free translational and one free rotational tip DOF.",
             "The first linearized iteration can change two nonlinear supports across translation and rotation groups.",
-            "This acceptance companion broadens fixture breadth to include the rotational moment residual axis; displacement, reaction-delta, and general energy thresholds remain TBD.",
+            "This acceptance companion broadens fixture breadth to include the rotational moment residual axis; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_rotational_acceptance.md",
@@ -2990,7 +3119,7 @@ pub fn assembled_multi_dof_derived_normal_gap_acceptance_fixture(
         assumptions: &[
             "The frame fixture is a two-node member with two free translational tip DOFs plus a separate restrained normal-source DOF.",
             "The friction normal reaction is derived from the absolute reaction at a named restrained support-normal DOF supplied by the fixture.",
-            "This acceptance companion broadens multi-support evidence to derived friction normal-source behavior; displacement, reaction-delta, and general energy thresholds remain TBD.",
+            "This acceptance companion broadens multi-support evidence to derived friction normal-source behavior; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_derived_normal_gap_acceptance.md",
@@ -3116,7 +3245,7 @@ pub fn assembled_multi_dof_derived_normal_rotational_acceptance_fixture(
         assumptions: &[
             "The frame fixture is a two-node member with one free translational and one free rotational tip DOF plus a separate restrained normal-source DOF.",
             "The friction normal reaction is derived from the absolute reaction at a named restrained support-normal DOF supplied by the fixture.",
-            "This acceptance companion broadens multi-support evidence to a combined derived-normal friction and rotational lift-off transition; displacement, reaction-delta, and general energy thresholds remain TBD.",
+            "This acceptance companion broadens multi-support evidence to a combined derived-normal friction and rotational lift-off transition; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_derived_normal_rotational_acceptance.md",
@@ -3234,7 +3363,7 @@ pub fn assembled_multi_dof_cascade_gap_lift_off_acceptance_fixture(
             "The frame fixture is a two-node member with coupled free transverse and rotational tip DOFs.",
             "With Rz initially restrained, the first Uy displacement remains below the explicit gap clearance while the Rz reaction releases lift-off contact.",
             "After Rz is released, the next linearized solve increases Uy displacement enough to close the gap; the third iteration has no state changes.",
-            "This acceptance companion broadens multi-support evidence to a sequential active-set cascade within the existing max-iteration cap; displacement, reaction-delta, and general energy thresholds remain TBD.",
+            "This acceptance companion broadens multi-support evidence to a sequential active-set cascade within the existing max-iteration cap; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_cascade_gap_lift_off_acceptance.md",
@@ -3337,7 +3466,7 @@ pub fn assembled_multi_dof_negative_gap_acceptance_fixture() -> AssembledNonline
         assumptions: &[
             "The frame fixture is a two-node member with two free translational tip DOFs.",
             "The Uy gap closes only in the negative displacement direction under an explicit negative invented load.",
-            "This acceptance companion broadens the multi-support fixture set to the negative gap-direction branch; general energy, release, and external thresholds remain TBD.",
+            "This acceptance companion broadens the multi-support fixture set to the negative gap-direction branch; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_negative_gap_acceptance.md",
@@ -3452,7 +3581,7 @@ pub fn assembled_multi_dof_four_class_acceptance_fixture() -> AssembledNonlinear
             "The frame fixture is a two-node member with three free translational tip DOFs and one free rotational tip DOF.",
             "The first linearized iteration can change all four nonlinear support classes across four different DOFs.",
             "The friction normal reaction is explicit invented input evidence.",
-            "This acceptance companion broadens fixture breadth to combine the one-way, gap, friction, and lift-off classes; general energy, release, and external thresholds remain TBD.",
+            "This acceptance companion broadens fixture breadth to combine the one-way, gap, friction, and lift-off classes; release, external, sparse-default, and CI thresholds remain outside the fixture-set policies.",
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/nonlinear/assembled_multi_support_four_class_acceptance.md",
@@ -4141,6 +4270,10 @@ mod tests {
                 residual.free_dof_work_threshold_policy,
                 Some(DEC_046_MULTISUPPORT_FREE_DOF_WORK_POLICY_REF)
             );
+            assert_eq!(
+                residual.general_energy_threshold_policy,
+                Some(DEC_046_MULTISUPPORT_GENERAL_ENERGY_POLICY_REF)
+            );
             assert!(residual.uses_accepted_multisupport_free_dof_force_moment_threshold_policy());
             assert!(
                 residual.uses_accepted_multisupport_displacement_reaction_delta_threshold_policy()
@@ -4219,20 +4352,44 @@ mod tests {
     }
 
     #[test]
+    fn governed_general_energy_policy_covers_dec_046_classes() {
+        let entries = governed_general_energy_policy_entries();
+
+        assert_eq!(entries.len(), 4);
+        assert_eq!(
+            entries
+                .iter()
+                .map(|entry| entry.nonlinear_class)
+                .collect::<Vec<_>>(),
+            vec!["one_way", "gap", "lift_off", "friction"]
+        );
+        for entry in &entries {
+            assert!(
+                entry.is_accepted_general_energy_policy(),
+                "{}",
+                entry.nonlinear_class
+            );
+        }
+    }
+
+    #[test]
     fn governed_multisupport_policy_covers_dec_046_non_seed_fixture() {
         let convergence_entries = governed_multisupport_convergence_policy_entries();
         let force_moment_entries = governed_multisupport_free_dof_force_moment_policy_entries();
         let work_entries = governed_multisupport_free_dof_work_policy_entries();
+        let general_energy_entries = governed_multisupport_general_energy_policy_entries();
         let displacement_reaction_entries =
             governed_multisupport_displacement_reaction_delta_policy_entries();
 
         assert_eq!(convergence_entries.len(), 1);
         assert_eq!(force_moment_entries.len(), 1);
         assert_eq!(work_entries.len(), 1);
+        assert_eq!(general_energy_entries.len(), 1);
         assert_eq!(displacement_reaction_entries.len(), 1);
         assert!(convergence_entries[0].is_accepted_multisupport_active_set_count_policy());
         assert!(force_moment_entries[0].is_accepted_multisupport_free_dof_force_moment_policy());
         assert!(work_entries[0].is_accepted_multisupport_free_dof_work_policy());
+        assert!(general_energy_entries[0].is_accepted_multisupport_general_energy_policy());
         assert!(displacement_reaction_entries[0]
             .is_accepted_multisupport_displacement_reaction_delta_policy());
         assert_eq!(
@@ -4245,6 +4402,10 @@ mod tests {
         );
         assert_eq!(
             work_entries[0].evidence_fixture_ids,
+            DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS
+        );
+        assert_eq!(
+            general_energy_entries[0].evidence_fixture_ids,
             DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS
         );
         assert_eq!(
@@ -4490,6 +4651,10 @@ mod tests {
             assert_eq!(
                 observation.free_dof_work_threshold_policy,
                 Some(DEC_046_FREE_DOF_WORK_POLICY_REF)
+            );
+            assert_eq!(
+                observation.general_energy_threshold_policy,
+                Some(DEC_046_GENERAL_ENERGY_POLICY_REF)
             );
             assert!(observation.uses_accepted_displacement_reaction_delta_threshold_policy());
             assert_eq!(

@@ -60,8 +60,10 @@ validation fixture set.
 
 This fixture broadens the accepted multi-support / multi-DOF evidence set under
 `DEC-046` from two-support Ux/Uy companions to a three-support, three-translation
-companion. It preserves the same narrow active-set, free-DOF, and displacement/reaction delta threshold scope. It does not define general energy, sparse default,
-product-preview, release, external validation, or CI thresholds.
+companion. It preserves the same narrow active-set, free-DOF,
+general-energy, and displacement/reaction delta threshold scope. It does not
+define sparse default, product-preview, release, external validation, total
+strain-energy, modal-energy, or CI thresholds.
 
 Displacement/reaction delta policy: `DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`.
 

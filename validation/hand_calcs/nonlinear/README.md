@@ -23,24 +23,30 @@ The nonlinear fixtures use explicit fixture-local unit identifiers only:
 | Rotational displacement-delta observations | `rad` | rotation |
 | Rotational reaction-delta / free-DOF moment-residual observations | `N-m` | moment |
 | Free-DOF work residual observations | `N-m` | moment |
+| General energy residual envelope observations | `N-m` | moment |
 | Friction coefficient | `ratio` | dimensionless |
 | Active-set residual and iteration counts | `count` | dimensionless |
 
-The project unit catalog, conversion constants, displacement-delta thresholds,
-reaction-delta thresholds, general energy thresholds, sparse live-path
-thresholds, product-preview release thresholds, external validation thresholds,
-and CI gate thresholds remain `TBD`. The current assembled validation seed uses
+The project unit catalog, conversion constants, sparse live-path thresholds,
+product-preview release thresholds, external validation thresholds, and CI gate
+thresholds remain `TBD`. The current assembled validation seed uses
 `DEC-046-CV-B-active-set-count-validation-v1` for active-set changed-support
 count and
 `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1` for final-iteration
 free-DOF force/moment equilibrium residuals, plus
 `DEC-046-CV-B-free-dof-work-residual-validation-v1` for final-iteration
-free-DOF work residual products only. A separate multi-support companion
-fixture uses
+free-DOF work residual products,
+`DEC-046-CV-B-general-energy-residual-validation-v1` for the corresponding
+residual-work energy envelope, and
+`DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1` for the
+fixture-evidence displacement/reaction delta envelope only. A separate
+multi-support companion fixture set uses
 `DEC-046-CV-B-multisupport-active-set-count-validation-v1` and
 `DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1`, plus
-`DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1`, for the
-public-original multi-DOF / multi-support validation fixture set only.
+`DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1`,
+`DEC-046-CV-B-multisupport-general-energy-residual-validation-v1`, and
+`DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1`,
+for the public-original multi-DOF / multi-support validation fixture set only.
 
 ## Notes
 

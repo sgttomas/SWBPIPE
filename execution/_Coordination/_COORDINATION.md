@@ -296,7 +296,7 @@ relative tolerance `0.0`, absolute floor `0.0`, max iteration cap `4`, keyed to
 one-way/gap/lift-off/friction classes. `TP-R4-D9-FREEDOFRESIDPOLICY-001`
 promotes free-DOF force/moment residual threshold policies for the current
 assembled validation seed and invented product-preview surface only, leaving
-general energy, release, sparse-default, and external threshold axes open.
+release, sparse-default, external, and broader non-seed threshold axes open.
 `TP-R4-D9-MULTISUPPORTOBS-001` adds an observation-only
 multi-DOF / multi-support assembled validation-depth fixture, with a two-support
 Ux/Uy state-change case kept outside the accepted seed policy and marked
@@ -339,21 +339,25 @@ those axes `threshold_policy_status=tbd`.
 `TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
 displacement/reaction delta threshold policies for the current assembled
 validation seed and accepted ten-fixture multi-support set only; product
-preview, broader non-seed, general energy, sparse-default, release, and external
-delta thresholds remain open.
+preview, broader non-seed, sparse-default, release, and external delta
+thresholds remain open.
 `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes an accepted product-preview-only
 displacement/reaction delta policy for emitted rows from the invented mixed
-one-way/gap/friction surface; broader non-seed, general energy, sparse-default,
-release, and external delta thresholds remain open.
+one-way/gap/friction surface; broader non-seed, sparse-default, release, and
+external delta thresholds remain open.
 `TP-R4-D9-ENERGYOBS-001` records final-iteration
 free-DOF work residual observations in the dense loop, nonlinear validation
 inventory, and invented product-preview surface. `TP-R4-D9-WORKPOLICY-001`
 promotes a bounded final-iteration free-DOF work residual policy for the current
 assembled validation seed, invented product-preview surface, and accepted
-multi-support fixture set only, while general energy thresholds, accepted
-displacement/reaction-delta thresholds beyond the current seed and accepted
-ten-fixture set, non-seed force/displacement beyond the accepted ten-fixture
-set, release, sparse-default, and external threshold axes remain open.
+multi-support fixture set only. `TP-R4-D9-GENERALENERGYPOLICY-001` promotes
+bounded general-energy residual policies for the current assembled validation
+seed, invented product-preview surface, and accepted ten-fixture multi-support
+set only. Accepted displacement/reaction-delta thresholds beyond the current
+seed, accepted ten-fixture set, and product-preview surface, non-seed
+force/displacement beyond the accepted ten-fixture set, broader non-seed
+general-energy residual thresholds, release, sparse-default, external, total
+strain-energy, modal-energy, and CI threshold axes remain open.
 `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction product live-loop
 coverage in one invented dense solve. `TP-R4-D7-SPARSELIVE-001`
 landed the `DEC-050` sparse evidence lane while dense remains default.
@@ -373,14 +377,17 @@ performance harness; allocator/RSS memory, timing, conditioning, CI,
 hardware-normalized, and default-promotion thresholds remain `TBD`.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted ten-fixture set,
-general energy threshold promotion, broader displacement/reaction-delta threshold
-promotion beyond the accepted current-seed, ten-fixture, and product-preview
+broader displacement/reaction-delta threshold promotion beyond the accepted
+current-seed, ten-fixture, and product-preview
 surfaces, broader multi-DOF /
 multi-support nonlinear acceptance thresholds beyond the accepted ten-fixture set,
 default sparse promotion plus sparse timing/memory/conditioning/CI and
 hardware-normalized threshold promotion,
 deeper spring-hanger behavior, and
-the remaining D9 validation evidence remain open.
+the remaining D9 validation evidence remain open. Broader non-seed, release,
+external, sparse-default, total strain-energy, modal-energy, and CI
+general-energy threshold axes remain outside the accepted
+`TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
 `DAG-007` is the current approved dependency graph pointer; `DAG-001` through
 `DAG-006` remain historical snapshots.
 
@@ -499,8 +506,12 @@ bounded tranche.
       final-iteration free-DOF work residual rows. `TP-R4-D9-WORKPOLICY-001`
       promotes bounded free-DOF work residual policies for the current
       assembled validation seed, invented product-preview surface, and accepted
-      multi-support fixture set only, while general energy thresholds remain
-      `TBD`.
+      multi-support fixture set only. `TP-R4-D9-GENERALENERGYPOLICY-001`
+      promotes bounded general-energy residual policies for the current
+      assembled validation seed, invented product-preview surface, and accepted
+      ten-fixture multi-support set only; broader non-seed, release, external,
+      sparse-default, total strain-energy, modal-energy, and CI energy
+      threshold axes remain `TBD`.
       `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
       assembled nonlinear integration and product-preview reduced solve paths
       as the `DEC-050` sparse evidence lane, with dense remaining default.
@@ -520,16 +531,19 @@ bounded tranche.
       default-promotion thresholds remain `TBD`.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
-      ten-fixture set, general energy threshold promotion, broader
-      displacement/reaction-delta thresholds beyond the accepted current-seed,
-      ten-fixture, and product-preview surfaces, broader multi-DOF /
+      ten-fixture set, broader displacement/reaction-delta thresholds beyond
+      the accepted current-seed, ten-fixture, and product-preview surfaces,
+      broader multi-DOF /
       multi-support nonlinear acceptance thresholds beyond the accepted
       ten-fixture set,
       default sparse promotion plus sparse timing/memory/conditioning/CI and
       hardware-normalized thresholds, deeper
       spring-hanger behavior, and the R4 exit evidence
       package remain open
-      under `DEC-044`/`DEC-046`/`DEC-050`.
+      under `DEC-044`/`DEC-046`/`DEC-050`. Broader non-seed, release,
+      external, sparse-default, total strain-energy, modal-energy, and CI
+      general-energy threshold axes remain outside the accepted
+      `TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize
       v0.2/R6/R7 scope;

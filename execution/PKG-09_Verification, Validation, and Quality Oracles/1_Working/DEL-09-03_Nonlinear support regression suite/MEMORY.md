@@ -26,11 +26,13 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 ## Remaining TBDs
 
 - Non-seed force/displacement thresholds beyond the accepted ten-fixture
-  multi-support companion set, general energy thresholds,
-  displacement/reaction-delta thresholds beyond the current seed, accepted
-  ten-fixture set, and invented product-preview mixed surface, sparse
-  default/promotion thresholds, release thresholds, and external validation
-  thresholds remain `TBD`.
+  multi-support companion set, broader general-energy residual thresholds
+  beyond the current seed, accepted ten-fixture set, and invented
+  product-preview surface, displacement/reaction-delta thresholds beyond the
+  current seed, accepted ten-fixture set, and invented product-preview mixed
+  surface, sparse default/promotion thresholds, release thresholds, total
+  strain-energy or modal-energy thresholds, CI thresholds, and external
+  validation thresholds remain `TBD`.
 - The current assembled validation seed has an accepted active-set
   changed-support-count policy under `DEC-046-CV-B-active-set-count-validation-v1`.
 - The current assembled validation seed has an accepted free-DOF force/moment
@@ -39,6 +41,8 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - The current assembled validation seed has an accepted final-iteration
   free-DOF work residual policy under
   `DEC-046-CV-B-free-dof-work-residual-validation-v1`.
+- The current assembled validation seed has an accepted general-energy
+  residual policy under `DEC-046-CV-B-general-energy-residual-validation-v1`.
 - The current assembled validation seed has accepted fixture-evidence-envelope
   displacement/reaction delta threshold policies under
   `DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1`.
@@ -51,6 +55,9 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - The current invented product-preview nonlinear path has an accepted free-DOF
   work residual policy under
   `DEC-046-CV-B-product-preview-free-dof-work-residual-v1`.
+- The current invented product-preview nonlinear path has an accepted
+  general-energy residual policy under
+  `DEC-046-CV-B-product-preview-general-energy-residual-v1`.
 - The invented mixed product-preview nonlinear path has an accepted
   displacement/reaction delta threshold policy under
   `DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1`.
@@ -65,8 +72,9 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   `TP-R4-D9-MULTISUPPORTNEGAP-001`, and
   `TP-R4-D9-MULTISUPPORT4CLASS-001` add ten accepted multi-DOF /
   multi-support companion fixtures under narrow active-set, free-DOF
-  force/moment, free-DOF work residual, and displacement/reaction delta
-  threshold policies (`TP-R4-D9-WORKPOLICY-001` and
+  force/moment, free-DOF work residual, general-energy residual, and
+  displacement/reaction delta threshold policies (`TP-R4-D9-WORKPOLICY-001`,
+  `TP-R4-D9-GENERALENERGYPOLICY-001`, and
   `TP-R4-D9-DISPREACTIONPOLICY-001`).
 - `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
   multi-support assembled fixture under `TP-R4-D9-MULTISUPPORT-OBS-TBD`; it is
@@ -80,10 +88,30 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   seed and accepted ten-fixture multi-support set only.
 - `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes the invented mixed
   product-preview displacement/reaction delta rows to an accepted product-only
-  threshold policy; broader non-seed, release, external, sparse-default, and
-  general energy thresholds remain `TBD`.
+  threshold policy; broader non-seed, release, external, sparse-default, total
+  strain-energy, modal-energy, and CI thresholds remain `TBD`.
 - External validation claims remain `TBD`; this suite is software verification
   evidence only.
+
+## 2026-06-22 - TP-R4-D9-GENERALENERGYPOLICY-001
+
+- Promoted bounded `DEC-046` general-energy residual policies for the current
+  public-original assembled validation seed, the current invented
+  product-preview nonlinear surface, and the accepted ten-fixture
+  multi-support companion set.
+- Added machine-readable policy evidence at
+  `validation/benchmarks/nonlinear/general_energy_policy.dec046.json` and
+  `validation/benchmarks/nonlinear/multisupport_general_energy_policy.dec046.json`.
+- Updated nonlinear benchmark observations, product-preview metadata,
+  hand-calculation notes, regression guards, coordination text, and R4 planning
+  surfaces so the accepted general-energy residual envelope carries `0.0 N-m`
+  limits for the governed surfaces.
+- Boundary preserved: no broader non-seed force/displacement threshold,
+  broader displacement/reaction-delta threshold, sparse default, release,
+  external validation, total strain-energy, modal-energy, CI, lifecycle,
+  professional, or code-compliance claim was added.
+- Validation evidence is in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-GENERALENERGYPOLICY-001.md`.
 
 ## 2026-06-22 - TP-R4-D9-DISPREACTIONOBSLEDGER-001
 

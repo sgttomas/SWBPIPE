@@ -1,0 +1,43 @@
+{
+  "record_kind": "governed_nonlinear_multisupport_general_energy_residual_policy",
+  "record_id": "DEC-046-CV-B-multisupport-general-energy-residual-validation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+  "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+  "energy_residual_basis": {
+    "name": "general_energy_residual_envelope",
+    "source_measure": "max_abs_free_dof_work_residual",
+    "unit": "N-m",
+    "dimension": "moment",
+    "note": "zero means no free-DOF residual work/energy product remains in the final linearized solve for the accepted multi-support fixture set"
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed general-energy residual threshold requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "multi_support_multi_dof",
+      "energy_absolute_limit": 0.0,
+      "policy_ref": "DEC-046-CV-B-multisupport-general-energy-residual-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration free-DOF residual work/energy envelopes.",
+    "Does not define sparse default, product-preview, release, external validation, total strain-energy, modal-energy, or CI thresholds."
+  ],
+  "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}
