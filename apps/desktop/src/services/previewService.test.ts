@@ -110,7 +110,7 @@ describe("previewService mechanics browser fallback", () => {
     ).toMatchObject({
       kind: "nonlinear_support_friction_normal_reaction_derived",
       entity_ref: "support:NL-130-FRIC",
-      value: 158.102028,
+      value: 49.010116,
       unit: "N",
     });
     const normalBasis = result.results.find(

@@ -163,7 +163,7 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert nonlinear_friction_displacement["value"] != 0
     assert nonlinear_friction_reaction["value"] == 0
     assert nonlinear_friction_normal["kind"] == "nonlinear_support_friction_normal_reaction_derived"
-    assert nonlinear_friction_normal["value"] == 158.102028
+    assert nonlinear_friction_normal["value"] == 49.010116
     assert "derived_support_reaction" in nonlinear_friction_normal["metadata"]["basis"]
     assert "source_ref=support:S-130" in nonlinear_friction_normal["metadata"]["basis"]
     assert "source_dof=uy" in nonlinear_friction_normal["metadata"]["basis"]

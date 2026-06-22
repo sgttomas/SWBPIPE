@@ -296,7 +296,7 @@ one-way/gap/friction product live-loop coverage in one invented dense solve.
 remains default and profile-direct assembly/default promotion follow on.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement/energy threshold promotion, multi-DOF /
-multi-support nonlinear fixture depth, EJ assembled macro-element mechanics,
+multi-support nonlinear fixture depth, pressure-thrust load generation,
 deeper spring-hanger behavior, and the remaining D9 validation evidence remain
 open.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on

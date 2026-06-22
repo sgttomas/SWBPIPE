@@ -6313,7 +6313,7 @@ describe("OpenPipeStress desktop preview", () => {
     await waitFor(() =>
       expect(
         screen.getByTestId("viewport-deformation-status").textContent,
-      ).toContain("available; nodes=5; max=11.667835 mm"),
+      ).toContain("available; nodes=5; max=4.617402 mm"),
     );
     expect(
       screen.getByTestId("viewport-deformation-boundary").textContent,
@@ -9172,10 +9172,10 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("rule inputs incomplete");
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain("30 diagnostics");
+    ).toContain("29 diagnostics");
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain("12 warnings");
+    ).toContain("11 warnings");
     expect(
       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
     ).toContain("0 blocking/error");
@@ -9253,7 +9253,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.summary.job_state).toBe("completed");
     expect(solveJobPacket.summary.event_count).toBe(3);
     expect(solveJobPacket.summary.result_row_count).toBe(802);
-    expect(solveJobPacket.summary.diagnostic_count).toBe(30);
+    expect(solveJobPacket.summary.diagnostic_count).toBe(29);
     expect(solveJobPacket.summary.cancellation_requested).toBe(false);
     expect(solveJobPacket.summary.cancellation_status).toBe("not_requested");
     expect(solveJobPacket.progress_contract.progress_basis).toBe(
@@ -9355,7 +9355,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("sets=1");
     expect(
       within(resultExport).getByTestId("result-export-summary").textContent,
-    ).toContain("diagnostics=30");
+    ).toContain("diagnostics=29");
     expect(
       within(resultExport).getByTestId("result-export-format").textContent,
     ).toContain("schema_first_json_result_envelope");
@@ -9475,7 +9475,7 @@ describe("OpenPipeStress desktop preview", () => {
       "exported_result_row_preserves_source_value_unit_and_dimension",
     );
     expect(resultExportUnitWitness.conversion_performed).toBe(false);
-    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(30);
+    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(29);
     expect(
       resultExportPacket.result_envelope.reproducibility.deterministic_ordering,
     ).toBe(true);
@@ -9847,7 +9847,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(headlessUnitWitness.target_quantity.unit).toBe("N");
     expect(headlessUnitWitness.target_quantity.dimension).toBe("force");
     expect(headlessUnitWitness.conversion_performed).toBe(false);
-    expect(headlessPacket.result.diagnostics).toHaveLength(30);
+    expect(headlessPacket.result.diagnostics).toHaveLength(29);
     expect(headlessPacket.result.privacy.telemetry_allowed).toBe(false);
     expect(
       headlessPacket.result.professional_boundary
@@ -9867,7 +9867,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(adapterFramework).getByTestId("adapter-framework-summary")
         .textContent,
-    ).toContain("diagnostics=30");
+    ).toContain("diagnostics=29");
     expect(
       within(adapterFramework).getByTestId("adapter-framework-validation")
         .textContent,
@@ -9897,7 +9897,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(adapterPacket.operation_result.parse_status).toBe(
       "not_parsed_by_framework",
     );
-    expect(adapterPacket.operation_result.diagnostics).toHaveLength(30);
+    expect(adapterPacket.operation_result.diagnostics).toHaveLength(29);
     expect(adapterPacket.operation_result.checksums).toHaveLength(2);
     expect(adapterPacket.operation_result.audit_manifest_refs[0].ref_id).toBe(
       "audit-manifest:run:preview-linear-static-001:preview",
@@ -9973,7 +9973,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("basis=diagnostic_suggested");
     expect(
       within(localFea).getByTestId("local-fea-region").textContent,
-    ).toContain("elements=1");
+    ).toContain("elements=2");
     expect(
       within(localFea).getByTestId("local-fea-transfer").textContent,
     ).toContain("method=result_reference_only");
@@ -10471,7 +10471,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       nativePackagePacket.loss_report.entries[2].affected_refs,
     ).not.toContain("canonical_package_hash");
-    expect(nativePackagePacket.diagnostics).toHaveLength(30);
+    expect(nativePackagePacket.diagnostics).toHaveLength(29);
     expect(nativePackagePacket.generation_context.network_required).toBe(false);
     expect(nativePackagePacket.generation_context.telemetry_enabled).toBe(
       false,
@@ -10744,7 +10744,7 @@ describe("OpenPipeStress desktop preview", () => {
     const comparisonRow = within(comparison).getByTestId(
       "comparison-row-result:combination:combination-C-OPER-ALT:reaction:support-S-120",
     );
-    expect(comparisonRow.textContent).toContain("204.169 N");
+    expect(comparisonRow.textContent).toContain("191.951 N");
     expect(
       within(comparison).getByTestId("comparison-diagnostics").textContent,
     ).toContain("1 comparison diagnostic");
@@ -10795,11 +10795,11 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBe("unit-policy-evidence:comparison-workspace-preview");
     fireEvent.click(
       within(comparison).getByTestId(
-        "comparison-select-result:combination:combination-C-OPER-ALT:moment:pipe-P-110:torsion",
+        "comparison-select-result:combination:combination-C-OPER-ALT:moment:pipe-P-120:bending-z:end-j",
       ),
     );
     expect(
-      await screen.findByRole("heading", { name: "Vertical riser" }),
+      await screen.findByRole("heading", { name: "Rack span" }),
     ).toBeInTheDocument();
     expect(
       within(comparison).getByTestId("comparison-summary").textContent,
@@ -10835,7 +10835,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(results).getByText("result:disp:node-N-140"),
     ).toBeInTheDocument();
-    expect(within(results).getByText(/9.541276 mm/i)).toBeInTheDocument();
+    expect(within(results).getByText(/3.726018 mm/i)).toBeInTheDocument();
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
     ).toContain("802 of 802 results match filter");
@@ -11254,10 +11254,10 @@ describe("OpenPipeStress desktop preview", () => {
       within(knowledge).getByTestId("knowledge-unit-context").textContent,
     ).toContain("conversion=false");
     expect(
-      within(knowledge).getByText(/HIGH DISPLACEMENT REVIEW/i),
+      within(knowledge).getByText(/Computed displacement review/i),
     ).toBeInTheDocument();
     expect(
-      within(knowledge).getByText(/result:disp:node-N-140 is 9.541276 mm/i),
+      within(knowledge).getByText(/result:disp:node-N-140 is 3.726018 mm/i),
     ).toBeInTheDocument();
     expect(
       within(knowledge).getByText(/result:force:pipe-P-120:axial is/i),
@@ -11356,10 +11356,10 @@ describe("OpenPipeStress desktop preview", () => {
       within(report).getByTestId("report-component-stiffness-inputs")
         .textContent,
     ).toContain("component:C-150");
-    expect(within(report).getByText(/32 review findings/i)).toBeInTheDocument();
+    expect(within(report).getByText(/31 review findings/i)).toBeInTheDocument();
     expect(
       within(report).getByTestId("report-diagnostic-summary").textContent,
-    ).toContain("13 warnings; 19 info; 0 errors; 0 blocking");
+    ).toContain("12 warnings; 19 info; 0 errors; 0 blocking");
     expect(
       within(report).getByText(/result value hashes/i),
     ).toBeInTheDocument();
@@ -11420,7 +11420,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("no private payload");
     expect(
       within(report).getByTestId("report-export-summary").textContent,
-    ).toContain("32 diagnostics");
+    ).toContain("31 diagnostics");
     const exportHref =
       within(report).getByTestId("report-export-link").getAttribute("href") ??
       "";
@@ -11475,7 +11475,7 @@ describe("OpenPipeStress desktop preview", () => {
       "SUPPORT_STIFFNESS_UNRESOLVED",
     );
     expect(exportPacket.diagnostic_refs).toContain(
-      "diagnostic:physics:high-displacement-review",
+      "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
     );
     expect(exportPacket.diagnostic_refs).toContain(
       "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j",
@@ -11489,8 +11489,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.diagnostic_refs).toContain(
       "diagnostic:spring-hanger:support-CE-120:hanger",
     );
-    expect(exportPacket.diagnostic_summary.total).toBe(32);
-    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(13);
+    expect(exportPacket.diagnostic_summary.total).toBe(31);
+    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(12);
     expect(exportPacket.diagnostic_summary.by_severity.info).toBe(19);
     expect(exportPacket.component_stress_modifier_count).toBe(12);
     expect(exportPacket.component_provenance[0]).toEqual(
@@ -11954,7 +11954,7 @@ describe("OpenPipeStress desktop preview", () => {
       "handoff-export-summary",
     );
     expect(handoffExportSummary.textContent).toContain("26 entities");
-    expect(handoffExportSummary.textContent).toContain("32 diagnostics");
+    expect(handoffExportSummary.textContent).toContain("31 diagnostics");
     expect(
       within(handoff).getByTestId("handoff-target-profile").textContent,
     ).toContain("native_open_json_preview");
@@ -12056,7 +12056,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(handoffPacket.comparison_summary.comparable_result_pairs).toBe(255);
     expect(handoffPacket.diagnostic_refs).toContain(
-      "diagnostic:physics:high-displacement-review",
+      "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
     );
     expect(handoffPacket.unresolved_assumptions).toContain(
       "target-specific field coverage TBD",
@@ -12708,17 +12708,21 @@ describe("OpenPipeStress desktop preview", () => {
     );
     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     expect(
-      await screen.findByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW"),
-    ).toBeInTheDocument();
+      (
+        await screen.findAllByTestId(
+          "diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED",
+        )
+      ).length,
+    ).toBeGreaterThan(0);
 
     const diagnostics = await screen.findByLabelText("Diagnostics");
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("32 of 32 diagnostics visible");
+    ).toContain("31 of 31 diagnostics visible");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
-    ).toContain("13 Warnings");
+    ).toContain("12 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
     ).toContain("19 Info");
@@ -12733,12 +12737,12 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.change(
       within(diagnostics).getByTestId("diagnostic-filter-input"),
       {
-        target: { value: "HIGH_DISPLACEMENT_REVIEW" },
+        target: { value: "result:stress:pipe-P-130" },
       },
     );
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("1 of 32 diagnostics visible");
+    ).toContain("1 of 31 diagnostics visible");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
@@ -12747,14 +12751,18 @@ describe("OpenPipeStress desktop preview", () => {
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
     ).toContain("0 Info");
     expect(
-      within(diagnostics).getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW"),
+      within(diagnostics).getByTestId(
+        "diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED",
+      ),
     ).toBeInTheDocument();
     expect(
       within(diagnostics).queryByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
     ).not.toBeInTheDocument();
 
     fireEvent.click(
-      within(diagnostics).getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW"),
+      within(diagnostics).getByTestId(
+        "diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED",
+      ),
     );
 
     const diagnosticDetail = within(diagnostics).getByTestId(
@@ -12763,27 +12771,25 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(diagnosticDetail).getByTestId("selected-diagnostic-id")
         .textContent,
-    ).toContain("diagnostic:physics:high-displacement-review");
+    ).toContain(
+      "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
+    );
     expect(
       within(diagnosticDetail).getByTestId("selected-diagnostic-affected-refs")
         .textContent,
-    ).toContain("result:disp:node-N-140");
-    expect(
-      within(diagnosticDetail).getByTestId("selected-diagnostic-affected-refs")
-        .textContent,
-    ).toContain("node:N-140");
+    ).toContain("result:stress:pipe-P-130");
     expect(
       within(diagnosticDetail).getByTestId("selected-diagnostic-linked-results")
         .textContent,
-    ).toContain("result:disp:node-N-140");
+    ).toContain("result:stress:pipe-P-130");
     expect(
       within(diagnosticDetail).getByTestId("diagnostic-unit-context")
         .textContent,
-    ).toContain("linked_results=21");
+    ).toContain("linked_results=1");
     expect(
       within(diagnosticDetail).getByTestId("diagnostic-unit-context")
         .textContent,
-    ).toContain("units=mm,rad");
+    ).toContain("units=MPa");
     expect(
       within(diagnosticDetail).getByTestId("diagnostic-unit-context")
         .textContent,
@@ -12795,15 +12801,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(diagnosticDetail).getByTestId("selected-diagnostic-explanation")
         .textContent,
-    ).toContain("review threshold");
+    ).toContain("stress summary rows are not linearly combined");
     expect(
-      await screen.findByRole("heading", { name: "Terminal tie-in" }),
+      await screen.findByRole("heading", { name: "Tie-in rise" }),
     ).toBeInTheDocument();
 
     fireEvent.click(within(diagnostics).getByTestId("clear-diagnostic-filter"));
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain("32 of 32 diagnostics visible");
+    ).toContain("31 of 31 diagnostics visible");
     expect(
       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
     ).toBeInTheDocument();
@@ -12817,15 +12823,19 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBeInTheDocument();
     expect(
       within(proposal).getByTestId("selected-review-target").textContent,
-    ).toContain("diagnostic: diagnostic:physics:high-displacement-review");
+    ).toContain(
+      "diagnostic: diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
+    );
     expect(
       within(proposal).getAllByText(
-        /diagnostic:physics:high-displacement-review/i,
+        /diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED/i,
       ).length,
     ).toBeGreaterThan(0);
     expect(
       within(proposal).getByTestId("proposal-affected-entities").textContent,
-    ).toContain("diagnostic:physics:high-displacement-review");
+    ).toContain(
+      "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
+    );
     expect(
       within(proposal).getByTestId("proposal-audit-boundary").textContent,
     ).toContain("acceptance recorded as review only");
@@ -12844,7 +12854,9 @@ describe("OpenPipeStress desktop preview", () => {
     const report = await screen.findByLabelText("Report packet");
     expect(
       within(report).getByTestId("report-selected-review-target").textContent,
-    ).toContain("diagnostic: diagnostic:physics:high-displacement-review");
+    ).toContain(
+      "diagnostic: diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
+    );
     expect(
       within(report).getByTestId("report-proposal-operation").textContent,
     ).toContain("op:review-computed-diagnostic");
@@ -12856,11 +12868,13 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(proposalExportPacket.selected_review_target).toEqual({
       target_type: "diagnostic",
-      id: "diagnostic:physics:high-displacement-review",
+      id: "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
     });
     expect(
       proposalExportPacket.proposal_operation.affected_entity_ids,
-    ).toContain("diagnostic:physics:high-displacement-review");
+    ).toContain(
+      "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED",
+    );
     expect(
       proposalExportPacket.proposal_operation.audit_boundary
         .mutates_accepted_model_state,

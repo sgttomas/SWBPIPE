@@ -6,8 +6,8 @@
 //! professional acceptance.
 
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness, reduce_system, solve_dense, FrameElement, FrameKernelError,
-    FrameNode, DOF_PER_NODE, RX, RY, RZ, UX, UY, UZ,
+    assemble_global_stiffness_with_user_elements, reduce_system, solve_dense, FrameElement,
+    FrameKernelError, FrameNode, UserStiffnessElement, DOF_PER_NODE, RX, RY, RZ, UX, UY, UZ,
 };
 use open_pipe_stress_linear_supports::{
     prepare_boundary, FrameDof, LinearSupport, QuantityDimension, SupportFamily, SupportQuantity,
@@ -497,6 +497,7 @@ struct BuiltModel {
     nodes: Vec<FrameNode>,
     pipes: Vec<StraightPipeElement>,
     frame_elements: Vec<FrameElement>,
+    user_stiffness_elements: Vec<UserStiffnessElement>,
     supports: Vec<LinearSupport>,
     nonlinear_supports: Vec<NonlinearSupport>,
     nonlinear_initial_states: Vec<SupportStateRecord>,
@@ -621,7 +622,11 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
         return blocked_envelope(model, diagnostics);
     }
 
-    let mut stiffness = match assemble_global_stiffness(built.nodes.len(), &built.frame_elements) {
+    let mut stiffness = match assemble_global_stiffness_with_user_elements(
+        built.nodes.len(),
+        &built.frame_elements,
+        &built.user_stiffness_elements,
+    ) {
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
     };
@@ -1090,6 +1095,7 @@ fn append_nonlinear_support_loop_results(
     let input = NonlinearFrameSolveInput {
         node_count: built.nodes.len(),
         elements: built.frame_elements.clone(),
+        user_stiffness_elements: built.user_stiffness_elements.clone(),
         force: force.to_vec(),
         base_restrained_dofs: restrained_dofs.to_vec(),
         nonlinear_supports: built.nonlinear_supports.clone(),
@@ -2043,6 +2049,8 @@ fn build_model(
         pipes.push(element);
     }
 
+    let user_stiffness_elements =
+        build_expansion_joint_user_stiffness_elements(model, &nodes, &node_map, diagnostics);
     let nonlinear = build_nonlinear_supports(model, &node_map, diagnostics);
     let supports = model
         .supports
@@ -2118,6 +2126,7 @@ fn build_model(
         nodes,
         pipes,
         frame_elements,
+        user_stiffness_elements,
         supports,
         nonlinear_supports: nonlinear.supports,
         nonlinear_initial_states: nonlinear.initial_states,
@@ -2125,6 +2134,119 @@ fn build_model(
         nonlinear_derived_friction_normal_reactions: nonlinear.derived_friction_normal_reactions,
         sections,
     })
+}
+
+fn build_expansion_joint_user_stiffness_elements(
+    model: &PreviewModel,
+    nodes: &[FrameNode],
+    node_map: &HashMap<&str, usize>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Vec<UserStiffnessElement> {
+    let pipe_map = model
+        .pipe_segments
+        .iter()
+        .map(|pipe| (pipe.id.as_str(), pipe))
+        .collect::<HashMap<_, _>>();
+    let mut elements = Vec::new();
+
+    for component in model
+        .components
+        .iter()
+        .filter(|component| is_expansion_joint_component(component))
+    {
+        let solver_consumption = component
+            .mechanics_interface
+            .as_ref()
+            .and_then(|interface| interface.solver_consumption.as_deref())
+            .unwrap_or("not_provided");
+        if solver_consumption != "mechanics_geometry_and_user_flexibility" {
+            continue;
+        }
+
+        let Some(geometry) = component.geometry.as_ref() else {
+            continue;
+        };
+        let Some(modifiers) = component.modifiers.as_ref() else {
+            continue;
+        };
+        let Some(pipe_ref) = geometry
+            .expansion_joint_pipe_ref
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+        else {
+            continue;
+        };
+        let Some(pipe) = pipe_map.get(pipe_ref) else {
+            continue;
+        };
+        let Some(&component_node_index) = node_map.get(component.node.as_str()) else {
+            continue;
+        };
+        let Some(&from_index) = node_map.get(pipe.from.as_str()) else {
+            continue;
+        };
+        let Some(&to_index) = node_map.get(pipe.to.as_str()) else {
+            continue;
+        };
+        let other_node_index = if component_node_index == from_index {
+            to_index
+        } else if component_node_index == to_index {
+            from_index
+        } else {
+            continue;
+        };
+        let Some(y_reference) = pipe.y_reference else {
+            continue;
+        };
+        let Some(axial) = modifiers.axial_stiffness_user_value.as_ref() else {
+            continue;
+        };
+        let Some(lateral) = modifiers.lateral_stiffness_user_value.as_ref() else {
+            continue;
+        };
+        let Some(angular) = modifiers.angular_stiffness_user_value.as_ref() else {
+            continue;
+        };
+        let Some(torsional) = modifiers.torsional_stiffness_user_value.as_ref() else {
+            continue;
+        };
+
+        match UserStiffnessElement::new(
+            nodes[other_node_index],
+            nodes[component_node_index],
+            [y_reference.x, y_reference.y, y_reference.z],
+            axial.value,
+            lateral.value,
+            angular.value,
+            torsional.value,
+        ) {
+            Ok(element) => elements.push(element),
+            Err(error) => diagnostics.push(expansion_joint_macro_element_diag(
+                component,
+                pipe_ref,
+                &error.to_string(),
+            )),
+        }
+    }
+
+    elements
+}
+
+fn expansion_joint_macro_element_diag(
+    component: &PreviewComponent,
+    pipe_ref: &str,
+    message: &str,
+) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:component:{}:macro-element",
+            stable_suffix(&component.id)
+        ),
+        "EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID",
+        "blocking",
+        message,
+        vec![component.id.clone(), pipe_ref.to_string()],
+    )
 }
 
 fn normalize_model_units(
@@ -3881,14 +4003,14 @@ fn append_expansion_joint_user_stiffness_results(
                     coordinate_system: "component_local_preview".to_string(),
                     location: pipe_ref.to_string(),
                     basis: format!(
-                        "component_family=expansion_joint;user_entered_axis={axis};source={source_reference};solver_consumption={solver_consumption};pressure_thrust={}",
+                        "component_family=expansion_joint;user_entered_axis={axis};source={source_reference};solver_consumption={solver_consumption};macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=follow_on;pressure_thrust={}",
                         geometry
                             .pressure_thrust_reference
                             .as_deref()
                             .unwrap_or("load_side_pressure_thrust_reference_missing")
                     ),
                     sign_convention:
-                        "positive value is user-entered expansion-joint stiffness input evidence; global macro-element solve is not claimed by this preview row"
+                        "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust load generation remains follow-on and no compliance claim is made"
                             .to_string(),
                 }),
             });
@@ -5503,7 +5625,7 @@ mod tests {
             normal_evidence.kind,
             "nonlinear_support_friction_normal_reaction_derived"
         );
-        assert_eq!(normal_evidence.value, 158.102028);
+        assert_eq!(normal_evidence.value, 49.010116);
         let normal_metadata = normal_evidence.metadata.as_ref().unwrap();
         assert!(normal_metadata.basis.contains("derived_support_reaction"));
         assert!(normal_metadata.basis.contains("source_ref=support:S-130"));
@@ -6954,10 +7076,16 @@ mod tests {
             .contains("solver_consumption=mechanics_geometry_and_user_flexibility"));
         assert!(axial_metadata
             .basis
+            .contains("macro_element_solve=assembled_user_stiffness"));
+        assert!(axial_metadata
+            .basis
+            .contains("pressure_thrust_generation=follow_on"));
+        assert!(axial_metadata
+            .basis
             .contains("pressure_thrust=load_side_pressure_thrust_user_review_required"));
         assert!(axial_metadata
             .sign_convention
-            .contains("global macro-element solve is not claimed"));
+            .contains("consumed by the assembled user-stiffness macro-element"));
 
         assert_eq!(torsional.value, 620_000.0);
         assert_eq!(torsional.unit, "N*m/rad");

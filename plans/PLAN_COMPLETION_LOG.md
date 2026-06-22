@@ -14,6 +14,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D4 EJ assembled user-stiffness macro-element (`TP-R4-D4-EJMACRO-001`)
+
+Landed the bounded D4 mechanics slice selected by `DEC-045`: the frame kernel
+now has an explicit `UserStiffnessElement` that consumes user-entered axial,
+lateral, angular, and torsional stiffness values and assembles them into the
+global stiffness matrix. The assembled nonlinear integration input carries the
+same user-stiffness elements, and the product-preview adapter builds the
+invented expansion-joint element for `component:C-150` mapped to
+`pipe:P-130`.
+
+Changed surfaces:
+
+- `core/solver/frame_kernel`: user-stiffness element primitive, assembly API,
+  and solve participation tests;
+- `core/solver/nonlinear_integration`: `NonlinearFrameSolveInput` carries
+  user-stiffness elements into the active-set loop;
+- `core/product_physics`: builds the EJ macro-element from the existing
+  `mechanics_geometry_and_user_flexibility` fields and regenerated the public
+  invented mechanics fixture;
+- desktop/Python/Tauri/smoke expectations: updated to the regenerated fixture,
+  including lower invented displacements, changed friction-normal evidence, and
+  replacement diagnostics after the high-displacement warning no longer fires.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D4-EJMACRO-001.md`.
+
+Residuals: pressure-thrust load generation remains follow-on load-side work;
+R4 still needs force/displacement or energy threshold promotion beyond
+active-set-count policy, product-preview non-active-set threshold axes, deeper
+multi-DOF / multi-support validation fixtures, spring-hanger solve behavior,
+and profile-direct/default sparse promotion.
+
 ## 2026-06-21 - R4 D7 sparse live evidence lane (`TP-R4-D7-SPARSELIVE-001`)
 
 Landed the bounded D7 implementation authorized by `DEC-050`: the accepted

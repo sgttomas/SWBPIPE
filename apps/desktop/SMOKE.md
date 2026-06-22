@@ -98,17 +98,18 @@ Open the Vite URL printed by the command, normally
     `result:stress:pipe-P-120:quarter-1:shear-y`, and diagnostics do not include
     `PRESSURE_LOAD_NOT_APPLIED_TO_FRAME_VECTOR`.
 25. Diagnostics render `data-testid="diagnostics-panel"` and include
-   `diagnostic-HIGH_DISPLACEMENT_REVIEW` and
+   `diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED` and
    `diagnostic-RULE_CHECK_INPUTS_MISSING`.
-26. Click `data-testid="diagnostic-HIGH_DISPLACEMENT_REVIEW"` and confirm
+26. Filter diagnostics by `result:stress:pipe-P-130`, click
+   `data-testid="diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED"`, and confirm
    `data-testid="diagnostic-detail-panel"` shows
-   `diagnostic:physics:high-displacement-review`,
-   `result:disp:node-N-140`, `node:N-140`, linked result value context, and the
+   `diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED`,
+   `result:stress:pipe-P-130`, linked result value context, and the
    review-only professional boundary. Confirm
    `data-testid="diagnostic-unit-context"` shows linked result unit context
-   with `units=mm,rad`, `source=result_envelope`, and `conversion=false`.
-27. Confirm the model context selects `node:N-140` and the property inspector
-   (`aria-label="Property inspector"`) shows `Terminal tie-in`.
+   with `units=MPa`, `source=result_envelope`, and `conversion=false`.
+27. Confirm the model context selects `pipe:P-130` and the property inspector
+   (`aria-label="Property inspector"`) shows `Tie-in rise`.
 28. Knowledge renders `data-testid="knowledge-panel"` and includes computed
    context for `result:disp:node-N-140` and
    `result:force:pipe-P-120:axial`.

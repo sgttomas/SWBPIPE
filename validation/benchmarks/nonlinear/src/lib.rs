@@ -694,6 +694,7 @@ fn assembled_axial_input(
     NonlinearFrameSolveInput {
         node_count: 2,
         elements: vec![element],
+        user_stiffness_elements: Vec::new(),
         force,
         base_restrained_dofs: vec![
             node_dof_index(0, FrameDof::Ux),

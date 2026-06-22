@@ -4495,6 +4495,7 @@ mod tests {
 
     #[test]
     fn agent_proposal_preserves_selected_review_target_without_mutation_or_claims() {
+        let diagnostic_id = "diagnostic:combination:combination-C-OPER-ALT:result-stress-pipe-P-130:COMBINATION_STRESS_SUMMARY_SKIPPED";
         let result = json!({
             "model_ref": "project:invented-loop-01",
             "results": [
@@ -4505,7 +4506,7 @@ mod tests {
             ],
             "diagnostics": [
                 {
-                    "id": "diagnostic:physics:high-displacement-review",
+                    "id": diagnostic_id,
                     "severity": "warning"
                 }
             ]
@@ -4514,17 +4515,17 @@ mod tests {
             result,
             Some(SelectedReviewTarget {
                 target_type: "diagnostic".to_string(),
-                id: "diagnostic:physics:high-displacement-review".to_string(),
+                id: diagnostic_id.to_string(),
             }),
         );
         let proposal = output.get("proposal").expect("proposal envelope exists");
         assert_eq!(
             proposal["operation"]["affected_entity_ids"][0],
-            json!("diagnostic:physics:high-displacement-review")
+            json!(diagnostic_id)
         );
         assert_eq!(
             proposal["operation"]["changes"][0]["target_ref"],
-            json!("diagnostic:physics:high-displacement-review")
+            json!(diagnostic_id)
         );
         assert_eq!(
             proposal["operation"]["operation_status"],
@@ -4537,7 +4538,7 @@ mod tests {
         assert!(proposal["rationale"]
             .as_str()
             .expect("rationale is text")
-            .contains("selected review reference is diagnostic:physics:high-displacement-review"));
+            .contains(&format!("selected review reference is {diagnostic_id}")));
         assert_eq!(output["accepted_model_mutated"], json!(false));
         assert_eq!(
             proposal["audit_boundary"]["mutates_accepted_model_state"],

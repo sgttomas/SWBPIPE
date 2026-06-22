@@ -7,8 +7,9 @@
 //! approval claims.
 
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness, node_dof_index, reduce_system_with_prescribed_displacements,
-    solve_dense, DenseMatrix, DenseVector, FrameDof, FrameElement, FrameKernelError, DOF_PER_NODE,
+    assemble_global_stiffness_with_user_elements, node_dof_index,
+    reduce_system_with_prescribed_displacements, solve_dense, DenseMatrix, DenseVector, FrameDof,
+    FrameElement, FrameKernelError, UserStiffnessElement, DOF_PER_NODE,
 };
 use open_pipe_stress_nonlinear_supports::{
     evaluate_active_set_iteration, ActiveSetIteration, ActiveSetIterationInput, ActiveSetState,
@@ -117,6 +118,7 @@ impl DerivedFrictionNormalReaction {
 pub struct NonlinearFrameSolveInput {
     pub node_count: usize,
     pub elements: Vec<FrameElement>,
+    pub user_stiffness_elements: Vec<UserStiffnessElement>,
     pub force: DenseVector,
     pub base_restrained_dofs: Vec<usize>,
     pub nonlinear_supports: Vec<NonlinearSupport>,
@@ -241,7 +243,11 @@ pub fn solve_active_set_frame(
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
     validate_input(input)?;
 
-    let stiffness = assemble_global_stiffness(input.node_count, &input.elements)?;
+    let stiffness = assemble_global_stiffness_with_user_elements(
+        input.node_count,
+        &input.elements,
+        &input.user_stiffness_elements,
+    )?;
     let mut current_states = normalized_initial_states(input)?;
     let mut iterations = Vec::new();
     let mut final_diagnostics = policy_diagnostics(&input.convergence);
@@ -318,6 +324,7 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
         "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement residual observations are recorded as evidence, not thresholds.".to_string(),
         "Friction support normal reactions are either explicit input evidence or derived as the absolute reaction at a named support-normal DOF supplied by the caller.".to_string(),
         "Released friction supports may persist in sliding state while nonzero displacement remains, preventing active-set chatter without adding hidden friction-load defaults.".to_string(),
+        "Explicit user-stiffness macro-elements are assembled with frame elements when supplied by the caller.".to_string(),
     ]
 }
 
@@ -326,6 +333,7 @@ pub fn assembled_loop_limitations() -> Vec<String> {
         "DEC-050 sparse evidence lane observes the reduced linearized systems, but the dense frame solve remains the default active-set path and parity oracle.".to_string(),
         "Profile-direct sparse assembly and default sparse-solver promotion remain follow-on work.".to_string(),
         "DEC-046 class-tiered convergence values remain TBD until assembled-loop evidence seeds them; callers must supply explicit controls and policy references.".to_string(),
+        "User-stiffness macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
         "The result is mechanics evidence only and does not state rule compliance, professional approval, certification, sealing, authentication, or code compliance.".to_string(),
     ]
 }
@@ -893,6 +901,7 @@ mod tests {
         NonlinearFrameSolveInput {
             node_count: 2,
             elements: vec![element],
+            user_stiffness_elements: Vec::new(),
             force,
             base_restrained_dofs: vec![
                 node_dof_index(0, FrameDof::Ux),

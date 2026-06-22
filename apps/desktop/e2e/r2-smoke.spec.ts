@@ -446,7 +446,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("N*m/rad,N/m");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=802");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=11.667835 mm");
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=4.617402 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
     "scale=normalized_display_offset_not_physical_length"
   );
@@ -989,12 +989,14 @@ test("diagnostic detail exposes linked result unit context", async ({ page }) =>
 
   await page.getByTestId("run-mechanics-preview").click();
   await page.getByTestId("issues-drawer-toggle").click();
-  await expect(page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW")).toBeVisible();
-  await page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW").click();
+  await page.getByTestId("diagnostic-filter-input").fill("result:stress:pipe-P-130");
+  const diagnosticButton = page.getByTestId("diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED");
+  await expect(diagnosticButton).toBeVisible();
+  await diagnosticButton.evaluate((button) => (button as HTMLButtonElement).click());
 
-  await expect(page.getByTestId("selected-diagnostic-linked-results")).toContainText("result:disp:node-N-140");
-  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("linked_results=21");
-  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("units=mm,rad");
+  await expect(page.getByTestId("selected-diagnostic-linked-results")).toContainText("result:stress:pipe-P-130");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("linked_results=1");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("units=MPa");
   await expect(page.getByTestId("diagnostic-unit-context")).toContainText("source=result_envelope");
   await expect(page.getByTestId("diagnostic-unit-context")).toContainText("conversion=false");
 });

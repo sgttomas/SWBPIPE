@@ -598,6 +598,78 @@ impl FrameElement {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct UserStiffnessElement {
+    pub node_i: FrameNode,
+    pub node_j: FrameNode,
+    pub y_reference: [f64; 3],
+    pub axial_stiffness: f64,
+    pub lateral_stiffness: f64,
+    pub angular_stiffness: f64,
+    pub torsional_stiffness: f64,
+}
+
+impl UserStiffnessElement {
+    pub fn new(
+        node_i: FrameNode,
+        node_j: FrameNode,
+        y_reference: [f64; 3],
+        axial_stiffness: f64,
+        lateral_stiffness: f64,
+        angular_stiffness: f64,
+        torsional_stiffness: f64,
+    ) -> Result<Self, FrameKernelError> {
+        if node_i.index == node_j.index {
+            return Err(FrameKernelError::RepeatedElementNodeIndex {
+                node_index: node_i.index,
+            });
+        }
+        validate_finite_vector("y_reference", y_reference)?;
+        validate_positive_finite("axial_stiffness", axial_stiffness)?;
+        validate_positive_finite("lateral_stiffness", lateral_stiffness)?;
+        validate_positive_finite("angular_stiffness", angular_stiffness)?;
+        validate_positive_finite("torsional_stiffness", torsional_stiffness)?;
+
+        let element = Self {
+            node_i,
+            node_j,
+            y_reference,
+            axial_stiffness,
+            lateral_stiffness,
+            angular_stiffness,
+            torsional_stiffness,
+        };
+        element.orientation()?;
+        Ok(element)
+    }
+
+    pub fn local_x_axis(&self) -> Result<[f64; 3], FrameKernelError> {
+        normalize(
+            subtract(self.node_j.coordinates, self.node_i.coordinates),
+            "user-stiffness element length",
+        )
+    }
+
+    pub fn orientation(&self) -> Result<FrameOrientation, FrameKernelError> {
+        FrameOrientation::from_x_axis_and_y_reference(self.local_x_axis()?, self.y_reference)
+    }
+
+    pub fn local_stiffness(&self) -> Matrix12 {
+        user_stiffness_local_matrix(
+            self.axial_stiffness,
+            self.lateral_stiffness,
+            self.angular_stiffness,
+            self.torsional_stiffness,
+        )
+    }
+
+    pub fn global_stiffness(&self) -> Result<Matrix12, FrameKernelError> {
+        let local = self.local_stiffness();
+        let orientation = self.orientation()?;
+        Ok(transform_global_stiffness(&local, &orientation))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReducedSystem {
     pub stiffness: DenseMatrix,
@@ -670,6 +742,14 @@ pub fn assemble_global_stiffness(
     node_count: usize,
     elements: &[FrameElement],
 ) -> Result<DenseMatrix, FrameKernelError> {
+    assemble_global_stiffness_with_user_elements(node_count, elements, &[])
+}
+
+pub fn assemble_global_stiffness_with_user_elements(
+    node_count: usize,
+    elements: &[FrameElement],
+    user_stiffness_elements: &[UserStiffnessElement],
+) -> Result<DenseMatrix, FrameKernelError> {
     let total_dofs = node_count * DOF_PER_NODE;
     let mut global = vec![vec![0.0; total_dofs]; total_dofs];
 
@@ -678,15 +758,25 @@ pub fn assemble_global_stiffness(
         validate_node_index(element.node_j.index, node_count)?;
 
         let element_stiffness = element.global_stiffness()?;
-        let dof_map = element_dof_map(element.node_i.index, element.node_j.index);
+        assemble_element_contribution(
+            &mut global,
+            element.node_i.index,
+            element.node_j.index,
+            &element_stiffness,
+        );
+    }
 
-        for local_row in 0..ELEMENT_DOF {
-            let global_row = dof_map[local_row];
-            for local_col in 0..ELEMENT_DOF {
-                let global_col = dof_map[local_col];
-                global[global_row][global_col] += element_stiffness[local_row][local_col];
-            }
-        }
+    for element in user_stiffness_elements {
+        validate_node_index(element.node_i.index, node_count)?;
+        validate_node_index(element.node_j.index, node_count)?;
+
+        let element_stiffness = element.global_stiffness()?;
+        assemble_element_contribution(
+            &mut global,
+            element.node_i.index,
+            element.node_j.index,
+            &element_stiffness,
+        );
     }
 
     Ok(global)
@@ -905,6 +995,46 @@ fn add_terms(stiffness: &mut Matrix12, indices: [usize; 4], terms: [[f64; 4]; 4]
 fn set_symmetric(stiffness: &mut Matrix12, row: usize, col: usize, value: f64) {
     stiffness[row][col] = value;
     stiffness[col][row] = value;
+}
+
+fn user_stiffness_local_matrix(
+    axial_stiffness: f64,
+    lateral_stiffness: f64,
+    angular_stiffness: f64,
+    torsional_stiffness: f64,
+) -> Matrix12 {
+    let mut stiffness = [[0.0; ELEMENT_DOF]; ELEMENT_DOF];
+    add_relative_dof_stiffness(&mut stiffness, UX, axial_stiffness);
+    add_relative_dof_stiffness(&mut stiffness, UY, lateral_stiffness);
+    add_relative_dof_stiffness(&mut stiffness, UZ, lateral_stiffness);
+    add_relative_dof_stiffness(&mut stiffness, RX, torsional_stiffness);
+    add_relative_dof_stiffness(&mut stiffness, RY, angular_stiffness);
+    add_relative_dof_stiffness(&mut stiffness, RZ, angular_stiffness);
+    stiffness
+}
+
+fn add_relative_dof_stiffness(stiffness: &mut Matrix12, local_dof: usize, value: f64) {
+    let opposite = local_dof + DOF_PER_NODE;
+    stiffness[local_dof][local_dof] += value;
+    stiffness[opposite][opposite] += value;
+    stiffness[local_dof][opposite] -= value;
+    stiffness[opposite][local_dof] -= value;
+}
+
+fn assemble_element_contribution(
+    global: &mut DenseMatrix,
+    node_i: usize,
+    node_j: usize,
+    element_stiffness: &Matrix12,
+) {
+    let dof_map = element_dof_map(node_i, node_j);
+    for local_row in 0..ELEMENT_DOF {
+        let global_row = dof_map[local_row];
+        for local_col in 0..ELEMENT_DOF {
+            let global_col = dof_map[local_col];
+            global[global_row][global_col] += element_stiffness[local_row][local_col];
+        }
+    }
 }
 
 fn multiply_transpose_left(stiffness: &Matrix12, transform: &Matrix12) -> Matrix12 {
@@ -1222,6 +1352,57 @@ mod tests {
         assert_close(global[node_j_ux][node_j_ux], 1000.0);
         assert_close(global[node_i_ux][node_j_ux], -1000.0);
         assert_close(global[node_j_ux][node_i_ux], -1000.0);
+    }
+
+    #[test]
+    fn user_stiffness_element_local_stiffness_consumes_directional_user_values() {
+        let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
+        let element =
+            UserStiffnessElement::new(node_i, node_j, [0.0, 1.0, 0.0], 10.0, 20.0, 30.0, 40.0)
+                .unwrap();
+
+        let stiffness = element.local_stiffness();
+
+        assert_relative_stiffness(&stiffness, UX, 10.0);
+        assert_relative_stiffness(&stiffness, UY, 20.0);
+        assert_relative_stiffness(&stiffness, UZ, 20.0);
+        assert_relative_stiffness(&stiffness, RX, 40.0);
+        assert_relative_stiffness(&stiffness, RY, 30.0);
+        assert_relative_stiffness(&stiffness, RZ, 30.0);
+        assert_symmetric_12(&stiffness);
+    }
+
+    #[test]
+    fn user_stiffness_element_participates_in_global_solve() {
+        let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
+        let element =
+            UserStiffnessElement::new(node_i, node_j, [0.0, 1.0, 0.0], 50.0, 20.0, 30.0, 40.0)
+                .unwrap();
+
+        let stiffness = assemble_global_stiffness_with_user_elements(2, &[], &[element]).unwrap();
+        let mut force = vec![0.0; DOF_PER_NODE * 2];
+        force[node_dof_index(1, FrameDof::Ux)] = 100.0;
+        let restrained_dofs = [
+            node_dof_index(0, FrameDof::Ux),
+            node_dof_index(0, FrameDof::Uy),
+            node_dof_index(0, FrameDof::Uz),
+            node_dof_index(0, FrameDof::Rx),
+            node_dof_index(0, FrameDof::Ry),
+            node_dof_index(0, FrameDof::Rz),
+            node_dof_index(1, FrameDof::Uy),
+            node_dof_index(1, FrameDof::Uz),
+            node_dof_index(1, FrameDof::Rx),
+            node_dof_index(1, FrameDof::Ry),
+            node_dof_index(1, FrameDof::Rz),
+        ];
+
+        let reduced = reduce_system(&stiffness, &force, &restrained_dofs).unwrap();
+        let displacement = solve_dense(&reduced.stiffness, &reduced.force).unwrap();
+
+        assert_eq!(reduced.free_dofs, vec![node_dof_index(1, FrameDof::Ux)]);
+        assert_close(displacement[0], 2.0);
     }
 
     #[test]
@@ -1673,6 +1854,14 @@ mod tests {
                 assert_close(*value, matrix[col][row]);
             }
         }
+    }
+
+    fn assert_relative_stiffness(matrix: &Matrix12, local_dof: usize, value: f64) {
+        let opposite = local_dof + DOF_PER_NODE;
+        assert_close(matrix[local_dof][local_dof], value);
+        assert_close(matrix[opposite][opposite], value);
+        assert_close(matrix[local_dof][opposite], -value);
+        assert_close(matrix[opposite][local_dof], -value);
     }
 
     fn assert_close(actual: f64, expected: f64) {

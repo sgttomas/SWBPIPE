@@ -69,8 +69,10 @@
      `TP-R4-D3-RIGIDVIS-001` with `mechanics_geometry_only`
      data/provenance/diagnostic evidence and no frame-stiffness behavior
      change. D4 expansion-joint app absorption landed through
-     `TP-R4-D4-EJSTIFF-001` with user-stiffness review rows; the `DEC-045`
-     EJ solver macro-element and pressure-thrust load generation remain open.
+     `TP-R4-D4-EJSTIFF-001` with user-stiffness review rows, and
+     `TP-R4-D4-EJMACRO-001` now consumes user-entered stiffness through the
+     dedicated `DEC-045` EJ solver macro-element for invented mechanics;
+     pressure-thrust load generation remains open.
      D5 spring-hanger user-data model evidence landed through
      `TP-R4-D5-HANGERDATA-001` under `DEC-049`, with invented variable spring
      and constant-effort support records and no catalog sizing, protected
@@ -95,8 +97,8 @@
      while dense remains default. `TP-R4-D9-EXITGAP-001` records the current R4
      exit verdict as not ready: non-seed force/displacement/energy threshold
      promotion, multi-DOF / multi-support nonlinear fixture depth,
-     profile-direct sparse/default promotion, EJ assembled macro-element
-     mechanics, deeper spring-hanger behavior, and the remaining D9 validation
+     profile-direct sparse/default promotion, pressure-thrust load generation,
+     deeper spring-hanger behavior, and the remaining D9 validation
      package remain open. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the
