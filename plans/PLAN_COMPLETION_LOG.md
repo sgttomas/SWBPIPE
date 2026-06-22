@@ -14,6 +14,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D9 negative-gap multi-support companion (`TP-R4-D9-MULTISUPPORTNEGAP-001`)
+
+Broadened the accepted `DEC-046` multi-support companion set with a
+negative-direction gap branch paired with one-way release, while keeping the
+policy scope narrow and R4 exit blockers open.
+
+Changed surfaces:
+
+- `validation/benchmarks/nonlinear` now includes
+  `NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL`, an invented
+  assembled frame fixture where a negative-direction Uy gap closes and a Ux
+  one-way support releases in the accepted active-set loop.
+- Multi-support active-set-count, free-DOF force/moment, free-DOF work, and
+  displacement/reaction-delta policy records now name the nine-fixture
+  public-original accepted set.
+- The benchmark README, hand-calc index, new hand-calc note, focused Python
+  guard, DEL-09-03 memory, coordination file, and R4 gap packet now describe
+  the nine-fixture accepted companion set.
+
+Focused validation: nonlinear benchmark Rust tests passed 17/17; focused
+nonlinear pytest passed 8/8; JSON syntax validation passed for the four
+multi-support policy records. Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T123917Z_315cb4c609bd-dirty.json`.
+
+Residuals: non-seed force/displacement thresholds beyond the accepted
+nine-fixture set, broader displacement/reaction-delta thresholds beyond the
+accepted current-seed, nine-fixture, and product-preview surfaces, general
+energy thresholds, default sparse promotion plus sparse timing/memory/
+conditioning/CI/hardware-normalized thresholds, deeper spring-hanger behavior,
+external validation thresholds, broader R4 validation package work, and final
+R4 exit evidence remain open.
+
+Boundary: invented/public-original validation evidence only. No protected
+standards content, proprietary benchmark output, private project data,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-MULTISUPPORTNEGAP-001.md`.
+
 ## 2026-06-22 - R4 D7 sparse suitability threshold policy (`TP-R4-D7-SPARSETHRESHOLDPOLICY-001`)
 
 Promoted a bounded `DEC-050` sparse suitability threshold policy for the

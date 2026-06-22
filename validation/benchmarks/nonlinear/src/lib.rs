@@ -159,7 +159,7 @@ const DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 10.0;
 const DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 3.0;
 const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_LIMITATIONS: &[&str] = &[
     "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration displacement and reaction deltas from the previous active-set solve.",
-    "Limits are fixture-evidence envelopes for the accepted eight-fixture multi-support set; fixture-local overrides may only tighten them.",
+    "Limits are fixture-evidence envelopes for the accepted nine-fixture multi-support set; fixture-local overrides may only tighten them.",
     "Does not define general energy, sparse default, product-preview, release, external validation, or CI thresholds.",
 ];
 const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
@@ -171,6 +171,7 @@ const DEC_046_MULTISUPPORT_EVIDENCE_FIXTURE_IDS: &[&str] = &[
     "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
     "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+    "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1106,6 +1107,7 @@ pub fn assembled_multisupport_acceptance_inventory() -> Vec<AssembledNonlinearRe
         assembled_multi_dof_derived_normal_gap_acceptance_fixture(),
         assembled_multi_dof_derived_normal_rotational_acceptance_fixture(),
         assembled_multi_dof_cascade_gap_lift_off_acceptance_fixture(),
+        assembled_multi_dof_negative_gap_acceptance_fixture(),
     ]
 }
 
@@ -1612,9 +1614,8 @@ fn convergence_class_label(
         | "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL"
-        | "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL" => {
-            "multi_support_multi_dof"
-        }
+        | "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
+        | "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL" => "multi_support_multi_dof",
         _ => match family {
             NonlinearRegressionFamily::ActiveSet => "active_set",
             NonlinearRegressionFamily::Gap => "gap",
@@ -3260,6 +3261,109 @@ pub fn assembled_multi_dof_cascade_gap_lift_off_acceptance_fixture(
     }
 }
 
+pub fn assembled_multi_dof_negative_gap_acceptance_fixture() -> AssembledNonlinearRegressionCase {
+    let one_way_id = "NL-ASSEMBLED-MULTI-ONE-WAY-UX-J";
+    let gap_id = "NL-ASSEMBLED-MULTI-GAP-NEG-UY-J";
+    let one_way = NonlinearSupport::one_way(
+        one_way_id,
+        1,
+        FrameDof::Ux,
+        ActivationSense::PositiveReaction,
+    );
+    let gap = NonlinearSupport::gap(
+        gap_id,
+        1,
+        FrameDof::Uy,
+        0.0002,
+        GapDirection::NegativeDisplacement,
+    )
+    .unwrap();
+    let mut input = assembled_xy_tip_input(
+        vec![one_way, gap],
+        vec![
+            SupportStateRecord::new(one_way_id, ActiveSetState::Active),
+            SupportStateRecord::new(gap_id, ActiveSetState::Inactive),
+        ],
+        accepted_multisupport_convergence_control().unwrap(),
+    );
+    input.force[node_dof_index(1, FrameDof::Uy)] = -1.0;
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+        family: NonlinearRegressionFamily::MixedSupport,
+        description:
+            "Invented assembled frame solve accepts simultaneous Ux one-way release and negative-direction Uy gap closure under a narrow multi-support DEC-046 policy.",
+        assumptions: &[
+            "The frame fixture is a two-node member with two free translational tip DOFs.",
+            "The Uy gap closes only in the negative displacement direction under an explicit negative invented load.",
+            "This acceptance companion broadens the multi-support fixture set to the negative gap-direction branch; general energy, release, and external thresholds remain TBD.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_multi_support_negative_gap_acceptance.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![
+            ExpectedState {
+                support_id: gap_id,
+                state: ActiveSetState::Active,
+            },
+            ExpectedState {
+                support_id: one_way_id,
+                state: ActiveSetState::Inactive,
+            },
+        ],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![],
+        observations: vec![
+            DimensionedObservation {
+                name: "applied_ux_force",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "applied_uy_force",
+                value: -1.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "gap_clearance",
+                value: 0.0002,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "gap_direction_negative",
+                value: 1.0,
+                unit: "flag",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_MULTISUPPORT_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+        ],
+    }
+}
+
 pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
     let support_id = "NL-ACTIVE-ONE-WAY-A";
     let support = NonlinearSupport::one_way(
@@ -3726,7 +3830,7 @@ mod tests {
     fn multisupport_acceptance_inventory_uses_narrow_dec_046_policy() {
         let fixtures = assembled_multisupport_acceptance_inventory();
 
-        assert_eq!(fixtures.len(), 8);
+        assert_eq!(fixtures.len(), 9);
         assert_eq!(
             fixtures
                 .iter()
@@ -3819,7 +3923,7 @@ mod tests {
         );
 
         let observations = assembled_multisupport_acceptance_convergence_observations();
-        assert_eq!(observations.len(), 8);
+        assert_eq!(observations.len(), 9);
         for observation in &observations {
             assert_eq!(
                 observation.policy_ref,
@@ -3832,7 +3936,7 @@ mod tests {
         }
 
         let residuals = assembled_multisupport_acceptance_residual_observations();
-        assert_eq!(residuals.len(), 8);
+        assert_eq!(residuals.len(), 9);
         for residual in &residuals {
             assert_eq!(
                 residual.free_dof_force_moment_threshold_policy,

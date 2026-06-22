@@ -48,13 +48,14 @@
         "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
         "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
         "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
-        "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
+        "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL"
       ]
     }
   ],
   "limitations": [
     "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration displacement and reaction deltas from the previous active-set solve.",
-    "Limits are fixture-evidence envelopes for the accepted eight-fixture multi-support set; fixture-local overrides may only tighten them.",
+    "Limits are fixture-evidence envelopes for the accepted nine-fixture multi-support set; fixture-local overrides may only tighten them.",
     "Does not define general energy, sparse default, product-preview, release, external validation, or CI thresholds."
   ],
   "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
