@@ -610,3 +610,20 @@
   operation validation/application, unit conversion behavior, private data,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-22 - TP-R4-D4-EJTHRUST-001 supporting generated pressure-thrust load evidence
+
+- Supporting role for DEL-03-06 D4: the product-physics load side now
+  generates expansion-joint pressure-thrust result rows from explicit
+  pressure load primitives and user-entered effective area when an
+  expansion-joint component maps to the pressured pipe.
+- The existing pipe-internal-area pressure-thrust behavior remains the
+  fallback for ordinary pipe pressure loads without an eligible expansion
+  joint component mapping.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D4-EJTHRUST-001.md`;
+  primary DEL-03-06 run record and supporting DEL-08-03 run record.
+- Boundary preserved: no protected standards content, hidden default
+  pressure-thrust coefficient, private project data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

@@ -40,7 +40,7 @@ use open_pipe_stress_stress_recovery::{
 };
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::f64::consts::PI;
 
 mod validation;
@@ -428,6 +428,7 @@ pub struct Summary {
     pub load_case_count: usize,
     pub component_stress_modifier_count: usize,
     pub component_user_stiffness_macro_element_count: usize,
+    pub component_pressure_thrust_load_count: usize,
     pub spring_hanger_user_input_count: usize,
     pub max_displacement: Option<LocatedQuantity>,
     pub max_open_formula_stress: Option<LocatedQuantity>,
@@ -513,6 +514,7 @@ struct LoadCaseSolve {
     max_displacement: Option<LocatedQuantity>,
     max_stress: Option<LocatedQuantity>,
     component_stress_modifier_count: usize,
+    component_pressure_thrust_load_count: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -521,10 +523,28 @@ struct ThermalElementLoad {
     axial_load: f64,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 struct PressureThrustLoad {
     element_index: usize,
     axial_load: f64,
+    source_load_id: String,
+    source: PressureThrustSource,
+}
+
+#[derive(Debug, Clone)]
+enum PressureThrustSource {
+    PipeInternalArea,
+    ExpansionJointEffectiveArea(ExpansionJointPressureThrustInput),
+}
+
+#[derive(Debug, Clone)]
+struct ExpansionJointPressureThrustInput {
+    component_id: String,
+    pipe_id: String,
+    effective_area: f64,
+    pressure_thrust_reference: String,
+    source_reference: String,
+    solver_consumption: String,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -664,6 +684,10 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
         .iter()
         .map(|solve| solve.component_stress_modifier_count)
         .sum();
+    let component_pressure_thrust_load_count = load_case_solves
+        .iter()
+        .map(|solve| solve.component_pressure_thrust_load_count)
+        .sum();
     let mut results = Vec::new();
     let mut rows_by_base_id: HashMap<String, HashMap<String, ResultItem>> = HashMap::new();
     for (index, solve) in load_case_solves.into_iter().enumerate() {
@@ -727,6 +751,7 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
             load_case_count: model.load_cases.len(),
             component_stress_modifier_count,
             component_user_stiffness_macro_element_count,
+            component_pressure_thrust_load_count,
             spring_hanger_user_input_count,
             max_displacement,
             max_open_formula_stress: max_stress,
@@ -765,6 +790,7 @@ fn solve_load_case(
             max_displacement: None,
             max_stress: None,
             component_stress_modifier_count: 0,
+            component_pressure_thrust_load_count: 0,
         });
     }
 
@@ -780,7 +806,8 @@ fn solve_load_case(
         .collect::<HashMap<_, _>>();
     let thermal_loads =
         build_thermal_element_loads(model, load_case, &material_map, &pipe_map, &built.sections);
-    let pressure_thrust_loads = build_pressure_thrust_loads(load_case, &pipe_map, &built.sections);
+    let pressure_thrust_loads =
+        build_pressure_thrust_loads(model, load_case, &pipe_map, &built.sections);
 
     let mut force = load_application.global_load_vector(built.nodes.len());
     add_uniform_element_loads(
@@ -808,6 +835,12 @@ fn solve_load_case(
         &reduced.stiffness,
         &reduced.force,
         &reduced_displacements,
+    );
+    let component_pressure_thrust_load_count = append_expansion_joint_pressure_thrust_results(
+        &mut results,
+        diagnostics,
+        load_case,
+        &pressure_thrust_loads,
     );
     let mut max_displacement = None;
     for node in &model.nodes {
@@ -1059,6 +1092,7 @@ fn solve_load_case(
         max_displacement,
         max_stress,
         component_stress_modifier_count,
+        component_pressure_thrust_load_count,
     })
 }
 
@@ -3172,11 +3206,13 @@ fn build_thermal_element_loads(
 }
 
 fn build_pressure_thrust_loads(
+    model: &PreviewModel,
     load_case: &PreviewLoadCase,
     pipe_map: &HashMap<&str, usize>,
     sections: &HashMap<String, DerivedSection>,
 ) -> Vec<PressureThrustLoad> {
     let mut loads = Vec::new();
+    let expansion_joint_inputs = expansion_joint_pressure_thrust_inputs_by_pipe(model);
     for load in &load_case.primitive_loads {
         if load.category != "pressure" || load.dimension != "pressure" {
             continue;
@@ -3187,15 +3223,90 @@ fn build_pressure_thrust_loads(
         let Some(&element_index) = pipe_map.get(pipe.as_str()) else {
             continue;
         };
+        if let Some(inputs) = expansion_joint_inputs.get(pipe.as_str()) {
+            for input in inputs {
+                loads.push(PressureThrustLoad {
+                    element_index,
+                    axial_load: load.magnitude.value * input.effective_area,
+                    source_load_id: load.id.clone(),
+                    source: PressureThrustSource::ExpansionJointEffectiveArea(input.clone()),
+                });
+            }
+            continue;
+        }
         let Some(section) = sections.get(pipe) else {
             continue;
         };
         loads.push(PressureThrustLoad {
             element_index,
             axial_load: load.magnitude.value * section.internal_area,
+            source_load_id: load.id.clone(),
+            source: PressureThrustSource::PipeInternalArea,
         });
     }
     loads
+}
+
+fn expansion_joint_pressure_thrust_inputs_by_pipe(
+    model: &PreviewModel,
+) -> HashMap<String, Vec<ExpansionJointPressureThrustInput>> {
+    let mut inputs_by_pipe: HashMap<String, Vec<ExpansionJointPressureThrustInput>> =
+        HashMap::new();
+    for component in model
+        .components
+        .iter()
+        .filter(|component| is_expansion_joint_component(component))
+    {
+        let solver_consumption = component
+            .mechanics_interface
+            .as_ref()
+            .and_then(|interface| interface.solver_consumption.as_deref())
+            .unwrap_or("not_provided");
+        if solver_consumption != "mechanics_geometry_and_user_flexibility" {
+            continue;
+        }
+        let Some(geometry) = component.geometry.as_ref() else {
+            continue;
+        };
+        let Some(pipe_id) = geometry
+            .expansion_joint_pipe_ref
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+        else {
+            continue;
+        };
+        let Some(effective_area) = geometry
+            .effective_area
+            .as_ref()
+            .map(|quantity| quantity.value)
+            .filter(|value| positive_finite(*value))
+        else {
+            continue;
+        };
+        let pressure_thrust_reference = geometry
+            .pressure_thrust_reference
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or("load_side_pressure_thrust_reference_missing")
+            .to_string();
+        let source_reference = geometry
+            .expansion_joint_source_reference
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or("expansion_joint_source_reference_missing")
+            .to_string();
+        inputs_by_pipe.entry(pipe_id.to_string()).or_default().push(
+            ExpansionJointPressureThrustInput {
+                component_id: component.id.clone(),
+                pipe_id: pipe_id.to_string(),
+                effective_area,
+                pressure_thrust_reference,
+                source_reference,
+                solver_consumption: solver_consumption.to_string(),
+            },
+        );
+    }
+    inputs_by_pipe
 }
 
 fn add_pressure_thrust_loads(
@@ -3275,6 +3386,98 @@ fn pressure_thrust_for_pipe(element_index: usize, pressure_loads: &[PressureThru
         .filter(|load| load.element_index == element_index)
         .map(|load| load.axial_load)
         .sum::<f64>()
+}
+
+#[derive(Debug, Clone)]
+struct ExpansionJointPressureThrustAggregate {
+    input: ExpansionJointPressureThrustInput,
+    axial_load: f64,
+    source_load_ids: Vec<String>,
+}
+
+fn append_expansion_joint_pressure_thrust_results(
+    results: &mut Vec<ResultItem>,
+    diagnostics: &mut Vec<Diagnostic>,
+    load_case: &PreviewLoadCase,
+    pressure_loads: &[PressureThrustLoad],
+) -> usize {
+    let mut aggregates: BTreeMap<String, ExpansionJointPressureThrustAggregate> = BTreeMap::new();
+    for load in pressure_loads {
+        let PressureThrustSource::ExpansionJointEffectiveArea(input) = &load.source else {
+            continue;
+        };
+        let entry = aggregates
+            .entry(input.component_id.clone())
+            .or_insert_with(|| ExpansionJointPressureThrustAggregate {
+                input: input.clone(),
+                axial_load: 0.0,
+                source_load_ids: Vec::new(),
+            });
+        entry.axial_load += load.axial_load;
+        entry.source_load_ids.push(load.source_load_id.clone());
+    }
+
+    let mut appended = 0;
+    for (_, mut aggregate) in aggregates {
+        if aggregate.axial_load == 0.0 {
+            continue;
+        }
+        aggregate.source_load_ids.sort();
+        aggregate.source_load_ids.dedup();
+        let component_suffix = stable_suffix(&aggregate.input.component_id);
+        let result_id = format!("result:pressure-thrust:{component_suffix}");
+        results.push(ResultItem {
+            id: result_id.clone(),
+            kind: "expansion_joint_pressure_thrust_load_review".to_string(),
+            value: round6(aggregate.axial_load),
+            unit: "N".to_string(),
+            entity_ref: aggregate.input.component_id.clone(),
+            basis_ref: None,
+            source_result_refs: aggregate.source_load_ids.clone(),
+            metadata: Some(ResultMetadata {
+                component: "expansion_joint_pressure_thrust".to_string(),
+                coordinate_system: "element_local".to_string(),
+                location: aggregate.input.pipe_id.clone(),
+                basis: format!(
+                    "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area={};source={};pressure_thrust={};solver_consumption={}",
+                    rounded_scalar(aggregate.input.effective_area),
+                    aggregate.input.source_reference,
+                    aggregate.input.pressure_thrust_reference,
+                    aggregate.input.solver_consumption
+                ),
+                sign_convention:
+                    "positive value is explicit pressure multiplied by user-entered effective pressure area and applied as equal/opposite axial load along the mapped pipe; no compliance claim is made"
+                        .to_string(),
+            }),
+        });
+        let mut affected_refs = vec![
+            aggregate.input.component_id.clone(),
+            aggregate.input.pipe_id.clone(),
+            load_case.id.clone(),
+            result_id,
+            aggregate.input.pressure_thrust_reference.clone(),
+        ];
+        affected_refs.extend(aggregate.source_load_ids.clone());
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:pressure-thrust:{}:{}",
+                stable_suffix(&load_case.id),
+                component_suffix
+            ),
+            "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+            "info",
+            format!(
+                "expansion joint {} pressure thrust uses explicit effective area {} m^2 and pressure primitive(s) from load case {}; applied on load side along {}; no protected/default manufacturer value is supplied",
+                aggregate.input.component_id,
+                rounded_scalar(aggregate.input.effective_area),
+                load_case.id,
+                aggregate.input.pipe_id
+            ),
+            affected_refs,
+        ));
+        appended += 1;
+    }
+    appended
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -4003,14 +4206,14 @@ fn append_expansion_joint_user_stiffness_results(
                     coordinate_system: "component_local_preview".to_string(),
                     location: pipe_ref.to_string(),
                     basis: format!(
-                        "component_family=expansion_joint;user_entered_axis={axis};source={source_reference};solver_consumption={solver_consumption};macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=follow_on;pressure_thrust={}",
+                        "component_family=expansion_joint;user_entered_axis={axis};source={source_reference};solver_consumption={solver_consumption};macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=load_side_user_effective_area;pressure_thrust={}",
                         geometry
                             .pressure_thrust_reference
                             .as_deref()
                             .unwrap_or("load_side_pressure_thrust_reference_missing")
                     ),
                     sign_convention:
-                        "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust load generation remains follow-on and no compliance claim is made"
+                        "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust generation is load-side effective-area evidence and no compliance claim is made"
                             .to_string(),
                 }),
             });
@@ -4941,6 +5144,7 @@ fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> Mechan
             load_case_count: model.load_cases.len(),
             component_stress_modifier_count: 0,
             component_user_stiffness_macro_element_count: 0,
+            component_pressure_thrust_load_count: 0,
             spring_hanger_user_input_count: 0,
             max_displacement: None,
             max_open_formula_stress: None,
@@ -7079,7 +7283,7 @@ mod tests {
             .contains("macro_element_solve=assembled_user_stiffness"));
         assert!(axial_metadata
             .basis
-            .contains("pressure_thrust_generation=follow_on"));
+            .contains("pressure_thrust_generation=load_side_user_effective_area"));
         assert!(axial_metadata
             .basis
             .contains("pressure_thrust=load_side_pressure_thrust_user_review_required"));
@@ -7100,6 +7304,83 @@ mod tests {
                 .all(|diagnostic| diagnostic.code
                     != "EXPANSION_JOINT_MECHANICS_INTERFACE_UNSUPPORTED")
         );
+    }
+
+    #[test]
+    fn expansion_joint_pressure_thrust_uses_user_effective_area_as_load_side_evidence() {
+        let result = run_linear_static_preview(request());
+        let default_row = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:pressure-thrust:component-C-150")
+            .expect("default load case expansion joint pressure-thrust row should be emitted");
+        let alternate_row = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:loadcase:load-L-200:pressure-thrust:component-C-150")
+            .expect("alternate load case expansion joint pressure-thrust row should be emitted");
+        let combination_row = result
+            .results
+            .iter()
+            .find(|item| {
+                item.id
+                    == "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150"
+            })
+            .expect(
+                "expansion joint pressure-thrust row should participate in explicit combinations",
+            );
+
+        assert_eq!(result.summary.component_pressure_thrust_load_count, 2);
+        assert_eq!(
+            default_row.kind,
+            "expansion_joint_pressure_thrust_load_review"
+        );
+        assert_eq!(default_row.entity_ref, "component:C-150");
+        assert_eq!(default_row.value, 21_600.0);
+        assert_eq!(default_row.unit, "N");
+        assert_eq!(default_row.source_result_refs, vec!["load:L-100-P-EJ"]);
+        let metadata = default_row
+            .metadata
+            .as_ref()
+            .expect("pressure-thrust row carries load-side evidence metadata");
+        assert_eq!(metadata.component, "expansion_joint_pressure_thrust");
+        assert_eq!(metadata.coordinate_system, "element_local");
+        assert_eq!(metadata.location, "pipe:P-130");
+        assert!(metadata
+            .basis
+            .contains("pressure_thrust_generation=load_side_user_effective_area"));
+        assert!(metadata.basis.contains("effective_area=0.018"));
+        assert!(metadata
+            .basis
+            .contains("source=invented_user_entered_expansion_joint_preview_geometry"));
+        assert!(metadata
+            .sign_convention
+            .contains("user-entered effective pressure area"));
+
+        assert_eq!(alternate_row.value, 10_800.0);
+        assert_eq!(alternate_row.source_result_refs, vec!["load:L-200-P-EJ"]);
+        assert_eq!(combination_row.value, 27_000.0);
+        assert_eq!(
+            combination_row.source_result_refs,
+            vec![
+                "result:pressure-thrust:component-C-150".to_string(),
+                "result:loadcase:load-L-200:pressure-thrust:component-C-150".to_string(),
+            ]
+        );
+        assert!(result
+            .results
+            .iter()
+            .any(|item| item.id == "result:stress:pipe-P-130:end-i:pressure-hoop"));
+        assert!(!result
+            .results
+            .iter()
+            .any(|item| item.id == "result:stress:pipe-P-130:end-i:pressure-longitudinal"));
+        assert!(result.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED"
+                && diagnostic
+                    .affected_refs
+                    .contains(&"load:L-100-P-EJ".to_string())
+        }));
     }
 
     #[test]

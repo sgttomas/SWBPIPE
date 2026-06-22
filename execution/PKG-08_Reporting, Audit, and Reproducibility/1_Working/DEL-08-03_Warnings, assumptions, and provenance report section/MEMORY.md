@@ -200,6 +200,20 @@ Durable context preserved after reconciliation review:
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
 
+## 2026-06-22 - TP-R4-D4-EJTHRUST-001 supporting pressure-thrust report evidence
+
+- Supporting role for DEL-03-06 D4: the preview report packet and JSON export
+  now preserve expansion-joint pressure-thrust evidence rows and selected
+  result refs for `component:C-150`, including the primary load-case rows and
+  the `C-OPER-ALT` combination row.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D4-EJTHRUST-001.md`;
+  primary DEL-03-06 run record and supporting DEL-05-01 run record.
+- Boundary preserved: no report clearance, legal review, redaction,
+  professional boundary semantics, lifecycle state, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 supporting export inventory evidence
 
 - Supporting role for DEL-12-02 Export Safety Review matrix cleanup: the

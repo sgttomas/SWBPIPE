@@ -140,3 +140,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
   data, pressure-thrust load generation, global nonlinear solve, lifecycle
   state, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-22 - TP-R4-D4-EJTHRUST-001 expansion-joint pressure-thrust load generation
+
+- R4/D4 pressure-thrust follow-on landed for the invented preview path under
+  `DEC-045`: pressure-thrust load evidence for `component:C-150` now uses the
+  user-entered expansion-joint effective area on `pipe:P-130` plus explicit
+  pressure load-case inputs for `L-100` and `L-200`.
+- Product-physics preview output now records component pressure-thrust result
+  rows for the primary load cases and the `C-OPER-ALT` combination, including
+  source load ids, component/pipe references, effective-area provenance,
+  load-case references, and `EXPANSION_JOINT_PRESSURE_THRUST_APPLIED`
+  diagnostics.
+- The report export packet now preserves the selected pressure-thrust result
+  refs and component pressure-thrust evidence for the invented preview report.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D4-EJTHRUST-001.md`;
+  supporting DEL-05-01 and DEL-08-03 run records; completion log entry.
+- Boundary preserved: explicit invented/user-entered values only; no protected
+  standards content, code-derived pressure-thrust coefficient, proprietary
+  catalog value, private project data, lifecycle state, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

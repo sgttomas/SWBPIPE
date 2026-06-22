@@ -1207,6 +1207,18 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     vec![component.id.clone()],
                 ));
             }
+            if expansion_joint_geometry_invalid(component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:expansion-joint-geometry-invalid",
+                        stable_suffix(&component.id)
+                    ),
+                    "EXPANSION_JOINT_GEOMETRY_INPUT_INVALID",
+                    "warning",
+                    "expansion joint effective pressure area and movement limit must be finite positive user-entered values before load-side pressure-thrust evidence can be generated",
+                    vec![component.id.clone()],
+                ));
+            }
             if expansion_joint_modifier_missing(component) {
                 diagnostics.push(diag(
                     &format!(
@@ -1233,6 +1245,7 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
             }
             if !expansion_joint_geometry_missing(component)
                 && !expansion_joint_mapping_invalid(component, &pipe_map)
+                && !expansion_joint_geometry_invalid(component)
                 && !expansion_joint_modifier_missing(component)
                 && !expansion_joint_modifier_invalid(component)
                 && solver_consumption == Some("mechanics_geometry_and_user_flexibility")
@@ -1675,6 +1688,19 @@ fn expansion_joint_mapping_invalid(
         .get(pipe_ref)
         .map(|pipe| pipe.from != component.node && pipe.to != component.node)
         .unwrap_or(true)
+}
+
+fn expansion_joint_geometry_invalid(component: &crate::PreviewComponent) -> bool {
+    let Some(geometry) = &component.geometry else {
+        return false;
+    };
+    [
+        geometry.effective_area.as_ref(),
+        geometry.movement_limit.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|quantity| !quantity.value.is_finite() || quantity.value <= 0.0)
 }
 
 fn expansion_joint_modifier_missing(component: &crate::PreviewComponent) -> bool {

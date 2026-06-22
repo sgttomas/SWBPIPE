@@ -63,6 +63,7 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "RULE_CHECK_INPUTS_MISSING" in {item["code"] for item in result["diagnostics"]}
     assert "COMBINATION_STRESS_SUMMARY_SKIPPED" in {item["code"] for item in result["diagnostics"]}
     assert result["summary"]["load_case_count"] == 2
+    assert result["summary"]["component_pressure_thrust_load_count"] == 2
     assert result["summary"]["max_displacement"]["result_ref"] == "result:disp:node-N-140"
     assert "result:force:pipe-P-120:axial" in result_ids
     assert "result:force:pipe-P-120:axial:end-j" in result_ids
@@ -97,8 +98,12 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert "result:nonlinear-support:support-NL-130-FRIC:uz-displacement" in result_ids
     assert "result:nonlinear-support:support-NL-130-FRIC:uz-reaction" in result_ids
     assert "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction" in result_ids
+    assert "result:pressure-thrust:component-C-150" in result_ids
+    assert "result:loadcase:load-L-200:pressure-thrust:component-C-150" in result_ids
+    assert "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150" in result_ids
     assert "TOLERANCE_POLICY_TBD" not in {item["code"] for item in result["diagnostics"]}
     assert "NONLINEAR_SUPPORT_LOOP_CONVERGED" in {item["code"] for item in result["diagnostics"]}
+    assert "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED" in {item["code"] for item in result["diagnostics"]}
     axial = next(item for item in result["results"] if item["id"] == "result:force:pipe-P-120:axial")
     axial_end_j = next(item for item in result["results"] if item["id"] == "result:force:pipe-P-120:axial:end-j")
     nonlinear_iteration_count = next(
@@ -149,6 +154,14 @@ def test_mechanics_result_keeps_status_boundaries_separate():
         for item in result["results"]
         if item["id"] == "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial"
     )
+    pressure_thrust = next(
+        item for item in result["results"] if item["id"] == "result:pressure-thrust:component-C-150"
+    )
+    pressure_thrust_combination = next(
+        item
+        for item in result["results"]
+        if item["id"] == "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150"
+    )
     assert axial["metadata"]["coordinate_system"] == "element_local"
     assert axial["metadata"]["location"] == "end_i"
     assert axial["metadata"]["component"] == "axial_force"
@@ -194,6 +207,18 @@ def test_mechanics_result_keeps_status_boundaries_separate():
         "result:loadcase:load-L-200:force:pipe-P-120:axial",
     ]
     assert combination_axial["metadata"]["basis"] == "explicit_user_linear_combination"
+    assert pressure_thrust["kind"] == "expansion_joint_pressure_thrust_load_review"
+    assert pressure_thrust["value"] == 21600
+    assert pressure_thrust["unit"] == "N"
+    assert pressure_thrust["source_result_refs"] == ["load:L-100-P-EJ"]
+    assert pressure_thrust["metadata"]["location"] == "pipe:P-130"
+    assert "effective_area=0.018" in pressure_thrust["metadata"]["basis"]
+    assert "load_side_user_effective_area" in pressure_thrust["metadata"]["basis"]
+    assert pressure_thrust_combination["value"] == 27000
+    assert pressure_thrust_combination["source_result_refs"] == [
+        "result:pressure-thrust:component-C-150",
+        "result:loadcase:load-L-200:pressure-thrust:component-C-150",
+    ]
 
 
 def test_analysis_run_preview_binds_mechanics_results_to_immutable_run_record():

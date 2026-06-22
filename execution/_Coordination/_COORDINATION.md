@@ -263,9 +263,11 @@ branch-object app absorption landed for the invented preview path through
 landed for the invented preview path through `TP-R4-D3-RIGIDVIS-001`, with
 `mechanics_geometry_only` data/provenance/diagnostic evidence and no
 frame-stiffness behavior change. D4 expansion-joint app absorption landed for
-the invented preview path through `TP-R4-D4-EJSTIFF-001`, with user-stiffness
-review rows; the `DEC-045` EJ solver macro-element and pressure-thrust load
-generation remain open. D5 spring-hanger user-data model evidence landed through
+the invented preview path through `TP-R4-D4-EJSTIFF-001`,
+`TP-R4-D4-EJMACRO-001`, and `TP-R4-D4-EJTHRUST-001`, with user-stiffness
+review rows, the `DEC-045` EJ solver macro-element, and explicit load-side
+pressure-thrust evidence from user effective area plus named pressure loads.
+D5 spring-hanger user-data model evidence landed through
 `TP-R4-D5-HANGERDATA-001` under `DEC-049`, covering invented variable spring
 and constant-effort support records without catalog sizing, protected defaults,
 hidden support values, or professional/code-compliance claims. The loop-core
@@ -296,9 +298,8 @@ one-way/gap/friction product live-loop coverage in one invented dense solve.
 remains default and profile-direct assembly/default promotion follow on.
 `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
 non-seed force/displacement/energy threshold promotion, multi-DOF /
-multi-support nonlinear fixture depth, pressure-thrust load generation,
-deeper spring-hanger behavior, and the remaining D9 validation evidence remain
-open.
+multi-support nonlinear fixture depth, deeper spring-hanger behavior, and the
+remaining D9 validation evidence remain open.
 `DAG-007` remains pending human approval; `_DAG/_LATEST.md` stays on
 `DAG-006`.
 
@@ -353,7 +354,8 @@ bounded tranche.
       `TP-R4-D1-BENDSTRESS-001`; D2 branch-object app absorption landed through
       `TP-R4-D2-BRANCHSTRESS-001`; D3 rigid/semi-rigid component app
       absorption landed through `TP-R4-D3-RIGIDVIS-001`; D4 expansion-joint
-      app absorption landed through `TP-R4-D4-EJSTIFF-001`. D5 spring-hanger
+      app absorption landed through `TP-R4-D4-EJSTIFF-001`,
+      `TP-R4-D4-EJMACRO-001`, and `TP-R4-D4-EJTHRUST-001`. D5 spring-hanger
       user-data model evidence landed through `TP-R4-D5-HANGERDATA-001` under
       `DEC-049`, with deeper catalog sizing and full constant-effort solve
       behavior left outside that slice. The D6/D9 residuals after
@@ -371,9 +373,9 @@ bounded tranche.
       as the `DEC-050` sparse evidence lane, with dense remaining default.
       `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
       non-seed force/displacement/energy thresholds, multi-DOF / multi-support
-      nonlinear fixture depth, profile-direct sparse/default promotion, EJ
-      assembled macro-element mechanics, deeper spring-hanger behavior, and the
-      R4 exit evidence package remain open under `DEC-044`/`DEC-046`/`DEC-050`.
+      nonlinear fixture depth, profile-direct sparse/default promotion, deeper
+      spring-hanger behavior, and the R4 exit evidence package remain open
+      under `DEC-044`/`DEC-046`/`DEC-050`.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize
       v0.2/R6/R7 scope;

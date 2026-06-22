@@ -14,6 +14,53 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 D4 EJ pressure-thrust load generation (`TP-R4-D4-EJTHRUST-001`)
+
+Landed the bounded D4 load-side follow-on under `DEC-045`: expansion-joint
+pressure-thrust rows are now generated from explicit user-entered effective
+area and explicit pressure load-case inputs for the invented preview path.
+For `component:C-150` on `pipe:P-130`, the preview mechanics result now emits
+load-case pressure-thrust evidence for `L-100` and `L-200` and a combination
+row for `C-OPER-ALT`; those rows carry source load ids, component/pipe refs,
+effective-area provenance, load-case refs, and the no-code-table/no-protected-
+formula boundary.
+
+Changed surfaces:
+
+- `core/product_physics`: pressure-thrust construction now prefers the
+  mapped expansion-joint effective area when the component declares
+  `mechanics_geometry_and_user_flexibility`; otherwise the existing
+  pipe-internal-area behavior remains unchanged.
+- `fixtures/product_preview`: the invented model now has explicit EJ-mapped
+  pressure primitives for `L-100` and `L-200`, and the generated mechanics
+  result includes three EJ pressure-thrust evidence rows.
+- `apps/desktop`: the report packet now includes component pressure-thrust
+  evidence, selected result refs, provenance refs, and an exported count.
+- `tests/product_preview`, desktop Vitest, and desktop Playwright expectations
+  were refreshed for the regenerated 820-row mechanics result.
+
+Evidence:
+`execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D4-EJTHRUST-001.md`.
+
+Validation recorded before DEC-025 closeout: product-physics Rust tests
+passed 44/44; `tests/product_preview/test_product_preview_service.py` passed
+9/9; desktop Vitest passed 407/407; regenerated fixture JSON parsed cleanly.
+Full DEC-025 sweep passed 5/5 surfaces:
+`validation/evidence/sweeps/SWEEP_20260622T063558Z_d3f658288543-dirty.json`.
+
+Residuals: D4 pressure-thrust is landed for the invented preview path only.
+R4 still needs force/displacement or energy threshold promotion beyond the
+active-set-count policies, product-preview non-active-set threshold axes,
+deeper multi-DOF / multi-support validation fixtures, spring-hanger solve
+behavior, profile-direct/default sparse promotion, and final R4 exit-chain
+evidence.
+
+Boundary: invented/user-entered preview values only. No protected standards
+content, code-derived pressure-thrust coefficient, proprietary catalog value,
+private project data, network path, telemetry feature, lifecycle transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-22 - R4 D4 EJ assembled user-stiffness macro-element (`TP-R4-D4-EJMACRO-001`)
 
 Landed the bounded D4 mechanics slice selected by `DEC-045`: the frame kernel

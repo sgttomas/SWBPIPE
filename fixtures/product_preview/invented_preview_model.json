@@ -330,6 +330,15 @@
           "provenance": "invented_example_user_input"
         },
         {
+          "id": "load:L-100-P-EJ",
+          "category": "pressure",
+          "target": { "type": "element", "pipe": "pipe:P-130" },
+          "direction": "global_x",
+          "magnitude": { "value": 1200000, "unit": "Pa" },
+          "dimension": "pressure",
+          "provenance": "invented_example_user_input_expansion_joint_effective_area_pressure"
+        },
+        {
           "id": "load:L-100-T",
           "category": "thermal",
           "target": { "type": "element", "pipe": "pipe:P-120" },
@@ -373,6 +382,15 @@
           "magnitude": { "value": 600000, "unit": "Pa" },
           "dimension": "pressure",
           "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-200-P-EJ",
+          "category": "pressure",
+          "target": { "type": "element", "pipe": "pipe:P-130" },
+          "direction": "global_x",
+          "magnitude": { "value": 600000, "unit": "Pa" },
+          "dimension": "pressure",
+          "provenance": "invented_example_user_input_expansion_joint_effective_area_pressure"
         }
       ],
       "provenance": "invented_example_no_code_combination"

@@ -15,15 +15,16 @@
     "load_case_count": 2,
     "component_stress_modifier_count": 8,
     "component_user_stiffness_macro_element_count": 4,
+    "component_pressure_thrust_load_count": 2,
     "spring_hanger_user_input_count": 7,
     "max_displacement": {
-      "value": 3.726018,
+      "value": 3.686623,
       "unit": "mm",
       "location_ref": "node:N-140",
       "result_ref": "result:disp:node-N-140"
     },
     "max_open_formula_stress": {
-      "value": 6.014506,
+      "value": 6.054815,
       "unit": "MPa",
       "location_ref": "pipe:P-120",
       "result_ref": "result:stress:pipe-P-120"
@@ -49,6 +50,27 @@
       }
     },
     {
+      "id": "result:pressure-thrust:component-C-150",
+      "kind": "expansion_joint_pressure_thrust_load_review",
+      "value": 21600.0,
+      "unit": "N",
+      "entity_ref": "component:C-150",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "source_result_refs": [
+        "load:L-100-P-EJ"
+      ],
+      "metadata": {
+        "component": "expansion_joint_pressure_thrust",
+        "coordinate_system": "element_local",
+        "location": "pipe:P-130",
+        "basis": "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility",
+        "sign_convention": "positive value is explicit pressure multiplied by user-entered effective pressure area and applied as equal/opposite axial load along the mapped pipe; no compliance claim is made"
+      }
+    },
+    {
       "id": "result:disp:node-N-100",
       "kind": "displacement_magnitude",
       "value": 0.0,
@@ -62,7 +84,7 @@
     {
       "id": "result:disp:node-N-110",
       "kind": "displacement_magnitude",
-      "value": 0.420982,
+      "value": 0.424175,
       "unit": "mm",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -84,7 +106,7 @@
     {
       "id": "result:disp:node-N-130",
       "kind": "displacement_magnitude",
-      "value": 3.597062,
+      "value": 3.620074,
       "unit": "mm",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -95,7 +117,7 @@
     {
       "id": "result:disp:node-N-140",
       "kind": "displacement_magnitude",
-      "value": 3.726018,
+      "value": 3.686623,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -250,7 +272,7 @@
     {
       "id": "result:disp:node-N-110:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -0.420982,
+      "value": -0.424175,
       "unit": "mm",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -268,7 +290,7 @@
     {
       "id": "result:disp:node-N-110:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.000163,
+      "value": 0.000165,
       "unit": "rad",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -286,7 +308,7 @@
     {
       "id": "result:disp:node-N-110:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.000325,
+      "value": 0.000328,
       "unit": "rad",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -376,7 +398,7 @@
     {
       "id": "result:disp:node-N-120:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.000152,
+      "value": 0.000154,
       "unit": "rad",
       "entity_ref": "node:N-120",
       "basis_ref": {
@@ -394,7 +416,7 @@
     {
       "id": "result:disp:node-N-120:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.000825,
+      "value": 0.00083,
       "unit": "rad",
       "entity_ref": "node:N-120",
       "basis_ref": {
@@ -466,7 +488,7 @@
     {
       "id": "result:disp:node-N-130:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -3.507226,
+      "value": -3.530824,
       "unit": "mm",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -502,7 +524,7 @@
     {
       "id": "result:disp:node-N-130:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.000389,
+      "value": 0.000392,
       "unit": "rad",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -538,7 +560,7 @@
     {
       "id": "result:disp:node-N-140:ux",
       "kind": "global_nodal_displacement_x",
-      "value": 1.214521,
+      "value": 1.217307,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -556,7 +578,7 @@
     {
       "id": "result:disp:node-N-140:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 0.332706,
+      "value": 0.332485,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -574,7 +596,7 @@
     {
       "id": "result:disp:node-N-140:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -3.506773,
+      "value": -3.463929,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -646,7 +668,7 @@
     {
       "id": "result:reaction:support-S-100",
       "kind": "reaction_resultant",
-      "value": 158.428387,
+      "value": 159.637296,
       "unit": "N",
       "entity_ref": "support:S-100",
       "basis_ref": {
@@ -657,7 +679,7 @@
     {
       "id": "result:reaction:support-S-120",
       "kind": "reaction_resultant",
-      "value": 772.708603,
+      "value": 774.961882,
       "unit": "N",
       "entity_ref": "support:S-120",
       "basis_ref": {
@@ -975,7 +997,7 @@
     {
       "id": "result:force:pipe-P-100:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -83.993072,
+      "value": -84.446905,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -993,7 +1015,7 @@
     {
       "id": "result:force:pipe-P-100:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 83.993072,
+      "value": 84.446905,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1047,7 +1069,7 @@
     {
       "id": "result:moment:pipe-P-100:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -90.340448,
+      "value": -90.992939,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1065,7 +1087,7 @@
     {
       "id": "result:moment:pipe-P-100:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": 90.340448,
+      "value": 90.992939,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1119,7 +1141,7 @@
     {
       "id": "result:moment:pipe-P-100:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 99.414895,
+      "value": 100.364693,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1137,7 +1159,7 @@
     {
       "id": "result:moment:pipe-P-100:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -368.192725,
+      "value": -370.59479,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1173,7 +1195,7 @@
     {
       "id": "result:force:pipe-P-100:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -41.996536,
+      "value": -42.223453,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1209,7 +1231,7 @@
     {
       "id": "result:moment:pipe-P-100:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -45.170224,
+      "value": -45.496469,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1245,7 +1267,7 @@
     {
       "id": "result:moment:pipe-P-100:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -17.48701,
+      "value": -17.375178,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1353,7 +1375,7 @@
     {
       "id": "result:moment:pipe-P-100:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -134.388915,
+      "value": -135.115048,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1389,7 +1411,7 @@
     {
       "id": "result:force:pipe-P-100:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 41.996536,
+      "value": 42.223453,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1425,7 +1447,7 @@
     {
       "id": "result:moment:pipe-P-100:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 45.170224,
+      "value": 45.496469,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1461,7 +1483,7 @@
     {
       "id": "result:moment:pipe-P-100:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -251.29082,
+      "value": -252.854919,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1515,7 +1537,7 @@
     {
       "id": "result:stress:pipe-P-100:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 0.726566,
+      "value": 0.733507,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1533,7 +1555,7 @@
     {
       "id": "result:stress:pipe-P-100:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.330123,
+      "value": -0.332507,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1587,7 +1609,7 @@
     {
       "id": "result:stress:pipe-P-100:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -2.690907,
+      "value": -2.708463,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1605,7 +1627,7 @@
     {
       "id": "result:stress:pipe-P-100:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.330123,
+      "value": 0.332507,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1659,7 +1681,7 @@
     {
       "id": "result:stress:pipe-P-100:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.127802,
+      "value": -0.126985,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1677,7 +1699,7 @@
     {
       "id": "result:stress:pipe-P-100:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.165061,
+      "value": -0.166254,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1731,7 +1753,7 @@
     {
       "id": "result:stress:pipe-P-100:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.982171,
+      "value": -0.987478,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1803,7 +1825,7 @@
     {
       "id": "result:stress:pipe-P-100:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -1.836539,
+      "value": -1.84797,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1821,7 +1843,7 @@
     {
       "id": "result:stress:pipe-P-100:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.165061,
+      "value": 0.166254,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1839,7 +1861,7 @@
     {
       "id": "result:stress:pipe-P-100",
       "kind": "open_formula_stress_summary",
-      "value": 2.690907,
+      "value": 2.708463,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1850,7 +1872,7 @@
     {
       "id": "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 3.342107,
+      "value": 3.363911,
       "unit": "MPa",
       "entity_ref": "component:C-110",
       "basis_ref": {
@@ -1911,7 +1933,7 @@
     {
       "id": "result:force:pipe-P-110:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -83.993072,
+      "value": -84.446905,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -1929,7 +1951,7 @@
     {
       "id": "result:force:pipe-P-110:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 83.993072,
+      "value": 84.446905,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -1983,7 +2005,7 @@
     {
       "id": "result:moment:pipe-P-110:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -368.192725,
+      "value": -370.59479,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2001,7 +2023,7 @@
     {
       "id": "result:moment:pipe-P-110:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": 368.192725,
+      "value": 370.59479,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2055,7 +2077,7 @@
     {
       "id": "result:moment:pipe-P-110:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -90.340448,
+      "value": -90.992939,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2073,7 +2095,7 @@
     {
       "id": "result:moment:pipe-P-110:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -111.242924,
+      "value": -111.679634,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2109,7 +2131,7 @@
     {
       "id": "result:force:pipe-P-110:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -41.996536,
+      "value": -42.223453,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2145,7 +2167,7 @@
     {
       "id": "result:moment:pipe-P-110:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -184.096362,
+      "value": -185.297395,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2181,7 +2203,7 @@
     {
       "id": "result:moment:pipe-P-110:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -95.566067,
+      "value": -96.164612,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2289,7 +2311,7 @@
     {
       "id": "result:moment:pipe-P-110:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -100.791686,
+      "value": -101.336286,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2325,7 +2347,7 @@
     {
       "id": "result:force:pipe-P-110:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 41.996536,
+      "value": 42.223453,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2361,7 +2383,7 @@
     {
       "id": "result:moment:pipe-P-110:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 184.096362,
+      "value": 185.297395,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2397,7 +2419,7 @@
     {
       "id": "result:moment:pipe-P-110:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -106.017305,
+      "value": -106.50796,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2451,7 +2473,7 @@
     {
       "id": "result:stress:pipe-P-110:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.660246,
+      "value": -0.665015,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2469,7 +2491,7 @@
     {
       "id": "result:stress:pipe-P-110:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -1.345454,
+      "value": -1.354231,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2523,7 +2545,7 @@
     {
       "id": "result:stress:pipe-P-110:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.81301,
+      "value": -0.816202,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2541,7 +2563,7 @@
     {
       "id": "result:stress:pipe-P-110:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 1.345454,
+      "value": 1.354231,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2595,7 +2617,7 @@
     {
       "id": "result:stress:pipe-P-110:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.698437,
+      "value": -0.702811,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2613,7 +2635,7 @@
     {
       "id": "result:stress:pipe-P-110:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.672727,
+      "value": -0.677116,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2667,7 +2689,7 @@
     {
       "id": "result:stress:pipe-P-110:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.736628,
+      "value": -0.740608,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2739,7 +2761,7 @@
     {
       "id": "result:stress:pipe-P-110:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.774819,
+      "value": -0.778405,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2757,7 +2779,7 @@
     {
       "id": "result:stress:pipe-P-110:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.672727,
+      "value": 0.677116,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2775,7 +2797,7 @@
     {
       "id": "result:stress:pipe-P-110",
       "kind": "open_formula_stress_summary",
-      "value": 0.81301,
+      "value": 0.816202,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2786,7 +2808,7 @@
     {
       "id": "result:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 0.820026,
+      "value": 0.825948,
       "unit": "MPa",
       "entity_ref": "component:C-110",
       "basis_ref": {
@@ -2811,7 +2833,7 @@
     {
       "id": "result:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 1.118295,
+      "value": 1.122685,
       "unit": "MPa",
       "entity_ref": "component:C-120",
       "basis_ref": {
@@ -2872,7 +2894,7 @@
     {
       "id": "result:force:pipe-P-120:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 270.715532,
+      "value": 272.514977,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -2890,7 +2912,7 @@
     {
       "id": "result:force:pipe-P-120:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": -270.715532,
+      "value": -272.514977,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -2944,7 +2966,7 @@
     {
       "id": "result:moment:pipe-P-120:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 111.242924,
+      "value": 111.679634,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -2962,7 +2984,7 @@
     {
       "id": "result:moment:pipe-P-120:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": -111.242924,
+      "value": -111.679634,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3016,7 +3038,7 @@
     {
       "id": "result:moment:pipe-P-120:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 368.192725,
+      "value": 370.59479,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3034,7 +3056,7 @@
     {
       "id": "result:moment:pipe-P-120:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": 822.955615,
+      "value": 828.471107,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3070,7 +3092,7 @@
     {
       "id": "result:force:pipe-P-120:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 135.357766,
+      "value": 136.257488,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3106,7 +3128,7 @@
     {
       "id": "result:moment:pipe-P-120:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 55.621462,
+      "value": 55.839817,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3142,7 +3164,7 @@
     {
       "id": "result:moment:pipe-P-120:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 481.883447,
+      "value": 485.063869,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3250,7 +3272,7 @@
     {
       "id": "result:moment:pipe-P-120:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 595.57417,
+      "value": 599.532948,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3286,7 +3308,7 @@
     {
       "id": "result:force:pipe-P-120:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -135.357766,
+      "value": -136.257488,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3322,7 +3344,7 @@
     {
       "id": "result:moment:pipe-P-120:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -55.621462,
+      "value": -55.839817,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3358,7 +3380,7 @@
     {
       "id": "result:moment:pipe-P-120:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 709.264892,
+      "value": 714.002028,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3412,7 +3434,7 @@
     {
       "id": "result:stress:pipe-P-120:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 2.690907,
+      "value": 2.708463,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3430,7 +3452,7 @@
     {
       "id": "result:stress:pipe-P-120:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.406505,
+      "value": 0.408101,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3502,7 +3524,7 @@
     {
       "id": "result:stress:pipe-P-120:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 6.014506,
+      "value": 6.054815,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3520,7 +3542,7 @@
     {
       "id": "result:stress:pipe-P-120:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.406505,
+      "value": -0.408101,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3592,7 +3614,7 @@
     {
       "id": "result:stress:pipe-P-120:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 3.521807,
+      "value": 3.545051,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3610,7 +3632,7 @@
     {
       "id": "result:stress:pipe-P-120:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.203253,
+      "value": 0.20405,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3682,7 +3704,7 @@
     {
       "id": "result:stress:pipe-P-120:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 4.352707,
+      "value": 4.381639,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3772,7 +3794,7 @@
     {
       "id": "result:stress:pipe-P-120:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 5.183606,
+      "value": 5.218227,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3790,7 +3812,7 @@
     {
       "id": "result:stress:pipe-P-120:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.203253,
+      "value": -0.20405,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3826,7 +3848,7 @@
     {
       "id": "result:stress:pipe-P-120",
       "kind": "open_formula_stress_summary",
-      "value": 6.014506,
+      "value": 6.054815,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3837,7 +3859,7 @@
     {
       "id": "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 3.447052,
+      "value": 3.469541,
       "unit": "MPa",
       "entity_ref": "component:C-120",
       "basis_ref": {
@@ -3862,7 +3884,7 @@
     {
       "id": "result:force:pipe-P-130:axial",
       "kind": "element_local_axial_force",
-      "value": -145.834597,
+      "value": 68.577967,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -3880,7 +3902,7 @@
     {
       "id": "result:force:pipe-P-130:axial:end-j",
       "kind": "element_local_axial_force",
-      "value": 145.834597,
+      "value": -68.577967,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -3898,7 +3920,7 @@
     {
       "id": "result:force:pipe-P-130:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -50.564966,
+      "value": -50.76347,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -3916,7 +3938,7 @@
     {
       "id": "result:force:pipe-P-130:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 50.564966,
+      "value": 50.76347,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -3934,7 +3956,7 @@
     {
       "id": "result:force:pipe-P-130:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -374.070734,
+      "value": -376.577776,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -3952,7 +3974,7 @@
     {
       "id": "result:force:pipe-P-130:shear-z:end-j",
       "kind": "element_local_shear_force_z",
-      "value": 374.070734,
+      "value": 376.577776,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4006,7 +4028,7 @@
     {
       "id": "result:moment:pipe-P-130:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 693.430412,
+      "value": 698.077819,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4024,7 +4046,7 @@
     {
       "id": "result:moment:pipe-P-130:bending-y:end-j",
       "kind": "element_local_bending_moment_y",
-      "value": 129.525203,
+      "value": 130.393288,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4042,7 +4064,7 @@
     {
       "id": "result:moment:pipe-P-130:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -93.734371,
+      "value": -94.102347,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4060,7 +4082,7 @@
     {
       "id": "result:moment:pipe-P-130:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -17.508553,
+      "value": -17.577287,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4078,7 +4100,7 @@
     {
       "id": "result:force:pipe-P-130:quarter-1:axial",
       "kind": "element_local_axial_force",
-      "value": -72.917299,
+      "value": 34.288984,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4096,7 +4118,7 @@
     {
       "id": "result:force:pipe-P-130:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -25.282483,
+      "value": -25.381735,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4114,7 +4136,7 @@
     {
       "id": "result:force:pipe-P-130:quarter-1:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -187.035367,
+      "value": -188.288888,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4150,7 +4172,7 @@
     {
       "id": "result:moment:pipe-P-130:quarter-1:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 552.45411,
+      "value": 556.156686,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4168,7 +4190,7 @@
     {
       "id": "result:moment:pipe-P-130:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -74.677917,
+      "value": -74.971082,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4258,7 +4280,7 @@
     {
       "id": "result:moment:pipe-P-130:midspan:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 411.477807,
+      "value": 414.235554,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4276,7 +4298,7 @@
     {
       "id": "result:moment:pipe-P-130:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -55.621462,
+      "value": -55.839817,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4294,7 +4316,7 @@
     {
       "id": "result:force:pipe-P-130:quarter-3:axial",
       "kind": "element_local_axial_force",
-      "value": 72.917299,
+      "value": -34.288984,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4312,7 +4334,7 @@
     {
       "id": "result:force:pipe-P-130:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 25.282483,
+      "value": 25.381735,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4330,7 +4352,7 @@
     {
       "id": "result:force:pipe-P-130:quarter-3:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": 187.035367,
+      "value": 188.288888,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4366,7 +4388,7 @@
     {
       "id": "result:moment:pipe-P-130:quarter-3:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 270.501505,
+      "value": 272.314421,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4384,7 +4406,7 @@
     {
       "id": "result:moment:pipe-P-130:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -36.565008,
+      "value": -36.708552,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4402,7 +4424,7 @@
     {
       "id": "result:stress:pipe-P-130:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": -0.04119,
+      "value": 0.019369,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4420,7 +4442,7 @@
     {
       "id": "result:stress:pipe-P-130:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 5.067881,
+      "value": 5.101846,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4438,7 +4460,7 @@
     {
       "id": "result:stress:pipe-P-130:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.68505,
+      "value": -0.68774,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4472,9 +4494,27 @@
       }
     },
     {
+      "id": "result:stress:pipe-P-130:end-i:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 13.8,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis"
+      }
+    },
+    {
       "id": "result:stress:pipe-P-130:end-j:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.04119,
+      "value": -0.019369,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4492,7 +4532,7 @@
     {
       "id": "result:stress:pipe-P-130:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 0.946625,
+      "value": 0.952969,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4510,7 +4550,7 @@
     {
       "id": "result:stress:pipe-P-130:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.12796,
+      "value": -0.128462,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4544,9 +4584,27 @@
       }
     },
     {
+      "id": "result:stress:pipe-P-130:end-j:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 13.8,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis"
+      }
+    },
+    {
       "id": "result:stress:pipe-P-130:quarter-1:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": -0.020595,
+      "value": 0.009685,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4564,7 +4622,7 @@
     {
       "id": "result:stress:pipe-P-130:quarter-1:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 4.037567,
+      "value": 4.064627,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4582,7 +4640,7 @@
     {
       "id": "result:stress:pipe-P-130:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.545778,
+      "value": -0.54792,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4616,6 +4674,24 @@
       }
     },
     {
+      "id": "result:stress:pipe-P-130:quarter-1:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 13.8,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "interpolated_from_endpoint_resultants",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
+      }
+    },
+    {
       "id": "result:stress:pipe-P-130:midspan:axial-normal",
       "kind": "element_local_axial_normal_stress",
       "value": 0.0,
@@ -4636,7 +4712,7 @@
     {
       "id": "result:stress:pipe-P-130:midspan:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 3.007253,
+      "value": 3.027408,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4654,7 +4730,7 @@
     {
       "id": "result:stress:pipe-P-130:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.406505,
+      "value": -0.408101,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4688,9 +4764,27 @@
       }
     },
     {
+      "id": "result:stress:pipe-P-130:midspan:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 13.8,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "interpolated_from_endpoint_resultants",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
+      }
+    },
+    {
       "id": "result:stress:pipe-P-130:quarter-3:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.020595,
+      "value": -0.009685,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4708,7 +4802,7 @@
     {
       "id": "result:stress:pipe-P-130:quarter-3:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 1.976939,
+      "value": 1.990188,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4726,7 +4820,7 @@
     {
       "id": "result:stress:pipe-P-130:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.267232,
+      "value": -0.268282,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4760,9 +4854,27 @@
       }
     },
     {
+      "id": "result:stress:pipe-P-130:quarter-3:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 13.8,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "interpolated_from_endpoint_resultants",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
+      }
+    },
+    {
       "id": "result:stress:pipe-P-130",
       "kind": "open_formula_stress_summary",
-      "value": 5.794121,
+      "value": 5.808955,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4789,6 +4901,27 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:pressure-thrust:component-C-150",
+      "kind": "expansion_joint_pressure_thrust_load_review",
+      "value": 10800.0,
+      "unit": "N",
+      "entity_ref": "component:C-150",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "source_result_refs": [
+        "load:L-200-P-EJ"
+      ],
+      "metadata": {
+        "component": "expansion_joint_pressure_thrust",
+        "coordinate_system": "element_local",
+        "location": "pipe:P-130",
+        "basis": "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility",
+        "sign_convention": "positive value is explicit pressure multiplied by user-entered effective pressure area and applied as equal/opposite axial load along the mapped pipe; no compliance claim is made"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:disp:node-N-100",
       "kind": "displacement_magnitude",
       "value": 0.0,
@@ -4802,7 +4935,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-110",
       "kind": "displacement_magnitude",
-      "value": 0.218696,
+      "value": 0.220293,
       "unit": "mm",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -4824,7 +4957,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-130",
       "kind": "displacement_magnitude",
-      "value": 1.758937,
+      "value": 1.770726,
       "unit": "mm",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -4835,7 +4968,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-140",
       "kind": "displacement_magnitude",
-      "value": 1.782768,
+      "value": 1.761868,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -4990,7 +5123,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-110:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -0.218696,
+      "value": -0.220293,
       "unit": "mm",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -5026,7 +5159,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-110:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.000166,
+      "value": 0.000167,
       "unit": "rad",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -5116,7 +5249,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-120:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.000082,
+      "value": 0.000083,
       "unit": "rad",
       "entity_ref": "node:N-120",
       "basis_ref": {
@@ -5134,7 +5267,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-120:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.000414,
+      "value": 0.000417,
       "unit": "rad",
       "entity_ref": "node:N-120",
       "basis_ref": {
@@ -5206,7 +5339,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-130:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -1.757565,
+      "value": -1.769364,
       "unit": "mm",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -5242,7 +5375,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-130:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.000195,
+      "value": 0.000196,
       "unit": "rad",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -5278,7 +5411,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-140:ux",
       "kind": "global_nodal_displacement_x",
-      "value": 0.277495,
+      "value": 0.278888,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -5296,7 +5429,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-140:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 0.114103,
+      "value": 0.113993,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -5314,7 +5447,7 @@
     {
       "id": "result:loadcase:load-L-200:disp:node-N-140:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -1.757338,
+      "value": -1.735916,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -5386,7 +5519,7 @@
     {
       "id": "result:loadcase:load-L-200:reaction:support-S-100",
       "kind": "reaction_resultant",
-      "value": 82.649288,
+      "value": 83.261641,
       "unit": "N",
       "entity_ref": "support:S-100",
       "basis_ref": {
@@ -5397,7 +5530,7 @@
     {
       "id": "result:loadcase:load-L-200:reaction:support-S-120",
       "kind": "reaction_resultant",
-      "value": 383.901251,
+      "value": 385.027891,
       "unit": "N",
       "entity_ref": "support:S-120",
       "basis_ref": {
@@ -5715,7 +5848,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-100:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -39.709452,
+      "value": -39.936369,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -5733,7 +5866,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-100:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 39.709452,
+      "value": 39.936369,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -5787,7 +5920,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -46.22759,
+      "value": -46.553835,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -5805,7 +5938,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": 46.22759,
+      "value": 46.553835,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -5859,7 +5992,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 55.830763,
+      "value": 56.305662,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -5877,7 +6010,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -182.901011,
+      "value": -184.102044,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -5913,7 +6046,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-100:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -19.854726,
+      "value": -19.968185,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -5949,7 +6082,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -23.113795,
+      "value": -23.276918,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -5985,7 +6118,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -3.85218,
+      "value": -3.796264,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6093,7 +6226,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -63.535124,
+      "value": -63.898191,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6129,7 +6262,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-100:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 19.854726,
+      "value": 19.968185,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6165,7 +6298,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 23.113795,
+      "value": 23.276918,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6201,7 +6334,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-100:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -123.218067,
+      "value": -124.000117,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6255,7 +6388,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 0.408035,
+      "value": 0.411505,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6273,7 +6406,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.168925,
+      "value": -0.170118,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6327,7 +6460,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -1.336718,
+      "value": -1.345495,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6345,7 +6478,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.168925,
+      "value": 0.170118,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6399,7 +6532,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.028153,
+      "value": -0.027745,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6417,7 +6550,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.084463,
+      "value": -0.085059,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6471,7 +6604,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.464341,
+      "value": -0.466995,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6543,7 +6676,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.900529,
+      "value": -0.906245,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6561,7 +6694,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.084463,
+      "value": 0.085059,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6579,7 +6712,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100",
       "kind": "open_formula_stress_summary",
-      "value": 1.336718,
+      "value": 1.345495,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6590,7 +6723,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 1.660203,
+      "value": 1.671105,
       "unit": "MPa",
       "entity_ref": "component:C-110",
       "basis_ref": {
@@ -6651,7 +6784,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-110:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -39.709452,
+      "value": -39.936369,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -6669,7 +6802,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-110:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 39.709452,
+      "value": 39.936369,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -6723,7 +6856,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -182.901011,
+      "value": -184.102044,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -6741,7 +6874,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": 182.901011,
+      "value": 184.102044,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -6795,7 +6928,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -46.22759,
+      "value": -46.553835,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -6813,7 +6946,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -49.075096,
+      "value": -49.29345,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -6849,7 +6982,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-110:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -19.854726,
+      "value": -19.968185,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -6885,7 +7018,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -91.450506,
+      "value": -92.051022,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -6921,7 +7054,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -46.939466,
+      "value": -47.238739,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7029,7 +7162,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -47.651343,
+      "value": -47.923643,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7065,7 +7198,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-110:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 19.854726,
+      "value": 19.968185,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7101,7 +7234,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 91.450506,
+      "value": 92.051022,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7137,7 +7270,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-110:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -48.363219,
+      "value": -48.608547,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7191,7 +7324,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.337851,
+      "value": -0.340235,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7209,7 +7342,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.668359,
+      "value": -0.672748,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7263,7 +7396,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.358661,
+      "value": -0.360257,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7281,7 +7414,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.668359,
+      "value": 0.672748,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7335,7 +7468,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.343053,
+      "value": -0.345241,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7353,7 +7486,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.334179,
+      "value": -0.336374,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7407,7 +7540,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.348256,
+      "value": -0.350246,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7479,7 +7612,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.353459,
+      "value": -0.355252,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7497,7 +7630,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.334179,
+      "value": 0.336374,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7515,7 +7648,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110",
       "kind": "open_formula_stress_summary",
-      "value": 0.358661,
+      "value": 0.360257,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7526,7 +7659,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 0.419611,
+      "value": 0.422572,
       "unit": "MPa",
       "entity_ref": "component:C-110",
       "basis_ref": {
@@ -7551,7 +7684,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 0.493339,
+      "value": 0.495534,
       "unit": "MPa",
       "entity_ref": "component:C-120",
       "basis_ref": {
@@ -7612,7 +7745,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-120:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 135.191799,
+      "value": 136.091521,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7630,7 +7763,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-120:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": -135.191799,
+      "value": -136.091521,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7684,7 +7817,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 49.075096,
+      "value": 49.29345,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7702,7 +7835,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": -49.075096,
+      "value": -49.29345,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7756,7 +7889,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 182.901011,
+      "value": 184.102044,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7774,7 +7907,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": 411.942904,
+      "value": 414.700651,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7810,7 +7943,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-120:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 67.595899,
+      "value": 68.045761,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7846,7 +7979,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 24.537548,
+      "value": 24.646725,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7882,7 +8015,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 240.161484,
+      "value": 241.751695,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -7990,7 +8123,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 297.421958,
+      "value": 299.401347,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8026,7 +8159,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-120:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -67.595899,
+      "value": -68.045761,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8062,7 +8195,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -24.537548,
+      "value": -24.646725,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8098,7 +8231,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 354.682431,
+      "value": 357.050999,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8152,7 +8285,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 1.336718,
+      "value": 1.345495,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8170,7 +8303,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.179331,
+      "value": 0.180129,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8242,7 +8375,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 3.010652,
+      "value": 3.030807,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8260,7 +8393,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.179331,
+      "value": -0.180129,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8332,7 +8465,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 1.755201,
+      "value": 1.766823,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8350,7 +8483,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.089665,
+      "value": 0.090064,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8422,7 +8555,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 2.173685,
+      "value": 2.188151,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8512,7 +8645,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 2.592168,
+      "value": 2.609479,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8530,7 +8663,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.089665,
+      "value": -0.090064,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8566,7 +8699,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120",
       "kind": "open_formula_stress_summary",
-      "value": 3.010652,
+      "value": 3.030807,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8577,7 +8710,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 1.712335,
+      "value": 1.723579,
       "unit": "MPa",
       "entity_ref": "component:C-120",
       "basis_ref": {
@@ -8602,7 +8735,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:axial",
       "kind": "element_local_axial_force",
-      "value": -73.081632,
+      "value": 34.12465,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8620,7 +8753,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:axial:end-j",
       "kind": "element_local_axial_force",
-      "value": 73.081632,
+      "value": -34.12465,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8638,7 +8771,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -22.306862,
+      "value": -22.406114,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8656,7 +8789,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 22.306862,
+      "value": 22.406114,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8674,7 +8807,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -187.246775,
+      "value": -188.500296,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8692,7 +8825,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:shear-z:end-j",
       "kind": "element_local_shear_force_z",
-      "value": 187.246775,
+      "value": 188.500296,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8746,7 +8879,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 347.107101,
+      "value": 349.430805,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8764,7 +8897,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:bending-y:end-j",
       "kind": "element_local_bending_moment_y",
-      "value": 64.835803,
+      "value": 65.269846,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8782,7 +8915,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -41.351153,
+      "value": -41.535141,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8800,7 +8933,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -7.723942,
+      "value": -7.758309,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8818,7 +8951,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:quarter-1:axial",
       "kind": "element_local_axial_force",
-      "value": -36.540816,
+      "value": 17.062325,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8836,7 +8969,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -11.153431,
+      "value": -11.203057,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8854,7 +8987,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:quarter-1:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -93.623387,
+      "value": -94.250148,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8890,7 +9023,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:quarter-1:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 276.539277,
+      "value": 278.390565,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8908,7 +9041,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -32.944351,
+      "value": -33.090933,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -8998,7 +9131,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:midspan:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 205.971452,
+      "value": 207.350325,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9016,7 +9149,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -24.537548,
+      "value": -24.646725,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9034,7 +9167,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:quarter-3:axial",
       "kind": "element_local_axial_force",
-      "value": 36.540816,
+      "value": -17.062325,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9052,7 +9185,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 11.153431,
+      "value": 11.203057,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9070,7 +9203,7 @@
     {
       "id": "result:loadcase:load-L-200:force:pipe-P-130:quarter-3:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": 93.623387,
+      "value": 94.250148,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9106,7 +9239,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:quarter-3:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 135.403628,
+      "value": 136.310085,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9124,7 +9257,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-130:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -16.130745,
+      "value": -16.202517,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9142,7 +9275,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": -0.020641,
+      "value": 0.009638,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9160,7 +9293,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 2.536805,
+      "value": 2.553787,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9178,7 +9311,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.302212,
+      "value": -0.303556,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9212,9 +9345,27 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-i:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 6.9,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-j:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.020641,
+      "value": -0.009638,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9232,7 +9383,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 0.473847,
+      "value": 0.477019,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9250,7 +9401,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.05645,
+      "value": -0.056701,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9284,9 +9435,27 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-j:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 6.9,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:quarter-1:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": -0.010321,
+      "value": 0.004819,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9304,7 +9473,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:quarter-1:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 2.021065,
+      "value": 2.034595,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9322,7 +9491,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.240771,
+      "value": -0.241842,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9356,6 +9525,24 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:stress:pipe-P-130:quarter-1:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 6.9,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "interpolated_from_endpoint_resultants",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:midspan:axial-normal",
       "kind": "element_local_axial_normal_stress",
       "value": 0.0,
@@ -9376,7 +9563,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:midspan:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 1.505326,
+      "value": 1.515403,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9394,7 +9581,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.179331,
+      "value": -0.180129,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9428,9 +9615,27 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:stress:pipe-P-130:midspan:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 6.9,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "interpolated_from_endpoint_resultants",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:quarter-3:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.010321,
+      "value": -0.004819,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9448,7 +9653,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:quarter-3:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 0.989587,
+      "value": 0.996211,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9466,7 +9671,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.11789,
+      "value": -0.118415,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9500,9 +9705,27 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:stress:pipe-P-130:quarter-3:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 6.9,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "interpolated_from_endpoint_resultants",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130",
       "kind": "open_formula_stress_summary",
-      "value": 2.859657,
+      "value": 2.866982,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9660,7 +9883,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110",
       "kind": "displacement_magnitude",
-      "value": 0.53033,
+      "value": 0.534322,
       "unit": "mm",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -9675,7 +9898,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.000205,
+      "value": 0.000207,
       "unit": "rad",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -9697,7 +9920,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.000408,
+      "value": 0.000412,
       "unit": "rad",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -9785,7 +10008,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -0.53033,
+      "value": -0.534322,
       "unit": "mm",
       "entity_ref": "node:N-110",
       "basis_ref": {
@@ -9822,7 +10045,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.000193,
+      "value": 0.000196,
       "unit": "rad",
       "entity_ref": "node:N-120",
       "basis_ref": {
@@ -9844,7 +10067,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.001032,
+      "value": 0.001039,
       "unit": "rad",
       "entity_ref": "node:N-120",
       "basis_ref": {
@@ -9954,7 +10177,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130",
       "kind": "displacement_magnitude",
-      "value": 4.476531,
+      "value": 4.505437,
       "unit": "mm",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -9991,7 +10214,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.000487,
+      "value": 0.00049,
       "unit": "rad",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -10079,7 +10302,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -4.386009,
+      "value": -4.415506,
       "unit": "mm",
       "entity_ref": "node:N-130",
       "basis_ref": {
@@ -10101,7 +10324,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140",
       "kind": "displacement_magnitude",
-      "value": 4.617402,
+      "value": 4.567557,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -10182,7 +10405,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:ux",
       "kind": "global_nodal_displacement_x",
-      "value": 1.353269,
+      "value": 1.356751,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -10204,7 +10427,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 0.389758,
+      "value": 0.389482,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -10226,7 +10449,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -4.385442,
+      "value": -4.331887,
       "unit": "mm",
       "entity_ref": "node:N-140",
       "basis_ref": {
@@ -10380,7 +10603,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-100:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -51.923899,
+      "value": -52.207545,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -10446,7 +10669,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-100:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 51.923899,
+      "value": 52.207545,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -10490,7 +10713,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-100:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -103.847798,
+      "value": -104.41509,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -10512,7 +10735,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-100:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 103.847798,
+      "value": 104.41509,
       "unit": "N",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -10710,7 +10933,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-110:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -51.923899,
+      "value": -52.207545,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -10776,7 +10999,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-110:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 51.923899,
+      "value": 52.207545,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -10820,7 +11043,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-110:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -103.847798,
+      "value": -104.41509,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -10842,7 +11065,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-110:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 103.847798,
+      "value": 104.41509,
       "unit": "N",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -11040,7 +11263,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 169.155716,
+      "value": 170.280369,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -11106,7 +11329,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -169.155716,
+      "value": -170.280369,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -11150,7 +11373,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-120:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 338.311432,
+      "value": 340.560737,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -11172,7 +11395,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-120:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": -338.311432,
+      "value": -340.560737,
       "unit": "N",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -11238,7 +11461,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:axial",
       "kind": "element_local_axial_force",
-      "value": -182.375413,
+      "value": 85.640292,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11260,7 +11483,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:axial:end-j",
       "kind": "element_local_axial_force",
-      "value": 182.375413,
+      "value": -85.640292,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11348,7 +11571,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:quarter-1:axial",
       "kind": "element_local_axial_force",
-      "value": -91.187707,
+      "value": 42.820147,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11370,7 +11593,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:quarter-1:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -30.859198,
+      "value": -30.983264,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11392,7 +11615,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:quarter-1:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -233.847061,
+      "value": -235.413962,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11414,7 +11637,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:quarter-3:axial",
       "kind": "element_local_axial_force",
-      "value": 91.187707,
+      "value": -42.820147,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11436,7 +11659,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:quarter-3:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": 30.859198,
+      "value": 30.983264,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11458,7 +11681,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:quarter-3:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": 233.847061,
+      "value": 235.413962,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11480,7 +11703,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:shear-y",
       "kind": "element_local_shear_force_y",
-      "value": -61.718397,
+      "value": -61.966527,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11502,7 +11725,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:shear-y:end-j",
       "kind": "element_local_shear_force_y",
-      "value": 61.718397,
+      "value": 61.966527,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11524,7 +11747,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:shear-z",
       "kind": "element_local_shear_force_z",
-      "value": -467.694122,
+      "value": -470.827924,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11546,7 +11769,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-130:shear-z:end-j",
       "kind": "element_local_shear_force_z",
-      "value": 467.694122,
+      "value": 470.827924,
       "unit": "N",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -11612,7 +11835,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 127.330277,
+      "value": 128.517524,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11634,7 +11857,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -459.643231,
+      "value": -462.645812,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11678,7 +11901,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -166.156477,
+      "value": -167.064144,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11744,7 +11967,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -19.4131,
+      "value": -19.27331,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11766,7 +11989,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -56.727121,
+      "value": -57.134928,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11810,7 +12033,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -312.899854,
+      "value": -314.854978,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11832,7 +12055,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 56.727121,
+      "value": 57.134928,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11854,7 +12077,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -113.454243,
+      "value": -114.269857,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11876,7 +12099,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-100:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": 113.454243,
+      "value": 114.269857,
       "unit": "N*m",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -11942,7 +12165,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -113.454243,
+      "value": -114.269857,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -11964,7 +12187,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -135.780472,
+      "value": -136.326359,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -12008,7 +12231,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -124.617358,
+      "value": -125.298108,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -12074,7 +12297,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -119.0358,
+      "value": -119.783982,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -12096,7 +12319,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -229.821615,
+      "value": -231.322906,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -12140,7 +12363,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -130.198915,
+      "value": -130.812233,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -12162,7 +12385,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 229.821615,
+      "value": 231.322906,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -12184,7 +12407,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -459.643231,
+      "value": -462.645812,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -12206,7 +12429,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-110:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": 459.643231,
+      "value": 462.645812,
       "unit": "N*m",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -12272,7 +12495,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 459.643231,
+      "value": 462.645812,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12294,7 +12517,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": 1028.927067,
+      "value": 1035.821432,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12338,7 +12561,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 744.285149,
+      "value": 749.233622,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12404,7 +12627,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 601.964189,
+      "value": 605.939717,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12426,7 +12649,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 67.890236,
+      "value": 68.16318,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12470,7 +12693,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 886.606108,
+      "value": 892.527528,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12492,7 +12715,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -67.890236,
+      "value": -68.16318,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12514,7 +12737,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 135.780472,
+      "value": 136.326359,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12536,7 +12759,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-120:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": -135.780472,
+      "value": -136.326359,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -12558,7 +12781,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 866.983963,
+      "value": 872.793222,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12580,7 +12803,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:bending-y:end-j",
       "kind": "element_local_bending_moment_y",
-      "value": 161.943105,
+      "value": 163.028211,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12602,7 +12825,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -114.409947,
+      "value": -114.869918,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12624,7 +12847,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -21.370524,
+      "value": -21.456441,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12646,7 +12869,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:midspan:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 514.463533,
+      "value": 517.910717,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12668,7 +12891,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:midspan:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -67.890236,
+      "value": -68.16318,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12712,7 +12935,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:quarter-1:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 690.723749,
+      "value": 695.351969,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12734,7 +12957,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:quarter-1:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -91.150093,
+      "value": -91.516549,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12778,7 +13001,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:quarter-3:bending-y",
       "kind": "element_local_bending_moment_y",
-      "value": 338.203319,
+      "value": 340.469463,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12800,7 +13023,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:moment:pipe-P-130:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": -44.630381,
+      "value": -44.809811,
       "unit": "N*m",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -12974,6 +13197,28 @@
       }
     },
     {
+      "id": "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150",
+      "kind": "expansion_joint_pressure_thrust_load_review",
+      "value": 27000.0,
+      "unit": "N",
+      "entity_ref": "component:C-150",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:pressure-thrust:component-C-150",
+        "result:loadcase:load-L-200:pressure-thrust:component-C-150"
+      ],
+      "metadata": {
+        "component": "expansion_joint_pressure_thrust",
+        "coordinate_system": "element_local",
+        "location": "pipe:P-130",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
       "id": "result:combination:combination-C-OPER-ALT:reaction:support-CE-120",
       "kind": "reaction_resultant",
       "value": 0.0,
@@ -13021,7 +13266,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:reaction:support-S-100",
       "kind": "reaction_resultant",
-      "value": 199.753031,
+      "value": 201.268117,
       "unit": "N",
       "entity_ref": "support:S-100",
       "basis_ref": {
@@ -13036,7 +13281,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:reaction:support-S-120",
       "kind": "reaction_resultant",
-      "value": 964.659229,
+      "value": 967.475827,
       "unit": "N",
       "entity_ref": "support:S-120",
       "basis_ref": {
@@ -13081,7 +13326,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 4.172209,
+      "value": 4.199464,
       "unit": "MPa",
       "entity_ref": "component:C-110",
       "basis_ref": {
@@ -13103,7 +13348,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 1.029832,
+      "value": 1.037234,
       "unit": "MPa",
       "entity_ref": "component:C-110",
       "basis_ref": {
@@ -13125,7 +13370,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 1.364965,
+      "value": 1.370452,
       "unit": "MPa",
       "entity_ref": "component:C-120",
       "basis_ref": {
@@ -13147,7 +13392,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
       "kind": "component_user_stress_multiplier_review",
-      "value": 4.30322,
+      "value": 4.331331,
       "unit": "MPa",
       "entity_ref": "component:C-120",
       "basis_ref": {
@@ -13213,7 +13458,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 0.930584,
+      "value": 0.93926,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13235,7 +13480,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.414586,
+      "value": -0.417566,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13301,7 +13546,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -3.359266,
+      "value": -3.381211,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13323,7 +13568,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.414586,
+      "value": 0.417566,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13389,7 +13634,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -1.214342,
+      "value": -1.220976,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13477,7 +13722,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.141879,
+      "value": -0.140858,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13499,7 +13744,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.207293,
+      "value": -0.208784,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13565,7 +13810,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -2.286804,
+      "value": -2.301092,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13587,7 +13832,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.207293,
+      "value": 0.208784,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13653,7 +13898,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.829172,
+      "value": -0.835133,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -13675,7 +13920,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -1.679634,
+      "value": -1.690605,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -13741,7 +13986,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.992341,
+      "value": -0.996331,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -13763,7 +14008,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 1.679634,
+      "value": 1.690605,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -13829,7 +14074,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.910756,
+      "value": -0.915731,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -13917,7 +14162,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.869964,
+      "value": -0.875431,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -13939,7 +14184,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.839817,
+      "value": -0.845303,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -14005,7 +14250,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.951549,
+      "value": -0.956031,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -14027,7 +14272,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.839817,
+      "value": 0.845303,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -14093,7 +14338,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 3.359266,
+      "value": 3.381211,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14137,7 +14382,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.496171,
+      "value": 0.498166,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14203,7 +14448,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 7.519832,
+      "value": 7.570218,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14247,7 +14492,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.496171,
+      "value": -0.498166,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14313,7 +14558,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 5.43955,
+      "value": 5.475715,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14423,7 +14668,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 4.399408,
+      "value": 4.428463,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14467,7 +14712,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.248086,
+      "value": 0.249082,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14533,7 +14778,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 6.47969,
+      "value": 6.522967,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14577,7 +14822,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.248086,
+      "value": -0.249082,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14599,7 +14844,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": -0.051511,
+      "value": 0.024188,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14621,7 +14866,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 6.336284,
+      "value": 6.37874,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14643,7 +14888,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.836156,
+      "value": -0.839518,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14657,6 +14902,28 @@
       "metadata": {
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-i:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 17.25,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-130:end-i:pressure-hoop",
+        "result:loadcase:load-L-200:stress:pipe-P-130:end-i:pressure-hoop"
+      ],
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
         "location": "end_i",
         "basis": "explicit_user_linear_combination",
         "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
@@ -14687,7 +14954,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-j:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.051511,
+      "value": -0.024188,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14709,7 +14976,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 1.183549,
+      "value": 1.191479,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14731,7 +14998,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.156185,
+      "value": -0.156813,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14745,6 +15012,28 @@
       "metadata": {
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-j:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 17.25,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-130:end-j:pressure-hoop",
+        "result:loadcase:load-L-200:stress:pipe-P-130:end-j:pressure-hoop"
+      ],
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
         "location": "end_j",
         "basis": "explicit_user_linear_combination",
         "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
@@ -14797,7 +15086,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:midspan:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 3.759916,
+      "value": 3.78511,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14819,7 +15108,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:midspan:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.496171,
+      "value": -0.498166,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14833,6 +15122,28 @@
       "metadata": {
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:midspan:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 17.25,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-130:midspan:pressure-hoop",
+        "result:loadcase:load-L-200:stress:pipe-P-130:midspan:pressure-hoop"
+      ],
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
         "location": "midspan",
         "basis": "explicit_user_linear_combination",
         "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
@@ -14863,7 +15174,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:quarter-1:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": -0.025756,
+      "value": 0.012095,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14885,7 +15196,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:quarter-1:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 5.0481,
+      "value": 5.081924,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14907,7 +15218,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:quarter-1:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.666164,
+      "value": -0.668841,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14921,6 +15232,28 @@
       "metadata": {
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:quarter-1:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 17.25,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-130:quarter-1:pressure-hoop",
+        "result:loadcase:load-L-200:stress:pipe-P-130:quarter-1:pressure-hoop"
+      ],
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
         "location": "quarter_1",
         "basis": "explicit_user_linear_combination",
         "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
@@ -14951,7 +15284,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:quarter-3:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.025756,
+      "value": -0.012095,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14973,7 +15306,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:quarter-3:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 2.471733,
+      "value": 2.488294,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -14995,7 +15328,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.326177,
+      "value": -0.32749,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -15009,6 +15342,28 @@
       "metadata": {
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:quarter-3:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "value": 17.25,
+      "unit": "MPa",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:stress:pipe-P-130:quarter-3:pressure-hoop",
+        "result:loadcase:load-L-200:stress:pipe-P-130:quarter-3:pressure-hoop"
+      ],
+      "metadata": {
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
         "location": "quarter_3",
         "basis": "explicit_user_linear_combination",
         "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
@@ -15046,8 +15401,8 @@
         "component": "axial_user_stiffness",
         "coordinate_system": "component_local_preview",
         "location": "pipe:P-130",
-        "basis": "component_family=expansion_joint;user_entered_axis=axial;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=follow_on;pressure_thrust=load_side_pressure_thrust_user_review_required",
-        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust load generation remains follow-on and no compliance claim is made"
+        "basis": "component_family=expansion_joint;user_entered_axis=axial;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=load_side_user_effective_area;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust generation is load-side effective-area evidence and no compliance claim is made"
       }
     },
     {
@@ -15060,8 +15415,8 @@
         "component": "lateral_user_stiffness",
         "coordinate_system": "component_local_preview",
         "location": "pipe:P-130",
-        "basis": "component_family=expansion_joint;user_entered_axis=lateral;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=follow_on;pressure_thrust=load_side_pressure_thrust_user_review_required",
-        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust load generation remains follow-on and no compliance claim is made"
+        "basis": "component_family=expansion_joint;user_entered_axis=lateral;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=load_side_user_effective_area;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust generation is load-side effective-area evidence and no compliance claim is made"
       }
     },
     {
@@ -15074,8 +15429,8 @@
         "component": "angular_user_stiffness",
         "coordinate_system": "component_local_preview",
         "location": "pipe:P-130",
-        "basis": "component_family=expansion_joint;user_entered_axis=angular;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=follow_on;pressure_thrust=load_side_pressure_thrust_user_review_required",
-        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust load generation remains follow-on and no compliance claim is made"
+        "basis": "component_family=expansion_joint;user_entered_axis=angular;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=load_side_user_effective_area;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust generation is load-side effective-area evidence and no compliance claim is made"
       }
     },
     {
@@ -15088,8 +15443,8 @@
         "component": "torsional_user_stiffness",
         "coordinate_system": "component_local_preview",
         "location": "pipe:P-130",
-        "basis": "component_family=expansion_joint;user_entered_axis=torsional;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=follow_on;pressure_thrust=load_side_pressure_thrust_user_review_required",
-        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust load generation remains follow-on and no compliance claim is made"
+        "basis": "component_family=expansion_joint;user_entered_axis=torsional;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=load_side_user_effective_area;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust generation is load-side effective-area evidence and no compliance claim is made"
       }
     },
     {
@@ -15235,6 +15590,21 @@
       ]
     },
     {
+      "id": "diagnostic:pressure-thrust:load-L-100:component-C-150",
+      "code": "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+      "severity": "info",
+      "message": "expansion joint component:C-150 pressure thrust uses explicit effective area 0.018 m^2 and pressure primitive(s) from load case load:L-100; applied on load side along pipe:P-130; no protected/default manufacturer value is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-150",
+        "pipe:P-130",
+        "load:L-100",
+        "result:pressure-thrust:component-C-150",
+        "load_side_pressure_thrust_user_review_required",
+        "load:L-100-P-EJ"
+      ]
+    },
+    {
       "id": "diagnostic:nonlinear:load-L-100:support-NL-130-FRIC:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
@@ -15317,6 +15687,21 @@
         "pipe:P-120",
         "result:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
         "invented_user_entered_branch_modifiers_no_code_table"
+      ]
+    },
+    {
+      "id": "diagnostic:pressure-thrust:load-L-200:component-C-150",
+      "code": "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+      "severity": "info",
+      "message": "expansion joint component:C-150 pressure thrust uses explicit effective area 0.018 m^2 and pressure primitive(s) from load case load:L-200; applied on load side along pipe:P-130; no protected/default manufacturer value is supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-150",
+        "pipe:P-130",
+        "load:L-200",
+        "result:pressure-thrust:component-C-150",
+        "load_side_pressure_thrust_user_review_required",
+        "load:L-200-P-EJ"
       ]
     },
     {
