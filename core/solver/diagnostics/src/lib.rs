@@ -529,14 +529,15 @@ pub fn convergence_diagnostic(
 ///
 /// The sparse solver *selection* is resolved by the human ruling `DEC-023`
 /// (D-03 Option C: in-repo skyline LDL^T direct solver,
-/// `core/solver/sparse_direct`). `DEC-050` binds an R4 sparse evidence lane;
-/// what remains `TBD` is default sparse promotion.
+/// `core/solver/sparse_direct`). `DEC-050` binds an R4 sparse evidence lane,
+/// and `DEC-053` promotes sparse interactive use while leaving release
+/// timing/RSS/CI thresholds out of scope.
 pub fn sparse_solver_tbd_diagnostic() -> SolverDiagnostic {
     SolverDiagnostic::new(
         SolverDiagnosticCode::SparseSolverTbd,
         DiagnosticSeverity::Warning,
         DiagnosticSource::SolverConfiguration,
-        "sparse solver strategy is resolved by DEC-023 (in-repo skyline LDLT direct solver, core/solver/sparse_direct); DEC-050 sparse evidence lane is live; product direct profile assembly is observed; default sparse promotion remains TBD",
+        "sparse solver strategy is resolved by DEC-023 (in-repo skyline LDLT direct solver, core/solver/sparse_direct); DEC-050 sparse evidence lane is live; DEC-053 promotes sparse interactive/default preview use with dense scrutiny explicit; release timing, allocator/RSS, hosted-CI, and hardware-normalized thresholds remain out of scope",
     )
 }
 
@@ -1023,18 +1024,19 @@ mod tests {
     }
 
     #[test]
-    fn sparse_solver_status_reflects_dec023_dec050_resolution_and_remaining_tbd() {
+    fn sparse_solver_status_reflects_dec023_dec050_dec053_resolution_and_release_boundary() {
         let diagnostic = sparse_solver_tbd_diagnostic();
 
         assert!(diagnostic.message.contains("DEC-023"));
         assert!(diagnostic.message.contains("DEC-050"));
+        assert!(diagnostic.message.contains("DEC-053"));
         assert!(diagnostic.message.contains("core/solver/sparse_direct"));
         assert!(diagnostic
             .message
-            .contains("product direct profile assembly is observed"));
+            .contains("sparse interactive/default preview use"));
         assert!(diagnostic
             .message
-            .contains("default sparse promotion remains TBD"));
+            .contains("release timing, allocator/RSS, hosted-CI"));
         assert!(diagnostic
             .remediation
             .as_deref()

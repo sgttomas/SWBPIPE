@@ -35,13 +35,16 @@ export async function loadDesignKnowledge(): Promise<DesignKnowledge> {
 
 export async function runPreviewMechanics(
   model?: PreviewModel | null,
+  solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<MechanicsResult> {
   return invokeOrFixture(
-    "run_preview_mechanics",
+    "run_preview_mechanics_with_solver_mode",
     () => runBrowserPreviewMechanics(model),
-    model ? { model } : undefined,
+    model ? { model, solverMode } : { solverMode },
   );
 }
+
+export type PreviewSolverMode = "sparse_interactive" | "dense_scrutiny";
 
 export type SolveJobStartReceipt =
   | {
@@ -74,6 +77,7 @@ export type BackendSolveJobCancellationReceipt = {
 
 export async function startPreviewMechanicsJob(
   model?: PreviewModel | null,
+  solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<SolveJobStartReceipt> {
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
     return { mode: "browser_fixture_no_backend_job" };
@@ -81,7 +85,7 @@ export async function startPreviewMechanicsJob(
   try {
     const receipt = await invoke<
       Omit<Extract<SolveJobStartReceipt, { mode: "backend_job" }>, "mode">
-    >("start_preview_mechanics_job", model ? { model } : undefined);
+    >("start_preview_mechanics_job_with_solver_mode", model ? { model, solverMode } : { solverMode });
     return { mode: "backend_job", ...receipt };
   } catch {
     return { mode: "browser_fixture_no_backend_job" };

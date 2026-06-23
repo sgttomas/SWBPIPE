@@ -130,7 +130,45 @@ These remain explicit and do not disappear if the stage advances:
 | **O-B** | **Hold at R4 pending additional evidence or repair.** | No R5 target-stage advancement occurs. The human must name the missing R4 evidence, blocker, or replacement criterion so agents can prepare the next bounded R4 tranche. |
 | **O-C** | **Accept the R4 evidence but keep the current target stage at R4 for residual hardening.** | The R4 product criterion is accepted, but ordinary work remains in R4. This avoids stage movement but risks substituting unbounded hardening for the planned R5 dependency spine unless the human names the hardening scope. |
 
-## 5. Advisory Recommended Disposition (PROPOSAL)
+## 5. Human Ruling And Disposition
+
+**Ruling recorded:** 2026-06-23, `DEC-053`.
+
+The human project authority selected **O-B**:
+
+> Hold at R4 pending named additional evidence or repair.
+
+The named residual is:
+
+> Sparse default promotion, sparse timing, allocator/RSS memory, CI,
+> hardware-normalized, practical-size-band, true-condition-number, and sparse
+> conditioning evidence beyond the bounded generated-grid pivot-ratio proxy.
+
+Disposition:
+
+- R4 remains the current target stage. No R5 advancement is authorized by this
+  packet.
+- The selected repair tranche is `TP-R4-D7-SPARSEDEFAULTPROMOTE-001`.
+- Sparse interactive becomes the default preview/render/live-model-change path;
+  dense scrutiny remains explicitly selectable for detailed review.
+- Sparse-to-dense fallback must be diagnostic/result-basis visible and may not
+  silently present dense results as sparse.
+- The R4 residual is closed by a bounded 9-record local observation packet with
+  practical size bands, dense/sparse timing observations, value-storage and RSS
+  observations, hardware metadata, dense/sparse parity, residual, repeat
+  determinism, pivot-ratio proxy, and true condition number computed from the
+  reduced dense symmetric matrix.
+- Timing/RSS/hardware/CI evidence is observational and local-DEC-025-bound; it
+  is not a release threshold, hosted-CI activation, hardware-normalized pass/fail
+  gate, professional approval, certification, sealing, authentication, or
+  code-compliance acceptance.
+- A refreshed final R4 exit-chain verification packet remains required before
+  any future R4-to-R5 ruling.
+
+## 6. Advisory Recommended Disposition (PROPOSAL)
+
+**Superseded by the 2026-06-23 O-B ruling above.** Historical proposal text
+retained for traceability.
 
 Recommend **O-A**, if the human project authority accepts the
 `VERIFICATION_2026-06-22_r4_exit_chain.md` evidence packet.
@@ -142,7 +180,7 @@ a human gate. Holding at R4 now would require a newly named blocker. Advancing
 the target stage to R5 does not relax any boundary and does not create release
 or professional claims.
 
-## 6. Proposed Coordination Edit (Applied Only On Acceptance)
+## 7. Proposed Coordination Edit (Applied Only On Acceptance)
 
 If O-A is accepted, replace the current target-stage paragraph in
 `execution/_Coordination/_COORDINATION.md` with text equivalent to:
@@ -164,7 +202,7 @@ The completion plan and `NEXT_INSTANCE_PROMPT.md` should then select Phase E/R5
 work in order, with `D-20` prepared at the E7 lead-up and other R5 decisions
 prepared at their named gates.
 
-## 7. Ruling Mechanism
+## 8. Ruling Mechanism
 
 Per existing practice, the human project authority selects an option or rules
 directly. The ruling is appended to

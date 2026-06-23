@@ -32,21 +32,21 @@
   },
   "results": [
     {
-      "id": "result:sparse-live:dense-parity-relative-delta",
-      "kind": "sparse_live_path_dense_parity_relative_delta",
-      "value": 0.0,
-      "unit": "unitless",
-      "entity_ref": "solver:sparse_direct",
+      "id": "result:solver-mode:linear-solve-basis",
+      "kind": "linear_solver_mode_basis",
+      "value": 1.0,
+      "unit": "mode_code",
+      "entity_ref": "solver:linear_static_preview",
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-100"
       },
       "metadata": {
-        "component": "sparse_live_path",
+        "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
-        "location": "load_case",
-        "basis": "DEC-050 sparse_evidence_lane; dense_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=21; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=follow_on",
-        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
+        "location": "load:L-100",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.950256; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+        "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
       }
     },
     {
@@ -756,7 +756,7 @@
         "component": "active_set_iteration_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; support_count=2; support_classes=friction,one_way",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; support_count=2; support_classes=friction,one_way",
         "sign_convention": "counts completed dense active-set linearization iterations"
       }
     },
@@ -774,7 +774,7 @@
         "component": "active_set_final_residual_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; residual_is_changed_support_count",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; residual_is_changed_support_count",
         "sign_convention": "zero means no nonlinear support state changed in the final iteration"
       }
     },
@@ -792,7 +792,7 @@
         "component": "active_set_converged_flag",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; residual_is_changed_support_count",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; residual_is_changed_support_count",
         "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
       }
     },
@@ -810,7 +810,7 @@
         "component": "observed_free_dof_force_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute translational free-DOF equilibrium residual in the final linearized solve"
       }
     },
@@ -828,7 +828,7 @@
         "component": "observed_free_dof_moment_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute rotational free-DOF equilibrium residual in the final linearized solve"
       }
     },
@@ -846,7 +846,7 @@
         "component": "free_dof_work_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold=0 N*m; general_energy_threshold_policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; general_energy_threshold_policy_status=accepted; general_energy_threshold=0 N*m; product_preview_only",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold=0 N*m; general_energy_threshold_policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; general_energy_threshold_policy_status=accepted; general_energy_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute free-DOF residual work product in the final linearized solve"
       }
     },
@@ -864,7 +864,7 @@
         "component": "friction_normal_reaction_derived",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
         "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
       }
     },
@@ -882,7 +882,7 @@
         "component": "active_set_state_code",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
       }
     },
@@ -900,7 +900,7 @@
         "component": "nonlinear_support_final_displacement",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "positive value follows the global frame DOF sign convention"
       }
     },
@@ -918,7 +918,7 @@
         "component": "nonlinear_support_final_reaction",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
@@ -936,7 +936,7 @@
         "component": "active_set_state_code",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
       }
     },
@@ -954,7 +954,7 @@
         "component": "nonlinear_support_final_displacement",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "positive value follows the global frame DOF sign convention"
       }
     },
@@ -972,7 +972,7 @@
         "component": "nonlinear_support_final_reaction",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
@@ -4901,21 +4901,21 @@
       }
     },
     {
-      "id": "result:loadcase:load-L-200:sparse-live:dense-parity-relative-delta",
-      "kind": "sparse_live_path_dense_parity_relative_delta",
-      "value": 0.0,
-      "unit": "unitless",
-      "entity_ref": "solver:sparse_direct",
+      "id": "result:loadcase:load-L-200:solver-mode:linear-solve-basis",
+      "kind": "linear_solver_mode_basis",
+      "value": 1.0,
+      "unit": "mode_code",
+      "entity_ref": "solver:linear_static_preview",
       "basis_ref": {
         "ref_type": "load_case",
         "ref_id": "load:L-200"
       },
       "metadata": {
-        "component": "sparse_live_path",
+        "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
-        "location": "load_case",
-        "basis": "DEC-050 sparse_evidence_lane; dense_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=21; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=follow_on",
-        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
+        "location": "load:L-200",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.950256; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+        "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
       }
     },
     {
@@ -5625,7 +5625,7 @@
         "component": "active_set_iteration_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; support_count=2; support_classes=friction,one_way",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; support_count=2; support_classes=friction,one_way",
         "sign_convention": "counts completed dense active-set linearization iterations"
       }
     },
@@ -5643,7 +5643,7 @@
         "component": "active_set_final_residual_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; residual_is_changed_support_count",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; residual_is_changed_support_count",
         "sign_convention": "zero means no nonlinear support state changed in the final iteration"
       }
     },
@@ -5661,7 +5661,7 @@
         "component": "active_set_converged_flag",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; residual_is_changed_support_count",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; residual_is_changed_support_count",
         "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
       }
     },
@@ -5679,7 +5679,7 @@
         "component": "observed_free_dof_force_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute translational free-DOF equilibrium residual in the final linearized solve"
       }
     },
@@ -5697,7 +5697,7 @@
         "component": "observed_free_dof_moment_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute rotational free-DOF equilibrium residual in the final linearized solve"
       }
     },
@@ -5715,7 +5715,7 @@
         "component": "free_dof_work_residual",
         "coordinate_system": "solver_iteration",
         "location": "final_iteration",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold=0 N*m; general_energy_threshold_policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; general_energy_threshold_policy_status=accepted; general_energy_threshold=0 N*m; product_preview_only",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold=0 N*m; general_energy_threshold_policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; general_energy_threshold_policy_status=accepted; general_energy_threshold=0 N*m; product_preview_only",
         "sign_convention": "nonnegative max absolute free-DOF residual work product in the final linearized solve"
       }
     },
@@ -5733,7 +5733,7 @@
         "component": "friction_normal_reaction_derived",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
         "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
       }
     },
@@ -5751,7 +5751,7 @@
         "component": "active_set_state_code",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
       }
     },
@@ -5769,7 +5769,7 @@
         "component": "nonlinear_support_final_displacement",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "positive value follows the global frame DOF sign convention"
       }
     },
@@ -5787,7 +5787,7 @@
         "component": "nonlinear_support_final_reaction",
         "coordinate_system": "solver_iteration",
         "location": "uz",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
         "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
@@ -5805,7 +5805,7 @@
         "component": "active_set_state_code",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
       }
     },
@@ -5823,7 +5823,7 @@
         "component": "nonlinear_support_final_displacement",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "positive value follows the global frame DOF sign convention"
       }
     },
@@ -5841,7 +5841,7 @@
         "component": "nonlinear_support_final_reaction",
         "coordinate_system": "solver_iteration",
         "location": "uy",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
         "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
@@ -15644,7 +15644,7 @@
       "id": "diagnostic:nonlinear:load-L-100:support-NL-130-FRIC:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
-      "message": "nonlinear support support:NL-130-FRIC ended in sliding state for load case load:L-100; dense preview loop evidence only",
+      "message": "nonlinear support support:NL-130-FRIC ended in sliding state for load case load:L-100; sparse_interactive preview loop evidence only",
       "source": "core/product_physics",
       "affected_refs": [
         "support:NL-130-FRIC",
@@ -15655,7 +15655,7 @@
       "id": "diagnostic:nonlinear:load-L-100:support-NL-140:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
-      "message": "nonlinear support support:NL-140 ended in active state for load case load:L-100; dense preview loop evidence only",
+      "message": "nonlinear support support:NL-140 ended in active state for load case load:L-100; sparse_interactive preview loop evidence only",
       "source": "core/product_physics",
       "affected_refs": [
         "support:NL-140",
@@ -15666,7 +15666,7 @@
       "id": "diagnostic:nonlinear:load-L-100:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; sparse, release, and external thresholds remain TBD",
+      "message": "sparse_interactive nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-100",
@@ -15744,7 +15744,7 @@
       "id": "diagnostic:nonlinear:load-L-200:support-NL-130-FRIC:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
-      "message": "nonlinear support support:NL-130-FRIC ended in sliding state for load case load:L-200; dense preview loop evidence only",
+      "message": "nonlinear support support:NL-130-FRIC ended in sliding state for load case load:L-200; sparse_interactive preview loop evidence only",
       "source": "core/product_physics",
       "affected_refs": [
         "support:NL-130-FRIC",
@@ -15755,7 +15755,7 @@
       "id": "diagnostic:nonlinear:load-L-200:support-NL-140:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
-      "message": "nonlinear support support:NL-140 ended in active state for load case load:L-200; dense preview loop evidence only",
+      "message": "nonlinear support support:NL-140 ended in active state for load case load:L-200; sparse_interactive preview loop evidence only",
       "source": "core/product_physics",
       "affected_refs": [
         "support:NL-140",
@@ -15766,7 +15766,7 @@
       "id": "diagnostic:nonlinear:load-L-200:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; sparse, release, and external thresholds remain TBD",
+      "message": "sparse_interactive nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-200",

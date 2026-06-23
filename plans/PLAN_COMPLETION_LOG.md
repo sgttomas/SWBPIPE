@@ -14,6 +14,54 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-23 - R4 sparse default-promotion residual closure (`TP-R4-D7-SPARSEDEFAULTPROMOTE-001`)
+
+Recorded the human `D-26` ruling as `DEC-053`: Option O-B holds R4 pending the
+named sparse default-promotion residual evidence/repair. The repair promotes
+sparse interactive as the default preview/render/live-model-change path and
+keeps dense scrutiny explicitly selectable for detailed review.
+
+Changed surfaces:
+
+- `core/solver/nonlinear_integration` now exposes `LinearSolveMode`, defaults to
+  sparse interactive, preserves dense scrutiny, and records explicit sparse
+  metadata or dense-fallback basis.
+- `core/product_physics` and the desktop bridge expose sparse interactive /
+  dense scrutiny solve modes and emit result metadata naming solver mode,
+  solution basis, sparse profile stats, pivot-ratio proxy, residual, and any
+  dense fallback.
+- `validation/benchmarks/sparse_default_promotion_observation.dec053.json`
+  records 9 bounded local observations across chain, generated-grid, and
+  product/nonlinear proxy fixtures with timing/RSS/hardware/practical-size-band,
+  dense/sparse parity, residual, repeat determinism, pivot-ratio proxy, and true
+  condition-number fields.
+- `validation/benchmarks/sparse_default_promotion_policy.dec053.json` records
+  closure statuses for sparse default, timing/RSS observation, hardware
+  metadata, practical size band, conditioning, and local DEC-025 evidence
+  coverage, without release thresholds or hosted-CI activation.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md`, the decision register,
+  `D-26_r4_exit_review_stage_advancement.md`, coordination, roadmap, completion
+  plan, and next-instance surfaces now route R4 to a refreshed final exit-chain
+  verification packet instead of R5 advancement.
+
+Validation: focused Rust checks for nonlinear integration, product physics,
+solver diagnostics, performance harness, and the Tauri bridge passed; Python
+sparse/product/schema guards passed; desktop Vitest passed 407 tests; desktop
+build passed; `git diff --check` passed; status discovery passed with
+`CHECKING=8`, `IN_PROGRESS=92`, `ISSUED=1`. Full DEC-025 dirty-tree local
+evidence sweep passed all five surfaces:
+`validation/evidence/sweeps/SWEEP_20260623T020002Z_3194bd29f417-dirty.json`
+(`overall_status=pass`, commit
+`3194bd29f417b8ca5489a5a524b16a460fb63260`, `working_tree_dirty=true`).
+
+Boundary: this is R4 local evidence and interaction-mode policy only. It does
+not create release-readiness, professional approval, certification, sealing,
+authentication, code-compliance acceptance, hosted-CI activation,
+hardware-normalized pass/fail gates, or release performance thresholds.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_run_records/WORKING_ITEMS_RUN_2026-06-23_TP-R4-D7-SPARSEDEFAULTPROMOTE-001.md`.
+
 ## 2026-06-23 - R4 exit review decision packet (`TP-DECIDE-D26-R4EXIT-001`)
 
 Prepared the human-gated R4 exit review / R4-to-R5 target-stage advancement

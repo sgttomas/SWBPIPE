@@ -20,9 +20,9 @@ use open_pipe_stress_load_case_algebra::{
     CombinationTerm, FindingCode, RangeMode,
 };
 use open_pipe_stress_nonlinear_integration::{
-    solve_active_set_frame, ConvergenceControl, ConvergencePolicyStatus,
-    DerivedFrictionNormalReaction, FrictionNormalReaction, NonlinearFrameSolveInput,
-    NonlinearIntegrationError, NonlinearResidualObservation,
+    solve_active_set_frame_with_mode, ConvergenceControl, ConvergencePolicyStatus,
+    DerivedFrictionNormalReaction, FrictionNormalReaction, LinearSolveMode,
+    NonlinearFrameSolveInput, NonlinearIntegrationError, NonlinearResidualObservation,
 };
 use open_pipe_stress_nonlinear_supports::{
     ActivationSense, ActiveSetState, GapDirection, NonlinearSupport, NonlinearSupportBehavior,
@@ -426,6 +426,49 @@ pub struct LinearStaticPreviewRequest {
     pub materials: Vec<MaterialInput>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PreviewSolverMode {
+    SparseInteractive,
+    DenseScrutiny,
+}
+
+impl PreviewSolverMode {
+    pub fn from_wire(value: &str) -> Option<Self> {
+        match value {
+            "sparse_interactive" => Some(Self::SparseInteractive),
+            "dense_scrutiny" => Some(Self::DenseScrutiny),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SparseInteractive => "sparse_interactive",
+            Self::DenseScrutiny => "dense_scrutiny",
+        }
+    }
+
+    fn nonlinear_mode(self) -> LinearSolveMode {
+        match self {
+            Self::SparseInteractive => LinearSolveMode::SparseInteractive,
+            Self::DenseScrutiny => LinearSolveMode::DenseScrutiny,
+        }
+    }
+
+    fn mode_code(self) -> f64 {
+        match self {
+            Self::SparseInteractive => 1.0,
+            Self::DenseScrutiny => 2.0,
+        }
+    }
+}
+
+impl Default for PreviewSolverMode {
+    fn default() -> Self {
+        Self::SparseInteractive
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct MechanicsEnvelope {
     pub schema_version: String,
@@ -580,6 +623,13 @@ struct DerivedSection {
 }
 
 pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> MechanicsEnvelope {
+    run_linear_static_preview_with_mode(request, PreviewSolverMode::default())
+}
+
+pub fn run_linear_static_preview_with_mode(
+    request: LinearStaticPreviewRequest,
+    solver_mode: PreviewSolverMode,
+) -> MechanicsEnvelope {
     let mut model = request.model;
     let mut materials = if request.materials.is_empty() {
         model.materials.clone()
@@ -685,6 +735,7 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
             &boundary.restrained_dofs,
             &boundary.springs,
             load_case,
+            solver_mode,
             &mut diagnostics,
         ) {
             Ok(solve) => load_case_solves.push(solve),
@@ -792,6 +843,7 @@ fn solve_load_case(
     restrained_dofs: &[usize],
     spring_entries: &[SpringEntry],
     load_case: &PreviewLoadCase,
+    solver_mode: PreviewSolverMode,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
@@ -842,7 +894,18 @@ fn solve_load_case(
     add_thermal_equivalent_loads(&mut force, &thermal_loads, &built.pipes);
 
     let reduced = reduce_system(stiffness, &force, restrained_dofs)?;
-    let reduced_displacements = solve_dense(&reduced.stiffness, &reduced.force)?;
+    let linear_solve = solve_preview_reduced_system(
+        solver_mode,
+        &reduced.stiffness,
+        &reduced.force,
+        built,
+        spring_entries,
+        &force,
+        restrained_dofs,
+        load_case,
+        diagnostics,
+    )?;
+    let reduced_displacements = linear_solve.solution.clone();
 
     let mut displacements = vec![0.0; built.nodes.len() * DOF_PER_NODE];
     for (index, dof) in reduced.free_dofs.iter().enumerate() {
@@ -850,16 +913,19 @@ fn solve_load_case(
     }
 
     let mut results = Vec::new();
-    append_sparse_live_path_evidence(
-        &mut results,
-        diagnostics,
-        &load_case.id,
-        built,
-        spring_entries,
-        &force,
-        restrained_dofs,
-        &reduced_displacements,
-    );
+    append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, &linear_solve);
+    if solver_mode == PreviewSolverMode::DenseScrutiny {
+        append_sparse_live_path_evidence(
+            &mut results,
+            diagnostics,
+            &load_case.id,
+            built,
+            spring_entries,
+            &force,
+            restrained_dofs,
+            &reduced_displacements,
+        );
+    }
     let component_pressure_thrust_load_count = append_expansion_joint_pressure_thrust_results(
         &mut results,
         diagnostics,
@@ -941,6 +1007,7 @@ fn solve_load_case(
         restrained_dofs,
         &force,
         load_case,
+        solver_mode,
     );
 
     let mut max_stress = None;
@@ -1135,6 +1202,7 @@ fn append_nonlinear_support_loop_results(
     restrained_dofs: &[usize],
     force: &[f64],
     load_case: &PreviewLoadCase,
+    solver_mode: PreviewSolverMode,
 ) {
     if built.nonlinear_supports.is_empty() {
         return;
@@ -1165,7 +1233,7 @@ fn append_nonlinear_support_loop_results(
         convergence,
     };
 
-    match solve_active_set_frame(&input) {
+    match solve_active_set_frame_with_mode(&input, solver_mode.nonlinear_mode()) {
         Ok(solve) => {
             for (index, solver_diagnostic) in solve.diagnostics.iter().enumerate() {
                 diagnostics.push(product_diag_from_solver_diag(
@@ -1189,7 +1257,8 @@ fn append_nonlinear_support_loop_results(
                 "active_set_iteration_count",
                 "load_case",
                 &format!(
-                    "dense_active_set_loop; policy_ref={}; policy_status=accepted; support_count={}; support_classes={}",
+                    "{}_active_set_loop; policy_ref={}; policy_status=accepted; support_count={}; support_classes={}",
+                    solver_mode.as_str(),
                     solve.policy_ref,
                     built.nonlinear_supports.len(),
                     support_classes_basis
@@ -1206,7 +1275,8 @@ fn append_nonlinear_support_loop_results(
                 "active_set_final_residual_count",
                 "load_case",
                 &format!(
-                    "dense_active_set_loop; policy_ref={}; residual_is_changed_support_count",
+                    "{}_active_set_loop; policy_ref={}; residual_is_changed_support_count",
+                    solver_mode.as_str(),
                     solve.policy_ref
                 ),
                 "zero means no nonlinear support state changed in the final iteration",
@@ -1221,7 +1291,8 @@ fn append_nonlinear_support_loop_results(
                 "active_set_converged_flag",
                 "load_case",
                 &format!(
-                    "dense_active_set_loop; policy_ref={}; policy_status=accepted; residual_is_changed_support_count",
+                    "{}_active_set_loop; policy_ref={}; policy_status=accepted; residual_is_changed_support_count",
+                    solver_mode.as_str(),
                     solve.policy_ref
                 ),
                 "1 means the active-set state-change residual satisfied the supplied preview tolerance",
@@ -1231,6 +1302,7 @@ fn append_nonlinear_support_loop_results(
                     results,
                     &final_iteration.residuals,
                     &solve.policy_ref,
+                    solver_mode,
                 );
             }
             append_nonlinear_friction_normal_evidence(
@@ -1239,6 +1311,7 @@ fn append_nonlinear_support_loop_results(
                 &built.nonlinear_derived_friction_normal_reactions,
                 &solve.reactions,
                 &solve.policy_ref,
+                solver_mode,
             );
 
             for state in &solve.final_states {
@@ -1262,7 +1335,8 @@ fn append_nonlinear_support_loop_results(
                     "active_set_state_code",
                     dof,
                     &format!(
-                        "dense_active_set_loop; policy_ref={}; final_state={}",
+                        "{}_active_set_loop; policy_ref={}; final_state={}",
+                        solver_mode.as_str(),
                         solve.policy_ref,
                         state.state.as_str()
                     ),
@@ -1288,7 +1362,8 @@ fn append_nonlinear_support_loop_results(
                     "nonlinear_support_final_displacement",
                     dof,
                     &format!(
-                        "dense_active_set_loop; policy_ref={}; final_state={}",
+                        "{}_active_set_loop; policy_ref={}; final_state={}",
+                        solver_mode.as_str(),
                         solve.policy_ref,
                         state.state.as_str()
                     ),
@@ -1309,7 +1384,8 @@ fn append_nonlinear_support_loop_results(
                     "nonlinear_support_final_reaction",
                     dof,
                     &format!(
-                        "dense_active_set_loop; policy_ref={}; final_state={}",
+                        "{}_active_set_loop; policy_ref={}; final_state={}",
+                        solver_mode.as_str(),
                         solve.policy_ref,
                         state.state.as_str()
                     ),
@@ -1324,10 +1400,11 @@ fn append_nonlinear_support_loop_results(
                     "NONLINEAR_SUPPORT_STATE_REVIEW",
                     "info",
                     format!(
-                        "nonlinear support {} ended in {} state for load case {}; dense preview loop evidence only",
+                        "nonlinear support {} ended in {} state for load case {}; {} preview loop evidence only",
                         support.support_id,
                         state.state.as_str(),
-                        load_case.id
+                        load_case.id,
+                        solver_mode.as_str()
                     ),
                     vec![support.support_id.clone(), load_case.id.clone()],
                 ));
@@ -1345,7 +1422,8 @@ fn append_nonlinear_support_loop_results(
                 },
                 if solve.converged { "info" } else { "warning" },
                 format!(
-                    "dense nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; accepted general-energy residual policy_ref={}; accepted displacement/reaction-delta policy_ref={} for emitted product-preview delta rows; sparse, release, and external thresholds remain TBD",
+                    "{} nonlinear support active-set preview completed {} iteration(s); final residual count {}; accepted active-set-count policy_ref={}; accepted free-DOF force/moment residual policy_ref={}; accepted free-DOF work residual policy_ref={}; accepted general-energy residual policy_ref={}; accepted displacement/reaction-delta policy_ref={} for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+                    solver_mode.as_str(),
                     solve.iterations.len(),
                     final_residual,
                     solve.policy_ref,
@@ -1385,6 +1463,198 @@ fn product_preview_policy_support_classes(supports: &[NonlinearSupport]) -> Vec<
         .collect::<Vec<_>>();
     classes.sort_unstable();
     classes
+}
+
+#[derive(Debug, Clone)]
+struct PreviewLinearSolve {
+    solution: Vec<f64>,
+    solution_basis: &'static str,
+    sparse_entry_count: Option<usize>,
+    original_profile_entry_count: Option<usize>,
+    ordered_profile_entry_count: Option<usize>,
+    original_max_half_bandwidth: Option<usize>,
+    ordered_max_half_bandwidth: Option<usize>,
+    nonpositive_pivot_count: Option<usize>,
+    pivot_condition_ratio_estimate: Option<f64>,
+    sparse_residual: Option<f64>,
+    dense_fallback_message: Option<String>,
+}
+
+fn solve_preview_reduced_system(
+    solver_mode: PreviewSolverMode,
+    reduced_stiffness: &[Vec<f64>],
+    reduced_force: &[f64],
+    built: &BuiltModel,
+    spring_entries: &[SpringEntry],
+    global_force: &[f64],
+    restrained_dofs: &[usize],
+    load_case: &PreviewLoadCase,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Result<PreviewLinearSolve, FrameKernelError> {
+    match solver_mode {
+        PreviewSolverMode::SparseInteractive => {
+            let direct_system = match assemble_reduced_sparse_entry_system(
+                built.nodes.len(),
+                &built.frame_elements,
+                &built.user_stiffness_elements,
+                spring_entries,
+                global_force,
+                restrained_dofs,
+            ) {
+                Ok(system) => system,
+                Err(error) => {
+                    let message = error.to_string();
+                    diagnostics.push(sparse_interactive_fallback_diag(&load_case.id, &message));
+                    let solution = solve_dense(reduced_stiffness, reduced_force)?;
+                    return Ok(PreviewLinearSolve {
+                        solution,
+                        solution_basis: "dense_fallback_after_sparse_failure",
+                        sparse_entry_count: None,
+                        original_profile_entry_count: None,
+                        ordered_profile_entry_count: None,
+                        original_max_half_bandwidth: None,
+                        ordered_max_half_bandwidth: None,
+                        nonpositive_pivot_count: None,
+                        pivot_condition_ratio_estimate: None,
+                        sparse_residual: None,
+                        dense_fallback_message: Some(message),
+                    });
+                }
+            };
+            match solve_symmetric_system_from_entries(
+                direct_system.dimension,
+                &direct_system.entries,
+                &direct_system.force,
+            ) {
+                Ok(sparse) => {
+                    let sparse_residual = max_abs_entry_residual(
+                        direct_system.dimension,
+                        &direct_system.entries,
+                        &sparse.solution,
+                        &direct_system.force,
+                    );
+                    Ok(PreviewLinearSolve {
+                        solution: sparse.solution,
+                        solution_basis: "sparse_profile_direct_primary",
+                        sparse_entry_count: Some(direct_system.entries.len()),
+                        original_profile_entry_count: Some(sparse.original_profile_entry_count),
+                        ordered_profile_entry_count: Some(sparse.ordered_profile_entry_count),
+                        original_max_half_bandwidth: Some(sparse.original_max_half_bandwidth),
+                        ordered_max_half_bandwidth: Some(sparse.ordered_max_half_bandwidth),
+                        nonpositive_pivot_count: Some(sparse.factorization.nonpositive_pivot_count),
+                        pivot_condition_ratio_estimate: sparse
+                            .factorization
+                            .pivot_condition_ratio_estimate,
+                        sparse_residual: Some(sparse_residual),
+                        dense_fallback_message: None,
+                    })
+                }
+                Err(error) => {
+                    let message = error.to_string();
+                    diagnostics.push(sparse_interactive_fallback_diag(&load_case.id, &message));
+                    Ok(PreviewLinearSolve {
+                        solution: solve_dense(reduced_stiffness, reduced_force)?,
+                        solution_basis: "dense_fallback_after_sparse_failure",
+                        sparse_entry_count: Some(direct_system.entries.len()),
+                        original_profile_entry_count: None,
+                        ordered_profile_entry_count: None,
+                        original_max_half_bandwidth: None,
+                        ordered_max_half_bandwidth: None,
+                        nonpositive_pivot_count: None,
+                        pivot_condition_ratio_estimate: None,
+                        sparse_residual: None,
+                        dense_fallback_message: Some(message),
+                    })
+                }
+            }
+        }
+        PreviewSolverMode::DenseScrutiny => Ok(PreviewLinearSolve {
+            solution: solve_dense(reduced_stiffness, reduced_force)?,
+            solution_basis: "dense_scrutiny_primary",
+            sparse_entry_count: None,
+            original_profile_entry_count: None,
+            ordered_profile_entry_count: None,
+            original_max_half_bandwidth: None,
+            ordered_max_half_bandwidth: None,
+            nonpositive_pivot_count: None,
+            pivot_condition_ratio_estimate: None,
+            sparse_residual: None,
+            dense_fallback_message: None,
+        }),
+    }
+}
+
+fn append_linear_solver_mode_evidence(
+    results: &mut Vec<ResultItem>,
+    load_case_id: &str,
+    solver_mode: PreviewSolverMode,
+    linear_solve: &PreviewLinearSolve,
+) {
+    let fallback = linear_solve.dense_fallback_message.is_some();
+    let basis = format!(
+        "DEC-053 sparse_default_promotion; solver_mode={}; solution_basis={}; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; nonpositive_pivots={}; pivot_condition_ratio_proxy={}; max_abs_sparse_residual={}; dense_fallback={}; dense_fallback_message={}",
+        solver_mode.as_str(),
+        linear_solve.solution_basis,
+        optional_usize(linear_solve.sparse_entry_count),
+        optional_usize(linear_solve.original_profile_entry_count),
+        optional_usize(linear_solve.ordered_profile_entry_count),
+        optional_usize(linear_solve.original_max_half_bandwidth),
+        optional_usize(linear_solve.ordered_max_half_bandwidth),
+        optional_usize(linear_solve.nonpositive_pivot_count),
+        optional_f64(linear_solve.pivot_condition_ratio_estimate),
+        optional_f64(linear_solve.sparse_residual),
+        fallback,
+        linear_solve
+            .dense_fallback_message
+            .as_deref()
+            .unwrap_or("none")
+    );
+
+    results.push(ResultItem {
+        id: "result:solver-mode:linear-solve-basis".to_string(),
+        kind: "linear_solver_mode_basis".to_string(),
+        value: if fallback { 3.0 } else { solver_mode.mode_code() },
+        unit: "mode_code".to_string(),
+        entity_ref: "solver:linear_static_preview".to_string(),
+        basis_ref: None,
+        source_result_refs: Vec::new(),
+        metadata: Some(ResultMetadata {
+            component: "linear_solver_mode".to_string(),
+            coordinate_system: "reduced_system".to_string(),
+            location: load_case_id.to_string(),
+            basis,
+            sign_convention:
+                "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+                    .to_string(),
+        }),
+    });
+}
+
+fn sparse_interactive_fallback_diag(load_case_id: &str, message: &str) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:sparse-interactive:{}:dense-fallback",
+            stable_suffix(load_case_id)
+        ),
+        "SPARSE_INTERACTIVE_DENSE_FALLBACK",
+        "warning",
+        format!(
+            "DEC-053 sparse interactive solve could not complete for load case {load_case_id}; dense fallback was used and the result basis is explicit: {message}"
+        ),
+        vec![load_case_id.to_string(), "DEC-053".to_string()],
+    )
+}
+
+fn optional_usize(value: Option<usize>) -> String {
+    value
+        .map(|value| value.to_string())
+        .unwrap_or_else(|| "not_observed".to_string())
+}
+
+fn optional_f64(value: Option<f64>) -> String {
+    value
+        .map(|value| round6(value).to_string())
+        .unwrap_or_else(|| "not_observed".to_string())
 }
 
 fn append_sparse_live_path_evidence(
@@ -1480,7 +1750,7 @@ fn append_sparse_live_path_evidence(
             coordinate_system: "reduced_system".to_string(),
             location: "load_case".to_string(),
             basis: format!(
-                "DEC-050 sparse_evidence_lane; dense_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs={}; sparse_entry_count={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; max_abs_dense_sparse_delta={}; max_abs_sparse_residual={}; nonpositive_pivots={}; profile_direct_assembly=observed; default_sparse_promotion=follow_on",
+                "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs={}; sparse_entry_count={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; max_abs_dense_sparse_delta={}; max_abs_sparse_residual={}; nonpositive_pivots={}; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
                 sparse.solution.len(),
                 direct_system.entries.len(),
                 sparse.original_profile_entry_count,
@@ -1710,9 +1980,11 @@ fn append_nonlinear_residual_observation_results(
     results: &mut Vec<ResultItem>,
     residuals: &NonlinearResidualObservation,
     policy_ref: &str,
+    solver_mode: PreviewSolverMode,
 ) {
     let displacement_reaction_delta_threshold_basis = format!(
-        "dense_active_set_loop; policy_ref={policy_ref}; observation_ref={}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=displacement_reaction_delta_from_previous_iteration; threshold_axes=displacement_and_reaction_delta; translation_delta_threshold={} mm; rotation_delta_threshold={} rad; force_reaction_delta_threshold={} N; moment_reaction_delta_threshold={} N*m; product_preview_only",
+        "{}_active_set_loop; policy_ref={policy_ref}; observation_ref={}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=displacement_reaction_delta_from_previous_iteration; threshold_axes=displacement_and_reaction_delta; translation_delta_threshold={} mm; rotation_delta_threshold={} rad; force_reaction_delta_threshold={} N; moment_reaction_delta_threshold={} N*m; product_preview_only",
+        solver_mode.as_str(),
         DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_OBSERVATION_REF,
         DEC_046_PRODUCT_PREVIEW_DISPLACEMENT_REACTION_DELTA_POLICY_REF,
         DEC_046_PRODUCT_PREVIEW_TRANSLATION_DELTA_ABSOLUTE_LIMIT_MM,
@@ -1721,14 +1993,16 @@ fn append_nonlinear_residual_observation_results(
         DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M
     );
     let free_dof_work_threshold_basis = format!(
-        "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold={} N*m; general_energy_threshold_policy_ref={}; general_energy_threshold_policy_status=accepted; general_energy_threshold={} N*m; product_preview_only",
+        "{}_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_work_residual; work_threshold={} N*m; general_energy_threshold_policy_ref={}; general_energy_threshold_policy_status=accepted; general_energy_threshold={} N*m; product_preview_only",
+        solver_mode.as_str(),
         DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_POLICY_REF,
         DEC_046_PRODUCT_PREVIEW_FREE_DOF_WORK_ABSOLUTE_LIMIT,
         DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_POLICY_REF,
         DEC_046_PRODUCT_PREVIEW_GENERAL_ENERGY_ABSOLUTE_LIMIT
     );
     let force_moment_threshold_basis = format!(
-        "dense_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold={} N; moment_threshold={} N*m; product_preview_only",
+        "{}_active_set_loop; policy_ref={policy_ref}; threshold_policy_ref={}; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold={} N; moment_threshold={} N*m; product_preview_only",
+        solver_mode.as_str(),
         DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_MOMENT_POLICY_REF,
         DEC_046_PRODUCT_PREVIEW_FREE_DOF_FORCE_ABSOLUTE_LIMIT,
         DEC_046_PRODUCT_PREVIEW_FREE_DOF_MOMENT_ABSOLUTE_LIMIT
@@ -5279,6 +5553,7 @@ fn append_nonlinear_friction_normal_evidence(
     derived_friction_normal_reactions: &[DerivedFrictionNormalReaction],
     reactions: &[f64],
     policy_ref: &str,
+    solver_mode: PreviewSolverMode,
 ) {
     for reaction in friction_normal_reactions {
         let suffix = stable_suffix(&reaction.support_id);
@@ -5292,7 +5567,8 @@ fn append_nonlinear_friction_normal_evidence(
             "friction_normal_reaction_input",
             "normal",
             &format!(
-                "dense_active_set_loop; policy_ref={policy_ref}; explicit_user_entered_normal_reaction; no_catalog_or_default_normal_force"
+                "{}_active_set_loop; policy_ref={policy_ref}; explicit_user_entered_normal_reaction; no_catalog_or_default_normal_force",
+                solver_mode.as_str()
             ),
             "positive value is an explicit contact normal reaction supplied by the user or caller",
         );
@@ -5313,7 +5589,8 @@ fn append_nonlinear_friction_normal_evidence(
             "friction_normal_reaction_derived",
             source.source_dof.as_str(),
             &format!(
-                "dense_active_set_loop; policy_ref={policy_ref}; derived_support_reaction; source_ref={}; source_dof={}",
+                "{}_active_set_loop; policy_ref={policy_ref}; derived_support_reaction; source_ref={}; source_dof={}",
+                solver_mode.as_str(),
                 source.source_ref,
                 source.source_dof.as_str()
             ),
@@ -5334,6 +5611,7 @@ fn is_combination_excluded_result_kind(kind: &str) -> bool {
             | "nonlinear_support_observed_free_dof_force_residual"
             | "nonlinear_support_observed_free_dof_moment_residual"
             | "nonlinear_support_free_dof_work_residual"
+            | "linear_solver_mode_basis"
             | "sparse_live_path_dense_parity_relative_delta"
     )
 }
@@ -5979,17 +6257,53 @@ mod tests {
             .results
             .iter()
             .any(|item| item.id == "result:disp:node-N-140"));
-        assert!(result_ids.contains("result:sparse-live:dense-parity-relative-delta"));
-        assert!(result_ids
-            .contains("result:loadcase:load-L-200:sparse-live:dense-parity-relative-delta"));
-        assert!(!result_ids.contains(
-            "result:combination:combination-C-OPER-ALT:sparse-live:dense-parity-relative-delta"
-        ));
+        assert!(result_ids.contains("result:solver-mode:linear-solve-basis"));
+        assert!(result_ids.contains("result:loadcase:load-L-200:solver-mode:linear-solve-basis"));
+        assert!(!result_ids
+            .contains("result:combination:combination-C-OPER-ALT:solver-mode:linear-solve-basis"));
+        let solver_mode_evidence = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:solver-mode:linear-solve-basis")
+            .expect("default load case solver-mode evidence row is present");
+        assert_eq!(solver_mode_evidence.kind, "linear_solver_mode_basis");
+        assert_eq!(solver_mode_evidence.value, 1.0);
+        let metadata = solver_mode_evidence.metadata.as_ref().unwrap();
+        assert_eq!(metadata.component, "linear_solver_mode");
+        assert_eq!(metadata.coordinate_system, "reduced_system");
+        assert!(metadata.basis.contains("DEC-053 sparse_default_promotion"));
+        assert!(metadata.basis.contains("solver_mode=sparse_interactive"));
+        assert!(metadata
+            .basis
+            .contains("solution_basis=sparse_profile_direct_primary"));
+        assert!(metadata
+            .basis
+            .contains("default_sparse_promotion=interactive_default"));
+        assert!(metadata.basis.contains("dense_scrutiny_available=true"));
+    }
+
+    #[test]
+    fn dense_scrutiny_mode_keeps_sparse_parity_row() {
+        let result =
+            run_linear_static_preview_with_mode(request(), PreviewSolverMode::DenseScrutiny);
         let sparse_evidence = result
             .results
             .iter()
             .find(|item| item.id == "result:sparse-live:dense-parity-relative-delta")
-            .expect("default load case sparse evidence row is present");
+            .expect("dense scrutiny sparse parity row is present");
+        let mode_evidence = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:solver-mode:linear-solve-basis")
+            .expect("dense scrutiny solver-mode row is present");
+
+        assert_eq!(mode_evidence.value, 2.0);
+        assert!(mode_evidence
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("solver_mode=dense_scrutiny"));
         assert_eq!(
             sparse_evidence.kind,
             "sparse_live_path_dense_parity_relative_delta"
@@ -5997,16 +6311,11 @@ mod tests {
         assert!(sparse_evidence.value <= 1.0e-9);
         let metadata = sparse_evidence.metadata.as_ref().unwrap();
         assert_eq!(metadata.component, "sparse_live_path");
-        assert_eq!(metadata.coordinate_system, "reduced_system");
-        assert!(metadata.basis.contains("DEC-050 sparse_evidence_lane"));
-        assert!(metadata.basis.contains("dense_default=true"));
         assert!(metadata
             .basis
-            .contains("assembly=direct_reduced_profile_entries"));
-        assert!(metadata.basis.contains("profile_direct_assembly=observed"));
-        assert!(metadata
-            .basis
-            .contains("default_sparse_promotion=follow_on"));
+            .contains("DEC-053 dense_scrutiny_sparse_parity"));
+        assert!(metadata.basis.contains("solver_mode=dense_scrutiny"));
+        assert!(metadata.basis.contains("sparse_interactive_default=true"));
     }
 
     #[test]

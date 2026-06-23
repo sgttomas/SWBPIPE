@@ -8,7 +8,7 @@
 - Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
 - Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
-- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-26` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, `DEC-048` recording `D-23` Option O-A: R3 exit evidence accepted and current target stage advanced to R4, `DEC-052` recording `D-25` Option O-B: current bounded R4 evidence may proceed to final exit-chain packet review with residuals explicit, and `D-26` awaiting human R4 exit review / R4-to-R5 ruling).
+- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-26` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, `DEC-048` recording `D-23` Option O-A: R3 exit evidence accepted and current target stage advanced to R4, `DEC-052` recording `D-25` Option O-B: current bounded R4 evidence may proceed to final exit-chain packet review with residuals explicit, and `DEC-053` recording `D-26` Option O-B: hold at R4 pending named sparse default-promotion residual evidence/repair; repair landed, refreshed final R4 exit-chain packet still required).
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat `execution/_DAG/DAG-007/` as the current approved canonical dependency type-system rectification authority. `DAG-001` through `DAG-006` are historical snapshots.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
@@ -118,18 +118,23 @@
      `TP-R4-D9-MULTISUPPORTSPAN-001`, and
      `TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001`).
      `TP-R4-D7-SPARSELIVE-001` landed the `DEC-050` live sparse evidence lane
-     while dense remains default. `TP-R4-D7-SPARSEPROFILE-001` added direct
-     reduced profile-entry assembly for product-preview sparse evidence rows
-     while dense remains the product solve path and parity oracle.
+     while dense remained default at that historical step.
+     `TP-R4-D7-SPARSEPROFILE-001` added direct reduced profile-entry assembly
+     for product-preview sparse evidence rows.
      `TP-R4-D7-NONLINEARPROFILE-001` moved nonlinear integration sparse
      evidence to direct reduced profile entries from the active free-DOF map.
      `TP-R4-D7-SPARSESUITABILITYOBS-001` records generated-grid sparse
      suitability observations in the performance harness;
      `TP-R4-D7-SPARSETHRESHOLDPOLICY-001` and
      `TP-R4-D7-SPARSECONDITIONPOLICY-001` promote bounded generated-grid sparse
-     suitability and pivot-ratio conditioning policies while keeping dense
-     default, CI/hardware/timing/memory, true-condition-number, and default
-     promotion status `TBD`.
+     suitability and pivot-ratio conditioning policies. `D-26` is ruled by
+     `DEC-053` Option O-B, selecting sparse default promotion as the named R4
+     residual repair; `TP-R4-D7-SPARSEDEFAULTPROMOTE-001` landed sparse
+     interactive as the default preview/render/live-model-change path, dense
+     scrutiny as the explicit review mode, visible sparse-to-dense fallback
+     metadata, and a 9-record local observation packet covering timing/RSS,
+     hardware metadata, practical size bands, pivot-ratio proxy, and true
+     condition numbers without release thresholds.
      `TP-R4-D9-DISPREACTIONOBS-001` records displacement/reaction-delta
      observation axes for the current assembled validation seed, accepted
      multi-support fixture set, and product-preview metadata; accepted delta
@@ -140,18 +145,18 @@
      displacement/reaction-delta and energy threshold promotion beyond current
      seed/product/thirteen-fixture evidence, broader multi-DOF / multi-support
      nonlinear acceptance thresholds beyond the accepted thirteen-fixture set,
-     default sparse promotion plus sparse timing/memory/CI/hardware-normalized
-     policy and conditioning evidence beyond the generated-grid pivot-ratio
-     policy, deeper spring-hanger behavior, external validation evidence, and
-     the remaining D9 validation
-     package remain open. `D-25` is ruled by `DEC-052` Option O-B: those
-     residuals are explicit post-R4/R5 or non-blocking hardening residuals for
-     this R4 packet unless a later human gate selects one as blocking.
-     `TP-R4-D9-EXITCHAIN-001` prepares
-     `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as the final R4
-     exit-chain verification packet for human R4 exit review. `D-26` is
-     prepared and awaiting human ruling for R4 exit review and any R4-to-R5
-     target-stage advancement. `D-20` is held for
+     sparse default-promotion evidence, deeper spring-hanger behavior, external
+     validation evidence, and the remaining D9 validation package remained
+     open at that time. `D-25` is ruled by `DEC-052` Option O-B: those residuals
+     are explicit post-R4/R5 or non-blocking hardening residuals for this R4
+     packet unless a later human gate selects one as blocking. `DEC-053`
+     selected the sparse residual as blocking and that repair has landed.
+     `TP-R4-D9-EXITCHAIN-001` /
+     `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` remain historical; the
+     next unblocked R4 item is a refreshed final R4 exit-chain verification
+     packet including `TP-R4-D7-SPARSEDEFAULTPROMOTE-001`. R4 remains current;
+     no R5 target-stage advancement is authorized until a future human ruling
+     accepts that refreshed packet. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

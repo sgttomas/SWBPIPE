@@ -39,17 +39,23 @@
 
 - Accepted sparse numerical strategy is `DEC-023`
   (`core/solver/sparse_direct`); `DEC-050` binds a live sparse evidence lane
-  while dense remains the default solve path and parity oracle.
+  while dense remained the default solve path and parity oracle at that
+  historical step. `DEC-053` now promotes sparse interactive as the default
+  preview/render path and keeps dense scrutiny explicitly selectable.
 - Sparse suitability observations now exist for generated invented grid bands
   under `TP-R4-D7-SPARSESUITABILITYOBS-001`.
 - Bounded generated-grid sparse suitability thresholds, deterministic
   sparse-value storage observations, and a bounded generated-grid sparse
   pivot-ratio conditioning policy now exist under `DEC-050`.
-- Default sparse promotion, release timing, allocator/RSS memory thresholds,
-  practical-size bands, CI gates, hardware-normalized methodology, true
-  condition-number thresholds, and conditioning evidence beyond the generated
-  grid pivot-ratio proxy remain `TBD`.
-- Hardware-normalized performance methodology remains `TBD`.
+- `TP-R4-D7-SPARSEDEFAULTPROMOTE-001` closes the named R4 sparse residual
+  observationally: 9 local records cover sparse default promotion, practical
+  size bands, dense/sparse timing observations, value-storage and RSS
+  observations, hardware metadata, dense/sparse parity, residual, repeat
+  determinism, pivot-ratio proxy, and true condition number.
+- Release timing thresholds, release allocator/RSS thresholds, hosted CI gates,
+  cross-machine hardware-normalized pass/fail methodology, external validation,
+  release conditioning thresholds, and professional/code-compliance acceptance
+  remain out of scope.
 - Future sparse-adapter integration remains downstream work.
 
 ## Boundaries Preserved
@@ -158,6 +164,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-23 - TP-R4-D7-SPARSEDEFAULTPROMOTE-001
+
+- Recorded `DEC-053`: `D-26` Option O-B holds R4 pending named sparse
+  default-promotion evidence/repair.
+- Landed sparse interactive as the default preview/render/live-model-change
+  solve mode, with dense scrutiny explicitly selectable and sparse-to-dense
+  fallback visible in diagnostic/result-basis metadata.
+- Added `validation/benchmarks/sparse_default_promotion_observation.dec053.json`
+  and `validation/benchmarks/sparse_default_promotion_policy.dec053.json`.
+- Observation packet covers 9 local invented records with practical size bands,
+  dense/sparse timing observations, value-storage and RSS observations, hardware
+  metadata, dense/sparse parity, residual, repeat determinism, pivot-ratio proxy,
+  and true condition number computed from the reduced dense symmetric matrix.
+- Boundary preserved: no release threshold, hosted-CI activation,
+  hardware-normalized pass/fail gate, professional approval, certification,
+  sealing, authentication, or code-compliance acceptance is created.
 
 ## 2026-06-21 - TP-R4-D17-PACKET-001
 

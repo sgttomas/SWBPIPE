@@ -6,7 +6,9 @@ use model_document_migration::{
 };
 use open_pipe_stress_library_import_document as library_import_document;
 use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
-use open_pipe_stress_product_physics::{run_linear_static_preview, LinearStaticPreviewRequest};
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode,
+};
 use open_pipe_stress_rule_check_runner as rule_check_runner;
 use open_pipe_stress_rule_pack_document as rule_pack_document;
 use open_pipe_stress_units::{catalog_definitions, UnitDefinition};
@@ -1118,12 +1120,30 @@ fn load_design_knowledge() -> Result<Value, String> {
 }
 
 fn solve_preview_mechanics(model_payload: Value) -> Result<Value, String> {
+    solve_preview_mechanics_with_mode(model_payload, PreviewSolverMode::default())
+}
+
+fn parse_preview_solver_mode(solver_mode: Option<String>) -> Result<PreviewSolverMode, String> {
+    match solver_mode {
+        Some(value) => PreviewSolverMode::from_wire(&value)
+            .ok_or_else(|| format!("unsupported preview solver mode: {value}")),
+        None => Ok(PreviewSolverMode::default()),
+    }
+}
+
+fn solve_preview_mechanics_with_mode(
+    model_payload: Value,
+    solver_mode: PreviewSolverMode,
+) -> Result<Value, String> {
     let model: open_pipe_stress_product_physics::PreviewModel =
         serde_json::from_value(model_payload).map_err(|error| error.to_string())?;
-    serde_json::to_value(run_linear_static_preview(LinearStaticPreviewRequest {
-        model,
-        materials: vec![],
-    }))
+    serde_json::to_value(run_linear_static_preview_with_mode(
+        LinearStaticPreviewRequest {
+            model,
+            materials: vec![],
+        },
+        solver_mode,
+    ))
     .map_err(|error| error.to_string())
 }
 
@@ -1137,6 +1157,15 @@ fn resolve_solve_model_payload(model: Option<Value>) -> Result<Value, String> {
 #[tauri::command]
 fn run_preview_mechanics(model: Option<Value>) -> Result<Value, String> {
     solve_preview_mechanics(resolve_solve_model_payload(model)?)
+}
+
+#[tauri::command]
+fn run_preview_mechanics_with_solver_mode(
+    model: Option<Value>,
+    solver_mode: Option<String>,
+) -> Result<Value, String> {
+    let mode = parse_preview_solver_mode(solver_mode)?;
+    solve_preview_mechanics_with_mode(resolve_solve_model_payload(model)?, mode)
 }
 
 const SOLVE_JOB_CANCELLATION_SCOPE: &str = "cooperative_checkpoints_not_preemptive";
@@ -1231,6 +1260,7 @@ fn execute_solve_job(
     jobs: &Arc<Mutex<SolveJobTable>>,
     job_id: &str,
     model_payload: Result<Value, String>,
+    solver_mode: PreviewSolverMode,
 ) {
     {
         let Ok(mut table) = lock_solve_jobs(jobs) else {
@@ -1246,7 +1276,8 @@ fn execute_solve_job(
         }
         record.state = "running".to_string();
     }
-    let outcome = model_payload.and_then(solve_preview_mechanics);
+    let outcome =
+        model_payload.and_then(|payload| solve_preview_mechanics_with_mode(payload, solver_mode));
     publish_solve_outcome(jobs, job_id, outcome);
 }
 
@@ -1358,7 +1389,28 @@ fn start_preview_mechanics_job(
     let jobs = Arc::clone(&state.jobs);
     let job_id = receipt.job_id.clone();
     std::thread::spawn(move || {
-        execute_solve_job(&jobs, &job_id, resolve_solve_model_payload(model));
+        execute_solve_job(
+            &jobs,
+            &job_id,
+            resolve_solve_model_payload(model),
+            PreviewSolverMode::default(),
+        );
+    });
+    Ok(receipt)
+}
+
+#[tauri::command]
+fn start_preview_mechanics_job_with_solver_mode(
+    state: tauri::State<'_, SolveJobRegistry>,
+    model: Option<Value>,
+    solver_mode: Option<String>,
+) -> Result<SolveJobStartReceipt, String> {
+    let mode = parse_preview_solver_mode(solver_mode)?;
+    let receipt = start_solve_job(&state.jobs)?;
+    let jobs = Arc::clone(&state.jobs);
+    let job_id = receipt.job_id.clone();
+    std::thread::spawn(move || {
+        execute_solve_job(&jobs, &job_id, resolve_solve_model_payload(model), mode);
     });
     Ok(receipt)
 }
@@ -3266,7 +3318,9 @@ pub fn run() {
             load_preview_model,
             load_design_knowledge,
             run_preview_mechanics,
+            run_preview_mechanics_with_solver_mode,
             start_preview_mechanics_job,
+            start_preview_mechanics_job_with_solver_mode,
             poll_preview_mechanics_job,
             cancel_preview_mechanics_job,
             sample_agent_proposal,
@@ -4571,6 +4625,7 @@ mod tests {
             &registry.jobs,
             &receipt.job_id,
             resolve_solve_model_payload(None),
+            PreviewSolverMode::default(),
         );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
@@ -4672,7 +4727,12 @@ mod tests {
         model["project"]["id"] = json!("project:edited-solve-job");
         model["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
 
-        execute_solve_job(&registry.jobs, &receipt.job_id, Ok(model));
+        execute_solve_job(
+            &registry.jobs,
+            &receipt.job_id,
+            Ok(model),
+            PreviewSolverMode::default(),
+        );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
         assert_eq!(status.state, "completed");
@@ -4711,6 +4771,7 @@ mod tests {
             &registry.jobs,
             &receipt.job_id,
             resolve_solve_model_payload(None),
+            PreviewSolverMode::default(),
         );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
@@ -4765,6 +4826,7 @@ mod tests {
             &registry.jobs,
             &receipt.job_id,
             resolve_solve_model_payload(None),
+            PreviewSolverMode::default(),
         );
 
         let cancel = cancel_solve_job(
@@ -4815,6 +4877,7 @@ mod tests {
             &registry.jobs,
             &receipt.job_id,
             Ok(json!({"not_a_preview_model": true})),
+            PreviewSolverMode::default(),
         );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");

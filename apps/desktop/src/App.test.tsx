@@ -9332,9 +9332,9 @@ describe("OpenPipeStress desktop preview", () => {
       "count",
       "m",
       "mm",
+      "mode_code",
       "rad",
       "state_code",
-      "unitless",
     ]);
     expect(solveJobPacket.unit_policy_evidence.result_row_count).toBe(822);
     expect(solveJobPacket.unit_policy_evidence.analysis_run_ref.ref).toBe(
@@ -10787,9 +10787,9 @@ describe("OpenPipeStress desktop preview", () => {
       "count",
       "m",
       "mm",
+      "mode_code",
       "rad",
       "state_code",
-      "unitless",
     ]);
     expect(
       solvedDesignWorkspacePacket.unit_policy_evidence.comparison_units,
@@ -11995,9 +11995,9 @@ describe("OpenPipeStress desktop preview", () => {
       "count",
       "m",
       "mm",
+      "mode_code",
       "rad",
       "state_code",
-      "unitless",
     ]);
     expect(solvedExternalPacket.unit_policy_evidence.conversion_performed).toBe(
       false,

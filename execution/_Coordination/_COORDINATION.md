@@ -77,7 +77,8 @@ Baseline intake for every new session:
 - `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan
   (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase
   ordering, the dependency spine, the FR completion map, and the human
-  decision register `D-01..D-26` (`D-26` prepared and awaiting ruling). Update this
+  decision register `D-01..D-26` (`D-26` ruled by `DEC-053`; refreshed final R4
+  exit-chain packet still required). Update this
   pointer when a successor plan is accepted.
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
   preparation status and rulings pending with the human project authority.
@@ -274,8 +275,8 @@ and constant-effort support records without catalog sizing, protected defaults,
 hidden support values, or professional/code-compliance claims. The loop-core
 slice
 `TP-R4-D6-LOOPCORE-001` added
-`core/solver/nonlinear_integration` as the dense assembled active-set loop owner
-under `DEC-044`/`DEC-046`, and `TP-R4-D6-PHYSINTEG-001` bound that dense loop
+`core/solver/nonlinear_integration` as the assembled active-set loop owner
+under `DEC-044`/`DEC-046`, and `TP-R4-D6-PHYSINTEG-001` bound that loop
 into the invented product/app/result-envelope preview path for one explicit
 nonlinear support. `TP-R4-D9-ASSEMBLEDSEED-001` added the first assembled
 global-loop validation seed for one-way deactivation, gap closure, and lift-off
@@ -283,7 +284,7 @@ release; `TP-R4-D9-FRICTIONSEED-001` and
 `TP-R4-D9-FRICTIONSLIDE-001` added explicit-normal friction sticking/sliding
 assembled and product-preview evidence. `TP-R4-D6-FRICTIONNORMAL-001` added
 derived friction normal-reaction evidence from named restrained support DOFs
-in the dense loop, product adapter, nonlinear benchmark inventory, and
+in the active-set loop, product adapter, nonlinear benchmark inventory, and
 invented preview fixture. `TP-R4-D8-COMPPROVREPORT-001` added component
 provenance and missing-provenance warnings to the hash-bound rendered report
 path. `TP-R4-D9-BRANCHASSEMBLY-001` added the PRD §16.2 public-original
@@ -356,7 +357,7 @@ displacement/reaction delta policy for emitted rows from the invented mixed
 one-way/gap/friction surface; broader non-seed, sparse-default, release, and
 external delta thresholds remain open.
 `TP-R4-D9-ENERGYOBS-001` records final-iteration
-free-DOF work residual observations in the dense loop, nonlinear validation
+free-DOF work residual observations in the active-set loop, nonlinear validation
 inventory, and invented product-preview surface. `TP-R4-D9-WORKPOLICY-001`
 promotes a bounded final-iteration free-DOF work residual policy for the current
 assembled validation seed, invented product-preview surface, and accepted
@@ -369,8 +370,9 @@ non-seed force/displacement beyond the accepted thirteen-fixture set, broader no
 general-energy residual thresholds, release, sparse-default, external, total
 strain-energy, modal-energy, and CI threshold axes remain open.
 `TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction product live-loop
-coverage in one invented dense solve. `TP-R4-D7-SPARSELIVE-001`
-landed the `DEC-050` sparse evidence lane while dense remains default.
+coverage in one invented solve. `TP-R4-D7-SPARSELIVE-001`
+landed the `DEC-050` sparse evidence lane while dense remained the default at
+that historical step.
 `TP-R4-D7-SPARSEPROFILE-001` adds direct reduced profile-entry assembly for
 product-preview sparse evidence rows. `TP-R4-D7-NONLINEARPROFILE-001` moves
 the nonlinear integration sparse evidence lane to direct reduced profile
@@ -378,16 +380,26 @@ entries from the active free-DOF map. `TP-R4-D7-SPARSESUITABILITYOBS-001`
 adds generated-grid sparse suitability observations from the performance
 harness. `TP-R4-D7-SPARSETHRESHOLDPOLICY-001` promotes bounded DEC-050
 generated-grid sparse suitability thresholds for dense-vs-sparse relative delta,
-sparse residual, repeatability, and nonpositive pivots while keeping dense
-default and timing/memory/CI/hardware/default-promotion thresholds `TBD`.
+sparse residual, repeatability, and nonpositive pivots as historical DEC-050
+evidence.
 `TP-R4-D7-SPARSESTORAGEOBS-001` adds deterministic f64 value-storage
 observations for reduced dense matrices and sparse profile entries in the
-performance harness; allocator/RSS memory, timing, conditioning, CI,
-hardware-normalized, and default-promotion thresholds remain `TBD`.
+performance harness.
 `TP-R4-D7-SPARSECONDITIONPOLICY-001` promotes a bounded DEC-050
 generated-grid sparse pivot-ratio conditioning policy for the same observation
-set; true condition-number, CI, hardware-normalized, timing, allocator/RSS
-memory, and default-promotion thresholds remain `TBD`.
+set. `D-26` was ruled by `DEC-053` as O-B, selecting sparse default promotion
+as the named residual repair before R4 exit acceptance. The repair tranche
+`TP-R4-D7-SPARSEDEFAULTPROMOTE-001` promotes sparse interactive as the default
+preview/render/live-model-change path, keeps dense scrutiny explicitly
+selectable, requires sparse-to-dense fallback to be diagnostic/result-basis
+visible, and records a bounded 9-record local sparse-promotion observation
+packet with practical size bands, dense/sparse timing observations,
+value-storage and RSS observations, hardware metadata, dense/sparse parity,
+residual, repeat determinism, pivot-ratio proxy, and true condition number from
+the reduced dense symmetric matrix. Timing/RSS/hardware/CI evidence is
+observed, not threshold-gated, and no hosted-CI, hardware-normalized pass/fail,
+release-performance, professional, certification, sealing, authentication, or
+code-compliance claim is created.
 `TP-R4-D9-EXITGAP-001` recorded the pre-`D-25` R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted thirteen-fixture set,
 broader displacement/reaction-delta threshold promotion beyond the accepted
@@ -404,10 +416,14 @@ general-energy threshold axes remain outside the accepted
 `TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
 `D-25` is ruled by `DEC-052` Option O-B: those residuals are explicit
 post-R4/R5 or non-blocking hardening residuals for this R4 packet unless a
-later human gate selects one as blocking. `TP-R4-D9-EXITCHAIN-001` prepares
-`plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as the final R4 exit-chain
-verification packet for human R4 exit review. `D-26` is prepared and awaiting
-human ruling for R4 exit review and any R4-to-R5 target-stage advancement.
+later human gate selects one as blocking. `DEC-053` selected the sparse
+default-promotion residual as a blocking R4 repair and that repair tranche has
+landed. `TP-R4-D9-EXITCHAIN-001` and
+`plans/VERIFICATION_2026-06-22_r4_exit_chain.md` remain the historical R4 exit
+packet; final-exit review now requires a refreshed packet that includes
+`TP-R4-D7-SPARSEDEFAULTPROMOTE-001`. R4 remains the current target stage, and no
+R5 target-stage advancement is authorized until a future human ruling accepts
+the refreshed R4 exit-chain verification packet.
 `DAG-007` is the current approved dependency graph pointer; `DAG-001` through
 `DAG-006` remain historical snapshots.
 

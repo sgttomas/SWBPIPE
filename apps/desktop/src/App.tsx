@@ -78,6 +78,7 @@ import {
 import type {
   BackendSolveJobCancellationReceipt,
   BackendSolveJobStatus,
+  PreviewSolverMode,
   SolveJobStartReceipt
 } from "./services/previewService";
 import {
@@ -291,6 +292,7 @@ export function App() {
   const [projectOperation, setProjectOperation] = useState("not_started");
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
   const [running, setRunning] = useState(false);
+  const [solverMode, setSolverMode] = useState<PreviewSolverMode>("sparse_interactive");
   const [projectBusy, setProjectBusy] = useState(false);
   const [operationOutcomes, setOperationOutcomes] = useState<Record<string, OperationOutcome>>({});
   const [appliedOperations, setAppliedOperations] = useState<AppliedOperationReceipt[]>([]);
@@ -372,7 +374,7 @@ export function App() {
     // A fresh solve invalidates any prior rule-check run against the old result.
     setRuleCheckAggregate(null);
     try {
-      const startReceipt = await startPreviewMechanicsJob(model);
+      const startReceipt = await startPreviewMechanicsJob(model, solverMode);
       setSolveJob(startSolveJob(model, startReceipt));
       let output: MechanicsResult;
       if (startReceipt.mode === "backend_job") {
@@ -388,7 +390,7 @@ export function App() {
         }
         output = terminal.result;
       } else {
-        output = await runPreviewMechanics(model);
+        output = await runPreviewMechanics(model, solverMode);
       }
       const runRecord = await buildAnalysisRunPreview(output);
       setSolveJob((current) => completeSolveJob(current, output, runRecord));
@@ -1248,8 +1250,10 @@ export function App() {
                 result={result}
                 running={running}
                 solveJob={solveJob}
+                solverMode={solverMode}
                 onCancel={handleCancelRun}
                 onRun={handleRun}
+                onSolverModeChange={setSolverMode}
               />
               <RuleCheckPanel model={model} result={result} />
               <RuleCheckRunPanel

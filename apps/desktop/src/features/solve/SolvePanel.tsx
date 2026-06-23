@@ -1,5 +1,6 @@
 import { AlertTriangle, Download, Play, ShieldCheck, Square } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
+import type { PreviewSolverMode } from "../../services/previewService";
 
 export function SolvePanel({
   analysisRun,
@@ -7,20 +8,24 @@ export function SolvePanel({
   result,
   running,
   solveJob,
+  solverMode,
   onCancel,
-  onRun
+  onRun,
+  onSolverModeChange
 }: {
   analysisRun: AnalysisRunEnvelope | null;
   model: PreviewModel;
   result: MechanicsResult | null;
   running: boolean;
   solveJob: SolveJobAuditState;
+  solverMode: PreviewSolverMode;
   onCancel: () => void;
   onRun: () => void;
+  onSolverModeChange: (mode: PreviewSolverMode) => void;
 }) {
   const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])];
   const readinessItems = readinessSummary({ model, result, diagnostics });
-  const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running });
+  const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
   return (
     <section className="panel solve-panel" aria-label="Solve execution" data-testid="solve-panel">
       <div className="panel-title">Execution</div>
@@ -47,11 +52,36 @@ export function SolvePanel({
         </span>
       </div>
       <div className="report-list solve-job-list" data-testid="solve-job-audit">
+        <SolveLine label="Solver mode" value={solverModeSummary(packet)} testId="solve-job-solver-mode" />
         <SolveLine label="Progress" value={progressSummary(packet)} testId="solve-job-progress" />
         <SolveLine label="Cancellation" value={cancellationSummary(packet)} testId="solve-job-cancellation" />
         <SolveLine label="Result binding" value={resultBinding(packet)} testId="solve-job-binding" />
         <SolveLine label="Unit policy" value={unitPolicySummary(packet)} testId="solve-job-unit-policy" />
         <SolveLine label="Boundary" value={boundarySummary(packet)} testId="solve-job-boundary" />
+      </div>
+      <div className="solver-mode-control" role="group" aria-label="Solver mode" data-testid="solver-mode-control">
+        <button
+          aria-pressed={solverMode === "sparse_interactive"}
+          className={solverMode === "sparse_interactive" ? "mode-button active" : "mode-button"}
+          data-testid="solver-mode-sparse"
+          disabled={running}
+          onClick={() => onSolverModeChange("sparse_interactive")}
+          type="button"
+        >
+          <Play size={14} aria-hidden="true" />
+          Sparse interactive
+        </button>
+        <button
+          aria-pressed={solverMode === "dense_scrutiny"}
+          className={solverMode === "dense_scrutiny" ? "mode-button active" : "mode-button"}
+          data-testid="solver-mode-dense"
+          disabled={running}
+          onClick={() => onSolverModeChange("dense_scrutiny")}
+          type="button"
+        >
+          <ShieldCheck size={14} aria-hidden="true" />
+          Dense scrutiny
+        </button>
       </div>
       <button className="primary-action" data-testid="run-mechanics-preview" onClick={onRun} disabled={running} type="button">
         <Play size={16} />
@@ -178,13 +208,15 @@ function buildSolveJobPacket({
   result,
   analysisRun,
   solveJob,
-  running
+  running,
+  solverMode
 }: {
   model: PreviewModel;
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
   solveJob: SolveJobAuditState;
   running: boolean;
+  solverMode: PreviewSolverMode;
 }) {
   const run = analysisRun?.analysis_run;
   const resultRowCount = result?.results.length ?? 0;
@@ -201,6 +233,7 @@ function buildSolveJobPacket({
     job_id: solveJob.job_id,
     summary: {
       job_state: solveJob.state,
+      solver_mode: solverMode,
       event_count: solveJob.events.length,
       result_row_count: resultRowCount,
       diagnostic_count: diagnosticsFor(model, result).length,
@@ -209,6 +242,9 @@ function buildSolveJobPacket({
       running
     },
     progress_contract: {
+      solver_mode: solverMode,
+      sparse_interactive_default: solverMode === "sparse_interactive",
+      dense_scrutiny_explicit: solverMode === "dense_scrutiny",
       progress_basis: solveJob.progress_basis,
       percentages_synthesized: solveJob.percentages_synthesized,
       backend_percent_stream_available: solveJob.backend_percent_stream_available,
@@ -288,6 +324,14 @@ function progressSummary(packet: ReturnType<typeof buildSolveJobPacket>): string
   return `${packet.progress_contract.latest_event_state}; ${packet.progress_contract.progress_basis}; percentages_synthesized=${String(
     packet.progress_contract.percentages_synthesized
   )}`;
+}
+
+function solverModeSummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
+  return [
+    `selected=${packet.summary.solver_mode}`,
+    `sparse_default=${String(packet.progress_contract.sparse_interactive_default)}`,
+    `dense_scrutiny=${String(packet.progress_contract.dense_scrutiny_explicit)}`
+  ].join("; ");
 }
 
 function cancellationSummary(packet: ReturnType<typeof buildSolveJobPacket>): string {

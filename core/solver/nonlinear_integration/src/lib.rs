@@ -25,6 +25,35 @@ use std::fmt;
 const DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS: &str = "direct_reduced_profile_entries";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinearSolveMode {
+    SparseInteractive,
+    DenseScrutiny,
+}
+
+impl LinearSolveMode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SparseInteractive => "sparse_interactive",
+            Self::DenseScrutiny => "dense_scrutiny",
+        }
+    }
+
+    fn solution_basis(self, fallback_to_dense: bool) -> &'static str {
+        match (self, fallback_to_dense) {
+            (Self::SparseInteractive, false) => "sparse_profile_direct_primary",
+            (Self::SparseInteractive, true) => "dense_fallback_after_sparse_failure",
+            (Self::DenseScrutiny, _) => "dense_scrutiny_primary",
+        }
+    }
+}
+
+impl Default for LinearSolveMode {
+    fn default() -> Self {
+        Self::SparseInteractive
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConvergencePolicyStatus {
     Accepted,
     Tbd,
@@ -158,6 +187,8 @@ pub struct NonlinearResidualObservation {
 pub struct SparseLinearSolveEvidence {
     pub status: SparseEvidenceStatus,
     pub policy_ref: String,
+    pub solver_mode: LinearSolveMode,
+    pub solution_basis: String,
     pub assembly_basis: String,
     pub reduced_dof_count: usize,
     pub original_max_half_bandwidth: Option<usize>,
@@ -175,6 +206,7 @@ pub struct SparseLinearSolveEvidence {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SparseEvidenceStatus {
     Observed,
+    DenseFallbackAfterSparseFailure,
     Unavailable,
 }
 
@@ -245,6 +277,13 @@ impl From<NonlinearSupportError> for NonlinearIntegrationError {
 pub fn solve_active_set_frame(
     input: &NonlinearFrameSolveInput,
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
+    solve_active_set_frame_with_mode(input, LinearSolveMode::default())
+}
+
+pub fn solve_active_set_frame_with_mode(
+    input: &NonlinearFrameSolveInput,
+    linear_solve_mode: LinearSolveMode,
+) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
     validate_input(input)?;
 
     let stiffness = assemble_global_stiffness_with_user_elements(
@@ -265,7 +304,8 @@ pub fn solve_active_set_frame(
             &input.nonlinear_supports,
             &current_states,
         )?;
-        let linearized = solve_linearized_system(&stiffness, &input.force, &boundary)?;
+        let linearized =
+            solve_linearized_system(&stiffness, &input.force, &boundary, linear_solve_mode)?;
         let trial_states = build_trial_states(
             &input.nonlinear_supports,
             &linearized.displacements,
@@ -334,8 +374,8 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
 
 pub fn assembled_loop_limitations() -> Vec<String> {
     vec![
-        "DEC-050 sparse evidence lane observes direct reduced profile-entry sparse solves for the reduced linearized systems, but the dense frame solve remains the default active-set path and parity oracle.".to_string(),
-        "Element-level sparse default assembly, default sparse-solver promotion, and large-model sparse suitability thresholds remain follow-on work.".to_string(),
+        "DEC-053 sparse interactive mode uses direct reduced profile-entry sparse solves as the default linearized active-set path; dense scrutiny remains an explicit parity/review mode.".to_string(),
+        "Sparse timing, allocator/RSS memory, hardware normalization, true condition-number, and CI evidence are observational R4 closure evidence, not release-performance thresholds.".to_string(),
         "DEC-046 threshold authority exists only where callers supply explicit controls and policy references; unmeasured classes and broader release/external thresholds remain out of scope.".to_string(),
         "User-stiffness macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
         "The result is mechanics evidence only and does not state rule compliance, professional approval, certification, sealing, authentication, or code compliance.".to_string(),
@@ -589,6 +629,7 @@ fn solve_linearized_system(
     stiffness: &DenseMatrix,
     force: &DenseVector,
     boundary: &BoundaryState,
+    linear_solve_mode: LinearSolveMode,
 ) -> Result<LinearizedSolve, NonlinearIntegrationError> {
     let reduced = reduce_system_with_prescribed_displacements(
         stiffness,
@@ -596,13 +637,25 @@ fn solve_linearized_system(
         &boundary.dofs,
         &boundary.displacements,
     )?;
-    let reduced_solution = solve_dense(&reduced.stiffness, &reduced.force)?;
-    let sparse_evidence = observe_sparse_linearized_solve(
-        stiffness,
-        &reduced.free_dofs,
-        &reduced.force,
-        &reduced_solution,
-    );
+    let (reduced_solution, sparse_evidence) = match linear_solve_mode {
+        LinearSolveMode::SparseInteractive => solve_sparse_interactive_linearized_system(
+            stiffness,
+            &reduced.stiffness,
+            &reduced.free_dofs,
+            &reduced.force,
+        )?,
+        LinearSolveMode::DenseScrutiny => {
+            let reduced_solution = solve_dense(&reduced.stiffness, &reduced.force)?;
+            let sparse_evidence = observe_sparse_linearized_solve(
+                stiffness,
+                &reduced.free_dofs,
+                &reduced.force,
+                &reduced_solution,
+                LinearSolveMode::DenseScrutiny,
+            );
+            (reduced_solution, sparse_evidence)
+        }
+    };
 
     let mut displacements = vec![0.0; force.len()];
     for (&dof, &value) in boundary.dofs.iter().zip(boundary.displacements.iter()) {
@@ -634,52 +687,122 @@ fn solve_linearized_system(
     })
 }
 
-fn observe_sparse_linearized_solve(
+fn solve_sparse_interactive_linearized_system(
     global_stiffness: &DenseMatrix,
+    reduced_stiffness: &DenseMatrix,
     free_dofs: &[usize],
     reduced_force: &[f64],
-    dense_solution: &[f64],
-) -> SparseLinearSolveEvidence {
+) -> Result<(DenseVector, SparseLinearSolveEvidence), NonlinearIntegrationError> {
     let entries = match direct_reduced_profile_entries(global_stiffness, free_dofs) {
         Ok(entries) => entries,
         Err(error) => {
-            return sparse_evidence_unavailable(reduced_force.len(), error);
+            let dense_solution = solve_dense(reduced_stiffness, reduced_force)?;
+            return Ok((
+                dense_solution,
+                sparse_evidence_dense_fallback(reduced_force.len(), error),
+            ));
         }
     };
 
     match solve_symmetric_system_from_entries(reduced_force.len(), &entries, reduced_force) {
         Ok(sparse) => {
-            let max_abs_dense_sparse_solution_delta =
-                max_abs_delta(dense_solution, &sparse.solution);
-            let dense_scale = max_abs_value(dense_solution);
-            let relative_dense_sparse_solution_delta = if dense_scale > 0.0 {
-                max_abs_dense_sparse_solution_delta / dense_scale
-            } else {
-                max_abs_dense_sparse_solution_delta
-            };
-            SparseLinearSolveEvidence {
-                status: SparseEvidenceStatus::Observed,
-                policy_ref: "DEC-050".to_string(),
-                assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
-                reduced_dof_count: sparse.solution.len(),
-                original_max_half_bandwidth: Some(sparse.original_max_half_bandwidth),
-                ordered_max_half_bandwidth: Some(sparse.ordered_max_half_bandwidth),
-                original_profile_entry_count: Some(sparse.original_profile_entry_count),
-                ordered_profile_entry_count: Some(sparse.ordered_profile_entry_count),
-                nonpositive_pivot_count: Some(sparse.factorization.nonpositive_pivot_count),
-                pivot_condition_ratio_estimate: sparse.factorization.pivot_condition_ratio_estimate,
-                max_abs_dense_sparse_solution_delta: Some(max_abs_dense_sparse_solution_delta),
-                relative_dense_sparse_solution_delta: Some(relative_dense_sparse_solution_delta),
-                max_abs_sparse_residual: Some(max_abs_entry_residual(
-                    reduced_force.len(),
-                    &entries,
-                    &sparse.solution,
-                    reduced_force,
-                )),
-                failure_message: None,
-            }
+            let evidence = sparse_linear_solve_evidence(
+                reduced_force.len(),
+                &entries,
+                reduced_force,
+                &sparse.solution,
+                &sparse,
+                None,
+                LinearSolveMode::SparseInteractive,
+            );
+            Ok((sparse.solution, evidence))
         }
-        Err(error) => sparse_evidence_unavailable(reduced_force.len(), error.to_string()),
+        Err(error) => {
+            let reduced_dense = dense_from_entries(reduced_force.len(), &entries)?;
+            let dense_solution = solve_dense(&reduced_dense, reduced_force)?;
+            Ok((
+                dense_solution,
+                sparse_evidence_dense_fallback(reduced_force.len(), error.to_string()),
+            ))
+        }
+    }
+}
+
+fn observe_sparse_linearized_solve(
+    global_stiffness: &DenseMatrix,
+    free_dofs: &[usize],
+    reduced_force: &[f64],
+    dense_solution: &[f64],
+    linear_solve_mode: LinearSolveMode,
+) -> SparseLinearSolveEvidence {
+    let entries = match direct_reduced_profile_entries(global_stiffness, free_dofs) {
+        Ok(entries) => entries,
+        Err(error) => {
+            return sparse_evidence_unavailable(reduced_force.len(), error, linear_solve_mode);
+        }
+    };
+
+    match solve_symmetric_system_from_entries(reduced_force.len(), &entries, reduced_force) {
+        Ok(sparse) => sparse_linear_solve_evidence(
+            reduced_force.len(),
+            &entries,
+            reduced_force,
+            &sparse.solution,
+            &sparse,
+            Some(dense_solution),
+            linear_solve_mode,
+        ),
+        Err(error) => {
+            sparse_evidence_unavailable(reduced_force.len(), error.to_string(), linear_solve_mode)
+        }
+    }
+}
+
+fn sparse_linear_solve_evidence(
+    reduced_dof_count: usize,
+    entries: &[SymmetricMatrixEntry],
+    reduced_force: &[f64],
+    sparse_solution: &[f64],
+    sparse: &open_pipe_stress_sparse_direct::SparseSolveResult,
+    dense_solution: Option<&[f64]>,
+    linear_solve_mode: LinearSolveMode,
+) -> SparseLinearSolveEvidence {
+    let max_abs_dense_sparse_solution_delta =
+        dense_solution.map(|dense| max_abs_delta(dense, sparse_solution));
+    let relative_dense_sparse_solution_delta =
+        match (dense_solution, max_abs_dense_sparse_solution_delta) {
+            (Some(dense), Some(delta)) => {
+                let dense_scale = max_abs_value(dense);
+                Some(if dense_scale > 0.0 {
+                    delta / dense_scale
+                } else {
+                    delta
+                })
+            }
+            _ => None,
+        };
+    SparseLinearSolveEvidence {
+        status: SparseEvidenceStatus::Observed,
+        policy_ref: "DEC-053".to_string(),
+        solver_mode: linear_solve_mode,
+        solution_basis: linear_solve_mode.solution_basis(false).to_string(),
+        assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
+        reduced_dof_count,
+        original_max_half_bandwidth: Some(sparse.original_max_half_bandwidth),
+        ordered_max_half_bandwidth: Some(sparse.ordered_max_half_bandwidth),
+        original_profile_entry_count: Some(sparse.original_profile_entry_count),
+        ordered_profile_entry_count: Some(sparse.ordered_profile_entry_count),
+        nonpositive_pivot_count: Some(sparse.factorization.nonpositive_pivot_count),
+        pivot_condition_ratio_estimate: sparse.factorization.pivot_condition_ratio_estimate,
+        max_abs_dense_sparse_solution_delta,
+        relative_dense_sparse_solution_delta,
+        max_abs_sparse_residual: Some(max_abs_entry_residual(
+            reduced_dof_count,
+            entries,
+            sparse_solution,
+            reduced_force,
+        )),
+        failure_message: None,
     }
 }
 
@@ -716,13 +839,64 @@ fn direct_reduced_profile_entries(
     Ok(entries)
 }
 
+fn dense_from_entries(
+    dimension: usize,
+    entries: &[SymmetricMatrixEntry],
+) -> Result<DenseMatrix, NonlinearIntegrationError> {
+    let mut dense = vec![vec![0.0; dimension]; dimension];
+    for entry in entries {
+        if entry.row >= dimension || entry.col >= dimension {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!(
+                    "sparse fallback entry ({}, {}) is outside reduced dimension {dimension}",
+                    entry.row, entry.col
+                ),
+            });
+        }
+        dense[entry.row][entry.col] += entry.value;
+        if entry.row != entry.col {
+            dense[entry.col][entry.row] += entry.value;
+        }
+    }
+    Ok(dense)
+}
+
 fn sparse_evidence_unavailable(
+    reduced_dof_count: usize,
+    failure_message: String,
+    linear_solve_mode: LinearSolveMode,
+) -> SparseLinearSolveEvidence {
+    SparseLinearSolveEvidence {
+        status: SparseEvidenceStatus::Unavailable,
+        policy_ref: "DEC-053".to_string(),
+        solver_mode: linear_solve_mode,
+        solution_basis: linear_solve_mode.solution_basis(false).to_string(),
+        assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
+        reduced_dof_count,
+        original_max_half_bandwidth: None,
+        ordered_max_half_bandwidth: None,
+        original_profile_entry_count: None,
+        ordered_profile_entry_count: None,
+        nonpositive_pivot_count: None,
+        pivot_condition_ratio_estimate: None,
+        max_abs_dense_sparse_solution_delta: None,
+        relative_dense_sparse_solution_delta: None,
+        max_abs_sparse_residual: None,
+        failure_message: Some(failure_message),
+    }
+}
+
+fn sparse_evidence_dense_fallback(
     reduced_dof_count: usize,
     failure_message: String,
 ) -> SparseLinearSolveEvidence {
     SparseLinearSolveEvidence {
-        status: SparseEvidenceStatus::Unavailable,
-        policy_ref: "DEC-050".to_string(),
+        status: SparseEvidenceStatus::DenseFallbackAfterSparseFailure,
+        policy_ref: "DEC-053".to_string(),
+        solver_mode: LinearSolveMode::SparseInteractive,
+        solution_basis: LinearSolveMode::SparseInteractive
+            .solution_basis(true)
+            .to_string(),
         assembly_basis: DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS.to_string(),
         reduced_dof_count,
         original_max_half_bandwidth: None,
@@ -1138,27 +1312,62 @@ mod tests {
         );
         let sparse_evidence = &result.iterations.last().unwrap().sparse_evidence;
         assert_eq!(sparse_evidence.status, SparseEvidenceStatus::Observed);
-        assert_eq!(sparse_evidence.policy_ref, "DEC-050");
+        assert_eq!(sparse_evidence.policy_ref, "DEC-053");
+        assert_eq!(
+            sparse_evidence.solver_mode,
+            LinearSolveMode::SparseInteractive
+        );
+        assert_eq!(
+            sparse_evidence.solution_basis,
+            "sparse_profile_direct_primary"
+        );
         assert_eq!(
             sparse_evidence.assembly_basis,
             DEC050_DIRECT_REDUCED_PROFILE_ASSEMBLY_BASIS
         );
         assert_eq!(sparse_evidence.reduced_dof_count, 1);
-        assert!(
-            sparse_evidence
-                .relative_dense_sparse_solution_delta
-                .unwrap()
-                <= 1.0e-9
-        );
+        assert_eq!(sparse_evidence.relative_dense_sparse_solution_delta, None);
         assert_eq!(sparse_evidence.nonpositive_pivot_count, Some(0));
         assert!(result
             .limitations
             .iter()
-            .any(|limitation| limitation.contains("DEC-050 sparse evidence lane")));
+            .any(|limitation| limitation.contains("DEC-053 sparse interactive mode")));
         assert!(!result
             .limitations
             .iter()
             .any(|limitation| limitation.contains("D-17 remains")));
+    }
+
+    #[test]
+    fn dense_scrutiny_mode_keeps_sparse_parity_evidence() {
+        let support_id = "NL-ONE-WAY-DENSE-SCRUTINY";
+        let support = NonlinearSupport::one_way(
+            support_id,
+            1,
+            FrameDof::Ux,
+            ActivationSense::NegativeReaction,
+        );
+        let input = two_node_axial_problem(
+            vec![support],
+            vec![SupportStateRecord::new(support_id, ActiveSetState::Active)],
+            4,
+        );
+
+        let result = solve_active_set_frame_with_mode(&input, LinearSolveMode::DenseScrutiny)
+            .expect("dense scrutiny solve succeeds");
+        let sparse_evidence = &result.iterations.last().unwrap().sparse_evidence;
+
+        assert_eq!(sparse_evidence.status, SparseEvidenceStatus::Observed);
+        assert_eq!(sparse_evidence.policy_ref, "DEC-053");
+        assert_eq!(sparse_evidence.solver_mode, LinearSolveMode::DenseScrutiny);
+        assert_eq!(sparse_evidence.solution_basis, "dense_scrutiny_primary");
+        assert!(
+            sparse_evidence
+                .relative_dense_sparse_solution_delta
+                .expect("dense scrutiny records sparse parity")
+                <= 1.0e-9
+        );
+        assert_eq!(sparse_evidence.nonpositive_pivot_count, Some(0));
     }
 
     #[test]
