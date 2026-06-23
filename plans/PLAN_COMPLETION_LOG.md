@@ -37,7 +37,10 @@ Changed surfaces:
 Validation before packet commit: `git diff --check` passed;
 `python3 -m pytest -q tests/test_nonlinear_support_regression.py` passed
 8 tests.
-Clean-head DEC-025 evidence sweep: `TO_BE_RECORDED_AFTER_PACKET_COMMIT`.
+Clean-head DEC-025 evidence sweep passed:
+`validation/evidence/sweeps/SWEEP_20260623T001842Z_bf2e089aa97b.json`, bound
+to committed head `bf2e089aa97bf315d4c3cd202680211ee1920abe` with
+`working_tree_dirty=false` and `overall_status=pass`.
 
 Residuals remain explicit under `DEC-052`: sparse default/timing/memory/CI/
 hardware/default-promotion work, sparse conditioning beyond the bounded

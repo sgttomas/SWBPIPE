@@ -53,8 +53,10 @@ sealing, authentication, or code-compliance acceptance.
 - `git diff --check`: passed.
 - `python3 -m pytest -q tests/test_nonlinear_support_regression.py`: passed,
   8 tests.
-- Clean-head `DEC-025` evidence sweep:
-  `TO_BE_RECORDED_AFTER_PACKET_COMMIT`
+- Clean-head `DEC-025` evidence sweep: passed.
+  `validation/evidence/sweeps/SWEEP_20260623T001842Z_bf2e089aa97b.json`
+  binds to committed head `bf2e089aa97bf315d4c3cd202680211ee1920abe` with
+  `working_tree_dirty=false` and `overall_status=pass`.
 
 ## Boundary Review
 

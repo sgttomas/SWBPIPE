@@ -115,7 +115,11 @@ Packet-preparation validation is recorded in the companion run record
 - `python3 -m pytest -q tests/test_nonlinear_support_regression.py`: passed,
   8 tests.
 
-Clean-head `DEC-025` evidence sweep status: `TO_BE_RECORDED_AFTER_PACKET_COMMIT`.
+Clean-head `DEC-025` evidence sweep status: passed. Summary artifact:
+`validation/evidence/sweeps/SWEEP_20260623T001842Z_bf2e089aa97b.json`.
+The sweep is bound to committed head
+`bf2e089aa97bf315d4c3cd202680211ee1920abe` with
+`working_tree_dirty=false` and `overall_status=pass`.
 
 ## Boundary Review
 
@@ -132,7 +136,7 @@ Clean-head `DEC-025` evidence sweep status: `TO_BE_RECORDED_AFTER_PACKET_COMMIT`
 ## Verdict
 
 The R4 evidence chain is ready to present for human R4 exit review under
-`DEC-052` Option O-B after closeout validation is recorded.
+`DEC-052` Option O-B with closeout validation recorded.
 
 If the human project authority accepts this packet in a separate R4 exit review,
 the next governed action is to record that R4 exit decision and update
