@@ -59,6 +59,10 @@ target stage to R5. The recommendation is not a ruling.
 - Targeted `rg` checks across decision, coordination, roadmap,
   completion-plan, and log surfaces passed after replacing stale current-range
   references with `D-01..D-26`.
+- Clean-head DEC-025 evidence sweep passed:
+  `validation/evidence/sweeps/SWEEP_20260623T003028Z_21f3cdcf0eb3.json`,
+  bound to commit `21f3cdcf0eb325d9108be51635cfdb63f0a6bb6d` with
+  `working_tree_dirty=false` and `overall_status=pass`.
 
 ## Boundary Review
 

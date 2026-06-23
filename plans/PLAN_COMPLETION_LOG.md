@@ -35,7 +35,11 @@ Validation: `git diff --check` passed;
 `python3 tools/coordination/list_deliverable_status.py --dag DAG-007 --format
 table --summary` passed with status counts `CHECKING=8`, `IN_PROGRESS=92`,
 `ISSUED=1`; targeted `rg` checks confirmed `D-26` routing and no stale
-pre-D-26 decision-range references remain.
+pre-D-26 decision-range references remain. Clean-head DEC-025 evidence sweep
+passed:
+`validation/evidence/sweeps/SWEEP_20260623T003028Z_21f3cdcf0eb3.json`, bound
+to commit `21f3cdcf0eb325d9108be51635cfdb63f0a6bb6d` with
+`working_tree_dirty=false` and `overall_status=pass`.
 
 Boundary: no implementation, schema, solver, UI, fixture, report, release,
 lifecycle, target-stage behavior, protected-content boundary, professional
