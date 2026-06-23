@@ -47,7 +47,7 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 | D-23 | R3 exit review and R3-to-R4 target-stage advancement: accept the `TP-R3VERIFY-001` evidence packet and decide whether the Working Desktop Application Standard advances from PRD R3 to PRD R4 | Phase D/R4 ordinary work selection | RULED | [D-23_r3_exit_review_stage_advancement.md](D-23_r3_exit_review_stage_advancement.md) (2026-06-20) | `DEC-048` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-A: accept R3 exit evidence and advance the current target stage to R4, 2026-06-20) |
 | D-24 | Runtime data-residency / agent-visibility / model-provider posture reconciliation to tier-0 `D-T0-04` (OPEN RESIDENCY): relax the **runtime** `OPS-K-PRIV-1` + SPEC §4.4 no-required-network posture to permit owner-configured agent visibility of the owner's own private model / Class-B inputs and networked model providers (fully literal open; no app-side egress guard), preserving the public-commit / third-party-IP boundary, the professional ceiling, and telemetry-off | Embedded-agent live binding (with `D-21`, `DEC-041`, app-dev F3); `RES-RECONCILE` closure | RULED | [D-24_runtime_residency_reconciliation.md](D-24_runtime_residency_reconciliation.md) (2026-06-21) | `DEC-051` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (2026-06-21) |
 | D-25 | R4 exit-scope bar and residual disposition: decide whether the remaining sparse-default, spring-hanger-depth, external-validation, broader nonlinear-threshold, and final exit-chain items are R4 blockers, explicit post-R4/R5 residuals, or a mixed human-selected subset | R4 exit review readiness; final `VERIFICATION_<date>_r4_exit_chain.md` scope | RULED | [D-25_r4_exit_scope.md](D-25_r4_exit_scope.md) (2026-06-22) | `DEC-052` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-B: current bounded evidence may proceed to final R4 exit-chain verification packet; listed residuals explicit post-R4/R5 or non-blocking hardening, 2026-06-22) |
-| D-26 | R4 exit review and R4-to-R5 target-stage advancement: accept the `TP-R4-D9-EXITCHAIN-001` evidence packet and decide whether `_COORDINATION.md` advances the current target stage from PRD R4 to PRD R5 | Phase E/R5 ordinary work selection | RULED | [D-26_r4_exit_review_stage_advancement.md](D-26_r4_exit_review_stage_advancement.md) (2026-06-23) | `DEC-053` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-B: hold at R4 pending named sparse default-promotion residual evidence/repair; sparse residual tranche landed, no R5 advancement, 2026-06-23) |
+| D-26 | R4 exit review and R4-to-R5 target-stage advancement: accept the current refreshed R4 exit-chain evidence packet and decide whether `_COORDINATION.md` advances the current target stage from PRD R4 to PRD R5 | Phase E/R5 ordinary work selection | RULED | [D-26_r4_exit_review_stage_advancement.md](D-26_r4_exit_review_stage_advancement.md) (2026-06-23) | `DEC-053` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-B: hold at R4 pending named sparse default-promotion residual evidence/repair; sparse residual tranche landed, refreshed packet prepared, no R5 advancement, 2026-06-23) |
 
 **Recommended preparation order** (from the completion plan §2): `D-01` and
 `D-08` first (longest poles, both touch Phase A/B foundations), `D-10` with
@@ -71,8 +71,9 @@ ordinary in-stage work. `D-15` is ruled by `DEC-049` for the D5 lead-up.
 `DEC-052`, allowing the current bounded R4 evidence to proceed to a final
 exit-chain verification packet while keeping the listed residuals explicit
 post-R4/R5 or non-blocking hardening items. `D-26` is ruled by `DEC-053`
-as Option O-B: R4 remains current pending the named sparse default-promotion
-residual evidence/repair; the residual repair tranche has landed and a
-refreshed final R4 exit-chain verification packet remains required before any
+as Option O-B: R4 remained current pending the named sparse default-promotion
+residual evidence/repair; the residual repair tranche has landed and
+`plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md` is now the refreshed
+final R4 exit-chain verification packet for human acceptance before any
 R4-to-R5 target-stage advancement.
 `D-20` remains a Phase E lead-up decision, and `D-21` remains held.

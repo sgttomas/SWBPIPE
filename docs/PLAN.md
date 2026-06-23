@@ -90,8 +90,10 @@ sparse interactive is now the default preview/render path, dense scrutiny
 remains explicit, sparse-to-dense fallback must be diagnostic/result-basis
 visible, and the 9-record local observation packet covers timing/RSS/hardware,
 practical size bands, pivot-ratio proxy, and true condition numbers without
-creating release thresholds. A refreshed final R4 exit-chain verification packet
-is required before any future R4-to-R5 ruling.
+creating release thresholds.
+[VERIFICATION_2026-06-23_r4_exit_chain_refresh.md](../plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md)
+is the refreshed final R4 exit-chain verification packet for human review
+before any future R4-to-R5 ruling.
 
 ## 3. How the strategic layers relate
 
@@ -212,9 +214,10 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
   Option O-B, and the successor R4 review packet is
   [VERIFICATION_2026-06-22_r4_exit_chain.md](../plans/VERIFICATION_2026-06-22_r4_exit_chain.md),
   now historical after `D-26` was ruled O-B by `DEC-053`. R4 remains current;
-  `TP-R4-D7-SPARSEDEFAULTPROMOTE-001` landed the named sparse repair, and a
-  refreshed final R4 exit-chain verification packet is required before any R5
-  advancement. `D-17` sparse live-path adoption timing is ruled and implemented
+  `TP-R4-D7-SPARSEDEFAULTPROMOTE-001` landed the named sparse repair, and
+  [VERIFICATION_2026-06-23_r4_exit_chain_refresh.md](../plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md)
+  is the refreshed final R4 exit-chain verification packet for human review
+  before any R5 advancement. `D-17` sparse live-path adoption timing is ruled and implemented
   as `TP-R4-D7-SPARSELIVE-001` under `DEC-050`, with the later `DEC-053`
   promotion making sparse interactive the default preview/render path and dense
   scrutiny explicit while keeping timing/RSS/hardware/CI evidence observational,

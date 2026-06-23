@@ -34,8 +34,10 @@ promote any future DAG successor, resolve Phase E decisions such as `D-06`,
 
 Primary verification packet:
 
-- `plans/VERIFICATION_2026-06-22_r4_exit_chain.md`
-  (`TP-R4-D9-EXITCHAIN-001`).
+- `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
+  (`TP-R4-D9-EXITCHAINREFRESH-001`), which supersedes the historical
+  `plans/VERIFICATION_2026-06-22_r4_exit_chain.md`
+  (`TP-R4-D9-EXITCHAIN-001`) for the current R4 exit review.
 
 Human exit-scope ruling:
 
@@ -162,16 +164,17 @@ Disposition:
   is not a release threshold, hosted-CI activation, hardware-normalized pass/fail
   gate, professional approval, certification, sealing, authentication, or
   code-compliance acceptance.
-- A refreshed final R4 exit-chain verification packet remains required before
-  any future R4-to-R5 ruling.
+- A refreshed final R4 exit-chain verification packet has been prepared as
+  `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md` and remains the
+  required acceptance surface before any future R4-to-R5 ruling.
 
 ## 6. Advisory Recommended Disposition (PROPOSAL)
 
 **Superseded by the 2026-06-23 O-B ruling above.** Historical proposal text
 retained for traceability.
 
-Recommend **O-A**, if the human project authority accepts the
-`VERIFICATION_2026-06-22_r4_exit_chain.md` evidence packet.
+Recommend **O-A**, if the human project authority accepts the refreshed
+`VERIFICATION_2026-06-23_r4_exit_chain_refresh.md` evidence packet.
 
 Rationale: PRD §22.5 is narrow, and `DEC-052` already ruled the current bounded
 evidence envelope sufficient to proceed to final R4 exit-chain review while
@@ -187,10 +190,11 @@ If O-A is accepted, replace the current target-stage paragraph in
 
 > **Current target stage - PRD R5 exit criterion (advanced 2026-06-23 by
 > `DEC-0XX`).** Phase D/R4 evidence was reviewed per
-> `plans/VERIFICATION_2026-06-22_r4_exit_chain.md`, with `D-25` / `DEC-052`
-> accepting the bounded R4 evidence envelope for final exit review and keeping
-> the named residuals explicit for R5 or later hardening. The human accepted
-> the R4 exit review through `D-26`. The ordinary in-stage program is now
+> `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`, with `D-25` /
+> `DEC-052` accepting the bounded R4 evidence envelope for final exit review
+> and `D-26` / `DEC-053` selecting and then closing the named sparse residual
+> repair for R4 review. The human accepted the R4 exit review through `D-26`.
+> The ordinary in-stage program is now
 > Phase E: engineering beta and release machinery. R5 exit criteria are
 > PRD §22.6: external engineers can reproduce validation examples, and the
 > public repository contains no known protected standards data. Boundary

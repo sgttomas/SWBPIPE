@@ -8,7 +8,7 @@
 - Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
 - Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
-- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-26` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, `DEC-048` recording `D-23` Option O-A: R3 exit evidence accepted and current target stage advanced to R4, `DEC-052` recording `D-25` Option O-B: current bounded R4 evidence may proceed to final exit-chain packet review with residuals explicit, and `DEC-053` recording `D-26` Option O-B: hold at R4 pending named sparse default-promotion residual evidence/repair; repair landed, refreshed final R4 exit-chain packet still required).
+- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-26` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, `DEC-048` recording `D-23` Option O-A: R3 exit evidence accepted and current target stage advanced to R4, `DEC-052` recording `D-25` Option O-B: current bounded R4 evidence may proceed to final exit-chain packet review with residuals explicit, and `DEC-053` recording `D-26` Option O-B: hold at R4 pending named sparse default-promotion residual evidence/repair; repair landed, refreshed final R4 exit-chain packet prepared as `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`).
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat `execution/_DAG/DAG-007/` as the current approved canonical dependency type-system rectification authority. `DAG-001` through `DAG-006` are historical snapshots.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
@@ -153,10 +153,12 @@
      selected the sparse residual as blocking and that repair has landed.
      `TP-R4-D9-EXITCHAIN-001` /
      `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` remain historical; the
-     next unblocked R4 item is a refreshed final R4 exit-chain verification
-     packet including `TP-R4-D7-SPARSEDEFAULTPROMOTE-001`. R4 remains current;
-     no R5 target-stage advancement is authorized until a future human ruling
-     accepts that refreshed packet. `D-20` is held for
+     current final R4 exit-chain verification packet is
+     `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
+     (`TP-R4-D9-EXITCHAINREFRESH-001`), including
+     `TP-R4-D7-SPARSEDEFAULTPROMOTE-001`. R4 remains current; no R5
+     target-stage advancement is authorized until a future human ruling accepts
+     that refreshed packet. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

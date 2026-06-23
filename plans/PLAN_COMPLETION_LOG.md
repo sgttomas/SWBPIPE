@@ -14,6 +14,32 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-23 - R4 exit-chain verification refresh (`TP-R4-D9-EXITCHAINREFRESH-001`)
+
+Prepared the refreshed R4 exit-chain verification packet after `DEC-053`:
+`plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`.
+
+The refresh supersedes the historical
+`plans/VERIFICATION_2026-06-22_r4_exit_chain.md` packet for the current human
+R4 exit review. It includes `TP-R4-D7-SPARSEDEFAULTPROMOTE-001`, treats the
+named `D-26` sparse default-promotion residual as closed for R4 by bounded
+local evidence, and keeps release/external sparse thresholds, hosted-CI
+activation, and hardware-normalized pass/fail gates outside the R4 packet.
+
+Validation: `python3 -m pytest -q
+tests/test_sparse_default_promotion_observation.py
+tests/test_nonlinear_support_regression.py` passed; `git diff --check` passed.
+The carried `DEC-053` repair evidence is the passing local `DEC-025` sweep
+`validation/evidence/sweeps/SWEEP_20260623T020002Z_3194bd29f417-dirty.json`.
+
+Boundary: this is a derivative verification package for human R4 review only.
+It does not approve R4 exit, advance to R5, issue deliverables, create
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance acceptance.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-23_TP-R4-D9-EXITCHAINREFRESH-001.md`.
+
 ## 2026-06-23 - R4 sparse default-promotion residual closure (`TP-R4-D7-SPARSEDEFAULTPROMOTE-001`)
 
 Recorded the human `D-26` ruling as `DEC-053`: Option O-B holds R4 pending the

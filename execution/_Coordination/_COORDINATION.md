@@ -78,7 +78,8 @@ Baseline intake for every new session:
   (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase
   ordering, the dependency spine, the FR completion map, and the human
   decision register `D-01..D-26` (`D-26` ruled by `DEC-053`; refreshed final R4
-  exit-chain packet still required). Update this
+  exit-chain packet prepared as
+  `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`). Update this
   pointer when a successor plan is accepted.
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
   preparation status and rulings pending with the human project authority.
@@ -420,7 +421,9 @@ later human gate selects one as blocking. `DEC-053` selected the sparse
 default-promotion residual as a blocking R4 repair and that repair tranche has
 landed. `TP-R4-D9-EXITCHAIN-001` and
 `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` remain the historical R4 exit
-packet; final-exit review now requires a refreshed packet that includes
+packet. The current refreshed packet is
+`plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
+(`TP-R4-D9-EXITCHAINREFRESH-001`) and includes
 `TP-R4-D7-SPARSEDEFAULTPROMOTE-001`. R4 remains the current target stage, and no
 R5 target-stage advancement is authorized until a future human ruling accepts
 the refreshed R4 exit-chain verification packet.
@@ -596,11 +599,15 @@ bounded tranche.
       `TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
       `D-25` is ruled by `DEC-052` Option O-B: those residuals are explicit
       post-R4/R5 or non-blocking hardening residuals for this R4 packet unless
-      a later human gate selects one as blocking. `TP-R4-D9-EXITCHAIN-001`
-      prepares `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as the final
-      R4 exit-chain verification packet for human R4 exit review. `D-26` is
-      prepared and awaiting human ruling for R4 exit review and any R4-to-R5
-      target-stage advancement.
+      a later human gate selects one as blocking. `D-26` is ruled by
+      `DEC-053` Option O-B: R4 held pending the named sparse default-promotion
+      repair, which landed as `TP-R4-D7-SPARSEDEFAULTPROMOTE-001`.
+      `TP-R4-D9-EXITCHAIN-001` prepared the historical
+      `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` packet; the current
+      packet for human R4 exit review is
+      `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
+      (`TP-R4-D9-EXITCHAINREFRESH-001`). No R4-to-R5 target-stage advancement
+      is authorized until a future human ruling accepts the refreshed packet.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize
       v0.2/R6/R7 scope;

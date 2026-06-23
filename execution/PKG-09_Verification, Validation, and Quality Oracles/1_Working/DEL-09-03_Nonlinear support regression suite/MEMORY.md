@@ -21,6 +21,11 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   `TP-R4-D9-EXITCHAIN-001` for human R4 exit review. This is not R4 exit
   approval, target-stage advancement, release readiness, professional approval,
   certification, sealing, authentication, or code-compliance acceptance.
+- Refreshed the R4 packet after `DEC-053` as
+  `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
+  (`TP-R4-D9-EXITCHAINREFRESH-001`). The refresh includes
+  `TP-R4-D7-SPARSEDEFAULTPROMOTE-001` and is now the current human R4 exit
+  review artifact.
 
 ## Validation
 
@@ -29,6 +34,8 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 - Existing `cargo test --quiet` in `core/solver/nonlinear_supports`: passed, 8 tests.
 - Existing `cargo test --quiet` in `core/solver/diagnostics`: passed, 10 tests.
 - `git diff --check`: passed.
+- `python3 -m pytest -q tests/test_sparse_default_promotion_observation.py
+  tests/test_nonlinear_support_regression.py`: passed for the packet refresh.
 - Protected-content, private-data, credential, and professional-claim scans over the
   DEL-09-03 changed files: passed.
 
