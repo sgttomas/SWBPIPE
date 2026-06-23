@@ -12,6 +12,15 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
   stick/slide behavior, and unresolved non-convergence at the iteration limit.
 - Added `tests/test_nonlinear_support_regression.py` as the focused repo-level
   regression entry point for the nonlinear benchmark crate.
+- `D-25` is ruled by `DEC-052` Option O-B (2026-06-22): the current bounded
+  seed/product/thirteen-fixture nonlinear evidence can proceed to the final R4
+  exit-chain verification packet, with broader residuals carried as explicit
+  post-R4/R5 or non-blocking hardening work unless a later human gate selects
+  one as blocking.
+- Prepared `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as
+  `TP-R4-D9-EXITCHAIN-001` for human R4 exit review. This is not R4 exit
+  approval, target-stage advancement, release readiness, professional approval,
+  certification, sealing, authentication, or code-compliance acceptance.
 
 ## Validation
 
@@ -25,6 +34,9 @@ Implemented a bounded nonlinear support regression suite for DEV-001 revision
 
 ## Remaining TBDs
 
+- Under `DEC-052`, the following are no longer blockers to preparing the R4
+  exit-chain packet, but remain explicit post-R4/R5 or non-blocking hardening
+  residuals unless a later human gate selects one as blocking.
 - Non-seed force/displacement thresholds beyond the accepted thirteen-fixture
   multi-support companion set, broader general-energy residual thresholds
   beyond the current seed, accepted thirteen-fixture set, and invented

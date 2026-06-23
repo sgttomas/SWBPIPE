@@ -388,7 +388,7 @@ hardware-normalized, and default-promotion thresholds remain `TBD`.
 generated-grid sparse pivot-ratio conditioning policy for the same observation
 set; true condition-number, CI, hardware-normalized, timing, allocator/RSS
 memory, and default-promotion thresholds remain `TBD`.
-`TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
+`TP-R4-D9-EXITGAP-001` recorded the pre-`D-25` R4 exit verdict as not ready:
 non-seed force/displacement threshold promotion beyond the accepted thirteen-fixture set,
 broader displacement/reaction-delta threshold promotion beyond the accepted
 current-seed, thirteen-fixture, and product-preview
@@ -402,9 +402,12 @@ the remaining D9 validation evidence remain open. Broader non-seed, release,
 external, sparse-default, total strain-energy, modal-energy, and CI
 general-energy threshold axes remain outside the accepted
 `TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
-`D-25` is prepared and awaiting human ruling to decide whether those residuals
-are R4 blockers, explicit post-R4/R5 residuals, or a smaller human-selected
-must-close subset before the final R4 exit-chain verification packet.
+`D-25` is ruled by `DEC-052` Option O-B: those residuals are explicit
+post-R4/R5 or non-blocking hardening residuals for this R4 packet unless a
+later human gate selects one as blocking. `TP-R4-D9-EXITCHAIN-001` prepares
+`plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as the final R4 exit-chain
+verification packet for human R4 exit review. R4 exit itself remains a
+separate human approval before any target-stage advancement to R5.
 `DAG-007` is the current approved dependency graph pointer; `DAG-001` through
 `DAG-006` remain historical snapshots.
 
@@ -559,7 +562,7 @@ bounded tranche.
       sparse pivot-ratio conditioning policy while true condition-number, CI,
       hardware-normalized, timing, allocator/RSS memory, and default-promotion
       thresholds remain `TBD`.
-      `TP-R4-D9-EXITGAP-001` records the current R4 exit verdict as not ready:
+      `TP-R4-D9-EXITGAP-001` recorded the pre-`D-25` R4 exit verdict as not ready:
       non-seed force/displacement threshold promotion beyond the accepted
       thirteen-fixture set, broader displacement/reaction-delta thresholds beyond
       the accepted current-seed, thirteen-fixture, and product-preview surfaces,
@@ -575,10 +578,13 @@ bounded tranche.
       external, sparse-default, total strain-energy, modal-energy, and CI
       general-energy threshold axes remain outside the accepted
       `TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
-      `D-25` is prepared and awaiting human ruling on the R4 exit-scope bar:
-      whether those residuals block R4, become explicit post-R4/R5 residuals,
-      or form a smaller human-selected must-close subset before the final R4
-      exit-chain packet.
+      `D-25` is ruled by `DEC-052` Option O-B: those residuals are explicit
+      post-R4/R5 or non-blocking hardening residuals for this R4 packet unless
+      a later human gate selects one as blocking. `TP-R4-D9-EXITCHAIN-001`
+      prepares `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as the final
+      R4 exit-chain verification packet for human R4 exit review. R4 exit
+      itself remains a separate human approval before any target-stage
+      advancement to R5.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize
       v0.2/R6/R7 scope;

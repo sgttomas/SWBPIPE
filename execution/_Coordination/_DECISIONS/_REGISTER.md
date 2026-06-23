@@ -46,7 +46,7 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 | D-22 | Embedded-agent runtime substrate: consume the `chirality-app-dev` harness as versioned packages (pure-TS contract pkg → React UI pkg → Node-SDK sidecar at the live-binding stage); keep app-dev on Electron; reject the Tauri-refactor and the Rust-reimplementation alternatives; any stack unification is a separate human-gated app-dev packet; execution gated behind `D-21` and a no-manual-toil automation condition | v0.2/R7 Agent-Assisted Design integration | RULED | — (ruled directly, no packet) | `DEC-041` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (2026-06-18) |
 | D-23 | R3 exit review and R3-to-R4 target-stage advancement: accept the `TP-R3VERIFY-001` evidence packet and decide whether the Working Desktop Application Standard advances from PRD R3 to PRD R4 | Phase D/R4 ordinary work selection | RULED | [D-23_r3_exit_review_stage_advancement.md](D-23_r3_exit_review_stage_advancement.md) (2026-06-20) | `DEC-048` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-A: accept R3 exit evidence and advance the current target stage to R4, 2026-06-20) |
 | D-24 | Runtime data-residency / agent-visibility / model-provider posture reconciliation to tier-0 `D-T0-04` (OPEN RESIDENCY): relax the **runtime** `OPS-K-PRIV-1` + SPEC §4.4 no-required-network posture to permit owner-configured agent visibility of the owner's own private model / Class-B inputs and networked model providers (fully literal open; no app-side egress guard), preserving the public-commit / third-party-IP boundary, the professional ceiling, and telemetry-off | Embedded-agent live binding (with `D-21`, `DEC-041`, app-dev F3); `RES-RECONCILE` closure | RULED | [D-24_runtime_residency_reconciliation.md](D-24_runtime_residency_reconciliation.md) (2026-06-21) | `DEC-051` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (2026-06-21) |
-| D-25 | R4 exit-scope bar and residual disposition: decide whether the remaining sparse-default, spring-hanger-depth, external-validation, broader nonlinear-threshold, and final exit-chain items are R4 blockers, explicit post-R4/R5 residuals, or a mixed human-selected subset | R4 exit review readiness; final `VERIFICATION_<date>_r4_exit_chain.md` scope | AWAITING_RULING | [D-25_r4_exit_scope.md](D-25_r4_exit_scope.md) (2026-06-22) | — |
+| D-25 | R4 exit-scope bar and residual disposition: decide whether the remaining sparse-default, spring-hanger-depth, external-validation, broader nonlinear-threshold, and final exit-chain items are R4 blockers, explicit post-R4/R5 residuals, or a mixed human-selected subset | R4 exit review readiness; final `VERIFICATION_<date>_r4_exit_chain.md` scope | RULED | [D-25_r4_exit_scope.md](D-25_r4_exit_scope.md) (2026-06-22) | `DEC-052` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-B: current bounded evidence may proceed to final R4 exit-chain verification packet; listed residuals explicit post-R4/R5 or non-blocking hardening, 2026-06-22) |
 
 **Recommended preparation order** (from the completion plan §2): `D-01` and
 `D-08` first (longest poles, both touch Phase A/B foundations), `D-10` with
@@ -66,5 +66,8 @@ app-dev harness as versioned packages, app-dev stays Electron, execution gated
 behind `D-21` and a no-manual-toil automation condition.
 `D-23` is ruled by `DEC-048`; Phase D/R4 implementation may now proceed as
 ordinary in-stage work. `D-15` is ruled by `DEC-049` for the D5 lead-up.
-`D-17` is ruled by `DEC-050` for the D7 lead-up, `D-20` remains a Phase E
-lead-up decision, and `D-21` remains held.
+`D-17` is ruled by `DEC-050` for the D7 lead-up. `D-25` is ruled by
+`DEC-052`, allowing the current bounded R4 evidence to proceed to a final
+exit-chain verification packet while keeping the listed residuals explicit
+post-R4/R5 or non-blocking hardening items. `D-20` remains a Phase E lead-up
+decision, and `D-21` remains held.

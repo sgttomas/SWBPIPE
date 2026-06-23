@@ -14,6 +14,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-22 - R4 exit-chain verification packet (`TP-R4-D9-EXITCHAIN-001`)
+
+Recorded the human `D-25` ruling as `DEC-052` and prepared the final R4
+exit-chain verification packet for human review:
+`plans/VERIFICATION_2026-06-22_r4_exit_chain.md`.
+
+Changed surfaces:
+
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` records `DEC-052`: Option O-B
+  accepts that the current bounded seed/product/thirteen-fixture nonlinear
+  evidence and current invented component-provenance evidence may proceed to a
+  final R4 exit-chain packet.
+- `execution/_Coordination/_DECISIONS/_REGISTER.md` marks `D-25` as `RULED`;
+  `D-25_r4_exit_scope.md` carries the ruling/disposition section.
+- `plans/VERIFICATION_2026-06-21_r4_exit_gap.md` remains the historical gap
+  packet and now points to the successor exit-chain packet.
+- Coordination, roadmap, completion-plan, next-instance, and DEL-09-03 memory
+  surfaces now route the next human-gated step to R4 exit review rather than
+  further D-25 decision escalation.
+
+Validation before packet commit: `git diff --check` passed;
+`python3 -m pytest -q tests/test_nonlinear_support_regression.py` passed
+8 tests.
+Clean-head DEC-025 evidence sweep: `TO_BE_RECORDED_AFTER_PACKET_COMMIT`.
+
+Residuals remain explicit under `DEC-052`: sparse default/timing/memory/CI/
+hardware/default-promotion work, sparse conditioning beyond the bounded
+generated-grid pivot-ratio proxy, broader nonlinear thresholds, deeper
+spring-hanger behavior, external validation thresholds, release-quality gates,
+and R5 engineering-beta evidence. This packet does not approve R4 exit, advance
+to R5, issue deliverables, create release readiness, professional approval,
+certification, sealing, authentication, or code-compliance acceptance.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_run_records/WORKING_ITEMS_RUN_2026-06-22_TP-R4-D9-EXITCHAIN-001.md`.
+
 ## 2026-06-22 - R4 D7 sparse pivot-conditioning policy (`TP-R4-D7-SPARSECONDITIONPOLICY-001`)
 
 Added a bounded `DEC-050` sparse generated-grid pivot-ratio conditioning policy

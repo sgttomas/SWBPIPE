@@ -7,6 +7,11 @@ ready** for a human R4 exit review. It is not a lifecycle transition,
 release-readiness claim, professional approval, certification, sealing,
 authentication, or code-compliance acceptance.
 
+**Successor note (2026-06-22):** `D-25` was ruled Option O-B by `DEC-052`.
+This file remains the historical gap packet and planning basis; the successor
+human-review packet is
+`plans/VERIFICATION_2026-06-22_r4_exit_chain.md`.
+
 ## Scope
 
 R4 criterion from `docs/PRD.md` 22.5:
@@ -53,7 +58,7 @@ R4 deliverable families named by the same section:
    residual thresholds, total strain-energy or modal-energy thresholds,
    displacement-delta thresholds, reaction-delta thresholds, sparse default
    behavior, release thresholds, or external validation thresholds.
-2. **The current assembled nonlinear fixtures are validation seeds plus twelve
+2. **The current assembled nonlinear fixtures are validation seeds plus thirteen
    accepted multi-support companions, not PRD-depth acceptance coverage.** The
    accepted-policy seed cases exercise small invented systems and active-set
    state transitions. `TP-R4-D9-MULTISUPPORTPOLICY-001` adds one accepted
@@ -74,7 +79,9 @@ R4 deliverable families named by the same section:
    accepted four-class one-way/gap/friction/lift-off companion, and
    `TP-R4-D9-MULTISUPPORTOPPGAP-001` adds an eleventh accepted gap-only
    opposing-direction companion, and `TP-R4-D9-MULTISUPPORTSPAN-001` adds a
-   twelfth accepted multi-node / two-span companion;
+   twelfth accepted multi-node / two-span companion, and
+   `TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001` adds a thirteenth accepted
+   two-span opposing-gap companion;
    `TP-R4-D9-MULTISUPPORTOBS-001` remains
    observation-only. Together they still do not demonstrate broad non-seed
    force, displacement, or energy residual acceptance criteria beyond the

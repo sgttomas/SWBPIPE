@@ -3,11 +3,12 @@
 **Date prepared:** 2026-06-22
 **Prepared by:** WORKING_ITEMS, per the Application Integration And Issuance
 Loop decision-escalation step.
-**Epistemic status:** PROPOSAL (non-governing). Only the human project
-authority rules. Nothing here changes lifecycle state, issues deliverables,
-advances the current target stage, creates release readiness, professional
-approval, certification, sealing, authentication, code-compliance acceptance,
-or asserts that R4 is complete.
+**Epistemic status:** RULED by human project authority on 2026-06-22. The
+proposal basis is retained below. The ruling authorizes preparing the final R4
+exit-chain verification packet, but it does not change lifecycle state, issue
+deliverables, advance the current target stage, create release readiness,
+professional approval, certification, sealing, authentication, code-compliance
+acceptance, or assert that R4 is complete.
 
 ---
 
@@ -136,10 +137,33 @@ If **O-C** is ruled:
 - execute that subset as ordinary bounded R4 work;
 - then prepare the R4 exit-chain packet.
 
-## 7. Ruling Mechanism
+## 7. Human Ruling And Disposition
+
+Human project authority ruled on 2026-06-22:
+
+> regarding `D-25` my ruling is `O-B` R4 can move to a final exit-chain
+> verification packet.
+
+Recorded ruling: `DEC-052` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
+
+Disposition:
+
+- The current bounded seed/product/thirteen-fixture nonlinear evidence and
+  current invented component-provenance evidence may be assembled into
+  `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` for human R4 exit review.
+- The residuals listed in §3 are not blockers to preparing that packet under
+  this ruling. They remain explicit post-R4/R5 or non-blocking hardening
+  residuals unless a later human gate selects one as blocking.
+- R4 exit itself remains a separate human review/approval step. This ruling
+  does not approve R4 exit, advance the target stage to R5, issue deliverables,
+  create release readiness, professional approval, certification, sealing,
+  authentication, or code-compliance acceptance.
+
+## 8. Ruling Mechanism
 
 Per existing practice, the human project authority selects an option or rules
 directly. The ruling is appended to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 as the next `DEC` entry
-citing this packet. This register row then moves from `AWAITING_RULING` to
-`RULED` with the decision pointer.
+citing this packet. This register row moved from `AWAITING_RULING` to `RULED`
+with the `DEC-052` decision pointer.
