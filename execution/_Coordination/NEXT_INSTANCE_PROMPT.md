@@ -8,7 +8,7 @@
 - Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
 - Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
-- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-25` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, `DEC-048` recording `D-23` Option O-A: R3 exit evidence accepted and current target stage advanced to R4, and `DEC-052` recording `D-25` Option O-B: current bounded R4 evidence may proceed to final exit-chain packet review with residuals explicit).
+- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-26` (with `DEC-041/042/043` recorded 2026-06-18, `DEC-044/045/046` recorded for D-16/D-18/D-19, `DEC-048` recording `D-23` Option O-A: R3 exit evidence accepted and current target stage advanced to R4, `DEC-052` recording `D-25` Option O-B: current bounded R4 evidence may proceed to final exit-chain packet review with residuals explicit, and `D-26` awaiting human R4 exit review / R4-to-R5 ruling).
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat `execution/_DAG/DAG-007/` as the current approved canonical dependency type-system rectification authority. `DAG-001` through `DAG-006` are historical snapshots.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
@@ -29,7 +29,7 @@
    default, local-status discovery, DAG-guided context selection, bounded
    workers, fan-in, validation, evidence records, and project-local
    `AGENTS.md` closeout routing for completed validated tranches.
-6. Human decisions (`D-01..D-25` and any newly discovered human-gated `TBD`)
+6. Human decisions (`D-01..D-26` and any newly discovered human-gated `TBD`)
    are never resolved by agents. Prepare decision packets per the loop's
    decision-escalation step, surface pending rulings every session, and
    proceed only on unblocked work.
@@ -149,9 +149,9 @@
      this R4 packet unless a later human gate selects one as blocking.
      `TP-R4-D9-EXITCHAIN-001` prepares
      `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as the final R4
-     exit-chain verification packet for human R4 exit review. R4 exit itself
-     remains a separate human approval before any target-stage advancement to
-     R5. `D-20` is held for
+     exit-chain verification packet for human R4 exit review. `D-26` is
+     prepared and awaiting human ruling for R4 exit review and any R4-to-R5
+     target-stage advancement. `D-20` is held for
      Phase E; `D-21` remains held and does not authorize
      v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

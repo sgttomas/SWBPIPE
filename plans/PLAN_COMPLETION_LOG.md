@@ -14,6 +14,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-23 - R4 exit review decision packet (`TP-DECIDE-D26-R4EXIT-001`)
+
+Prepared the human-gated R4 exit review / R4-to-R5 target-stage advancement
+decision packet:
+`execution/_Coordination/_DECISIONS/D-26_r4_exit_review_stage_advancement.md`.
+
+Changed surfaces:
+
+- `execution/_Coordination/_DECISIONS/_REGISTER.md` now tracks `D-26` as
+  `AWAITING_RULING`.
+- Coordination, roadmap, completion-plan, and next-instance surfaces now stop
+  at the D-26 human gate instead of treating R4 exit review as an unnamed
+  approval.
+- The packet recommends Option O-A if the human accepts
+  `plans/VERIFICATION_2026-06-22_r4_exit_chain.md`: accept the R4 evidence and
+  advance the current target stage to R5. The recommendation is not a ruling.
+
+Validation: `git diff --check` passed;
+`python3 tools/coordination/list_deliverable_status.py --dag DAG-007 --format
+table --summary` passed with status counts `CHECKING=8`, `IN_PROGRESS=92`,
+`ISSUED=1`; targeted `rg` checks confirmed `D-26` routing and no stale
+pre-D-26 decision-range references remain.
+
+Boundary: no implementation, schema, solver, UI, fixture, report, release,
+lifecycle, target-stage behavior, protected-content boundary, professional
+approval, certification, sealing, authentication, or code-compliance status
+changed.
+
+Evidence:
+`execution/_Coordination/_DECISIONS/_run_records/WORKING_ITEMS_RUN_2026-06-23_D26_r4_exit_review_stage_advancement.md`.
+
 ## 2026-06-22 - R4 exit-chain verification packet (`TP-R4-D9-EXITCHAIN-001`)
 
 Recorded the human `D-25` ruling as `DEC-052` and prepared the final R4

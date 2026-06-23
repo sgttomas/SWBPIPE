@@ -77,7 +77,7 @@ Baseline intake for every new session:
 - `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan
   (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase
   ordering, the dependency spine, the FR completion map, and the human
-  decision register `D-01..D-23` (`D-23` ruled by `DEC-048`). Update this
+  decision register `D-01..D-26` (`D-26` prepared and awaiting ruling). Update this
   pointer when a successor plan is accepted.
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
   preparation status and rulings pending with the human project authority.
@@ -406,8 +406,8 @@ general-energy threshold axes remain outside the accepted
 post-R4/R5 or non-blocking hardening residuals for this R4 packet unless a
 later human gate selects one as blocking. `TP-R4-D9-EXITCHAIN-001` prepares
 `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as the final R4 exit-chain
-verification packet for human R4 exit review. R4 exit itself remains a
-separate human approval before any target-stage advancement to R5.
+verification packet for human R4 exit review. `D-26` is prepared and awaiting
+human ruling for R4 exit review and any R4-to-R5 target-stage advancement.
 `DAG-007` is the current approved dependency graph pointer; `DAG-001` through
 `DAG-006` remain historical snapshots.
 
@@ -582,9 +582,9 @@ bounded tranche.
       post-R4/R5 or non-blocking hardening residuals for this R4 packet unless
       a later human gate selects one as blocking. `TP-R4-D9-EXITCHAIN-001`
       prepares `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` as the final
-      R4 exit-chain verification packet for human R4 exit review. R4 exit
-      itself remains a separate human approval before any target-stage
-      advancement to R5.
+      R4 exit-chain verification packet for human R4 exit review. `D-26` is
+      prepared and awaiting human ruling for R4 exit review and any R4-to-R5
+      target-stage advancement.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize
       v0.2/R6/R7 scope;
@@ -597,7 +597,7 @@ bounded tranche.
    hardening work ahead of an unblocked current-stage plan item without
    recording why in the tranche proposal.
 4. **Decision escalation.** When the next plan item is blocked by a human
-   decision (`D-01..D-23` in the completion plan, or any newly discovered
+   decision (`D-01..D-26` in the completion plan, or any newly discovered
    human-gated TBD):
    - if no decision packet exists, the tranche is a decision-preparation
      tranche: assemble options, evidence, impacts, and a recommendation
