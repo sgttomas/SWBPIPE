@@ -77,9 +77,9 @@ Baseline intake for every new session:
 - `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan
   (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase
   ordering, the dependency spine, the FR completion map, and the human
-  decision register `D-01..D-26` (`D-26` ruled by `DEC-053`; refreshed final R4
-  exit-chain packet prepared as
-  `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`). Update this
+  decision register `D-01..D-27` (`D-27` ruled by `DEC-054`: conditional R4
+  gate accepted, target stage advanced to R5, §16.2/§16.5 evidence-system
+  residual carried forward). Update this
   pointer when a successor plan is accepted.
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
   preparation status and rulings pending with the human project authority.
@@ -250,14 +250,23 @@ that:
 - shows the professional, release, protected-content, and private-data
   boundaries visibly.
 
-**Current target stage — PRD R4 exit criterion (advanced 2026-06-20 by
-`DEC-048`, after the R3 target-stage advance in `DEC-035`).** Phase C/R3
-evidence was reviewed through `plans/VERIFICATION_2026-06-20_r3_exit_chain.md`
-(`TP-R3VERIFY-001`, SMOKE TP-MAC-190), and the human project authority accepted
-the R3 exit review and R3-to-R4 target-stage advancement by approving `D-23`
-Option O-A. The ordinary in-stage program is now Phase D: piping components and
-nonlinear supports. R4 exit criteria are PRD §22.5: nonlinear support
-validation cases converge, and component provenance appears in reports. D1
+**Current target stage - PRD R5 exit criterion (advanced 2026-06-23 by
+`DEC-054`, after the conditional R4 target-stage gate in `D-27`).** Phase D/R4
+evidence was reviewed through
+`plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
+(`TP-R4-D9-EXITCHAINREFRESH-001`) and clean-head sweep
+`validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json`.
+The human project authority accepted the refreshed packet as a conditional R4
+gate and authorized R4-to-R5 target-stage advancement. The ordinary in-stage
+program is now Phase E: engineering beta and release machinery. R5 exit
+criteria are PRD §22.6: external engineers can reproduce validation examples,
+and the public repository contains no known protected standards data. The PRD
+§16.2 / §16.5 complete benchmark/manual evidence system remains explicit
+residual work to gather later, including once the agent harness is active and
+can participate. Boundary prohibitions continue unchanged: no protected
+standards content, private-data defaults, unapproved release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim. R4 evidence basis: D1
 bend-object app absorption landed for the invented preview path across
 visibility/provenance (`TP-R4-D1-BENDVIS-001`) and
 mechanics/stress-recovery/report evidence (`TP-R4-D1-BENDSTRESS-001`). D2
@@ -424,9 +433,11 @@ landed. `TP-R4-D9-EXITCHAIN-001` and
 packet. The current refreshed packet is
 `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
 (`TP-R4-D9-EXITCHAINREFRESH-001`) and includes
-`TP-R4-D7-SPARSEDEFAULTPROMOTE-001`. R4 remains the current target stage, and no
-R5 target-stage advancement is authorized until a future human ruling accepts
-the refreshed R4 exit-chain verification packet.
+`TP-R4-D7-SPARSEDEFAULTPROMOTE-001`. The clean-head sweep
+`validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json` binds the
+refreshed packet to `16cca07f3`. `D-27` is ruled by `DEC-054`: the conditional
+R4 gate is accepted, R5 is the current target stage, and PRD §16.2 / §16.5
+remain explicit benchmark/manual evidence-system residuals.
 `DAG-007` is the current approved dependency graph pointer; `DAG-001` through
 `DAG-006` remain historical snapshots.
 
@@ -606,8 +617,11 @@ bounded tranche.
       `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` packet; the current
       packet for human R4 exit review is
       `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
-      (`TP-R4-D9-EXITCHAINREFRESH-001`). No R4-to-R5 target-stage advancement
-      is authorized until a future human ruling accepts the refreshed packet.
+      (`TP-R4-D9-EXITCHAINREFRESH-001`), now bound by clean-head sweep
+      `validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json`.
+      `D-27` is ruled by `DEC-054`: the conditional R4 gate is accepted and the
+      current target stage advances to R5, while PRD §16.2 / §16.5 remain
+      explicit benchmark/manual evidence-system residuals.
       `D-20`
       remains a Phase E lead-up decision; held `D-21` does not authorize
       v0.2/R6/R7 scope;
@@ -620,7 +634,7 @@ bounded tranche.
    hardening work ahead of an unblocked current-stage plan item without
    recording why in the tranche proposal.
 4. **Decision escalation.** When the next plan item is blocked by a human
-   decision (`D-01..D-26` in the completion plan, or any newly discovered
+   decision (`D-01..D-27` in the completion plan/register, or any newly discovered
    human-gated TBD):
    - if no decision packet exists, the tranche is a decision-preparation
      tranche: assemble options, evidence, impacts, and a recommendation

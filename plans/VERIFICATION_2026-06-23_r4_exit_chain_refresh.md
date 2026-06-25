@@ -57,7 +57,20 @@ The named blocking residual was:
 
 `DEC-053` records this ruling. The repair tranche
 `TP-R4-D7-SPARSEDEFAULTPROMOTE-001` has landed and is included in this packet.
-R4 remains current until the human authority accepts this refreshed packet.
+
+### D-27 / DEC-054
+
+Human project authority then ruled on `D-27`:
+
+> For D-27 I accept this as a conditional R4 gate; §16.2/§16.5 require a
+> complete benchmark/manual evidence system. Sufficient to proceed and the
+> remaining evidence will be gathered once the agent harness is active and can
+> participate in that activity too.
+
+`DEC-054` accepts this refreshed packet as a conditional R4 gate and authorizes
+R4-to-R5 target-stage advancement. PRD §16.2 / §16.5 are not closed by that
+ruling; their complete benchmark/manual evidence system remains explicit
+residual work.
 
 ## Supersession
 
@@ -115,6 +128,20 @@ Within that envelope, the R4 nonlinear support validation evidence is
 presentable for human exit review. Outside that envelope, threshold promotion
 remains residual work.
 
+## PRD 16.2 / 16.5 Disposition
+
+PRD 22.5 is the R4 exit criterion for this packet. PRD 16.2 and 16.5 are broader
+validation-suite and validation-manual requirements. This packet does not claim
+that the full PRD 16.2 benchmark list or PRD 16.5 validation manual is complete.
+
+The current R4 reading is bounded to active-set self-consistency, governed
+convergence policies, public-original assembled nonlinear seed and companion
+fixtures, invented product-preview nonlinear paths, and component-provenance
+report evidence. The PRD 16.2 named linear-spring, gapped-support, and
+friction-support benchmark/manual coverage remains a visible validation-manual
+residual unless a later human ruling selects one of those cases as an R4
+blocker.
+
 ## Residual Disposition After Refresh
 
 After `DEC-053` repair, sparse default promotion is no longer an open R4
@@ -134,8 +161,11 @@ hardening unless a later human gate selects one as blocking:
    `DEC-053` observation package.
 6. Deeper spring-hanger catalog sizing or constant-effort solve behavior
    beyond the minimal user-entered model ruled by `DEC-049`.
-7. External validation threshold evidence.
-8. Release-quality gates and R5 engineering-beta evidence.
+7. PRD 16.2 named linear-spring, gapped-support, and friction-support
+   benchmark/manual coverage outside the bounded R4 exit reading recorded
+   above.
+8. External validation threshold evidence.
+9. Release-quality gates and R5 engineering-beta evidence.
 
 The residuals remain visible. They are not silently closed by this packet.
 
@@ -146,7 +176,7 @@ The `DEC-053` repair tranche validation is recorded in:
 - `execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_run_records/WORKING_ITEMS_RUN_2026-06-23_TP-R4-D7-SPARSEDEFAULTPROMOTE-001.md`
 - `validation/evidence/sweeps/SWEEP_20260623T020002Z_3194bd29f417-dirty.json`
 
-The local `DEC-025` sweep passed all five surfaces:
+That local `DEC-025` repair sweep passed all five surfaces:
 
 - `cargo_crate_sweep`: pass.
 - `python_pytest`: pass.
@@ -158,6 +188,15 @@ The sweep is bound to commit `3194bd29f417b8ca5489a5a524b16a460fb63260` with
 the `TP-R4-D7-SPARSEDEFAULTPROMOTE-001` changed paths dirty at sweep time. The
 changed paths and sweep artifact were committed afterward as
 `26d2cff2f Close R4 sparse default promotion residual`.
+
+The terminal clean-head `DEC-025` sweep for this refreshed packet is:
+
+- `validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json`
+
+It is bound to committed head `16cca07f3b644a6a4f5291a70bf44bc1773231b7`,
+records `working_tree_dirty=false`, and reports `overall_status=pass` across
+the same five surfaces. It supersedes the dirty repair sweep as the terminal
+gate evidence for the `D-27` / `DEC-054` conditional R4 gate ruling.
 
 Packet-refresh validation is recorded in the companion run record:
 
@@ -171,19 +210,16 @@ Packet-refresh validation is recorded in the companion run record:
   support default is introduced by this packet.
 - All cited examples and fixtures are invented, public-original, or
   repository-local validation evidence already recorded by prior tranches.
-- This packet does not change lifecycle status, issue deliverables, advance the
-  current target stage, make a release-readiness claim, or assert professional
-  approval, certification, sealing, authentication, or code compliance.
+- This packet did not itself change lifecycle status or issue deliverables.
+  `D-27` / `DEC-054` separately records the human-ruled conditional R4 gate and
+  target-stage advancement to R5. Neither this packet nor `DEC-054` makes a
+  release-readiness claim or asserts professional approval, certification,
+  sealing, authentication, or code compliance.
 
 ## Verdict
 
-The refreshed R4 evidence chain is ready to present for human R4 exit review
-under `DEC-052` and `DEC-053`, with the named `D-26` sparse residual repaired
-and the remaining residuals explicitly scoped to R5 or later hardening unless a
-future human gate selects one as blocking.
-
-If the human project authority accepts this refreshed packet in a separate R4
-exit review ruling, the next governed action is to record that R4 exit decision
-and update coordination for R5 target-stage work. If the packet is not
-accepted, the next ordinary work is the human-selected residual named in that
-ruling.
+The refreshed R4 evidence chain was presented under `D-27` and accepted by
+`DEC-054` as a conditional R4 gate, with the named `D-26` sparse residual
+repaired and the current target stage advanced to R5. PRD §16.2 / §16.5 remain
+open residual work requiring a complete benchmark/manual evidence system; they
+are not closed by this packet or by the conditional gate ruling.

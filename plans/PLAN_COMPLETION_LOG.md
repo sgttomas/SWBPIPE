@@ -14,6 +14,32 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-23 - R4 exit clearance successor packet (`TP-DECIDE-D27-R4EXITCLEAR-001`)
+
+Prepared the successor human-gated R4 exit clearance packet:
+`execution/_Coordination/_DECISIONS/D-27_r4_exit_clearance_stage_advancement.md`.
+
+The packet follows `D-26` / `DEC-053`: the named sparse default-promotion
+residual repair has landed and the refreshed R4 packet carries an explicit
+PRD §16.2/§16.5 bounded-reading disposition. The human project authority then
+ruled `DEC-054`: accept this as a conditional R4 gate, advance the current
+target stage to R5, and carry PRD §16.2/§16.5 as a complete benchmark/manual
+evidence-system residual to gather later, including once the agent harness is
+active and can participate.
+
+Validation: full clean-head DEC-025 sweep passed:
+`validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json`, bound to
+`16cca07f3b644a6a4f5291a70bf44bc1773231b7` with `working_tree_dirty=false` and
+`overall_status=pass`.
+
+Boundary: this records target-stage advancement only by human ruling. `D-21`
+remains held, and no lifecycle issuance, release-readiness, professional
+approval, certification, sealing, authentication, or code-compliance acceptance
+is created.
+
+Evidence:
+`execution/_Coordination/_DECISIONS/_run_records/WORKING_ITEMS_RUN_2026-06-23_D27_r4_exit_clearance.md`.
+
 ## 2026-06-23 - R4 exit-chain verification refresh (`TP-R4-D9-EXITCHAINREFRESH-001`)
 
 Prepared the refreshed R4 exit-chain verification packet after `DEC-053`:
