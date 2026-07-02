@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/rule_check_run_result.schema.json",
+  "title": "OpenPipeStress Rule-Check Run Result",
+  "description": "Strict JSON syntax schema for the rule_check_runner result: per-check outcomes plus a worst-of aggregate over all of a rule pack's check_definitions. Published by piping DEL-10-03 as the standalone result-schema declaration cited by the tier-0 profile's deterministic_check_result_schema hook. Derived field-by-field from the Rust source of truth core/rules/rule_check_runner/src/lib.rs (DOCUMENT_KIND :74, PROFESSIONAL_BOUNDARY_NOTICE :78-80, RuleCheckStatus :141-150, ComputedQuantity :171-177, BoundInput :179-193, RunFinding :195-202, CheckOutcome :204-223, RuleCheckRunResult :225-232, run_rule_checks :235); on any disagreement the Rust source governs. Software rule-check evidence only; not a professional, certification, sealing, authentication, approval, or code-compliance claim — human review remains required. The wider status vocabulary (MODEL_INCOMPLETE, MECHANICS_SOLVED, HUMAN_REVIEW_REQUIRED) and the external HUMAN_APPROVED_FOR_PROJECT record are intentionally not producible here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_kind",
+    "rule_pack_id",
+    "grammar_version",
+    "aggregate_status",
+    "checks",
+    "professional_boundary_notice"
+  ],
+  "properties": {
+    "document_kind": {
+      "const": "openpipestress.rule_check.run",
+      "description": "DOCUMENT_KIND (lib.rs:74)."
+    },
+    "rule_pack_id": {
+      "type": "string",
+      "description": "Echoed from the rule pack's /metadata/rule_pack_id; empty string when absent (lib.rs:238-242)."
+    },
+    "grammar_version": {
+      "type": "string",
+      "description": "Echoed from the rule pack's /grammar_version; empty string when absent (lib.rs:243-247)."
+    },
+    "aggregate_status": {
+      "$ref": "#/$defs/RuleCheckStatus",
+      "description": "Worst-of precedence across all checks: USER_RULE_FAILED > RULE_INPUTS_INCOMPLETE > USER_RULE_CHECKED (lib.rs:160-168)."
+    },
+    "checks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CheckOutcome" }
+    },
+    "professional_boundary_notice": {
+      "const": "Software rule-check evidence only; not a professional, certification, sealing, authentication, approval, or code-compliance claim. Human review remains required.",
+      "description": "PROFESSIONAL_BOUNDARY_NOTICE (lib.rs:78-80); carried on every run result."
+    }
+  },
+  "$defs": {
+    "RuleCheckStatus": {
+      "type": "string",
+      "enum": ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"],
+      "description": "The three automatic rule-check statuses this runner may emit (lib.rs:141-150)."
+    },
+    "ComputedQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "dimension", "unit_ref"],
+      "properties": {
+        "value": { "type": "number" },
+        "dimension": {
+          "type": "string",
+          "description": "snake_case dimension token (e.g. \"dimensionless\", \"stress\"); vocabulary owned by schemas/units.schema.yaml DimensionId."
+        },
+        "unit_ref": { "type": "string" }
+      },
+      "description": "A computed or limit quantity surfaced in a check outcome (lib.rs:171-177)."
+    },
+    "BoundInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input_id", "source_kind", "supplied"],
+      "properties": {
+        "input_id": { "type": "string" },
+        "source_kind": {
+          "type": "string",
+          "description": "Echoes the rule pack's required_inputs source_kind (e.g. solver_result, user_supplied_rule_value, private_library_value); vocabulary owned by schemas/rule_pack.schema.yaml."
+        },
+        "supplied": { "type": "boolean" },
+        "value": { "type": "number" },
+        "unit": { "type": "string" },
+        "result_id": { "type": "string" },
+        "note": {
+          "type": "string",
+          "description": "Provenance note; for private_library_value inputs the library/record/slot identifiers are carried here — the value itself stays in the private library (IP boundary)."
+        }
+      },
+      "description": "What a single rule-pack input resolved to; value/unit/result_id/note are omitted when absent (serde skip_serializing_if; lib.rs:179-193)."
+    },
+    "RunFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "subject_id", "message"],
+      "properties": {
+        "code": { "type": "string" },
+        "severity": {
+          "type": "string",
+          "description": "Open string in the Rust type; emitted vocabulary at publication is \"blocking\"."
+        },
+        "subject_id": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "description": "A finding from completeness or evaluation, traced to its engine (lib.rs:195-202)."
+    },
+    "CheckOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "status",
+        "acceptability_relation",
+        "bound_inputs",
+        "completeness_findings",
+        "evaluator_findings",
+        "diagnostic_codes"
+      ],
+      "properties": {
+        "check_id": { "type": "string" },
+        "status": { "$ref": "#/$defs/RuleCheckStatus" },
+        "computed_value": { "$ref": "#/$defs/ComputedQuantity" },
+        "limit_value": { "$ref": "#/$defs/ComputedQuantity" },
+        "acceptability_relation": {
+          "type": "string",
+          "enum": [
+            "less_than",
+            "less_than_or_equal",
+            "greater_than",
+            "greater_than_or_equal",
+            "formula_predicate",
+            "none"
+          ],
+          "description": "The relation that governed the result: one of the four ordering relations for a quantity-vs-limit check (default less_than_or_equal when absent from the pack), formula_predicate for a boolean formula, or none when blocked before acceptability (lib.rs:210-217)."
+        },
+        "bound_inputs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/BoundInput" }
+        },
+        "completeness_findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RunFinding" }
+        },
+        "evaluator_findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RunFinding" }
+        },
+        "diagnostic_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "description": "The outcome of one check_definition; computed_value/limit_value are omitted when absent (serde skip_serializing_if; lib.rs:204-223)."
+    }
+  }
+}

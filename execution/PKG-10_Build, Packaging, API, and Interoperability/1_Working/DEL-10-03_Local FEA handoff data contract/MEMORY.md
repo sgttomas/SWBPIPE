@@ -1,5 +1,38 @@
 # MEMORY - DEL-10-03 Local FEA handoff data contract
 
+## 2026-07-02 - Bridge Loop 1: publish operation/rule-check result schemas
+
+- Authorization: owner in-session direction 2026-07-02 (repo-wide write scope for
+  bridge Loop 1; recorded in `_DomainEngines/bridge/WORKPLAN_2026-07-02_bridge_loop.md`
+  Loop Log). Lawful piping-loop deliverable work: the tier-0 profile fence binds
+  bridge/agent writes, not piping's own governed lane.
+- Published the two result shapes that until now existed only in Rust, closing the
+  "result shapes exist in Rust but are not yet published as standalone schemas" gap
+  the ADOPTED profile records (`_DomainEngines/profiles/open_pipe_stress.yaml:72-74`):
+  - `schemas/operation_outcome.schema.json` — operation_applier `OperationOutcome`
+    (validate/apply result envelope), derived field-by-field from
+    `core/model_operations/operation_applier/src/lib.rs` (struct :119, assembly
+    :1055-1143, model_basis :5167-5203). Serves the profile's
+    `validate_result_schema` / `apply_result_schema` hooks.
+  - `schemas/rule_check_run_result.schema.json` — rule_check_runner
+    `RuleCheckRunResult`, derived from `core/rules/rule_check_runner/src/lib.rs`
+    (:74-232). Serves the profile's `deterministic_check_result_schema` hook.
+- `tests/test_operation_result_schemas.py` covers root/def structure, the closed
+  vocabularies (modes, routes, validation states, binding_status, acceptance,
+  RuleCheckStatus, acceptability_relation), and the professional-boundary consts.
+  Passed with the sibling `test_local_fea_handoff_contract.py` (6 passed).
+- Enums encode only vocabularies provably closed at the Rust emission sites; open
+  Rust `String` fields stay open strings with descriptions. The Rust sources govern
+  on any disagreement.
+- NOTE: the profile's four `TBD # DEL-10-03` hook fields (:81, :88, :101, :115) are
+  NOT edited here — the ADOPTED profile changes only by tier-0 CHANGE (owner act);
+  pointing those hooks at these published schemas is queued for the owner.
+- Boundary unchanged: no mesh, external solver, concrete target format, adapter
+  runtime, protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed. `_STATUS.md` untouched (the
+  header/history mismatch is a known human call, K-CONFLICT-1).
+
 ## 2026-06-17 - TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001 local FEA unit witnesses
 
 - WORKING_ITEMS added local FEA handoff `unit_witness_policy` and

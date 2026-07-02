@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/operation_outcome.schema.json",
+  "title": "OpenPipeStress Operation Outcome (validate/apply result envelope)",
+  "description": "Strict JSON syntax schema for the operation_applier result envelope: the OperationOutcome document emitted by structured editor-operation validate runs (mode=validate_only) and apply runs (mode=apply). Published by piping DEL-10-03 as the standalone result-schema declaration cited by the tier-0 profile's validate_result_schema / apply_result_schema hooks. Derived field-by-field from the Rust source of truth core/model_operations/operation_applier/src/lib.rs (OutcomeDiagnostic :70, DiffPreviewRow :81, ModelBasisEvidence :93, ValidationStates :102, AcceptanceRecord :112, OperationOutcome :119, outcome assembly :1055-1143, model_basis_evidence :5167-5203, wasm route override :468); on any disagreement the Rust source governs. Result evidence only: the acceptance record carries a user-initiated local-session basis and never a professional, certification, sealing, approval, authentication, or code-compliance claim; human review remains required.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "document_kind",
+    "deliverable_refs",
+    "mode",
+    "application_route",
+    "operation_id",
+    "change_id",
+    "operation_kind",
+    "change_kind",
+    "target_object_type",
+    "target_ref",
+    "validation",
+    "diff_preview",
+    "diagnostics",
+    "model_basis",
+    "input_model_unchanged",
+    "applied_model",
+    "applied_model_backend_hash",
+    "acceptance",
+    "audit_boundary",
+    "professional_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "OPERATION_APPLIER_VERSION (lib.rs:22); 0.1.0 at publication."
+    },
+    "document_kind": {
+      "const": "openpipestress.desktop.operation_outcome",
+      "description": "OUTCOME_DOCUMENT_KIND (lib.rs:23)."
+    },
+    "deliverable_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^DEL-[0-9]{2}-[0-9]{2}$"
+      },
+      "description": "Runtime-seam deliverable references; emitted as [\"DEL-16-02\", \"DEL-16-03\"] (lib.rs:1107)."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["validate_only", "apply"],
+      "description": "Run mode (lib.rs:1108-1111). validate_only never mutates or applies; apply returns a new model document on success."
+    },
+    "application_route": {
+      "type": "string",
+      "enum": ["tauri_backend_apply", "local_wasm_engine"],
+      "description": "Honest receipt of the producing route: Tauri backend command (lib.rs:1112) or in-process wasm engine (lib.rs:468)."
+    },
+    "operation_id": { "type": "string" },
+    "change_id": { "type": "string" },
+    "operation_kind": {
+      "type": "string",
+      "description": "Structured editor-operation taxonomy kind echoed from the intent (schemas/model_operation.schema.json)."
+    },
+    "change_kind": {
+      "type": "string",
+      "description": "Structured editor-operation taxonomy change kind echoed from the intent (schemas/model_operation.schema.json)."
+    },
+    "target_object_type": { "type": "string" },
+    "target_ref": { "type": "string" },
+    "validation": { "$ref": "#/$defs/ValidationStates" },
+    "diff_preview": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DiffPreviewRow" }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/OutcomeDiagnostic" }
+    },
+    "model_basis": { "$ref": "#/$defs/ModelBasisEvidence" },
+    "input_model_unchanged": {
+      "const": true,
+      "description": "The input model document is never mutated in place (crate boundary rule; lib.rs:1123)."
+    },
+    "applied_model": {
+      "type": ["object", "null"],
+      "description": "The NEW model document with the single validated change applied (apply mode, unblocked); null for validate_only or blocked apply."
+    },
+    "applied_model_backend_hash": {
+      "type": ["string", "null"],
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "RFC 8785 (JCS) canonical hash of applied_model; null when applied_model is null."
+    },
+    "acceptance": { "$ref": "#/$defs/AcceptanceRecord" },
+    "audit_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mutation_route",
+        "direct_model_mutation_allowed",
+        "requires_user_acceptance",
+        "input_model_mutated_in_place",
+        "applied_model_is_new_document"
+      ],
+      "properties": {
+        "mutation_route": { "const": "structured_operations_only" },
+        "direct_model_mutation_allowed": { "const": false },
+        "requires_user_acceptance": { "const": true },
+        "input_model_mutated_in_place": { "const": false },
+        "applied_model_is_new_document": { "type": "boolean" }
+      },
+      "description": "Audit boundary emitted on every outcome (lib.rs:1127-1133)."
+    },
+    "professional_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": { "const": true },
+        "software_makes_compliance_claim": { "const": false },
+        "software_makes_certification_claim": { "const": false },
+        "software_makes_sealing_claim": { "const": false },
+        "software_makes_approval_claim": { "const": false },
+        "software_makes_authentication_claim": { "const": false }
+      },
+      "description": "Five false claim-flags plus human_review_required:true, emitted on every outcome (lib.rs:1134-1141). A true claim-flag must never be machine-emitted."
+    }
+  },
+  "$defs": {
+    "ValidationStates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_validation",
+        "reference_validation",
+        "unit_validation",
+        "before_state_validation",
+        "diff_preview_status",
+        "application_status"
+      ],
+      "properties": {
+        "schema_validation": {
+          "type": "string",
+          "enum": ["passed", "blocked"]
+        },
+        "reference_validation": {
+          "type": "string",
+          "enum": ["not_run", "passed", "blocked"]
+        },
+        "unit_validation": {
+          "type": "string",
+          "enum": ["not_run", "passed", "blocked"]
+        },
+        "before_state_validation": {
+          "type": "string",
+          "enum": ["not_run", "passed", "blocked_stale"],
+          "description": "blocked_stale is the staleness guard: the intent's before value no longer matches the model."
+        },
+        "diff_preview_status": {
+          "type": "string",
+          "enum": ["generated", "blocked_by_validation"]
+        },
+        "application_status": {
+          "type": "string",
+          "enum": ["not_applied", "applied_to_session_model", "blocked"],
+          "description": "not_applied for validate_only; applied_to_session_model / blocked for apply (lib.rs:1076-1081)."
+        }
+      },
+      "description": "Per-stage validation states (assembly lib.rs:1060-1082)."
+    },
+    "DiffPreviewRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity_ref",
+        "object_type",
+        "field_path",
+        "before",
+        "after",
+        "unit",
+        "dimension",
+        "change_kind"
+      ],
+      "properties": {
+        "entity_ref": { "type": "string" },
+        "object_type": { "type": "string" },
+        "field_path": { "type": "string" },
+        "before": { "type": "string" },
+        "after": { "type": "string" },
+        "unit": { "type": "string" },
+        "dimension": { "type": "string" },
+        "change_kind": { "type": "string" }
+      },
+      "description": "Deterministic diff-preview row (lib.rs:81-90)."
+    },
+    "OutcomeDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "code",
+        "severity",
+        "message",
+        "remediation",
+        "affected_refs",
+        "source"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "code": {
+          "type": "string",
+          "description": "OP-* diagnostic code vocabulary; open set owned by the crate."
+        },
+        "severity": {
+          "type": "string",
+          "description": "Open string in the Rust type; emitted vocabulary at publication is \"blocking\" — blocked operations are findings, not silent fallbacks."
+        },
+        "message": { "type": "string" },
+        "remediation": { "type": "string" },
+        "affected_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "source": {
+          "const": "core/model_operations/operation_applier",
+          "description": "ENGINE_SOURCE (lib.rs:28); every diagnostic is traced to the emitting engine."
+        }
+      },
+      "description": "Blocking/finding diagnostic (lib.rs:70-78; constructor :557-575)."
+    },
+    "ModelBasisEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claimed_model_hash",
+        "claimed_hash_canonicalization",
+        "backend_model_hash",
+        "backend_canonicalization",
+        "binding_status"
+      ],
+      "properties": {
+        "claimed_model_hash": {
+          "type": "string",
+          "description": "Caller-claimed hash echoed verbatim; \"not_provided\" when absent, \"claimed_hash_value_missing\" when malformed (lib.rs:5170-5203)."
+        },
+        "claimed_hash_canonicalization": {
+          "type": "string",
+          "description": "Caller-claimed canonicalization label echoed verbatim; \"not_provided\" / \"claimed_canonicalization_missing\" fallbacks."
+        },
+        "backend_model_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "backend_canonicalization": {
+          "const": "rfc8785_jcs",
+          "description": "BACKEND_CANONICALIZATION (lib.rs:27); RFC 8785 (JCS) since completion-plan H5."
+        },
+        "binding_status": {
+          "type": "string",
+          "enum": [
+            "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated",
+            "no_claimed_hash_before_state_check_is_the_staleness_guard"
+          ],
+          "description": "Hash equality is recorded side by side, not evaluated and not claimed; the before-state check remains the staleness guard (lib.rs:5185-5203)."
+        }
+      },
+      "description": "Model-basis hash evidence (lib.rs:93-99; model_basis_evidence :5167-5203)."
+    },
+    "AcceptanceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acceptance_basis",
+        "acceptance_is_professional_approval",
+        "persistence_status"
+      ],
+      "properties": {
+        "acceptance_basis": {
+          "type": "string",
+          "enum": ["user_initiated_apply_in_local_session", "none_validation_only"]
+        },
+        "acceptance_is_professional_approval": {
+          "const": false,
+          "description": "Never a professional approval; a true value must never be machine-emitted (K-AUTH boundary)."
+        },
+        "persistence_status": {
+          "type": "string",
+          "enum": ["session_state_only_not_yet_saved", "not_applicable_no_application"]
+        }
+      },
+      "description": "Honest acceptance receipt (lib.rs:112-116; assembly :1084-1096)."
+    }
+  }
+}
