@@ -1,0 +1,24 @@
+# Harness configuration authority only — governed, committed, human-reviewed; never lifecycle or project truth (plan v3 §Authority Classes).
+schema: practitioner-harness-adapter/v1
+project: chirality-piping
+plan: docs/PLAN.md
+coordination: execution/_Coordination/_COORDINATION.md
+decision_register: execution/_Coordination/_DECISIONS/_REGISTER.md
+dag_pointer: execution/_DAG/_LATEST.md
+# Piping deliverable directories carry spaces and lowercase labels — the glob
+# matches any directory name under 1_Working/ (verified: exactly 101 files).
+status_glob: "execution/PKG-*/1_Working/*/_STATUS.md"
+exclude_globs: [".archive/**", "node_modules/**"]
+states: [OPEN, INITIALIZED, SEMANTIC_READY, IN_PROGRESS, CHECKING, ISSUED]
+parser_dialect: prose-bullet-v1
+drift_baseline_mismatch: 92
+drift_baseline_files: 101
+validation_commands:        # declared surfaces only; run-validations is a later phase
+  - {cwd: ".", command: "python3 -m pytest -q tests"}
+  - {cwd: ".", command: "python3 tools/release/check_release_readiness.py --profile all"}
+# --- guard preconditions: flat keys, consumed by tools/scaffolding/write_status.sh via grep ---
+guard_requires_committed_ruling_path: true
+guard_requires_approval_sha: false
+guard_approval_sha_field: ""
+# Absent approval-SHA schema: the guard surfaces REVIEW and proceeds; schema
+# alignment is a parked item per D-GOV-03 / plan Cuts.
