@@ -1,7 +1,7 @@
 # Status: DEL-12-01 Local-first storage and private data paths
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-06-17
+**Last Updated:** 2026-07-02
 
 ## History
 
@@ -13,6 +13,7 @@
 - 2026-04-30 - Dependency extraction completed (TASK+dependency-extract); `Dependencies.csv` v3.1 validated.
 - 2026-05-02 - State moved to CHECKING after implementation commit `84e0a73` and closeout alignment.
 - 2026-05-11 - TP-RECON-01 reconciled archived DEL-12-01 evidence and commit `84e0a73`; state preserved as CHECKING with TBD and boundary constraints unchanged.
+- 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 
 ## Setup Gate Evidence
 
