@@ -11,7 +11,10 @@ status_glob: "execution/PKG-*/1_Working/*/_STATUS.md"
 exclude_globs: [".archive/**", "node_modules/**"]
 states: [OPEN, INITIALIZED, SEMANTIC_READY, IN_PROGRESS, CHECKING, ISSUED]
 parser_dialect: prose-bullet-v1
-drift_baseline_mismatch: 92
+# Baseline re-measured 2026-07-02 after the class-wide K-CONFLICT-1 correction
+# (execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md):
+# the 92 unlogged 2026-06-16 header reversals now carry their history entries.
+drift_baseline_mismatch: 0
 drift_baseline_files: 101
 validation_commands:        # declared surfaces only; run-validations is a later phase
   - {cwd: ".", command: "python3 -m pytest -q tests"}
