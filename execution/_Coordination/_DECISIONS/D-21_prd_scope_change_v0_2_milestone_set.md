@@ -176,13 +176,24 @@ embedded-agent gates changes: live binding remains gated x4
 
 ## 7. Human Ruling And Disposition
 
-**Ruling recorded:** OPEN — no ruling is recorded. Adoption is held with the
-owner; preparation of this packet does not advance it.
+**Ruling recorded:** O-A approved as recommended by owner (Ryan Tufts),
+2026-07-02 — "Confirmed and approved."
 
-- **Ruling (option or direct):** ____________________
-- **Ruled by:** ____________________
-- **Date:** ____________________
-- **Conditions / riders:** ____________________
+- **Ruling (option or direct):** O-A — adopt the full v0.2 milestone set
+  (R6 + R7 + inserted v0.2 R3; full FR renumber with Annex A as the governing
+  crosswalk), with the §5 release-machinery-residual rider: name the v0.1 R5
+  release-machinery deliverables (signed releases, issue templates, redaction
+  workflow, IP contribution process; `docs/PRD.md:1239-1253`) as explicit
+  carried residuals so the v0.2 §24 list does not silently orphan them.
+- **Ruled by:** Ryan Tufts
+- **Date:** 2026-07-02
+- **Conditions / riders:** Basis: owner in-session ruling, bridge Loop 2
+  session ("Confirmed and approved."). Rider (from §5): carry the v0.1 R5
+  release-machinery deliverables as explicit R6-entry residuals per §5.
+  Sub-confirmation (i): the `DEC-042` "no packet is prepared while held"
+  clause (`SOFTWARE_DECOMP.md` §12, `DEC-042`) was superseded by the
+  2026-07-02 owner direction for PREPARATION only; adoption itself was not
+  held by that clause and is what this ruling now advances.
 
 ## 8. Ruling And Recording Mechanism
 
