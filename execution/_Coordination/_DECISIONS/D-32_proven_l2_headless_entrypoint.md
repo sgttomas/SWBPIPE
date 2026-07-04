@@ -98,7 +98,7 @@ code, and makes no claim about L2.
 
 ## 6. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded:** O-A approved as recommended by owner (Ryan Tufts), 2026-07-04 — in-session direction "Merge PR #42 and rule D-32 O-A as recommended." (verbatim in `_DomainEngines/bridge/LOOP_RECEIPTS.md` Receipt 21), adopting §5 as written including all four riders: provisional command syntax only (DEL-10-05 Datasheet TBD rows stay TBD; no final CLI/API syntax, package-script, CI/release, DAG, lifecycle, release-readiness, professional, or code-compliance claim); the §5.2 evidence bar (at least one validated-kernel fixture run through the entrypoint on a clean head, inputs/outputs/exit status recorded commit-bound; `read_only` posture preserved); execution as an owner-directed piping-lane tranche or under an explicitly granted write scope, branch-first, closing with the `DEC-025` sweep and an adversarial review; and the tier-0 "proven L2" acknowledgment as a separate tier-0 act after the evidence exists. Codified as `DEC-064` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-32 → RULED. The implementation tranche is now lawful under those riders; the vehicle/write-scope direction (rider 3) is the remaining owner act before code executes.
 
 ## 7. Ruling Mechanism
 
