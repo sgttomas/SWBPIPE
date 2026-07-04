@@ -50,7 +50,9 @@ tranche code commit `035e25991`):
   professional_acceptance `NOT_PROVIDED`; `analysis_status`
   `[HumanReviewRequired, MechanicsSolved, RuleInputsIncomplete]`; 822
   result refs including `result:stress:pipe-P-120:end-j:torsional-shear`
-  (the library test's golden signal); zero diagnostics; SHA-256 checksums
+  (the library test's golden signal); zero runner-result diagnostics (the
+  mechanics envelope carries informational/warning domain diagnostics
+  only — none blocking, outside the exit-code contract); SHA-256 checksums
   `runner_request` `3eb2516d14a19a98c74d23a9b6912cdf32a96a5a11b49e6822c4128cbaa4a70b`
   and `result_envelope`
   `60cc21fcdab1311834a31aa4d5cd7bbe347dbca4ad81db4e5bf3d972b3ef905f`.

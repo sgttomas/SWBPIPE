@@ -12,7 +12,8 @@
   Datasheet "Exact CLI command names" TBD stays TBD.
 - Validated-kernel run demonstrated: invented preview-model fixture → exit
   0, `MECHANICS_SOLVED`, 822 result refs incl. the golden torsional-shear
-  ref, two SHA-256 checksums, zero diagnostics. Captured stdout committed
+  ref, two SHA-256 checksums, zero runner-result diagnostics (envelope
+  info/warning domain diagnostics only, none blocking). Captured stdout committed
   at `validation/witness/generated/tp_runner_014_headless_entrypoint_preview_run.json`;
   run record `_run_records/WORKING_ITEMS_RUN_2026-07-04_TP-RUNNER-014.md`.
 - Validation passed: crate tests 17/17, `cargo fmt --check` clean, DEC-025
