@@ -238,7 +238,7 @@ verbatim.
 
 ## 11. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded:** O-B approved as recommended by owner (Ryan Tufts), 2026-07-04 — in-session blanket slate direction ('proceed as recommended through the "Decision slate"'; verbatim in `_DomainEngines/bridge/LOOP_RECEIPTS.md` Receipt 20), adopting §9's procedure text as written: owner-owned scan and sole-signatory release gate (`DEC-027`), DEL-08-05 as the scanner tooling surface, AC-1–AC-6 scope with `not_applicable` recording, checks (a)–(e), the machine-readable `SCAN_<candidate>_<utc>_<commit12>.json` record plus owner sign-off block, and the gate semantics (signed scan record as a precondition to any publication act; `Blocking` findings halt publication; no waiver may authorize protected-content copying). Codified as `DEC-058` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-20 → RULED. Nothing is scanned, cleared, or published under this ruling; the scanner-extension tranche is separate downstream work.
 
 ## 12. Ruling Mechanism
 

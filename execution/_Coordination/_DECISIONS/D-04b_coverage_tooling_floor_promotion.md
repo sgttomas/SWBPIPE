@@ -251,7 +251,7 @@ evidenced through the ordinary `DEC-025` sweep discipline.
 
 ## 10. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded:** O-A approved as recommended by owner (Ryan Tufts), 2026-07-04 — in-session blanket slate direction ('proceed as recommended through the "Decision slate"'; verbatim in `_DomainEngines/bridge/LOOP_RECEIPTS.md` Receipt 20), adopting §8 as written: tooling `cargo-llvm-cov` / Vitest `--coverage` with `@vitest/coverage-v8` / `coverage.py`; telemetry seam 2 (separate opt-in `tools/release/run_coverage_telemetry.py`, commit-bound schema-versioned JSON to `validation/evidence/coverage/`, recorded never blocking); the floor-promotion mechanism with the five-artifact/two-commit trigger and tighten-only discipline — floor VALUES explicitly not ruled (none exist); the §8.4 feasibility checkpoint carries into the first implementation tranche. Codified as `DEC-060` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-04b → RULED. No tool is installed, no config is edited, and no telemetry artifact is emitted under this ruling.
 
 ## 11. Ruling Mechanism
 

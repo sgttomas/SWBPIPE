@@ -235,7 +235,7 @@ ever issued.
 
 ## 9. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded:** O-A approved as recommended by owner (Ryan Tufts), 2026-07-04 — in-session blanket slate direction ('proceed as recommended through the "Decision slate"'; verbatim in `_DomainEngines/bridge/LOOP_RECEIPTS.md` Receipt 20): the seven-wave, phase-aligned structure of §4 with the §5 evidence bar, explicitly owner-paced. Codified as `DEC-062` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-11 → RULED. No wave is issued and no lifecycle state changes under this ruling; the census stays CHECKING=8 / IN_PROGRESS=92 / ISSUED=1 until the owner acts wave by wave, and the owner remains free to hold every wave indefinitely.
 
 ## 10. Ruling Mechanism
 

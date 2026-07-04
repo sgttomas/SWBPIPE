@@ -240,7 +240,7 @@ claim.
 
 ## 8. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded:** O-A approved as recommended by owner (Ryan Tufts), 2026-07-04 — in-session blanket slate direction ('proceed as recommended through the "Decision slate"'; verbatim in `_DomainEngines/bridge/LOOP_RECEIPTS.md` Receipt 20), adopting §6 as written including the `DEC-028` naming rider (`.opsproj` / "OpenPipeStress Project Package") and the evidence-gated matrix-expansion rider; the signing/notarization re-decision is minted as register row `D-06b` (`NOT_PREPARED`, R5-exit lead-up) per §9. Codified as `DEC-057` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-06 → RULED. No E5 implementation tranche, release act, publication act, or release claim occurs under this ruling.
 
 ## 9. Ruling Mechanism
 

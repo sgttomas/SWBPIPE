@@ -242,7 +242,7 @@ Interactions with other open rows prepared in this same 2026-07-04 batch
 
 ## 8. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded:** O-A approved as recommended by owner (Ryan Tufts), 2026-07-04 — in-session blanket slate direction ('proceed as recommended through the "Decision slate"'; verbatim in `_DomainEngines/bridge/LOOP_RECEIPTS.md` Receipt 20): the pure in-repo minimal deterministic PDF writer at the deliberately plain §5.1 scope, implemented as ordinary bounded-tranche Phase E work under completion-plan row E3. Codified as `DEC-061` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-10b → RULED. No implementation occurs under this ruling and no R5 exit claim is made (§7's flag stands: the R5 package question remains the R5 exit review's).
 
 ## 9. Ruling Mechanism
 

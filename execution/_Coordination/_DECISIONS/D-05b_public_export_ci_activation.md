@@ -239,7 +239,7 @@ no CI, creates no public repository, and changes no state.
 
 ## 10. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded:** O-B approved as recommended by owner (Ryan Tufts), 2026-07-04 — in-session blanket slate direction ('proceed as recommended through the "Decision slate"'; verbatim in `_DomainEngines/bridge/LOOP_RECEIPTS.md` Receipt 20): GitHub Actions on the public sanitized-export OpenPipeStress repository, activation deferred to the first public publication event behind the three named prerequisites (export pipeline exists meeting G1–G7; a `D-20`-ruled green scan of the staged export before any push; public-repo location/naming fixed by/with the `D-06` ruling — D-06 ruled O-A the same day, `DEC-057`). Codified as `DEC-059` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-05b → RULED. No CI is activated, no export pipeline is built, no public repository is created, and the `DEC-025` local sweep remains the merge gate under this ruling.
 
 ## 11. Ruling Mechanism
 
