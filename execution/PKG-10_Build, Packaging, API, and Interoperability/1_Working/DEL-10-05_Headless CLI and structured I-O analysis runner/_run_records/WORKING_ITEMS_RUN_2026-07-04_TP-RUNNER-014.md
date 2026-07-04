@@ -64,12 +64,17 @@ Passed:
 - headless crate `cargo test`: 17/17 (16 library + 1 bin), `cargo fmt
   --check` clean.
 - entrypoint validated-kernel run: exit 0 with the Evidence values above.
-- DEC-025 five-surface sweep: all five surfaces pass. A working-tree
-  pre-run bound to code commit `035e25991` passed 5/5 (recorded `-dirty`
-  by concurrent untracked staging files; not committed); the merge-gate
-  sweep runs at this tranche's clean committed HEAD and its artifact is
+- DEC-025 five-surface sweep: all five surfaces pass, bound to the
+  tranche HEAD `98dfde1d1` (artifact
+  `validation/evidence/sweeps/SWEEP_20260704T193342Z_98dfde1d18ac-dirty.json`,
   committed as the evidence-only closeout commit per
-  `docs/BUILD_AND_RELEASE.md` §5.1.
+  `docs/BUILD_AND_RELEASE.md` §5.1). Recorded deviation, stated for the
+  gate reader: the artifact's `-dirty` marker reflects exactly one
+  `dirty_paths` entry — an untracked monorepo-root file from a concurrent
+  parallel lane (a `plans/` note outside this project and outside every
+  sweep surface); the piping tree and the whole committed tranche were
+  fully committed at the sweep. An earlier working-tree pre-run bound to
+  code commit `035e25991` also passed 5/5 (not committed).
 
 ## Boundary
 
