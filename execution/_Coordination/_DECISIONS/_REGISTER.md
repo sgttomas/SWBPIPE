@@ -14,6 +14,15 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 **Row states:** `NOT_PREPARED` → `AWAITING_RULING` (packet drafted) → `RULED`
 (pointer to the human record).
 
+**Residual-work rows (convention, owner-ruled 2026-07-03):** a ruling that
+leaves residual work does not reopen or annotate the ruled row — the ruled row
+is immutable history, and the residue gets its own new `D-XX` row (state
+`NOT_PREPARED`) citing the ruling as its basis. `RULED` therefore always means
+"this decision act is complete"; open work stays machine-visible as open rows.
+Ruled by Ryan Tufts in-session 2026-07-03 ("I rule that your proposed
+convention for Item 2 is accepted"); recorded by agent at owner direction
+(K-AUTH-1; D-GOV-04).
+
 | ID | Decision | Blocks | State | Packet | Ruling record |
 |---|---|---|---|---|---|
 | D-01 | Unit catalog acceptance: canonical unit set, conversion constants, offset-temperature and gauge/absolute-pressure semantics, tolerance policy | Phase B entirely; FR-002; full Phase A authoring value | RULED | [D-01_unit_catalog_acceptance.md](D-01_unit_catalog_acceptance.md) (2026-06-10) | `DEC-018` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (accepted as proposed, 2026-06-10) |
@@ -50,6 +59,8 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 | D-26 | R4 exit review and R4-to-R5 target-stage advancement: accept the current refreshed R4 exit-chain evidence packet and decide whether `_COORDINATION.md` advances the current target stage from PRD R4 to PRD R5 | Phase E/R5 ordinary work selection | RULED | [D-26_r4_exit_review_stage_advancement.md](D-26_r4_exit_review_stage_advancement.md) (2026-06-23) | `DEC-053` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-B: hold at R4 pending named sparse default-promotion residual evidence/repair; sparse residual tranche landed, refreshed packet prepared, no R5 advancement, 2026-06-23) |
 | D-27 | R4 exit clearance after `DEC-053` sparse-residual repair: accept the refreshed packet with clean-head sweep and explicit PRD §16.2/§16.5 residual disposition, then decide whether `_COORDINATION.md` advances the current target stage from PRD R4 to PRD R5 | Phase E/R5 ordinary work selection; prerequisite to `D-21` preparation | RULED | [D-27_r4_exit_clearance_stage_advancement.md](D-27_r4_exit_clearance_stage_advancement.md) (2026-06-23) | `DEC-054` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (conditional R4 gate accepted; R5 target stage advanced; §16.2/§16.5 full benchmark/manual evidence system remains residual work, 2026-06-23) |
 | D-28 | Event vocabulary count reconciliation (`DEC-041` forward note): bind the harness event-vocabulary count for any Flow-A version-pinning / contract extraction to the live `event-schema.ts` enumeration (43 as of 2026-07-01; the ruled `DEC-041` "42-type" prose was accurate on 2026-06-18 and is immutable history, not a pin); discharges the app-dev 2026-06-24 cross-project correction flag | Any event-vocabulary version pin or contract-package extraction under `DEC-041` (execution itself stays gated behind `D-21` + the automation condition) | RULED | [D-28_event_vocabulary_count_reconciliation.md](D-28_event_vocabulary_count_reconciliation.md) (2026-07-01) | O-A approved as recommended by owner (Ryan Tufts), 2026-07-01 — recorded in the packet §7; codified as `DEC-055` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (appended 2026-07-02 per packet §8) |
+| D-29 | Residual-work row (basis `D-21`/`DEC-056`, per the 2026-07-03 convention): execute the `SCOPE_CHANGE` propagation (SCA workflow) of the adopted v0.2 milestone set across the governed piping surfaces per the D-21 packet §8 mechanism — the D-21 ruling adopted the scope; propagation execution is the open residue ("`SCOPE_CHANGE` propagation executes separately under the SCA workflow", D-21 register row) | v0.2 traceability surfaces (PRD/PLAN/decomposition FR-crosswalk propagation); R6/R7 planning weight | NOT_PREPARED | — | — |
+| D-30 | Residual-work row (basis `D-22`/`DEC-041`, per the 2026-07-03 convention): execute the harness-as-versioned-packages consumption — piping takes the SHA-pinned `@chirality/harness-contract` dependency — once the `DEC-041` no-manual-toil automation condition is met and the app-dev publishability mechanism (app-dev register row `D-APP-48`) is ruled; the D-22 ruling chose the substrate, consumption execution is the open residue | v0.2/R7 Agent-Assisted Design integration; embedded-agent live binding | NOT_PREPARED | — | — |
 
 **Recommended preparation order** (from the completion plan §2): `D-01` and
 `D-08` first (longest poles, both touch Phase A/B foundations), `D-10` with
