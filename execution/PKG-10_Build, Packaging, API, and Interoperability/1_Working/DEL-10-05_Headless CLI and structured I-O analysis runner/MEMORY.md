@@ -1,5 +1,28 @@
 # MEMORY - DEL-10-05 Headless CLI and structured I/O analysis runner
 
+## 2026-07-04 - TP-RUNNER-014 PROVISIONAL thin CLI entrypoint (DEC-064 proven-L2 tranche)
+
+- Added `core/runner/headless/src/bin/headless_preview_runner.rs` — the
+  crate's first executable: in-code schema-first `RunnerRequest`
+  construction (request types stay Serialize-only), fixture-loaded
+  `LinearStaticPreviewRequest`, `run_preview_in_memory` solve, structured
+  `PreviewRunnerOutput` JSON on stdout, exit status from the validation
+  surface. Cargo bin auto-discovery; `Cargo.toml` untouched; zero new
+  dependencies. Command shape PROVISIONAL (DEC-064 rider 1) — the
+  Datasheet "Exact CLI command names" TBD stays TBD.
+- Validated-kernel run demonstrated: invented preview-model fixture → exit
+  0, `MECHANICS_SOLVED`, 822 result refs incl. the golden torsional-shear
+  ref, two SHA-256 checksums, zero diagnostics. Captured stdout committed
+  at `validation/witness/generated/tp_runner_014_headless_entrypoint_preview_run.json`;
+  run record `_run_records/WORKING_ITEMS_RUN_2026-07-04_TP-RUNNER-014.md`.
+- Validation passed: crate tests 17/17, `cargo fmt --check` clean, DEC-025
+  five-surface sweep pass (clean-head artifact committed as the
+  evidence-only closeout commit).
+- Boundary preserved: no lifecycle, Datasheet TBD, schema, package-script,
+  process/network/filesystem-policy, release, professional, or
+  code-compliance change; tier-0 profile untouched — the proven-L2
+  acknowledgment is a separate owner act (D-T0-10 staged).
+
 ## 2026-06-18 - TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report
