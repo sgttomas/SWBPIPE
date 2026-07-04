@@ -29,7 +29,7 @@ This document does not restate the authorities below; it routes to them.
 | Question | Authoritative surface |
 |---|---|
 | Why the product exists; what must remain true | [INTENT.md](INTENT.md), [DIRECTIVE.md](DIRECTIVE.md) |
-| What must be built; the release yardstick | [PRD.md](PRD.md) §10 (functional requirements), §22 (release milestones) |
+| What must be built; the release yardstick | [docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md](_ScopeChange/OpenPipeStress_PRD_v0.2.md), adopted by `D-21` / `DEC-056` and activated by `SCA-005`; historical v0.1 references in [PRD.md](PRD.md) read forward through the D-21 Annex A crosswalk |
 | Binding invariants | [CONTRACT.md](CONTRACT.md) |
 | Public/private data and protected-content boundary | [IP_AND_DATA_BOUNDARY.md](IP_AND_DATA_BOUNDARY.md), [PROFESSIONAL_BOUNDARY.md](PROFESSIONAL_BOUNDARY.md) |
 | What depends on what | [execution/_Decomposition/SOFTWARE_DECOMP.md](../execution/_Decomposition/SOFTWARE_DECOMP.md), approved canonical [DAG-007](../execution/_DAG/DAG-007/) graph authority |
@@ -39,18 +39,25 @@ This document does not restate the authorities below; it routes to them.
 
 ## 1. Definition of "complete per the PRD"
 
-The PRD defines completion through two surfaces, and the project treats both as
-binding:
+SCA-005 accepted the D-21 / DEC-056 PRD scope change on 2026-07-04. Forward
+completion now reads against the adopted v0.2 PRD authority in
+`docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md`, with historical v0.1
+requirements and ruled records translated through the D-21 packet's Annex A
+crosswalk. The v0.1 PRD text remains in `docs/PRD.md` as historical authority
+for pre-SCA records, not as the forward completion yardstick.
 
-1. **Release milestones (PRD §22).** R0–R5 exit criteria, taken verbatim. R5
-   (Engineering Beta) is the terminal milestone: "External engineers can
-   reproduce validation examples" and "Public repository contains no known
-   protected standards data."
-2. **Functional requirements (PRD §10).** All 16 `Must` requirements
-   (FR-001..016) verified against their acceptance criteria; all 6 `Should`
-   requirements (FR-017..022) implemented; the 3 `Could` requirements
-   (FR-023..025) either implemented or **explicitly dispositioned by a human
-   deferral record** at the R5 gate — silence is not a disposition.
+The forward PRD defines completion through two surfaces, and the project treats
+both as binding:
+
+1. **Release milestones (v0.2 PRD §24).** R0–R7 exit criteria, taken as the
+   forward milestone set. The inserted v0.2 R3, R6, and R7 are now
+   forward-plannable ordinary-gated work, while existing v0.1 milestone tokens
+   in ruled history remain historical tokens.
+2. **Functional requirements (v0.2 PRD §11).** Namespaced FR families
+   `FR-MOD`, `FR-KNOW`, `FR-GUI`, `FR-SOL`, `FR-RULE`, `FR-CMP`, `FR-HAND`,
+   `FR-AGENT`, and `FR-REP` are the forward requirement vocabulary. The flat
+   v0.1 `FR-001..FR-025` identifiers remain readable through the D-21 Annex A
+   crosswalk.
 
 Completion additionally requires the human-gated governance closures that the
 PRD and CONTRACT make prerequisites for any release claim (unit catalog
@@ -58,13 +65,10 @@ acceptance, thresholds, CI/release authority, issuance of deliverables). These
 are scheduled as decisions, not assumed — see the decision register and the
 completion plan §2.
 
-**Extended horizon (contingent).** The active completion plan additionally
-scopes — contingent on a human-gated PRD scope-change (`D-21`) — the superseded
-v0.2 milestones R6 (Design Knowledge and Handoff Beta) and R7 (Agent-Assisted
-Design). Until that scope-change is ruled, **R5 remains the terminal milestone
-of the current PRD authority** and R6/R7 carry no roadmap weight; the
-decomposition already carries that surface (PKG-13/14/15/16/17, DEL-07-08,
-DEL-08-06) as defined-but-unbuilt scope.
+**R6-entry residuals.** DEC-056 carries the v0.1 R5 release-machinery items
+(signed releases, issue templates, private-data redaction workflow, and IP
+contribution process) as explicit R6-entry residuals so the v0.2 §24 milestone
+list does not silently orphan them.
 
 ## 2. Current milestone position
 
@@ -81,7 +85,7 @@ lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 | R2 GUI MVP | Met in substance | Exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](../plans/VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`). The two R2-carried residuals were closed for C5 by the 2026-06-20 replacement-criterion ruling (`DEC-047`) |
 | R3 Rule packs + private libraries | Evidence accepted for target-stage advancement | C1-C4 landed; C5.8 assembled [VERIFICATION_2026-06-20_r3_exit_chain.md](../plans/VERIFICATION_2026-06-20_r3_exit_chain.md); `D-23` ruled O-A by `DEC-048` |
 | R4 Components + nonlinear supports | Conditionally accepted for target-stage advancement | `D-27` / `DEC-054` accepted the refreshed R4 packet as a conditional gate after the `DEC-053` sparse repair and clean-head sweep; PRD §16.2/§16.5 complete benchmark/manual evidence system remains residual work |
-| R5 Engineering Beta (current target) | Current ordinary in-stage target | Phase E work now opens: validation manual/evidence-system completion, full report package/PDF, redaction workflow, signed releases, public issue templates, protected-content release scan, release-quality gates, and R5 decision packets (`D-06`, `D-10b`, `D-20`, `D-05b`, plus `D-21` scope-change preparation when selected) |
+| R5 Engineering Beta (current target) | Current ordinary in-stage target under the DEC-054 stage gate, now read forward through DEC-056/SCA-005 | Phase E work now opens: validation manual/evidence-system completion, full report package/PDF, redaction workflow, signed releases, public issue templates, protected-content release scan, release-quality gates, and R5/R6-entry decision packets (`D-06`, `D-10b`, `D-20`, `D-05b`) |
 
 **2026-06-23 correction to the R4/R5 rows above:** `D-26` is ruled by
 `DEC-053` as O-B, and `D-27` is ruled by `DEC-054`: the refreshed R4 packet

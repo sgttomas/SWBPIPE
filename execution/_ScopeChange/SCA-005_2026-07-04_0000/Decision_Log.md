@@ -7,3 +7,7 @@
 - 2026-07-04: Agent prepared SCA-005 gate bundle for impact assessment,
   amendment preview, and propagation-plan acceptance. No truth edits were
   applied. `_ScopeChange/_LATEST.md` remains on SCA-004.
+- 2026-07-04: Owner accepted the D-29 amendments in-session: "I accept the
+  D-29 amendments." Agent executed Gate 5 within the accepted SCA write lane,
+  updated forward authority pointers, wrote the accepted handoff state, moved
+  `_ScopeChange/_LATEST.md` to SCA-005, and closed D-29 as RULED.

@@ -1,7 +1,7 @@
 ---
 doc_id: SCA-005-PROPAGATION-PLAN
 doc_kind: scope_change.propagation_plan
-status: prepared_not_accepted
+status: accepted
 created: 2026-07-04
 ---
 
@@ -9,12 +9,13 @@ created: 2026-07-04
 
 ## Gate Status
 
-This propagation plan is prepared for owner acceptance. It has not been
-accepted, and no Gate-5 truth edits have been applied.
+This propagation plan was accepted by the owner in-session on 2026-07-04.
+Gate-5 truth edits were applied within the direct SCOPE_CHANGE write lane
+below.
 
 ## Direct SCOPE_CHANGE Write Lane
 
-If accepted, Gate 5 executes only these write classes:
+Gate 5 executed only these write classes:
 
 1. Amend PRD/PLAN/decomposition/coordination traceability surfaces named in
    `Amendment_Preview.md`.
@@ -61,8 +62,8 @@ Gate-5 closeout should include:
 
 - `git diff --check`;
 - SCA artifact completeness check by direct inspection;
-- grep for stale "D-21 unruled", "R6/R7 carry no roadmap weight", or equivalent
-  forward-facing contingency language in touched live surfaces;
+- grep for stale forward-facing D-21 contingency language in touched live
+  surfaces;
 - confirmation that immutable DEC history remains unchanged except for the
   accepted SCA revision note;
 - bridge `coord-check --diff main..HEAD`;

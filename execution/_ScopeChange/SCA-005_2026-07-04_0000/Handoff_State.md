@@ -1,31 +1,34 @@
 # SCA-005 Handoff State
 
 - Amendment: `SCA-005`
-- Status: `PREPARED_NOT_ACCEPTED`
+- Status: `ACCEPTED`
 - Active accepted snapshot: `execution/_ScopeChange/SCA-004_2026-05-18_0000/`
-- Prepared bundle path: `execution/_ScopeChange/SCA-005_2026-07-04_0000/`
-- Authoritative truth changed in this run: none
-- `_LATEST.md` updated in this run: no
-- D-29 closed in this run: no
+- Accepted snapshot: `execution/_ScopeChange/SCA-005_2026-07-04_0000/`
+- Authoritative truth changed in this run: yes
+- `_LATEST.md` updated in this run: yes
+- D-29 closed in this run: yes
 
 ## Gate Position
 
-The owner selected D-29 O-A, authorizing the SCA-005 propagation lane. The
-prepared SCA-005 impact assessment, amendment preview, and propagation plan now
-need owner acceptance before Gate-5 truth edits.
+The owner selected D-29 O-A and later accepted the SCA-005 impact assessment,
+amendment preview, and propagation plan in-session on 2026-07-04: "I accept
+the D-29 amendments." Gate-5 truth edits were applied within the accepted
+non-write boundaries.
 
 ## Derivative Package State
 
 | Package | Owner | Status | Evidence | Next required action |
 |---|---|---|---|---|
-| PRD/PLAN/decomposition forward traceability | SCOPE_CHANGE | PREPARED_GATE_HELD | SCA-005 gate bundle | Owner accepts/amends gate artifacts, then Gate 5 applies truth edits. |
-| DAG/dependency extraction | ORCHESTRATOR / dependency workflow | NOT_TOUCHED | No truth edit yet | Review after accepted SCA-005 truth edits. |
-| estimates/schedule | estimation / SCHEDULING | NOT_TOUCHED | No truth edit yet | Review after accepted SCA-005 truth edits if selected. |
-| deliverable-local metadata | PREPARATION / TASK | NOT_TOUCHED | Non-write boundary | Separate authorization if metadata alignment is needed. |
+| PRD/PLAN/decomposition forward traceability | SCOPE_CHANGE | ACCEPTED_CURRENT | SCA-005 Gate-5 edits | Consume v0.2 PRD authority and D-21 Annex A crosswalk for forward work. |
+| DAG/dependency extraction | ORCHESTRATOR / dependency workflow | STALE_REVIEW_REQUIRED | Accepted SCA-005 changed authority pointers | Review after accepted SCA-005 truth edits. |
+| estimates/schedule | estimation / SCHEDULING | STALE_REVIEW_REQUIRED | Accepted SCA-005 changed forward horizon | Review if selected. |
+| deliverable-local metadata | PREPARATION / TASK | DEFERRED | SCOPE_CHANGE non-write boundary | Separate authorization if metadata alignment is needed. |
 
 ## Closure Verdict
 
-`OPEN_PENDING_SCA_GATE_ACCEPTANCE`.
+`CLOSED_WITH_DOWNSTREAM_HANDOFF`.
 
-Remaining blocker: owner acceptance or amendment of SCA-005
-`Impact_Assessment.md`, `Amendment_Preview.md`, and `Propagation_Plan.md`.
+Remaining blockers: downstream DAG/dependency/estimate/schedule and
+deliverable-local metadata refreshes are not closed by SCA-005. They require
+their owning workflows and, where applicable, separate owner preparation or
+ruling acts.

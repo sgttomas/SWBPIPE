@@ -3,7 +3,7 @@ doc_id: OPS-SOFTWARE-DECOMP
 package_role: working_surface
 doc_kind: decomposition.software
 status: current_basis
-revision: 0.7
+revision: 0.8
 created: 2026-04-30
 refs:
   - rel: depends_on
@@ -31,6 +31,14 @@ Revision v0.5 records `SCA-002`, which admits `docs/_ScopeChange/OpenPipeStress_
 Revision v0.6 records `SCA-003`, which resolves the MVP physical project package/container decision as a local SQLite-backed project store and index profile with rebuildable retrieval sidecars. The amendment preserves JSON Schema 2020-12, canonical JSON/JCS-compatible hashes, deterministic round-trip behavior, local-first privacy, and application-service no-bypass boundaries as the canonical persistence contract.
 
 Revision v0.7 records `SCA-004`, which adds `PKG-17 — Export Format Interoperability` and makes deterministic export packages, export profiles, stable ID maps, loss reports, CAEPIPE MBF validation workflow, stress-neutral CSV/JSON, conservative PCF, GLB/glTF review geometry, and export adapter SDK work explicit under the existing interoperability, result-export, handoff, and external-prover boundaries. The amendment preserves the no-bundled-commercial-solver, no-proprietary-example, no-reverse-engineering, no-license-bypass, no-code-compliance-claim, and no-professional-acceptance-claim constraints.
+
+Revision v0.8 records `SCA-005`, which propagates the accepted `D-21` /
+`DEC-056` PRD v0.2 milestone-set adoption into the forward authority pointers.
+`docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` is the forward PRD authority;
+historical v0.1 FR and milestone tokens are read through Annex A of
+`execution/_Coordination/_DECISIONS/D-21_prd_scope_change_v0_2_milestone_set.md`.
+The amendment adds no package, deliverable, source code, schema, lifecycle,
+release, professional, live-binding, or app-dev package-consumption claim.
 
 This decomposition intentionally separates:
 
@@ -626,6 +634,6 @@ The authoritative companion register is `_Registers/ScopeLedger.csv`.
 |DEC-056|D-21 ruling — PRD scope-change to the v0.2 milestone set: adopt **Option O-A** from `execution/_Coordination/_DECISIONS/D-21_prd_scope_change_v0_2_milestone_set.md` — the full v0.2 milestone set is adopted (R6 Design Knowledge and Handoff Beta + R7 Agent-Assisted Design and Candidate Generation + the inserted v0.2 R3 States/Runs/Comparison), with the v0.2 FR renumber governed by the packet's Annex A crosswalk as the mandatory forward-traceability basis. Rider (packet §5): the v0.1 R5 release-machinery deliverables (signed releases, issue templates, redaction workflow, IP contribution process; `docs/PRD.md:1239-1253`) are carried as explicit R6-entry residuals so the v0.2 §24 milestone list does not silently orphan them. `SCOPE_CHANGE` propagation (PRD supersession or delta, plan revision carrying Annex A, coordination/stage-token re-keying) executes **separately** under the governed SCA workflow with its own non-write boundary (`execution/_ScopeChange/SCA-004_2026-05-18_0000/Propagation_Plan.md:28`); nothing propagates under this entry. Adoption clears exactly one of the four live-binding gates (packet §3.2); app-dev F3, the `DEC-041` automation condition, and tier-0 adoption remain independent — no live agent binding, package consumption, or R7 execution follows from this ruling alone.|Human project authority ruling on 2026-07-02: "Confirmed and approved." (Ryan Tufts, in-session, bridge Loop 2 session), confirming the packet §7 fill with the §5 release-machinery-residual rider. Entry appended 2026-07-02 per the packet §8 mechanism.|Accepted; D-21 register row RULED with the packet as pointer and this entry as the §12 codification. `DEC-041` and `DEC-042` remain unedited immutable history. Ruled history keeps speaking v0.1 FR/milestone numbering per packet §3.3 (read against Annex A; never rewrite). No lifecycle, release-readiness, professional approval, certification, sealing, authentication, or code-compliance claim is created; the professional boundary and FR-AGENT human gating carry through unchanged (packet §3.1).|
 ## 13. Gate posture
 
-This v0.7 decomposition is the accepted current decomposition basis after SCA-004.
+This v0.8 decomposition is the accepted current decomposition basis after SCA-005.
 
-PREPARATION may scaffold package and deliverable folders from this decomposition and the companion registers after ORCHESTRATOR plans the accepted downstream refreshes. `PKG-00` remains `SEMANTIC_READY`, not `ISSUED`, but its SCA-001 architecture basis as amended by SCA-003 and SCA-004 may be injected into `PKG-01` through `PKG-17` sealed contexts and future TASK briefs. Type 2 execution still requires one sealed deliverable context, explicit write scope, applicable invariants, and acceptance criteria. Existing DEV-001 dispatch, DAG/blocker, lifecycle, dependency, implementation-evidence, schema, docs, and code surfaces may be stale relative to revision 0.7 until refreshed by their owning workflows; SCA-004 does not directly update downstream schema/code/runtime artifacts or approve DAG-005 as active graph authority.
+PREPARATION may scaffold package and deliverable folders from this decomposition and the companion registers after ORCHESTRATOR plans the accepted downstream refreshes. `PKG-00` remains `SEMANTIC_READY`, not `ISSUED`, but its SCA-001 architecture basis as amended by SCA-003, SCA-004, and SCA-005 may be injected into `PKG-01` through `PKG-17` sealed contexts and future TASK briefs. Type 2 execution still requires one sealed deliverable context, explicit write scope, applicable invariants, and acceptance criteria. Existing DEV-001 dispatch, DAG/blocker, lifecycle, dependency, implementation-evidence, schema, docs, and code surfaces may be stale relative to revision 0.8 until refreshed by their owning workflows; SCA-005 does not directly update downstream schema/code/runtime artifacts, approve a DAG successor, create live binding, or make release/professional claims.

@@ -1,0 +1,10 @@
+{
+  "ScopeItemCount": 76,
+  "PackageCount": 18,
+  "DeliverableCount": 101,
+  "ObjectiveCount": 18,
+  "Revision": "0.8",
+  "Basis": "SCA-005",
+  "ForwardPrdAuthority": "docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md",
+  "ForwardFrCrosswalk": "execution/_Coordination/_DECISIONS/D-21_prd_scope_change_v0_2_milestone_set.md#annex-a-mandatory-fr-crosswalk-v01-flat-frs--v02-namespaced-families"
+}

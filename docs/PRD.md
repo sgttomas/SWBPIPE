@@ -2,12 +2,31 @@
 
 **Working title:** OpenPipeStress  
 **Product type:** Free and open-source piping stress analysis platform  
-**Document version:** 0.1 Draft  
+**Document version:** 0.1 Draft, preserved as historical text
 **Date:** 2026-04-30  
-**Status:** Product definition / pre-architecture PRD  
+**Status:** Historical v0.1 product definition; forward authority delegated by SCA-005
 **Intended audience:** Piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, engineering managers, and technical reviewers
 
 ---
+
+## Forward Authority Note
+
+SCA-005 accepted the D-21 / DEC-056 ruling on 2026-07-04. For forward work,
+`docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` is the adopted PRD authority.
+This file preserves the v0.1 PRD text for historical references and for ruled
+records that were written before the v0.2 adoption.
+
+Forward traceability from the flat v0.1 `FR-001..FR-025` identifiers to the
+v0.2 namespaced FR families is governed by Annex A of
+`execution/_Coordination/_DECISIONS/D-21_prd_scope_change_v0_2_milestone_set.md`.
+Ruled history keeps its original v0.1 milestone and FR tokens; new planning and
+execution records should cite the v0.2 PRD plus the Annex A crosswalk when they
+need to relate old and new identifiers. The v0.1 R5 release-machinery items are
+carried forward as explicit R6-entry residuals under DEC-056.
+
+No lifecycle advance, release-readiness claim, professional approval,
+certification, sealing, authentication, code-compliance claim, live binding, or
+app-dev package consumption is created by this authority note.
 
 ## 1. Executive Summary
 

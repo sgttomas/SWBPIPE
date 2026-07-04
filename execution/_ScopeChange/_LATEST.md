@@ -2,8 +2,8 @@
 
 |Field|Value|
 |---|---|
-|AmendmentID|SCA-004|
-|Snapshot|`execution/_ScopeChange/SCA-004_2026-05-18_0000/`|
+|AmendmentID|SCA-005|
+|Snapshot|`execution/_ScopeChange/SCA-005_2026-07-04_0000/`|
 |Status|accepted|
-|Created|2026-05-18|
-|Summary|Export interoperability workflow accepted; SOFTWARE_DECOMP updated to revision 0.7 with PKG-17 and DEL-17-01 through DEL-17-09 for source basis, export contracts, native JSON, CAEPIPE MBF/harness, stress-neutral CSV/JSON, conservative PCF, GLB/glTF review geometry, and export adapter SDK under preserved professional/IP boundaries.|
+|Created|2026-07-04|
+|Summary|D-21 / DEC-056 v0.2 PRD milestone-set adoption propagated; SOFTWARE_DECOMP updated to revision 0.8; forward PRD authority points to `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md`; D-21 Annex A is the forward FR crosswalk. No package, deliverable, code, schema, lifecycle, release, professional, live-binding, or app-dev package-consumption claim created.|

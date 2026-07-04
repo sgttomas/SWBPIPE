@@ -20,6 +20,9 @@ Primary pointers:
 - `docs/TYPES.md`
 - `docs/SPEC.md`
 - `docs/PRD.md`
+- `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` - forward PRD authority after
+  D-21 / DEC-056 and SCA-005; read historical v0.1 FR and milestone tokens
+  through the D-21 Annex A crosswalk
 - `docs/PLAN.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/VALIDATION_STRATEGY.md`
@@ -67,8 +70,11 @@ Baseline intake for every new session:
   boundaries.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` for the current package and
   deliverable working surface.
-- `docs/PRD.md` §10 (functional requirements) and §22 (release milestones) as
-  the product completion yardstick for ordinary tranche selection.
+- `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` as the forward product
+  completion yardstick for ordinary tranche selection after D-21 / DEC-056 and
+  SCA-005. `docs/PRD.md` remains historical v0.1 text; ruled records that cite
+  v0.1 FR/milestone tokens are read forward through Annex A of
+  `execution/_Coordination/_DECISIONS/D-21_prd_scope_change_v0_2_milestone_set.md`.
 - `docs/PLAN.md` — the non-governing strategic roadmap: the definition of
   "complete per the PRD", the current milestone position, the layer-relation
   map, and roadmap-level risks. It routes to the authorities (this record is
@@ -79,8 +85,10 @@ Baseline intake for every new session:
   ordering, the dependency spine, the FR completion map, and the human
   decision register `D-01..D-27` (`D-27` ruled by `DEC-054`: conditional R4
   gate accepted, target stage advanced to R5, §16.2/§16.5 evidence-system
-  residual carried forward). Update this
-  pointer when a successor plan is accepted.
+  residual carried forward; D-21/DEC-056 adopted v0.2 and SCA-005 propagated
+  the forward-authority pointers without creating a lifecycle advance, release
+  claim, or live binding). Update this pointer when a successor plan is
+  accepted.
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
   preparation status and rulings pending with the human project authority.
 - `execution/_Coordination/_COORDINATION.md`,
@@ -192,7 +200,8 @@ Handoff and state discovery:
 - `execution/_Coordination/NEXT_INSTANCE_PROMPT.md` contains stable entry
   instructions for the next agent instance.
 - There is no separate handoff-state authority. Current state must be
-  discovered from authoritative artifacts: `_DAG/_LATEST.md`, approved DAG
+  discovered from authoritative artifacts:
+  `projects/chirality-piping/execution/_DAG/_LATEST.md`, approved DAG
   artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`,
   dependency/review files, and current aggregation or review artifacts as
   needed.
@@ -475,7 +484,8 @@ bounded tranche.
    `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`, `{WORKING_ROOT}/AGENTS.md`,
    the baseline governance documents above, current app intake surfaces needed
    for the selected slice, `SOFTWARE_DECOMP`, and the current approved DAG
-   pointer. As of 2026-06-22, `_DAG/_LATEST.md` points to `DAG-007`.
+   pointer. As of 2026-06-22,
+   `projects/chirality-piping/execution/_DAG/_LATEST.md` points to `DAG-007`.
 2. **Status and git discovery.** Run
    `python3 tools/coordination/list_deliverable_status.py --dag DAG-007 --format table --summary`
    or the same command with `--format csv` when machine-readable output is

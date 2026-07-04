@@ -1,7 +1,7 @@
 ---
 doc_id: SCA-005-IMPACT-ASSESSMENT
 doc_kind: scope_change.impact
-status: prepared_not_accepted
+status: accepted
 created: 2026-07-04
 ---
 
@@ -9,12 +9,15 @@ created: 2026-07-04
 
 ## Gate Status
 
-This impact assessment is prepared for owner acceptance. It is not accepted yet.
-No truth edits have been applied.
+This impact assessment was accepted by the owner in-session on 2026-07-04.
+Gate-5 truth edits were applied in the SCA-005 acceptance branch.
 
-Active SCA pointer before this amendment remains:
+Active SCA pointer before this amendment was:
 
 - `execution/_ScopeChange/_LATEST.md` -> `SCA-004_2026-05-18_0000/`
+
+After Gate-5 closeout, `_LATEST.md` points to
+`execution/_ScopeChange/SCA-005_2026-07-04_0000/`.
 
 ## Impact Summary
 
@@ -26,7 +29,7 @@ Active SCA pointer before this amendment remains:
 | SCA-005-A004 | `execution/_Coordination/_COORDINATION.md` | Update intake/roadmap pointers that still route to v0.1 PRD sections as the only completion yardstick. Do not advance lifecycle or target-stage authority. |
 | SCA-005-A005 | `execution/_Decomposition/SOFTWARE_DECOMP.md` | Add SCA-005 to the revision/change narrative and preserve DEC-056 as immutable ruling history. Do not rewrite DEC-041, DEC-042, DEC-054, DEC-055, or DEC-056. |
 | SCA-005-A006 | `execution/_ScopeChange/SCA-005_2026-07-04_0000/`; `execution/_ScopeChange/_LATEST.md` | On Gate-5 execution only, write accepted SCA artifacts and move `_LATEST.md` from SCA-004 to SCA-005. |
-| SCA-005-A007 | `execution/_Coordination/_DECISIONS/_REGISTER.md`; D-29 packet | On Gate-5 closure only, move D-29 from SCA-gate-held state to `RULED` with the SCA-005 handoff pointer. |
+| SCA-005-A007 | `execution/_Coordination/_DECISIONS/_REGISTER.md`; D-29 packet | Gate-5 closure moved D-29 from its prior SCA acceptance wait state to `RULED` with the SCA-005 handoff pointer. |
 
 ## Package-Role Classification
 
@@ -70,7 +73,7 @@ Active SCA pointer before this amendment remains:
 
 ## Baseline And Validation Notes
 
-This prepared bundle uses direct file inspection as its pre-change basis. A
-Gate-5 execution pass should record pre/post validation in `RUN_SUMMARY.md` and
-should not update `_LATEST.md` until the accepted SCA-005 snapshot and handoff
-state are complete.
+This bundle used direct file inspection as its pre-change basis. Gate-5
+execution recorded pre/post validation in `RUN_SUMMARY.md`; `_LATEST.md` was
+updated only after the accepted SCA-005 snapshot and handoff state were
+complete.

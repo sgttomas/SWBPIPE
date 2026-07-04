@@ -24,21 +24,31 @@ The 2026-06-10 plan opened at R2 (GUI MVP) with R3 work blocked behind a stage g
 - **Phase C (R3 implementation spine)** landed — C1 expression grammar freeze, C2 rule-pack editor GUI, C3 private-library management GUI, C4 end-to-end rule checks (the R3 exit criterion is GUI-true).
 - **Phase C5.1–C5.5** landed — plan revision, UX failure baseline, guided-workbench shell, A12 authoring-journey redesign, R3 rule-pack/library guided flow.
 
-**Where this plan picks up:** the remaining R3 work is **C5.6 → C5.7 → C5.8** (packaged journey successor kit → human packaged pass → R3 exit evidence package), plus the Phase B unit-I/O tail where it does not displace C5. Beyond R3, the bulk of the product remains: **R4** (piping components and nonlinear supports) and **R5** (engineering beta and release machinery) are largely unbuilt above the schema/contract layer, and governance closure (Phase F) is human-paced throughout. Per the human horizon ruling (2026-06-17), this plan also scopes — **contingent on a human-gated PRD scope-change (`D-21`)** — the v0.2 milestones **R6** (design-knowledge and handoff beta) and **R7** (agent-assisted design); see the Extended Horizon in §3.
+**Where this plan picks up:** the remaining R3 work is **C5.6 -> C5.7 -> C5.8** (packaged journey successor kit -> human packaged pass -> R3 exit evidence package), plus the Phase B unit-I/O tail where it does not displace C5. Beyond R3, the bulk of the product remains: **R4** (piping components and nonlinear supports) and **R5** (engineering beta and release machinery) are largely unbuilt above the schema/contract layer, and governance closure (Phase F) is human-paced throughout. D-21 / DEC-056 later adopted the v0.2 milestone set, and SCA-005 propagated that forward-authority posture; see the Forward Horizon in §3.
 
 ---
 
 ## 1. Definition of "complete per the PRD"
 
-The PRD-completion definition (the two binding surfaces — PRD §22 release milestones and §10 functional requirements — plus the human-gated governance closures the PRD/CONTRACT require for any release claim) and the **current milestone position** live in the strategic roadmap doc [docs/PLAN.md](../docs/PLAN.md) §1–§2. This plan consumes that definition and turns it into selectable tranches (§3); the decision register (§2) tracks the governance closures.
+The PRD-completion definition (the two binding surfaces in the adopted v0.2 PRD plus the human-gated governance closures the PRD/CONTRACT require for any release claim) and the **current milestone position** live in the strategic roadmap doc [docs/PLAN.md](../docs/PLAN.md) §1–§2. This plan consumes that definition and turns it into selectable tranches (§3); the decision register (§2) tracks the governance closures.
 
-**Terminus.** The current authority `docs/PRD.md` §22 defines milestones **R0–R5 only; R5 (Engineering Beta) is the terminal milestone** ("External engineers can reproduce validation examples"; "Public repository contains no known protected standards data"). The plan's *governing* completion arc therefore ends at R5 (Phases A–F below).
+**Forward authority.** D-21 / DEC-056 adopted the v0.2 milestone set, and
+SCA-005 propagated the accepted forward PRD posture.
+`docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` is the forward PRD authority.
+`docs/PRD.md` remains historical v0.1 text; forward work reads historical
+flat `FR-001..FR-025` references through the D-21 Annex A crosswalk.
 
-**Extended horizon (contingent).** The superseded scope draft [docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md](../docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md) §24 renumbers milestones to R0–R7 and adds **R6 (Design Knowledge and Handoff Beta)** and **R7 (Agent-Assisted Design and Candidate Generation)**. That surface is already decomposed (PKG-13/14/15/16/17 plus DEL-07-08 and DEL-08-06) but unbuilt, and `docs/PRD.md` on disk is still v0.1. Treating R6/R7 as planned work requires promoting the v0.2 milestone set to authority through the governed scope-change path — a human decision (`D-21`), not an inline edit. Phases G/H/I below scope that horizon and are explicitly gated on `D-21`.
+**Forward horizon.** The adopted v0.2 PRD §24 renumbers milestones to R0–R7
+and adds **R6 (Design Knowledge and Handoff Beta)** and **R7
+(Agent-Assisted Design and Candidate Generation)**. That surface is already
+decomposed (PKG-13/14/15/16/17 plus DEL-07-08 and DEL-08-06) but unbuilt.
+Phases G/H/I below are now forward-plannable ordinary-gated work. R7 execution
+and live binding still require the independent app-dev F3, DEC-041 automation,
+D-30, and tier-0/profile gate dispositions.
 
 **Milestone crosswalk (v0.1 ↔ v0.2).** The v0.2 renumber is *not* a clean +1 shift — v0.2 inserts a net-new R3 (States, Runs, and Generic Comparison) before rule packs, pushing later milestones down, and v0.1's terminal R5 (Engineering Beta) has no 1:1 v0.2 successor (its governance/validation content distributes across the v0.2 R5/R6 exit criteria and PKG-01/09/12).
 
-| This plan's phase | v0.1 PRD (current authority) | v0.2 draft (contingent on `D-21`) | Owning packages |
+| This plan's phase | Historical v0.1 PRD token | Forward v0.2 authority | Owning packages |
 |---|---|---|---|
 | C5 (closing) | R3 Rule-Pack and Private Libraries | R4 | PKG-06, PKG-03 (private libs) |
 | D | R4 Piping Components and Nonlinear Supports | R5 | PKG-03, PKG-04, PKG-08, PKG-09 |
@@ -97,7 +107,7 @@ These were surfaced by the R4/R5/R6 scope research (2026-06-17). They are record
 | D-18 | **Component macro-element realization.** Are bend/branch/EJ realized as solver macro-elements (bend flexibility element, EJ stiffness element) or as data + user-flexibility multipliers applied in stress recovery? `ComponentMechanicsInterface.solver_consumption` permits both (`mechanics_geometry_only` vs `mechanics_geometry_and_user_flexibility`). | Phase D, D1–D4 | RULED `DEC-045`: Option C; bend/branch/rigid use multiplier-first `mechanics_geometry_only`; EJ uses a dedicated macro-element consuming user-entered stiffness |
 | D-19 | **Release convergence tolerance policy.** Close the `TolerancePolicyTbd` solver diagnostic: the *solver convergence* tolerance (residual/iteration criteria) under DEC-026/D-04, distinct from the analytic *verification* seed (1.0e-9) already wired. R4 exit "validation cases converge" depends on it. | Phase D, D6/D9; R4 exit; RGAP-004 | RULED `DEC-046`: Option B / CV-B; class-tiered governed convergence tolerance + iteration cap by nonlinear support class, with unmeasured entries left `TBD` |
 | D-20 | **Release-artifact protected-content scan ownership & procedure (RGAP-005).** Assign an owner and a recorded procedure for the release-time artifact scan + legal/protected-data release gate. Test surfaces exist (`core/reporting/protected_content_linter`, `tests/security/`, DEL-08-05) but no release-artifact scan record exists. | Phase E, E7; R5 exit "no known protected standards data" | Recommend: DEL-08-05 owns the scanner; a new release-gate procedure records the scan disposition + human legal acceptance |
-| D-21 | **PRD scope-change to the v0.2 milestone set** (adopt R6/R7 + the inserted v0.2 R3 States/Comparison). Promote [OpenPipeStress_PRD_v0.2.md](../docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md) (or its delta) to authority via the governed `SCOPE_CHANGE` path; this also adopts the v0.2 FR renumber (FR-MOD/KNOW/GUI/SOL/RULE/CMP/HAND/AGENT/REP) — a traceability-breaking change requiring an FR crosswalk. | Extended Horizon (Phases G/H/I) | Human-gated SCA. Recommend: prepare the scope-change packet only when R4/R5 are near exit, so the governing arc is not destabilized mid-flight |
+| D-21 | **PRD scope-change to the v0.2 milestone set** (adopt R6/R7 + the inserted v0.2 R3 States/Comparison). Promote [OpenPipeStress_PRD_v0.2.md](../docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md) to forward authority; this also adopts the v0.2 FR renumber (FR-MOD/KNOW/GUI/SOL/RULE/CMP/HAND/AGENT/REP) with Annex A of the D-21 packet as the mandatory forward crosswalk. | Extended Horizon (Phases G/H/I) | RULED `DEC-056`; SCA-005 accepted and propagated the forward-authority pointers. No lifecycle, release, professional, code-compliance, live-binding, or package-consumption claim follows from this ruling alone |
 | D-23 | **R3 exit review and R3-to-R4 target-stage advancement.** Accept the `TP-R3VERIFY-001` evidence packet and decide whether `_COORDINATION.md` advances the current target stage from PRD R3 to PRD R4. | Phase D/R4 ordinary work selection | RULED `DEC-048`: Option O-A accepted — R3 exit evidence accepted and current target stage advanced to R4; no lifecycle/release/professional/code-compliance claim |
 | D-26 | **R4 exit review and R4-to-R5 target-stage advancement.** Accept the current refreshed R4 exit-chain evidence packet and decide whether `_COORDINATION.md` advances the current target stage from PRD R4 to PRD R5. | Phase E/R5 ordinary work selection | RULED `DEC-053`: Option O-B; hold at R4 pending named sparse default-promotion evidence/repair. `TP-R4-D7-SPARSEDEFAULTPROMOTE-001` landed the repair; `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md` became the refreshed final R4 packet and was conditionally accepted by `D-27` / `DEC-054` |
 | D-27 | **R4 exit clearance after the D-26 hold repair.** Accept the refreshed R4 exit-chain evidence packet with clean-head sweep and explicit PRD §16.2/§16.5 residual disposition, then decide whether `_COORDINATION.md` advances the current target stage from PRD R4 to PRD R5. | Phase E/R5 ordinary work selection; prerequisite to D-21 preparation | RULED `DEC-054`: conditional R4 gate accepted; current target stage advanced to R5; PRD §16.2/§16.5 complete benchmark/manual evidence system remains residual work |
@@ -205,9 +215,12 @@ Not a code phase; scheduled so it never becomes the surprise blocker:
 - **F2 — Authority records.** Maintainer roster/quorum, contributor legal mechanism, release-label vocabulary (`DEC-027` ruled; `D-07b` gates future intake; PB-TBD-003 release-label vocabulary still human).
 - **F3 — Register / DAG hygiene.** Keep SOFTWARE_DECOMP, registers, and the DAG synchronized as tranches land. `DAG-007` type-system rectification is approved and current; trigger the next DAG re-derivation on the Phase D decomposition revision. Any scope evolution (e.g. `D-12` deferral, `D-21` scope-change) gets a recorded SCA/DEC entry, not silent drift.
 
-### Extended Horizon — v0.2 R6/R7 (contingent on `D-21` PRD scope-change)
+### Forward Horizon — adopted v0.2 R6/R7
 
-**These phases are not part of the governing v0.1 PRD completion arc.** They become planned work only when the human project authority promotes the v0.2 milestone set via the governed scope-change path (`D-21`). They are scoped here because the human horizon ruling (2026-06-17) directed it and because the surface is already decomposed (defined-but-unbuilt) — so the engineering is *adoption + build*, not net-new decomposition. Adopting `D-21` also pulls in the v0.2-inserted **R3 (States, Runs, and Generic Comparison)** as a prerequisite for handoff, captured as Phase G.
+These phases are part of the forward v0.2 PRD authority after D-21 / DEC-056
+and SCA-005. They remain ordinary-gated, dependency-bound work, not automatic
+execution. The v0.2-inserted **R3 (States, Runs, and Generic Comparison)** is
+a prerequisite for handoff and is captured as Phase G.
 
 | # | Phase / scope | Owning packages | Maturity |
 |---|---|---|---|
@@ -215,7 +228,11 @@ Not a code phase; scheduled so it never becomes the surprise blocker:
 | **H** | **R6 — Design knowledge and handoff beta.** Design-knowledge schema/entry (endpoints, line data, routing corridors, support zones, equipment interfaces), constraint entity + validation engine, physical→analytical transform contract; the **canonical handoff package** schema + manifest (model hash, units, entity IDs, library/rule refs, warnings, unresolved assumptions), target-mapping + unsupported-behavior contract, downstream export workflow, external-prover boundary metadata; the PKG-17 **wire formats** (native JSON, CAEPIPE MBF, conservative PCF, stress-neutral CSV/JSON, GLB review geometry) — several already shipped as R2 export panels. Exit (v0.2 §24): user produces a schema-compliant handoff package; external reviewers reproduce validation examples. New FR families FR-KNOW-*, FR-HAND-* | PKG-13, PKG-15, PKG-17 | Contracts defined; DEL-17-01 vendor (CAEPIPE) questions gate target-specific MBF claims |
 | **I** | **R7 — Agent-assisted design and candidate generation.** Structured operation proposal schema (DEL-16-01 — **the operation seam already exists from R2**), operation validation + diff preview (DEL-16-02 — exists), user acceptance + operation audit trail (DEL-16-03), agent rationale + professional-boundary controls (DEL-16-04, the FR-AGENT-005 hard gate: agent output can never claim engineering acceptance/certification/code-compliance); route/support **candidate generation** (FR-KNOW-005, "Could" — the **thinnest, no dedicated deliverable owns the generator**). Exit (v0.2 §24): agents propose schema-valid operations; user accept/reject; accepted operations auditable and reversible | PKG-16 (DEL-16-01..04) | Operation plumbing largely built (R2); candidate generation underspecified |
 
-**Extended-horizon dependencies & boundary:** R6/R7 cannot precede a working Phase G (states/comparison) and Phase D (components). The professional-boundary invariant (FR-AGENT-005, DEL-16-04) and the handoff non-authority boundary (DEL-15-04) are hard gates — agent output and handoff packages never assert certification/approval/code-compliance. If `D-21` is declined, this horizon is recorded as an explicit out-of-scope note and the plan terminates at R5.
+**Forward-horizon dependencies & boundary:** R6/R7 cannot precede a working
+Phase G (states/comparison) and Phase D (components). The professional-boundary
+invariant (FR-AGENT-005, DEL-16-04) and the handoff non-authority boundary
+(DEL-15-04) are hard gates — agent output and handoff packages never assert
+certification/approval/code-compliance.
 
 ### Hardening lane (cross-phase; select when it blocks or de-risks current-stage work)
 
@@ -230,7 +247,7 @@ H1, H4, H5 landed (see the superseded plan and the completion log).
 
 ## 4. FR-by-FR completion map
 
-Current status as of 2026-06-17; "Closes in" names the phase item that brings the FR to its acceptance criteria. The v0.2 scope-change (`D-21`) would re-express these as namespaced FR families — see the crosswalk note below.
+Current status as of 2026-06-17; "Closes in" names the phase item that brings the FR to its acceptance criteria. D-21 / DEC-056 adopted the v0.2 namespaced FR families; read the historical flat identifiers below through the crosswalk note.
 
 | FR | Priority | Current status | Closes in |
 |---|---|---|---|
@@ -260,7 +277,13 @@ Current status as of 2026-06-17; "Closes in" names the phase item that brings th
 | FR-024 dynamic analysis modules | Could | Not implemented | `D-12` disposition at R5 gate (post-beta or explicit deferral) |
 | FR-025 local FEA export | Could | Understated in earlier summaries: app export/review and handoff panels exist, but the distinct local FEA submodel export required by FR-025 is not implemented (separate from the Phase H handoff package; DEL-10-03 guidance only) | `D-12` disposition at R5 gate |
 
-**v0.2 FR-family crosswalk note (`D-21`).** If the v0.2 scope-change is adopted, the flat FR-001..025 numbering is replaced by namespaced families (FR-MOD/KNOW/GUI/SOL/RULE/CMP/HAND/AGENT/REP). The registers already trace to the v0.2 FRs and SOW-064..076; FR-023 becomes the narrow ancestor of the FR-HAND-* handoff family; FR-024 (dynamics) is de-emphasized in v0.2 (not on the milestone path); FR-025 survives as the distinct local-FEA sub-model export (DEL-10-03). Any plan revision adopting `D-21` must add the full crosswalk.
+**v0.2 FR-family crosswalk note (`D-21` / `DEC-056`).** The flat FR-001..025
+numbering is replaced forward by namespaced families
+(FR-MOD/KNOW/GUI/SOL/RULE/CMP/HAND/AGENT/REP). The D-21 packet's Annex A is the
+mandatory forward crosswalk. The registers already trace to the v0.2 FRs and
+SOW-064..076; FR-023 becomes the narrow ancestor of the FR-HAND-* handoff
+family; FR-024 (dynamics) is de-emphasized in v0.2 (not on the milestone path);
+FR-025 survives as the distinct local-FEA sub-model export (DEL-10-03).
 
 ---
 
@@ -274,9 +297,12 @@ Current status as of 2026-06-17; "Closes in" names the phase item that brings th
 
 **Phase E:** E1 (headless CLI) and E2 (validation manual) can begin once Phase D validation cases exist in draft; E5 (CI/release) gates on `D-06`/`D-05b`; E7 (protected-content scan) gates on `D-20`. Phase F is human-paced throughout.
 
-**Extended horizon:** Phases G/H/I are entirely gated on `D-21`; within them, Phase G (states/comparison) precedes Phase H (handoff), and Phase I (agent) reuses the existing operation seam — its net-new work is candidate generation.
+**Forward horizon:** Phases G/H/I are adopted by DEC-056/SCA-005 but remain
+ordinary-gated and dependency-bound; within them, Phase G (states/comparison)
+precedes Phase H (handoff), and Phase I (agent) reuses the existing operation
+seam — its net-new work is candidate generation.
 
-**Rough relative scale** (tranche-count order of magnitude, not calendar estimates; observed granularity historically ran ~2× finer than first-pass sizing, so read toward the high ends): C5 remainder ~3; Phase B-tail ~3–6; Phase D ~9–16 (largest of the governing arc); Phase E ~8–14; Phase F human-paced. Extended horizon (if `D-21` adopted): Phase G ~6–10, Phase H ~10–16, Phase I ~5–9. No calendar dates are proposed — the project runs on bounded, evidenced tranches.
+**Rough relative scale** (tranche-count order of magnitude, not calendar estimates; observed granularity historically ran ~2x finer than first-pass sizing, so read toward the high ends): C5 remainder ~3; Phase B-tail ~3–6; Phase D ~9–16 (largest of the governing arc); Phase E ~8–14; Phase F human-paced. Forward horizon: Phase G ~6–10, Phase H ~10–16, Phase I ~5–9. No calendar dates are proposed — the project runs on bounded, evidenced tranches.
 
 ---
 
@@ -301,5 +327,5 @@ Roadmap-level risks and their mitigations live in [docs/PLAN.md](../docs/PLAN.md
 | Phase D under-scoped — the assembled nonlinear solve (D6) is the genuine R4 hinge | Continue D6/D9 under `DEC-044`/`DEC-046`; extend from the landed loop-core/product-preview/assembled-seed/derived-normal slices into measured convergence evidence, broader validation, and report provenance; reuse the existing classifier + diagnostics taxonomy rather than rebuilding |
 | Spring hangers (D5) had no owning deliverable for constant-effort/variable-rate behavior | Mitigated by `DEC-049` plus landed `TP-R4-D5-HANGERDATA-001` as a bounded DEL-04-03 user-data extension; residual catalog sizing and deeper solve behavior stay explicitly out of scope |
 | Release-machinery decisions (`D-06`/`D-05b`/`D-20`) deferred until they block R5 | The decision register makes them explicit mid-plan items with RGAP traceability, not end-loaded surprises |
-| Extended-horizon scope (R6/R7) destabilizes the governing arc if adopted mid-flight | `D-21` is sequenced for the R4/R5 lead-up; until ruled, Phases G/H/I are non-selectable and carry no spine weight |
+| Forward-horizon scope (R6/R7) can destabilize execution if selected without prerequisites | DEC-056/SCA-005 makes Phases G/H/I plannable, but they remain dependency-bound: Phase G and Phase D precede R6/R7 execution; F3/live binding remains gated separately |
 | Scope drift via app tranches crossing deliverable boundaries | Coordination-loop rule retained: tranches name the app-owned slice and allowed write targets; register hygiene in Phase F3 |

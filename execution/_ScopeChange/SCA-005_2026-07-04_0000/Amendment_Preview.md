@@ -1,14 +1,15 @@
 ---
 doc_id: SCA-005-AMENDMENT-PREVIEW
 doc_kind: scope_change.amendment_preview
-status: prepared_not_accepted
+status: accepted
 created: 2026-07-04
 ---
 
 # SCA-005 Amendment Preview
 
-This preview names the intended truth edits for owner acceptance. It is not an
-applied diff.
+This preview names the truth edits accepted by the owner in-session on
+2026-07-04 and applied during Gate 5. The accepted implementation used a
+forward-authority preamble rather than replacing the full v0.1 PRD body.
 
 ## Intended Direct Amendments
 
@@ -31,11 +32,13 @@ applied diff.
   protected-path hook, live-binding integration, lifecycle transition, release
   claim, or professional claim is created.
 
-## Acceptance Needed Before Execution
+## Acceptance Record
 
-Gate-5 execution requires owner acceptance of:
+Owner acceptance was recorded in-session on 2026-07-04:
 
-1. `Impact_Assessment.md`
-2. this amendment preview
-3. `Propagation_Plan.md`
-4. the non-write boundaries and downstream handoff obligations
+> I accept the D-29 amendments.
+
+That acceptance covers `Impact_Assessment.md`, this amendment preview,
+`Propagation_Plan.md`, the non-write boundaries, and downstream handoff
+obligations. No separate lifecycle, release, professional, live-binding, or
+package-consumption act is implied.
