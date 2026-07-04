@@ -14,6 +14,12 @@ Receipt 20).
 (sidecar staging), `D-31`/`DEC-063` (automation condition declared met —
 proven L2 is now the sole engineering prerequisite on the live-binding path).
 
+**Structural precedent:** the eight 2026-07-04 PROPOSAL packets in this
+directory (D-06, D-11, D-12, D-10b, D-04b, D-05b, D-07b, D-20), themselves
+on the D-28 packet skeleton — PROPOSAL disclaimer, verified-facts table,
+options, non-binding recommendation, open human-ruling section, ruling
+mechanism.
+
 ## 1. Decision
 
 How and where the piping headless-runner CLI entrypoint and a
@@ -37,7 +43,7 @@ that `D-T0-08` requires before app-dev fence F3 can open. Three sub-questions:
 | DEL-10-05 is `IN_PROGRESS`; its Specification scopes the setup run only ("does not implement CLI/source code…") and its Datasheet holds "Exact CLI command names", "Exact structured input schema fields", and "Public API transport" as TBD | DEL-10-05 `_STATUS.md:3`, `Specification.md:5,7`, `Datasheet.md:29-31` |
 | The 2026-06-07 DEL-10-05 REVIEW transition "does not authorize final CLI/API syntax, package scripts, CI/release decisions, DAG promotion, or professional/code-compliance claims" | DEL-10-05 `_STATUS.md` (2026-06-07 history entry) |
 | No existing brief, plan, or backlog scopes the entrypoint as a governed unit of work; the gap is only noted descriptively | `plans/artifacts/bridge_piping_contribution_for_tier0_2026-06-21.md:219-220`; grep of `plans/` + `execution/` 2026-07-04 |
-| Bounded in-DEL work records use the `_run_records/WORKING_ITEMS_RUN_<date>_<TP-ID>.md` format (Scope / Evidence / Validation / Boundary) | DEL-10-05 `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001.md` |
+| Bounded in-DEL work records use the `WORKING_ITEMS_RUN_<date>_<TP-ID>.md` format (Scope / Evidence / Validation / Boundary) | `execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001.md` |
 | The bridge loop's standing constraints prohibit its agent writing `core/**`; execution of this scoping therefore needs an explicit owner write-scope grant or the piping lane's own vehicle | `_DomainEngines/bridge/WORKPLAN_2026-07-02_bridge_loop.md` standing constraints |
 
 ## 3. Why this is human-gated
