@@ -1,6 +1,6 @@
-# D-29 - PROPOSAL: Execute v0.2 SCOPE_CHANGE propagation
+# D-29 - GATE PACKET: Execute v0.2 SCOPE_CHANGE propagation
 
-**Status:** PROPOSAL / `AWAITING_RULING` for SCOPE_CHANGE Gate 3/4 approval.
+**Status:** O-A selected 2026-07-04; `AWAITING_SCA_GATE_ACCEPTANCE` for SCA-005 impact assessment, amendment preview, and propagation-plan acceptance before truth edits.
 **Date prepared:** 2026-07-04
 **Decision ID:** D-29
 **Prepared by:** bridge work loop agent, at owner direction to prepare and execute all agent-lawful coordination/control work on D-29.
@@ -12,14 +12,16 @@ residual work. It does not itself modify `docs/PRD.md`, `docs/PLAN.md`,
 code, schemas, tests, lifecycle state, release claims, professional claims, or
 live-binding state.
 
-## Why this stops at packet preparation
+## Why truth edits are still gate-held
 
 `agents/AGENT_SCOPE_CHANGE.md` requires impact assessment and propagation-plan
 approval before decomposition truth or variant-local metadata are modified.
-The owner direction of 2026-07-04 authorizes this lane, but no reviewed
-Gate-2 impact assessment or Gate-4 propagation plan has yet been accepted in a
-governed artifact. This packet therefore prepares the exact D-29 execution
-surface and holds the truth-changing pass for the next owner ruling.
+The owner ruling of 2026-07-04 selected O-A for this lane. That selection
+authorizes preparing SCA-005 and routing it for acceptance, but the SCA-005
+impact assessment, amendment preview, and propagation plan must be accepted
+before `docs/PRD.md`, `docs/PLAN.md`, `plans/PLAN_2026-06-17_prd_completion.md`,
+`execution/_Coordination/_COORDINATION.md`, `SOFTWARE_DECOMP.md`, or
+`execution/_ScopeChange/_LATEST.md` are changed.
 
 ## Verified basis
 
@@ -51,6 +53,26 @@ metadata-only propagation of D-21/DEC-056:
 6. Update D-29 from `AWAITING_RULING` to `RULED` only after the SCA package is
    accepted and its handoff state is written.
 
+## Prepared SCA-005 gate bundle
+
+The SCA-005 review bundle has been prepared at:
+
+`execution/_ScopeChange/SCA-005_2026-07-04_0000/`
+
+Prepared artifacts:
+
+- `Brief.md`
+- `Impact_Assessment.md`
+- `Amendment_Preview.md`
+- `Propagation_Plan.md`
+- `Amendment_Actions.csv`
+- `Decision_Log.md`
+- `Handoff_State.md`
+
+This bundle is not the active accepted amendment snapshot. `_LATEST.md` still
+points to SCA-004 until the owner accepts the SCA-005 gate artifacts and the
+Gate-5 execution/validation pass completes.
+
 ## Options
 
 | ID | Option | Consequence |
@@ -69,8 +91,10 @@ work.
 
 ## Human ruling
 
-**Ruling:** OPEN.
+**Ruling recorded:** O-A selected by owner (Ryan Tufts), 2026-07-04.
 
-The owner may select O-A, O-B, O-C, or give a custom ruling. If O-A is selected,
-the next execution pass must satisfy the SCOPE_CHANGE gates before truth edits
-are applied.
+Ruling/selection record:
+`execution/_Coordination/_DECISIONS/D-29_RULING_2026-07-04.md`.
+
+Effect: prepare and route SCA-005 for acceptance. Truth edits remain held until
+the SCOPE_CHANGE gate artifacts are accepted.

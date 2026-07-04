@@ -1,6 +1,6 @@
-# D-30 - PROPOSAL: Harness-contract consumption execution
+# D-30 - RULING: Harness-contract consumption execution
 
-**Status:** PROPOSAL / `AWAITING_RULING` with prerequisite-dependent execution held.
+**Status:** RULED / Option A selected 2026-07-04.
 **Date prepared:** 2026-07-04
 **Decision ID:** D-30
 **Prepared by:** bridge work loop agent, at owner direction to prepare D-30 now and hold prerequisite-dependent execution until D-APP-48 and D-T0-09 are resolved.
@@ -69,7 +69,10 @@ consumption, and eventual Node Agent-SDK sidecar live-binding.
 
 ## Human ruling
 
-**Ruling:** OPEN.
+**Ruling recorded:** O-A approved by owner (Ryan Tufts), 2026-07-04.
 
-The owner may select O-A, O-B, O-C, O-D, or give a custom ruling. Even after a
-selection, implementation remains held until D-APP-48 and D-T0-09 are resolved.
+Ruling record:
+`execution/_Coordination/_DECISIONS/D-30_RULING_2026-07-04.md`.
+
+Consumption record:
+`execution/_Coordination/_DECISIONS/D-30_HARNESS_CONTRACT_CONSUMPTION_2026-07-04.json`.

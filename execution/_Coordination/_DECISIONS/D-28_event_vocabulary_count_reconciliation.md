@@ -32,7 +32,7 @@ created.
 
 | Check | Result |
 |---|---|
-| Authoritative source, current count | `projects/chirality-app-dev/frontend/src/lib/harness/event-schema.ts` (`HARNESS_EVENT_TYPES`, lines 3-46) enumerates **43** event types at app-dev HEAD `0d2956ccb` (2026-07-01); the final array member is `runtime.mirror.error` (`:46`). |
+| Authoritative source, current count | `projects/chirality-app-dev/frontend/packages/harness-contract/src/event-schema.ts` (`HARNESS_EVENT_TYPES`) enumerates **43** event types at app-dev HEAD `0d2956ccb` (2026-07-01); the final array member is `runtime.mirror.error`. D-APP-47 later made the package path the forward source surface by retiring the frontend harness shims. |
 | `DEC-041` text | `execution/_Decomposition/SOFTWARE_DECOMP.md:611` reads "the 42-type event vocabulary" — **stale** against the live source. |
 | Was `DEC-041` wrong when ruled? | No. The file held 42 types from `e39d07827` (2026-06-13) through `2df56aa18` (2026-06-21); `DEC-041` was ruled 2026-06-18, so "42-type" was accurate at ruling time and went stale afterward. |
 | What changed, and when | The 43rd member, `turn.interrupted` (`:20`), was added by commit `86e934f39` ("Complete ADQ-05 runtime taxonomy reconciliation", 2026-06-21) — the last commit touching the file. `runtime.mirror.error` has been present since `6b23eb96c` (2026-06-13) and is the final member by position, not the newest addition. |
@@ -75,7 +75,7 @@ Recommend **O-A**, with the following binding rule if accepted:
 > the harness event vocabulary (the `DEC-041` keystone dependency, whose
 > execution remains gated behind `D-21` and the `DEC-041` automation
 > condition) takes the count from the live enumeration in
-> `projects/chirality-app-dev/frontend/src/lib/harness/event-schema.ts` at the
+> `projects/chirality-app-dev/frontend/packages/harness-contract/src/event-schema.ts` at the
 > commit being pinned — **43** as of 2026-07-01 (app-dev HEAD `0d2956ccb`;
 > count established by `86e934f39`) — never from the prose of `DEC-041` or any
 > other decision record. Prose counts in decision records are snapshots of
