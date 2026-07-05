@@ -52,3 +52,25 @@
     at the next launch's Step 0.
   - Parked lanes: owner rulings on the piping register's open rows (re-derive
     from `execution/_Coordination/_DECISIONS/_REGISTER.md` at Step 0).
+
+- **2026-07-05 — Receipt 1** (post-DEL-10-05 merge and E2 draft slice).
+  - Start: `REPO_ROOT=/Users/ryan/.codex/worktrees/04f4/chirality`; PR #67
+    merged at `433a50edcca2daff13734b0d8e5ce62cd11f492f`; work continued on
+    `codex/piping-post-del-10-05-next` from `origin/main`.
+  - Owner directions of record (2026-07-05, in-session, Ryan Tufts): "I
+    approve the PR #62 so merge it and do what is necessary on account of
+    that.  Then proceed towards final DEL-10-05 implementation."; "I approve
+    merging the PR and proceeding as necessary from there."
+  - Selection: Phase E/E1 was satisfied by merged `DEC-065` / TP-RUNNER-015;
+    next lawful tranche was E2 `DEL-09-04` draft validation-manual
+    reproduction slice, using the E1 runner evidence.
+  - Artifacts: commit `8c57cf5f467157d9d2a47654ec68e34cda2c1743`;
+    `docs/validation_manual/headless_runner_reproduction.md`;
+    `validation/witness/inputs/`; DEL-09-04 run record
+    `WORKING_ITEMS_RUN_2026-07-05_TP-VALIDMANUAL-RUNNERREPRO-001.md`.
+  - Checks: focused generator/runner/schema checks pass; self-check exit 0;
+    harness pytest pass; DEC-025 five-surface sweep pass with summary
+    `validation/evidence/sweeps/SWEEP_20260705T050428Z_8c57cf5f4671.json`.
+  - Gate outcome: executed within R5/E2 draft-evidence fence; no DEL-09-04
+    lifecycle transition; remaining E2 public benchmark thresholds, clean-env
+    demonstration, and R5-exit decisions remain parked/human-gated.
