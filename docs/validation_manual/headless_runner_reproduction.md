@@ -53,9 +53,9 @@ From `projects/chirality-piping`:
 
 ```bash
 python3 validation/witness/inputs/generate_tp_runner_015_inputs.py
-cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- solve --input validation/witness/inputs/tp_runner_015_final_cli_solve_input.json --output /tmp/tp_runner_015_solve.json
-cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- validate-input --input validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json --output /tmp/tp_runner_015_validation_blocking.json
-cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --input validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json --output /tmp/tp_runner_015_benchmark_stub.json
+cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- solve --input validation/witness/inputs/tp_runner_015_final_cli_solve_input.json --output <scratch-output>/tp_runner_015_solve.json
+cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- validate-input --input validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json --output <scratch-output>/tp_runner_015_validation_blocking.json
+cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --input validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json --output <scratch-output>/tp_runner_015_benchmark_stub.json
 ```
 
 The first command regenerates deterministic caller input fixtures from the
