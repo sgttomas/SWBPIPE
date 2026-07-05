@@ -70,15 +70,18 @@ FORBIDDEN_STATUS = {
 }
 
 REQUIRED_TBD = {
+    "ci_provider",
+    "release_matrix",
+    "public_transport_protocol",
+    "external_adapter_formats",
+}
+
+SETTLED_DEC_065 = {
     "final_cli_command_syntax",
     "package_scripts",
     "process_invocation",
     "network_access",
     "filesystem_mutation_policy",
-    "ci_provider",
-    "release_matrix",
-    "public_transport_protocol",
-    "external_adapter_formats",
 }
 
 
@@ -132,9 +135,18 @@ def main():
         runner_status["physical_project_container"]["$ref"]
         == "#/$defs/PhysicalProjectContainer"
     )
+    assert runner_status["final_cli_command_syntax"]["const"].startswith(
+        "openpipestress-runner <solve|validate-input|export-results|"
+    )
+    assert runner_status["package_scripts"]["const"] == "dev_test_convenience_only"
+    assert runner_status["process_invocation"]["const"] == (
+        "single_foreground_local_process"
+    )
+    assert runner_status["network_access"]["const"] == "none"
+    assert runner_status["filesystem_mutation_policy"]["const"] == (
+        "stdout_default_explicit_output_path_only"
+    )
     for key in [
-        "final_cli_command_syntax",
-        "package_scripts",
         "public_transport_protocol",
         "ci_provider",
         "release_matrix",
@@ -147,6 +159,9 @@ def main():
     assert REQUIRED_TBD <= set(tbd["required"])
     for key in REQUIRED_TBD:
         assert tbd["properties"][key]["const"] == "TBD"
+    assert SETTLED_DEC_065 <= set(tbd["required"])
+    for key in SETTLED_DEC_065:
+        assert tbd["properties"][key]["const"] == "SETTLED_DEC_065"
     assert "physical_project_container" not in set(tbd["required"])
     assert "physical_project_container" not in tbd["properties"]
 

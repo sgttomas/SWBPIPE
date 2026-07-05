@@ -8,6 +8,14 @@ publish = false
 [lib]
 path = "src/lib.rs"
 
+[[bin]]
+name = "openpipestress-runner"
+path = "src/bin/openpipestress-runner.rs"
+
+[[bin]]
+name = "headless_preview_runner"
+path = "src/bin/headless_preview_runner.rs"
+
 [dependencies]
 # RFC 8785 (JCS) canonical JSON text — the single canonicalization for every
 # OpenPipeStress hash seam (completion-plan hardening row H5).

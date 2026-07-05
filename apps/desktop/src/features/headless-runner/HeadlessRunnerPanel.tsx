@@ -2,6 +2,10 @@ import { Download, Terminal } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel, SolveJobAuditState } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
+const HEADLESS_FINAL_CLI =
+  "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>]";
+const HEADLESS_SETTLED = "SETTLED_DEC_065";
+
 export function HeadlessRunnerPanel({
   model,
   result,
@@ -69,7 +73,7 @@ export function HeadlessRunnerPanel({
           testId="headless-runner-unit-witnesses"
         />
         <RunnerLine
-          label="Runtime TBDs"
+          label="Runtime Policy"
           value={`process=${packet.tbd_decisions.process_invocation}; network=${packet.tbd_decisions.network_access}; filesystem=${packet.tbd_decisions.filesystem_mutation_policy}`}
           testId="headless-runner-runtime-tbds"
         />
@@ -80,8 +84,8 @@ export function HeadlessRunnerPanel({
         />
       </div>
       <small className="report-note">
-        Headless runner output is a local schema-first preview envelope only; final CLI syntax, package scripts, process
-        policy, network policy, filesystem mutation policy, CI, and release matrix remain TBD.
+        Headless runner output is a local schema-first preview envelope under DEC-065; CI, release matrix, public
+        transport, and external adapter formats remain TBD.
       </small>
     </section>
   );
@@ -144,8 +148,11 @@ function buildHeadlessRunnerPacket({
     runner_status: {
       interface_kind: "schema_first_headless_runner_contract",
       physical_project_container: physicalProjectContainer(),
-      final_cli_command_syntax: "TBD",
-      package_scripts: "TBD",
+      final_cli_command_syntax: HEADLESS_FINAL_CLI,
+      package_scripts: "dev_test_convenience_only",
+      process_invocation: "single_foreground_local_process",
+      network_access: "none",
+      filesystem_mutation_policy: "stdout_default_explicit_output_path_only",
       public_transport_protocol: "TBD",
       ci_provider: "TBD",
       release_matrix: "TBD",
@@ -153,11 +160,11 @@ function buildHeadlessRunnerPacket({
       local_fea_package_format: "TBD"
     },
     tbd_decisions: {
-      final_cli_command_syntax: "TBD",
-      package_scripts: "TBD",
-      process_invocation: "TBD",
-      network_access: "TBD",
-      filesystem_mutation_policy: "TBD",
+      final_cli_command_syntax: HEADLESS_SETTLED,
+      package_scripts: HEADLESS_SETTLED,
+      process_invocation: HEADLESS_SETTLED,
+      network_access: HEADLESS_SETTLED,
+      filesystem_mutation_policy: HEADLESS_SETTLED,
       ci_provider: "TBD",
       release_matrix: "TBD",
       public_transport_protocol: "TBD",

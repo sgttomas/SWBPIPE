@@ -757,7 +757,7 @@ function lintTargets({
       "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Headless runner template records schema-first preview request/result handoff metadata, result-reference unit preservation witnesses, final CLI and process policy deferred, network false, private payload false, protected payload false, and no release, target compatibility, code-compliance, or professional reliance claim."
+      "Headless runner template records schema-first preview request/result handoff metadata, result-reference unit preservation witnesses, DEC-065 local CLI/process policy, network false, private payload false, protected payload false, and no release, target compatibility, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-handoff-package-template",

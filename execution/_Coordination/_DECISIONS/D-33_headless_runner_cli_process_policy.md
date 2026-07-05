@@ -127,4 +127,19 @@ surface. If no such item remains, stop at the pending-rulings slate.
 
 ## 7. Human Ruling And Disposition
 
-Awaiting owner ruling.
+Owner ruling recorded 2026-07-05: **O-A accepted as recommended**.
+
+Ruling basis: owner approved PR #62, directed it to be merged, and directed the
+agent to proceed toward final DEL-10-05 implementation. PR #62 carried this
+packet with O-A as the recommended executable disposition.
+
+Codification: `DEC-065` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
+
+Disposition: D-33 is `RULED`; a bounded TP-RUNNER-015 implementation tranche
+may implement the stable local `openpipestress-runner` policy exactly within
+the O-A boundaries and the `DEC-065` text. CI provider, release matrix, public
+transport, external adapter formats, release packaging/signing/publication,
+lifecycle issuance, protected-content clearance, professional approval,
+certification, sealing, authentication, and code-compliance acceptance remain
+outside this ruling.

@@ -9,7 +9,7 @@
 | Package | Build, Packaging, API, and Interoperability | `_CONTEXT.md` |
 | Type | BACKEND_FEATURE_SLICE | `_CONTEXT.md`; `docs/TYPES.md` section 3 |
 | Lifecycle target for setup | SEMANTIC_READY | `skills/semantic-matrix-build/SKILL.md` |
-| Current production posture | Setup/document production only; no CLI/source implementation in this run | Sealed TASK brief |
+| Current production posture | Stable local `openpipestress-runner` CLI policy implemented for the bounded DEC-065 solve/validate/stub surface; release packaging and public transport remain outside this deliverable record | `DEC-065`; TP-RUNNER-015 |
 
 ## Attributes
 
@@ -26,18 +26,31 @@
 
 | Condition | Status |
 |---|---|
-| Exact CLI command names | TBD; not established in this setup deliverable |
-| Exact structured input schema fields | TBD; must come from schema/API implementation work, not this setup pass |
+| Exact CLI command names | Settled for the local runner surface: `openpipestress-runner` with verbs `solve`, `validate-input`, `export-results`, `run-benchmark`, and `run-regression` |
+| Exact structured input schema fields | Settled for the TP-RUNNER-015 local CLI input wrapper: `request`, optional `solve.preview_model`, and optional `rule_check_aggregate`; future persisted-project input remains separate |
 | Public API transport | TBD per SCA-001 remaining-TBD boundary |
 | External import/export format list | TBD; schema-first JSON envelopes are the baseline |
 | CI provider and coverage thresholds | TBD; release gates remain future implementation detail |
+| Process/network/filesystem policy | Settled by `DEC-065`: single foreground local process; no network, daemon, telemetry, hidden filesystem mutation, repository-default private-data write, user-home scanning, or direct SQL/SQLite bypass; stdout JSON default with explicit `--output` path allowed |
 | Protected-data status | No protected standards text, tables, examples, material allowables, SIF/flexibility tables, proprietary values, or certification claims introduced here |
 
 ## Construction
 
-This setup pass defines the future runner as a governed automation surface, not as implemented software. The eventual implementation is expected to sit at the application-service boundary and call domain/solver/reporting services through schema-governed commands, queries, jobs, diagnostics, and result envelopes.
+The current bounded implementation defines the stable local CLI runner surface,
+not a release package or public transport. The implemented `solve` path accepts
+schema-first JSON input, runs the invented preview-model payload through the
+validated in-memory kernel bridge, and emits structured JSON on stdout. The
+`validate-input` path validates runner metadata. The `export-results`,
+`run-benchmark`, and `run-regression` verbs are stable command vocabulary and
+currently return structured blocking diagnostics until downstream payload
+bindings are supplied by later bounded tranches.
 
-The future runner must not bypass unit validation, provenance validation, result-envelope diagnostics, rule-pack sandbox boundaries, private-data controls, report controls, or human professional review boundaries. Any concrete command syntax, schema field list, file extension, package manifest change, or CI workflow file remains outside this setup run.
+The runner must not bypass unit validation, provenance validation,
+result-envelope diagnostics, rule-pack sandbox boundaries, private-data
+controls, report controls, or human professional review boundaries. CI
+workflow files, release packaging/signing/publication, public API transport,
+external adapter formats, and lifecycle issuance remain outside this
+implementation.
 
 ## References
 
@@ -48,4 +61,3 @@ The future runner must not bypass unit validation, provenance validation, result
 - `docs/_Registers/ScopeLedger.csv` rows SOW-054 and SOW-032.
 - `docs/SPEC.md` sections 1, 7, 8, 9, and 10 for layer boundaries, diagnostics/reporting, V&V, and deliverable mechanics.
 - `docs/TYPES.md` sections 3, 4, 6, 8, and 9 for deliverable type, analysis-status vocabulary, data boundaries, object registry, and lifecycle semantics.
-

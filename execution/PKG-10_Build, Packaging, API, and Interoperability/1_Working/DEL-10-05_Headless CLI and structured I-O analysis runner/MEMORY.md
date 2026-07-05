@@ -1,5 +1,39 @@
 # MEMORY - DEL-10-05 Headless CLI and structured I/O analysis runner
 
+## 2026-07-05 - TP-RUNNER-015 final local CLI implementation (DEC-065 / D-33 O-A)
+
+- Recorded D-33 as ruled by `DEC-065`: stable local binary
+  `openpipestress-runner`; verbs `solve`, `validate-input`,
+  `export-results`, `run-benchmark`, and `run-regression`; schema-first JSON
+  input from stdin or `--input`; structured JSON stdout default; explicit
+  `--output` allowed; single foreground local process; no network, daemon,
+  telemetry, hidden filesystem mutation, repository-default private-data write,
+  user-home scanning, or direct SQL/SQLite bypass.
+- Added explicit Cargo binary target `openpipestress-runner` and preserved the
+  prior `headless_preview_runner` compatibility witness. The final CLI accepts
+  a JSON object with `request` metadata plus `solve.preview_model` for the
+  current bounded validated-kernel path; `validate-input` validates request
+  metadata; `export-results`, `run-benchmark`, and `run-regression` are stable
+  verbs that return structured blocking diagnostics until downstream payload
+  bindings exist.
+- Aligned the Rust runner contract with the schema-facing decision tokens:
+  local CLI/process/package/network/filesystem fields are
+  `SETTLED_DEC_065`; CI provider, release matrix, public transport, external
+  adapter formats, and physical project container remain `TBD`.
+- Generated evidence:
+  `validation/witness/generated/tp_runner_015_final_cli_solve.json` (exit 0,
+  `COMPLETED`, 822 result refs, no request/result diagnostics),
+  `validation/witness/generated/tp_runner_015_final_cli_validation_blocking.json`
+  (exit 1, one request validation diagnostic), and
+  `validation/witness/generated/tp_runner_015_final_cli_benchmark_stub.json`
+  (exit 1, stable benchmark verb with one structured downstream-binding
+  diagnostic).
+- Boundary preserved: no lifecycle issuance, release-readiness claim, release
+  packaging/signing/publication, hosted/public transport, CI activation,
+  external adapter format, protected-content clearance, professional approval,
+  certification, sealing, authentication, code-compliance claim, tier-0 profile
+  change, or app-dev live-binding act.
+
 ## 2026-07-04 - TP-RUNNER-014 PROVISIONAL thin CLI entrypoint (DEC-064 proven-L2 tranche)
 
 - Added `core/runner/headless/src/bin/headless_preview_runner.rs` — the

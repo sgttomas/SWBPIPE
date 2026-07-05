@@ -866,14 +866,15 @@ cancellation state, analysis statuses, result-export envelope reference,
 audit-manifest reference, checksums, diagnostics, privacy, provenance, and the
 professional-boundary posture.
 
-`DEL-10-05` deliberately leaves final CLI command syntax, package scripts,
-process invocation, network access, filesystem mutation policy, public
-transport, CI provider, release matrix, external adapter formats,
-operating-system storage roots, portable project export/copy behavior,
-GUI/report runtime behavior, local FEA package structure, and release
-automation details as `TBD`. Runner access to persisted projects must stay
-behind application-service boundaries and must not depend on direct SQL or
-SQLite table layout. Missing solve-required or
+`DEL-10-05` uses the `DEC-065` local `openpipestress-runner` policy for the
+final CLI syntax, package-script posture, foreground process invocation,
+network prohibition, and stdout/default-plus-explicit-output filesystem
+posture. It still deliberately leaves public transport, CI provider, release
+matrix, external adapter formats, operating-system storage roots, portable
+project export/copy behavior, GUI/report runtime behavior, local FEA package
+structure, and release automation details as `TBD`. Runner access to
+persisted projects must stay behind application-service boundaries and must
+not depend on direct SQL or SQLite table layout. Missing solve-required or
 rule-check-required values must produce structured diagnostics rather than
 silent defaults. Runner outputs must remain compatible with
 `schemas/results.schema.yaml` rather than introducing an ad hoc regression or

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/headless_runner.schema.yaml",
   "title": "OpenPipeStress Headless Runner Contract",
-  "description": "Strict JSON syntax schema for the DEL-10-05 schema-first headless runner request/result envelope. The contract supports non-GUI solve execution, benchmark automation, regression execution, audit-manifest capture, and result-export handoff without choosing final CLI command syntax, package scripts, public transport, CI provider, release matrix, or external adapter formats.",
+  "description": "Strict JSON syntax schema for the DEL-10-05 schema-first headless runner request/result envelope. The contract supports non-GUI solve execution, benchmark automation, regression execution, audit-manifest capture, and result-export handoff through the DEC-065 local openpipestress-runner CLI policy while leaving public transport, CI provider, release matrix, and external adapter formats governed by their separate decisions.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -614,6 +614,9 @@
         "physical_project_container",
         "final_cli_command_syntax",
         "package_scripts",
+        "process_invocation",
+        "network_access",
+        "filesystem_mutation_policy",
         "public_transport_protocol",
         "ci_provider",
         "release_matrix",
@@ -628,10 +631,19 @@
           "$ref": "#/$defs/PhysicalProjectContainer"
         },
         "final_cli_command_syntax": {
-          "const": "TBD"
+          "const": "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>]"
         },
         "package_scripts": {
-          "const": "TBD"
+          "const": "dev_test_convenience_only"
+        },
+        "process_invocation": {
+          "const": "single_foreground_local_process"
+        },
+        "network_access": {
+          "const": "none"
+        },
+        "filesystem_mutation_policy": {
+          "const": "stdout_default_explicit_output_path_only"
         },
         "public_transport_protocol": {
           "const": "TBD"
@@ -666,19 +678,19 @@
       ],
       "properties": {
         "final_cli_command_syntax": {
-          "const": "TBD"
+          "const": "SETTLED_DEC_065"
         },
         "package_scripts": {
-          "const": "TBD"
+          "const": "SETTLED_DEC_065"
         },
         "process_invocation": {
-          "const": "TBD"
+          "const": "SETTLED_DEC_065"
         },
         "network_access": {
-          "const": "TBD"
+          "const": "SETTLED_DEC_065"
         },
         "filesystem_mutation_policy": {
-          "const": "TBD"
+          "const": "SETTLED_DEC_065"
         },
         "ci_provider": {
           "const": "TBD"

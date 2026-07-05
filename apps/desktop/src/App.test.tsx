@@ -446,7 +446,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(headlessRunner).getByTestId("headless-runner-interface")
         .textContent,
-    ).toContain("cli=TBD");
+    ).toContain("cli=openpipestress-runner");
     expect(
       within(headlessRunner).getByTestId("headless-runner-units").textContent,
     ).toContain("results=none");
@@ -460,7 +460,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(headlessRunner).getByTestId("headless-runner-runtime-tbds")
         .textContent,
-    ).toContain("network=TBD");
+    ).toContain("network=SETTLED_DEC_065");
     expect(
       within(headlessRunner).getByTestId("headless-runner-boundary")
         .textContent,
@@ -495,10 +495,26 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       headlessPacket.runner_status.physical_project_container.network_required,
     ).toBe(false);
-    expect(headlessPacket.tbd_decisions.final_cli_command_syntax).toBe("TBD");
-    expect(headlessPacket.tbd_decisions.process_invocation).toBe("TBD");
-    expect(headlessPacket.tbd_decisions.network_access).toBe("TBD");
-    expect(headlessPacket.tbd_decisions.filesystem_mutation_policy).toBe("TBD");
+    expect(headlessPacket.runner_status.final_cli_command_syntax).toContain(
+      "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression>",
+    );
+    expect(headlessPacket.runner_status.process_invocation).toBe(
+      "single_foreground_local_process",
+    );
+    expect(headlessPacket.runner_status.network_access).toBe("none");
+    expect(headlessPacket.runner_status.filesystem_mutation_policy).toBe(
+      "stdout_default_explicit_output_path_only",
+    );
+    expect(headlessPacket.tbd_decisions.final_cli_command_syntax).toBe(
+      "SETTLED_DEC_065",
+    );
+    expect(headlessPacket.tbd_decisions.process_invocation).toBe(
+      "SETTLED_DEC_065",
+    );
+    expect(headlessPacket.tbd_decisions.network_access).toBe("SETTLED_DEC_065");
+    expect(headlessPacket.tbd_decisions.filesystem_mutation_policy).toBe(
+      "SETTLED_DEC_065",
+    );
     expect(headlessPacket.request.operation).toBe("solve");
     expect(headlessPacket.request.requested_outputs).toContain(
       "result_envelope",
@@ -7425,10 +7441,14 @@ describe("OpenPipeStress desktop preview", () => {
     expect(headlessExport.deliverable_refs).toContain("DEL-08-04");
     expect(headlessExport.result_ref_count).toBe(822);
     expect(headlessExport.runner_job_state).toBe("COMPLETED");
-    expect(headlessExport.final_cli_command_syntax).toBe("TBD");
-    expect(headlessExport.process_invocation).toBe("TBD");
-    expect(headlessExport.network_access).toBe("TBD");
-    expect(headlessExport.filesystem_mutation_policy).toBe("TBD");
+    expect(headlessExport.final_cli_command_syntax).toContain(
+      "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression>",
+    );
+    expect(headlessExport.process_invocation).toBe("single_foreground_local_process");
+    expect(headlessExport.network_access).toBe("none");
+    expect(headlessExport.filesystem_mutation_policy).toBe(
+      "stdout_default_explicit_output_path_only",
+    );
     const adapterExport = reviewManifest.exports.find(
       (item: { export_id: string }) =>
         item.export_id === "adapter_framework_envelope",

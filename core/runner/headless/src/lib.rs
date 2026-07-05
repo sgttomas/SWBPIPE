@@ -10,11 +10,12 @@ use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{
     run_linear_static_preview, LinearStaticPreviewRequest, MechanicsEnvelope,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AnalysisStatus {
     ModelIncomplete,
     MechanicsSolved,
@@ -24,7 +25,8 @@ pub enum AnalysisStatus {
     HumanReviewRequired,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum DiagnosticClass {
     SolveBlocking,
     RuleCheckBlocking,
@@ -38,54 +40,63 @@ pub enum DiagnosticClass {
     PrivacyWarning,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum DiagnosticSeverity {
     Info,
     Warning,
     Blocking,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum RunnerOperation {
     Solve,
     ValidateInput,
     ExportResults,
     RunBenchmark,
     RunRegression,
+    #[serde(rename = "TBD")]
     Tbd,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum JobStateKind {
     Queued,
     Running,
     CancellationRequested,
     Completed,
     Failed,
+    #[serde(rename = "TBD")]
     Tbd,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PrivacyClass {
     PublicMetadata,
     PrivateProjectData,
     PrivateRulePackData,
     Redacted,
     ProtectedSuspected,
+    #[serde(rename = "TBD")]
     Tbd,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum RedistributionStatus {
     PublicPermissive,
     PrivateOnly,
     Unknown,
     ProtectedSuspected,
     InventedNonEngineeringExample,
+    #[serde(rename = "TBD")]
     Tbd,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Reference {
     pub ref_type: String,
     pub ref_id: String,
@@ -104,7 +115,7 @@ impl Reference {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Provenance {
     pub source_name: String,
     pub source_location: String,
@@ -126,7 +137,7 @@ impl Provenance {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ChecksumRef {
     pub algorithm: String,
     pub canonicalization: String,
@@ -144,7 +155,7 @@ impl ChecksumRef {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct PrivacyContext {
     pub local_only: bool,
     pub telemetry_allowed: bool,
@@ -169,7 +180,7 @@ impl PrivacyContext {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ProfessionalBoundary {
     pub human_review_required: bool,
     pub software_makes_compliance_claim: bool,
@@ -201,7 +212,7 @@ impl ProfessionalBoundary {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Diagnostic {
     pub code: String,
     pub class: DiagnosticClass,
@@ -214,7 +225,7 @@ pub struct Diagnostic {
 }
 
 impl Diagnostic {
-    fn runner_blocking(
+    pub fn runner_blocking(
         code: impl Into<String>,
         affected_object: Reference,
         message: impl Into<String>,
@@ -232,51 +243,74 @@ impl Diagnostic {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+pub enum DecisionState {
+    #[serde(rename = "TBD")]
+    Tbd,
+    #[serde(rename = "SETTLED_DEC_065")]
+    SettledDec065,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub struct TbdDecisions {
-    pub final_cli_command_syntax: bool,
-    pub package_scripts: bool,
-    pub process_invocation: bool,
-    pub network_access: bool,
-    pub filesystem_mutation_policy: bool,
-    pub ci_provider: bool,
-    pub release_matrix: bool,
-    pub public_transport_protocol: bool,
-    pub external_adapter_formats: bool,
-    pub physical_project_container: bool,
+    pub final_cli_command_syntax: DecisionState,
+    pub package_scripts: DecisionState,
+    pub process_invocation: DecisionState,
+    pub network_access: DecisionState,
+    pub filesystem_mutation_policy: DecisionState,
+    pub ci_provider: DecisionState,
+    pub release_matrix: DecisionState,
+    pub public_transport_protocol: DecisionState,
+    pub external_adapter_formats: DecisionState,
+    pub physical_project_container: DecisionState,
 }
 
 impl TbdDecisions {
     pub fn all_deferred() -> Self {
         Self {
-            final_cli_command_syntax: true,
-            package_scripts: true,
-            process_invocation: true,
-            network_access: true,
-            filesystem_mutation_policy: true,
-            ci_provider: true,
-            release_matrix: true,
-            public_transport_protocol: true,
-            external_adapter_formats: true,
-            physical_project_container: true,
+            final_cli_command_syntax: DecisionState::Tbd,
+            package_scripts: DecisionState::Tbd,
+            process_invocation: DecisionState::Tbd,
+            network_access: DecisionState::Tbd,
+            filesystem_mutation_policy: DecisionState::Tbd,
+            ci_provider: DecisionState::Tbd,
+            release_matrix: DecisionState::Tbd,
+            public_transport_protocol: DecisionState::Tbd,
+            external_adapter_formats: DecisionState::Tbd,
+            physical_project_container: DecisionState::Tbd,
         }
     }
 
-    fn preserves_deferred_surface(&self) -> bool {
-        self.final_cli_command_syntax
-            && self.package_scripts
-            && self.process_invocation
-            && self.network_access
-            && self.filesystem_mutation_policy
-            && self.ci_provider
-            && self.release_matrix
-            && self.public_transport_protocol
-            && self.external_adapter_formats
-            && self.physical_project_container
+    pub fn d33_local_cli_policy() -> Self {
+        Self {
+            final_cli_command_syntax: DecisionState::SettledDec065,
+            package_scripts: DecisionState::SettledDec065,
+            process_invocation: DecisionState::SettledDec065,
+            network_access: DecisionState::SettledDec065,
+            filesystem_mutation_policy: DecisionState::SettledDec065,
+            ci_provider: DecisionState::Tbd,
+            release_matrix: DecisionState::Tbd,
+            public_transport_protocol: DecisionState::Tbd,
+            external_adapter_formats: DecisionState::Tbd,
+            physical_project_container: DecisionState::Tbd,
+        }
+    }
+
+    fn preserves_d33_local_cli_policy(&self) -> bool {
+        self.final_cli_command_syntax == DecisionState::SettledDec065
+            && self.package_scripts == DecisionState::SettledDec065
+            && self.process_invocation == DecisionState::SettledDec065
+            && self.network_access == DecisionState::SettledDec065
+            && self.filesystem_mutation_policy == DecisionState::SettledDec065
+            && self.ci_provider == DecisionState::Tbd
+            && self.release_matrix == DecisionState::Tbd
+            && self.public_transport_protocol == DecisionState::Tbd
+            && self.external_adapter_formats == DecisionState::Tbd
+            && self.physical_project_container == DecisionState::Tbd
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct RunnerRequest {
     pub request_id: String,
     pub operation: RunnerOperation,
@@ -293,7 +327,7 @@ pub struct RunnerRequest {
     pub tbd_decisions: TbdDecisions,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct JobState {
     pub job_id: String,
     pub state: JobStateKind,
@@ -303,7 +337,7 @@ pub struct JobState {
     pub cancellation_requested: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ResultEnvelopeRef {
     pub schema_ref: String,
     pub envelope_ref: Reference,
@@ -326,7 +360,7 @@ impl ResultEnvelopeRef {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct RunnerResult {
     pub run_id: String,
     pub job: JobState,
@@ -341,7 +375,7 @@ pub struct RunnerResult {
     pub professional_boundary: ProfessionalBoundary,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct RunnerValidation {
     pub diagnostics: Vec<Diagnostic>,
 }
@@ -420,11 +454,11 @@ pub fn validate_request(request: &RunnerRequest) -> RunnerValidation {
         &mut diagnostics,
     );
 
-    if !request.tbd_decisions.preserves_deferred_surface() {
+    if !request.tbd_decisions.preserves_d33_local_cli_policy() {
         diagnostics.push(Diagnostic::runner_blocking(
-            "HEADLESS_RUNNER_TBD_SURFACE_OVERSPECIFIED",
+            "HEADLESS_RUNNER_D33_POLICY_MISMATCH",
             Reference::new("runner_request", &request.request_id),
-            "final CLI syntax, package scripts, process/network/filesystem policy, CI, release, transport, adapter, and container decisions must remain deferred in DEL-10-05",
+            "runner request must use the DEC-065 / D-33 local CLI policy: final CLI, package-script posture, process invocation, network access, and filesystem mutation policy settled; CI, release matrix, public transport, external adapters, and project container still deferred",
         ));
     }
 
@@ -924,7 +958,7 @@ mod tests {
             privacy: PrivacyContext::local_first_public_metadata(),
             provenance: provenance(),
             professional_boundary: ProfessionalBoundary::project_default(),
-            tbd_decisions: TbdDecisions::all_deferred(),
+            tbd_decisions: TbdDecisions::d33_local_cli_policy(),
         }
     }
 
@@ -1024,10 +1058,10 @@ mod tests {
     }
 
     #[test]
-    fn request_requires_load_basis_and_deferred_surface() {
+    fn request_requires_load_basis_and_d33_policy() {
         let mut request = request();
         request.load_basis_refs.clear();
-        request.tbd_decisions.final_cli_command_syntax = false;
+        request.tbd_decisions.public_transport_protocol = DecisionState::SettledDec065;
         let validation = validate_request(&request);
         let codes: Vec<_> = validation
             .diagnostics
@@ -1035,7 +1069,7 @@ mod tests {
             .map(|diagnostic| diagnostic.code.as_str())
             .collect();
         assert!(codes.contains(&"HEADLESS_RUNNER_LOAD_BASIS_MISSING"));
-        assert!(codes.contains(&"HEADLESS_RUNNER_TBD_SURFACE_OVERSPECIFIED"));
+        assert!(codes.contains(&"HEADLESS_RUNNER_D33_POLICY_MISMATCH"));
     }
 
     #[test]

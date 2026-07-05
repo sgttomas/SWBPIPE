@@ -13,6 +13,9 @@ import type {
   SelectedReviewTarget
 } from "../../types";
 
+const HEADLESS_FINAL_CLI =
+  "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>]";
+
 export function ExportReviewPanel({
   model,
   knowledge,
@@ -757,17 +760,17 @@ function buildExportReviewManifest({
       requested_outputs: ["result_envelope", "audit_manifest", "diagnostics", "regression_record"],
       result_ref_count: result?.results.length ?? 1,
       runner_job_state: result && run ? "COMPLETED" : "TBD",
-      final_cli_command_syntax: "TBD",
-      package_scripts: "TBD",
-      process_invocation: "TBD",
-      network_access: "TBD",
-      filesystem_mutation_policy: "TBD",
+      final_cli_command_syntax: HEADLESS_FINAL_CLI,
+      package_scripts: "dev_test_convenience_only",
+      process_invocation: "single_foreground_local_process",
+      network_access: "none",
+      filesystem_mutation_policy: "stdout_default_explicit_output_path_only",
       redaction_action: "classify_and_warn_no_private_payload",
       private_payload_included: false,
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Schema-first local headless request/result envelope; final CLI syntax, package scripts, process, network, filesystem, CI, and release matrix remain TBD."
+        "Schema-first local headless request/result envelope under DEC-065; CI, release matrix, public transport, and external adapter formats remain TBD."
     },
     {
       export_id: "adapter_framework_envelope",

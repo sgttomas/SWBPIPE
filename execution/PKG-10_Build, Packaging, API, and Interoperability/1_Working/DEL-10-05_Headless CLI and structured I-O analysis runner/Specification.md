@@ -4,7 +4,12 @@
 
 This deliverable defines setup-stage requirements and evidence for a future headless CLI or equivalent structured I/O analysis runner. The future runner exists to support early solver verification, regression automation, and non-GUI execution paths while the full GUI matures.
 
-This setup run does not implement CLI/source code, fixtures, package manifests, CI workflows, external adapters, result-export schemas, or final command syntax. Those remain future implementation artifacts or separate deliverables.
+`DEC-065` settles the local CLI/process policy for this deliverable. The
+current bounded implementation provides the stable `openpipestress-runner`
+binary with `solve`, `validate-input`, `export-results`, `run-benchmark`, and
+`run-regression` verbs. It does not implement release packaging/signing,
+hosted/public transport, external adapters, CI workflows, public publication,
+or lifecycle issuance.
 
 ## Requirements
 
@@ -15,7 +20,7 @@ This setup run does not implement CLI/source code, fixtures, package manifests, 
 | R-03 | Missing solve-required or rule-check-required data must surface as diagnostics, not silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` section 3 | Confirm future runner exits/results include blocking diagnostics for missing required inputs. |
 | R-04 | Result output must align with schema-first result exports and diagnostic/result-envelope contracts. | `docs/_Registers/ScopeLedger.csv` SOW-046 and SOW-061; `docs/_Registers/Deliverables.csv` DEL-10-05 notes | Confirm future outputs can be consumed by regression comparison and report/result export workflows without private-data leakage. |
 | R-05 | Diagnostics must preserve code/class/severity/source/object/remediation/provenance semantics and no compliance/certification claim. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/CONTRACT.md` OPS-K-AUTH-1 | Confirm future error/warning examples include professional-boundary notices where relevant. |
-| R-06 | The future runner must support build and CI automation without deciding the CI provider, package manifest, or release matrix in this setup pass. | `docs/_Registers/ScopeLedger.csv` SOW-032; `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-002 and DEC-012 | Record remaining TBDs and avoid editing package manifests or repo-level automation files. |
+| R-06 | The local runner must expose stable development/test CLI verbs while keeping CI provider, release matrix, signing/publication, and hosted/public transport outside this implementation. | `docs/_Registers/ScopeLedger.csv` SOW-032; `DEC-065`; `DEC-025`; `DEC-057`; `DEC-059` | Confirm `openpipestress-runner` verbs are stable, package scripts are not release claims, and repo-level CI/release workflow files are not introduced by this tranche. |
 | R-07 | Public examples and fixtures must use original/invented or otherwise permitted data and must not embed protected standards content. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-RULE-1; `docs/DIRECTIVE.md` sections 3-5 | Future fixture review must check protected-content risk and provenance. |
 | R-08 | The runner must not transmit private project, material, component, or rule-pack data by default. | `docs/CONTRACT.md` OPS-K-PRIV-1/2; `docs/DIRECTIVE.md` section 6 | Future runner configuration review must confirm local-first/private-data defaults. |
 | R-09 | Runner results may indicate mechanics solve and user-rule-check statuses but must not use automatic code-compliance status. | `docs/TYPES.md` section 4; `docs/CONTRACT.md` OPS-K-MECH-2 and OPS-K-AUTH-1 | Future status tests must reject misleading compliance/certification wording. |
@@ -31,16 +36,24 @@ This setup run does not implement CLI/source code, fixtures, package manifests, 
 
 ## Verification
 
-Setup verification for this run is limited to document/setup artifacts:
+TP-RUNNER-015 verification covers the bounded final local CLI surface:
 
-- Four-document kit exists with required sections.
-- `_SEMANTIC.md` contains matrices A, B, C, F, D, K, G, X, T, and E and passes local semantic-gate checks.
-- `_SEMANTIC_LENSING.md` includes complete coverage for A, B, C, F, D, X, and E.
-- `Dependencies.csv` includes the v3.1 dependency schema and active rows with evidence.
-- `_STATUS.md` remains no higher than `SEMANTIC_READY`.
-- No files are written outside the assigned deliverable folder.
+- `openpipestress-runner solve` runs an invented preview-model payload and
+  emits structured JSON with a completed runner result and deterministic result
+  references.
+- `openpipestress-runner validate-input` emits structured blocking diagnostics
+  for invalid request metadata.
+- `openpipestress-runner run-benchmark` proves the stable verb mapping while
+  returning a structured blocking diagnostic until a downstream benchmark
+  payload binding exists.
+- Rust crate tests cover the library, compatibility preview binary, and final
+  CLI binary.
+- The schema contract test confirms the `DEC-065` settled/deferred decision
+  vocabulary.
 
-Future implementation verification remains TBD and must be handled in a later sealed task. It should include schema validation, deterministic runner regression cases, diagnostic failure cases, result-export compatibility checks, protected-content/provenance gates, and CI automation checks as applicable.
+Future implementation verification remains for persisted-project input,
+full result-export payload binding, benchmark/regression payload execution,
+CI/public transport/release packaging, and external adapter integrations.
 
 ## Documentation
 
@@ -59,5 +72,9 @@ Required setup artifacts for this run:
 
 ## Pass 3 Lensing Addendum
 
-Semantic lensing identified one implementation-sensitive TBD that must remain visible: exact CLI command names, exact structured I/O schema fields, public API transport, CI provider, and release matrix are not established by this setup deliverable. Future implementation work must resolve those details through sealed scope or human approval before hard-coding commands, schema fields, or automation behavior.
-
+Semantic lensing identified implementation-sensitive TBDs. `DEC-065` resolves
+the local CLI command names, local process policy, network prohibition,
+filesystem posture, and package-script posture for TP-RUNNER-015. Public API
+transport, CI provider, release matrix, external adapter formats,
+persisted-project storage roots, and release automation remain visible TBDs
+that must be handled by their owning decisions or later bounded tranches.

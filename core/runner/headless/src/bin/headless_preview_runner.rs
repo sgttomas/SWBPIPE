@@ -8,15 +8,14 @@
 //! `run_preview_in_memory`, and emits the structured `PreviewRunnerOutput`
 //! JSON on stdout.
 //!
-//! Command shape is PROVISIONAL: no final CLI syntax is claimed or settled
-//! (DEL-10-05 Datasheet "Exact CLI command names" stays TBD; DEC-064
-//! rider 1). read_only posture: the process reads the caller-named input and
-//! writes only to stdout/stderr; it never mutates the filesystem, spawns
-//! processes, or touches the network (`filesystem_mutation_policy` stays
-//! deferred per `TbdDecisions::all_deferred`). Exit status: 0 only when the
-//! run completed with no blocking diagnostics and the result validates
-//! clean; 1 when the run carries blocking diagnostics or fails validation;
-//! 2 on usage or input errors.
+//! Command shape remains the DEC-064 compatibility witness. The final
+//! `openpipestress-runner` syntax is implemented separately under DEC-065.
+//! This witness now carries the DEC-065 local CLI policy in its request
+//! metadata: local foreground process, no network/daemon/telemetry/hidden
+//! mutation, stdout default. Exit status: 0 only when the run completed with
+//! no blocking diagnostics and the result validates clean; 1 when the run
+//! carries blocking diagnostics or fails validation; 2 on usage or input
+//! errors.
 
 use std::process::ExitCode;
 
@@ -52,7 +51,7 @@ fn provisional_request(model_input_path: &str) -> RunnerRequest {
             review_status: "accepted".to_string(),
         },
         professional_boundary: ProfessionalBoundary::project_default(),
-        tbd_decisions: TbdDecisions::all_deferred(),
+        tbd_decisions: TbdDecisions::d33_local_cli_policy(),
     }
 }
 
