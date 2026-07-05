@@ -1,0 +1,72 @@
+{
+  "request": {
+    "input_manifest_ref": {
+      "ref_id": "manifest:tp-runner-015-benchmark-stub",
+      "ref_type": "audit_manifest"
+    },
+    "load_basis_refs": [
+      {
+        "ref_id": "LC1",
+        "ref_type": "load_case"
+      }
+    ],
+    "model_ref": {
+      "ref_id": "invented-model",
+      "ref_type": "model"
+    },
+    "operation": "run_benchmark",
+    "operation_ref": {
+      "ref_id": "run_benchmark",
+      "ref_type": "api_operation"
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "project_ref": {
+      "ref_id": "invented-project",
+      "ref_type": "project"
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "source_license": "project invented",
+      "source_location": "validation/witness/inputs/generate_tp_runner_015_inputs.py",
+      "source_name": "invented final CLI fixture"
+    },
+    "request_id": "tp-runner-015-benchmark-stub",
+    "requested_outputs": [
+      "result_envelope",
+      "audit_manifest",
+      "diagnostics"
+    ],
+    "tbd_decisions": {
+      "ci_provider": "TBD",
+      "external_adapter_formats": "TBD",
+      "filesystem_mutation_policy": "SETTLED_DEC_065",
+      "final_cli_command_syntax": "SETTLED_DEC_065",
+      "network_access": "SETTLED_DEC_065",
+      "package_scripts": "SETTLED_DEC_065",
+      "physical_project_container": "TBD",
+      "process_invocation": "SETTLED_DEC_065",
+      "public_transport_protocol": "TBD",
+      "release_matrix": "TBD"
+    },
+    "unit_system_ref": {
+      "ref_id": "invented-si",
+      "ref_type": "unit_system"
+    }
+  }
+}

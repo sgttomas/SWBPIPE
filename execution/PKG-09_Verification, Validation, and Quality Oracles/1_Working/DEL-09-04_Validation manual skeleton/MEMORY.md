@@ -11,6 +11,22 @@ revision: 0.5
 
 # MEMORY - DEL-09-04 Validation Manual Skeleton
 
+## 2026-07-05 - TP-VALIDMANUAL-RUNNERREPRO-001 headless-runner reproduction slice
+
+- Added `docs/validation_manual/headless_runner_reproduction.md` as a draft
+  Phase E/E2 validation-manual slice for the DEC-065 local
+  `openpipestress-runner` surface.
+- Added deterministic invented input fixture generation at
+  `validation/witness/inputs/generate_tp_runner_015_inputs.py`, producing the
+  three TP-RUNNER-015 caller inputs for solve, validation-blocking, and
+  benchmark-stub reproduction.
+- Updated `docs/validation_manual/index.md` to inventory the headless-runner
+  reproduction slice as `DRAFT_EVIDENCE`.
+- Boundary preserved: no DEL-09-04 lifecycle transition, no public benchmark
+  threshold settlement, no release readiness, no protected-content/legal
+  clearance, no professional approval, certification, sealing, authentication,
+  or code-compliance claim.
+
 ## Scope Executed
 
 Implemented the DEL-09-04 documentation artifact within the sealed Tranche B

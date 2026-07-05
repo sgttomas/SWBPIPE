@@ -78,6 +78,7 @@ storage also remain `TBD`.
 | Mechanics benchmarks | `validation/benchmarks/mechanics/`, `validation/hand_calcs/mechanics/` | `DRAFT_EVIDENCE`; final public benchmark acceptance and release tolerances are `TBD`. |
 | Stress recovery benchmarks | `validation/benchmarks/stress/`, `validation/hand_calcs/stress/` | `DRAFT_EVIDENCE`; fatigue, allowable, and release-threshold decisions are `TBD`. |
 | Nonlinear support regression | `validation/benchmarks/nonlinear/` | `DRAFT_EVIDENCE`; production release thresholds and external validation claims are `TBD`. |
+| Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples are reproducible from invented fixtures, but public benchmark thresholds and broader benchmark/regression payload bindings remain `TBD`. |
 | GUI workflow validation | GUI workflow tests, screenshots, and interaction evidence when available | `PLANNED`; required evidence type, coverage, and review criteria are `TBD`. |
 | Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; does not provide legal clearance, professional approval, or code-compliance proof. |
 | Release quality evidence | Future `DEL-09-05` release quality gate checklist | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
@@ -158,3 +159,9 @@ reviewers check that:
 - TBD: release-label policy beyond the minimum validation strategy gate.
 - TBD: required GUI validation evidence once the GUI tranche matures.
 - TBD: long-term storage format for reviewed validation evidence bundles.
+
+## 10. Draft Evidence Slices
+
+| Slice | Evidence state | Purpose |
+|---|---|---|
+| [Headless runner reproduction](headless_runner_reproduction.md) | `DRAFT_EVIDENCE` | Records the current external-reproducibility path for the invented `openpipestress-runner` examples produced by `TP-RUNNER-015` under `DEC-065`. |
