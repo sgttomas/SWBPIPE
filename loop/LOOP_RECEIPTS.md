@@ -92,3 +92,24 @@
   - Gate outcome: reporting tranche only — no lifecycle transition, no
     register change, no deliverable code work; CAND-1..5 parked for owner
     ruling/adoption.
+
+- **2026-07-09 — Receipt 3** (physical-model program adoption, same session as Receipt 2).
+  - Owner directions of record (2026-07-09, in-session, Ryan Tufts): "I want
+    to introduce flexibility factors and bend flexibility together and now
+    properly solve those elements.  I approve CAND-2 and want to include the
+    flexibility factors rather than disclosing that there are none.  I agree
+    with your other candidates.  More importantly I want to fold this into
+    the loop instruction documentation - in whatever the most appropriate
+    form is for that.  What's your proposal?" — then, over the proposed
+    five-part shape: "this shape is approved.  Proceed accordingly."
+  - Artifacts: `plans/PLAN_2026-07-09_physical_model_mechanics.md`; register
+    rows `D-34`–`D-37` + packet `D-34_bend_flexibility_stiffness_realization.md`
+    + ruling records `D-35/36/37_RULING_2026-07-09.md`; codifications
+    `DEC-066`–`DEC-069` in `SOFTWARE_DECOMP.md` §12; WORKPLAN owner-intent
+    addendum + tactical pointer-index line (this directory).
+  - Deltas: assessment CAND-1 superseded by implementation (dated map not
+    edited, per rule 4).
+  - Checks: self-check exit 0; harness pytest pass.
+  - Gate outcome: governance/docs tranche executed at owner direction;
+    `D-34` method fork AWAITING_RULING (O-A recommended) — P1 implementation
+    starts on that ruling; no lifecycle transition, no code change.

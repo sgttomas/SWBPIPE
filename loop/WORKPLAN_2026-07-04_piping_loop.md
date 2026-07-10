@@ -24,6 +24,18 @@ gate. The pre-existing workflow authority is unchanged: `_COORDINATION.md`'s App
 Integration And Issuance Loop remains how work is executed; this loop wraps it in the
 current session convention, it does not replace it.
 
+## Owner intent addendum (recorded 2026-07-09)
+
+Owner direction of record (quoted verbatim in `LOOP_RECEIPTS.md` Receipt 3): the
+physical-model mechanics program is adopted — bend/branch flexibility factors enter
+the global stiffness ("introduce flexibility factors and bend flexibility together and
+now properly solve those elements"; implementation chosen over disclosure), the
+nonlinear-support repair, workflow-physics items, and PRD domain-naming are approved
+(`DEC-066`–`DEC-069`). The loop pursues **physical-model correctness alongside PRD
+completion**; tactical routing lives in the mechanics plan named in the pointer index
+below. Method forks and thresholds stay owner-gated as ordinary register rows
+(currently `D-34`).
+
 ## Why any staging remains (the compelling reasons)
 
 1. **Adoption, ruling, and direction are human acts** (K-AUTH-1; D-GOV-04). The decision
@@ -100,7 +112,9 @@ current session convention, it does not replace it.
   (§10, §22) · strategic orientation: `docs/PLAN.md` (non-governing).
 - **Tactical selection:** the newest completion plan under `plans/`
   (`PLAN_*_prd_completion.md` class; non-governing PROPOSAL — routes to the
-  authorities) · completion log: `plans/PLAN_COMPLETION_LOG.md`.
+  authorities) · the physical-model mechanics program plan
+  `plans/PLAN_2026-07-09_physical_model_mechanics.md` (same class; owner-adopted
+  scope per `DEC-066`–`DEC-069`) · completion log: `plans/PLAN_COMPLETION_LOG.md`.
 - **Decision register** (open rows are the owner-gated surface):
   `execution/_Coordination/_DECISIONS/_REGISTER.md` (`D-XX` rows; `DEC-*` records carry
   the ruled outcomes and current target stage).
