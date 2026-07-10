@@ -113,3 +113,16 @@
   - Gate outcome: governance/docs tranche executed at owner direction;
     `D-34` method fork AWAITING_RULING (O-A recommended) — P1 implementation
     starts on that ruling; no lifecycle transition, no code change.
+
+- **2026-07-10 — Receipt 4** (D-34 ruling, same session).
+  - Owner ruling of record (2026-07-10, in-session, Ryan Tufts): the D-34
+    packet options were presented in-session with O-A recommended; owner
+    selected **"O-B: curved-bend macro-element"** via structured selection.
+  - Artifacts: packet §7 disposition filled
+    (`D-34_bend_flexibility_stiffness_realization.md`); register row `D-34`
+    → RULED; codification `DEC-070` in `SOFTWARE_DECOMP.md` §12.
+  - Checks: self-check exit 0; harness pytest pass (this branch).
+  - Gate outcome: ruling recorded; P1 (curved-bend macro-element) is now
+    lawful bounded-tranche work under the mechanics plan once PR #141
+    merges — O-B noted as the larger tranche, splittable formulation →
+    assembly → recovery → benchmark; no code change under this receipt.

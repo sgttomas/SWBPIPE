@@ -1,6 +1,6 @@
 # D-34 - Bend/Branch Flexibility Realization In The Global Stiffness
 
-**Status:** AWAITING_RULING
+**Status:** RULED (O-B, 2026-07-10 — see §7)
 **Date prepared:** 2026-07-09
 **Decision ID:** D-34
 **Prepared by:** agent (piping work loop iteration 2026-07-09), at owner direction
@@ -125,4 +125,31 @@ ruling or the tranche.
 
 ## 7. Human Ruling And Disposition
 
-*(blank until the owner rules)*
+**RULED 2026-07-10 by Ryan Tufts (owner), in-session.** The options were
+presented in-session with O-A recommended; the owner selected **O-B —
+curved-bend macro-element** (structured selection: "O-B: curved-bend
+macro-element"; verbatim context in `loop/LOOP_RECEIPTS.md` Receipt 4).
+
+Disposition per the §6 mechanism:
+
+- Realization: a dedicated arc-consistent curved-bend (and branch, where a
+  user factor is supplied) macro-element with the user-entered flexibility
+  factor(s) applied, assembled into the global matrix per the `DEC-045`
+  expansion-joint macro-element precedent. The §4.1 O-A k-scaled-chord
+  mechanism is NOT adopted; it may be used internally only as a
+  verification cross-check, never as the shipped realization.
+- The §5 mandatory exit-evidence bar rides unchanged (expansion-loop
+  benchmark, k-sweep monotonicity, dense/sparse parity, DEC-025 sweep,
+  provenance retiring the "base frame stiffness unchanged" string,
+  DEC-024/026 tolerance conventions), plus curved-element-specific
+  formulation evidence: closed-form curved-beam verification seed(s) and
+  transform/recovery unit tests at the frame-kernel tolerance convention.
+- Codification: `DEC-070` in `execution/_Decomposition/SOFTWARE_DECOMP.md`
+  §12. Execution: P1 tranche(s) under
+  `plans/PLAN_2026-07-09_physical_model_mechanics.md`, branch-first, owner
+  merges. Scale note recorded: O-B is the substantially larger tranche
+  (new element formulation, transforms, recovery path, benchmark class) and
+  may be split into bounded sub-tranches (formulation → assembly →
+  recovery → benchmark) at execution time.
+- No lifecycle, release-readiness, professional, certification, or
+  code-compliance claim is created by this ruling.
