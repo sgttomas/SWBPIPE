@@ -9,6 +9,7 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies]
+open_pipe_stress_curved_bend = { path = "../curved_bend" }
 open_pipe_stress_frame_kernel = { path = "../frame_kernel" }
 open_pipe_stress_nonlinear_supports = { path = "../nonlinear_supports" }
 open_pipe_stress_solver_diagnostics = { path = "../diagnostics" }

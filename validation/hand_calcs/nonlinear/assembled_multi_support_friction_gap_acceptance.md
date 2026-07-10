@@ -24,8 +24,8 @@ non-seed acceptance companion in the multi-support validation fixture set.
 | Friction support DOF | Ux | label | dimensionless |
 | Gap support DOF | Uy | label | dimensionless |
 | Friction coefficient | 0.30 | ratio | dimensionless |
-| Explicit normal reaction | 10.0 | N | force |
-| Friction limit | 3.0 | N | force |
+| Explicit normal reaction | 20.0 | N | force |
+| Friction limit | 6.0 | N | force |
 | Gap clearance | 0.0002 | mm | length |
 | Initial friction state | sticking | label | dimensionless |
 | Initial gap state | inactive | label | dimensionless |

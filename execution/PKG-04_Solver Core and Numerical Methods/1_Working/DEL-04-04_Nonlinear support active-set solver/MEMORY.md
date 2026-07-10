@@ -197,3 +197,44 @@ Durable context preserved after PKG-02 grounded finding resolution:
   suitability, non-seed convergence thresholds, accepted
   displacement/reaction-delta thresholds, deeper spring-hanger behavior,
   external validation thresholds, and final R4 exit evidence remain open.
+
+## 2026-07-10 - TP-PMM-P2-COMPLEMENTARITY-001 / TP-PMM-P2-FRICTION-001 DEC-067 clauses
+
+- `classify_support_state` now takes the prior state and applies the DEC-067
+  state-switched complementarity test: engaged one-way/lift-off/gap supports
+  (including closed gaps) classify on trial reaction sign; released supports
+  classify on trial displacement penetration toward the bearing side (or the
+  explicit gap clearance). Re-engagement of a lifted support and lift-off of a
+  closed gap are now observable, and converged states no longer depend on
+  seeded `initial_states`. The friction stick/slip test and the deterministic
+  sliding-persistence anti-chatter rule are unchanged.
+- `core/solver/nonlinear_integration` applies a bounded `+/- mu*N` Coulomb
+  tangential force at supports classified sliding (opposing the prior
+  iterate's motion, normal reaction from current-iterate evidence) instead of
+  a full DOF release; support reactions are reported against the caller's
+  base force so the bounded force appears as the support's tangential
+  reaction. A sliding state seeded before any solved iterate defers
+  convergence one iteration so the bound is applied before the loop can
+  converge (seed-independence witnessed by test). No path/load-step friction
+  history model was added.
+- New transition witnesses + assembled fixtures:
+  `validation/hand_calcs/nonlinear/assembled_one_way_reengagement.md`,
+  `assembled_gap_lift_off.md`, `assembled_friction_bounded_sliding.md` with
+  matching `NL-ASSEMBLED-ONE-WAY-REENGAGE-ORIGINAL`,
+  `NL-ASSEMBLED-GAP-LIFT-OFF-ORIGINAL`,
+  `NL-ASSEMBLED-FRICTION-BOUNDED-SLIDE-ORIGINAL` cases under the existing
+  DEC-046 class-tiered tighten-only policy refs (unmeasured axes stay TBD; the
+  DEC-046 policy mechanism itself is unchanged).
+- Reconciled existing invented fixtures to the new mechanics (classifier-level
+  one-way/gap/nonconvergence trials; sliding fixtures' invented normal
+  evidence retuned so bounded net drives stay exactly representable under the
+  0.0 residual limits); product-preview canned envelope regenerated for the
+  bounded-sliding rows.
+- Residuals: sliding-direction evidence comes from the prior iterate only, so
+  a sliding support whose bound exceeds the drive can oscillate to the visible
+  nonconvergence cap instead of re-sticking (anti-chatter interaction,
+  recorded, not silent); sliding-force magnitude is not itself a convergence
+  residual axis; arc interior stations remain open under DEC-070.
+- Boundaries preserved: user-entered values only, no defaults, no protected
+  content, no lifecycle transition, release-readiness, professional,
+  certification, sealing, authentication, or code-compliance claim.

@@ -63,6 +63,9 @@ for the public-original multi-DOF / multi-support validation fixture set only.
 | `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | [assembled_friction_sticking.md](assembled_friction_sticking.md) |
 | `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | [assembled_friction_sliding.md](assembled_friction_sliding.md) |
 | `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | [assembled_friction_derived_normal.md](assembled_friction_derived_normal.md) |
+| `NL-ASSEMBLED-ONE-WAY-REENGAGE-ORIGINAL` | [assembled_one_way_reengagement.md](assembled_one_way_reengagement.md) |
+| `NL-ASSEMBLED-GAP-LIFT-OFF-ORIGINAL` | [assembled_gap_lift_off.md](assembled_gap_lift_off.md) |
+| `NL-ASSEMBLED-FRICTION-BOUNDED-SLIDE-ORIGINAL` | [assembled_friction_bounded_sliding.md](assembled_friction_bounded_sliding.md) |
 | `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL` | [assembled_multi_support_multi_dof.md](assembled_multi_support_multi_dof.md) |
 | `NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL` | [assembled_multi_support_multi_dof_acceptance.md](assembled_multi_support_multi_dof_acceptance.md) |
 | `NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL` | [assembled_multi_support_gap_lift_off_acceptance.md](assembled_multi_support_gap_lift_off_acceptance.md) |

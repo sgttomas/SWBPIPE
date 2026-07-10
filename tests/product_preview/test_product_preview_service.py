@@ -205,16 +205,18 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert axial["metadata"]["component"] == "axial_force"
     assert axial["basis_ref"] == {"ref_type": "load_case", "ref_id": "load:L-100"}
     assert nonlinear_iteration_count["kind"] == "nonlinear_support_active_set_iteration_count"
-    assert nonlinear_iteration_count["value"] == 1
+    assert nonlinear_iteration_count["value"] == 2
     assert nonlinear_reaction["kind"] == "nonlinear_support_final_reaction"
     assert nonlinear_reaction["entity_ref"] == "support:NL-140"
     assert nonlinear_reaction["value"] < 0
     assert nonlinear_friction_state["value"] == 3
     assert nonlinear_friction_state["metadata"]["basis"].endswith("final_state=sliding")
     assert nonlinear_friction_displacement["value"] != 0
-    assert nonlinear_friction_reaction["value"] == 0
+    # DEC-067 bounded sliding: the sliding support carries the +mu*N
+    # tangential reaction opposing its negative-Z motion.
+    assert nonlinear_friction_reaction["value"] == 0.490101
     assert nonlinear_friction_normal["kind"] == "nonlinear_support_friction_normal_reaction_derived"
-    assert nonlinear_friction_normal["value"] == 49.010116
+    assert nonlinear_friction_normal["value"] == 48.952652
     assert "derived_support_reaction" in nonlinear_friction_normal["metadata"]["basis"]
     assert "source_ref=support:S-130" in nonlinear_friction_normal["metadata"]["basis"]
     assert "source_dof=uy" in nonlinear_friction_normal["metadata"]["basis"]

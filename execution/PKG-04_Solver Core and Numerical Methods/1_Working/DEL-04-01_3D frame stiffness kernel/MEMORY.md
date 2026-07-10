@@ -354,3 +354,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Residuals remain explicit: dense remains default; default sparse promotion,
   nonlinear/core profile-direct sparse promotion, external validation
   thresholds, and final R4 exit evidence remain open.
+
+## 2026-07-10 - TP-PMM-P1-CURVEDBEND-003 curved-bend slot in the nonlinear loop
+
+- `core/solver/nonlinear_integration` now carries an explicit curved-bend
+  macro-element stiffness slot (`CurvedBendStiffnessElement`, formed from the
+  `open_pipe_stress_curved_bend` `CurvedBendMacroElement` or the build-time
+  validated 12x12 global matrix). Every linearized active-set iteration
+  assembles the arc stiffness beside frame and user-stiffness elements; the
+  sparse evidence lane consumes the same assembled matrix, so dense/sparse
+  parity holds on the arc path.
+- `core/product_physics` passes the build-time curved-bend matrices into the
+  nonlinear loop input and the blocking
+  `CURVED_BEND_NONLINEAR_LOOP_UNSUPPORTED` recorded residual (DEC-070) is
+  retired; a released-support preview test proves the nonlinear loop matches
+  the linear curved-bend path and the direct macro-element oracle.
+- Arc interior stations and consistent distributed-load end moments for macro
+  spans remain recorded residuals; no straight-chord fallback exists on the
+  nonlinear path.
+- No lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards content, public defaults, or private data was introduced.

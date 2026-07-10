@@ -6,10 +6,11 @@
 //! standards content, public support defaults, catalog values, or professional
 //! approval claims.
 
+use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness_with_user_elements, node_dof_index,
     reduce_system_with_prescribed_displacements, solve_dense, DenseMatrix, DenseVector, FrameDof,
-    FrameElement, FrameKernelError, UserStiffnessElement, DOF_PER_NODE,
+    FrameElement, FrameKernelError, Matrix12, UserStiffnessElement, DOF_PER_NODE, ELEMENT_DOF,
 };
 use open_pipe_stress_nonlinear_supports::{
     evaluate_active_set_iteration, ActiveSetIteration, ActiveSetIterationInput, ActiveSetState,
@@ -145,11 +146,83 @@ impl DerivedFrictionNormalReaction {
     }
 }
 
+/// Explicit curved-bend macro-element stiffness slot for the nonlinear loop
+/// (DEC-070 residual closure). The caller supplies the validated 12x12 global
+/// arc stiffness — either formed once at model build time or through
+/// [`CurvedBendStiffnessElement::from_macro_element`] — so every linearized
+/// active-set iteration assembles the identical arc stiffness beside the frame
+/// and user-stiffness elements. No straight-chord fallback is derived here.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CurvedBendStiffnessElement {
+    pub element_id: String,
+    pub node_i: usize,
+    pub node_j: usize,
+    pub global_stiffness: Matrix12,
+}
+
+impl CurvedBendStiffnessElement {
+    pub fn new(
+        element_id: impl Into<String>,
+        node_i: usize,
+        node_j: usize,
+        global_stiffness: Matrix12,
+    ) -> Result<Self, NonlinearIntegrationError> {
+        let element_id = normalize_required_id(element_id, "curved-bend element_id")?;
+        if node_i == node_j {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!(
+                    "curved-bend macro-element {element_id} repeats node index {node_i}"
+                ),
+            });
+        }
+        for row in &global_stiffness {
+            for &value in row {
+                if !value.is_finite() {
+                    return Err(NonlinearIntegrationError::InvalidInput {
+                        detail: format!(
+                            "curved-bend macro-element {element_id} global stiffness entry must be finite, got {value}"
+                        ),
+                    });
+                }
+            }
+        }
+        Ok(Self {
+            element_id,
+            node_i,
+            node_j,
+            global_stiffness,
+        })
+    }
+
+    /// Form the slot directly from the `open_pipe_stress_curved_bend`
+    /// macro-element (the DEC-070 stiffness source).
+    pub fn from_macro_element(
+        element_id: impl Into<String>,
+        element: &CurvedBendMacroElement,
+    ) -> Result<Self, NonlinearIntegrationError> {
+        let element_id = normalize_required_id(element_id, "curved-bend element_id")?;
+        let global_stiffness = element.global_stiffness().map_err(|error| {
+            NonlinearIntegrationError::InvalidInput {
+                detail: format!(
+                    "curved-bend macro-element {element_id} stiffness formation failed: {error}"
+                ),
+            }
+        })?;
+        Self::new(
+            element_id,
+            element.node_i.index,
+            element.node_j.index,
+            global_stiffness,
+        )
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct NonlinearFrameSolveInput {
     pub node_count: usize,
     pub elements: Vec<FrameElement>,
     pub user_stiffness_elements: Vec<UserStiffnessElement>,
+    pub curved_bend_elements: Vec<CurvedBendStiffnessElement>,
     pub force: DenseVector,
     pub base_restrained_dofs: Vec<usize>,
     pub nonlinear_supports: Vec<NonlinearSupport>,
@@ -166,9 +239,22 @@ pub struct NonlinearFrameIteration {
     pub active_prescribed_displacements: DenseVector,
     pub displacements: DenseVector,
     pub reactions: DenseVector,
+    pub applied_sliding_friction_forces: Vec<AppliedSlidingFrictionForce>,
     pub residuals: NonlinearResidualObservation,
     pub sparse_evidence: SparseLinearSolveEvidence,
     pub active_set: ActiveSetIteration,
+}
+
+/// Bounded Coulomb sliding force applied at a sliding friction support DOF in
+/// one linearized iteration (DEC-067). The magnitude is the explicit friction
+/// coefficient times the current-iterate normal-reaction evidence, and the
+/// sign opposes the observed sliding motion. This is not a load-step or
+/// path-history friction model.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AppliedSlidingFrictionForce {
+    pub support_id: String,
+    pub global_dof: usize,
+    pub force: f64,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -286,11 +372,12 @@ pub fn solve_active_set_frame_with_mode(
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
     validate_input(input)?;
 
-    let stiffness = assemble_global_stiffness_with_user_elements(
+    let mut stiffness = assemble_global_stiffness_with_user_elements(
         input.node_count,
         &input.elements,
         &input.user_stiffness_elements,
     )?;
+    add_curved_bend_stiffness_contributions(&mut stiffness, &input.curved_bend_elements);
     let mut current_states = normalized_initial_states(input)?;
     let mut iterations = Vec::new();
     let mut final_diagnostics = policy_diagnostics(&input.convergence);
@@ -304,12 +391,38 @@ pub fn solve_active_set_frame_with_mode(
             &input.nonlinear_supports,
             &current_states,
         )?;
+        // A friction support seeded sliding has no solved iterate yet to
+        // orient or scale its bounded force. Defer convergence past this
+        // first linearized iterate so the bounded +/- mu*N force is applied
+        // before the loop can converge and the converged result does not
+        // depend on whether sliding was seeded or reached by transition.
+        let sliding_force_deferred = iterations.is_empty()
+            && sliding_friction_support_present(&input.nonlinear_supports, &current_states);
+        let applied_sliding_friction_forces = applied_sliding_friction_forces(
+            input,
+            &current_states,
+            iterations.last(),
+            &friction_normals,
+            &derived_friction_normals,
+        )?;
+        let mut iteration_force = input.force.clone();
+        for applied in &applied_sliding_friction_forces {
+            iteration_force[applied.global_dof] += applied.force;
+        }
         let linearized =
-            solve_linearized_system(&stiffness, &input.force, &boundary, linear_solve_mode)?;
+            solve_linearized_system(&stiffness, &iteration_force, &boundary, linear_solve_mode)?;
+        // Support reactions are reported against the caller's base force so the
+        // bounded sliding force appears as the friction support's tangential
+        // reaction instead of vanishing into the solved load vector; free-DOF
+        // equilibrium residuals stay measured against the solved system.
+        let mut reactions = linearized.reactions.clone();
+        for applied in &applied_sliding_friction_forces {
+            reactions[applied.global_dof] += applied.force;
+        }
         let trial_states = build_trial_states(
             &input.nonlinear_supports,
             &linearized.displacements,
-            &linearized.reactions,
+            &reactions,
             &friction_normals,
             &derived_friction_normals,
         )?;
@@ -323,24 +436,29 @@ pub fn solve_active_set_frame_with_mode(
         };
         let active_set = evaluate_active_set_iteration(&active_set_input)?;
         let blocked = active_set.is_blocked();
-        let converged = active_set.converged && !blocked;
+        let converged = active_set.converged && !blocked && !sliding_force_deferred;
         current_states = active_set.states.clone();
-        let residuals =
-            residual_observation(&linearized, iterations.last(), active_set.residual_norm);
+        let residuals = residual_observation(
+            &linearized,
+            &reactions,
+            iterations.last(),
+            active_set.residual_norm,
+        );
 
         let iteration = NonlinearFrameIteration {
             iteration: iteration_index,
             active_restrained_dofs: boundary.dofs.clone(),
             active_prescribed_displacements: boundary.displacements.clone(),
             displacements: linearized.displacements,
-            reactions: linearized.reactions,
+            reactions,
+            applied_sliding_friction_forces,
             residuals,
             sparse_evidence: linearized.sparse_evidence,
             active_set,
         };
         iterations.push(iteration);
 
-        if converged || blocked {
+        if converged || blocked || iteration_index == input.convergence.max_iterations {
             let final_iteration = iterations
                 .last()
                 .expect("just pushed nonlinear iteration record");
@@ -368,7 +486,9 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
         "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement/work residual axes are reported for callers to bind to explicit evidence policies.".to_string(),
         "Friction support normal reactions are either explicit input evidence or derived as the absolute reaction at a named support-normal DOF supplied by the caller.".to_string(),
         "Released friction supports may persist in sliding state while nonzero displacement remains, preventing active-set chatter without adding hidden friction-load defaults.".to_string(),
+        "A support classified sliding applies a bounded +/- mu*N tangential force opposing the observed motion, using the current iterate's normal-reaction evidence; a sliding state seeded before any solved iterate defers convergence one iteration so the bounded force is applied before the loop can converge.".to_string(),
         "Explicit user-stiffness macro-elements are assembled with frame elements when supplied by the caller.".to_string(),
+        "Explicit curved-bend macro-element global stiffness slots supplied by the caller are assembled beside frame and user-stiffness elements in every linearized iteration.".to_string(),
     ]
 }
 
@@ -377,7 +497,8 @@ pub fn assembled_loop_limitations() -> Vec<String> {
         "DEC-053 sparse interactive mode uses direct reduced profile-entry sparse solves as the default linearized active-set path; dense scrutiny remains an explicit parity/review mode.".to_string(),
         "Sparse timing, allocator/RSS memory, hardware normalization, true condition-number, and CI evidence are observational R4 closure evidence, not release-performance thresholds.".to_string(),
         "DEC-046 threshold authority exists only where callers supply explicit controls and policy references; unmeasured classes and broader release/external thresholds remain out of scope.".to_string(),
-        "User-stiffness macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
+        "User-stiffness and curved-bend macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
+        "The bounded sliding friction force is a single-iterate Coulomb bound, not a path-dependent or load-step friction history model; its magnitude is not itself a convergence residual axis.".to_string(),
         "The result is mechanics evidence only and does not state rule compliance, professional approval, certification, sealing, authentication, or code compliance.".to_string(),
     ]
 }
@@ -436,7 +557,128 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
             });
         }
     }
+    for element in &input.curved_bend_elements {
+        for node_index in [element.node_i, element.node_j] {
+            if node_index >= input.node_count {
+                return Err(NonlinearIntegrationError::InvalidInput {
+                    detail: format!(
+                        "curved-bend macro-element {} node index {node_index} is outside node count {}",
+                        element.element_id, input.node_count
+                    ),
+                });
+            }
+        }
+    }
     Ok(())
+}
+
+/// Scatter-add the explicit curved-bend macro-element global stiffness beside
+/// the frame and user-stiffness assembly for every linearized iteration.
+fn add_curved_bend_stiffness_contributions(
+    stiffness: &mut DenseMatrix,
+    curved_bend_elements: &[CurvedBendStiffnessElement],
+) {
+    for element in curved_bend_elements {
+        let mut dof_map = [0usize; ELEMENT_DOF];
+        for local in 0..DOF_PER_NODE {
+            dof_map[local] = element.node_i * DOF_PER_NODE + local;
+            dof_map[DOF_PER_NODE + local] = element.node_j * DOF_PER_NODE + local;
+        }
+        for (local_row, &global_row) in dof_map.iter().enumerate() {
+            for (local_col, &global_col) in dof_map.iter().enumerate() {
+                stiffness[global_row][global_col] += element.global_stiffness[local_row][local_col];
+            }
+        }
+    }
+}
+
+fn sliding_friction_support_present(
+    supports: &[NonlinearSupport],
+    states: &[SupportStateRecord],
+) -> bool {
+    let state_map = states
+        .iter()
+        .map(|state| (state.support_id.as_str(), state.state))
+        .collect::<HashMap<_, _>>();
+    supports.iter().any(|support| {
+        matches!(support.behavior, NonlinearSupportBehavior::Friction)
+            && state_map.get(support.support_id.as_str()).copied() == Some(ActiveSetState::Sliding)
+    })
+}
+
+/// Bounded +/- mu*N Coulomb sliding forces for supports currently classified
+/// as sliding (DEC-067). The normal reaction comes from the current iterate's
+/// evidence (explicit input or the named derived-normal support reaction) and
+/// the sign opposes the observed sliding motion. On the first iteration there
+/// is no solved iterate to orient or scale the force, so no sliding force is
+/// applied; no path or load-step history model is introduced.
+fn applied_sliding_friction_forces(
+    input: &NonlinearFrameSolveInput,
+    states: &[SupportStateRecord],
+    previous: Option<&NonlinearFrameIteration>,
+    friction_normals: &HashMap<&str, f64>,
+    derived_friction_normals: &HashMap<&str, &DerivedFrictionNormalReaction>,
+) -> Result<Vec<AppliedSlidingFrictionForce>, NonlinearIntegrationError> {
+    let state_map = states
+        .iter()
+        .map(|state| (state.support_id.as_str(), state.state))
+        .collect::<HashMap<_, _>>();
+    let mut applied = Vec::new();
+    for support in &input.nonlinear_supports {
+        if !matches!(support.behavior, NonlinearSupportBehavior::Friction) {
+            continue;
+        }
+        if state_map.get(support.support_id.as_str()).copied() != Some(ActiveSetState::Sliding) {
+            continue;
+        }
+        let Some(previous) = previous else {
+            continue;
+        };
+        let global_dof = node_dof_index(support.node_index, support.dof);
+        let direction = sliding_direction(
+            previous.displacements[global_dof],
+            previous.reactions[global_dof],
+        );
+        if direction == 0.0 {
+            continue;
+        }
+        let coefficient = support.friction_coefficient.ok_or_else(|| {
+            NonlinearSupportError::MissingFrictionCoefficient {
+                support_id: support.support_id.clone(),
+            }
+        })?;
+        validate_nonnegative_finite("friction coefficient", coefficient)?;
+        let normal = friction_normal_for_support(
+            support,
+            &previous.reactions,
+            friction_normals,
+            derived_friction_normals,
+        )?;
+        let magnitude = coefficient * normal.abs();
+        if magnitude == 0.0 {
+            continue;
+        }
+        applied.push(AppliedSlidingFrictionForce {
+            support_id: support.support_id.clone(),
+            global_dof,
+            force: -direction * magnitude,
+        });
+    }
+    Ok(applied)
+}
+
+/// Sliding motion sense at the support DOF from the prior iterate: the free
+/// trial displacement when nonzero, otherwise the impending-motion sense
+/// opposite the restrained tangential reaction. Zero means no deterministic
+/// direction evidence exists yet.
+fn sliding_direction(previous_displacement: f64, previous_reaction: f64) -> f64 {
+    if previous_displacement != 0.0 {
+        previous_displacement.signum()
+    } else if previous_reaction != 0.0 {
+        -previous_reaction.signum()
+    } else {
+        0.0
+    }
 }
 
 fn normalized_initial_states(
@@ -914,6 +1156,7 @@ fn sparse_evidence_dense_fallback(
 
 fn residual_observation(
     linearized: &LinearizedSolve,
+    reactions: &[f64],
     previous: Option<&NonlinearFrameIteration>,
     active_set_changed_support_count: f64,
 ) -> NonlinearResidualObservation {
@@ -925,12 +1168,10 @@ fn residual_observation(
         max_abs_rotation_delta_from_previous: previous.map(|previous| {
             max_abs_delta_by_dof_group(&linearized.displacements, &previous.displacements, false)
         }),
-        max_abs_force_reaction_delta_from_previous: previous.map(|previous| {
-            max_abs_delta_by_dof_group(&linearized.reactions, &previous.reactions, true)
-        }),
-        max_abs_moment_reaction_delta_from_previous: previous.map(|previous| {
-            max_abs_delta_by_dof_group(&linearized.reactions, &previous.reactions, false)
-        }),
+        max_abs_force_reaction_delta_from_previous: previous
+            .map(|previous| max_abs_delta_by_dof_group(reactions, &previous.reactions, true)),
+        max_abs_moment_reaction_delta_from_previous: previous
+            .map(|previous| max_abs_delta_by_dof_group(reactions, &previous.reactions, false)),
         max_abs_free_dof_force_residual: linearized.max_abs_free_dof_force_residual,
         max_abs_free_dof_moment_residual: linearized.max_abs_free_dof_moment_residual,
         max_abs_free_dof_work_residual: linearized.max_abs_free_dof_work_residual,
@@ -1156,6 +1397,7 @@ mod tests {
             node_count: 2,
             elements: vec![element],
             user_stiffness_elements: Vec::new(),
+            curved_bend_elements: Vec::new(),
             force,
             base_restrained_dofs: vec![
                 node_dof_index(0, FrameDof::Ux),
@@ -1451,6 +1693,138 @@ mod tests {
             .unwrap()
             .active_restrained_dofs
             .contains(&node_dof_index(1, FrameDof::Ux)));
+    }
+
+    fn invented_curved_bend_macro_element() -> CurvedBendMacroElement {
+        let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap();
+        let radius = 0.75_f64;
+        let sagitta_offset = (radius * radius - 0.25).sqrt();
+        let center = [0.5, -sagitta_offset, 0.0];
+        CurvedBendMacroElement::new(node_i, node_j, center, 100.0, 40.0, 1.0, 1.0, 1.0, 1.5, 1.5)
+            .unwrap()
+    }
+
+    #[test]
+    fn curved_bend_slot_matches_linear_arc_path_when_support_stays_released() {
+        // DEC-070 residual closure (TP-PMM-P1-CURVEDBEND-003): a curved-bend
+        // macro-element plus a nonlinear support solves through the loop, and
+        // with the one-way support staying released the result equals the
+        // direct linear curved-bend solve.
+        let macro_element = invented_curved_bend_macro_element();
+        let slot = CurvedBendStiffnessElement::from_macro_element("curved-bend-1", &macro_element)
+            .unwrap();
+        let support_id = "NL-ONE-WAY-ARC-RELEASED";
+        let support = NonlinearSupport::one_way(
+            support_id,
+            1,
+            FrameDof::Uy,
+            ActivationSense::PositiveReaction,
+        );
+        let mut force = vec![0.0; 2 * DOF_PER_NODE];
+        force[node_dof_index(1, FrameDof::Uy)] = 2.0;
+        let base_restrained_dofs: Vec<usize> = (0..DOF_PER_NODE).collect();
+        let input = NonlinearFrameSolveInput {
+            node_count: 2,
+            elements: Vec::new(),
+            user_stiffness_elements: Vec::new(),
+            curved_bend_elements: vec![slot.clone()],
+            force: force.clone(),
+            base_restrained_dofs: base_restrained_dofs.clone(),
+            nonlinear_supports: vec![support],
+            initial_states: vec![SupportStateRecord::new(
+                support_id,
+                ActiveSetState::Inactive,
+            )],
+            friction_normal_reactions: Vec::new(),
+            derived_friction_normal_reactions: Vec::new(),
+            convergence: ConvergenceControl::new(
+                "DEC-046-fixture-active-set-count-tightening",
+                ConvergencePolicyStatus::Accepted,
+                0.0,
+                0.0,
+                4,
+            )
+            .unwrap(),
+        };
+
+        let result = solve_active_set_frame(&input).unwrap();
+
+        assert!(result.converged);
+        assert!(!result.is_blocked());
+        assert_eq!(
+            result.final_states,
+            vec![SupportStateRecord::new(
+                support_id,
+                ActiveSetState::Inactive
+            )]
+        );
+
+        // Independent linear reference: the same 12x12 arc stiffness reduced
+        // and solved directly through the frame kernel.
+        let dense: DenseMatrix = slot
+            .global_stiffness
+            .iter()
+            .map(|row| row.to_vec())
+            .collect();
+        let reduced =
+            open_pipe_stress_frame_kernel::reduce_system(&dense, &force, &base_restrained_dofs)
+                .unwrap();
+        let reference = solve_dense(&reduced.stiffness, &reduced.force).unwrap();
+        for (&global_dof, &expected) in reduced.free_dofs.iter().zip(reference.iter()) {
+            let delta = (result.displacements[global_dof] - expected).abs();
+            assert!(
+                delta <= 1.0e-12,
+                "nonlinear-loop arc displacement at DOF {global_dof} must match the linear curved-bend path (delta {delta})"
+            );
+        }
+        assert!(result.displacements[node_dof_index(1, FrameDof::Uy)] > 0.0);
+    }
+
+    #[test]
+    fn sliding_friction_support_applies_bounded_force_independent_of_seed() {
+        // DEC-067: a sliding support applies the bounded +/- mu*N tangential
+        // force opposing motion instead of a full DOF release, and the
+        // converged result is the same whether sliding is seeded directly or
+        // reached from a sticking transition.
+        let support_id = "NL-FRICTION-BOUNDED-SLIDE";
+        let mut results = Vec::new();
+        for seed in [ActiveSetState::Sticking, ActiveSetState::Sliding] {
+            let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
+            let mut input = two_node_axial_problem(
+                vec![support],
+                vec![SupportStateRecord::new(support_id, seed)],
+                4,
+            );
+            input.friction_normal_reactions =
+                vec![FrictionNormalReaction::new(support_id, 10.0).unwrap()];
+
+            let result = solve_active_set_frame(&input).unwrap();
+
+            assert!(result.converged);
+            assert_eq!(result.iterations.len(), 2);
+            assert_eq!(
+                result.final_states,
+                vec![SupportStateRecord::new(support_id, ActiveSetState::Sliding)]
+            );
+            // First iterate carries no sliding force (no solved iterate to
+            // orient it); the second applies the bounded -mu*N force.
+            assert!(result.iterations[0]
+                .applied_sliding_friction_forces
+                .is_empty());
+            let applied = &result.iterations[1].applied_sliding_friction_forces;
+            assert_eq!(applied.len(), 1);
+            assert_eq!(applied[0].support_id, support_id);
+            assert_eq!(applied[0].global_dof, node_dof_index(1, FrameDof::Ux));
+            assert!((applied[0].force + 3.0).abs() <= 1.0e-12);
+            // Reported support reaction is the bounded tangential force, and
+            // the displacement is bounded by the net (10 - 3) N drive.
+            assert!((result.reactions[node_dof_index(1, FrameDof::Ux)] + 3.0).abs() <= 1.0e-12);
+            let displacement = result.displacements[node_dof_index(1, FrameDof::Ux)];
+            assert!((displacement - 0.07).abs() <= 1.0e-12);
+            results.push((displacement, result.reactions.clone()));
+        }
+        assert_eq!(results[0], results[1]);
     }
 
     #[test]

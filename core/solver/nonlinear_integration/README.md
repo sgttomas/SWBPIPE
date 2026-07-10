@@ -7,8 +7,15 @@ moving either boundary.
 
 Current slice:
 
-- assembles the frame stiffness matrix each iteration;
+- assembles the frame stiffness matrix each iteration, including explicit
+  user-stiffness macro-elements and explicit curved-bend macro-element
+  stiffness slots (`DEC-070`) supplied by the caller;
 - applies base restraints plus active nonlinear restraints;
+- applies the `DEC-067` bounded `+/- mu*N` tangential force at friction
+  supports classified sliding, opposing the observed motion with the current
+  iterate's normal-reaction evidence (a sliding state seeded before any solved
+  iterate defers convergence one iteration so the bound is applied first; no
+  path/load-step friction history model is introduced);
 - solves the reduced system through the public solver mode policy: sparse
   interactive by default, dense scrutiny when explicitly selected;
 - reconstructs full displacement and reaction vectors;

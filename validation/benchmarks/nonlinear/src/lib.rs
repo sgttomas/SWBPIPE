@@ -1133,6 +1133,9 @@ pub fn assembled_fixture_inventory() -> Vec<AssembledNonlinearRegressionCase> {
         assembled_friction_sticking_fixture(),
         assembled_friction_sliding_fixture(),
         assembled_friction_derived_normal_fixture(),
+        assembled_one_way_reengagement_fixture(),
+        assembled_gap_lift_off_release_fixture(),
+        assembled_friction_bounded_sliding_fixture(),
     ]
 }
 
@@ -1737,12 +1740,15 @@ fn convergence_class_label(
     family: NonlinearRegressionFamily,
 ) -> &'static str {
     match fixture_id {
-        "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL" => "one_way",
-        "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL" => "gap",
+        "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL" | "NL-ASSEMBLED-ONE-WAY-REENGAGE-ORIGINAL" => {
+            "one_way"
+        }
+        "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL" | "NL-ASSEMBLED-GAP-LIFT-OFF-ORIGINAL" => "gap",
         "NL-ASSEMBLED-LIFT-OFF-ORIGINAL" => "lift_off",
         "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL"
         | "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL"
-        | "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL" => "friction",
+        | "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+        | "NL-ASSEMBLED-FRICTION-BOUNDED-SLIDE-ORIGINAL" => "friction",
         "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-OBS-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL"
         | "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL"
@@ -1786,6 +1792,7 @@ fn assembled_axial_input(
         node_count: 2,
         elements: vec![element],
         user_stiffness_elements: Vec::new(),
+        curved_bend_elements: Vec::new(),
         force,
         base_restrained_dofs: vec![
             node_dof_index(0, FrameDof::Ux),
@@ -1825,6 +1832,7 @@ fn assembled_xy_tip_input(
         node_count: 2,
         elements: vec![element],
         user_stiffness_elements: Vec::new(),
+        curved_bend_elements: Vec::new(),
         force,
         base_restrained_dofs: vec![
             node_dof_index(0, FrameDof::Ux),
@@ -1865,6 +1873,7 @@ fn assembled_two_span_xy_input(
         node_count: 3,
         elements: vec![element_i_mid, element_mid_j],
         user_stiffness_elements: Vec::new(),
+        curved_bend_elements: Vec::new(),
         force,
         base_restrained_dofs: vec![
             node_dof_index(0, FrameDof::Ux),
@@ -1908,6 +1917,7 @@ fn assembled_xyz_tip_input(
         node_count: 2,
         elements: vec![element],
         user_stiffness_elements: Vec::new(),
+        curved_bend_elements: Vec::new(),
         force,
         base_restrained_dofs: vec![
             node_dof_index(0, FrameDof::Ux),
@@ -1947,6 +1957,7 @@ fn assembled_xyz_rz_tip_input(
         node_count: 2,
         elements: vec![element],
         user_stiffness_elements: Vec::new(),
+        curved_bend_elements: Vec::new(),
         force,
         base_restrained_dofs: vec![
             node_dof_index(0, FrameDof::Ux),
@@ -1983,6 +1994,7 @@ fn assembled_ux_rz_tip_input(
         node_count: 2,
         elements: vec![element],
         user_stiffness_elements: Vec::new(),
+        curved_bend_elements: Vec::new(),
         force,
         base_restrained_dofs: vec![
             node_dof_index(0, FrameDof::Ux),
@@ -2020,6 +2032,7 @@ fn assembled_uy_rz_tip_input(
         node_count: 2,
         elements: vec![element],
         user_stiffness_elements: Vec::new(),
+        curved_bend_elements: Vec::new(),
         force,
         base_restrained_dofs: vec![
             node_dof_index(0, FrameDof::Ux),
@@ -2361,7 +2374,7 @@ pub fn assembled_friction_sliding_fixture() -> AssembledNonlinearRegressionCase 
         )],
         accepted_convergence_control("friction").unwrap(),
     );
-    input.friction_normal_reactions = vec![FrictionNormalReaction::new(support_id, 10.0).unwrap()];
+    input.friction_normal_reactions = vec![FrictionNormalReaction::new(support_id, 20.0).unwrap()];
 
     AssembledNonlinearRegressionCase {
         fixture_id: "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
@@ -2395,7 +2408,7 @@ pub fn assembled_friction_sliding_fixture() -> AssembledNonlinearRegressionCase 
             },
             DimensionedObservation {
                 name: "explicit_normal_reaction",
-                value: 10.0,
+                value: 20.0,
                 unit: "N",
                 dimension: "force",
                 tolerance_policy: None,
@@ -2409,7 +2422,7 @@ pub fn assembled_friction_sliding_fixture() -> AssembledNonlinearRegressionCase 
             },
             DimensionedObservation {
                 name: "friction_limit",
-                value: 3.0,
+                value: 6.0,
                 unit: "N",
                 dimension: "force",
                 tolerance_policy: None,
@@ -2501,6 +2514,259 @@ pub fn assembled_friction_derived_normal_fixture() -> AssembledNonlinearRegressi
             DimensionedObservation {
                 name: "iteration_count",
                 value: 1.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+        ],
+    }
+}
+
+pub fn assembled_one_way_reengagement_fixture() -> AssembledNonlinearRegressionCase {
+    let support_id = "NL-ASSEMBLED-ONE-WAY-REENGAGE-A";
+    let support = NonlinearSupport::one_way(
+        support_id,
+        1,
+        FrameDof::Ux,
+        ActivationSense::PositiveReaction,
+    );
+    let mut input = assembled_axial_input(
+        vec![support],
+        vec![SupportStateRecord::new(
+            support_id,
+            ActiveSetState::Inactive,
+        )],
+        accepted_convergence_control("one_way").unwrap(),
+    );
+    input.force[node_dof_index(1, FrameDof::Ux)] = -10.0;
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-ONE-WAY-REENGAGE-ORIGINAL",
+        family: NonlinearRegressionFamily::ActiveSet,
+        description:
+            "Invented assembled frame solve re-engages a lifted one-way support when the free displacement penetrates into the support (DEC-067 state-switched test).",
+        assumptions: &[
+            "The frame fixture is a two-node axial member with invented stiffness values.",
+            "The released support classifies on displacement penetration toward its bearing side; the re-engaged support then classifies on reaction sign.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_one_way_reengagement.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![ExpectedState {
+            support_id,
+            state: ActiveSetState::Active,
+        }],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![],
+        observations: vec![
+            DimensionedObservation {
+                name: "applied_force",
+                value: -10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "penetrating_free_displacement",
+                value: -0.1,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "re_engaged_reaction",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+        ],
+    }
+}
+
+pub fn assembled_gap_lift_off_release_fixture() -> AssembledNonlinearRegressionCase {
+    let support_id = "NL-ASSEMBLED-GAP-LIFT-OFF-A";
+    let support = NonlinearSupport::gap(
+        support_id,
+        1,
+        FrameDof::Ux,
+        0.01,
+        GapDirection::PositiveDisplacement,
+    )
+    .unwrap();
+    let mut input = assembled_axial_input(
+        vec![support],
+        vec![SupportStateRecord::new(support_id, ActiveSetState::Active)],
+        accepted_convergence_control("gap").unwrap(),
+    );
+    input.force[node_dof_index(1, FrameDof::Ux)] = -2.0;
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-GAP-LIFT-OFF-ORIGINAL",
+        family: NonlinearRegressionFamily::Gap,
+        description:
+            "Invented assembled frame solve releases a closed gap whose contact reaction reverses into pulling (DEC-067 state-switched test).",
+        assumptions: &[
+            "The closed gap classifies on the bearing sign of the trial reaction, so a pulling reaction means lift-off of the closed gap.",
+            "The released iteration classifies on displacement against the explicit clearance.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_gap_lift_off.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![ExpectedState {
+            support_id,
+            state: ActiveSetState::Inactive,
+        }],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![],
+        observations: vec![
+            DimensionedObservation {
+                name: "applied_force",
+                value: -2.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "gap_clearance",
+                value: 0.01,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "closed_gap_pulling_reaction",
+                value: 3.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "released_free_displacement",
+                value: -0.02,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
+            },
+        ],
+    }
+}
+
+pub fn assembled_friction_bounded_sliding_fixture() -> AssembledNonlinearRegressionCase {
+    let support_id = "NL-ASSEMBLED-FRICTION-BOUNDED-SLIDE-A";
+    let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.25).unwrap();
+    let mut input = assembled_axial_input(
+        vec![support],
+        vec![SupportStateRecord::new(support_id, ActiveSetState::Sliding)],
+        accepted_convergence_control("friction").unwrap(),
+    );
+    input.force[node_dof_index(1, FrameDof::Ux)] = 8.0;
+    input.friction_normal_reactions = vec![FrictionNormalReaction::new(support_id, 12.0).unwrap()];
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-FRICTION-BOUNDED-SLIDE-ORIGINAL",
+        family: NonlinearRegressionFamily::Friction,
+        description:
+            "Invented assembled frame solve applies the bounded +/- mu*N tangential force at a sliding friction support instead of a full DOF release (DEC-067).",
+        assumptions: &[
+            "The normal reaction is explicit invented input evidence, not a derived normal-force model.",
+            "The sliding state is seeded, so the loop defers convergence one iteration and then applies the bounded sliding force opposing the observed motion.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_friction_bounded_sliding.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![ExpectedState {
+            support_id,
+            state: ActiveSetState::Sliding,
+        }],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![],
+        observations: vec![
+            DimensionedObservation {
+                name: "applied_force",
+                value: 8.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "friction_coefficient",
+                value: 0.25,
+                unit: "ratio",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "explicit_normal_reaction",
+                value: 12.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "bounded_sliding_force",
+                value: -3.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "bounded_final_displacement",
+                value: 0.05,
+                unit: "mm",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
                 unit: "count",
                 dimension: "dimensionless",
                 tolerance_policy: Some(DEC_046_ACTIVE_SET_COUNT_POLICY_REF),
@@ -2821,7 +3087,7 @@ pub fn assembled_multi_dof_friction_gap_acceptance_fixture() -> AssembledNonline
         ],
         accepted_multisupport_convergence_control().unwrap(),
     );
-    input.friction_normal_reactions = vec![FrictionNormalReaction::new(friction_id, 10.0).unwrap()];
+    input.friction_normal_reactions = vec![FrictionNormalReaction::new(friction_id, 20.0).unwrap()];
 
     AssembledNonlinearRegressionCase {
         fixture_id: "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
@@ -2877,14 +3143,14 @@ pub fn assembled_multi_dof_friction_gap_acceptance_fixture() -> AssembledNonline
             },
             DimensionedObservation {
                 name: "explicit_normal_reaction",
-                value: 10.0,
+                value: 20.0,
                 unit: "N",
                 dimension: "force",
                 tolerance_policy: None,
             },
             DimensionedObservation {
                 name: "friction_limit",
-                value: 3.0,
+                value: 6.0,
                 unit: "N",
                 dimension: "force",
                 tolerance_policy: None,
@@ -3136,7 +3402,7 @@ pub fn assembled_multi_dof_derived_normal_gap_acceptance_fixture(
 ) -> AssembledNonlinearRegressionCase {
     let friction_id = "NL-ASSEMBLED-MULTI-FRICTION-DERIVED-NORMAL-G";
     let gap_id = "NL-ASSEMBLED-MULTI-GAP-UZ-G";
-    let friction = NonlinearSupport::friction(friction_id, 1, FrameDof::Ux, 0.03).unwrap();
+    let friction = NonlinearSupport::friction(friction_id, 1, FrameDof::Ux, 0.06).unwrap();
     let gap = NonlinearSupport::gap(
         gap_id,
         1,
@@ -3219,7 +3485,7 @@ pub fn assembled_multi_dof_derived_normal_gap_acceptance_fixture(
             },
             DimensionedObservation {
                 name: "friction_coefficient",
-                value: 0.03,
+                value: 0.06,
                 unit: "ratio",
                 dimension: "dimensionless",
                 tolerance_policy: None,
@@ -3233,7 +3499,7 @@ pub fn assembled_multi_dof_derived_normal_gap_acceptance_fixture(
             },
             DimensionedObservation {
                 name: "friction_limit",
-                value: 3.0,
+                value: 6.0,
                 unit: "N",
                 dimension: "force",
                 tolerance_policy: None,
@@ -3267,7 +3533,7 @@ pub fn assembled_multi_dof_derived_normal_rotational_acceptance_fixture(
 ) -> AssembledNonlinearRegressionCase {
     let friction_id = "NL-ASSEMBLED-MULTI-FRICTION-DERIVED-NORMAL-H";
     let lift_off_id = "NL-ASSEMBLED-MULTI-LIFT-OFF-RZ-H";
-    let friction = NonlinearSupport::friction(friction_id, 1, FrameDof::Ux, 0.03).unwrap();
+    let friction = NonlinearSupport::friction(friction_id, 1, FrameDof::Ux, 0.06).unwrap();
     let lift_off = NonlinearSupport::lift_off(
         lift_off_id,
         1,
@@ -3345,7 +3611,7 @@ pub fn assembled_multi_dof_derived_normal_rotational_acceptance_fixture(
             },
             DimensionedObservation {
                 name: "friction_coefficient",
-                value: 0.03,
+                value: 0.06,
                 unit: "ratio",
                 dimension: "dimensionless",
                 tolerance_policy: None,
@@ -3359,7 +3625,7 @@ pub fn assembled_multi_dof_derived_normal_rotational_acceptance_fixture(
             },
             DimensionedObservation {
                 name: "friction_limit",
-                value: 3.0,
+                value: 6.0,
                 unit: "N",
                 dimension: "force",
                 tolerance_policy: None,
@@ -3625,7 +3891,7 @@ pub fn assembled_multi_dof_four_class_acceptance_fixture() -> AssembledNonlinear
         ],
         accepted_multisupport_convergence_control().unwrap(),
     );
-    input.friction_normal_reactions = vec![FrictionNormalReaction::new(friction_id, 10.0).unwrap()];
+    input.friction_normal_reactions = vec![FrictionNormalReaction::new(friction_id, 20.0).unwrap()];
 
     AssembledNonlinearRegressionCase {
         fixture_id: "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
@@ -3703,14 +3969,14 @@ pub fn assembled_multi_dof_four_class_acceptance_fixture() -> AssembledNonlinear
             },
             DimensionedObservation {
                 name: "explicit_normal_reaction",
-                value: 10.0,
+                value: 20.0,
                 unit: "N",
                 dimension: "force",
                 tolerance_policy: None,
             },
             DimensionedObservation {
                 name: "friction_limit",
-                value: 3.0,
+                value: 6.0,
                 unit: "N",
                 dimension: "force",
                 tolerance_policy: None,
@@ -4101,7 +4367,7 @@ pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
         max_iterations: 6,
         tolerance: 0.0,
         supports: vec![support],
-        trial_states: vec![TrialSupportState::new(support_id, 0.0, 4.0).unwrap()],
+        trial_states: vec![TrialSupportState::new(support_id, -0.02, 0.0).unwrap()],
         prior_states: vec![SupportStateRecord::new(
             support_id,
             ActiveSetState::Inactive,
@@ -4111,9 +4377,9 @@ pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
     NonlinearRegressionCase {
         fixture_id: "NL-ACTIVE-ONE-WAY-ORIGINAL",
         family: NonlinearRegressionFamily::ActiveSet,
-        description: "Invented one-way support activates from a positive trial reaction.",
+        description: "Invented released one-way support re-engages from a penetrating trial displacement (DEC-067 state-switched test).",
         assumptions: &[
-            "Reaction sign is supplied by the committed nonlinear-support API.",
+            "A released support classifies on trial displacement penetration toward the side it can bear against.",
             "The case exercises active-set change tracking without a global frame solve.",
         ],
         provenance: BenchmarkProvenance::public_original(
@@ -4135,10 +4401,10 @@ pub fn active_set_one_way_fixture() -> NonlinearRegressionCase {
         }),
         observations: vec![
             DimensionedObservation {
-                name: "trial_reaction",
-                value: 4.0,
-                unit: "N",
-                dimension: "force",
+                name: "trial_displacement",
+                value: -0.02,
+                unit: "mm",
+                dimension: "length",
                 tolerance_policy: None,
             },
             DimensionedObservation {
@@ -4167,16 +4433,16 @@ pub fn gap_closure_fixture() -> NonlinearRegressionCase {
         max_iterations: 6,
         tolerance: 0.0,
         supports: vec![support],
-        trial_states: vec![TrialSupportState::new(support_id, 0.25, 0.0).unwrap()],
+        trial_states: vec![TrialSupportState::new(support_id, 0.25, -2.0).unwrap()],
         prior_states: vec![SupportStateRecord::new(support_id, ActiveSetState::Active)],
     };
 
     NonlinearRegressionCase {
         fixture_id: "NL-GAP-CLOSURE-ORIGINAL",
         family: NonlinearRegressionFamily::Gap,
-        description: "Invented positive-clearance gap remains closed at its explicit clearance.",
+        description: "Invented closed positive-clearance gap remains closed while its trial reaction bears against the stop (DEC-067 state-switched test).",
         assumptions: &[
-            "Gap closure is checked at the committed clearance comparison boundary.",
+            "An engaged (closed) gap classifies on the bearing sign of the trial reaction.",
             "The prior active state is repeated to verify a converged unchanged active set.",
         ],
         provenance: BenchmarkProvenance::public_original(
@@ -4205,6 +4471,13 @@ pub fn gap_closure_fixture() -> NonlinearRegressionCase {
                 value: 0.25,
                 unit: "mm",
                 dimension: "length",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "trial_reaction",
+                value: -2.0,
+                unit: "N",
+                dimension: "force",
                 tolerance_policy: None,
             },
         ],
@@ -4365,7 +4638,7 @@ pub fn unresolved_nonconvergence_fixture() -> NonlinearRegressionCase {
         max_iterations: 4,
         tolerance: 0.0,
         supports: vec![support],
-        trial_states: vec![TrialSupportState::new(support_id, 0.0, -1.5).unwrap()],
+        trial_states: vec![TrialSupportState::new(support_id, 0.002, 0.0).unwrap()],
         prior_states: vec![SupportStateRecord::new(
             support_id,
             ActiveSetState::Inactive,
@@ -4399,10 +4672,10 @@ pub fn unresolved_nonconvergence_fixture() -> NonlinearRegressionCase {
         }),
         observations: vec![
             DimensionedObservation {
-                name: "trial_rotational_reaction",
-                value: -1.5,
-                unit: "N-m",
-                dimension: "moment",
+                name: "trial_rotational_displacement",
+                value: 0.002,
+                unit: "rad",
+                dimension: "rotation",
                 tolerance_policy: None,
             },
             DimensionedObservation {
@@ -4482,7 +4755,7 @@ mod tests {
         let fixtures = assembled_fixture_inventory();
 
         assert!(missing_required_assembled_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 6);
+        assert_eq!(fixtures.len(), 9);
     }
 
     #[test]
@@ -5009,6 +5282,9 @@ mod tests {
                 "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
                 "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
                 "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL",
+                "NL-ASSEMBLED-ONE-WAY-REENGAGE-ORIGINAL",
+                "NL-ASSEMBLED-GAP-LIFT-OFF-ORIGINAL",
+                "NL-ASSEMBLED-FRICTION-BOUNDED-SLIDE-ORIGINAL",
             ]
         );
 
@@ -5035,6 +5311,9 @@ mod tests {
         assert_eq!(observations[3].observed_iteration_count, 1);
         assert_eq!(observations[4].observed_iteration_count, 2);
         assert_eq!(observations[5].observed_iteration_count, 1);
+        assert_eq!(observations[6].observed_iteration_count, 2);
+        assert_eq!(observations[7].observed_iteration_count, 2);
+        assert_eq!(observations[8].observed_iteration_count, 2);
     }
 
     #[test]
@@ -5119,6 +5398,44 @@ mod tests {
         assert!(iteration.diagnostics[0]
             .message
             .contains("did not converge after 4 iterations"));
+    }
+
+    #[test]
+    fn dec_067_transition_fixtures_witness_state_switched_and_bounded_outcomes() {
+        // (a) Re-engagement of a lifted one-way support.
+        let reengage = assembled_one_way_reengagement_fixture();
+        let solve = reengage.run().unwrap();
+        assert!(solve.converged);
+        let dof = node_dof_index(1, FrameDof::Ux);
+        assert_eq!(solve.iterations[0].displacements[dof], -0.1);
+        assert_eq!(solve.displacements[dof], 0.0);
+        assert_eq!(solve.reactions[dof], 10.0);
+
+        // (b) Lift-off of a closed gap: the pulling contact reaction releases
+        // the stop and the free displacement settles below the clearance.
+        let lift_off = assembled_gap_lift_off_release_fixture();
+        let solve = lift_off.run().unwrap();
+        assert!(solve.converged);
+        assert_eq!(solve.iterations[0].displacements[dof], 0.01);
+        assert_eq!(solve.iterations[0].reactions[dof], 3.0);
+        assert_eq!(solve.displacements[dof], -0.02);
+        assert_eq!(solve.reactions[dof], 0.0);
+
+        // (c) Sliding with the bounded +/- mu*N force: the seeded sliding
+        // support defers convergence one iteration, then carries the bounded
+        // tangential reaction and the net-drive displacement.
+        let bounded = assembled_friction_bounded_sliding_fixture();
+        let solve = bounded.run().unwrap();
+        assert!(solve.converged);
+        assert_eq!(solve.iterations.len(), 2);
+        assert!(solve.iterations[0]
+            .applied_sliding_friction_forces
+            .is_empty());
+        let applied = &solve.iterations[1].applied_sliding_friction_forces;
+        assert_eq!(applied.len(), 1);
+        assert_eq!(applied[0].force, -3.0);
+        assert_eq!(solve.displacements[dof], 0.05);
+        assert_eq!(solve.reactions[dof], -3.0);
     }
 
     #[test]

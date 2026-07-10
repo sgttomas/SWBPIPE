@@ -33,7 +33,14 @@ No protected standards text, formulas, tables, examples, or code-specific values
 Verification shall include deterministic invented-example tests for active-set
 activation/deactivation, gap closure/opening, lift-off, one-way support
 behavior, friction state reporting, convergence, and non-convergence
-diagnostics. Assembled-loop verification is owned by
+diagnostics. Per `DEC-067`, unilateral-support classification is
+state-switched: engaged supports (including closed gaps) classify on trial
+reaction sign and released supports classify on trial displacement penetration
+(or the explicit gap clearance), so re-engagement and lift-off transitions are
+observable and the converged state does not depend on seeded initial states;
+verification includes transition witnesses for re-engagement of a lifted
+one-way support, lift-off of a closed gap, and bounded +/- mu*N friction
+sliding. Assembled-loop verification is owned by
 `core/solver/nonlinear_integration` under `DEC-044`; exact pass/fail
 thresholds, test matrices, and measured convergence values remain governed by
 `DEC-046` and must not be invented by this setup pass.

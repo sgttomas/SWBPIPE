@@ -15,7 +15,7 @@ Define the documentation setup procedure for DEL-04-04 without implementing nonl
 
 1. Confirm the deliverable identity is DEL-04-04 under PKG-04.
 2. Confirm the setup scope is documentation only: four documents, semantic files, dependency artifacts, and run records.
-3. Capture nonlinear support behavior categories from SOW-012 and the deliverables register: one-way supports, gaps, lift-off, and friction.
+3. Capture nonlinear support behavior categories from SOW-012 and the deliverables register: one-way supports, gaps, lift-off, and friction. Per `DEC-067`, the implemented classifier decision boundary is state-switched (engaged supports classify on reaction sign, released supports on displacement penetration/clearance) and a sliding friction support carries the bounded `+/- mu*N` tangential force in the assembled loop rather than a full DOF release.
 4. Record future implementation needs as `TBD` when exact numerical library choices, convergence thresholds, friction defaults, or data contracts are not provided.
 5. Preserve mechanics/reporting boundaries: mechanics solved by solver, acceptability handled by rule packs or humans, and no compliance/certification claims.
 6. Generate dependency rows only from explicit scope, architecture, invariant, or local-document evidence.

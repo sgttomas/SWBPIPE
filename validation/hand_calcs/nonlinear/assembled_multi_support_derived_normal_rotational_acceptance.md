@@ -27,9 +27,9 @@ validation fixture set.
 | Friction support DOF | Ux | label | dimensionless |
 | Lift-off support DOF | Rz | label | dimensionless |
 | Normal source support DOF | Uy | label | dimensionless |
-| Friction coefficient | 0.03 | ratio | dimensionless |
+| Friction coefficient | 0.06 | ratio | dimensionless |
 | Derived normal reaction | 100.0 | N | force |
-| Friction limit | 3.0 | N | force |
+| Friction limit | 6.0 | N | force |
 | Initial friction state | sticking | label | dimensionless |
 | Initial lift-off state | active | label | dimensionless |
 | Active-set policy reference | DEC-046-CV-B-multisupport-active-set-count-validation-v1 | label | dimensionless |

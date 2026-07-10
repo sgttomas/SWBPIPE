@@ -6,7 +6,12 @@ friction-limited supports.
 
 The crate consumes trial displacement and reaction facts from a mechanics solve
 iteration and classifies nonlinear support states as active, inactive, sticking,
-or sliding. It records changed support states, residuals, convergence, and
+or sliding. Unilateral supports use the `DEC-067` state-switched
+complementarity test: an engaged support (including a closed gap) classifies on
+the sign of the trial reaction, and a released support classifies on trial
+displacement penetration toward the side it can bear against (or the explicit
+gap clearance), so re-engagement and lift-off transitions are both observable
+and the converged state does not depend on the seeded prior state. It records changed support states, residuals, convergence, and
 nonconvergence diagnostics. `ActiveSetReportRecord` exposes report-facing
 iteration settings, support states, changed supports, diagnostics,
 assumptions, and limitations without requiring downstream reports to parse
@@ -38,7 +43,9 @@ claims.
 
 ## Tests
 
-The unit tests cover one-way activation, gap opening/closing, missing gap data,
+The unit tests cover one-way engaged/released classification and
+penetration re-engagement, gap opening/closing and closed-gap bearing-sign
+release, missing gap data,
 lift-off behavior, friction sticking/sliding/contact-loss/missing-coefficient
 edges, invalid numeric inputs, active-set convergence, and iteration-limit
 nonconvergence diagnostics with active-set context, plus explicit

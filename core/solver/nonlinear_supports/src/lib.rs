@@ -327,6 +327,8 @@ pub fn active_set_report_assumptions() -> Vec<String> {
         "Active-set residual norm is the count of support states changed in this bounded iteration record."
             .to_string(),
         "Support sign conventions are those encoded on each nonlinear support behavior.".to_string(),
+        "Unilateral supports use the DEC-067 state-switched complementarity test: engaged supports (including closed gaps) classify on trial reaction sign, released supports classify on trial displacement penetration toward the support or explicit clearance."
+            .to_string(),
         "A friction support that was already sliding remains sliding through a released DOF while nonzero trial displacement persists; this is deterministic anti-chatter state logic, not a derived friction load model."
             .to_string(),
     ]
@@ -524,7 +526,7 @@ fn classify_iteration_support_state(
     trial: &TrialSupportState,
     prior_state: Option<ActiveSetState>,
 ) -> Result<ActiveSetState, NonlinearSupportError> {
-    let state = classify_support_state(support, trial)?;
+    let state = classify_support_state(support, trial, prior_state)?;
     if matches!(support.behavior, NonlinearSupportBehavior::Friction)
         && prior_state == Some(ActiveSetState::Sliding)
         && state == ActiveSetState::Sticking
@@ -535,13 +537,30 @@ fn classify_iteration_support_state(
     Ok(state)
 }
 
+/// State-switched complementarity classification (DEC-067).
+///
+/// Engaged unilateral supports (prior state `Active`, including closed gaps)
+/// classify on the sign of the trial reaction: contact persists only while the
+/// reaction bears in the sense the support can supply. Released supports
+/// (prior state `Inactive`, or an unseeded support) classify on the trial
+/// displacement: contact re-engages when the free displacement penetrates into
+/// the support (or reaches the explicit gap clearance). This pairing means
+/// re-engagement of a lifted support and lift-off of a closed gap are both
+/// observable, and the converged state does not depend on which admissible
+/// initial state was seeded. The friction stick/slip test is unchanged.
 pub fn classify_support_state(
     support: &NonlinearSupport,
     trial: &TrialSupportState,
+    prior_state: Option<ActiveSetState>,
 ) -> Result<ActiveSetState, NonlinearSupportError> {
+    let engaged = prior_state == Some(ActiveSetState::Active);
     match support.behavior {
         NonlinearSupportBehavior::OneWay { active_when } => {
-            Ok(state_from_sense(trial.reaction, active_when))
+            if engaged {
+                Ok(state_from_sense(trial.reaction, active_when))
+            } else {
+                Ok(state_from_penetration(trial.displacement, active_when))
+            }
         }
         NonlinearSupportBehavior::Gap { closes_when } => {
             let gap = support
@@ -550,6 +569,21 @@ pub fn classify_support_state(
                     support_id: support.support_id.clone(),
                 })?;
             validate_nonnegative_finite("gap clearance", gap)?;
+            if engaged {
+                // A closed gap bears against further motion in the closing
+                // direction, so contact persists only while the reaction
+                // opposes that direction; a reaction that would have to pull
+                // the node onto the stop means lift-off of the closed gap.
+                let bearing = match closes_when {
+                    GapDirection::PositiveDisplacement => trial.reaction < 0.0,
+                    GapDirection::NegativeDisplacement => trial.reaction > 0.0,
+                };
+                return Ok(if bearing {
+                    ActiveSetState::Active
+                } else {
+                    ActiveSetState::Inactive
+                });
+            }
             let closed = match closes_when {
                 GapDirection::PositiveDisplacement => trial.displacement >= gap,
                 GapDirection::NegativeDisplacement => trial.displacement <= -gap,
@@ -561,7 +595,11 @@ pub fn classify_support_state(
             })
         }
         NonlinearSupportBehavior::LiftOff { contact_when } => {
-            Ok(state_from_sense(trial.reaction, contact_when))
+            if engaged {
+                Ok(state_from_sense(trial.reaction, contact_when))
+            } else {
+                Ok(state_from_penetration(trial.displacement, contact_when))
+            }
         }
         NonlinearSupportBehavior::Friction => {
             let normal = trial.normal_reaction.ok_or_else(|| {
@@ -651,6 +689,21 @@ fn state_from_sense(reaction: f64, active_when: ActivationSense) -> ActiveSetSta
     }
 }
 
+/// Released-support re-engagement test: a support that supplies reaction in
+/// the `active_when` sense occupies the opposite displacement side, so the
+/// free trial displacement penetrating that side re-engages contact.
+fn state_from_penetration(displacement: f64, active_when: ActivationSense) -> ActiveSetState {
+    let penetrating = match active_when {
+        ActivationSense::PositiveReaction => displacement < 0.0,
+        ActivationSense::NegativeReaction => displacement > 0.0,
+    };
+    if penetrating {
+        ActiveSetState::Active
+    } else {
+        ActiveSetState::Inactive
+    }
+}
+
 fn validate_finite(name: &'static str, value: f64) -> Result<(), NonlinearSupportError> {
     if !value.is_finite() {
         return Err(NonlinearSupportError::NonFiniteInput { name, value });
@@ -674,7 +727,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn one_way_support_activates_from_explicit_reaction_sense() {
+    fn engaged_one_way_support_classifies_on_explicit_reaction_sense() {
         let support = NonlinearSupport::one_way(
             "one-way-1",
             0,
@@ -685,11 +738,40 @@ mod tests {
         let inactive_trial = TrialSupportState::new("one-way-1", 0.0, -1.0).unwrap();
 
         assert_eq!(
-            classify_support_state(&support, &active_trial).unwrap(),
+            classify_support_state(&support, &active_trial, Some(ActiveSetState::Active)).unwrap(),
             ActiveSetState::Active
         );
         assert_eq!(
-            classify_support_state(&support, &inactive_trial).unwrap(),
+            classify_support_state(&support, &inactive_trial, Some(ActiveSetState::Active))
+                .unwrap(),
+            ActiveSetState::Inactive
+        );
+    }
+
+    #[test]
+    fn released_one_way_support_re_engages_on_penetrating_displacement() {
+        let support = NonlinearSupport::one_way(
+            "one-way-1",
+            0,
+            FrameDof::Uz,
+            ActivationSense::PositiveReaction,
+        );
+        let penetrating_trial = TrialSupportState::new("one-way-1", -0.02, 0.0).unwrap();
+        let separated_trial = TrialSupportState::new("one-way-1", 0.02, 0.0).unwrap();
+        let boundary_trial = TrialSupportState::new("one-way-1", 0.0, 0.0).unwrap();
+
+        assert_eq!(
+            classify_support_state(&support, &penetrating_trial, Some(ActiveSetState::Inactive))
+                .unwrap(),
+            ActiveSetState::Active
+        );
+        assert_eq!(
+            classify_support_state(&support, &separated_trial, Some(ActiveSetState::Inactive))
+                .unwrap(),
+            ActiveSetState::Inactive
+        );
+        assert_eq!(
+            classify_support_state(&support, &boundary_trial, None).unwrap(),
             ActiveSetState::Inactive
         );
     }
@@ -709,12 +791,43 @@ mod tests {
         let closed_trial = TrialSupportState::new("gap-1", 0.25, 0.0).unwrap();
 
         assert_eq!(
-            classify_support_state(&support, &open_trial).unwrap(),
+            classify_support_state(&support, &open_trial, Some(ActiveSetState::Inactive)).unwrap(),
             ActiveSetState::Inactive
         );
         assert_eq!(
-            classify_support_state(&support, &closed_trial).unwrap(),
+            classify_support_state(&support, &closed_trial, Some(ActiveSetState::Inactive))
+                .unwrap(),
             ActiveSetState::Active
+        );
+    }
+
+    #[test]
+    fn closed_gap_support_classifies_on_bearing_reaction_sign() {
+        let support = NonlinearSupport::gap(
+            "gap-1",
+            0,
+            FrameDof::Ux,
+            0.25,
+            GapDirection::PositiveDisplacement,
+        )
+        .unwrap();
+
+        let bearing_trial = TrialSupportState::new("gap-1", 0.25, -5.0).unwrap();
+        let pulling_trial = TrialSupportState::new("gap-1", 0.25, 4.0).unwrap();
+        let separating_trial = TrialSupportState::new("gap-1", 0.25, 0.0).unwrap();
+
+        assert_eq!(
+            classify_support_state(&support, &bearing_trial, Some(ActiveSetState::Active)).unwrap(),
+            ActiveSetState::Active
+        );
+        assert_eq!(
+            classify_support_state(&support, &pulling_trial, Some(ActiveSetState::Active)).unwrap(),
+            ActiveSetState::Inactive
+        );
+        assert_eq!(
+            classify_support_state(&support, &separating_trial, Some(ActiveSetState::Active))
+                .unwrap(),
+            ActiveSetState::Inactive
         );
     }
 
@@ -732,7 +845,7 @@ mod tests {
         };
         let trial = TrialSupportState::new("gap-missing", 0.20, 0.0).unwrap();
 
-        let error = classify_support_state(&support, &trial).unwrap_err();
+        let error = classify_support_state(&support, &trial, None).unwrap_err();
 
         assert_eq!(
             error,
@@ -758,11 +871,11 @@ mod tests {
         let lifted_trial = TrialSupportState::new("lift-1", 0.0, 0.0).unwrap();
 
         assert_eq!(
-            classify_support_state(&support, &contact_trial).unwrap(),
+            classify_support_state(&support, &contact_trial, Some(ActiveSetState::Active)).unwrap(),
             ActiveSetState::Active
         );
         assert_eq!(
-            classify_support_state(&support, &lifted_trial).unwrap(),
+            classify_support_state(&support, &lifted_trial, Some(ActiveSetState::Active)).unwrap(),
             ActiveSetState::Inactive
         );
     }
@@ -780,11 +893,11 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-            classify_support_state(&support, &sticking_trial).unwrap(),
+            classify_support_state(&support, &sticking_trial, None).unwrap(),
             ActiveSetState::Sticking
         );
         assert_eq!(
-            classify_support_state(&support, &sliding_trial).unwrap(),
+            classify_support_state(&support, &sliding_trial, None).unwrap(),
             ActiveSetState::Sliding
         );
     }
@@ -798,7 +911,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-            classify_support_state(&support, &trial).unwrap(),
+            classify_support_state(&support, &trial, None).unwrap(),
             ActiveSetState::Inactive
         );
     }
@@ -812,7 +925,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-            classify_support_state(&support, &trial).unwrap(),
+            classify_support_state(&support, &trial, None).unwrap(),
             ActiveSetState::Inactive
         );
     }
@@ -832,7 +945,7 @@ mod tests {
             .with_friction_reactions(10.0, 1.0)
             .unwrap();
 
-        let error = classify_support_state(&support, &trial).unwrap_err();
+        let error = classify_support_state(&support, &trial, None).unwrap_err();
 
         assert_eq!(
             error,
@@ -861,7 +974,7 @@ mod tests {
             .with_friction_reactions(10.0, 1.0)
             .unwrap();
 
-        let error = classify_support_state(&support, &trial).unwrap_err();
+        let error = classify_support_state(&support, &trial, None).unwrap_err();
 
         match error {
             NonlinearSupportError::NonFiniteInput { name, value } => {
@@ -941,7 +1054,7 @@ mod tests {
             .with_friction_reactions(10.0, 0.0)
             .unwrap();
         assert_eq!(
-            classify_support_state(&support, &trial).unwrap(),
+            classify_support_state(&support, &trial, None).unwrap(),
             ActiveSetState::Sticking
         );
 
@@ -983,7 +1096,7 @@ mod tests {
             max_iterations: 3,
             tolerance: 0.0,
             supports: vec![support],
-            trial_states: vec![TrialSupportState::new("one-way-1", 0.0, 5.0).unwrap()],
+            trial_states: vec![TrialSupportState::new("one-way-1", -0.02, 0.0).unwrap()],
             prior_states: vec![SupportStateRecord::new(
                 "one-way-1",
                 ActiveSetState::Inactive,
@@ -1023,7 +1136,7 @@ mod tests {
             max_iterations: 5,
             tolerance: 0.0,
             supports: vec![support],
-            trial_states: vec![TrialSupportState::new("one-way-1", 0.0, 5.0).unwrap()],
+            trial_states: vec![TrialSupportState::new("one-way-1", -0.02, 0.0).unwrap()],
             prior_states: vec![SupportStateRecord::new(
                 "one-way-1",
                 ActiveSetState::Inactive,
@@ -1070,7 +1183,7 @@ mod tests {
             max_iterations: 3,
             tolerance: 0.0,
             supports: vec![support],
-            trial_states: vec![TrialSupportState::new("one-way-1", 0.0, 5.0).unwrap()],
+            trial_states: vec![TrialSupportState::new("one-way-1", -0.02, 0.0).unwrap()],
             prior_states: vec![SupportStateRecord::new(
                 "one-way-1",
                 ActiveSetState::Inactive,

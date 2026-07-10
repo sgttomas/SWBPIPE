@@ -23,8 +23,8 @@ normal-reaction evidence.
 | Axial stiffness basis | 100.0 | N/mm | linear_stiffness |
 | Applied axial force | 10.0 | N | force |
 | Friction coefficient | 0.30 | ratio | dimensionless |
-| Explicit normal reaction evidence | 10.0 | N | force |
-| Friction limit | 3.0 | N | force |
+| Explicit normal reaction evidence | 20.0 | N | force |
+| Friction limit | 6.0 | N | force |
 | Maximum iterations | 4 | count | dimensionless |
 | Active-set residual tolerance | 0.0 | count | dimensionless |
 | Initial state | sticking | state label | dimensionless |
@@ -33,11 +33,13 @@ normal-reaction evidence.
 
 The initially sticking friction support restrains the axial degree of freedom.
 The first assembled linear solve produces a tangential reaction of `-10.0 N`.
-With an explicit normal reaction of `10.0 N` and friction coefficient `0.30`,
-the invented friction limit is `3.0 N`, so the support transitions to sliding.
-On the released iteration the axial displacement is nonzero; the deterministic
-anti-chatter rule keeps the support sliding, and the active-set residual reaches
-zero.
+With an explicit normal reaction of `20.0 N` and friction coefficient `0.30`,
+the invented friction limit is `6.0 N`, so the support transitions to sliding.
+On the sliding iteration the DEC-067 bounded tangential force
+`-(0.30 * 20.0) = -6.0 N` opposes the motion, so the net drive is
+`10.0 - 6.0 = 4.0 N` and the displacement is `4.0 / 100.0 = 0.04 mm`; the
+deterministic anti-chatter rule keeps the support sliding, and the active-set
+residual reaches zero.
 
 This fixture uses explicit invented normal-reaction evidence only. It does not
 derive a normal-force model, apply hidden friction-load defaults, or close the
@@ -49,6 +51,8 @@ governed normal-force model residual.
 | Expected final residual | 0.0 | count | dimensionless |
 | Expected final state | sliding | state label | dimensionless |
 | Expected first tangential reaction | -10.0 | N | force |
+| Expected bounded sliding force | -6.0 | N | force |
+| Expected final displacement | 0.04 | mm | length |
 | Expected converged flag | true | boolean | dimensionless |
 
 Tolerance policy: `DEC-046-CV-B-active-set-count-validation-v1`.

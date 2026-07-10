@@ -22,8 +22,9 @@ use open_pipe_stress_load_case_algebra::{
 };
 use open_pipe_stress_nonlinear_integration::{
     solve_active_set_frame_with_mode, ConvergenceControl, ConvergencePolicyStatus,
-    DerivedFrictionNormalReaction, FrictionNormalReaction, LinearSolveMode,
-    NonlinearFrameSolveInput, NonlinearIntegrationError, NonlinearResidualObservation,
+    CurvedBendStiffnessElement, DerivedFrictionNormalReaction, FrictionNormalReaction,
+    LinearSolveMode, NonlinearFrameSolveInput, NonlinearIntegrationError,
+    NonlinearResidualObservation,
 };
 use open_pipe_stress_nonlinear_supports::{
     ActivationSense, ActiveSetState, GapDirection, NonlinearSupport, NonlinearSupportBehavior,
@@ -1474,33 +1475,25 @@ fn append_nonlinear_support_loop_results(
         return;
     }
 
-    // The assembled active-set loop input carries frame and user-stiffness
-    // elements only; it cannot yet re-assemble the curved-bend macro-element
-    // stiffness inside the solver crate. Blocking here is the recorded
-    // residual for that combination — no straight-chord fallback is assembled
-    // and no silently arc-free nonlinear result is emitted (PRD 6.2).
-    if !built.curved_bend_elements.is_empty() {
-        let mut affected_refs = vec![load_case.id.clone()];
-        affected_refs.extend(
-            built
-                .curved_bend_elements
-                .iter()
-                .map(|element| element.component_id.clone()),
-        );
-        diagnostics.push(diag(
-            &format!(
-                "diagnostic:nonlinear:{}:curved-bend",
-                stable_suffix(&load_case.id)
-            ),
-            "CURVED_BEND_NONLINEAR_LOOP_UNSUPPORTED",
-            "blocking",
-            format!(
-                "nonlinear support active-set preview cannot yet assemble the curved-bend macro-element stiffness for load case {}; the solver loop input carries frame and user-stiffness elements only and no straight-chord fallback is assembled; remove the nonlinear supports or the {} consumption until the solver input carries the assembled arc stiffness",
-                load_case.id, DEC_070_CURVED_BEND_SOLVER_CONSUMPTION
-            ),
-            affected_refs,
-        ));
-        return;
+    // The assembled active-set loop consumes the same build-time validated
+    // curved-bend macro-element global stiffness as the linear preview paths
+    // (DEC-070): each realized bend is passed as an explicit-stiffness slot so
+    // every linearized iteration assembles the arc stiffness. No straight-chord
+    // fallback exists on this path.
+    let mut curved_bend_stiffness_elements = Vec::with_capacity(built.curved_bend_elements.len());
+    for element in &built.curved_bend_elements {
+        match CurvedBendStiffnessElement::new(
+            element.component_id.clone(),
+            element.node_i,
+            element.node_j,
+            element.global_stiffness,
+        ) {
+            Ok(slot) => curved_bend_stiffness_elements.push(slot),
+            Err(error) => {
+                diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
+                return;
+            }
+        }
     }
 
     let support_classes = product_preview_policy_support_classes(&built.nonlinear_supports);
@@ -1517,6 +1510,7 @@ fn append_nonlinear_support_loop_results(
         node_count: built.nodes.len(),
         elements: built.frame_elements.clone(),
         user_stiffness_elements: built.user_stiffness_elements.clone(),
+        curved_bend_elements: curved_bend_stiffness_elements,
         force: force.to_vec(),
         base_restrained_dofs: restrained_dofs.to_vec(),
         nonlinear_supports: built.nonlinear_supports.clone(),
@@ -8049,9 +8043,12 @@ mod tests {
         assert!(result_ids.contains(
             "result:combination:combination-C-OPER-ALT:nonlinear-support:support-NL-140:uy-reaction"
         ));
+        // DEC-067: the sliding-seeded friction support defers convergence one
+        // iteration so the bounded sliding force is applied before the loop
+        // converges.
         assert_eq!(
             result_value(&result, "result:nonlinear-support:iteration-count"),
-            1.0
+            2.0
         );
         assert_eq!(
             result_value(&result, "result:nonlinear-support:final-residual-count"),
@@ -8095,12 +8092,15 @@ mod tests {
             ),
             0.0
         );
+        // DEC-067: the sliding support carries the bounded +mu*N tangential
+        // reaction opposing its negative-Z motion instead of a released zero
+        // reaction.
         assert_eq!(
             result_value(
                 &result,
                 "result:nonlinear-support:support-NL-130-FRIC:uz-reaction"
             ),
-            0.0
+            0.490101
         );
         let normal_evidence = result
             .results
@@ -8113,7 +8113,7 @@ mod tests {
             normal_evidence.kind,
             "nonlinear_support_friction_normal_reaction_derived"
         );
-        assert_eq!(normal_evidence.value, 49.010116);
+        assert_eq!(normal_evidence.value, 48.952652);
         let normal_metadata = normal_evidence.metadata.as_ref().unwrap();
         assert!(normal_metadata.basis.contains("derived_support_reaction"));
         assert!(normal_metadata.basis.contains("source_ref=support:S-130"));
@@ -8455,12 +8455,15 @@ mod tests {
                 "result:nonlinear-support:support-NL-MIX-FRIC-110:uz-displacement"
             ) > 0.0
         );
+        // DEC-067: the sliding support carries the bounded -mu*N tangential
+        // reaction opposing motion (0.3 * 10 N normal evidence), not a full
+        // DOF release with zero reaction.
         assert_eq!(
             result_value(
                 &result,
                 "result:nonlinear-support:support-NL-MIX-FRIC-110:uz-reaction"
             ),
-            0.0
+            -3.0
         );
         let max_translation_delta =
             result_value(&result, "result:nonlinear-support:max-translation-delta");
@@ -8835,12 +8838,15 @@ mod tests {
                 "result:nonlinear-support:support-NL-FRIC-SLIDE-110:ux-displacement"
             ) > 0.0
         );
+        // DEC-067: the sliding support reports the bounded -mu*N tangential
+        // reaction opposing motion (0.3 * 10 N explicit normal evidence)
+        // instead of a fully released zero reaction.
         assert_eq!(
             result_value(
                 &result,
                 "result:nonlinear-support:support-NL-FRIC-SLIDE-110:ux-reaction"
             ),
-            0.0
+            -3.0
         );
         assert_eq!(
             result_value(
@@ -11790,7 +11796,11 @@ mod tests {
     }
 
     #[test]
-    fn curved_bend_macro_element_blocks_assembled_nonlinear_loop() {
+    fn curved_bend_macro_element_solves_assembled_nonlinear_loop() {
+        // DEC-070 residual closure: the nonlinear active-set loop now carries
+        // the curved-bend macro-element as an explicit-stiffness slot. With
+        // the one-way support staying released, the nonlinear solve must
+        // reproduce the linear curved-bend path exactly.
         let mut request = curved_bend_span_request();
         request.model.supports.push({
             let mut support = request.model.supports[0].clone();
@@ -11799,9 +11809,9 @@ mod tests {
             support.restraints = vec![];
             support.nonlinear = Some(NonlinearSupportInput {
                 behavior: "one_way".to_string(),
-                dof: "UZ".to_string(),
-                initial_state: Some("active".to_string()),
-                active_when: Some("negative".to_string()),
+                dof: "UY".to_string(),
+                initial_state: Some("inactive".to_string()),
+                active_when: Some("positive".to_string()),
                 contact_when: None,
                 closes_when: None,
                 gap: None,
@@ -11813,17 +11823,41 @@ mod tests {
         });
         let result = run_linear_static_preview(request);
 
-        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
-        let diagnostic = result
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(result
             .diagnostics
             .iter()
-            .find(|item| item.code == "CURVED_BEND_NONLINEAR_LOOP_UNSUPPORTED")
-            .expect("curved bend plus nonlinear supports is a blocked recorded residual");
-        assert_eq!(diagnostic.severity, "blocking");
-        assert!(diagnostic.message.contains("no straight-chord fallback"));
-        assert!(diagnostic
-            .affected_refs
-            .contains(&"component:C-110".to_string()));
+            .all(|item| item.code != "CURVED_BEND_NONLINEAR_LOOP_UNSUPPORTED"));
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:converged-flag"),
+            1.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:support-S-110:state-code"),
+            0.0
+        );
+
+        // The released nonlinear loop's arc-tip displacement matches both the
+        // linear curved-bend preview row and the independent direct
+        // macro-element oracle.
+        let linear_uy_mm = result_value(&result, "result:disp:node-N-110:uy");
+        let nonlinear_uy_mm = result_value(
+            &result,
+            "result:nonlinear-support:support-S-110:uy-displacement",
+        );
+        assert!(
+            (nonlinear_uy_mm - linear_uy_mm).abs() <= 1.0e-6,
+            "nonlinear loop tip displacement {nonlinear_uy_mm} mm must match the linear curved-bend path {linear_uy_mm} mm"
+        );
+        let expected_tip = curved_bend_direct_tip_displacements(UY, 1000.0);
+        assert!(
+            (nonlinear_uy_mm - round6(expected_tip[UY] * 1000.0)).abs() <= 1.0e-6,
+            "nonlinear loop tip displacement {nonlinear_uy_mm} mm must match the direct macro-element solve"
+        );
     }
 
     #[test]
