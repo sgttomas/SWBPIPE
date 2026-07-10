@@ -500,6 +500,7 @@
           "enum": [
             "mechanics_geometry_only",
             "mechanics_geometry_and_user_flexibility",
+            "curved_bend_macro_element",
             "not_solver_consumed",
             "TBD"
           ]

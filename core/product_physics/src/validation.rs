@@ -996,9 +996,15 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
             || is_branch_component(component)
             || is_rigid_component(component)
         {
-            if solver_consumption
-                .map(|value| value != "mechanics_geometry_only")
-                .unwrap_or(false)
+            // DEC-070: bends may also declare the curved-bend macro-element
+            // realization; every input insufficiency for that mode blocks in
+            // build_model rather than warning here.
+            let curved_bend_macro_realized = is_bend_component(component)
+                && solver_consumption == Some(crate::DEC_070_CURVED_BEND_SOLVER_CONSUMPTION);
+            if !curved_bend_macro_realized
+                && solver_consumption
+                    .map(|value| value != "mechanics_geometry_only")
+                    .unwrap_or(false)
             {
                 diagnostics.push(diag(
                     &format!(

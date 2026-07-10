@@ -61,6 +61,7 @@ has an explicit public-original hand-calculation note.
 | `MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE` | `tp_phys_015a_canonical_solve_result_envelope.md` |
 | `MECH-IMPOSED-DISPLACEMENT-SPRING` | `imposed_displacement_spring.md` |
 | `MECH-INCLINED-MEMBER-TRANSFORM` | `inclined_member_transform.md` |
+| `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` | `expansion_loop_curved_bend_thermal.md` |
 
 ## Notes
 

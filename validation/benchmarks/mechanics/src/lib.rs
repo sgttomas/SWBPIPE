@@ -5,9 +5,10 @@
 //! acceptance criteria, protected standards content, or professional approval
 //! claims are encoded here.
 
+use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness, reduce_system, solve_dense, FrameElement, FrameKernelError,
-    FrameNode, FrameSection, DOF_PER_NODE, RX, RY, RZ, UX, UY, UZ,
+    assemble_global_stiffness, element_dof_map, reduce_system, solve_dense, FrameElement,
+    FrameKernelError, FrameNode, FrameSection, DOF_PER_NODE, ELEMENT_DOF, RX, RY, RZ, UX, UY, UZ,
 };
 use open_pipe_stress_linear_supports::{
     apply_linear_supports, prepare_boundary, FrameDof, LinearSupport, QuantityDimension,
@@ -116,6 +117,7 @@ pub enum BenchmarkFamily {
     ThermalGrowth,
     ImposedDisplacement,
     StiffnessTransform,
+    CurvedBendExpansionLoop,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -424,6 +426,7 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
         tp_phys_015a_canonical_solve_result_envelope_fixture(),
         imposed_displacement_spring_fixture(),
         inclined_member_transform_fixture(),
+        expansion_loop_curved_bend_thermal_fixture(),
     ]
 }
 
@@ -1729,6 +1732,478 @@ pub fn solve_branch_assembly_benchmark() -> Result<BranchAssemblyBenchmarkResult
         header_left_uy_reaction: reactions[UY],
         header_right_uy_reaction: reactions[2 * DOF_PER_NODE + UY],
         header_reaction_sum: reactions[UY] + reactions[2 * DOF_PER_NODE + UY],
+    })
+}
+
+// ---------------------------------------------------------------------------
+// MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL
+//
+// Expansion-loop (L-bend) thermal-bending benchmark against the independent
+// hand-calculated known-flexibility reference
+// `validation/hand_calcs/mechanics/expansion_loop_curved_bend_thermal.md`
+// (D-34 / DEC-070 exit evidence). All numeric inputs below are invented
+// fixture values transcribed from that witness note; the in-plane bend
+// flexibility factor `k` is an opaque user-entered number throughout.
+// ---------------------------------------------------------------------------
+
+// Invented witness inputs (units per PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K).
+const EXPANSION_LOOP_OUTER_DIAMETER: f64 = 0.2191;
+const EXPANSION_LOOP_WALL_THICKNESS: f64 = 0.00818;
+const EXPANSION_LOOP_ELASTIC_MODULUS: f64 = 200.0e9;
+const EXPANSION_LOOP_THERMAL_EXPANSION_COEFFICIENT: f64 = 12.0e-6;
+const EXPANSION_LOOP_TEMPERATURE_RISE: f64 = 150.0;
+const EXPANSION_LOOP_LEG1_LENGTH: f64 = 3.0;
+const EXPANSION_LOOP_BEND_RADIUS: f64 = 0.5;
+const EXPANSION_LOOP_LEG2_LENGTH: f64 = 4.0;
+// Invented out-of-plane-only values: the loop is loaded strictly in-plane and
+// the out-of-plane DOFs are restrained, so the shear modulus and the torsion
+// constant (set to 2 I in `expansion_loop_global_stiffness`) never enter the
+// compared in-plane quantities.
+const EXPANSION_LOOP_SHEAR_MODULUS: f64 = 80.0e9;
+// The witness flexibility coefficients are bending-only. The comparison model
+// replicates that assumption by scaling the cross-section area (axial
+// rigidity) of all three members by this factor, per the witness verification
+// appendix items 5 and 6. Boost study on this exact 4-node model (residual
+// axial-flexibility error scales as ~5.5e-3 / boost; round-off grows with the
+// axial-to-bending stiffness ratio):
+//   boost 1.0e3 -> max reaction deviation vs witness 5.8e-6 relative
+//   boost 1.0e5 -> max reaction deviation vs witness 5.8e-8 relative
+//   boost 1.0e7 -> max reaction deviation vs witness 3.5e-7 relative,
+//                  degraded by penalty round-off (conditioning-limited)
+// 1.0e5 is chosen: best measured agreement before the extreme-penalty
+// round-off regime the witness warns about sets in.
+const EXPANSION_LOOP_AXIAL_RIGIDITY_BOOST: f64 = 1.0e5;
+// User-entered in-plane bend flexibility sweep from the witness table.
+pub const EXPANSION_LOOP_FLEXIBILITY_FACTORS: [f64; 4] = [1.0, 5.0, 10.0, 20.0];
+// Reaction comparison tolerance (relative). Limiting factor: residual axial
+// flexibility of the boosted bending-only comparison model (~5.5e-3 / boost
+// relative, witness appendix item 6); measured max deviation 5.8e-8 relative
+// at boost 1.0e5.
+const EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE: f64 = 5.0e-7;
+// u_y(T2) comparison tolerance (relative). Same limiting factor as the
+// reactions; measured max deviation 4.5e-8 relative at boost 1.0e5.
+const EXPANSION_LOOP_DISPLACEMENT_RELATIVE_TOLERANCE: f64 = 5.0e-7;
+// u_x(T2) = -alpha DeltaT L2 is exact and k-independent only under the
+// bending-only assumption; the finite boost leaves the residual elastic
+// axial shortening H_B L2 / (E A boost) of leg 2, ~6e-8 relative at boost
+// 1.0e5 (measured max deviation 6.0e-8 relative).
+const EXPANSION_LOOP_UX_T2_RELATIVE_TOLERANCE: f64 = 5.0e-7;
+// Whole-body equilibrium residual floors (absolute, N and N-m). Limiting
+// factor: dense-solve round-off against ~2e11 N internal boosted-axial force
+// scale; measured max residuals 2.9e-5 N and 7.1e-5 N-m.
+pub const EXPANSION_LOOP_EQUILIBRIUM_FORCE_TOLERANCE: f64 = 1.0e-3;
+pub const EXPANSION_LOOP_EQUILIBRIUM_MOMENT_TOLERANCE: f64 = 1.0e-3;
+// Free-expansion identity self-check floors: with only rigid-body-blocking
+// restraints the displacements must reproduce the similarity-scaling mode
+// and the reactions must vanish at round-off. Limiting factor: conditioning
+// of the boosted-axial system; measured max deviations 1.5e-10 m (against
+// 8.1e-3 m free growth) and 1.1e-4 N (against the ~2e11 N internal force
+// scale).
+pub const EXPANSION_LOOP_SELF_CHECK_DISPLACEMENT_TOLERANCE: f64 = 1.0e-8;
+pub const EXPANSION_LOOP_SELF_CHECK_REACTION_TOLERANCE: f64 = 1.0e-2;
+
+// Witness expected values (anchor-on-pipe, counterclockwise +Z moments) from
+// the `Expected Values` tables of the witness note.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ExpansionLoopWitnessRow {
+    pub in_plane_flexibility_factor: f64,
+    pub h_b: f64,
+    pub v_b: f64,
+    pub m_b: f64,
+    pub m_a: f64,
+    pub t2_uy_displacement: f64,
+}
+
+pub const EXPANSION_LOOP_WITNESS_ROWS: [ExpansionLoopWitnessRow; 4] = [
+    ExpansionLoopWitnessRow {
+        in_plane_flexibility_factor: 1.0,
+        h_b: -1.163612454e4,
+        v_b: -7.635238153e3,
+        m_b: 1.523056675e4,
+        m_a: -2.159843094e4,
+        t2_uy_displacement: 6.691964071e-3,
+    },
+    ExpansionLoopWitnessRow {
+        in_plane_flexibility_factor: 5.0,
+        h_b: -7.461555977e3,
+        v_b: -4.329778531e3,
+        m_b: 1.065447422e4,
+        m_a: -1.728591674e4,
+        t2_uy_displacement: 6.468273963e-3,
+    },
+    ExpansionLoopWitnessRow {
+        in_plane_flexibility_factor: 10.0,
+        h_b: -6.144267267e3,
+        v_b: -3.301677847e3,
+        m_b: 9.245475309e3,
+        m_a: -1.589286043e4,
+        t2_uy_displacement: 6.417658716e-3,
+    },
+    ExpansionLoopWitnessRow {
+        in_plane_flexibility_factor: 20.0,
+        h_b: -5.282037255e3,
+        v_b: -2.654674339e3,
+        m_b: 8.383839402e3,
+        m_a: -1.492493527e4,
+        t2_uy_displacement: 6.419030749e-3,
+    },
+];
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ExpansionLoopCurvedBendThermalResult {
+    pub in_plane_flexibility_factor: f64,
+    pub h_a: f64,
+    pub v_a: f64,
+    pub m_a: f64,
+    pub h_b: f64,
+    pub v_b: f64,
+    pub m_b: f64,
+    pub t2_ux_displacement: f64,
+    pub t2_uy_displacement: f64,
+}
+
+pub fn expansion_loop_curved_bend_thermal_fixture() -> MechanicsBenchmark {
+    let mut expected_values = vec![ExpectedValue {
+        // Exact under the bending-only assumption and k-independent:
+        // u_x(T2) = -alpha DeltaT L2.
+        name: "t2_ux_displacement",
+        value: -expansion_loop_thermal_strain() * EXPANSION_LOOP_LEG2_LENGTH,
+        unit: "m",
+        dimension: "displacement",
+        tolerance_policy: None,
+    }];
+    for row in EXPANSION_LOOP_WITNESS_ROWS {
+        let k_label: &'static str = match row.in_plane_flexibility_factor as u32 {
+            1 => "k1",
+            5 => "k5",
+            10 => "k10",
+            _ => "k20",
+        };
+        let named = |name: &'static str, value: f64, unit: &'static str, dimension| ExpectedValue {
+            name,
+            value,
+            unit,
+            dimension,
+            tolerance_policy: None,
+        };
+        let (h_b_name, v_b_name, m_b_name, m_a_name, uy_name): (
+            &'static str,
+            &'static str,
+            &'static str,
+            &'static str,
+            &'static str,
+        ) = match k_label {
+            "k1" => (
+                "h_b_k1",
+                "v_b_k1",
+                "m_b_k1",
+                "m_a_k1",
+                "t2_uy_displacement_k1",
+            ),
+            "k5" => (
+                "h_b_k5",
+                "v_b_k5",
+                "m_b_k5",
+                "m_a_k5",
+                "t2_uy_displacement_k5",
+            ),
+            "k10" => (
+                "h_b_k10",
+                "v_b_k10",
+                "m_b_k10",
+                "m_a_k10",
+                "t2_uy_displacement_k10",
+            ),
+            _ => (
+                "h_b_k20",
+                "v_b_k20",
+                "m_b_k20",
+                "m_a_k20",
+                "t2_uy_displacement_k20",
+            ),
+        };
+        expected_values.push(named(h_b_name, row.h_b, "N", "force"));
+        expected_values.push(named(v_b_name, row.v_b, "N", "force"));
+        expected_values.push(named(m_b_name, row.m_b, "N-m", "moment"));
+        expected_values.push(named(m_a_name, row.m_a, "N-m", "moment"));
+        expected_values.push(named(uy_name, row.t2_uy_displacement, "m", "displacement"));
+    }
+
+    MechanicsBenchmark {
+        fixture_id: "MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL",
+        family: BenchmarkFamily::CurvedBendExpansionLoop,
+        description: "Invented plane expansion-loop (L-bend) thermal benchmark: two straight legs plus one curved-bend macro element, compared for k in {1, 5, 10, 20} against the independent force-method witness MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL with axial rigidity boosted by 1.0e5 to replicate the witness bending-only flexibility assumption.",
+        assumptions: &[
+            "Anchors A(0, 0) and B(4.5, 3.5) are fully fixed; the loop plane is the global X-Y plane and out-of-plane DOFs are restrained at the tangent points.",
+            "Straight legs A->T1 and T2->B are single Euler-Bernoulli frame elements, exact for nodal loading.",
+            "The quarter-circle elbow is one curved-bend macro element with center (0.5, 3.0) and user-entered in-plane flexibility factor k (opaque number; no code content).",
+            "Uniform-temperature thermal driving uses the exact identity f = K u_free with u_free the similarity-scaling mode alpha DeltaT (p - p_A) and zero rotations.",
+            "The witness bending-only flexibility assumption is replicated by scaling all member areas by EXPANSION_LOOP_AXIAL_RIGIDITY_BOOST = 1.0e5 (recorded boost study in the constant comment).",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/mechanics/expansion_loop_curved_bend_thermal.md",
+        ),
+        unit_basis: FIXTURE_UNIT_BASIS,
+        expected_values,
+    }
+}
+
+fn expansion_loop_thermal_strain() -> f64 {
+    EXPANSION_LOOP_THERMAL_EXPANSION_COEFFICIENT * EXPANSION_LOOP_TEMPERATURE_RISE
+}
+
+// Annulus section properties derived longhand in the witness note:
+// A = 5.420270230e-3 m^2, I = 3.018694757e-5 m^4.
+fn expansion_loop_section_area_and_second_moment() -> (f64, f64) {
+    let outer = EXPANSION_LOOP_OUTER_DIAMETER;
+    let inner = outer - 2.0 * EXPANSION_LOOP_WALL_THICKNESS;
+    let area = std::f64::consts::PI / 4.0 * (outer * outer - inner * inner);
+    let second_moment = std::f64::consts::PI / 64.0 * (outer.powi(4) - inner.powi(4));
+    (area, second_moment)
+}
+
+fn expansion_loop_nodes() -> Result<[FrameNode; 4], FrameKernelError> {
+    Ok([
+        FrameNode::new(0, [0.0, 0.0, 0.0])?,
+        FrameNode::new(1, [0.0, EXPANSION_LOOP_LEG1_LENGTH, 0.0])?,
+        FrameNode::new(
+            2,
+            [
+                EXPANSION_LOOP_BEND_RADIUS,
+                EXPANSION_LOOP_LEG1_LENGTH + EXPANSION_LOOP_BEND_RADIUS,
+                0.0,
+            ],
+        )?,
+        FrameNode::new(
+            3,
+            [
+                EXPANSION_LOOP_BEND_RADIUS + EXPANSION_LOOP_LEG2_LENGTH,
+                EXPANSION_LOOP_LEG1_LENGTH + EXPANSION_LOOP_BEND_RADIUS,
+                0.0,
+            ],
+        )?,
+    ])
+}
+
+// Global stiffness of the two straight legs plus the curved-bend macro
+// element, with all member areas scaled by `axial_rigidity_boost`.
+fn expansion_loop_global_stiffness(
+    in_plane_flexibility_factor: f64,
+    axial_rigidity_boost: f64,
+) -> Result<Vec<Vec<f64>>, String> {
+    let nodes = expansion_loop_nodes().map_err(|error| error.to_string())?;
+    let (area, second_moment) = expansion_loop_section_area_and_second_moment();
+    let boosted_area = area * axial_rigidity_boost;
+    let torsion_constant = 2.0 * second_moment;
+    let section = FrameSection::new(
+        EXPANSION_LOOP_ELASTIC_MODULUS,
+        EXPANSION_LOOP_SHEAR_MODULUS,
+        boosted_area,
+        second_moment,
+        second_moment,
+        torsion_constant,
+    )
+    .map_err(|error| error.to_string())?;
+    let legs = [
+        FrameElement::new(nodes[0], nodes[1], section, [1.0, 0.0, 0.0])
+            .map_err(|error| error.to_string())?,
+        FrameElement::new(nodes[2], nodes[3], section, [0.0, 1.0, 0.0])
+            .map_err(|error| error.to_string())?,
+    ];
+    let mut stiffness =
+        assemble_global_stiffness(nodes.len(), &legs).map_err(|error| error.to_string())?;
+
+    let bend = CurvedBendMacroElement::new(
+        nodes[1],
+        nodes[2],
+        [EXPANSION_LOOP_BEND_RADIUS, EXPANSION_LOOP_LEG1_LENGTH, 0.0],
+        EXPANSION_LOOP_ELASTIC_MODULUS,
+        EXPANSION_LOOP_SHEAR_MODULUS,
+        boosted_area,
+        second_moment,
+        torsion_constant,
+        in_plane_flexibility_factor,
+        1.0,
+    )
+    .map_err(|error| error.to_string())?;
+    let bend_stiffness = bend.global_stiffness().map_err(|error| error.to_string())?;
+    let dof_map = element_dof_map(nodes[1].index, nodes[2].index);
+    for row in 0..ELEMENT_DOF {
+        for col in 0..ELEMENT_DOF {
+            stiffness[dof_map[row]][dof_map[col]] += bend_stiffness[row][col];
+        }
+    }
+    Ok(stiffness)
+}
+
+// Free thermal displacement mode of the loop under uniform DeltaT: similarity
+// scaling about anchor A with strain alpha DeltaT, zero rotations everywhere.
+fn expansion_loop_free_thermal_displacements(nodes: &[FrameNode]) -> Vec<f64> {
+    let strain = expansion_loop_thermal_strain();
+    let anchor = nodes[0].coordinates;
+    let mut displacements = vec![0.0; nodes.len() * DOF_PER_NODE];
+    for node in nodes {
+        let base = node.index * DOF_PER_NODE;
+        displacements[base + UX] = strain * (node.coordinates[0] - anchor[0]);
+        displacements[base + UY] = strain * (node.coordinates[1] - anchor[1]);
+        displacements[base + UZ] = strain * (node.coordinates[2] - anchor[2]);
+    }
+    displacements
+}
+
+fn matrix_vector_product(matrix: &[Vec<f64>], vector: &[f64]) -> Vec<f64> {
+    matrix
+        .iter()
+        .map(|row| {
+            row.iter()
+                .zip(vector.iter())
+                .map(|(entry, value)| entry * value)
+                .sum()
+        })
+        .collect()
+}
+
+fn expansion_loop_solve_with_boost(
+    in_plane_flexibility_factor: f64,
+    axial_rigidity_boost: f64,
+) -> Result<ExpansionLoopCurvedBendThermalResult, String> {
+    let nodes = expansion_loop_nodes().map_err(|error| error.to_string())?;
+    let stiffness =
+        expansion_loop_global_stiffness(in_plane_flexibility_factor, axial_rigidity_boost)?;
+    let free_displacements = expansion_loop_free_thermal_displacements(&nodes);
+    // Exact uniform-DeltaT equivalent nodal load: f = K u_free.
+    let force = matrix_vector_product(&stiffness, &free_displacements);
+
+    // Anchors fully fixed; tangent points restrained out of plane.
+    let restrained_dofs = all_node_dofs(0)
+        .into_iter()
+        .chain(all_node_dofs(3))
+        .chain([
+            DOF_PER_NODE + UZ,
+            DOF_PER_NODE + RX,
+            DOF_PER_NODE + RY,
+            2 * DOF_PER_NODE + UZ,
+            2 * DOF_PER_NODE + RX,
+            2 * DOF_PER_NODE + RY,
+        ])
+        .collect::<Vec<_>>();
+    let reduced =
+        reduce_system(&stiffness, &force, &restrained_dofs).map_err(|error| error.to_string())?;
+    let reduced_displacements =
+        solve_dense(&reduced.stiffness, &reduced.force).map_err(|error| error.to_string())?;
+    let mut displacements = vec![0.0; nodes.len() * DOF_PER_NODE];
+    for (&dof, &value) in reduced.free_dofs.iter().zip(reduced_displacements.iter()) {
+        displacements[dof] = value;
+    }
+    // Anchor-on-pipe reactions at restrained DOFs: r = K u - f.
+    let elastic_forces = matrix_vector_product(&stiffness, &displacements);
+    let reactions = elastic_forces
+        .iter()
+        .zip(force.iter())
+        .map(|(elastic, applied)| elastic - applied)
+        .collect::<Vec<_>>();
+
+    Ok(ExpansionLoopCurvedBendThermalResult {
+        in_plane_flexibility_factor,
+        h_a: reactions[UX],
+        v_a: reactions[UY],
+        m_a: reactions[RZ],
+        h_b: reactions[3 * DOF_PER_NODE + UX],
+        v_b: reactions[3 * DOF_PER_NODE + UY],
+        m_b: reactions[3 * DOF_PER_NODE + RZ],
+        t2_ux_displacement: displacements[2 * DOF_PER_NODE + UX],
+        t2_uy_displacement: displacements[2 * DOF_PER_NODE + UY],
+    })
+}
+
+pub fn solve_expansion_loop_curved_bend_thermal(
+    in_plane_flexibility_factor: f64,
+) -> Result<ExpansionLoopCurvedBendThermalResult, String> {
+    expansion_loop_solve_with_boost(
+        in_plane_flexibility_factor,
+        EXPANSION_LOOP_AXIAL_RIGIDITY_BOOST,
+    )
+}
+
+/// Self-check of the thermal-driving identity f = K u_free: with only
+/// rigid-body-blocking restraints (anchor A fixed, anchor B released) the
+/// solved displacements must reproduce the free similarity-scaling mode and
+/// every reaction must vanish at round-off. Returns the maximum displacement
+/// deviation (m) and maximum reaction magnitude (N or N-m) over the sweep.
+pub fn expansion_loop_free_expansion_self_check() -> Result<(f64, f64), String> {
+    let nodes = expansion_loop_nodes().map_err(|error| error.to_string())?;
+    let mut max_displacement_deviation = 0.0_f64;
+    let mut max_reaction_magnitude = 0.0_f64;
+    for in_plane_flexibility_factor in EXPANSION_LOOP_FLEXIBILITY_FACTORS {
+        let stiffness = expansion_loop_global_stiffness(
+            in_plane_flexibility_factor,
+            EXPANSION_LOOP_AXIAL_RIGIDITY_BOOST,
+        )?;
+        let free_displacements = expansion_loop_free_thermal_displacements(&nodes);
+        let force = matrix_vector_product(&stiffness, &free_displacements);
+        let restrained_dofs = all_node_dofs(0);
+        let reduced = reduce_system(&stiffness, &force, &restrained_dofs)
+            .map_err(|error| error.to_string())?;
+        let reduced_displacements =
+            solve_dense(&reduced.stiffness, &reduced.force).map_err(|error| error.to_string())?;
+        let mut displacements = vec![0.0; nodes.len() * DOF_PER_NODE];
+        for (&dof, &value) in reduced.free_dofs.iter().zip(reduced_displacements.iter()) {
+            displacements[dof] = value;
+        }
+        for (solved, free) in displacements.iter().zip(free_displacements.iter()) {
+            max_displacement_deviation = max_displacement_deviation.max((solved - free).abs());
+        }
+        let elastic_forces = matrix_vector_product(&stiffness, &displacements);
+        for (elastic, applied) in elastic_forces.iter().zip(force.iter()) {
+            max_reaction_magnitude = max_reaction_magnitude.max((elastic - applied).abs());
+        }
+    }
+    Ok((max_displacement_deviation, max_reaction_magnitude))
+}
+
+fn expansion_loop_close(actual: f64, expected: f64, relative_tolerance: f64) -> bool {
+    (actual - expected).abs() <= relative_tolerance * expected.abs().max(1.0e-5)
+}
+
+pub fn validate_expansion_loop_curved_bend_thermal() -> bool {
+    EXPANSION_LOOP_WITNESS_ROWS.iter().all(|row| {
+        let Ok(result) = solve_expansion_loop_curved_bend_thermal(row.in_plane_flexibility_factor)
+        else {
+            return false;
+        };
+        expansion_loop_close(
+            result.h_b,
+            row.h_b,
+            EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE,
+        ) && expansion_loop_close(
+            result.v_b,
+            row.v_b,
+            EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE,
+        ) && expansion_loop_close(
+            result.m_b,
+            row.m_b,
+            EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE,
+        ) && expansion_loop_close(
+            result.m_a,
+            row.m_a,
+            EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE,
+        ) && expansion_loop_close(
+            result.h_a,
+            -row.h_b,
+            EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE,
+        ) && expansion_loop_close(
+            result.v_a,
+            -row.v_b,
+            EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE,
+        ) && expansion_loop_close(
+            result.t2_uy_displacement,
+            row.t2_uy_displacement,
+            EXPANSION_LOOP_DISPLACEMENT_RELATIVE_TOLERANCE,
+        ) && expansion_loop_close(
+            result.t2_ux_displacement,
+            -expansion_loop_thermal_strain() * EXPANSION_LOOP_LEG2_LENGTH,
+            EXPANSION_LOOP_UX_T2_RELATIVE_TOLERANCE,
+        )
     })
 }
 
@@ -4470,7 +4945,7 @@ mod tests {
     fn inventory_covers_required_mechanics_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 18);
+        assert_eq!(fixtures.len(), 19);
         assert!(fixtures
             .iter()
             .any(|fixture| fixture.fixture_id == "MECH-BRANCH-ASSEMBLY-THREE-MEMBER"));
@@ -4769,6 +5244,172 @@ mod tests {
                 && link.target_ref
                     == Reference::new("result_value", "result:load-vector:node-N-1:uy")
         }));
+    }
+
+    #[test]
+    fn expansion_loop_fixture_matches_witness_reference_table() {
+        let fixture = expansion_loop_curved_bend_thermal_fixture();
+        assert_eq!(
+            fixture.fixture_id,
+            "MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL"
+        );
+        assert!(fixture.provenance.is_publicly_usable());
+        assert!(fixture.tolerance_policy_is_unresolved());
+        assert!(fixture.has_dimensioned_expected_values());
+        assert_eq!(fixture.expected_values.len(), 21);
+        assert!(BENCHMARK_README.contains(fixture.fixture_id));
+
+        for row in EXPANSION_LOOP_WITNESS_ROWS {
+            let result =
+                solve_expansion_loop_curved_bend_thermal(row.in_plane_flexibility_factor).unwrap();
+            for (name, actual, expected) in [
+                ("H_B", result.h_b, row.h_b),
+                ("V_B", result.v_b, row.v_b),
+                ("M_B", result.m_b, row.m_b),
+                ("M_A", result.m_a, row.m_a),
+                ("H_A", result.h_a, -row.h_b),
+                ("V_A", result.v_a, -row.v_b),
+            ] {
+                assert!(
+                    expansion_loop_close(
+                        actual,
+                        expected,
+                        EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE
+                    ),
+                    "{name} at k = {}: solver {actual} vs witness {expected}",
+                    row.in_plane_flexibility_factor
+                );
+            }
+            assert!(
+                expansion_loop_close(
+                    result.t2_uy_displacement,
+                    row.t2_uy_displacement,
+                    EXPANSION_LOOP_DISPLACEMENT_RELATIVE_TOLERANCE
+                ),
+                "u_y(T2) at k = {}: solver {} vs witness {}",
+                row.in_plane_flexibility_factor,
+                result.t2_uy_displacement,
+                row.t2_uy_displacement
+            );
+        }
+        assert!(validate_expansion_loop_curved_bend_thermal());
+    }
+
+    #[test]
+    fn expansion_loop_free_expansion_identity_is_stress_free() {
+        let (max_displacement_deviation, max_reaction_magnitude) =
+            expansion_loop_free_expansion_self_check().unwrap();
+        assert!(
+            max_displacement_deviation <= EXPANSION_LOOP_SELF_CHECK_DISPLACEMENT_TOLERANCE,
+            "free-expansion displacement deviation {max_displacement_deviation} exceeds tolerance"
+        );
+        assert!(
+            max_reaction_magnitude <= EXPANSION_LOOP_SELF_CHECK_REACTION_TOLERANCE,
+            "free-expansion reaction magnitude {max_reaction_magnitude} exceeds tolerance"
+        );
+    }
+
+    #[test]
+    fn expansion_loop_t2_x_displacement_is_k_independent_free_shortening() {
+        let expected = -expansion_loop_thermal_strain() * EXPANSION_LOOP_LEG2_LENGTH;
+        for in_plane_flexibility_factor in EXPANSION_LOOP_FLEXIBILITY_FACTORS {
+            let result =
+                solve_expansion_loop_curved_bend_thermal(in_plane_flexibility_factor).unwrap();
+            assert!(
+                expansion_loop_close(
+                    result.t2_ux_displacement,
+                    expected,
+                    EXPANSION_LOOP_UX_T2_RELATIVE_TOLERANCE
+                ),
+                "u_x(T2) at k = {in_plane_flexibility_factor}: solver {} vs exact {expected}",
+                result.t2_ux_displacement
+            );
+        }
+    }
+
+    #[test]
+    fn expansion_loop_k_sweep_reactions_decrease_strictly_monotonically() {
+        let results = EXPANSION_LOOP_FLEXIBILITY_FACTORS
+            .map(|factor| solve_expansion_loop_curved_bend_thermal(factor).unwrap());
+        for pair in results.windows(2) {
+            assert!(
+                pair[1].m_a.abs() < pair[0].m_a.abs(),
+                "|M_A| must strictly decrease from k = {} to k = {}",
+                pair[0].in_plane_flexibility_factor,
+                pair[1].in_plane_flexibility_factor
+            );
+            assert!(
+                pair[1].m_b.abs() < pair[0].m_b.abs(),
+                "|M_B| must strictly decrease from k = {} to k = {}",
+                pair[0].in_plane_flexibility_factor,
+                pair[1].in_plane_flexibility_factor
+            );
+            assert!(
+                pair[1].h_b.abs() < pair[0].h_b.abs(),
+                "|H_B| must strictly decrease from k = {} to k = {}",
+                pair[0].in_plane_flexibility_factor,
+                pair[1].in_plane_flexibility_factor
+            );
+            assert!(
+                pair[1].v_b.abs() < pair[0].v_b.abs(),
+                "|V_B| must strictly decrease from k = {} to k = {}",
+                pair[0].in_plane_flexibility_factor,
+                pair[1].in_plane_flexibility_factor
+            );
+        }
+    }
+
+    #[test]
+    fn expansion_loop_reactions_satisfy_whole_body_equilibrium() {
+        let x_b = EXPANSION_LOOP_BEND_RADIUS + EXPANSION_LOOP_LEG2_LENGTH;
+        let y_b = EXPANSION_LOOP_LEG1_LENGTH + EXPANSION_LOOP_BEND_RADIUS;
+        for in_plane_flexibility_factor in EXPANSION_LOOP_FLEXIBILITY_FACTORS {
+            let result =
+                solve_expansion_loop_curved_bend_thermal(in_plane_flexibility_factor).unwrap();
+            let sum_fx = result.h_a + result.h_b;
+            let sum_fy = result.v_a + result.v_b;
+            let sum_m_about_a = result.m_a + result.m_b + x_b * result.v_b - y_b * result.h_b;
+            assert!(
+                sum_fx.abs() <= EXPANSION_LOOP_EQUILIBRIUM_FORCE_TOLERANCE,
+                "sum Fx residual {sum_fx} at k = {in_plane_flexibility_factor}"
+            );
+            assert!(
+                sum_fy.abs() <= EXPANSION_LOOP_EQUILIBRIUM_FORCE_TOLERANCE,
+                "sum Fy residual {sum_fy} at k = {in_plane_flexibility_factor}"
+            );
+            assert!(
+                sum_m_about_a.abs() <= EXPANSION_LOOP_EQUILIBRIUM_MOMENT_TOLERANCE,
+                "sum M about A residual {sum_m_about_a} at k = {in_plane_flexibility_factor}"
+            );
+        }
+    }
+
+    #[test]
+    fn expansion_loop_stiffer_elbow_forces_larger_departure_from_free_growth() {
+        // Free thermal growth of T2 in Y is alpha DeltaT y_T2 = 6.3e-3 m. The
+        // witness table shows every restrained u_y(T2) above that value, with
+        // the k = 1 (stiffest elbow) departure strictly larger than the
+        // k = 20 (most flexible elbow) departure: increased elbow flexibility
+        // lets the tangent point relax toward its free-growth position.
+        let free_uy = expansion_loop_thermal_strain()
+            * (EXPANSION_LOOP_LEG1_LENGTH + EXPANSION_LOOP_BEND_RADIUS);
+        let stiff = solve_expansion_loop_curved_bend_thermal(1.0).unwrap();
+        let flexible = solve_expansion_loop_curved_bend_thermal(20.0).unwrap();
+        for result in [&stiff, &flexible] {
+            assert!(
+                result.t2_uy_displacement > free_uy,
+                "restrained u_y(T2) {} must exceed free growth {free_uy} at k = {}",
+                result.t2_uy_displacement,
+                result.in_plane_flexibility_factor
+            );
+        }
+        assert!(
+            (stiff.t2_uy_displacement - free_uy).abs()
+                > (flexible.t2_uy_displacement - free_uy).abs(),
+            "k = 1 departure {} must exceed k = 20 departure {}",
+            (stiff.t2_uy_displacement - free_uy).abs(),
+            (flexible.t2_uy_displacement - free_uy).abs()
+        );
     }
 
     #[test]

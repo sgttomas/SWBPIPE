@@ -5,6 +5,7 @@
 //! does not encode standards criteria, allowables, SIF tables, private data, or
 //! professional acceptance.
 
+use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness_with_user_elements, element_dof_map, reduce_system, solve_dense,
     FrameElement, FrameKernelError, FrameNode, Matrix12, UserStiffnessElement, DOF_PER_NODE,
@@ -71,6 +72,19 @@ const DEC_046_PRODUCT_PREVIEW_TRANSLATION_DELTA_ABSOLUTE_LIMIT_MM: f64 = 50.0;
 const DEC_046_PRODUCT_PREVIEW_ROTATION_DELTA_ABSOLUTE_LIMIT_RAD: f64 = 0.05;
 const DEC_046_PRODUCT_PREVIEW_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT_N: f64 = 110_000.0;
 const DEC_046_PRODUCT_PREVIEW_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT_N_M: f64 = 110_000.0;
+
+// DEC-070 curved-bend macro-element realization (D-34 Option O-B): a bend
+// component with this solver-consumption mode is assembled as an
+// arc-consistent macro-element carrying the user-entered flexibility factor;
+// the legacy `mechanics_geometry_only` mode keeps the DEC-045 multiplier-only
+// behavior byte-identically.
+const DEC_070_CURVED_BEND_SOLVER_CONSUMPTION: &str = "curved_bend_macro_element";
+// Relative agreement demanded between the user-entered bend angle and the
+// included angle implied by the user chord and user bend radius.
+const DEC_070_CURVED_BEND_ANGLE_MATCH_TOLERANCE: f64 = 1.0e-6;
+// Minimum in-plane component of the pipe y_reference perpendicular to the
+// chord before the user bend plane is treated as undefined.
+const DEC_070_CURVED_BEND_PLANE_TOLERANCE: f64 = 1.0e-9;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PreviewModel {
@@ -172,6 +186,8 @@ pub struct PreviewComponent {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct ComponentGeometryInput {
+    #[serde(default)]
+    pub bend_pipe_ref: Option<String>,
     #[serde(default)]
     pub bend_radius: Option<Quantity>,
     #[serde(default)]
@@ -562,6 +578,7 @@ struct BuiltModel {
     pipes: Vec<StraightPipeElement>,
     frame_elements: Vec<FrameElement>,
     user_stiffness_elements: Vec<UserStiffnessElement>,
+    curved_bend_elements: Vec<CurvedBendMacroBuild>,
     supports: Vec<LinearSupport>,
     nonlinear_supports: Vec<NonlinearSupport>,
     nonlinear_initial_states: Vec<SupportStateRecord>,
@@ -584,6 +601,29 @@ struct LoadCaseSolve {
 struct ThermalElementLoad {
     element_index: usize,
     axial_load: f64,
+    /// Free thermal strain `alpha * delta_T`; the curved-bend macro span uses
+    /// this with the exact free-expansion identity instead of `axial_load`.
+    thermal_strain: f64,
+}
+
+/// Curved-bend macro-element realization of one bend component over one pipe
+/// span (DEC-070). The 12x12 global stiffness is validated and formed once at
+/// build time so every assembly path consumes the identical matrix.
+#[derive(Debug, Clone)]
+struct CurvedBendMacroBuild {
+    component_id: String,
+    pipe_id: String,
+    pipe_index: usize,
+    node_i: usize,
+    node_j: usize,
+    /// Chord vector `x_j - x_i` in global coordinates.
+    chord: [f64; 3],
+    global_stiffness: Matrix12,
+    arc_length: f64,
+    included_angle: f64,
+    bend_radius: f64,
+    flexibility_factor: f64,
+    source_reference: String,
 }
 
 #[derive(Debug, Clone)]
@@ -720,6 +760,7 @@ pub fn run_linear_static_preview_with_mode(
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
     };
+    add_curved_bend_stiffness_contributions(&mut stiffness, &built.curved_bend_elements);
     for spring in &boundary.springs {
         stiffness[spring.node_dof.global_index()][spring.node_dof.global_index()] +=
             spring.stiffness.value;
@@ -783,7 +824,8 @@ pub fn run_linear_static_preview_with_mode(
     }
     append_combination_results(&model, &rows_by_base_id, &mut results, &mut diagnostics);
     let component_user_stiffness_macro_element_count =
-        append_expansion_joint_user_stiffness_results(&model, &mut results);
+        append_expansion_joint_user_stiffness_results(&model, &mut results)
+            + append_curved_bend_macro_element_results(&built.curved_bend_elements, &mut results);
     let spring_hanger_user_input_count =
         append_spring_hanger_user_input_results(&model, &mut results);
 
@@ -883,15 +925,31 @@ fn solve_load_case(
     let pressure_thrust_loads =
         build_pressure_thrust_loads(model, load_case, &pipe_map, &built.sections);
 
+    let curved_bends_by_pipe = built
+        .curved_bend_elements
+        .iter()
+        .map(|element| (element.pipe_index, element))
+        .collect::<HashMap<_, _>>();
     let mut force = load_application.global_load_vector(built.nodes.len());
     add_uniform_element_loads(
         &mut force,
         model,
         &load_application.element_uniform_loads,
         &built.pipes,
+        &curved_bends_by_pipe,
+        &load_case.id,
+        diagnostics,
     );
+    // Pressure thrust keeps the straight-element treatment on macro spans:
+    // equal/opposite axial end forces along the chord direction (decision
+    // recorded in the curved-bend review-row basis).
     add_pressure_thrust_loads(&mut force, &pressure_thrust_loads, &built.pipes);
-    add_thermal_equivalent_loads(&mut force, &thermal_loads, &built.pipes);
+    add_thermal_equivalent_loads(
+        &mut force,
+        &thermal_loads,
+        &built.pipes,
+        &curved_bends_by_pipe,
+    );
 
     let reduced = reduce_system(stiffness, &force, restrained_dofs)?;
     let linear_solve = solve_preview_reduced_system(
@@ -1013,27 +1071,78 @@ fn solve_load_case(
     let mut max_stress = None;
     let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
-        let local = match pipe.recover_local_forces_from_global_model(&displacements) {
-            Ok(local) => local,
-            Err(error) => {
-                diagnostics.push(diag(
-                    &format!("diagnostic:stress:{}", stable_suffix(&pipe.element_id)),
-                    "ELEMENT_FORCE_RECOVERY_FAILED",
-                    "warning",
-                    error.to_string(),
-                    vec![pipe.element_id.clone()],
-                ));
-                continue;
+        let macro_bend = curved_bends_by_pipe.get(&pipe_index).copied();
+        let corrected_local_forces = if let Some(bend) = macro_bend {
+            // Macro-span end forces come from the assembled arc stiffness
+            // (K_macro * d minus the exact free-expansion thermal part),
+            // expressed in the chord frame so the existing result-envelope
+            // rows keep their coordinate convention.
+            match recover_curved_bend_local_forces(
+                bend,
+                pipe,
+                &displacements,
+                &thermal_loads,
+                &pressure_thrust_loads,
+            ) {
+                Ok(local_forces) => local_forces,
+                Err(message) => {
+                    diagnostics.push(diag(
+                        &format!("diagnostic:stress:{}", stable_suffix(&pipe.element_id)),
+                        "ELEMENT_FORCE_RECOVERY_FAILED",
+                        "warning",
+                        message,
+                        vec![pipe.element_id.clone()],
+                    ));
+                    continue;
+                }
             }
+        } else {
+            let local = match pipe.recover_local_forces_from_global_model(&displacements) {
+                Ok(local) => local,
+                Err(error) => {
+                    diagnostics.push(diag(
+                        &format!("diagnostic:stress:{}", stable_suffix(&pipe.element_id)),
+                        "ELEMENT_FORCE_RECOVERY_FAILED",
+                        "warning",
+                        error.to_string(),
+                        vec![pipe.element_id.clone()],
+                    ));
+                    continue;
+                }
+            };
+            corrected_local_forces_for_axial_effects(
+                &local.local_forces,
+                pipe_index,
+                &thermal_loads,
+                &pressure_thrust_loads,
+            )
         };
-        let corrected_local_forces = corrected_local_forces_for_axial_effects(
-            &local.local_forces,
-            pipe_index,
-            &thermal_loads,
-            &pressure_thrust_loads,
-        );
         append_element_force_results(&mut results, &pipe.element_id, &corrected_local_forces);
-        let station_resultants = station_grid_resultants_from_endpoints(&corrected_local_forces);
+        // Arc interior stations are a recorded residual: the endpoint-linear
+        // interpolation below is only meaningful for straight spans.
+        let station_resultants = if let Some(bend) = macro_bend {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:curved-bend:{}:{}:interior-stations",
+                    stable_suffix(&load_case.id),
+                    stable_suffix(&pipe.element_id)
+                ),
+                "CURVED_BEND_INTERIOR_STATIONS_NOT_EVALUATED",
+                "info",
+                format!(
+                    "curved-bend span {} reports end forces from the assembled macro-element stiffness only; arc interior station resultants and stresses are a recorded residual and no straight-line interpolation is emitted",
+                    pipe.element_id
+                ),
+                vec![
+                    pipe.element_id.clone(),
+                    bend.component_id.clone(),
+                    load_case.id.clone(),
+                ],
+            ));
+            Vec::new()
+        } else {
+            station_grid_resultants_from_endpoints(&corrected_local_forces).to_vec()
+        };
         for station in &station_resultants {
             append_station_force_results(
                 &mut results,
@@ -1205,6 +1314,35 @@ fn append_nonlinear_support_loop_results(
     solver_mode: PreviewSolverMode,
 ) {
     if built.nonlinear_supports.is_empty() {
+        return;
+    }
+
+    // The assembled active-set loop input carries frame and user-stiffness
+    // elements only; it cannot yet re-assemble the curved-bend macro-element
+    // stiffness inside the solver crate. Blocking here is the recorded
+    // residual for that combination — no straight-chord fallback is assembled
+    // and no silently arc-free nonlinear result is emitted (PRD 6.2).
+    if !built.curved_bend_elements.is_empty() {
+        let mut affected_refs = vec![load_case.id.clone()];
+        affected_refs.extend(
+            built
+                .curved_bend_elements
+                .iter()
+                .map(|element| element.component_id.clone()),
+        );
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:nonlinear:{}:curved-bend",
+                stable_suffix(&load_case.id)
+            ),
+            "CURVED_BEND_NONLINEAR_LOOP_UNSUPPORTED",
+            "blocking",
+            format!(
+                "nonlinear support active-set preview cannot yet assemble the curved-bend macro-element stiffness for load case {}; the solver loop input carries frame and user-stiffness elements only and no straight-chord fallback is assembled; remove the nonlinear supports or the {} consumption until the solver input carries the assembled arc stiffness",
+                load_case.id, DEC_070_CURVED_BEND_SOLVER_CONSUMPTION
+            ),
+            affected_refs,
+        ));
         return;
     }
 
@@ -1497,6 +1635,7 @@ fn solve_preview_reduced_system(
                 built.nodes.len(),
                 &built.frame_elements,
                 &built.user_stiffness_elements,
+                &built.curved_bend_elements,
                 spring_entries,
                 global_force,
                 restrained_dofs,
@@ -1671,6 +1810,7 @@ fn append_sparse_live_path_evidence(
         built.nodes.len(),
         &built.frame_elements,
         &built.user_stiffness_elements,
+        &built.curved_bend_elements,
         spring_entries,
         force,
         restrained_dofs,
@@ -1779,6 +1919,7 @@ fn assemble_reduced_sparse_entry_system(
     node_count: usize,
     frame_elements: &[FrameElement],
     user_stiffness_elements: &[UserStiffnessElement],
+    curved_bend_elements: &[CurvedBendMacroBuild],
     spring_entries: &[SpringEntry],
     force: &[f64],
     restrained_dofs: &[usize],
@@ -1843,6 +1984,16 @@ fn assemble_reduced_sparse_entry_system(
             &element_stiffness,
         )?;
     }
+    for element in curved_bend_elements {
+        validate_element_nodes(element.node_i, element.node_j, node_count)?;
+        append_reduced_element_entries(
+            &mut entries,
+            &global_to_reduced,
+            element.node_i,
+            element.node_j,
+            &element.global_stiffness,
+        )?;
+    }
     for spring in spring_entries {
         if spring.node_dof.node_index >= node_count {
             return Err(FrameKernelError::InvalidNodeIndex {
@@ -1865,6 +2016,23 @@ fn assemble_reduced_sparse_entry_system(
         entries,
         force: reduced_force,
     })
+}
+
+// Dense-path assembly of the curved-bend macro-element stiffness beside the
+// frame and user-stiffness elements (the replaced chord element is excluded in
+// `build_model`, so the arc contribution is never double-counted).
+fn add_curved_bend_stiffness_contributions(
+    stiffness: &mut [Vec<f64>],
+    curved_bend_elements: &[CurvedBendMacroBuild],
+) {
+    for element in curved_bend_elements {
+        let dof_map = element_dof_map(element.node_i, element.node_j);
+        for (local_row, &global_row) in dof_map.iter().enumerate() {
+            for (local_col, &global_col) in dof_map.iter().enumerate() {
+                stiffness[global_row][global_col] += element.global_stiffness[local_row][local_col];
+            }
+        }
+    }
 }
 
 fn validate_element_nodes(
@@ -2556,6 +2724,11 @@ fn build_model(
         }
     }
 
+    // Pipe spans realized as curved-bend macro-elements must not also carry
+    // their straight chord element (no double stiffness); the macro-element
+    // build below emits blocking diagnostics for every insufficiency, so an
+    // excluded span never silently loses stiffness.
+    let curved_bend_pipe_ids = curved_bend_realized_pipe_ids(model);
     let mut pipes = Vec::new();
     let mut frame_elements = Vec::new();
     let mut sections = HashMap::new();
@@ -2633,17 +2806,27 @@ fn build_model(
                     continue;
                 }
             };
-        frame_elements.push(
-            element
-                .frame_element()
-                .expect("validated straight pipe frame element"),
-        );
+        if !curved_bend_pipe_ids.contains(pipe.id.as_str()) {
+            frame_elements.push(
+                element
+                    .frame_element()
+                    .expect("validated straight pipe frame element"),
+            );
+        }
         sections.insert(pipe.id.clone(), derived);
         pipes.push(element);
     }
 
     let user_stiffness_elements =
         build_expansion_joint_user_stiffness_elements(model, &nodes, &node_map, diagnostics);
+    let curved_bend_elements = build_curved_bend_macro_elements(
+        model,
+        materials,
+        &nodes,
+        &node_map,
+        &sections,
+        diagnostics,
+    );
     let nonlinear = build_nonlinear_supports(model, &node_map, diagnostics);
     let supports = model
         .supports
@@ -2720,6 +2903,7 @@ fn build_model(
         pipes,
         frame_elements,
         user_stiffness_elements,
+        curved_bend_elements,
         supports,
         nonlinear_supports: nonlinear.supports,
         nonlinear_initial_states: nonlinear.initial_states,
@@ -2836,6 +3020,393 @@ fn expansion_joint_macro_element_diag(
             stable_suffix(&component.id)
         ),
         "EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID",
+        "blocking",
+        message,
+        vec![component.id.clone(), pipe_ref.to_string()],
+    )
+}
+
+fn component_solver_consumption(component: &PreviewComponent, default: &'static str) -> String {
+    component
+        .mechanics_interface
+        .as_ref()
+        .and_then(|interface| interface.solver_consumption.as_deref())
+        .unwrap_or(default)
+        .to_string()
+}
+
+fn is_curved_bend_macro_component(component: &PreviewComponent) -> bool {
+    is_bend_component(component)
+        && component_solver_consumption(component, "mechanics_geometry_only")
+            == DEC_070_CURVED_BEND_SOLVER_CONSUMPTION
+}
+
+// Pipe spans whose straight chord element is replaced by a curved-bend
+// macro-element. Membership requires only the mode and a resolvable pipe
+// reference; every other insufficiency blocks in
+// `build_curved_bend_macro_elements`, so exclusion never silently drops
+// stiffness from a model that solves.
+fn curved_bend_realized_pipe_ids(model: &PreviewModel) -> HashSet<&str> {
+    model
+        .components
+        .iter()
+        .filter(|component| is_curved_bend_macro_component(component))
+        .filter_map(|component| {
+            component
+                .geometry
+                .as_ref()
+                .and_then(|geometry| geometry.bend_pipe_ref.as_deref())
+                .filter(|value| !value.trim().is_empty())
+        })
+        .collect()
+}
+
+fn build_curved_bend_macro_elements(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    nodes: &[FrameNode],
+    node_map: &HashMap<&str, usize>,
+    sections: &HashMap<String, DerivedSection>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Vec<CurvedBendMacroBuild> {
+    let pipe_map = model
+        .pipe_segments
+        .iter()
+        .enumerate()
+        .map(|(index, pipe)| (pipe.id.as_str(), (index, pipe)))
+        .collect::<HashMap<_, _>>();
+    let material_map = materials
+        .iter()
+        .map(|m| (m.id.as_str(), m))
+        .collect::<HashMap<_, _>>();
+    let mut builds = Vec::new();
+
+    for component in model
+        .components
+        .iter()
+        .filter(|component| is_curved_bend_macro_component(component))
+    {
+        // The mode explicitly requests the assembled arc realization, so every
+        // insufficiency below is a blocking diagnostic; there is no silent
+        // straight-chord or multiplier-only fallback (PRD 6.2).
+        let Some(geometry) = component.geometry.as_ref() else {
+            diagnostics.push(curved_bend_geometry_missing_diag(
+                component,
+                "component geometry block with bend_pipe_ref and bend_radius",
+            ));
+            continue;
+        };
+        let Some(pipe_ref) = geometry
+            .bend_pipe_ref
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+        else {
+            diagnostics.push(curved_bend_geometry_missing_diag(
+                component,
+                "geometry.bend_pipe_ref naming the realized bend span",
+            ));
+            continue;
+        };
+        let Some(&(pipe_index, pipe)) = pipe_map.get(pipe_ref) else {
+            diagnostics.push(curved_bend_mapping_diag(
+                component,
+                pipe_ref,
+                "bend_pipe_ref is not present in preview model pipe segments",
+            ));
+            continue;
+        };
+        let (Some(&from_index), Some(&to_index)) = (
+            node_map.get(pipe.from.as_str()),
+            node_map.get(pipe.to.as_str()),
+        ) else {
+            // The pipe loop already emitted the blocking endpoint diagnostic.
+            continue;
+        };
+        let Some(&component_node_index) = node_map.get(component.node.as_str()) else {
+            diagnostics.push(curved_bend_mapping_diag(
+                component,
+                pipe_ref,
+                "component node is not present in preview model",
+            ));
+            continue;
+        };
+        if component_node_index != from_index && component_node_index != to_index {
+            diagnostics.push(curved_bend_mapping_diag(
+                component,
+                pipe_ref,
+                "component node must be an endpoint of the referenced bend span",
+            ));
+            continue;
+        }
+        let Some(y_reference) = pipe.y_reference else {
+            // The pipe loop already emitted the blocking orientation diagnostic.
+            continue;
+        };
+        let Some(modifiers) = component.modifiers.as_ref() else {
+            diagnostics.push(curved_bend_geometry_missing_diag(
+                component,
+                "component modifiers block with flexibility_factor_user_value",
+            ));
+            continue;
+        };
+        let Some(flexibility) = modifiers
+            .flexibility_factor_user_value
+            .as_ref()
+            .map(|quantity| quantity.value)
+        else {
+            diagnostics.push(curved_bend_geometry_missing_diag(
+                component,
+                "modifiers.flexibility_factor_user_value",
+            ));
+            continue;
+        };
+        if !positive_finite(flexibility) {
+            diagnostics.push(curved_bend_macro_element_diag(
+                component,
+                pipe_ref,
+                "user-entered flexibility factor must be a finite positive dimensionless value",
+            ));
+            continue;
+        }
+        let Some(bend_radius) = geometry.bend_radius.as_ref().map(|quantity| quantity.value) else {
+            diagnostics.push(curved_bend_geometry_missing_diag(
+                component,
+                "geometry.bend_radius",
+            ));
+            continue;
+        };
+        if !positive_finite(bend_radius) {
+            diagnostics.push(curved_bend_macro_element_diag(
+                component,
+                pipe_ref,
+                "user-entered bend radius must be a finite positive length",
+            ));
+            continue;
+        }
+        let (Some(section), Some(material)) = (
+            sections.get(pipe_ref),
+            material_map.get(pipe.material.as_str()),
+        ) else {
+            // The pipe loop already emitted the blocking section/material diagnostic.
+            continue;
+        };
+
+        // Arc geometry from user fields: the chord is the span's two nodes,
+        // the bend plane is spanned by the chord and the pipe y_reference,
+        // and the user bend radius fixes the sagitta. The arc center sits on
+        // the negative-y_reference side of the chord midpoint, so the arc
+        // bows toward the positive pipe y_reference side (recorded in the
+        // review-row basis).
+        let from_position = nodes[from_index].coordinates;
+        let to_position = nodes[to_index].coordinates;
+        let chord = [
+            to_position[0] - from_position[0],
+            to_position[1] - from_position[1],
+            to_position[2] - from_position[2],
+        ];
+        let chord_length = (chord[0] * chord[0] + chord[1] * chord[1] + chord[2] * chord[2]).sqrt();
+        if !(chord_length.is_finite() && chord_length > 0.0) {
+            diagnostics.push(curved_bend_macro_element_diag(
+                component,
+                pipe_ref,
+                "bend span chord length must be a finite positive value",
+            ));
+            continue;
+        }
+        let half_chord = 0.5 * chord_length;
+        if bend_radius <= half_chord {
+            diagnostics.push(curved_bend_inconsistent_diag(
+                component,
+                pipe_ref,
+                &format!(
+                    "user-entered bend radius {} m cannot span the {} m chord; the arc included angle would reach or exceed pi",
+                    rounded_scalar(bend_radius),
+                    rounded_scalar(chord_length)
+                ),
+            ));
+            continue;
+        }
+        let implied_included_angle = 2.0 * (half_chord / bend_radius).asin();
+        if let Some(user_angle) = geometry.bend_angle.as_ref().map(|quantity| quantity.value) {
+            let angle_scale = user_angle.abs().max(implied_included_angle.abs()).max(1.0);
+            if (user_angle - implied_included_angle).abs()
+                > DEC_070_CURVED_BEND_ANGLE_MATCH_TOLERANCE * angle_scale
+            {
+                diagnostics.push(curved_bend_inconsistent_diag(
+                    component,
+                    pipe_ref,
+                    &format!(
+                        "user-entered bend angle {} rad disagrees with the included angle {} rad implied by the user chord and bend radius; make the chord, radius, and angle arc-consistent",
+                        rounded_scalar(user_angle),
+                        rounded_scalar(implied_included_angle)
+                    ),
+                ));
+                continue;
+            }
+        }
+        let chord_unit = [
+            chord[0] / chord_length,
+            chord[1] / chord_length,
+            chord[2] / chord_length,
+        ];
+        let y_raw = [y_reference.x, y_reference.y, y_reference.z];
+        let axial_component =
+            y_raw[0] * chord_unit[0] + y_raw[1] * chord_unit[1] + y_raw[2] * chord_unit[2];
+        let plane_normal = [
+            y_raw[0] - axial_component * chord_unit[0],
+            y_raw[1] - axial_component * chord_unit[1],
+            y_raw[2] - axial_component * chord_unit[2],
+        ];
+        let plane_magnitude = (plane_normal[0] * plane_normal[0]
+            + plane_normal[1] * plane_normal[1]
+            + plane_normal[2] * plane_normal[2])
+            .sqrt();
+        if plane_magnitude <= DEC_070_CURVED_BEND_PLANE_TOLERANCE {
+            diagnostics.push(curved_bend_inconsistent_diag(
+                component,
+                pipe_ref,
+                "pipe y_reference is parallel to the bend span chord, so the user bend plane is undefined",
+            ));
+            continue;
+        }
+        let sagitta_offset = (bend_radius * bend_radius - half_chord * half_chord).sqrt();
+        let center = [
+            0.5 * (from_position[0] + to_position[0])
+                - sagitta_offset * plane_normal[0] / plane_magnitude,
+            0.5 * (from_position[1] + to_position[1])
+                - sagitta_offset * plane_normal[1] / plane_magnitude,
+            0.5 * (from_position[2] + to_position[2])
+                - sagitta_offset * plane_normal[2] / plane_magnitude,
+        ];
+
+        // The single user flexibility factor applies to both the in-plane and
+        // out-of-plane bending strain-energy terms (mapping recorded in the
+        // review-row basis); no code-content value is derived or defaulted.
+        let element = match CurvedBendMacroElement::new(
+            nodes[from_index],
+            nodes[to_index],
+            center,
+            material.elastic_modulus.value,
+            material.shear_modulus.value,
+            section.area,
+            section.second_moment,
+            section.torsion_constant,
+            flexibility,
+            flexibility,
+        ) {
+            Ok(element) => element,
+            Err(error) => {
+                diagnostics.push(curved_bend_macro_element_diag(
+                    component,
+                    pipe_ref,
+                    &error.to_string(),
+                ));
+                continue;
+            }
+        };
+        let (global_stiffness, arc_length, included_angle) = match (
+            element.global_stiffness(),
+            element.arc_length(),
+            element.included_angle(),
+        ) {
+            (Ok(stiffness), Ok(arc_length), Ok(included_angle)) => {
+                (stiffness, arc_length, included_angle)
+            }
+            (Err(error), _, _) | (_, Err(error), _) | (_, _, Err(error)) => {
+                diagnostics.push(curved_bend_macro_element_diag(
+                    component,
+                    pipe_ref,
+                    &error.to_string(),
+                ));
+                continue;
+            }
+        };
+
+        builds.push(CurvedBendMacroBuild {
+            component_id: component.id.clone(),
+            pipe_id: pipe.id.clone(),
+            pipe_index,
+            node_i: from_index,
+            node_j: to_index,
+            chord,
+            global_stiffness,
+            arc_length,
+            included_angle,
+            bend_radius,
+            flexibility_factor: flexibility,
+            source_reference: modifiers
+                .source_reference
+                .as_deref()
+                .filter(|value| !value.trim().is_empty())
+                .unwrap_or("source_reference_missing")
+                .to_string(),
+        });
+    }
+
+    builds
+}
+
+fn curved_bend_geometry_missing_diag(component: &PreviewComponent, field: &str) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:component:{}:curved-bend-geometry",
+            stable_suffix(&component.id)
+        ),
+        "CURVED_BEND_GEOMETRY_INPUT_MISSING",
+        "blocking",
+        format!(
+            "bend component {} requests solver_consumption={} but is missing {}; the curved-bend macro-element is never realized from defaults",
+            component.id, DEC_070_CURVED_BEND_SOLVER_CONSUMPTION, field
+        ),
+        vec![component.id.clone()],
+    )
+}
+
+fn curved_bend_mapping_diag(
+    component: &PreviewComponent,
+    pipe_ref: &str,
+    message: &str,
+) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:component:{}:curved-bend-mapping",
+            stable_suffix(&component.id)
+        ),
+        "CURVED_BEND_MAPPING_INPUT_INVALID",
+        "blocking",
+        message,
+        vec![component.id.clone(), pipe_ref.to_string()],
+    )
+}
+
+fn curved_bend_macro_element_diag(
+    component: &PreviewComponent,
+    pipe_ref: &str,
+    message: &str,
+) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:component:{}:curved-bend-macro-element",
+            stable_suffix(&component.id)
+        ),
+        "CURVED_BEND_MACRO_ELEMENT_INPUT_INVALID",
+        "blocking",
+        message,
+        vec![component.id.clone(), pipe_ref.to_string()],
+    )
+}
+
+fn curved_bend_inconsistent_diag(
+    component: &PreviewComponent,
+    pipe_ref: &str,
+    message: &str,
+) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:component:{}:curved-bend-geometry-inconsistent",
+            stable_suffix(&component.id)
+        ),
+        "CURVED_BEND_GEOMETRY_INCONSISTENT",
         "blocking",
         message,
         vec![component.id.clone(), pipe_ref.to_string()],
@@ -3696,6 +4267,9 @@ fn add_uniform_element_loads(
     model: &PreviewModel,
     loads: &[open_pipe_stress_primitive_loads::ElementUniformLoadContribution],
     pipes: &[StraightPipeElement],
+    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
+    load_case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
 ) {
     for load in loads {
         if matches!(
@@ -3704,8 +4278,38 @@ fn add_uniform_element_loads(
         ) {
             continue;
         }
-        let Ok(length) = pipes[load.element_index].length() else {
-            continue;
+        // Curved-bend macro spans lump the arc's tributary intensity 50/50 to
+        // the two end nodes over the arc length; the arc macro-element has no
+        // distributed-load machinery, so the missing consistent end moments
+        // are a documented approximation recorded as an explicit residual.
+        let length = if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:curved-bend:{}:{}:distributed-load",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&load.load_id)
+                ),
+                "CURVED_BEND_DISTRIBUTED_LOAD_LUMPED",
+                "info",
+                format!(
+                    "uniform load {} on curved-bend span {} is lumped 50/50 to the two end nodes over the arc tributary length {} m; consistent distributed-load end moments for the arc are a recorded residual, not a silent consistency claim",
+                    load.load_id,
+                    bend.pipe_id,
+                    rounded_scalar(bend.arc_length)
+                ),
+                vec![
+                    load.load_id.clone(),
+                    bend.pipe_id.clone(),
+                    bend.component_id.clone(),
+                    load_case_id.to_string(),
+                ],
+            ));
+            bend.arc_length
+        } else {
+            let Ok(length) = pipes[load.element_index].length() else {
+                continue;
+            };
+            length
         };
         let pipe = &model.pipe_segments[load.element_index];
         let Some(i) = node_index(model, &pipe.from) else {
@@ -3759,6 +4363,7 @@ fn build_thermal_element_loads(
         loads.push(ThermalElementLoad {
             element_index,
             axial_load: material.elastic_modulus.value * section.area * epsilon_th,
+            thermal_strain: epsilon_th,
         });
     }
     loads
@@ -3897,8 +4502,13 @@ fn add_thermal_equivalent_loads(
     force: &mut [f64],
     thermal_loads: &[ThermalElementLoad],
     pipes: &[StraightPipeElement],
+    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
 ) {
     for load in thermal_loads {
+        if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
+            add_curved_bend_thermal_equivalent_load(force, bend, load.thermal_strain);
+            continue;
+        }
         let Some(pipe) = pipes.get(load.element_index) else {
             continue;
         };
@@ -3916,6 +4526,41 @@ fn add_thermal_equivalent_loads(
             force[j_base + axis] += load.axial_load * local_x[axis];
         }
     }
+}
+
+// Exact free-expansion identity for the arc span: uniform thermal expansion
+// is stress-free, so the equivalent nodal load is K_macro * u_free with
+// u_free the pure translation field alpha*deltaT*(p - p_i) (zero rotations)
+// evaluated at the two end nodes. No approximation is introduced for the arc.
+fn add_curved_bend_thermal_equivalent_load(
+    force: &mut [f64],
+    bend: &CurvedBendMacroBuild,
+    thermal_strain: f64,
+) {
+    let free_expansion = curved_bend_free_expansion_displacements(bend, thermal_strain);
+    let dof_map = element_dof_map(bend.node_i, bend.node_j);
+    for (local_row, &global_row) in dof_map.iter().enumerate() {
+        let mut value = 0.0;
+        for (local_col, free_value) in free_expansion.iter().enumerate() {
+            value += bend.global_stiffness[local_row][local_col] * free_value;
+        }
+        force[global_row] += value;
+    }
+}
+
+// Free thermal expansion of the arc about node i: node i stays put and node j
+// translates by thermal_strain * chord with zero end rotations (uniform
+// scaling is rotation-free; the rigid part of the field is in the stiffness
+// nullspace, so anchoring the field at node i is exact).
+fn curved_bend_free_expansion_displacements(
+    bend: &CurvedBendMacroBuild,
+    thermal_strain: f64,
+) -> [f64; ELEMENT_DOF] {
+    let mut free_expansion = [0.0; ELEMENT_DOF];
+    for axis in 0..3 {
+        free_expansion[DOF_PER_NODE + axis] = thermal_strain * bend.chord[axis];
+    }
+    free_expansion
 }
 
 fn corrected_local_forces_for_axial_effects(
@@ -3937,6 +4582,74 @@ fn corrected_local_forces_for_axial_effects(
         corrected[DOF_PER_NODE + UX] -= axial_load;
     }
     corrected
+}
+
+// Macro-span recovery: end forces are K_macro * (d - u_free) in global
+// coordinates — the exact free-expansion correction mirrors
+// `corrected_local_forces_for_axial_effects` so recovered forces exclude the
+// self-equilibrated thermal part — then rotated to the chord frame of the
+// replaced straight span so the existing result rows keep their convention.
+// Pressure thrust keeps the straight-element equal/opposite chord-axial
+// correction.
+fn recover_curved_bend_local_forces(
+    bend: &CurvedBendMacroBuild,
+    pipe: &StraightPipeElement,
+    displacements: &[f64],
+    thermal_loads: &[ThermalElementLoad],
+    pressure_loads: &[PressureThrustLoad],
+) -> Result<Vec<f64>, String> {
+    let required = (bend.node_i.max(bend.node_j) + 1) * DOF_PER_NODE;
+    if displacements.len() < required {
+        return Err(format!(
+            "curved-bend recovery requires {} global displacement entries, got {}",
+            required,
+            displacements.len()
+        ));
+    }
+    let mut element_displacements = [0.0; ELEMENT_DOF];
+    for (node_slot, node_index) in [bend.node_i, bend.node_j].into_iter().enumerate() {
+        for dof in 0..DOF_PER_NODE {
+            element_displacements[node_slot * DOF_PER_NODE + dof] =
+                displacements[node_index * DOF_PER_NODE + dof];
+        }
+    }
+    let thermal_strain = thermal_loads
+        .iter()
+        .filter(|load| load.element_index == bend.pipe_index)
+        .map(|load| load.thermal_strain)
+        .sum::<f64>();
+    if thermal_strain != 0.0 {
+        let free_expansion = curved_bend_free_expansion_displacements(bend, thermal_strain);
+        for (entry, free_value) in element_displacements.iter_mut().zip(free_expansion.iter()) {
+            *entry -= free_value;
+        }
+    }
+
+    let mut global_forces = [0.0; ELEMENT_DOF];
+    for (row, force) in global_forces.iter_mut().enumerate() {
+        for (col, displacement) in element_displacements.iter().enumerate() {
+            *force += bend.global_stiffness[row][col] * displacement;
+        }
+    }
+
+    let frame_element = pipe.frame_element().map_err(|error| error.to_string())?;
+    let orientation = frame_element
+        .orientation()
+        .map_err(|error| error.to_string())?;
+    let transform = orientation.transformation_matrix();
+    let mut local_forces = vec![0.0; ELEMENT_DOF];
+    for (row, local_force) in local_forces.iter_mut().enumerate() {
+        for (col, global_force) in global_forces.iter().enumerate() {
+            *local_force += transform[row][col] * global_force;
+        }
+    }
+
+    let pressure_axial_load = pressure_thrust_for_pipe(bend.pipe_index, pressure_loads);
+    if pressure_axial_load != 0.0 {
+        local_forces[UX] += pressure_axial_load;
+        local_forces[DOF_PER_NODE + UX] -= pressure_axial_load;
+    }
+    Ok(local_forces)
 }
 
 fn pressure_thrust_for_pipe(element_index: usize, pressure_loads: &[PressureThrustLoad]) -> f64 {
@@ -4510,6 +5223,10 @@ struct ComponentStressModifier<'a> {
     side: &'a str,
     sif: f64,
     flexibility: f64,
+    /// DEC-070: when the flexibility factor is realized in the assembled
+    /// curved-bend macro-element stiffness, the stress-review multiplier
+    /// applies the user-entered SIF only (no double-counting of k).
+    flexibility_in_assembled_stiffness: bool,
     source_reference: &'a str,
     solver_consumption: &'a str,
 }
@@ -4533,7 +5250,9 @@ fn bend_stress_modifier(component: &PreviewComponent) -> Option<ComponentStressM
         .as_ref()
         .and_then(|interface| interface.solver_consumption.as_deref())
         .unwrap_or("mechanics_geometry_only");
-    if solver_consumption != "mechanics_geometry_only" {
+    let flexibility_in_assembled_stiffness =
+        solver_consumption == DEC_070_CURVED_BEND_SOLVER_CONSUMPTION;
+    if solver_consumption != "mechanics_geometry_only" && !flexibility_in_assembled_stiffness {
         return None;
     }
     let modifiers = component.modifiers.as_ref()?;
@@ -4552,6 +5271,7 @@ fn bend_stress_modifier(component: &PreviewComponent) -> Option<ComponentStressM
         side: "through",
         sif,
         flexibility,
+        flexibility_in_assembled_stiffness,
         source_reference,
         solver_consumption,
     })
@@ -4608,6 +5328,7 @@ fn branch_stress_modifier_for_pipe<'a>(
         side,
         sif,
         flexibility,
+        flexibility_in_assembled_stiffness: false,
         source_reference,
         solver_consumption,
     })
@@ -4627,8 +5348,33 @@ fn append_component_stress_multiplier_result(
     let endpoint = endpoint_id_location(location);
     let result_id =
         format!("result:stress:{component_suffix}:{pipe_suffix}:{endpoint}:user-multiplier");
-    let multiplier = modifier.sif * modifier.flexibility;
+    // DEC-070 no-double-counting rule: when the flexibility factor is realized
+    // in the assembled curved-bend macro-element stiffness, the review
+    // multiplier applies the user-entered SIF only; the legacy
+    // mechanics_geometry_only mode keeps sif * flexibility byte-identically.
+    let multiplier = if modifier.flexibility_in_assembled_stiffness {
+        modifier.sif
+    } else {
+        modifier.sif * modifier.flexibility
+    };
     let value = round6(base_value_mpa * multiplier);
+    let mut basis = format!(
+        "component_family={};component_side={};user_entered_sif={};user_entered_flexibility={};source={};solver_consumption={}",
+        modifier.family,
+        modifier.side,
+        rounded_scalar(modifier.sif),
+        rounded_scalar(modifier.flexibility),
+        modifier.source_reference,
+        modifier.solver_consumption
+    );
+    if modifier.flexibility_in_assembled_stiffness {
+        basis.push_str(";flexibility_realization=assembled_curved_bend_macro_element_stiffness");
+    }
+    let sign_convention = if modifier.flexibility_in_assembled_stiffness {
+        "positive value is base open-mechanics stress summary multiplied by the user-entered SIF only; the user-entered flexibility factor enters the assembled curved-bend macro-element stiffness"
+    } else {
+        "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
+    };
     results.push(ResultItem {
         id: result_id.clone(),
         kind: "component_user_stress_multiplier_review".to_string(),
@@ -4641,27 +5387,22 @@ fn append_component_stress_multiplier_result(
             component: "user_entered_component_stress_multiplier".to_string(),
             coordinate_system: "component_review".to_string(),
             location: format!("{pipe_id}:{location}"),
-            basis: format!(
-                "component_family={};component_side={};user_entered_sif={};user_entered_flexibility={};source={};solver_consumption={}",
-                modifier.family,
-                modifier.side,
-                rounded_scalar(modifier.sif),
-                rounded_scalar(modifier.flexibility),
-                modifier.source_reference,
-                modifier.solver_consumption
-            ),
-            sign_convention:
-                "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
-                    .to_string(),
+            basis,
+            sign_convention: sign_convention.to_string(),
         }),
     });
-    diagnostics.push(diag(
-        &format!(
-            "diagnostic:component-stress-multiplier:{}:{}:{}",
-            component_suffix, pipe_suffix, endpoint
-        ),
-        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
-        "info",
+    let message = if modifier.flexibility_in_assembled_stiffness {
+        format!(
+            "{} component {} applies user-entered {} SIF {} to {} {location} stress-recovery review; user-entered flexibility factor {} enters the assembled curved-bend macro-element stiffness; solver_consumption is {}; no protected or default component factor is supplied",
+            modifier.family,
+            component.id,
+            modifier.side,
+            rounded_scalar(modifier.sif),
+            pipe_id,
+            rounded_scalar(modifier.flexibility),
+            modifier.solver_consumption
+        )
+    } else {
         format!(
             "{} component {} applies user-entered {} SIF {} and flexibility factor {} to {} {location} stress-recovery review; solver_consumption remains {}; no protected or default component factor is supplied",
             modifier.family,
@@ -4671,7 +5412,16 @@ fn append_component_stress_multiplier_result(
             rounded_scalar(modifier.flexibility),
             pipe_id,
             modifier.solver_consumption
+        )
+    };
+    diagnostics.push(diag(
+        &format!(
+            "diagnostic:component-stress-multiplier:{}:{}:{}",
+            component_suffix, pipe_suffix, endpoint
         ),
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "info",
+        message,
         vec![
             component.id.clone(),
             pipe_id.to_string(),
@@ -4778,6 +5528,47 @@ fn append_expansion_joint_user_stiffness_results(
             });
             appended += 1;
         }
+    }
+    appended
+}
+
+// DEC-070 review rows: state that the user-entered bend flexibility factor is
+// consumed by the assembled curved-bend macro-element (EJ precedent wording
+// style), and record the arc-geometry conventions and load/recovery decisions.
+fn append_curved_bend_macro_element_results(
+    curved_bend_elements: &[CurvedBendMacroBuild],
+    results: &mut Vec<ResultItem>,
+) -> usize {
+    let mut appended = 0;
+    for element in curved_bend_elements {
+        let component_suffix = stable_suffix(&element.component_id);
+        results.push(ResultItem {
+            id: format!("result:component-stiffness:{component_suffix}:curved-bend-flexibility"),
+            kind: "curved_bend_macro_element_review".to_string(),
+            value: round6(element.flexibility_factor),
+            unit: "unitless".to_string(),
+            entity_ref: element.component_id.clone(),
+            basis_ref: None,
+            source_result_refs: Vec::new(),
+            metadata: Some(ResultMetadata {
+                component: "curved_bend_flexibility".to_string(),
+                coordinate_system: "component_local_preview".to_string(),
+                location: element.pipe_id.clone(),
+                basis: format!(
+                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_tributary_end_lumped;pressure_thrust_treatment=straight_chord_axial_end_forces;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=recorded_residual",
+                    rounded_scalar(element.flexibility_factor),
+                    rounded_scalar(element.bend_radius),
+                    rounded_scalar(element.included_angle),
+                    rounded_scalar(element.arc_length),
+                    element.source_reference,
+                    DEC_070_CURVED_BEND_SOLVER_CONSUMPTION
+                ),
+                sign_convention:
+                    "positive value is the user-entered bend flexibility factor consumed by the assembled curved-bend macro-element stiffness; the stress-review multiplier applies the user-entered SIF only and no protected or default component factor is supplied"
+                        .to_string(),
+            }),
+        });
+        appended += 1;
     }
     appended
 }
@@ -8946,5 +9737,605 @@ mod tests {
         assert!(result.professional_boundary.human_review_required);
         assert!(!result.professional_boundary.software_makes_compliance_claim);
         assert!(!result.accepted_model_state_mutated);
+    }
+
+    // Invented single-span curved-bend model (DEC-070): the quarter-circle arc
+    // over a 2 m chord along global x with the pipe y_reference (0, 1, 0), a
+    // user bend radius sqrt(2) m, user bend angle pi/2, and an invented user
+    // flexibility factor 2. Node N-100 is anchored; loads vary per test.
+    const CURVED_BEND_TEST_CHORD_M: f64 = 2.0;
+    const CURVED_BEND_TEST_RADIUS_M: f64 = std::f64::consts::SQRT_2;
+    const CURVED_BEND_TEST_FLEXIBILITY: f64 = 2.0;
+    const CURVED_BEND_TEST_SIF: f64 = 1.15;
+
+    fn curved_bend_span_request() -> LinearStaticPreviewRequest {
+        let mut request = request();
+        request.model.nodes.truncate(2);
+        request.model.nodes[0].id = "node:N-100".to_string();
+        request.model.nodes[0].position = Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        request.model.nodes[1].id = "node:N-110".to_string();
+        request.model.nodes[1].position = Vec3 {
+            x: CURVED_BEND_TEST_CHORD_M,
+            y: 0.0,
+            z: 0.0,
+        };
+        request.model.pipe_segments.truncate(1);
+        request.model.pipe_segments[0].id = "pipe:P-100".to_string();
+        request.model.pipe_segments[0].from = "node:N-100".to_string();
+        request.model.pipe_segments[0].to = "node:N-110".to_string();
+        request.model.pipe_segments[0].y_reference = Some(Vec3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        });
+        request.model.supports.truncate(1);
+        request.model.supports[0].id = "support:S-100".to_string();
+        request.model.supports[0].node = "node:N-100".to_string();
+        request.model.supports[0].restraints = vec![
+            "UX".to_string(),
+            "UY".to_string(),
+            "UZ".to_string(),
+            "RX".to_string(),
+            "RY".to_string(),
+            "RZ".to_string(),
+        ];
+        request.model.components.truncate(1);
+        let component = &mut request.model.components[0];
+        component.node = "node:N-110".to_string();
+        let geometry = component.geometry.as_mut().unwrap();
+        geometry.bend_pipe_ref = Some("pipe:P-100".to_string());
+        geometry.bend_radius = Some(Quantity {
+            value: CURVED_BEND_TEST_RADIUS_M,
+            unit: "m".to_string(),
+        });
+        geometry.bend_angle = Some(Quantity {
+            value: PI / 2.0,
+            unit: "rad".to_string(),
+        });
+        let modifiers = component.modifiers.as_mut().unwrap();
+        modifiers.sif_user_value = Some(Quantity {
+            value: CURVED_BEND_TEST_SIF,
+            unit: "none".to_string(),
+        });
+        modifiers.flexibility_factor_user_value = Some(Quantity {
+            value: CURVED_BEND_TEST_FLEXIBILITY,
+            unit: "none".to_string(),
+        });
+        component
+            .mechanics_interface
+            .as_mut()
+            .unwrap()
+            .solver_consumption = Some(DEC_070_CURVED_BEND_SOLVER_CONSUMPTION.to_string());
+        request.model.load_cases.truncate(1);
+        request.model.load_cases[0].id = "load:L-100".to_string();
+        request.model.load_cases[0].primitive_loads = vec![curved_bend_tip_force_load()];
+        request.model.combinations.clear();
+        request
+    }
+
+    fn curved_bend_tip_force_load() -> PreviewPrimitiveLoad {
+        PreviewPrimitiveLoad {
+            id: "load:L-100-Y".to_string(),
+            category: "occasional".to_string(),
+            target: LoadTargetInput::Node {
+                node: "node:N-110".to_string(),
+            },
+            direction: "global_y".to_string(),
+            magnitude: Quantity {
+                value: 1000.0,
+                unit: "N".to_string(),
+            },
+            dimension: "force".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }
+    }
+
+    // Independent oracle: the same invented arc built directly on the
+    // curved-bend crate, anchored at node i, loaded at node j, and solved with
+    // the frame-kernel reduction (no product-physics assembly involved).
+    fn curved_bend_direct_tip_displacements(loaded_dof: usize, magnitude: f64) -> [f64; 6] {
+        let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(1, [CURVED_BEND_TEST_CHORD_M, 0.0, 0.0]).unwrap();
+        let half_chord = 0.5 * CURVED_BEND_TEST_CHORD_M;
+        let sagitta_offset = (CURVED_BEND_TEST_RADIUS_M * CURVED_BEND_TEST_RADIUS_M
+            - half_chord * half_chord)
+            .sqrt();
+        let center = [half_chord, -sagitta_offset, 0.0];
+        let material = &invented_materials()[0];
+        let od = 0.168_f64;
+        let thickness = 0.007_f64;
+        let inner = od - 2.0 * thickness;
+        let area = PI * (od.powi(2) - inner.powi(2)) / 4.0;
+        let second_moment = PI * (od.powi(4) - inner.powi(4)) / 64.0;
+        let element = CurvedBendMacroElement::new(
+            node_i,
+            node_j,
+            center,
+            material.elastic_modulus.value,
+            material.shear_modulus.value,
+            area,
+            second_moment,
+            2.0 * second_moment,
+            CURVED_BEND_TEST_FLEXIBILITY,
+            CURVED_BEND_TEST_FLEXIBILITY,
+        )
+        .unwrap();
+        let stiffness = element.global_stiffness().unwrap();
+        let dense: Vec<Vec<f64>> = stiffness.iter().map(|row| row.to_vec()).collect();
+        let mut force = vec![0.0; ELEMENT_DOF];
+        force[DOF_PER_NODE + loaded_dof] = magnitude;
+        let restrained: Vec<usize> = (0..DOF_PER_NODE).collect();
+        let reduced = reduce_system(&dense, &force, &restrained).unwrap();
+        let solution = solve_dense(&reduced.stiffness, &reduced.force).unwrap();
+        let mut tip = [0.0; DOF_PER_NODE];
+        tip.copy_from_slice(&solution);
+        tip
+    }
+
+    #[test]
+    fn curved_bend_macro_element_assembles_arc_stiffness_without_straight_chord() {
+        let result = run_linear_static_preview(curved_bend_span_request());
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+
+        let expected_tip = curved_bend_direct_tip_displacements(UY, 1000.0);
+        let uy_mm = result_value(&result, "result:disp:node-N-110:uy");
+        assert!(
+            (uy_mm - round6(expected_tip[UY] * 1000.0)).abs() <= 1.0e-6,
+            "assembled arc tip displacement {uy_mm} mm must match the direct macro-element solve {} mm",
+            round6(expected_tip[UY] * 1000.0)
+        );
+        // The straight chord of the same span is much stiffer; if the chord
+        // element were (also) assembled the tip displacement would shrink.
+        let straight_result = {
+            let mut request = curved_bend_span_request();
+            request.model.components[0]
+                .mechanics_interface
+                .as_mut()
+                .unwrap()
+                .solver_consumption = Some("mechanics_geometry_only".to_string());
+            run_linear_static_preview(request)
+        };
+        let straight_uy_mm = result_value(&straight_result, "result:disp:node-N-110:uy");
+        assert!(
+            uy_mm > straight_uy_mm,
+            "arc realization {uy_mm} mm must be more flexible than the straight chord {straight_uy_mm} mm"
+        );
+
+        // Force-balance sanity on the recovered chord-frame end forces: the
+        // chord frame coincides with global axes here, so end i carries the
+        // reaction to the 1000 N tip load.
+        let shear_end_i = result_value(&result, "result:force:pipe-P-100:shear-y");
+        assert!(
+            (shear_end_i + 1000.0).abs() <= 1.0e-3 * 1000.0
+                || (shear_end_i - 1000.0).abs() <= 1.0e-3 * 1000.0
+        );
+    }
+
+    #[test]
+    fn curved_bend_macro_element_keeps_dense_sparse_parity() {
+        let sparse = run_linear_static_preview(curved_bend_span_request());
+        let dense = run_linear_static_preview_with_mode(
+            curved_bend_span_request(),
+            PreviewSolverMode::DenseScrutiny,
+        );
+
+        assert_eq!(sparse.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(dense.status.mechanics, "MECHANICS_SOLVED");
+        let parity = dense
+            .results
+            .iter()
+            .find(|item| item.id == "result:sparse-live:dense-parity-relative-delta")
+            .expect("dense scrutiny keeps the sparse parity row with a curved bend assembled");
+        assert!(parity.value <= 1.0e-9);
+        assert_eq!(
+            result_value(&sparse, "result:disp:node-N-110:uy"),
+            result_value(&dense, "result:disp:node-N-110:uy"),
+        );
+    }
+
+    #[test]
+    fn curved_bend_macro_element_review_row_states_assembled_consumption() {
+        let result = run_linear_static_preview(curved_bend_span_request());
+
+        assert_eq!(
+            result.summary.component_user_stiffness_macro_element_count,
+            1
+        );
+        let review = result
+            .results
+            .iter()
+            .find(|item| {
+                item.id == "result:component-stiffness:component-C-110:curved-bend-flexibility"
+            })
+            .expect("curved-bend macro-element review row is present");
+        assert_eq!(review.kind, "curved_bend_macro_element_review");
+        assert_eq!(review.value, CURVED_BEND_TEST_FLEXIBILITY);
+        let metadata = review.metadata.as_ref().unwrap();
+        assert_eq!(metadata.component, "curved_bend_flexibility");
+        assert_eq!(metadata.location, "pipe:P-100");
+        assert!(metadata.basis.contains("component_family=bend"));
+        assert!(metadata.basis.contains("user_entered_flexibility=2"));
+        assert!(metadata
+            .basis
+            .contains("macro_element_solve=assembled_curved_bend_stiffness"));
+        assert!(metadata
+            .basis
+            .contains("solver_consumption=curved_bend_macro_element"));
+        assert!(metadata
+            .basis
+            .contains("thermal_load_treatment=exact_free_expansion_identity"));
+        assert!(metadata
+            .basis
+            .contains("distributed_load_treatment=arc_tributary_end_lumped"));
+        assert!(metadata
+            .basis
+            .contains("pressure_thrust_treatment=straight_chord_axial_end_forces"));
+        assert!(metadata
+            .basis
+            .contains("interior_stations=recorded_residual"));
+        assert!(metadata
+            .sign_convention
+            .contains("consumed by the assembled curved-bend macro-element stiffness"));
+    }
+
+    #[test]
+    fn curved_bend_macro_element_multiplier_applies_sif_only() {
+        let result = run_linear_static_preview(curved_bend_span_request());
+
+        let multiplier_row_id = "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier";
+        let multiplier_row = result
+            .results
+            .iter()
+            .find(|item| item.id == multiplier_row_id)
+            .expect("curved-bend SIF-only multiplier row is present");
+        // Reconstruct the end-j open-formula summary from the emitted
+        // endpoint stress rows (MPa) and check the multiplier is SIF-only.
+        let axial = result_value(&result, "result:stress:pipe-P-100:end-j:axial-normal");
+        let bending_y =
+            result_value(&result, "result:stress:pipe-P-100:end-j:bending-normal-y").abs();
+        let bending_z =
+            result_value(&result, "result:stress:pipe-P-100:end-j:bending-normal-z").abs();
+        let bending_total = bending_y + bending_z;
+        let summary = (axial + bending_total)
+            .abs()
+            .max((axial - bending_total).abs());
+        assert!(
+            (multiplier_row.value - summary * CURVED_BEND_TEST_SIF).abs() <= 1.0e-3,
+            "multiplier row {} must be the end-j summary {} times the user SIF only",
+            multiplier_row.value,
+            summary
+        );
+        let metadata = multiplier_row.metadata.as_ref().unwrap();
+        assert!(metadata
+            .basis
+            .contains("solver_consumption=curved_bend_macro_element"));
+        assert!(metadata
+            .basis
+            .contains("flexibility_realization=assembled_curved_bend_macro_element_stiffness"));
+        assert!(!metadata
+            .sign_convention
+            .contains("base frame stiffness unchanged"));
+        assert!(metadata
+            .sign_convention
+            .contains("multiplied by the user-entered SIF only"));
+        assert!(metadata
+            .sign_convention
+            .contains("enters the assembled curved-bend macro-element stiffness"));
+        let diagnostic = result
+            .diagnostics
+            .iter()
+            .find(|item| item.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED")
+            .expect("multiplier diagnostic is present");
+        assert!(diagnostic
+            .message
+            .contains("enters the assembled curved-bend macro-element stiffness"));
+    }
+
+    #[test]
+    fn curved_bend_macro_element_skips_interior_stations_with_recorded_residual() {
+        let result = run_linear_static_preview(curved_bend_span_request());
+        let result_ids = result
+            .results
+            .iter()
+            .map(|item| item.id.as_str())
+            .collect::<HashSet<_>>();
+
+        assert!(result_ids.contains("result:force:pipe-P-100:axial"));
+        assert!(result_ids.contains("result:force:pipe-P-100:axial:end-j"));
+        assert!(!result_ids.contains("result:force:pipe-P-100:midspan:axial"));
+        assert!(!result_ids.contains("result:force:pipe-P-100:quarter-1:shear-y"));
+        assert!(result.diagnostics.iter().any(|item| item.code
+            == "CURVED_BEND_INTERIOR_STATIONS_NOT_EVALUATED"
+            && item.severity == "info"));
+    }
+
+    #[test]
+    fn curved_bend_macro_element_thermal_free_expansion_is_stress_free() {
+        let mut request = curved_bend_span_request();
+        request.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
+            id: "load:L-100-T".to_string(),
+            category: "thermal".to_string(),
+            target: LoadTargetInput::Element {
+                pipe: "pipe:P-100".to_string(),
+            },
+            direction: "global_x".to_string(),
+            magnitude: Quantity {
+                value: 10.0,
+                unit: "degC".to_string(),
+            },
+            dimension: "temperature_interval".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }];
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+
+        // Uniform thermal expansion of the anchored-free arc is stress-free:
+        // the tip translates by alpha * deltaT * chord and the anchor carries
+        // no reaction; recovered end forces exclude the self-equilibrated
+        // free-expansion part exactly.
+        let expected_tip_mm = 0.000012 * 10.0 * CURVED_BEND_TEST_CHORD_M * 1000.0;
+        let ux_mm = result_value(&result, "result:disp:node-N-110:ux");
+        assert!((ux_mm - expected_tip_mm).abs() <= 1.0e-6);
+        assert!(result_value(&result, "result:reaction:support-S-100").abs() <= 1.0e-6);
+        for row in [
+            "result:force:pipe-P-100:axial",
+            "result:force:pipe-P-100:axial:end-j",
+            "result:force:pipe-P-100:shear-y",
+            "result:moment:pipe-P-100:bending-z",
+        ] {
+            assert!(
+                result_value(&result, row).abs() <= 1.0e-6,
+                "free thermal expansion must recover zero force for {row}"
+            );
+        }
+    }
+
+    #[test]
+    fn curved_bend_macro_element_anchored_thermal_produces_reactions() {
+        let mut request = curved_bend_span_request();
+        request.model.supports.push({
+            let mut anchor = request.model.supports[0].clone();
+            anchor.id = "support:S-110".to_string();
+            anchor.node = "node:N-110".to_string();
+            anchor
+        });
+        request.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
+            id: "load:L-100-T".to_string(),
+            category: "thermal".to_string(),
+            target: LoadTargetInput::Element {
+                pipe: "pipe:P-100".to_string(),
+            },
+            direction: "global_x".to_string(),
+            magnitude: Quantity {
+                value: 10.0,
+                unit: "degC".to_string(),
+            },
+            dimension: "temperature_interval".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }];
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(result_value(&result, "result:reaction:support-S-100") > 1.0);
+        assert!(
+            result_value(&result, "result:force:pipe-P-100:axial").abs() > 1.0,
+            "restrained thermal expansion must recover a nonzero axial end force"
+        );
+    }
+
+    #[test]
+    fn curved_bend_macro_element_lumps_uniform_weight_over_arc_length() {
+        let mut request = curved_bend_span_request();
+        request.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
+            id: "load:L-100-W".to_string(),
+            category: "weight".to_string(),
+            target: LoadTargetInput::Element {
+                pipe: "pipe:P-100".to_string(),
+            },
+            direction: "global_z".to_string(),
+            magnitude: Quantity {
+                value: -190.0,
+                unit: "N/m".to_string(),
+            },
+            dimension: "force_per_length".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }];
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let lumped = result
+            .diagnostics
+            .iter()
+            .find(|item| item.code == "CURVED_BEND_DISTRIBUTED_LOAD_LUMPED")
+            .expect("arc tributary weight lumping is a documented approximation");
+        assert_eq!(lumped.severity, "info");
+        let arc_length = CURVED_BEND_TEST_RADIUS_M * PI / 2.0;
+        assert!(lumped
+            .message
+            .contains(&rounded_scalar(arc_length).to_string()));
+        assert!(lumped.message.contains("recorded residual"));
+        // The recovered end-i chord-frame shear carries the full lumped tip
+        // share w * arc_length / 2 (the anchor-node share passes directly
+        // into the reaction).
+        let tip_share = 190.0 * arc_length / 2.0;
+        let shear_z_end_i = result_value(&result, "result:force:pipe-P-100:shear-z");
+        assert!(
+            (shear_z_end_i.abs() - tip_share).abs() <= 1.0e-3 * tip_share,
+            "end-i shear {shear_z_end_i} must carry the arc tributary tip share {tip_share}"
+        );
+    }
+
+    #[test]
+    fn curved_bend_macro_element_blocks_on_missing_or_inconsistent_geometry() {
+        // Missing bend_pipe_ref.
+        let mut request = curved_bend_span_request();
+        request.model.components[0]
+            .geometry
+            .as_mut()
+            .unwrap()
+            .bend_pipe_ref = None;
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "CURVED_BEND_GEOMETRY_INPUT_MISSING"
+                && item.severity == "blocking"
+                && item.message.contains("bend_pipe_ref")));
+        assert!(result.results.is_empty());
+
+        // Missing user flexibility factor.
+        let mut request = curved_bend_span_request();
+        request.model.components[0]
+            .modifiers
+            .as_mut()
+            .unwrap()
+            .flexibility_factor_user_value = None;
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "CURVED_BEND_GEOMETRY_INPUT_MISSING"
+                && item.message.contains("flexibility_factor_user_value")));
+
+        // Missing bend radius.
+        let mut request = curved_bend_span_request();
+        request.model.components[0]
+            .geometry
+            .as_mut()
+            .unwrap()
+            .bend_radius = None;
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "CURVED_BEND_GEOMETRY_INPUT_MISSING"
+                && item.message.contains("bend_radius")));
+
+        // Radius too small for the chord (included angle would reach pi).
+        let mut request = curved_bend_span_request();
+        request.model.components[0]
+            .geometry
+            .as_mut()
+            .unwrap()
+            .bend_radius = Some(Quantity {
+            value: 0.9,
+            unit: "m".to_string(),
+        });
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "CURVED_BEND_GEOMETRY_INCONSISTENT"
+                && item.message.contains("reach or exceed pi")));
+
+        // User bend angle inconsistent with the chord and radius.
+        let mut request = curved_bend_span_request();
+        request.model.components[0]
+            .geometry
+            .as_mut()
+            .unwrap()
+            .bend_angle = Some(Quantity {
+            value: 1.0,
+            unit: "rad".to_string(),
+        });
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "CURVED_BEND_GEOMETRY_INCONSISTENT"
+                && item.message.contains("arc-consistent")));
+
+        // Unknown pipe reference.
+        let mut request = curved_bend_span_request();
+        request.model.components[0]
+            .geometry
+            .as_mut()
+            .unwrap()
+            .bend_pipe_ref = Some("pipe:P-999".to_string());
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "CURVED_BEND_MAPPING_INPUT_INVALID"));
+    }
+
+    #[test]
+    fn curved_bend_macro_element_blocks_assembled_nonlinear_loop() {
+        let mut request = curved_bend_span_request();
+        request.model.supports.push({
+            let mut support = request.model.supports[0].clone();
+            support.id = "support:S-110".to_string();
+            support.node = "node:N-110".to_string();
+            support.restraints = vec![];
+            support.nonlinear = Some(NonlinearSupportInput {
+                behavior: "one_way".to_string(),
+                dof: "UZ".to_string(),
+                initial_state: Some("active".to_string()),
+                active_when: Some("negative".to_string()),
+                contact_when: None,
+                closes_when: None,
+                gap: None,
+                friction_coefficient: None,
+                normal_reaction: None,
+                normal_reaction_source: None,
+            });
+            support
+        });
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        let diagnostic = result
+            .diagnostics
+            .iter()
+            .find(|item| item.code == "CURVED_BEND_NONLINEAR_LOOP_UNSUPPORTED")
+            .expect("curved bend plus nonlinear supports is a blocked recorded residual");
+        assert_eq!(diagnostic.severity, "blocking");
+        assert!(diagnostic.message.contains("no straight-chord fallback"));
+        assert!(diagnostic
+            .affected_refs
+            .contains(&"component:C-110".to_string()));
+    }
+
+    #[test]
+    fn legacy_bend_mode_keeps_multiplier_and_chord_realization_unchanged() {
+        // The invented fixture bend stays on mechanics_geometry_only: the
+        // straight chord is assembled, the multiplier stays sif * flexibility,
+        // and the DEC-045 provenance wording is untouched.
+        let result = run_linear_static_preview(request());
+
+        assert!(result
+            .results
+            .iter()
+            .all(|item| item.kind != "curved_bend_macro_element_review"));
+        let row = result
+            .results
+            .iter()
+            .find(|item| {
+                item.id == "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier"
+            })
+            .expect("legacy bend multiplier row is present");
+        let metadata = row.metadata.as_ref().unwrap();
+        assert!(metadata
+            .basis
+            .contains("solver_consumption=mechanics_geometry_only"));
+        assert!(!metadata.basis.contains("flexibility_realization"));
+        assert_eq!(
+            metadata.sign_convention,
+            "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
+        );
+        assert!(result
+            .diagnostics
+            .iter()
+            .all(|item| item.code != "CURVED_BEND_INTERIOR_STATIONS_NOT_EVALUATED"));
     }
 }

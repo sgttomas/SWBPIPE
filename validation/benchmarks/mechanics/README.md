@@ -41,8 +41,22 @@ The explicit source inventory is the `fixture_inventory()` list in
 | Thermal growth | `MECH-FIXED-FIXED-THERMAL-AXIAL`, `MECH-TP-PHYS-008-THERMAL-PRESSURE-AXIAL-EFFECTS`, `MECH-TP-PHYS-009-COMBINED-LOAD-AXIAL-EFFECTS` |
 | Imposed displacement | `MECH-IMPOSED-DISPLACEMENT-SPRING` |
 | Stiffness transform | `MECH-INCLINED-MEMBER-TRANSFORM` |
+| Curved-bend expansion loop | `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` |
 
 Hand-calculation notes are in `validation/hand_calcs/mechanics/`.
+
+`MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` (D-34 / DEC-070 exit evidence)
+compares the curved-bend macro element in a plane expansion loop against the
+independent force-method witness
+`validation/hand_calcs/mechanics/expansion_loop_curved_bend_thermal.md`,
+including the k-sweep monotonicity evidence for `k in {1, 5, 10, 20}`. The
+comparison replicates the witness bending-only flexibility assumption with an
+axial-rigidity boost of `1.0e5` (boost study recorded at
+`EXPANSION_LOOP_AXIAL_RIGIDITY_BOOST` in `src/lib.rs`). This fixture is not
+yet registered in `fixture_inventory()` because the shared hand-calculation
+README inventory (owned under `validation/hand_calcs/mechanics/`) does not
+list the witness note yet; registration there is a follow-up once that
+inventory row lands.
 
 ## Readiness Boundary
 
