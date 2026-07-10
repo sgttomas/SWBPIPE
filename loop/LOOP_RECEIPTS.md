@@ -74,3 +74,21 @@
   - Gate outcome: executed within R5/E2 draft-evidence fence; no DEL-09-04
     lifecycle transition; remaining E2 public benchmark thresholds, clean-env
     demonstration, and R5-exit decisions remain parked/human-gated.
+
+- **2026-07-09 — Receipt 2** (orientation + physical-model evaluation, owner-steered).
+  - Start: `origin/main` at the PR #135 merge (`18334da97`); piping tree
+    unchanged since Receipt 1; work on `codex/piping-physical-model-eval`.
+  - Owner steer of record (2026-07-09, launcher `Steer` line, Ryan Tufts):
+    "Report back on the current state of development and what, if anything,
+    is currently planned.  Then provide a focused evaluation of the physical
+    model, both in terms of using the appropriate methods and also
+    comprehensive coverage of the domain being modelled.  You can use
+    research subagents if warranted."
+  - Step 0: no register rulings newer than `DEC-065`; open gates `D-12`,
+    `D-07b` AWAITING_RULING, `D-06b` NOT_PREPARED; status summary run
+    (ISSUED=1, CHECKING=8, IN_PROGRESS=92); self-check exit 0.
+  - Artifact: `plans/ASSESSMENT_2026-07-09_physical_model_evaluation.md`
+    (dated map; candidate follow-ups CAND-1..5 in its final section).
+  - Gate outcome: reporting tranche only — no lifecycle transition, no
+    register change, no deliverable code work; CAND-1..5 parked for owner
+    ruling/adoption.
