@@ -126,3 +126,26 @@
     lawful bounded-tranche work under the mechanics plan once PR #141
     merges — O-B noted as the larger tranche, splittable formulation →
     assembly → recovery → benchmark; no code change under this receipt.
+
+- **2026-07-10 — Receipt 5** (P1 execution, owner-directed fable-subagent orchestration).
+  - Owner direction of record (2026-07-10, in-session, Ryan Tufts): "Proceed
+    accordingly. Execute the work using fable subagents.  Orchestrate and
+    evaluate their work. Work in parallel where agents would have disjoint
+    write scopes." Also: "merge PR #141" (executed; merged with PR #136 at
+    `0f4d95944`).
+  - Executed: P1 sub-tranches 1–3 on `codex/piping-p1-curved-bend` —
+    run records `WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P1-CURVEDBEND-001.md`
+    and `..._TP-PMM-P1-CURVEDBEND-002.md` (DEL-04-01); witness
+    `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL`; benchmark agreement 5.8e-8;
+    k-sweep monotonicity asserted.
+  - Checks: crate/product/python suites pass (56/27/369); self-check exit 0;
+    DEC-025 sweeps `SWEEP_20260710T134128Z_16ba9db23114.json` (clean) and
+    `SWEEP_20260710T151446Z_b77e721b2028-dirty.json` (all five surfaces
+    pass; sole dirty path is external concurrent-loop state in
+    `domains/piping-design/_Sources/**` — untouched per the external-state
+    rule).
+  - Gate outcome: executed within the DEC-070 fence; PR awaiting owner
+    merge; no lifecycle transition. Named residuals: nonlinear-loop
+    explicit-stiffness slot (blocking diagnostic in place), arc interior
+    stations, consistent arc distributed loads, GUI emission of
+    `bend_pipe_ref`.
