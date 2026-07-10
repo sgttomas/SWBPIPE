@@ -202,6 +202,18 @@ OpenPipeStress shall not:
 9. Treat global piping stress analysis as routine 3D solid finite element analysis.
 10. Certify fabrication, construction, inspection, examination, testing, or operating fitness.
 
+In addition, the following special analysis domains are recorded as current non-goals per DEC-069 (D-37 ruling), so that their absence reads as a recorded scope decision rather than an omission; naming an item here neither schedules nor forecloses future work, and promoting any of them into scope follows the governed SCOPE_CHANGE path. OpenPipeStress shall not:
+
+11. Model buried-pipe behavior or soil-spring restraint.
+12. Model jacketed (pipe-in-pipe) piping.
+13. Model FRP or other orthotropic pipe materials.
+14. Compute slug-flow or two-phase-flow dynamic forces.
+15. Model snubbers.
+16. Perform fatigue cycle counting.
+17. Provide first-class nozzle-flexibility objects.
+18. Provide mitered-bend or stepped-reducer element formulations.
+19. Model expansion-joint hardware kinematics (tie rod, hinge, gimbal) beyond the configuration metadata already specified for expansion joints.
+
 ---
 
 ## 8. Core Product Concepts

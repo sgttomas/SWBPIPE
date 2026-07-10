@@ -127,6 +127,18 @@ OpenPipeStress will **not**:
 - Certify fabrication, examination, inspection, testing, or construction compliance.
 - Guarantee suitability for nuclear, aerospace, offshore, cryogenic, toxic, lethal-service, or high-consequence applications without additional qualified engineering review.
 
+In addition, the following special analysis domains are recorded as current non-goals per DEC-069 (D-37 ruling), so that their absence reads as a recorded scope decision rather than an omission; naming an item here neither schedules nor forecloses future work, and promoting any of them into scope follows the governed SCOPE_CHANGE path. OpenPipeStress will **not**:
+
+- Model buried-pipe behavior or soil-spring restraint.
+- Model jacketed (pipe-in-pipe) piping.
+- Model FRP or other orthotropic pipe materials.
+- Compute slug-flow or two-phase-flow dynamic forces.
+- Model snubbers.
+- Perform fatigue cycle counting.
+- Provide first-class nozzle-flexibility objects.
+- Provide mitered-bend or stepped-reducer element formulations.
+- Model expansion-joint hardware kinematics (tie rod, hinge, gimbal) beyond the configuration metadata already specified for expansion joints.
+
 ---
 
 ## 6. Design Principles
