@@ -457,6 +457,73 @@ def test_non_axis_aligned_load_metadata_survives_transform():
     assert trace_targets[("LoadCase", "LC-1")] == ref("LoadCase", "LC-1")
 
 
+def test_equivalent_static_generation_inputs_survive_transform_and_validate():
+    schema = load_json(MODEL_SCHEMA_PATH)
+    source = physical_model()
+    generation = {
+        "seismic": {
+            "gravity_acceleration": quantity(9.80665, "m/s^2", "acceleration"),
+            "g_factors": {
+                "x": quantity(0.3, "1", "dimensionless"),
+                "z": quantity(0.2, "1", "dimensionless"),
+            },
+        },
+        "wind": {
+            "pressure": quantity(480.0, "Pa", "pressure"),
+            "shape_factor": quantity(0.7, "1", "dimensionless"),
+            "direction": "X",
+            "exposed_element_refs": [ref("Element", "E-1")],
+        },
+        "provenance": provenance("equivalent static generation source"),
+    }
+    source["load_cases"][0]["equivalent_static_generation"] = deepcopy(generation)
+
+    assert validate_instance(
+        schema_for_definition(schema, "LoadCase"), source["load_cases"][0]
+    )
+
+    result = transform_physical_to_analytical(source)
+    analytical = result.analytical_model
+
+    assert not result.has_blocking_findings
+    load_case = analytical["load_cases"][0]
+    assert load_case["equivalent_static_generation"] == generation
+    assert validate_instance(schema_for_definition(schema, "LoadCase"), load_case)
+
+
+def test_equivalent_static_generation_rejects_defaulted_or_extra_fields():
+    schema = load_json(MODEL_SCHEMA_PATH)
+    load_case_schema = schema_for_definition(schema, "LoadCase")
+    source = physical_model()
+    base = {
+        "seismic": {
+            "gravity_acceleration": quantity(9.80665, "m/s^2", "acceleration"),
+            "g_factors": {"y": quantity(0.3, "1", "dimensionless")},
+        },
+        "provenance": provenance("equivalent static generation source"),
+    }
+
+    def rejects(payload):
+        source["load_cases"][0]["equivalent_static_generation"] = payload
+        try:
+            validate_instance(load_case_schema, source["load_cases"][0])
+        except AssertionError:
+            return True
+        return False
+
+    missing_gravity = deepcopy(base)
+    del missing_gravity["seismic"]["gravity_acceleration"]
+    assert rejects(missing_gravity)
+
+    empty_axes = deepcopy(base)
+    empty_axes["seismic"]["g_factors"] = {}
+    assert rejects(empty_axes)
+
+    unknown_field = deepcopy(base)
+    unknown_field["code_exposure_category"] = "TBD"
+    assert rejects(unknown_field)
+
+
 def test_unresolved_load_quantity_dimension_blocks_transform_without_inference():
     source = physical_model()
     source["load_cases"][0]["loads"].append(

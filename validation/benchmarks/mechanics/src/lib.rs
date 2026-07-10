@@ -15,10 +15,13 @@ use open_pipe_stress_linear_supports::{
     SupportQuantity,
 };
 use open_pipe_stress_primitive_loads::{
-    assemble_solver_load_vector, prepare_loads, prepare_lumped_nodal_loads,
-    prepare_straight_pipe_axial_effects, ElementAxialEffectProperties, ElementLoadSpan,
-    LoadDimension, LoadDirection, LoadQuantity, PrimitiveAxialEffectContribution, PrimitiveLoad,
-    PrimitiveLoadCategory, SolverNodalLoadContribution,
+    assemble_solver_load_vector, generate_seismic_equivalent_static_loads,
+    generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+    prepare_lumped_nodal_loads, prepare_straight_pipe_axial_effects, ElementAxialEffectProperties,
+    ElementExposedDiameter, ElementLoadSpan, ElementMassPerLength, EquivalentStaticAxisFactor,
+    EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadQuantity,
+    PrimitiveAxialEffectContribution, PrimitiveLoad, PrimitiveLoadCategory,
+    SeismicEquivalentStaticBasis, SolverNodalLoadContribution, WindEquivalentStaticBasis,
 };
 use open_pipe_stress_result_export::{
     sorted_result_values, validate_result_envelope, AnalysisStatus, ChecksumRef,
@@ -118,6 +121,7 @@ pub enum BenchmarkFamily {
     ImposedDisplacement,
     StiffnessTransform,
     CurvedBendExpansionLoop,
+    EquivalentStaticGeneration,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -406,6 +410,138 @@ pub struct CanonicalSolveResultEnvelopeEvidence {
     pub envelope_diagnostic_count: usize,
 }
 
+// --- Static-equivalent occasional-load generation fixture
+// (TP-PMM-P3-OCCLOADGEN-001, DEC-068 item 2) ---
+
+const OCCLOADGEN_OUTSIDE_DIAMETER: f64 = 0.2;
+const OCCLOADGEN_NOMINAL_WALL: f64 = 0.01;
+const OCCLOADGEN_MILL_TOLERANCE: f64 = 0.00125;
+const OCCLOADGEN_MATERIAL_DENSITY: f64 = 7850.0;
+const OCCLOADGEN_CONTENTS_DENSITY: f64 = 800.0;
+const OCCLOADGEN_INSULATION_THICKNESS: f64 = 0.025;
+const OCCLOADGEN_INSULATION_DENSITY: f64 = 120.0;
+/// User-entered gravity acceleration for the fixture; an explicit input,
+/// not an embedded physical-constant default.
+const OCCLOADGEN_USER_GRAVITY: f64 = 9.80665;
+const OCCLOADGEN_G_FACTOR_X: f64 = 0.3;
+const OCCLOADGEN_G_FACTOR_Z: f64 = -0.2;
+const OCCLOADGEN_WIND_PRESSURE: f64 = 480.0;
+const OCCLOADGEN_WIND_SHAPE_FACTOR: f64 = 0.7;
+const OCCLOADGEN_SPAN_LENGTH: f64 = 3.0;
+
+/// Mass per unit length from the fixture's own user-entered section
+/// values: metal + contents + insulation over the mill-tolerance
+/// effective wall (`core/section_properties/calculator.py` closed forms).
+pub fn occloadgen_mass_per_length() -> f64 {
+    let effective_wall = OCCLOADGEN_NOMINAL_WALL - OCCLOADGEN_MILL_TOLERANCE;
+    let od = OCCLOADGEN_OUTSIDE_DIAMETER;
+    let id = od - 2.0 * effective_wall;
+    let metal_area = std::f64::consts::PI / 4.0 * (od.powi(2) - id.powi(2));
+    let contents_area = std::f64::consts::PI / 4.0 * id.powi(2);
+    let insulation_od = od + 2.0 * OCCLOADGEN_INSULATION_THICKNESS;
+    let insulation_area = std::f64::consts::PI / 4.0 * (insulation_od.powi(2) - od.powi(2));
+    metal_area * OCCLOADGEN_MATERIAL_DENSITY
+        + contents_area * OCCLOADGEN_CONTENTS_DENSITY
+        + insulation_area * OCCLOADGEN_INSULATION_DENSITY
+}
+
+pub fn occloadgen_exposed_diameter() -> f64 {
+    OCCLOADGEN_OUTSIDE_DIAMETER + 2.0 * OCCLOADGEN_INSULATION_THICKNESS
+}
+
+pub fn occloadgen_seismic_basis() -> SeismicEquivalentStaticBasis {
+    SeismicEquivalentStaticBasis {
+        load_case_ref: "load_case:LC-OCCLOADGEN".to_string(),
+        gravity_acceleration: OCCLOADGEN_USER_GRAVITY,
+        axis_factors: vec![
+            EquivalentStaticAxisFactor {
+                direction: LoadDirection::GlobalX,
+                g_factor: OCCLOADGEN_G_FACTOR_X,
+            },
+            EquivalentStaticAxisFactor {
+                direction: LoadDirection::GlobalZ,
+                g_factor: OCCLOADGEN_G_FACTOR_Z,
+            },
+        ],
+    }
+}
+
+pub fn occloadgen_wind_basis() -> WindEquivalentStaticBasis {
+    WindEquivalentStaticBasis {
+        load_case_ref: "load_case:LC-OCCLOADGEN".to_string(),
+        pressure: OCCLOADGEN_WIND_PRESSURE,
+        shape_factor: OCCLOADGEN_WIND_SHAPE_FACTOR,
+        direction: LoadDirection::GlobalY,
+    }
+}
+
+pub fn tp_pmm_p3_occloadgen_equivalent_static_fixture() -> MechanicsBenchmark {
+    let mass_per_length = occloadgen_mass_per_length();
+    let seismic_x = mass_per_length * OCCLOADGEN_G_FACTOR_X * OCCLOADGEN_USER_GRAVITY;
+    let seismic_z = mass_per_length * OCCLOADGEN_G_FACTOR_Z * OCCLOADGEN_USER_GRAVITY;
+    let wind_y =
+        OCCLOADGEN_WIND_PRESSURE * OCCLOADGEN_WIND_SHAPE_FACTOR * occloadgen_exposed_diameter();
+    MechanicsBenchmark {
+        fixture_id: "MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC",
+        family: BenchmarkFamily::EquivalentStaticGeneration,
+        description: "Seismic g-factor and wind pressure/shape static-equivalent generation from the fixture's own computed mass distribution and exposed diameter over user-marked spans.",
+        assumptions: &[
+            "All generation values are user-entered, including the gravity acceleration; no code coefficient, exposure category, catalog value, or default is encoded.",
+            "The mass distribution uses metal + contents + insulation areas over the mill-tolerance effective wall.",
+            "Wind projects onto the exposed diameter (outside diameter plus twice the insulation thickness) of user-marked spans only.",
+            "No dynamics content is encoded; the disposition for dynamics remains with D-12.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/mechanics/tp_pmm_p3_occloadgen_equivalent_static.md",
+        ),
+        unit_basis: FIXTURE_UNIT_BASIS,
+        expected_values: vec![
+            ExpectedValue {
+                name: "mass_per_length",
+                value: mass_per_length,
+                unit: "kg/m",
+                dimension: "mass_per_length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "seismic_intensity_global_x",
+                value: seismic_x,
+                unit: "N/m",
+                dimension: "force_per_length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "seismic_intensity_global_z",
+                value: seismic_z,
+                unit: "N/m",
+                dimension: "force_per_length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "wind_intensity_global_y",
+                value: wind_y,
+                unit: "N/m",
+                dimension: "force_per_length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "seismic_lumped_end_force_global_x",
+                value: seismic_x * OCCLOADGEN_SPAN_LENGTH / 2.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "wind_lumped_end_force_global_y",
+                value: wind_y * OCCLOADGEN_SPAN_LENGTH / 2.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
 pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
     vec![
         cantilever_tip_force_fixture(),
@@ -427,6 +563,7 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
         imposed_displacement_spring_fixture(),
         inclined_member_transform_fixture(),
         expansion_loop_curved_bend_thermal_fixture(),
+        tp_pmm_p3_occloadgen_equivalent_static_fixture(),
     ]
 }
 
@@ -4945,7 +5082,7 @@ mod tests {
     fn inventory_covers_required_mechanics_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 19);
+        assert_eq!(fixtures.len(), 20);
         assert!(fixtures
             .iter()
             .any(|fixture| fixture.fixture_id == "MECH-BRANCH-ASSEMBLY-THREE-MEMBER"));
@@ -4967,6 +5104,130 @@ mod tests {
         assert!(fixtures.iter().any(
             |fixture| fixture.fixture_id == "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE"
         ));
+    }
+
+    #[test]
+    fn occloadgen_generation_matches_witness_intensities() {
+        let fixture = tp_pmm_p3_occloadgen_equivalent_static_fixture();
+        let expected = |name: &str| {
+            fixture
+                .expected_values
+                .iter()
+                .find(|value| value.name == name)
+                .unwrap_or_else(|| panic!("missing expected value {name}"))
+                .value
+        };
+
+        let masses = [ElementMassPerLength {
+            element_index: 0,
+            mass_per_length: occloadgen_mass_per_length(),
+        }];
+        let (seismic_loads, seismic_findings) =
+            generate_seismic_equivalent_static_loads(&occloadgen_seismic_basis(), &masses);
+        assert!(seismic_findings.is_empty());
+        assert_eq!(seismic_loads.len(), 2);
+        let seismic_x = seismic_loads
+            .iter()
+            .find(|load| load.direction == LoadDirection::GlobalX)
+            .unwrap();
+        let seismic_z = seismic_loads
+            .iter()
+            .find(|load| load.direction == LoadDirection::GlobalZ)
+            .unwrap();
+        assert!(
+            (seismic_x.magnitude.unwrap().value - expected("seismic_intensity_global_x")).abs()
+                <= 1.0e-9
+        );
+        assert!(
+            (seismic_z.magnitude.unwrap().value - expected("seismic_intensity_global_z")).abs()
+                <= 1.0e-9
+        );
+        assert!(seismic_loads
+            .iter()
+            .all(|load| load.category == PrimitiveLoadCategory::Seismic));
+
+        let exposed = [ElementExposedDiameter {
+            element_index: 0,
+            exposed_diameter: occloadgen_exposed_diameter(),
+        }];
+        let (wind_loads, wind_findings) =
+            generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &exposed);
+        assert!(wind_findings.is_empty());
+        assert_eq!(wind_loads.len(), 1);
+        assert_eq!(wind_loads[0].category, PrimitiveLoadCategory::Wind);
+        assert!(
+            (wind_loads[0].magnitude.unwrap().value - expected("wind_intensity_global_y")).abs()
+                <= 1.0e-9
+        );
+    }
+
+    #[test]
+    fn occloadgen_generated_loads_pass_boundary_and_lump_to_end_nodes() {
+        let fixture = tp_pmm_p3_occloadgen_equivalent_static_fixture();
+        let expected = |name: &str| {
+            fixture
+                .expected_values
+                .iter()
+                .find(|value| value.name == name)
+                .unwrap_or_else(|| panic!("missing expected value {name}"))
+                .value
+        };
+
+        let masses = [ElementMassPerLength {
+            element_index: 0,
+            mass_per_length: occloadgen_mass_per_length(),
+        }];
+        let (mut loads, findings) =
+            generate_seismic_equivalent_static_loads(&occloadgen_seismic_basis(), &masses);
+        assert!(findings.is_empty());
+        let exposed = [ElementExposedDiameter {
+            element_index: 0,
+            exposed_diameter: occloadgen_exposed_diameter(),
+        }];
+        let (wind_loads, wind_findings) =
+            generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &exposed);
+        assert!(wind_findings.is_empty());
+        loads.extend(wind_loads);
+
+        let basis = EquivalentStaticMechanicsBasis::new(
+            "basis:occloadgen-equivalent-static",
+            "provenance:user-input",
+        )
+        .unwrap();
+        let application = prepare_equivalent_static_loads(2, 1, &basis, &loads).unwrap();
+        assert!(application.findings.is_empty());
+        assert_eq!(application.element_uniform_loads.len(), 3);
+
+        let span = ElementLoadSpan::new(0, 0, 1, OCCLOADGEN_SPAN_LENGTH).unwrap();
+        let lumped = prepare_lumped_nodal_loads(2, 1, &[span], &loads);
+        assert!(lumped.findings.is_empty());
+        let sum_for = |node_index: usize, dof: usize| -> f64 {
+            lumped
+                .nodal_loads
+                .iter()
+                .filter(|load| load.node_index == node_index && load.global_dof % 6 == dof)
+                .map(|load| load.value)
+                .sum()
+        };
+        let expected_x = expected("seismic_lumped_end_force_global_x");
+        let expected_y = expected("wind_lumped_end_force_global_y");
+        assert!((sum_for(0, UX) - expected_x).abs() <= 1.0e-9);
+        assert!((sum_for(1, UX) - expected_x).abs() <= 1.0e-9);
+        assert!((sum_for(0, UY) - expected_y).abs() <= 1.0e-9);
+        assert!((sum_for(1, UY) - expected_y).abs() <= 1.0e-9);
+    }
+
+    #[test]
+    fn occloadgen_generation_blocks_without_user_inputs_or_marked_spans() {
+        let (loads, findings) =
+            generate_seismic_equivalent_static_loads(&occloadgen_seismic_basis(), &[]);
+        assert!(loads.is_empty());
+        assert!(!findings.is_empty());
+
+        let (loads, findings) =
+            generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &[]);
+        assert!(loads.is_empty());
+        assert!(!findings.is_empty());
     }
 
     #[test]

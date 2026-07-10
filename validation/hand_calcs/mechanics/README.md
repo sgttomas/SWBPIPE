@@ -62,6 +62,7 @@ has an explicit public-original hand-calculation note.
 | `MECH-IMPOSED-DISPLACEMENT-SPRING` | `imposed_displacement_spring.md` |
 | `MECH-INCLINED-MEMBER-TRANSFORM` | `inclined_member_transform.md` |
 | `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` | `expansion_loop_curved_bend_thermal.md` |
+| `MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC` | `tp_pmm_p3_occloadgen_equivalent_static.md` |
 
 ## Notes
 

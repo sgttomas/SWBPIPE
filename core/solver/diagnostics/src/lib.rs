@@ -729,7 +729,8 @@ fn load_finding_diagnostic_code(code: LoadFindingCode) -> SolverDiagnosticCode {
         | LoadFindingCode::InvalidElementProperties
         | LoadFindingCode::InvalidPhysicalProperty
         | LoadFindingCode::NonFiniteLoadMagnitude
-        | LoadFindingCode::NonFiniteAxialEffect => SolverDiagnosticCode::InvalidNumericInput,
+        | LoadFindingCode::NonFiniteAxialEffect
+        | LoadFindingCode::InvalidGenerationInput => SolverDiagnosticCode::InvalidNumericInput,
         LoadFindingCode::MissingLoadId
         | LoadFindingCode::MissingLoadTarget
         | LoadFindingCode::NodeOutOfRange
@@ -738,9 +739,8 @@ fn load_finding_diagnostic_code(code: LoadFindingCode) -> SolverDiagnosticCode {
         | LoadFindingCode::MissingElementProperties
         | LoadFindingCode::MissingPhysicalProperty
         | LoadFindingCode::InvalidElementConnectivity
-        | LoadFindingCode::UnsupportedTargetForCategory => {
-            SolverDiagnosticCode::InvalidModelTopology
-        }
+        | LoadFindingCode::UnsupportedTargetForCategory
+        | LoadFindingCode::MissingGenerationInput => SolverDiagnosticCode::InvalidModelTopology,
     }
 }
 

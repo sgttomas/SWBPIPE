@@ -46,7 +46,7 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
     if model
         .load_cases
         .iter()
-        .all(|case| case.primitive_loads.is_empty())
+        .all(|case| case.primitive_loads.is_empty() && case.equivalent_static.is_none())
     {
         diagnostics.push(diag(
             "diagnostic:physics:loads-missing",
@@ -181,6 +181,14 @@ fn validate_provenance(
                 "primitive-load",
                 &load.id,
                 load.provenance.as_deref(),
+                diagnostics,
+            );
+        }
+        if let Some(equivalent_static) = &load_case.equivalent_static {
+            expect_public_preview_provenance(
+                "equivalent-static-generation",
+                &load_case.id,
+                equivalent_static.provenance.as_deref(),
                 diagnostics,
             );
         }
