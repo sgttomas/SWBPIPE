@@ -65,7 +65,7 @@ describe("previewService mechanics browser fallback", () => {
       ),
     ).toMatchObject({
       kind: "nonlinear_support_active_set_iteration_count",
-      value: 1,
+      value: 2,
       unit: "count",
     });
     expect(
@@ -99,7 +99,9 @@ describe("previewService mechanics browser fallback", () => {
       kind: "nonlinear_support_final_reaction",
       entity_ref: "support:NL-130-FRIC",
       unit: "N",
-      value: 0,
+      // DEC-067 bounded sliding: the sliding support carries the +mu*N
+      // tangential reaction opposing its negative-Z motion.
+      value: 0.490101,
     });
     expect(
       result.results.find(
@@ -110,7 +112,7 @@ describe("previewService mechanics browser fallback", () => {
     ).toMatchObject({
       kind: "nonlinear_support_friction_normal_reaction_derived",
       entity_ref: "support:NL-130-FRIC",
-      value: 49.010116,
+      value: 48.952652,
       unit: "N",
     });
     const normalBasis = result.results.find(
