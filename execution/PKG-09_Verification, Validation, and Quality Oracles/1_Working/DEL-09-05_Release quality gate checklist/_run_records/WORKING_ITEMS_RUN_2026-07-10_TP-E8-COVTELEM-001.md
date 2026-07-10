@@ -117,11 +117,17 @@ in-browser bundle is out of this tranche.
 
 ## Evidence
 
-- Clean-head coverage telemetry artifact (first DEC-060 artifact): emitted
-  at the committed implementation HEAD and committed under
-  `validation/evidence/coverage/`; exact filename, bound commit, and lane
-  numbers recorded in this section by the evidence commit that follows the
-  implementation commit. (Filled in below once emitted.)
+- Clean-head coverage telemetry artifact (first DEC-060 artifact; all three
+  lanes `measured`):
+  `validation/evidence/coverage/COVERAGE_20260710T232606Z_e9cd806811b3.json`,
+  bound to commit `e9cd806811b3725de9de4ba1bbb948b989921dfb` with
+  `working_tree_dirty=false`; validated against
+  `tools/release/coverage_telemetry_schema.json` (in-run and independently).
+  Lane numbers (telemetry only — no floor exists and nothing gates on them):
+  Rust aggregate lines 89.2636% / functions 91.3094% / regions 87.9712%
+  across 34 crates; Python statements 87.0178% (14,820/17,031); desktop TS
+  lines 84.3553% / statements 82.7811% / functions 90.4283% /
+  branches 74.3885%.
 - Clean-head DEC-025 sweep summary: run at committed HEAD and committed
   under `validation/evidence/sweeps/`; exact filename, bound commit, and
   status recorded here by the sweep-evidence commit. (Filled in below once
