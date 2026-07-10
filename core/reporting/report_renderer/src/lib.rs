@@ -15,6 +15,11 @@
 //! emit professional approval, certification, sealing, authentication, or
 //! code-compliance claims. PDF or paper output produced from this document is
 //! a derived, non-hash-bound view (`derived_print_view`).
+//!
+//! The assembled section model (`assemble_report_sections`) is
+//! emission-neutral and shared: the HTML emission here and the hash-bound
+//! deterministic PDF emission (`pdf_emitter`, DEC-061) are two deterministic
+//! emissions of this one assembled section model.
 
 use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_generator as report;
@@ -213,14 +218,14 @@ fn row(cells: &[String]) -> String {
     let mut html = String::from("<tr>");
     for cell in cells {
         html.push_str("<td>");
-        html.push_str(cell);
+        html.push_str(&escape_html(cell));
         html.push_str("</td>");
     }
     html.push_str("</tr>\n");
     html
 }
 
-fn header_row(cells: &[&str]) -> String {
+fn header_row(cells: &[String]) -> String {
     let mut html = String::from("<tr>");
     for cell in cells {
         html.push_str("<th>");
@@ -284,7 +289,10 @@ fn map_review_status(value: &str) -> linter::ReviewStatus {
     }
 }
 
-fn lint_provenance(provenance: &report::Provenance) -> linter::Provenance {
+/// Map report provenance onto the linter's provenance model. Public so the
+/// deterministic PDF emitter (DEC-061) gates its text model with the same
+/// provenance mapping the HTML emission uses.
+pub fn lint_provenance(provenance: &report::Provenance) -> linter::Provenance {
     linter::Provenance {
         source_name: provenance.source_name.clone(),
         source_location: provenance.source_location.clone(),
@@ -327,296 +335,455 @@ fn section_outcome_diagnostic(diagnostic: &sections::Diagnostic) -> OutcomeDiagn
     }
 }
 
-struct AssembledSection {
-    key: &'static str,
-    title: &'static str,
-    body_html: String,
-    lint_text: String,
+/// One content block of an assembled report section. This is the
+/// emission-neutral pre-render model shared by the HTML emission in this
+/// crate and the hash-bound deterministic PDF emission (`pdf_emitter`,
+/// DEC-061). All text is raw (unescaped and unencoded); each emitter applies
+/// its own escaping or byte encoding deterministically.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SectionBlock {
+    /// Sub-heading inside a section (HTML `<h3>`).
+    Subheading { text: String },
+    /// Paragraph; `meta` selects the small-print style (HTML `p.meta`).
+    Paragraph { text: String, meta: bool },
+    /// Table with one header row. `signoff` selects the human sign-off style
+    /// with taller blank entry rows.
+    Table {
+        header: Vec<String>,
+        rows: Vec<Vec<String>>,
+        signoff: bool,
+    },
+    /// Professional-boundary banner box (HTML `div.boundary`).
+    BoundaryBox { text: String },
 }
 
-fn assemble_sections(input: &RenderableReportInput) -> Vec<AssembledSection> {
+/// One assembled report section: fixed key and title plus ordered content
+/// blocks. Assembly is deterministic in the input; emitters never reorder.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AssembledSection {
+    pub key: &'static str,
+    pub title: &'static str,
+    pub blocks: Vec<SectionBlock>,
+}
+
+fn subheading(text: &str) -> SectionBlock {
+    SectionBlock::Subheading {
+        text: text.to_string(),
+    }
+}
+
+fn paragraph(text: &str) -> SectionBlock {
+    SectionBlock::Paragraph {
+        text: text.to_string(),
+        meta: false,
+    }
+}
+
+fn meta_paragraph(text: &str) -> SectionBlock {
+    SectionBlock::Paragraph {
+        text: text.to_string(),
+        meta: true,
+    }
+}
+
+fn table(header: &[&str], rows: Vec<Vec<String>>) -> SectionBlock {
+    SectionBlock::Table {
+        header: header.iter().map(|cell| cell.to_string()).collect(),
+        rows,
+        signoff: false,
+    }
+}
+
+/// Assemble the eight required report sections in fixed order from the
+/// validated input. This is the single assembled section model both
+/// deterministic emissions (HTML here, PDF in `pdf_emitter`) consume.
+pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledSection> {
     let calc = &input.calculation_report;
     let disclosure = &input.report_sections;
     let mut assembled = Vec::new();
 
     for key in SECTION_ORDER {
-        let (title, body_html) = match key {
+        let (title, blocks) = match key {
             "model_input_summary" => {
                 let summary = &calc.model_input_summary;
-                let mut body = String::from("<table>\n");
-                body.push_str(&header_row(&["Item", "Reference"]));
-                body.push_str(&row(&[
-                    escape_html("Project"),
-                    escape_html(&reference_text(&summary.project_ref)),
-                ]));
-                body.push_str(&row(&[
-                    escape_html("Model"),
-                    escape_html(&reference_text(&summary.model_ref)),
-                ]));
-                body.push_str(&row(&[
-                    escape_html("Persistence envelope"),
-                    escape_html(&reference_text(&summary.persistence_ref)),
-                ]));
-                body.push_str(&row(&[
-                    escape_html("Unit system"),
-                    escape_html(&reference_text(&summary.unit_system_ref)),
-                ]));
+                let mut rows = vec![
+                    vec!["Project".to_string(), reference_text(&summary.project_ref)],
+                    vec!["Model".to_string(), reference_text(&summary.model_ref)],
+                    vec![
+                        "Persistence envelope".to_string(),
+                        reference_text(&summary.persistence_ref),
+                    ],
+                    vec![
+                        "Unit system".to_string(),
+                        reference_text(&summary.unit_system_ref),
+                    ],
+                ];
                 if let Some(unit_display) = &summary.unit_display_summary {
-                    body.push_str(&row(&[
-                        escape_html("Unit storage convention"),
-                        escape_html(&unit_display.storage_convention),
-                    ]));
-                    body.push_str(&row(&[
-                        escape_html("Model units"),
-                        escape_html(&model_units_text(&unit_display.model_units)),
-                    ]));
-                    body.push_str(&row(&[
-                        escape_html("Result units"),
-                        escape_html(&result_units_text(&unit_display.result_units)),
-                    ]));
-                    body.push_str(&row(&[
-                        escape_html("Quantity display policy"),
-                        escape_html(&unit_display.quantity_display_policy),
-                    ]));
-                    body.push_str(&row(&[
-                        escape_html("Report-time conversion"),
-                        escape_html(if unit_display.conversion_performed {
+                    rows.push(vec![
+                        "Unit storage convention".to_string(),
+                        unit_display.storage_convention.clone(),
+                    ]);
+                    rows.push(vec![
+                        "Model units".to_string(),
+                        model_units_text(&unit_display.model_units),
+                    ]);
+                    rows.push(vec![
+                        "Result units".to_string(),
+                        result_units_text(&unit_display.result_units),
+                    ]);
+                    rows.push(vec![
+                        "Quantity display policy".to_string(),
+                        unit_display.quantity_display_policy.clone(),
+                    ]);
+                    rows.push(vec![
+                        "Report-time conversion".to_string(),
+                        if unit_display.conversion_performed {
                             "true"
                         } else {
                             "false"
-                        }),
-                    ]));
+                        }
+                        .to_string(),
+                    ]);
                 }
-                body.push_str(&row(&[
-                    escape_html("Model hash"),
-                    escape_html(&checksum_text(&summary.model_hash)),
-                ]));
-                body.push_str(&row(&[
-                    escape_html("Input manifest"),
-                    escape_html(&reference_text(&summary.input_manifest_ref)),
-                ]));
-                body.push_str("</table>\n");
-                ("Model Input Summary", body)
+                rows.push(vec![
+                    "Model hash".to_string(),
+                    checksum_text(&summary.model_hash),
+                ]);
+                rows.push(vec![
+                    "Input manifest".to_string(),
+                    reference_text(&summary.input_manifest_ref),
+                ]);
+                (
+                    "Model Input Summary",
+                    vec![table(&["Item", "Reference"], rows)],
+                )
             }
             "load_cases" => {
-                let mut body = String::from("<table>\n");
-                body.push_str(&header_row(&["Load case", "Label", "Basis", "Source"]));
-                for case in &calc.load_case_summary {
-                    body.push_str(&row(&[
-                        escape_html(&reference_text(&case.load_ref)),
-                        escape_html(&case.label),
-                        escape_html(&case.basis),
-                        escape_html(&reference_text(&case.source)),
-                    ]));
-                }
-                body.push_str("</table>\n");
-                ("Load Cases", body)
+                let rows = calc
+                    .load_case_summary
+                    .iter()
+                    .map(|case| {
+                        vec![
+                            reference_text(&case.load_ref),
+                            case.label.clone(),
+                            case.basis.clone(),
+                            reference_text(&case.source),
+                        ]
+                    })
+                    .collect();
+                (
+                    "Load Cases",
+                    vec![table(&["Load case", "Label", "Basis", "Source"], rows)],
+                )
             }
             "results" => {
-                let mut body = String::new();
+                let mut blocks = Vec::new();
                 if input.result_rows.is_empty() {
-                    body.push_str("<p>No result rows supplied for this rendering.</p>\n");
+                    blocks.push(paragraph("No result rows supplied for this rendering."));
                 } else {
-                    body.push_str("<table>\n");
-                    body.push_str(&header_row(&["Result", "Case", "Value", "Source"]));
-                    for result_row in &input.result_rows {
-                        body.push_str(&row(&[
-                            escape_html(&result_row.label),
-                            escape_html(&result_row.case_ref),
-                            escape_html(&result_row.quantity_display),
-                            escape_html(&result_row.source_ref),
-                        ]));
-                    }
-                    body.push_str("</table>\n");
+                    let rows = input
+                        .result_rows
+                        .iter()
+                        .map(|result_row| {
+                            vec![
+                                result_row.label.clone(),
+                                result_row.case_ref.clone(),
+                                result_row.quantity_display.clone(),
+                                result_row.source_ref.clone(),
+                            ]
+                        })
+                        .collect();
+                    blocks.push(table(&["Result", "Case", "Value", "Source"], rows));
                 }
-                body.push_str("<table>\n");
-                body.push_str(&header_row(&["Referenced result export", "Checksum"]));
-                for envelope in &calc.result_export_refs {
-                    body.push_str(&row(&[
-                        escape_html(&reference_text(&envelope.reference)),
-                        escape_html(&checksum_text(&envelope.checksum)),
-                    ]));
-                }
-                body.push_str("</table>\n");
-                ("Results", body)
+                let export_rows = calc
+                    .result_export_refs
+                    .iter()
+                    .map(|envelope| {
+                        vec![
+                            reference_text(&envelope.reference),
+                            checksum_text(&envelope.checksum),
+                        ]
+                    })
+                    .collect();
+                blocks.push(table(
+                    &["Referenced result export", "Checksum"],
+                    export_rows,
+                ));
+                ("Results", blocks)
             }
             "warnings_assumptions_provenance" => {
-                let mut body = String::from("<h3>Diagnostics</h3>\n<table>\n");
-                body.push_str(&header_row(&["Code", "Severity", "Message", "Remediation"]));
-                for diagnostic in sections::sorted_diagnostics(disclosure) {
-                    body.push_str(&row(&[
-                        escape_html(&diagnostic.code),
-                        escape_html(severity_label(&diagnostic.severity)),
-                        escape_html(&diagnostic.message),
-                        escape_html(&diagnostic.remediation),
-                    ]));
-                }
-                body.push_str("</table>\n<h3>Assumptions</h3>\n<table>\n");
-                body.push_str(&header_row(&["Assumption", "Owner", "Statement", "Scope"]));
-                for assumption in &disclosure.assumptions {
-                    body.push_str(&row(&[
-                        escape_html(&assumption.assumption_id),
-                        escape_html(&assumption.owner),
-                        escape_html(&assumption.statement),
-                        escape_html(&section_reference_text(&assumption.affected_scope)),
-                    ]));
-                }
-                body.push_str("</table>\n<h3>User-Supplied Values</h3>\n<table>\n");
-                body.push_str(&header_row(&[
-                    "Value",
-                    "Category",
-                    "Quantity",
-                    "Source",
-                    "Missing-data finding",
-                ]));
-                for value in &disclosure.user_supplied_values {
-                    let quantity = match &value.quantity {
-                        Some(quantity) => format!(
-                            "{} {} [{:?}]",
-                            quantity.magnitude, quantity.unit, quantity.dimension
+                let diagnostic_rows = sections::sorted_diagnostics(disclosure)
+                    .iter()
+                    .map(|diagnostic| {
+                        vec![
+                            diagnostic.code.clone(),
+                            severity_label(&diagnostic.severity).to_string(),
+                            diagnostic.message.clone(),
+                            diagnostic.remediation.clone(),
+                        ]
+                    })
+                    .collect();
+                let assumption_rows = disclosure
+                    .assumptions
+                    .iter()
+                    .map(|assumption| {
+                        vec![
+                            assumption.assumption_id.clone(),
+                            assumption.owner.clone(),
+                            assumption.statement.clone(),
+                            section_reference_text(&assumption.affected_scope),
+                        ]
+                    })
+                    .collect();
+                let value_rows = disclosure
+                    .user_supplied_values
+                    .iter()
+                    .map(|value| {
+                        let quantity = match &value.quantity {
+                            Some(quantity) => format!(
+                                "{} {} [{:?}]",
+                                quantity.magnitude, quantity.unit, quantity.dimension
+                            ),
+                            None => "TBD".to_string(),
+                        };
+                        vec![
+                            value.value_id.clone(),
+                            value.value_category.clone(),
+                            quantity,
+                            section_reference_text(&value.source),
+                            if value.missing_data_finding {
+                                "yes"
+                            } else {
+                                "no"
+                            }
+                            .to_string(),
+                        ]
+                    })
+                    .collect();
+                let note_rows = disclosure
+                    .provenance_notes
+                    .iter()
+                    .map(|note| {
+                        vec![
+                            note.source_name.clone(),
+                            note.source_location.clone(),
+                            note.source_license.clone(),
+                            note.contributor.clone(),
+                        ]
+                    })
+                    .collect();
+                (
+                    "Warnings, Assumptions, And Provenance",
+                    vec![
+                        subheading("Diagnostics"),
+                        table(
+                            &["Code", "Severity", "Message", "Remediation"],
+                            diagnostic_rows,
                         ),
-                        None => "TBD".to_string(),
-                    };
-                    body.push_str(&row(&[
-                        escape_html(&value.value_id),
-                        escape_html(&value.value_category),
-                        escape_html(&quantity),
-                        escape_html(&section_reference_text(&value.source)),
-                        escape_html(if value.missing_data_finding {
-                            "yes"
-                        } else {
-                            "no"
-                        }),
-                    ]));
-                }
-                body.push_str("</table>\n<h3>Provenance Notes</h3>\n<table>\n");
-                body.push_str(&header_row(&[
-                    "Source",
-                    "Location",
-                    "License",
-                    "Contributor",
-                ]));
-                for note in &disclosure.provenance_notes {
-                    body.push_str(&row(&[
-                        escape_html(&note.source_name),
-                        escape_html(&note.source_location),
-                        escape_html(&note.source_license),
-                        escape_html(&note.contributor),
-                    ]));
-                }
-                body.push_str("</table>\n");
-                ("Warnings, Assumptions, And Provenance", body)
+                        subheading("Assumptions"),
+                        table(
+                            &["Assumption", "Owner", "Statement", "Scope"],
+                            assumption_rows,
+                        ),
+                        subheading("User-Supplied Values"),
+                        table(
+                            &[
+                                "Value",
+                                "Category",
+                                "Quantity",
+                                "Source",
+                                "Missing-data finding",
+                            ],
+                            value_rows,
+                        ),
+                        subheading("Provenance Notes"),
+                        table(&["Source", "Location", "License", "Contributor"], note_rows),
+                    ],
+                )
             }
             "audit_manifest" => {
-                let mut body = String::from(
-                    "<p>The SHA-256 of this rendered HTML document is computed over its exact \
-bytes and recorded alongside the referenced envelope hashes below. The rendered-document hash is \
-reported by the generating application next to this artifact; it cannot appear inside the bytes \
-it binds.</p>\n<table>\n",
-                );
-                body.push_str(&header_row(&["Referenced envelope", "Checksum"]));
-                for envelope in calc
+                let envelope_rows = calc
                     .audit_manifest_refs
                     .iter()
                     .chain(calc.report_section_refs.iter())
-                {
-                    body.push_str(&row(&[
-                        escape_html(&reference_text(&envelope.reference)),
-                        escape_html(&checksum_text(&envelope.checksum)),
-                    ]));
-                }
-                body.push_str("</table>\n");
-                ("Audit Manifest", body)
+                    .map(|envelope| {
+                        vec![
+                            reference_text(&envelope.reference),
+                            checksum_text(&envelope.checksum),
+                        ]
+                    })
+                    .collect();
+                (
+                    "Audit Manifest",
+                    vec![
+                        paragraph(
+                            "The SHA-256 of this rendered calculation-report document is \
+computed over its exact bytes and recorded alongside the referenced envelope hashes below. The \
+HTML and PDF emissions of the same assembled report sections are each hash-recorded this way. \
+The rendered-document hash is reported by the generating application next to this artifact; it \
+cannot appear inside the bytes it binds.",
+                        ),
+                        table(&["Referenced envelope", "Checksum"], envelope_rows),
+                    ],
+                )
             }
             "rule_pack_references" => {
-                let mut body = String::from("<table>\n");
-                body.push_str(&header_row(&[
-                    "Rule pack",
-                    "Version",
-                    "Checksum",
-                    "Source notice",
-                    "Completeness",
-                ]));
-                for rule_pack in &calc.rule_pack_refs {
-                    body.push_str(&row(&[
-                        escape_html(&rule_pack.rule_pack_id),
-                        escape_html(&rule_pack.version),
-                        escape_html(&checksum_text(&rule_pack.checksum)),
-                        escape_html(&rule_pack.source_notice),
-                        escape_html(&rule_pack.completeness_status),
-                    ]));
-                }
-                body.push_str("</table>\n");
-                ("Rule Pack References", body)
+                let rows = calc
+                    .rule_pack_refs
+                    .iter()
+                    .map(|rule_pack| {
+                        vec![
+                            rule_pack.rule_pack_id.clone(),
+                            rule_pack.version.clone(),
+                            checksum_text(&rule_pack.checksum),
+                            rule_pack.source_notice.clone(),
+                            rule_pack.completeness_status.clone(),
+                        ]
+                    })
+                    .collect();
+                (
+                    "Rule Pack References",
+                    vec![table(
+                        &[
+                            "Rule pack",
+                            "Version",
+                            "Checksum",
+                            "Source notice",
+                            "Completeness",
+                        ],
+                        rows,
+                    )],
+                )
             }
             "limitations" => {
-                let mut body = String::from("<table>\n");
-                body.push_str(&header_row(&["Limitation", "Statement", "Scope"]));
-                for limitation in &disclosure.limitations {
-                    body.push_str(&row(&[
-                        escape_html(&limitation.limitation_id),
-                        escape_html(&limitation.statement),
-                        escape_html(&section_reference_text(&limitation.affected_scope)),
-                    ]));
-                }
-                body.push_str("</table>\n<h3>Unresolved TBDs</h3>\n<table>\n");
-                body.push_str(&header_row(&["TBD", "Description", "Review needed"]));
-                for tbd in &disclosure.unresolved_tbds {
-                    body.push_str(&row(&[
-                        escape_html(&tbd.tbd_id),
-                        escape_html(&tbd.description),
-                        escape_html(if tbd.review_needed { "yes" } else { "no" }),
-                    ]));
-                }
-                for tbd in &calc.unresolved_runtime_tbds {
-                    body.push_str(&row(&[
-                        escape_html(&tbd.tbd_id),
-                        escape_html(&tbd.description),
-                        escape_html(if tbd.review_needed { "yes" } else { "no" }),
-                    ]));
-                }
-                body.push_str("</table>\n");
-                ("Limitations", body)
+                let limitation_rows = disclosure
+                    .limitations
+                    .iter()
+                    .map(|limitation| {
+                        vec![
+                            limitation.limitation_id.clone(),
+                            limitation.statement.clone(),
+                            section_reference_text(&limitation.affected_scope),
+                        ]
+                    })
+                    .collect();
+                let tbd_rows = disclosure
+                    .unresolved_tbds
+                    .iter()
+                    .map(|tbd| {
+                        (
+                            tbd.tbd_id.clone(),
+                            tbd.description.clone(),
+                            tbd.review_needed,
+                        )
+                    })
+                    .chain(calc.unresolved_runtime_tbds.iter().map(|tbd| {
+                        (
+                            tbd.tbd_id.clone(),
+                            tbd.description.clone(),
+                            tbd.review_needed,
+                        )
+                    }))
+                    .map(|(tbd_id, description, review_needed)| {
+                        vec![
+                            tbd_id,
+                            description,
+                            if review_needed { "yes" } else { "no" }.to_string(),
+                        ]
+                    })
+                    .collect();
+                (
+                    "Limitations",
+                    vec![
+                        table(&["Limitation", "Statement", "Scope"], limitation_rows),
+                        subheading("Unresolved TBDs"),
+                        table(&["TBD", "Description", "Review needed"], tbd_rows),
+                    ],
+                )
             }
             "professional_boundary_notice" => {
-                let mut body = String::from("<div class=\"boundary\">\n<p>");
-                body.push_str(&escape_html(
-                    "This document is a software-generated calculation record. It is not a \
-professional engineering approval, certification, seal, authentication, or code-compliance \
-determination. Human review by a qualified engineer is required before any reliance.",
-                ));
-                body.push_str("</p>\n</div>\n<h3>Human Review Record</h3>\n<p class=\"meta\">");
-                body.push_str(&escape_html(
-                    "Completed only by a qualified human reviewer. The software records no \
-approval and pre-fills no field.",
-                ));
-                body.push_str("</p>\n<table class=\"signoff\">\n");
-                body.push_str(&header_row(&["Field", "Entry"]));
-                for field in [
+                let signoff_rows = [
                     "Reviewer name",
                     "Qualification / license",
                     "Date",
                     "Signature",
                     "Notes",
-                ] {
-                    body.push_str(&row(&[escape_html(field), String::new()]));
-                }
-                body.push_str("</table>\n");
-                ("Professional Boundary And Human Review", body)
+                ]
+                .iter()
+                .map(|field| vec![field.to_string(), String::new()])
+                .collect();
+                (
+                    "Professional Boundary And Human Review",
+                    vec![
+                        SectionBlock::BoundaryBox {
+                            text: "This document is a software-generated calculation record. \
+It is not a professional engineering approval, certification, seal, authentication, or \
+code-compliance determination. Human review by a qualified engineer is required before any \
+reliance."
+                                .to_string(),
+                        },
+                        subheading("Human Review Record"),
+                        meta_paragraph(
+                            "Completed only by a qualified human reviewer. The software \
+records no approval and pre-fills no field.",
+                        ),
+                        SectionBlock::Table {
+                            header: vec!["Field".to_string(), "Entry".to_string()],
+                            rows: signoff_rows,
+                            signoff: true,
+                        },
+                    ],
+                )
             }
             _ => unreachable!("section order is a fixed constant"),
         };
 
-        let lint_text = html_to_lint_text(&body_html);
-        assembled.push(AssembledSection {
-            key,
-            title,
-            body_html,
-            lint_text,
-        });
+        assembled.push(AssembledSection { key, title, blocks });
     }
 
     assembled
+}
+
+/// Deterministic HTML emission of one section's blocks. Byte layout is part
+/// of the canonical hash-bound artifact contract.
+pub fn section_body_html(blocks: &[SectionBlock]) -> String {
+    let mut html = String::new();
+    for block in blocks {
+        match block {
+            SectionBlock::Subheading { text } => {
+                html.push_str("<h3>");
+                html.push_str(&escape_html(text));
+                html.push_str("</h3>\n");
+            }
+            SectionBlock::Paragraph { text, meta } => {
+                html.push_str(if *meta { "<p class=\"meta\">" } else { "<p>" });
+                html.push_str(&escape_html(text));
+                html.push_str("</p>\n");
+            }
+            SectionBlock::Table {
+                header,
+                rows,
+                signoff,
+            } => {
+                html.push_str(if *signoff {
+                    "<table class=\"signoff\">\n"
+                } else {
+                    "<table>\n"
+                });
+                html.push_str(&header_row(header));
+                for cells in rows {
+                    html.push_str(&row(cells));
+                }
+                html.push_str("</table>\n");
+            }
+            SectionBlock::BoundaryBox { text } => {
+                html.push_str("<div class=\"boundary\">\n<p>");
+                html.push_str(&escape_html(text));
+                html.push_str("</p>\n</div>\n");
+            }
+        }
+    }
+    html
 }
 
 /// Strip tags for lint purposes: the linter scans text, so feed it the
@@ -640,16 +807,32 @@ fn html_to_lint_text(html: &str) -> String {
     text
 }
 
-fn status_banner(disclosure: &sections::ReportSections) -> String {
-    let mut banner = String::from("<div class=\"status-banner\">Analysis status: ");
+/// Emission-neutral document meta line (report/model/run identity) shared by
+/// the HTML and PDF emissions.
+pub fn report_meta_text(input: &RenderableReportInput) -> String {
+    format!(
+        "Report ID: {} · Model: {} · Run: {}",
+        input.calculation_report.report_id,
+        section_reference_text(&input.report_sections.model_ref),
+        section_reference_text(&input.report_sections.run_ref),
+    )
+}
+
+/// Emission-neutral analysis-status banner text shared by the HTML and PDF
+/// emissions.
+pub fn status_banner_text(disclosure: &sections::ReportSections) -> String {
     let labels: Vec<&'static str> = disclosure
         .analysis_status_disclosures
         .iter()
         .map(|item| analysis_status_label(&item.status))
         .collect();
-    banner.push_str(&escape_html(&labels.join(", ")));
-    banner.push_str("</div>\n");
-    banner
+    format!("Analysis status: {}", labels.join(", "))
+}
+
+/// Emission-neutral export-blocked banner text shared by the HTML and PDF
+/// emissions.
+pub fn export_blocked_banner_text(blocking_reasons: &[String]) -> String {
+    format!("EXPORT BLOCKED — {}", blocking_reasons.join("; "))
 }
 
 /// Render the calculation report to a deterministic single-file HTML
@@ -659,17 +842,22 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
     let report_validation = report::validate_report(&input.calculation_report);
     let section_validation = sections::validate_report_sections(&input.report_sections);
 
-    let assembled = assemble_sections(input);
+    let assembled = assemble_report_sections(input);
+    let section_bodies: Vec<String> = assembled
+        .iter()
+        .map(|section| section_body_html(&section.blocks))
+        .collect();
 
     // Lint gate (ii): assembled section text, pre-render.
     let provenance = lint_provenance(&input.calculation_report.provenance);
     let pre_render_targets: Vec<linter::LintTarget> = assembled
         .iter()
-        .map(|section| linter::LintTarget {
+        .zip(section_bodies.iter())
+        .map(|(section, body_html)| linter::LintTarget {
             target_id: format!("report-section-{}", section.key),
             path: format!("report_renderer://section/{}", section.key),
             surface: linter::SurfaceKind::PublicReportExample,
-            text: section.lint_text.clone(),
+            text: html_to_lint_text(body_html),
             provenance: provenance.clone(),
         })
         .collect();
@@ -700,20 +888,22 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
     let mut body = String::new();
     body.push_str(&format!("<h1>{}</h1>\n", escape_html(&input.report_title)));
     body.push_str(&format!(
-        "<p class=\"meta\">Report ID: {} · Model: {} · Run: {}</p>\n",
-        escape_html(&input.calculation_report.report_id),
-        escape_html(&section_reference_text(&input.report_sections.model_ref)),
-        escape_html(&section_reference_text(&input.report_sections.run_ref)),
+        "<p class=\"meta\">{}</p>\n",
+        escape_html(&report_meta_text(input)),
     ));
-    body.push_str(&status_banner(&input.report_sections));
+    body.push_str(&format!(
+        "<div class=\"status-banner\">{}</div>\n",
+        escape_html(&status_banner_text(&input.report_sections)),
+    ));
     if !blocking_reasons.is_empty() {
-        body.push_str("<div class=\"blocked-banner\">EXPORT BLOCKED — ");
-        body.push_str(&escape_html(&blocking_reasons.join("; ")));
-        body.push_str("</div>\n");
+        body.push_str(&format!(
+            "<div class=\"blocked-banner\">{}</div>\n",
+            escape_html(&export_blocked_banner_text(&blocking_reasons)),
+        ));
     }
-    for section in &assembled {
+    for (section, body_html) in assembled.iter().zip(section_bodies.iter()) {
         body.push_str(&format!("<h2>{}</h2>\n", escape_html(section.title)));
-        body.push_str(&section.body_html);
+        body.push_str(body_html);
     }
     body.push_str("<p class=\"meta\">");
     body.push_str(&escape_html(

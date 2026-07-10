@@ -14,6 +14,61 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-07-10 - E3 hash-bound deterministic PDF emitter (`TP-E3-PDFEMIT-001`)
+
+Landed the `DEC-061` / D-10b Option O-A ruling: the pure in-repo minimal
+deterministic PDF writer at the deliberately plain packet-§5.1 scope, as the
+first (partial) slice of completion-plan row E3.
+
+- `core/reporting/report_renderer` now exposes the previously private section
+  assembly as a public emission-neutral block model
+  (`SectionBlock` / `AssembledSection` / `assemble_report_sections`, plus
+  `section_body_html` and shared frame-text helpers). The refactor was
+  verified byte-identical against the pre-refactor fixture render hash
+  (`498a8d71…596f`); one deliberate content change then made the shared
+  audit-manifest paragraph emission-neutral (both emissions are hash-recorded
+  the same way), moving the fixture render hash to `fde75537…b626`. No golden
+  hash is pinned in-repo; determinism tests assert re-render equality.
+- New crate `core/reporting/pdf_emitter`
+  (`open_pipe_stress_pdf_emitter`): text/tables/banner-boxes-only
+  deterministic PDF writer; base-14 Courier/Courier-Bold with
+  WinAnsiEncoding (no font embedding/subsetting); uncompressed content
+  streams; fixed metadata; no timestamps, document IDs, or varying producer
+  strings; deterministic pagination with repeated table headers and row
+  splitting. Zero new external dependencies (`DEC-023` posture): in-repo
+  crates plus `serde`/`sha2` only.
+- Gates: the HTML render gates run first (the PDF is never less gated than
+  the HTML emission of the same input); a blocked input renders a visible
+  EXPORT BLOCKED banner; the PDF document text model is linted
+  post-emission. Gating is text-model-side per the packet §2 unresolved
+  note (no in-repo binary re-extraction).
+- `assemble_full_report_package` emits HTML + PDF from the one assembled
+  section model and records both members' SHA-256 hashes alongside each
+  other, per the existing audit-manifest recording convention. The derived
+  webview print view keeps its ruled non-hash-bound labeling untouched.
+- Byte-golden determinism tests (`core/reporting/pdf_emitter/tests/emit.rs`,
+  8 tests) mirror the renderer suite and run under the `DEC-025` cargo
+  sweep.
+
+Validation: pdf_emitter 8/8 and report_renderer 8/8 cargo tests; sibling
+reporting crates green; fmt/clippy clean; piping pytest 377 passed;
+repo-root harness self-check exit 0; DEC-025 five-surface sweep at the
+committed HEAD (summary committed with the branch).
+
+Remaining E3 scope stays in the plan row: the broader §22.6 package
+container (audit manifest / result export / state-comparison-handoff
+members, packaging/naming with `D-06` per `DEC-028`) and app/runner binding
+of the package seam.
+
+Boundary: no release-readiness, lifecycle, issuance, professional,
+certification, sealing, authentication, or code-compliance claim; the R5
+package/exit question remains the human R5 exit review's (`D-10b` §7).
+
+Evidence:
+`execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E3-PDFEMIT-001.md`
+
+---
+
 ## 2026-06-23 - R4 exit clearance successor packet (`TP-DECIDE-D27-R4EXITCLEAR-001`)
 
 Prepared the successor human-gated R4 exit clearance packet:
