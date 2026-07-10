@@ -413,6 +413,50 @@ def check_schema_contract():
     assert defs["ElementUniformDistributedForceLoadRecord"]["properties"][
         "load_record_type"
     ]["const"] == "element_uniform_distributed_force"
+    # DEC-068 item 1: per-load-case modulus basis with exact selection.
+    assert "modulus_basis_ref" in defs["LoadCase"]["properties"]
+    modulus_basis_ref = defs["LoadCase"]["properties"]["modulus_basis_ref"]
+    assert "exact" in modulus_basis_ref["description"]
+    assert "no interpolation" in modulus_basis_ref["description"]
+    assert "modulus_basis_records" in defs["Combination"]["properties"]
+    modulus_record = defs["ModulusBasisRecord"]
+    assert modulus_record["additionalProperties"] is False
+    assert {"load_case_ref", "modulus_basis_ref"} <= set(modulus_record["required"])
+
+    # DEC-068 item 2: static-equivalent occasional-load generation inputs.
+    assert "equivalent_static_generation" in defs["LoadCase"]["properties"]
+    equivalent_static = defs["EquivalentStaticGeneration"]
+    assert equivalent_static["additionalProperties"] is False
+    assert {"provenance"} <= set(equivalent_static["required"])
+    assert {"seismic", "wind", "provenance"} <= set(equivalent_static["properties"])
+    seismic = defs["SeismicEquivalentStaticInput"]
+    assert seismic["additionalProperties"] is False
+    assert {"gravity_acceleration", "g_factors"} <= set(seismic["required"])
+    g_factors = seismic["properties"]["g_factors"]
+    assert g_factors["additionalProperties"] is False
+    assert g_factors["minProperties"] == 1
+    assert set(g_factors["properties"]) == {"x", "y", "z"}
+    wind = defs["WindEquivalentStaticInput"]
+    assert wind["additionalProperties"] is False
+    assert {
+        "pressure",
+        "shape_factor",
+        "direction",
+        "exposed_element_refs",
+    } <= set(wind["required"])
+    assert wind["properties"]["exposed_element_refs"]["minItems"] == 1
+    assert (
+        defs["AccelerationQuantity"]["allOf"][1]["properties"]["dimension"]["const"]
+        == "acceleration"
+    )
+    assert (
+        defs["PressureQuantity"]["allOf"][1]["properties"]["dimension"]["const"]
+        == "pressure"
+    )
+    assert (
+        defs["DimensionlessQuantity"]["allOf"][1]["properties"]["dimension"]["const"]
+        == "dimensionless"
+    )
     assert defs["ForceDirection"]["enum"] == ["X", "Y", "Z"]
     assert defs["MomentDirection"]["enum"] == ["RX", "RY", "RZ"]
     assert defs["ForceQuantity"]["allOf"][1]["properties"]["dimension"]["const"] == "force"

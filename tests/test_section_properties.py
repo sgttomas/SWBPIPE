@@ -92,6 +92,94 @@ def test_corrosion_allowance_reduces_effective_wall():
     assert isclose(result.properties["inside_diameter"].magnitude, 8.5)
 
 
+def test_mill_tolerance_reduces_effective_wall_alongside_corrosion():
+    result = calculate_pipe_section_properties(
+        PipeSectionInput(
+            outside_diameter=q(10.0),
+            wall_thickness=q(1.0),
+            corrosion_allowance=q(0.25),
+            mill_tolerance=q(0.125),
+        )
+    )
+
+    assert result.accepted is True
+    props = result.properties
+    effective_wall = 1.0 - 0.25 - 0.125
+    inside_diameter = 10.0 - 2.0 * effective_wall
+    assert isclose(props["inside_diameter"].magnitude, inside_diameter)
+    assert isclose(
+        props["metal_area"].magnitude,
+        pi / 4.0 * (10.0**2 - inside_diameter**2),
+    )
+    assert isclose(
+        props["section_modulus"].magnitude,
+        pi / 64.0 * (10.0**4 - inside_diameter**4) / 5.0,
+    )
+
+
+def test_absent_mill_tolerance_means_no_reduction_not_default():
+    without = calculate_pipe_section_properties(
+        PipeSectionInput(outside_diameter=q(10.0), wall_thickness=q(1.0))
+    )
+    with_zero = calculate_pipe_section_properties(
+        PipeSectionInput(
+            outside_diameter=q(10.0),
+            wall_thickness=q(1.0),
+            mill_tolerance=q(0.0),
+        )
+    )
+
+    assert without.accepted is True and with_zero.accepted is True
+    assert isclose(
+        without.properties["inside_diameter"].magnitude,
+        with_zero.properties["inside_diameter"].magnitude,
+    )
+
+
+def test_negative_mill_tolerance_is_blocking():
+    result = calculate_pipe_section_properties(
+        PipeSectionInput(
+            outside_diameter=q(10.0),
+            wall_thickness=q(1.0),
+            mill_tolerance=q(-0.1),
+        )
+    )
+
+    assert result.accepted is False
+    assert "SECTION_CALCULATION_INPUT_INVALID" in codes(result)
+
+
+def test_mill_tolerance_consuming_wall_is_blocking():
+    result = calculate_pipe_section_properties(
+        PipeSectionInput(
+            outside_diameter=q(10.0),
+            wall_thickness=q(1.0),
+            corrosion_allowance=q(0.5),
+            mill_tolerance=q(0.5),
+        )
+    )
+
+    assert result.accepted is False
+    assert "SECTION_CALCULATION_INPUT_INVALID" in codes(result)
+
+
+def test_mill_tolerance_provenance_is_stamped_like_other_slots():
+    result = calculate_pipe_section_properties(
+        PipeSectionInput(
+            outside_diameter=q(10.0),
+            wall_thickness=q(1.0),
+            mill_tolerance=q(0.125),
+        )
+    )
+
+    assert result.accepted is True
+    assert (
+        result.properties["inside_diameter"]
+        .provenance["contributor_certification"]
+        .startswith("calculated from user-entered")
+    )
+
+
 def test_mass_per_length_uses_only_supplied_densities():
     result = calculate_pipe_section_properties(
         PipeSectionInput(
@@ -190,6 +278,11 @@ def test_schema_like_quantity_mapping_requires_unit_metadata():
 if __name__ == "__main__":
     test_calculates_pipe_section_properties_from_user_dimensions()
     test_corrosion_allowance_reduces_effective_wall()
+    test_mill_tolerance_reduces_effective_wall_alongside_corrosion()
+    test_absent_mill_tolerance_means_no_reduction_not_default()
+    test_negative_mill_tolerance_is_blocking()
+    test_mill_tolerance_consuming_wall_is_blocking()
+    test_mill_tolerance_provenance_is_stamped_like_other_slots()
     test_mass_per_length_uses_only_supplied_densities()
     test_missing_dimensions_are_blocking_findings_not_defaults()
     test_missing_provenance_is_blocking_finding()

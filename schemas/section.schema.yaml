@@ -536,6 +536,7 @@
         "outside_diameter",
         "wall_thickness",
         "corrosion_allowance",
+        "mill_tolerance",
         "nominal_size_label",
         "insulation_thickness",
         "lining_thickness",

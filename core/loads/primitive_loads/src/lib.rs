@@ -730,6 +730,8 @@ fn diagnostic_class_for_load_finding(code: FindingCode) -> LoadDiagnosticClass {
         | FindingCode::NonFiniteLoadMagnitude
         | FindingCode::NonFiniteAxialEffect => LoadDiagnosticClass::LoadNumericBlocking,
         FindingCode::UnsupportedTargetForCategory => LoadDiagnosticClass::LoadUnsupportedBoundary,
+        FindingCode::MissingGenerationInput => LoadDiagnosticClass::LoadInputBlocking,
+        FindingCode::InvalidGenerationInput => LoadDiagnosticClass::LoadNumericBlocking,
     }
 }
 
@@ -799,6 +801,12 @@ fn remediation_for_load_finding(code: FindingCode) -> &'static str {
         }
         FindingCode::UnsupportedTargetForCategory => {
             "Move this behavior to the owning downstream slice or use a supported target."
+        }
+        FindingCode::MissingGenerationInput => {
+            "Provide the explicit user-entered generation inputs required by this equivalent-static load case; no value is defaulted."
+        }
+        FindingCode::InvalidGenerationInput => {
+            "Provide finite user-entered generation inputs (positive where the mechanics requires positivity)."
         }
     }
 }
@@ -1095,6 +1103,8 @@ pub enum FindingCode {
     NonFiniteLoadMagnitude,
     NonFiniteAxialEffect,
     UnsupportedTargetForCategory,
+    MissingGenerationInput,
+    InvalidGenerationInput,
 }
 
 impl FindingCode {
@@ -1117,6 +1127,8 @@ impl FindingCode {
             Self::NonFiniteLoadMagnitude => "NonFiniteLoadMagnitude",
             Self::NonFiniteAxialEffect => "NonFiniteAxialEffect",
             Self::UnsupportedTargetForCategory => "UnsupportedTargetForCategory",
+            Self::MissingGenerationInput => "MissingGenerationInput",
+            Self::InvalidGenerationInput => "InvalidGenerationInput",
         }
     }
 }
@@ -1672,6 +1684,267 @@ pub fn prepare_equivalent_static_loads(
     findings.append(&mut application.findings);
     application.findings = findings;
     Ok(application)
+}
+
+/// User-entered per-global-axis seismic factor for static-equivalent
+/// generation (DEC-068 item 2). The factor multiplies the model's own
+/// computed mass distribution and the user-entered gravity acceleration;
+/// no code coefficient, catalog value, or default is encoded here.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct EquivalentStaticAxisFactor {
+    pub direction: LoadDirection,
+    pub g_factor: f64,
+}
+
+/// User-entered seismic static-equivalent generation basis. All values are
+/// user-entered: the gravity acceleration is an explicit input, not an
+/// embedded physical-constant default.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SeismicEquivalentStaticBasis {
+    pub load_case_ref: String,
+    pub gravity_acceleration: f64,
+    pub axis_factors: Vec<EquivalentStaticAxisFactor>,
+}
+
+/// One element's computed mass per unit length (metal + contents +
+/// insulation as supplied), in solver-boundary canonical units.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ElementMassPerLength {
+    pub element_index: usize,
+    pub mass_per_length: f64,
+}
+
+/// User-entered wind static-equivalent generation basis: pressure and shape
+/// parameters project onto the exposed diameter of user-marked spans only.
+#[derive(Debug, Clone, PartialEq)]
+pub struct WindEquivalentStaticBasis {
+    pub load_case_ref: String,
+    pub pressure: f64,
+    pub shape_factor: f64,
+    pub direction: LoadDirection,
+}
+
+/// One user-marked element span's exposed diameter (outside diameter plus
+/// twice the insulation thickness when insulation is supplied).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ElementExposedDiameter {
+    pub element_index: usize,
+    pub exposed_diameter: f64,
+}
+
+fn global_axis_label(direction: LoadDirection) -> Option<&'static str> {
+    match direction {
+        LoadDirection::GlobalX => Some("global-x"),
+        LoadDirection::GlobalY => Some("global-y"),
+        LoadDirection::GlobalZ => Some("global-z"),
+        LoadDirection::Dof(_) => None,
+    }
+}
+
+/// Generate seismic static-equivalent uniform element loads from the
+/// user-entered per-axis factors, user-entered gravity acceleration, and
+/// the model's own computed mass distribution:
+/// `w_axis = mass_per_length * g_factor_axis * gravity_acceleration`.
+///
+/// Pure mechanics from explicit inputs. Missing inputs produce blocking
+/// findings; nothing is defaulted or synthesized from code content.
+pub fn generate_seismic_equivalent_static_loads(
+    basis: &SeismicEquivalentStaticBasis,
+    element_masses: &[ElementMassPerLength],
+) -> (Vec<PrimitiveLoad>, Vec<LoadFinding>) {
+    let mut loads = Vec::new();
+    let mut findings = Vec::new();
+    let case_ref = basis.load_case_ref.as_str();
+
+    if boundary_ref_is_missing(case_ref) {
+        findings.push(LoadFinding::new(
+            FindingCode::MissingGenerationInput,
+            case_ref,
+            "seismic equivalent-static generation requires a stable load case reference",
+        ));
+        return (loads, findings);
+    }
+    if basis.axis_factors.is_empty() {
+        findings.push(LoadFinding::new(
+            FindingCode::MissingGenerationInput,
+            case_ref,
+            "seismic equivalent-static generation requires at least one user-entered per-axis g-factor",
+        ));
+    }
+    if !basis.gravity_acceleration.is_finite() || basis.gravity_acceleration <= 0.0 {
+        findings.push(LoadFinding::new(
+            FindingCode::InvalidGenerationInput,
+            case_ref,
+            "seismic equivalent-static generation requires a finite positive user-entered gravity acceleration",
+        ));
+    }
+    if element_masses.is_empty() {
+        findings.push(LoadFinding::new(
+            FindingCode::MissingGenerationInput,
+            case_ref,
+            "seismic equivalent-static generation requires the model's computed mass distribution (no element mass per length was supplied)",
+        ));
+    }
+    for factor in &basis.axis_factors {
+        if global_axis_label(factor.direction).is_none() {
+            findings.push(LoadFinding::new(
+                FindingCode::InvalidGenerationInput,
+                case_ref,
+                "seismic g-factors apply per global axis; a non-global direction was supplied",
+            ));
+        }
+        if !factor.g_factor.is_finite() {
+            findings.push(LoadFinding::new(
+                FindingCode::InvalidGenerationInput,
+                case_ref,
+                "seismic g-factor must be a finite user-entered value",
+            ));
+        }
+    }
+    for mass in element_masses {
+        if !mass.mass_per_length.is_finite() || mass.mass_per_length <= 0.0 {
+            findings.push(LoadFinding::new(
+                FindingCode::InvalidGenerationInput,
+                case_ref,
+                format!(
+                    "element index {} requires a finite positive computed mass per length",
+                    mass.element_index
+                ),
+            ));
+        }
+    }
+    if !findings.is_empty() {
+        return (Vec::new(), findings);
+    }
+
+    for factor in &basis.axis_factors {
+        let axis = global_axis_label(factor.direction).expect("validated global axis");
+        for mass in element_masses {
+            let magnitude = mass.mass_per_length * factor.g_factor * basis.gravity_acceleration;
+            let Ok(quantity) = LoadQuantity::new(magnitude, LoadDimension::ForcePerLength) else {
+                findings.push(LoadFinding::new(
+                    FindingCode::InvalidGenerationInput,
+                    case_ref,
+                    format!(
+                        "generated seismic intensity for element index {} is not finite",
+                        mass.element_index
+                    ),
+                ));
+                continue;
+            };
+            loads.push(PrimitiveLoad::uniform_element_load(
+                format!(
+                    "{case_ref}:generated:seismic:{axis}:element-{}",
+                    mass.element_index
+                ),
+                PrimitiveLoadCategory::Seismic,
+                mass.element_index,
+                factor.direction,
+                quantity,
+            ));
+        }
+    }
+    if !findings.is_empty() {
+        return (Vec::new(), findings);
+    }
+    (loads, findings)
+}
+
+/// Generate wind static-equivalent uniform element loads on the user-marked
+/// spans only: `w = pressure * shape_factor * exposed_diameter`.
+///
+/// Pure mechanics from explicit user inputs. Missing inputs produce
+/// blocking findings; nothing is defaulted and no code wind profile,
+/// exposure category, or coefficient catalog is encoded.
+pub fn generate_wind_equivalent_static_loads(
+    basis: &WindEquivalentStaticBasis,
+    exposed_elements: &[ElementExposedDiameter],
+) -> (Vec<PrimitiveLoad>, Vec<LoadFinding>) {
+    let mut loads = Vec::new();
+    let mut findings = Vec::new();
+    let case_ref = basis.load_case_ref.as_str();
+
+    if boundary_ref_is_missing(case_ref) {
+        findings.push(LoadFinding::new(
+            FindingCode::MissingGenerationInput,
+            case_ref,
+            "wind equivalent-static generation requires a stable load case reference",
+        ));
+        return (loads, findings);
+    }
+    if global_axis_label(basis.direction).is_none() {
+        findings.push(LoadFinding::new(
+            FindingCode::InvalidGenerationInput,
+            case_ref,
+            "wind equivalent-static generation applies along a global axis; a non-global direction was supplied",
+        ));
+    }
+    if !basis.pressure.is_finite() {
+        findings.push(LoadFinding::new(
+            FindingCode::InvalidGenerationInput,
+            case_ref,
+            "wind equivalent-static generation requires a finite user-entered pressure",
+        ));
+    }
+    if !basis.shape_factor.is_finite() {
+        findings.push(LoadFinding::new(
+            FindingCode::InvalidGenerationInput,
+            case_ref,
+            "wind equivalent-static generation requires a finite user-entered shape factor",
+        ));
+    }
+    if exposed_elements.is_empty() {
+        findings.push(LoadFinding::new(
+            FindingCode::MissingGenerationInput,
+            case_ref,
+            "wind equivalent-static generation requires at least one user-marked exposed span",
+        ));
+    }
+    for exposed in exposed_elements {
+        if !exposed.exposed_diameter.is_finite() || exposed.exposed_diameter <= 0.0 {
+            findings.push(LoadFinding::new(
+                FindingCode::InvalidGenerationInput,
+                case_ref,
+                format!(
+                    "element index {} requires a finite positive exposed diameter",
+                    exposed.element_index
+                ),
+            ));
+        }
+    }
+    if !findings.is_empty() {
+        return (Vec::new(), findings);
+    }
+
+    let axis = global_axis_label(basis.direction).expect("validated global axis");
+    for exposed in exposed_elements {
+        let magnitude = basis.pressure * basis.shape_factor * exposed.exposed_diameter;
+        let Ok(quantity) = LoadQuantity::new(magnitude, LoadDimension::ForcePerLength) else {
+            findings.push(LoadFinding::new(
+                FindingCode::InvalidGenerationInput,
+                case_ref,
+                format!(
+                    "generated wind intensity for element index {} is not finite",
+                    exposed.element_index
+                ),
+            ));
+            continue;
+        };
+        loads.push(PrimitiveLoad::uniform_element_load(
+            format!(
+                "{case_ref}:generated:wind:{axis}:element-{}",
+                exposed.element_index
+            ),
+            PrimitiveLoadCategory::Wind,
+            exposed.element_index,
+            basis.direction,
+            quantity,
+        ));
+    }
+    if !findings.is_empty() {
+        return (Vec::new(), findings);
+    }
+    (loads, findings)
 }
 
 pub fn prepare_lumped_nodal_loads(
@@ -3440,6 +3713,229 @@ mod tests {
         assert_eq!(prepared.findings[0].code, FindingCode::InvalidLoadDimension);
         assert_eq!(prepared.findings[1].code, FindingCode::InvalidLoadDimension);
         assert!(prepared.element_uniform_loads.is_empty());
+    }
+
+    #[test]
+    fn seismic_generation_synthesizes_distributed_loads_from_mass_and_user_factors() {
+        let basis = SeismicEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-SEISMIC".to_string(),
+            gravity_acceleration: 9.80665,
+            axis_factors: vec![
+                EquivalentStaticAxisFactor {
+                    direction: LoadDirection::GlobalX,
+                    g_factor: 0.3,
+                },
+                EquivalentStaticAxisFactor {
+                    direction: LoadDirection::GlobalZ,
+                    g_factor: -0.2,
+                },
+            ],
+        };
+        let masses = [
+            ElementMassPerLength {
+                element_index: 0,
+                mass_per_length: 120.0,
+            },
+            ElementMassPerLength {
+                element_index: 1,
+                mass_per_length: 80.0,
+            },
+        ];
+
+        let (loads, findings) = generate_seismic_equivalent_static_loads(&basis, &masses);
+
+        assert!(findings.is_empty());
+        assert_eq!(loads.len(), 4);
+        let first = &loads[0];
+        assert_eq!(first.category, PrimitiveLoadCategory::Seismic);
+        assert_eq!(first.direction, LoadDirection::GlobalX);
+        assert_eq!(first.target, Some(LoadTarget::Element(0)));
+        let magnitude = first.magnitude.unwrap();
+        assert_eq!(magnitude.dimension, LoadDimension::ForcePerLength);
+        assert!((magnitude.value - 120.0 * 0.3 * 9.80665).abs() < 1.0e-12);
+        assert_eq!(
+            first.load_id,
+            "load_case:LC-SEISMIC:generated:seismic:global-x:element-0"
+        );
+        let reversed = loads
+            .iter()
+            .find(|load| {
+                load.direction == LoadDirection::GlobalZ
+                    && load.target == Some(LoadTarget::Element(1))
+            })
+            .unwrap();
+        assert!((reversed.magnitude.unwrap().value - 80.0 * -0.2 * 9.80665).abs() < 1.0e-12);
+        assert!(loads
+            .iter()
+            .all(|load| load.category.is_equivalent_static()));
+    }
+
+    #[test]
+    fn seismic_generation_blocks_on_missing_or_invalid_inputs_without_defaults() {
+        let empty_axes = SeismicEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-S".to_string(),
+            gravity_acceleration: 9.80665,
+            axis_factors: Vec::new(),
+        };
+        let masses = [ElementMassPerLength {
+            element_index: 0,
+            mass_per_length: 120.0,
+        }];
+        let (loads, findings) = generate_seismic_equivalent_static_loads(&empty_axes, &masses);
+        assert!(loads.is_empty());
+        assert!(findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::MissingGenerationInput));
+
+        let bad_gravity = SeismicEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-S".to_string(),
+            gravity_acceleration: 0.0,
+            axis_factors: vec![EquivalentStaticAxisFactor {
+                direction: LoadDirection::GlobalY,
+                g_factor: 0.3,
+            }],
+        };
+        let (loads, findings) = generate_seismic_equivalent_static_loads(&bad_gravity, &masses);
+        assert!(loads.is_empty());
+        assert!(findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::InvalidGenerationInput));
+
+        let good = SeismicEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-S".to_string(),
+            gravity_acceleration: 9.80665,
+            axis_factors: vec![EquivalentStaticAxisFactor {
+                direction: LoadDirection::GlobalY,
+                g_factor: 0.3,
+            }],
+        };
+        let (loads, findings) = generate_seismic_equivalent_static_loads(&good, &[]);
+        assert!(loads.is_empty());
+        assert!(findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::MissingGenerationInput));
+
+        let zero_mass = [ElementMassPerLength {
+            element_index: 0,
+            mass_per_length: 0.0,
+        }];
+        let (loads, findings) = generate_seismic_equivalent_static_loads(&good, &zero_mass);
+        assert!(loads.is_empty());
+        assert!(findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::InvalidGenerationInput));
+
+        let local_axis = SeismicEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-S".to_string(),
+            gravity_acceleration: 9.80665,
+            axis_factors: vec![EquivalentStaticAxisFactor {
+                direction: LoadDirection::Dof(FrameDof::Ux),
+                g_factor: 0.3,
+            }],
+        };
+        let (loads, findings) = generate_seismic_equivalent_static_loads(&local_axis, &masses);
+        assert!(loads.is_empty());
+        assert!(findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::InvalidGenerationInput));
+    }
+
+    #[test]
+    fn wind_generation_projects_pressure_onto_exposed_diameter_of_marked_spans() {
+        let basis = WindEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-WIND".to_string(),
+            pressure: 480.0,
+            shape_factor: 0.7,
+            direction: LoadDirection::GlobalX,
+        };
+        let exposed = [
+            ElementExposedDiameter {
+                element_index: 2,
+                exposed_diameter: 0.25,
+            },
+            ElementExposedDiameter {
+                element_index: 5,
+                exposed_diameter: 0.35,
+            },
+        ];
+
+        let (loads, findings) = generate_wind_equivalent_static_loads(&basis, &exposed);
+
+        assert!(findings.is_empty());
+        assert_eq!(loads.len(), 2);
+        assert_eq!(loads[0].category, PrimitiveLoadCategory::Wind);
+        assert_eq!(loads[0].target, Some(LoadTarget::Element(2)));
+        assert!((loads[0].magnitude.unwrap().value - 480.0 * 0.7 * 0.25).abs() < 1.0e-12);
+        assert_eq!(
+            loads[0].load_id,
+            "load_case:LC-WIND:generated:wind:global-x:element-2"
+        );
+        assert!((loads[1].magnitude.unwrap().value - 480.0 * 0.7 * 0.35).abs() < 1.0e-12);
+    }
+
+    #[test]
+    fn wind_generation_blocks_on_missing_marked_spans_or_invalid_inputs() {
+        let basis = WindEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-WIND".to_string(),
+            pressure: 480.0,
+            shape_factor: 0.7,
+            direction: LoadDirection::GlobalX,
+        };
+        let (loads, findings) = generate_wind_equivalent_static_loads(&basis, &[]);
+        assert!(loads.is_empty());
+        assert!(findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::MissingGenerationInput));
+
+        let bad_span = [ElementExposedDiameter {
+            element_index: 0,
+            exposed_diameter: 0.0,
+        }];
+        let (loads, findings) = generate_wind_equivalent_static_loads(&basis, &bad_span);
+        assert!(loads.is_empty());
+        assert!(findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::InvalidGenerationInput));
+
+        let local_direction = WindEquivalentStaticBasis {
+            direction: LoadDirection::Dof(FrameDof::Uy),
+            ..basis.clone()
+        };
+        let good_span = [ElementExposedDiameter {
+            element_index: 0,
+            exposed_diameter: 0.25,
+        }];
+        let (loads, findings) = generate_wind_equivalent_static_loads(&local_direction, &good_span);
+        assert!(loads.is_empty());
+        assert!(findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::InvalidGenerationInput));
+    }
+
+    #[test]
+    fn generated_equivalent_static_loads_pass_the_boundary_helper() {
+        let basis = SeismicEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-S".to_string(),
+            gravity_acceleration: 9.80665,
+            axis_factors: vec![EquivalentStaticAxisFactor {
+                direction: LoadDirection::GlobalY,
+                g_factor: 0.3,
+            }],
+        };
+        let masses = [ElementMassPerLength {
+            element_index: 0,
+            mass_per_length: 50.0,
+        }];
+        let (loads, findings) = generate_seismic_equivalent_static_loads(&basis, &masses);
+        assert!(findings.is_empty());
+        let boundary_basis = EquivalentStaticMechanicsBasis::new(
+            "basis:seismic-equivalent-static",
+            "provenance:user-input",
+        )
+        .unwrap();
+        let prepared = prepare_equivalent_static_loads(2, 1, &boundary_basis, &loads).unwrap();
+        assert!(prepared.findings.is_empty());
+        assert_eq!(prepared.element_uniform_loads.len(), 1);
     }
 
     #[test]

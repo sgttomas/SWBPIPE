@@ -30,7 +30,10 @@ use open_pipe_stress_nonlinear_supports::{
     SupportStateRecord,
 };
 use open_pipe_stress_primitive_loads::{
-    prepare_loads, LoadDimension, LoadDirection, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
+    generate_seismic_equivalent_static_loads, generate_wind_equivalent_static_loads, prepare_loads,
+    ElementExposedDiameter, ElementMassPerLength, EquivalentStaticAxisFactor, LoadDimension,
+    LoadDirection, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
+    SeismicEquivalentStaticBasis, WindEquivalentStaticBasis,
 };
 use open_pipe_stress_solver_diagnostics::{
     DiagnosticSeverity as SolverDiagnosticSeverity, SolverDiagnostic, SolverDiagnosticCode,
@@ -149,6 +152,24 @@ pub struct PreviewPipe {
 pub struct PipeSectionInput {
     pub outside_diameter: Quantity,
     pub wall_thickness: Quantity,
+    /// User-entered absolute mill-tolerance thickness reduction (length).
+    /// Absence means no reduction; absence is not a default value of zero.
+    #[serde(default)]
+    pub mill_tolerance: Option<Quantity>,
+    /// User-entered pipe material density for the model's own computed mass
+    /// distribution. Optional; equivalent-static generation blocks when it
+    /// needs mass and this is absent (absence is not a default of zero).
+    #[serde(default)]
+    pub material_density: Option<Quantity>,
+    /// User-entered contents density over the effective inside area.
+    #[serde(default)]
+    pub contents_density: Option<Quantity>,
+    /// User-entered insulation annulus thickness outside the pipe.
+    #[serde(default)]
+    pub insulation_thickness: Option<Quantity>,
+    /// User-entered insulation density over the insulation annulus.
+    #[serde(default)]
+    pub insulation_density: Option<Quantity>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -370,8 +391,60 @@ pub struct PreviewLoadCase {
     pub id: String,
     #[serde(default)]
     pub primitive_loads: Vec<PreviewPrimitiveLoad>,
+    /// Optional user-entered static-equivalent generation inputs (DEC-068
+    /// item 2). When present, the preview synthesizes seismic/wind
+    /// distributed loads from these explicit inputs and the model's own
+    /// computed mass distribution; missing inputs are blocking.
+    #[serde(default)]
+    pub equivalent_static: Option<EquivalentStaticGenerationInput>,
+    /// Optional modulus basis (DEC-068 item 1): names the user-entered
+    /// material temperature-point id whose E (and alpha, when supplied on
+    /// the point) this load case solves with. Exact selection only; a
+    /// reference matching no stored point is blocking.
+    #[serde(default)]
+    pub modulus_basis_ref: Option<String>,
     #[serde(default)]
     pub provenance: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct EquivalentStaticGenerationInput {
+    #[serde(default)]
+    pub seismic: Option<SeismicGenerationInput>,
+    #[serde(default)]
+    pub wind: Option<WindGenerationInput>,
+    #[serde(default)]
+    pub provenance: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct SeismicGenerationInput {
+    /// User-entered gravity acceleration; an explicit input, not an
+    /// embedded physical-constant default.
+    #[serde(default)]
+    pub gravity_acceleration: Option<Quantity>,
+    #[serde(default)]
+    pub g_factor_x: Option<Quantity>,
+    #[serde(default)]
+    pub g_factor_y: Option<Quantity>,
+    #[serde(default)]
+    pub g_factor_z: Option<Quantity>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct WindGenerationInput {
+    #[serde(default)]
+    pub pressure: Option<Quantity>,
+    #[serde(default)]
+    pub shape_factor: Option<Quantity>,
+    /// Global axis the projected wind intensity acts along
+    /// (`global_x` | `global_y` | `global_z`).
+    #[serde(default)]
+    pub direction: Option<String>,
+    /// User-marked exposed spans by pipe id; wind is generated on these
+    /// spans only.
+    #[serde(default)]
+    pub exposed_pipe_refs: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -429,6 +502,26 @@ pub struct MaterialInput {
     pub id: String,
     pub elastic_modulus: Quantity,
     pub shear_modulus: Quantity,
+    #[serde(default)]
+    pub thermal_expansion_coefficient: Option<Quantity>,
+    /// User-entered temperature-indexed property points (DEC-068 item 1).
+    /// A load case may name one point id as its modulus basis; selection is
+    /// exact — no interpolation between points is performed (open
+    /// interpolation policy is drafted as D-38, not ruled).
+    #[serde(default)]
+    pub temperature_points: Vec<MaterialTemperaturePointInput>,
+    #[serde(default)]
+    pub provenance: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct MaterialTemperaturePointInput {
+    /// Stable user-assigned basis id (e.g. a temperature-case label).
+    pub id: String,
+    #[serde(default)]
+    pub temperature: Option<Quantity>,
+    #[serde(default)]
+    pub elastic_modulus: Option<Quantity>,
     #[serde(default)]
     pub thermal_expansion_coefficient: Option<Quantity>,
     #[serde(default)]
@@ -766,13 +859,74 @@ pub fn run_linear_static_preview_with_mode(
             spring.stiffness.value;
     }
 
+    // DEC-068 item 1: a load case may name a user-entered material
+    // temperature-point id as its modulus basis. Each distinct basis gets
+    // its own built model and assembled stiffness from the basis-resolved
+    // E; selection is exact (no interpolation; unresolved refs block).
+    let mut basis_solve_states: Vec<(
+        Option<String>,
+        Vec<MaterialInput>,
+        BuiltModel,
+        Vec<Vec<f64>>,
+    )> = vec![(None, materials.clone(), built, stiffness)];
     let mut load_case_solves = Vec::new();
     for load_case in &model.load_cases {
+        let basis_key = load_case.modulus_basis_ref.clone();
+        let state_index = match basis_solve_states
+            .iter()
+            .position(|(key, _, _, _)| *key == basis_key)
+        {
+            Some(index) => index,
+            None => {
+                let basis_ref = basis_key
+                    .as_deref()
+                    .expect("state index 0 owns the None basis key");
+                let Some(basis_materials) = materials_for_modulus_basis(
+                    &model,
+                    &materials,
+                    basis_ref,
+                    &load_case.id,
+                    &mut diagnostics,
+                ) else {
+                    return blocked_envelope(model, diagnostics);
+                };
+                let basis_built = build_model(&model, &basis_materials, &mut diagnostics);
+                if has_blocking(&diagnostics) {
+                    return blocked_envelope(model, diagnostics);
+                }
+                let basis_built = basis_built
+                    .expect("build_model returns Some when no blocking diagnostics were added");
+                let mut basis_stiffness = match assemble_global_stiffness_with_user_elements(
+                    basis_built.nodes.len(),
+                    &basis_built.frame_elements,
+                    &basis_built.user_stiffness_elements,
+                ) {
+                    Ok(stiffness) => stiffness,
+                    Err(error) => return solver_blocked(model, diagnostics, error),
+                };
+                add_curved_bend_stiffness_contributions(
+                    &mut basis_stiffness,
+                    &basis_built.curved_bend_elements,
+                );
+                for spring in &boundary.springs {
+                    basis_stiffness[spring.node_dof.global_index()]
+                        [spring.node_dof.global_index()] += spring.stiffness.value;
+                }
+                basis_solve_states.push((
+                    basis_key.clone(),
+                    basis_materials,
+                    basis_built,
+                    basis_stiffness,
+                ));
+                basis_solve_states.len() - 1
+            }
+        };
+        let (_, basis_materials, basis_built, basis_stiffness) = &basis_solve_states[state_index];
         match solve_load_case(
             &model,
-            &built,
-            &materials,
-            &stiffness,
+            basis_built,
+            basis_materials,
+            basis_stiffness,
             &boundary.restrained_dofs,
             &boundary.springs,
             load_case,
@@ -786,6 +940,7 @@ pub fn run_linear_static_preview_with_mode(
             return blocked_envelope(model, diagnostics);
         }
     }
+    let built = &basis_solve_states[0].2;
 
     let max_displacement = load_case_solves
         .first()
@@ -823,6 +978,7 @@ pub fn run_linear_static_preview_with_mode(
         }
     }
     append_combination_results(&model, &rows_by_base_id, &mut results, &mut diagnostics);
+    append_combination_modulus_basis_records(&model, &mut results);
     let component_user_stiffness_macro_element_count =
         append_expansion_joint_user_stiffness_results(&model, &mut results)
             + append_curved_bend_macro_element_results(&built.curved_bend_elements, &mut results);
@@ -972,6 +1128,7 @@ fn solve_load_case(
 
     let mut results = Vec::new();
     append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, &linear_solve);
+    append_modulus_basis_record(&mut results, load_case);
     if solver_mode == PreviewSolverMode::DenseScrutiny {
         append_sparse_live_path_evidence(
             &mut results,
@@ -3454,6 +3611,48 @@ fn normalize_model_units(
                 diagnostics,
             );
         }
+        for point in &mut material.temperature_points {
+            let point_id = point.id.clone();
+            if let Some(temperature) = &mut point.temperature {
+                normalize_quantity(
+                    temperature,
+                    Dimension::Temperature,
+                    &format!(
+                        "diagnostic:unit-conversion:material:{}:temperature-point:{}:temperature",
+                        stable_suffix(&material.id),
+                        stable_suffix(&point_id)
+                    ),
+                    vec![material.id.clone(), point_id.clone()],
+                    diagnostics,
+                );
+            }
+            if let Some(elastic_modulus) = &mut point.elastic_modulus {
+                normalize_quantity(
+                    elastic_modulus,
+                    Dimension::Stress,
+                    &format!(
+                        "diagnostic:unit-conversion:material:{}:temperature-point:{}:elastic-modulus",
+                        stable_suffix(&material.id),
+                        stable_suffix(&point_id)
+                    ),
+                    vec![material.id.clone(), point_id.clone()],
+                    diagnostics,
+                );
+            }
+            if let Some(coefficient) = &mut point.thermal_expansion_coefficient {
+                normalize_quantity(
+                    coefficient,
+                    Dimension::ThermalExpansionCoefficient,
+                    &format!(
+                        "diagnostic:unit-conversion:material:{}:temperature-point:{}:thermal-expansion",
+                        stable_suffix(&material.id),
+                        stable_suffix(&point_id)
+                    ),
+                    vec![material.id.clone(), point_id.clone()],
+                    diagnostics,
+                );
+            }
+        }
     }
 
     for pipe in &mut model.pipe_segments {
@@ -3477,6 +3676,66 @@ fn normalize_model_units(
             vec![pipe.id.clone(), "wall_thickness".to_string()],
             diagnostics,
         );
+        if let Some(mill_tolerance) = &mut pipe.section.mill_tolerance {
+            normalize_quantity(
+                mill_tolerance,
+                Dimension::Length,
+                &format!(
+                    "diagnostic:unit-conversion:pipe:{}:mill-tolerance",
+                    stable_suffix(&pipe.id)
+                ),
+                vec![pipe.id.clone(), "mill_tolerance".to_string()],
+                diagnostics,
+            );
+        }
+        if let Some(density) = &mut pipe.section.material_density {
+            normalize_quantity(
+                density,
+                Dimension::Density,
+                &format!(
+                    "diagnostic:unit-conversion:pipe:{}:material-density",
+                    stable_suffix(&pipe.id)
+                ),
+                vec![pipe.id.clone(), "material_density".to_string()],
+                diagnostics,
+            );
+        }
+        if let Some(density) = &mut pipe.section.contents_density {
+            normalize_quantity(
+                density,
+                Dimension::Density,
+                &format!(
+                    "diagnostic:unit-conversion:pipe:{}:contents-density",
+                    stable_suffix(&pipe.id)
+                ),
+                vec![pipe.id.clone(), "contents_density".to_string()],
+                diagnostics,
+            );
+        }
+        if let Some(thickness) = &mut pipe.section.insulation_thickness {
+            normalize_quantity(
+                thickness,
+                Dimension::Length,
+                &format!(
+                    "diagnostic:unit-conversion:pipe:{}:insulation-thickness",
+                    stable_suffix(&pipe.id)
+                ),
+                vec![pipe.id.clone(), "insulation_thickness".to_string()],
+                diagnostics,
+            );
+        }
+        if let Some(density) = &mut pipe.section.insulation_density {
+            normalize_quantity(
+                density,
+                Dimension::Density,
+                &format!(
+                    "diagnostic:unit-conversion:pipe:{}:insulation-density",
+                    stable_suffix(&pipe.id)
+                ),
+                vec![pipe.id.clone(), "insulation_density".to_string()],
+                diagnostics,
+            );
+        }
     }
 
     for support in &mut model.supports {
@@ -4008,6 +4267,68 @@ fn normalize_model_units(
             );
         }
     }
+    for load_case in &mut model.load_cases {
+        let Some(equivalent_static) = &mut load_case.equivalent_static else {
+            continue;
+        };
+        let case_id = load_case.id.clone();
+        if let Some(seismic) = &mut equivalent_static.seismic {
+            if let Some(gravity) = &mut seismic.gravity_acceleration {
+                normalize_quantity(
+                    gravity,
+                    Dimension::Acceleration,
+                    &format!(
+                        "diagnostic:unit-conversion:load-case:{}:gravity-acceleration",
+                        stable_suffix(&case_id)
+                    ),
+                    vec![case_id.clone(), "gravity_acceleration".to_string()],
+                    diagnostics,
+                );
+            }
+            for (label, factor) in [
+                ("g_factor_x", &mut seismic.g_factor_x),
+                ("g_factor_y", &mut seismic.g_factor_y),
+                ("g_factor_z", &mut seismic.g_factor_z),
+            ] {
+                if let Some(factor) = factor {
+                    normalize_dimensionless_quantity(
+                        factor,
+                        &format!(
+                            "diagnostic:unit-conversion:load-case:{}:{label}",
+                            stable_suffix(&case_id)
+                        ),
+                        vec![case_id.clone(), label.to_string()],
+                        diagnostics,
+                    );
+                }
+            }
+        }
+        if let Some(wind) = &mut equivalent_static.wind {
+            if let Some(pressure) = &mut wind.pressure {
+                normalize_quantity(
+                    pressure,
+                    Dimension::Pressure,
+                    &format!(
+                        "diagnostic:unit-conversion:load-case:{}:wind-pressure",
+                        stable_suffix(&case_id)
+                    ),
+                    vec![case_id.clone(), "wind.pressure".to_string()],
+                    diagnostics,
+                );
+            }
+            if let Some(shape_factor) = &mut wind.shape_factor {
+                normalize_dimensionless_quantity(
+                    shape_factor,
+                    &format!(
+                        "diagnostic:unit-conversion:load-case:{}:wind-shape-factor",
+                        stable_suffix(&case_id)
+                    ),
+                    vec![case_id.clone(), "wind.shape_factor".to_string()],
+                    diagnostics,
+                );
+            }
+        }
+    }
 }
 
 fn normalize_dimensionless_quantity(
@@ -4147,7 +4468,7 @@ fn build_load_case_primitive_loads(
         .map(|(i, p)| (p.id.as_str(), i))
         .collect::<HashMap<_, _>>();
 
-    load_case
+    let mut loads = load_case
         .primitive_loads
         .iter()
         .filter_map(|load| {
@@ -4226,7 +4547,573 @@ fn build_load_case_primitive_loads(
                 }
             }
         })
-        .collect()
+        .collect::<Vec<_>>();
+    append_equivalent_static_generated_loads(model, load_case, &mut loads, diagnostics);
+    loads
+}
+
+/// Compute one pipe's mass per unit length from its own user-entered
+/// section inputs, mirroring `core/section_properties/calculator.py`
+/// (metal + contents + insulation over the mill-tolerance-reduced
+/// effective wall). Absent optional inputs contribute nothing; the
+/// required inputs for the requesting generation path are diagnosed by
+/// the caller.
+fn compute_pipe_mass_per_length(
+    pipe: &PreviewPipe,
+    load_case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<f64> {
+    let section = &pipe.section;
+    let od = section.outside_diameter.value;
+    let wall = section.wall_thickness.value;
+    let mill_tolerance = section.mill_tolerance.as_ref().map_or(0.0, |q| q.value);
+    let effective_wall = wall - mill_tolerance;
+    if !od.is_finite() || !effective_wall.is_finite() || od <= 0.0 || effective_wall <= 0.0 {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:equivalent-static:{}:{}:section",
+                stable_suffix(load_case_id),
+                stable_suffix(&pipe.id)
+            ),
+            "EQUIVALENT_STATIC_INPUT_INVALID",
+            "blocking",
+            "equivalent-static mass distribution requires a valid pipe section (positive outside diameter and effective wall)",
+            vec![pipe.id.clone(), load_case_id.to_string()],
+        ));
+        return None;
+    }
+    let Some(material_density) = section.material_density.as_ref().map(|q| q.value) else {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:equivalent-static:{}:{}:material-density",
+                stable_suffix(load_case_id),
+                stable_suffix(&pipe.id)
+            ),
+            "EQUIVALENT_STATIC_INPUT_MISSING",
+            "blocking",
+            "seismic equivalent-static generation requires user-entered material_density on every pipe segment; no density is defaulted",
+            vec![pipe.id.clone(), "material_density".to_string(), load_case_id.to_string()],
+        ));
+        return None;
+    };
+    if !material_density.is_finite() || material_density <= 0.0 {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:equivalent-static:{}:{}:material-density-invalid",
+                stable_suffix(load_case_id),
+                stable_suffix(&pipe.id)
+            ),
+            "EQUIVALENT_STATIC_INPUT_INVALID",
+            "blocking",
+            "material_density must be a finite positive user-entered value",
+            vec![
+                pipe.id.clone(),
+                "material_density".to_string(),
+                load_case_id.to_string(),
+            ],
+        ));
+        return None;
+    }
+    let id = od - 2.0 * effective_wall;
+    if id < 0.0 {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:equivalent-static:{}:{}:inside-diameter",
+                stable_suffix(load_case_id),
+                stable_suffix(&pipe.id)
+            ),
+            "EQUIVALENT_STATIC_INPUT_INVALID",
+            "blocking",
+            "equivalent-static mass distribution requires a non-negative inside diameter",
+            vec![pipe.id.clone(), load_case_id.to_string()],
+        ));
+        return None;
+    }
+    let metal_area = PI / 4.0 * (od.powi(2) - id.powi(2));
+    let mut mass_per_length = metal_area * material_density;
+    if let Some(contents_density) = section.contents_density.as_ref().map(|q| q.value) {
+        if !contents_density.is_finite() || contents_density < 0.0 {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:equivalent-static:{}:{}:contents-density",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&pipe.id)
+                ),
+                "EQUIVALENT_STATIC_INPUT_INVALID",
+                "blocking",
+                "contents_density must be a finite non-negative user-entered value",
+                vec![
+                    pipe.id.clone(),
+                    "contents_density".to_string(),
+                    load_case_id.to_string(),
+                ],
+            ));
+            return None;
+        }
+        mass_per_length += PI / 4.0 * id.powi(2) * contents_density;
+    }
+    match (
+        section.insulation_thickness.as_ref().map(|q| q.value),
+        section.insulation_density.as_ref().map(|q| q.value),
+    ) {
+        (None, None) => {}
+        (Some(thickness), Some(density)) => {
+            if !thickness.is_finite() || thickness < 0.0 || !density.is_finite() || density < 0.0 {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:equivalent-static:{}:{}:insulation",
+                        stable_suffix(load_case_id),
+                        stable_suffix(&pipe.id)
+                    ),
+                    "EQUIVALENT_STATIC_INPUT_INVALID",
+                    "blocking",
+                    "insulation_thickness and insulation_density must be finite non-negative user-entered values",
+                    vec![pipe.id.clone(), load_case_id.to_string()],
+                ));
+                return None;
+            }
+            let insulation_od = od + 2.0 * thickness;
+            mass_per_length += PI / 4.0 * (insulation_od.powi(2) - od.powi(2)) * density;
+        }
+        _ => {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:equivalent-static:{}:{}:insulation-pair",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&pipe.id)
+                ),
+                "EQUIVALENT_STATIC_INPUT_MISSING",
+                "blocking",
+                "insulation mass requires both insulation_thickness and insulation_density; supply both or neither (no silent skip)",
+                vec![pipe.id.clone(), load_case_id.to_string()],
+            ));
+            return None;
+        }
+    }
+    Some(mass_per_length)
+}
+
+fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {
+    format!(
+        "diagnostic:equivalent-static:{}:{suffix}",
+        stable_suffix(load_case_id)
+    )
+}
+
+/// Synthesize seismic/wind static-equivalent primitive loads for a load
+/// case carrying `equivalent_static` user inputs (DEC-068 item 2). Pure
+/// mechanics from user inputs and the model's own computed mass
+/// distribution: no coefficients, no catalogs, no defaults; missing inputs
+/// or marked spans are blocking (PRD section 6.2).
+fn append_equivalent_static_generated_loads(
+    model: &PreviewModel,
+    load_case: &PreviewLoadCase,
+    loads: &mut Vec<PrimitiveLoad>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let Some(equivalent_static) = &load_case.equivalent_static else {
+        return;
+    };
+    let case_id = load_case.id.as_str();
+    if equivalent_static.seismic.is_none() && equivalent_static.wind.is_none() {
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(case_id, "inputs"),
+            "EQUIVALENT_STATIC_INPUT_MISSING",
+            "blocking",
+            "equivalent_static generation requires user-entered seismic or wind inputs",
+            vec![case_id.to_string()],
+        ));
+        return;
+    }
+
+    if let Some(seismic) = &equivalent_static.seismic {
+        let mut axis_factors = Vec::new();
+        for (direction, factor) in [
+            (LoadDirection::GlobalX, &seismic.g_factor_x),
+            (LoadDirection::GlobalY, &seismic.g_factor_y),
+            (LoadDirection::GlobalZ, &seismic.g_factor_z),
+        ] {
+            if let Some(factor) = factor {
+                axis_factors.push(EquivalentStaticAxisFactor {
+                    direction,
+                    g_factor: factor.value,
+                });
+            }
+        }
+        let mut inputs_missing = false;
+        if axis_factors.is_empty() {
+            diagnostics.push(diag(
+                &equivalent_static_diag_id(case_id, "seismic:g-factors"),
+                "EQUIVALENT_STATIC_INPUT_MISSING",
+                "blocking",
+                "seismic equivalent-static generation requires at least one user-entered per-axis g-factor",
+                vec![case_id.to_string()],
+            ));
+            inputs_missing = true;
+        }
+        let Some(gravity) = seismic.gravity_acceleration.as_ref().map(|q| q.value) else {
+            diagnostics.push(diag(
+                &equivalent_static_diag_id(case_id, "seismic:gravity"),
+                "EQUIVALENT_STATIC_INPUT_MISSING",
+                "blocking",
+                "seismic equivalent-static generation requires a user-entered gravity_acceleration; no physical-constant default is applied",
+                vec![case_id.to_string(), "gravity_acceleration".to_string()],
+            ));
+            return;
+        };
+        if inputs_missing {
+            return;
+        }
+        let mut masses = Vec::new();
+        let mut mass_blocked = false;
+        for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
+            match compute_pipe_mass_per_length(pipe, case_id, diagnostics) {
+                Some(mass_per_length) => masses.push(ElementMassPerLength {
+                    element_index: pipe_index,
+                    mass_per_length,
+                }),
+                None => mass_blocked = true,
+            }
+        }
+        if mass_blocked {
+            return;
+        }
+        let basis = SeismicEquivalentStaticBasis {
+            load_case_ref: case_id.to_string(),
+            gravity_acceleration: gravity,
+            axis_factors,
+        };
+        let (generated, findings) = generate_seismic_equivalent_static_loads(&basis, &masses);
+        for finding in &findings {
+            diagnostics.push(diag(
+                &equivalent_static_diag_id(
+                    case_id,
+                    &format!("seismic:{}", stable_suffix(&finding.load_id)),
+                ),
+                "EQUIVALENT_STATIC_INPUT_INVALID",
+                "blocking",
+                finding.message.clone(),
+                vec![case_id.to_string()],
+            ));
+        }
+        if findings.is_empty() {
+            loads.extend(generated);
+        }
+    }
+
+    if let Some(wind) = &equivalent_static.wind {
+        let mut missing = Vec::new();
+        if wind.pressure.is_none() {
+            missing.push("pressure");
+        }
+        if wind.shape_factor.is_none() {
+            missing.push("shape_factor");
+        }
+        if wind.direction.is_none() {
+            missing.push("direction");
+        }
+        if wind.exposed_pipe_refs.is_empty() {
+            missing.push("exposed_pipe_refs");
+        }
+        if !missing.is_empty() {
+            diagnostics.push(diag(
+                &equivalent_static_diag_id(case_id, "wind:inputs"),
+                "EQUIVALENT_STATIC_INPUT_MISSING",
+                "blocking",
+                format!(
+                    "wind equivalent-static generation requires user-entered {}; no value or marked span is defaulted",
+                    missing.join(", ")
+                ),
+                vec![case_id.to_string()],
+            ));
+            return;
+        }
+        let direction_value = wind.direction.as_deref().expect("checked above");
+        let direction = match parse_direction(direction_value) {
+            Ok(
+                direction @ (LoadDirection::GlobalX
+                | LoadDirection::GlobalY
+                | LoadDirection::GlobalZ),
+            ) => direction,
+            _ => {
+                diagnostics.push(diag(
+                    &equivalent_static_diag_id(case_id, "wind:direction"),
+                    "EQUIVALENT_STATIC_INPUT_INVALID",
+                    "blocking",
+                    "wind equivalent-static direction must be a global axis (global_x, global_y, or global_z)",
+                    vec![case_id.to_string(), "wind.direction".to_string()],
+                ));
+                return;
+            }
+        };
+        let pipe_map = model
+            .pipe_segments
+            .iter()
+            .enumerate()
+            .map(|(i, p)| (p.id.as_str(), i))
+            .collect::<HashMap<_, _>>();
+        let mut exposed = Vec::new();
+        let mut refs_blocked = false;
+        for pipe_ref in &wind.exposed_pipe_refs {
+            let Some(&pipe_index) = pipe_map.get(pipe_ref.as_str()) else {
+                diagnostics.push(diag(
+                    &equivalent_static_diag_id(
+                        case_id,
+                        &format!("wind:span:{}", stable_suffix(pipe_ref)),
+                    ),
+                    "EQUIVALENT_STATIC_INPUT_INVALID",
+                    "blocking",
+                    "wind equivalent-static marked span references a pipe that is not present in the preview model",
+                    vec![case_id.to_string(), pipe_ref.clone()],
+                ));
+                refs_blocked = true;
+                continue;
+            };
+            let section = &model.pipe_segments[pipe_index].section;
+            let insulation = section
+                .insulation_thickness
+                .as_ref()
+                .map_or(0.0, |q| q.value);
+            exposed.push(ElementExposedDiameter {
+                element_index: pipe_index,
+                exposed_diameter: section.outside_diameter.value + 2.0 * insulation,
+            });
+        }
+        if refs_blocked {
+            return;
+        }
+        let basis = WindEquivalentStaticBasis {
+            load_case_ref: case_id.to_string(),
+            pressure: wind.pressure.as_ref().expect("checked above").value,
+            shape_factor: wind.shape_factor.as_ref().expect("checked above").value,
+            direction,
+        };
+        let (generated, findings) = generate_wind_equivalent_static_loads(&basis, &exposed);
+        for finding in &findings {
+            diagnostics.push(diag(
+                &equivalent_static_diag_id(
+                    case_id,
+                    &format!("wind:{}", stable_suffix(&finding.load_id)),
+                ),
+                "EQUIVALENT_STATIC_INPUT_INVALID",
+                "blocking",
+                finding.message.clone(),
+                vec![case_id.to_string()],
+            ));
+        }
+        if findings.is_empty() {
+            loads.extend(generated);
+        }
+    }
+}
+
+/// Resolve the material set a load case solves with under a named modulus
+/// basis (DEC-068 item 1). Selection is exact: for every material used by
+/// a pipe segment, the named user-entered temperature point must exist and
+/// carry an elastic modulus; no interpolation between points is performed
+/// (interpolation policy is drafted as D-38, not ruled). The point's
+/// thermal expansion coefficient, when supplied, replaces the base value
+/// for this load case; when the point does not supply one, no base-value
+/// substitute is used (mixing bases silently is not lawful).
+fn materials_for_modulus_basis(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    basis_ref: &str,
+    load_case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<Vec<MaterialInput>> {
+    let used_material_ids = model
+        .pipe_segments
+        .iter()
+        .map(|pipe| pipe.material.as_str())
+        .collect::<HashSet<_>>();
+    let mut resolved = Vec::with_capacity(materials.len());
+    let mut blocked = false;
+    for material in materials {
+        if !used_material_ids.contains(material.id.as_str()) {
+            resolved.push(material.clone());
+            continue;
+        }
+        let Some(point) = material
+            .temperature_points
+            .iter()
+            .find(|point| point.id == basis_ref)
+        else {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:modulus-basis:{}:{}:unresolved",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&material.id)
+                ),
+                "MODULUS_BASIS_UNRESOLVED",
+                "blocking",
+                format!(
+                    "load case names modulus basis {basis_ref}, but material {} stores no user-entered temperature point with that id; selection is exact and no interpolation between stored points is performed",
+                    material.id
+                ),
+                vec![
+                    load_case_id.to_string(),
+                    material.id.clone(),
+                    basis_ref.to_string(),
+                ],
+            ));
+            blocked = true;
+            continue;
+        };
+        let Some(elastic_modulus) = point.elastic_modulus.clone() else {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:modulus-basis:{}:{}:elastic-modulus",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&material.id)
+                ),
+                "MODULUS_BASIS_INPUT_MISSING",
+                "blocking",
+                format!(
+                    "modulus basis {basis_ref} on material {} carries no user-entered elastic modulus; the load case cannot solve on this basis and no value is defaulted",
+                    material.id
+                ),
+                vec![
+                    load_case_id.to_string(),
+                    material.id.clone(),
+                    basis_ref.to_string(),
+                ],
+            ));
+            blocked = true;
+            continue;
+        };
+        if !elastic_modulus.value.is_finite() || elastic_modulus.value <= 0.0 {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:modulus-basis:{}:{}:elastic-modulus-invalid",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&material.id)
+                ),
+                "MODULUS_BASIS_INPUT_INVALID",
+                "blocking",
+                format!(
+                    "modulus basis {basis_ref} elastic modulus on material {} must be a finite positive user-entered value",
+                    material.id
+                ),
+                vec![
+                    load_case_id.to_string(),
+                    material.id.clone(),
+                    basis_ref.to_string(),
+                ],
+            ));
+            blocked = true;
+            continue;
+        }
+        resolved.push(MaterialInput {
+            id: material.id.clone(),
+            elastic_modulus,
+            // The shear modulus stays the user-entered base value; a
+            // temperature-indexed shear modulus slot is a recorded residual
+            // outside the DEC-068 item 1 (E, alpha) grant.
+            shear_modulus: material.shear_modulus.clone(),
+            thermal_expansion_coefficient: point.thermal_expansion_coefficient.clone(),
+            temperature_points: material.temperature_points.clone(),
+            provenance: material.provenance.clone(),
+        });
+    }
+    if blocked {
+        None
+    } else {
+        Some(resolved)
+    }
+}
+
+/// Emit the explicit modulus-basis record row for a load case that names
+/// one (DEC-068 item 1 evidence shape).
+fn append_modulus_basis_record(results: &mut Vec<ResultItem>, load_case: &PreviewLoadCase) {
+    let Some(basis_ref) = &load_case.modulus_basis_ref else {
+        return;
+    };
+    results.push(ResultItem {
+        id: format!(
+            "result:modulus-basis:{}",
+            stable_suffix(&load_case.id)
+        ),
+        kind: "modulus_basis_record".to_string(),
+        value: 1.0,
+        unit: "record".to_string(),
+        entity_ref: load_case.id.clone(),
+        basis_ref: None,
+        source_result_refs: Vec::new(),
+        metadata: Some(ResultMetadata {
+            component: "material_modulus_basis".to_string(),
+            coordinate_system: "not_applicable".to_string(),
+            location: load_case.id.clone(),
+            basis: format!(
+                "temperature_point:{basis_ref}; selection=exact_user_entered_point; interpolation=not_performed"
+            ),
+            sign_convention: "presence record; value 1.0 means the load case solved with the named user-entered temperature-point basis".to_string(),
+        }),
+    });
+}
+
+/// Record the modulus basis of every operand of expansion-range
+/// combinations (result-state subtraction and range envelopes) explicitly
+/// (DEC-068 item 1).
+fn append_combination_modulus_basis_records(model: &PreviewModel, results: &mut Vec<ResultItem>) {
+    let basis_by_case = model
+        .load_cases
+        .iter()
+        .map(|case| (case.id.as_str(), case.modulus_basis_ref.as_deref()))
+        .collect::<HashMap<_, _>>();
+    for combination in &model.combinations {
+        let operand_ids: Vec<&str> = match combination.basis.as_str() {
+            "result_state_subtraction" => combination
+                .minuend_id
+                .iter()
+                .chain(combination.subtrahend_id.iter())
+                .map(|id| id.as_str())
+                .collect(),
+            "range_envelope" => combination
+                .operand_ids
+                .iter()
+                .flatten()
+                .map(|id| id.as_str())
+                .collect(),
+            _ => continue,
+        };
+        for operand_id in operand_ids {
+            let Some(basis) = basis_by_case.get(operand_id) else {
+                continue;
+            };
+            let basis_label = match basis {
+                Some(basis_ref) => format!(
+                    "temperature_point:{basis_ref}; selection=exact_user_entered_point; interpolation=not_performed"
+                ),
+                None => "material_base_values".to_string(),
+            };
+            results.push(ResultItem {
+                id: format!(
+                    "result:combination:{}:modulus-basis:{}",
+                    stable_suffix(&combination.id),
+                    stable_suffix(operand_id)
+                ),
+                kind: "combination_modulus_basis_record".to_string(),
+                value: 1.0,
+                unit: "record".to_string(),
+                entity_ref: operand_id.to_string(),
+                basis_ref: Some(ResultBasisRef {
+                    ref_type: "combination".to_string(),
+                    ref_id: combination.id.clone(),
+                }),
+                source_result_refs: Vec::new(),
+                metadata: Some(ResultMetadata {
+                    component: "material_modulus_basis".to_string(),
+                    coordinate_system: "not_applicable".to_string(),
+                    location: combination.id.clone(),
+                    basis: basis_label,
+                    sign_convention:
+                        "presence record; each range operand's solve basis is recorded explicitly"
+                            .to_string(),
+                }),
+            });
+        }
+    }
 }
 
 fn derive_pipe_section(
@@ -4235,16 +5122,36 @@ fn derive_pipe_section(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Option<DerivedSection> {
     let od = input.outside_diameter.value;
-    let thickness = input.wall_thickness.value;
+    let nominal_thickness = input.wall_thickness.value;
     if !od.is_finite()
-        || !thickness.is_finite()
+        || !nominal_thickness.is_finite()
         || od <= 0.0
-        || thickness <= 0.0
-        || 2.0 * thickness >= od
+        || nominal_thickness <= 0.0
+        || 2.0 * nominal_thickness >= od
     {
         diagnostics.push(diag(&format!("diagnostic:section:{}", stable_suffix(pipe_id)), "PIPE_DIMENSION_INVALID", "blocking", "outside diameter and wall thickness must be explicit positive values with wall thickness less than radius", vec![pipe_id.to_string()]));
         return None;
     }
+    // Mill tolerance is an optional user-entered absolute thickness reduction
+    // consumed alongside the nominal wall (DEC-068 item 3). Absence means no
+    // reduction; a present-but-invalid slot is blocking (PRD section 6.2).
+    let thickness = match input.mill_tolerance.as_ref().map(|q| q.value) {
+        None => nominal_thickness,
+        Some(mill_tolerance) => {
+            let effective = nominal_thickness - mill_tolerance;
+            if !mill_tolerance.is_finite() || mill_tolerance < 0.0 || effective <= 0.0 {
+                diagnostics.push(diag(
+                    &format!("diagnostic:section:{}:mill-tolerance", stable_suffix(pipe_id)),
+                    "PIPE_DIMENSION_INVALID",
+                    "blocking",
+                    "mill tolerance must be a finite non-negative thickness that leaves a positive effective wall",
+                    vec![pipe_id.to_string(), "mill_tolerance".to_string()],
+                ));
+                return None;
+            }
+            effective
+        }
+    };
     let id = od - 2.0 * thickness;
     let area = PI * (od.powi(2) - id.powi(2)) / 4.0;
     let internal_area = PI * id.powi(2) / 4.0;
@@ -6404,6 +7311,8 @@ fn is_combination_excluded_result_kind(kind: &str) -> bool {
             | "nonlinear_support_free_dof_work_residual"
             | "linear_solver_mode_basis"
             | "sparse_live_path_dense_parity_relative_delta"
+            | "modulus_basis_record"
+            | "combination_modulus_basis_record"
     )
 }
 
@@ -6896,6 +7805,7 @@ mod tests {
                 value: 0.000012,
                 unit: "1/degC".to_string(),
             }),
+            temperature_points: Vec::new(),
             provenance: Some("invented_example_no_material_standard".to_string()),
         }]
     }
@@ -9047,6 +9957,616 @@ mod tests {
         assert!((axial_i.value - round6(expected_force)).abs() < 1.0e-6);
         assert!((axial_j.value + round6(expected_force)).abs() < 1.0e-6);
         assert!((stress_i.value - round6(expected_force / area / 1_000_000.0)).abs() < 1.0e-6);
+    }
+
+    fn mill_tolerance_section(mill_tolerance: Option<f64>) -> PipeSectionInput {
+        PipeSectionInput {
+            outside_diameter: Quantity {
+                value: 0.2,
+                unit: "m".to_string(),
+            },
+            wall_thickness: Quantity {
+                value: 0.01,
+                unit: "m".to_string(),
+            },
+            mill_tolerance: mill_tolerance.map(|value| Quantity {
+                value,
+                unit: "m".to_string(),
+            }),
+            material_density: None,
+            contents_density: None,
+            insulation_thickness: None,
+            insulation_density: None,
+        }
+    }
+
+    #[test]
+    fn mill_tolerance_reduces_derived_effective_wall_and_section_modulus() {
+        let mut diagnostics = Vec::new();
+        let nominal = derive_pipe_section(
+            &mill_tolerance_section(None),
+            "pipe:P-MILL",
+            &mut diagnostics,
+        )
+        .unwrap();
+        let reduced = derive_pipe_section(
+            &mill_tolerance_section(Some(0.00125)),
+            "pipe:P-MILL",
+            &mut diagnostics,
+        )
+        .unwrap();
+        assert!(diagnostics.is_empty());
+
+        let od: f64 = 0.2;
+        let effective_wall = 0.01 - 0.00125;
+        let id = od - 2.0 * effective_wall;
+        let expected_modulus = PI * (od.powi(4) - id.powi(4)) / 64.0 / (od / 2.0);
+        assert!((reduced.wall_thickness - effective_wall).abs() < 1.0e-12);
+        assert!((reduced.section_modulus - expected_modulus).abs() < 1.0e-12);
+        assert!(reduced.section_modulus < nominal.section_modulus);
+        assert!(reduced.area < nominal.area);
+        assert!(reduced.internal_area > nominal.internal_area);
+    }
+
+    #[test]
+    fn absent_mill_tolerance_slot_means_no_reduction() {
+        let mut diagnostics = Vec::new();
+        let absent = derive_pipe_section(
+            &mill_tolerance_section(None),
+            "pipe:P-MILL",
+            &mut diagnostics,
+        )
+        .unwrap();
+        let zero = derive_pipe_section(
+            &mill_tolerance_section(Some(0.0)),
+            "pipe:P-MILL",
+            &mut diagnostics,
+        )
+        .unwrap();
+        assert!(diagnostics.is_empty());
+        assert_eq!(absent.wall_thickness, zero.wall_thickness);
+        assert_eq!(absent.section_modulus, zero.section_modulus);
+    }
+
+    #[test]
+    fn present_but_invalid_mill_tolerance_is_blocking() {
+        for invalid in [-0.001, 0.01, f64::NAN] {
+            let mut diagnostics = Vec::new();
+            let derived = derive_pipe_section(
+                &mill_tolerance_section(Some(invalid)),
+                "pipe:P-MILL",
+                &mut diagnostics,
+            );
+            assert!(derived.is_none());
+            assert!(diagnostics.iter().any(|item| {
+                item.code == "PIPE_DIMENSION_INVALID"
+                    && item.severity == "blocking"
+                    && item.affected_refs.contains(&"mill_tolerance".to_string())
+            }));
+        }
+    }
+
+    #[test]
+    fn mill_tolerance_units_are_normalized_at_preview_boundary() {
+        let mut base = request();
+        for pipe in &mut base.model.pipe_segments {
+            pipe.section.mill_tolerance = Some(Quantity {
+                value: 0.00125,
+                unit: "m".to_string(),
+            });
+        }
+        let mut millimeters = request();
+        for pipe in &mut millimeters.model.pipe_segments {
+            pipe.section.mill_tolerance = Some(Quantity {
+                value: 1.25,
+                unit: "mm".to_string(),
+            });
+        }
+
+        let base_result = run_linear_static_preview(base);
+        let millimeter_result = run_linear_static_preview(millimeters);
+        assert_eq!(base_result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(millimeter_result.status.mechanics, "MECHANICS_SOLVED");
+        for (left, right) in base_result
+            .results
+            .iter()
+            .zip(millimeter_result.results.iter())
+        {
+            assert_eq!(left.id, right.id);
+            assert_eq!(left.value, right.value);
+        }
+    }
+
+    fn equivalent_static_base_request() -> LinearStaticPreviewRequest {
+        let mut request = request();
+        request.model.nodes.truncate(2);
+        request.model.nodes[0].id = "node:N-100".to_string();
+        request.model.nodes[0].position = Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        request.model.nodes[1].id = "node:N-110".to_string();
+        request.model.nodes[1].position = Vec3 {
+            x: 3.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        request.model.pipe_segments.truncate(1);
+        request.model.pipe_segments[0].id = "pipe:P-100".to_string();
+        request.model.pipe_segments[0].from = "node:N-100".to_string();
+        request.model.pipe_segments[0].to = "node:N-110".to_string();
+        request.model.pipe_segments[0].y_reference = Some(Vec3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        });
+        request.model.pipe_segments[0].section = PipeSectionInput {
+            outside_diameter: Quantity {
+                value: 0.2,
+                unit: "m".to_string(),
+            },
+            wall_thickness: Quantity {
+                value: 0.01,
+                unit: "m".to_string(),
+            },
+            mill_tolerance: None,
+            material_density: Some(Quantity {
+                value: 7850.0,
+                unit: "kg/m^3".to_string(),
+            }),
+            contents_density: None,
+            insulation_thickness: None,
+            insulation_density: None,
+        };
+        request.model.supports.truncate(2);
+        request.model.supports[0].id = "support:S-100".to_string();
+        request.model.supports[0].node = "node:N-100".to_string();
+        request.model.supports[0].restraints = vec![
+            "UX".to_string(),
+            "UY".to_string(),
+            "UZ".to_string(),
+            "RX".to_string(),
+            "RY".to_string(),
+            "RZ".to_string(),
+        ];
+        request.model.supports[1].id = "support:S-110".to_string();
+        request.model.supports[1].node = "node:N-110".to_string();
+        request.model.supports[1].restraints = vec!["UY".to_string(), "UZ".to_string()];
+        request.model.load_cases.truncate(1);
+        request.model.load_cases[0].id = "load_case:LC-EQ".to_string();
+        request.model.load_cases[0].primitive_loads = Vec::new();
+        request.model.load_cases[0].equivalent_static = None;
+        request.model.combinations.clear();
+        request
+    }
+
+    fn expected_single_pipe_mass_per_length() -> f64 {
+        let od: f64 = 0.2;
+        let id: f64 = 0.2 - 2.0 * 0.01;
+        PI / 4.0 * (od.powi(2) - id.powi(2)) * 7850.0
+    }
+
+    #[test]
+    fn seismic_equivalent_static_generation_matches_authored_distributed_load() {
+        let mut generated = equivalent_static_base_request();
+        generated.model.load_cases[0].equivalent_static = Some(EquivalentStaticGenerationInput {
+            seismic: Some(SeismicGenerationInput {
+                gravity_acceleration: Some(Quantity {
+                    value: 9.80665,
+                    unit: "m/s^2".to_string(),
+                }),
+                g_factor_x: None,
+                g_factor_y: Some(Quantity {
+                    value: 0.3,
+                    unit: "1".to_string(),
+                }),
+                g_factor_z: None,
+            }),
+            wind: None,
+            provenance: Some("invented_example_user_input".to_string()),
+        });
+
+        let intensity = expected_single_pipe_mass_per_length() * 0.3 * 9.80665;
+        let mut authored = equivalent_static_base_request();
+        authored.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
+            id: "load:L-SEISMIC-AUTHORED".to_string(),
+            category: "seismic".to_string(),
+            target: LoadTargetInput::Element {
+                pipe: "pipe:P-100".to_string(),
+            },
+            direction: "global_y".to_string(),
+            magnitude: Quantity {
+                value: intensity,
+                unit: "N/m".to_string(),
+            },
+            dimension: "force_per_length".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }];
+
+        let generated_result = run_linear_static_preview(generated);
+        let authored_result = run_linear_static_preview(authored);
+
+        assert_eq!(generated_result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(authored_result.status.mechanics, "MECHANICS_SOLVED");
+        for (left, right) in generated_result
+            .results
+            .iter()
+            .zip(authored_result.results.iter())
+        {
+            assert_eq!(left.id, right.id);
+            assert!(
+                (left.value - right.value).abs() <= 1.0e-9 * right.value.abs().max(1.0),
+                "{}: {} != {}",
+                left.id,
+                left.value,
+                right.value
+            );
+        }
+    }
+
+    #[test]
+    fn wind_equivalent_static_generation_matches_authored_distributed_load() {
+        let mut generated = equivalent_static_base_request();
+        generated.model.pipe_segments[0]
+            .section
+            .insulation_thickness = Some(Quantity {
+            value: 0.025,
+            unit: "m".to_string(),
+        });
+        generated.model.pipe_segments[0].section.insulation_density = Some(Quantity {
+            value: 120.0,
+            unit: "kg/m^3".to_string(),
+        });
+        generated.model.load_cases[0].equivalent_static = Some(EquivalentStaticGenerationInput {
+            seismic: None,
+            wind: Some(WindGenerationInput {
+                pressure: Some(Quantity {
+                    value: 480.0,
+                    unit: "Pa".to_string(),
+                }),
+                shape_factor: Some(Quantity {
+                    value: 0.7,
+                    unit: "1".to_string(),
+                }),
+                direction: Some("global_z".to_string()),
+                exposed_pipe_refs: vec!["pipe:P-100".to_string()],
+            }),
+            provenance: Some("invented_example_user_input".to_string()),
+        });
+
+        let exposed_diameter = 0.2 + 2.0 * 0.025;
+        let intensity = 480.0 * 0.7 * exposed_diameter;
+        let mut authored = equivalent_static_base_request();
+        authored.model.pipe_segments[0].section.insulation_thickness = Some(Quantity {
+            value: 0.025,
+            unit: "m".to_string(),
+        });
+        authored.model.pipe_segments[0].section.insulation_density = Some(Quantity {
+            value: 120.0,
+            unit: "kg/m^3".to_string(),
+        });
+        authored.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
+            id: "load:L-WIND-AUTHORED".to_string(),
+            category: "wind".to_string(),
+            target: LoadTargetInput::Element {
+                pipe: "pipe:P-100".to_string(),
+            },
+            direction: "global_z".to_string(),
+            magnitude: Quantity {
+                value: intensity,
+                unit: "N/m".to_string(),
+            },
+            dimension: "force_per_length".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }];
+
+        let generated_result = run_linear_static_preview(generated);
+        let authored_result = run_linear_static_preview(authored);
+
+        assert_eq!(generated_result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(authored_result.status.mechanics, "MECHANICS_SOLVED");
+        for (left, right) in generated_result
+            .results
+            .iter()
+            .zip(authored_result.results.iter())
+        {
+            assert_eq!(left.id, right.id);
+            assert!(
+                (left.value - right.value).abs() <= 1.0e-9 * right.value.abs().max(1.0),
+                "{}: {} != {}",
+                left.id,
+                left.value,
+                right.value
+            );
+        }
+    }
+
+    #[test]
+    fn seismic_generation_without_material_density_is_blocking() {
+        let mut request = equivalent_static_base_request();
+        request.model.pipe_segments[0].section.material_density = None;
+        request.model.load_cases[0].equivalent_static = Some(EquivalentStaticGenerationInput {
+            seismic: Some(SeismicGenerationInput {
+                gravity_acceleration: Some(Quantity {
+                    value: 9.80665,
+                    unit: "m/s^2".to_string(),
+                }),
+                g_factor_x: None,
+                g_factor_y: Some(Quantity {
+                    value: 0.3,
+                    unit: "1".to_string(),
+                }),
+                g_factor_z: None,
+            }),
+            wind: None,
+            provenance: Some("invented_example_user_input".to_string()),
+        });
+
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_MISSING"
+                && item.severity == "blocking"));
+        assert!(result.results.is_empty());
+    }
+
+    #[test]
+    fn seismic_generation_without_user_gravity_is_blocking_not_defaulted() {
+        let mut request = equivalent_static_base_request();
+        request.model.load_cases[0].equivalent_static = Some(EquivalentStaticGenerationInput {
+            seismic: Some(SeismicGenerationInput {
+                gravity_acceleration: None,
+                g_factor_x: Some(Quantity {
+                    value: 0.2,
+                    unit: "1".to_string(),
+                }),
+                g_factor_y: None,
+                g_factor_z: None,
+            }),
+            wind: None,
+            provenance: Some("invented_example_user_input".to_string()),
+        });
+
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_MISSING"
+                && item.message.contains("gravity_acceleration")));
+    }
+
+    #[test]
+    fn wind_generation_without_marked_spans_is_blocking() {
+        let mut request = equivalent_static_base_request();
+        request.model.load_cases[0].equivalent_static = Some(EquivalentStaticGenerationInput {
+            seismic: None,
+            wind: Some(WindGenerationInput {
+                pressure: Some(Quantity {
+                    value: 480.0,
+                    unit: "Pa".to_string(),
+                }),
+                shape_factor: Some(Quantity {
+                    value: 0.7,
+                    unit: "1".to_string(),
+                }),
+                direction: Some("global_z".to_string()),
+                exposed_pipe_refs: Vec::new(),
+            }),
+            provenance: Some("invented_example_user_input".to_string()),
+        });
+
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_MISSING"
+                && item.message.contains("exposed_pipe_refs")));
+    }
+
+    #[test]
+    fn seismic_generation_with_partial_insulation_pair_is_blocking() {
+        let mut request = equivalent_static_base_request();
+        request.model.pipe_segments[0].section.insulation_thickness = Some(Quantity {
+            value: 0.025,
+            unit: "m".to_string(),
+        });
+        request.model.load_cases[0].equivalent_static = Some(EquivalentStaticGenerationInput {
+            seismic: Some(SeismicGenerationInput {
+                gravity_acceleration: Some(Quantity {
+                    value: 9.80665,
+                    unit: "m/s^2".to_string(),
+                }),
+                g_factor_x: None,
+                g_factor_y: Some(Quantity {
+                    value: 0.3,
+                    unit: "1".to_string(),
+                }),
+                g_factor_z: None,
+            }),
+            wind: None,
+            provenance: Some("invented_example_user_input".to_string()),
+        });
+
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_MISSING"
+                && item.message.contains("insulation")));
+    }
+
+    fn hot_basis_material() -> MaterialInput {
+        let mut material = invented_materials().remove(0);
+        material.temperature_points = vec![MaterialTemperaturePointInput {
+            id: "temperature-point:hot".to_string(),
+            temperature: Some(Quantity {
+                value: 533.15,
+                unit: "K".to_string(),
+            }),
+            elastic_modulus: Some(Quantity {
+                value: 180_000_000_000.0,
+                unit: "Pa".to_string(),
+            }),
+            thermal_expansion_coefficient: Some(Quantity {
+                value: 0.000013,
+                unit: "1/K".to_string(),
+            }),
+            provenance: Some("invented_example_user_input".to_string()),
+        }];
+        material
+    }
+
+    #[test]
+    fn load_case_modulus_basis_selects_exact_user_entered_hot_point() {
+        let mut request = fixed_fixed_thermal_request("global_z");
+        request.materials = vec![hot_basis_material()];
+        request.model.load_cases[0].modulus_basis_ref = Some("temperature-point:hot".to_string());
+        let area = derive_pipe_section(
+            &request.model.pipe_segments[0].section,
+            "pipe:P-100",
+            &mut Vec::new(),
+        )
+        .unwrap()
+        .area;
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let expected_force = 180_000_000_000.0 * area * 0.000013 * 10.0;
+        let axial = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:force:pipe-P-100:axial")
+            .unwrap();
+        assert!((axial.value - round6(expected_force)).abs() < 1.0e-6);
+
+        let record = result
+            .results
+            .iter()
+            .find(|item| item.kind == "modulus_basis_record")
+            .expect("modulus basis record row");
+        assert_eq!(record.entity_ref, "load:L-100");
+        let metadata = record.metadata.as_ref().unwrap();
+        assert!(metadata
+            .basis
+            .contains("temperature_point:temperature-point:hot"));
+        assert!(metadata.basis.contains("interpolation=not_performed"));
+    }
+
+    #[test]
+    fn base_material_values_are_used_when_no_modulus_basis_is_named() {
+        let mut request = fixed_fixed_thermal_request("global_z");
+        request.materials = vec![hot_basis_material()];
+        let area = derive_pipe_section(
+            &request.model.pipe_segments[0].section,
+            "pipe:P-100",
+            &mut Vec::new(),
+        )
+        .unwrap()
+        .area;
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let expected_force = 200_000_000_000.0 * area * 0.000012 * 10.0;
+        let axial = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:force:pipe-P-100:axial")
+            .unwrap();
+        assert!((axial.value - round6(expected_force)).abs() < 1.0e-6);
+        assert!(!result
+            .results
+            .iter()
+            .any(|item| item.kind == "modulus_basis_record"));
+    }
+
+    #[test]
+    fn unresolved_modulus_basis_is_blocking_without_interpolation() {
+        let mut request = fixed_fixed_thermal_request("global_z");
+        request.materials = vec![hot_basis_material()];
+        request.model.load_cases[0].modulus_basis_ref =
+            Some("temperature-point:between".to_string());
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.diagnostics.iter().any(|item| {
+            item.code == "MODULUS_BASIS_UNRESOLVED"
+                && item.severity == "blocking"
+                && item.message.contains("no interpolation")
+        }));
+        assert!(result.results.is_empty());
+    }
+
+    #[test]
+    fn modulus_basis_point_without_elastic_modulus_is_blocking() {
+        let mut request = fixed_fixed_thermal_request("global_z");
+        let mut material = hot_basis_material();
+        material.temperature_points[0].elastic_modulus = None;
+        request.materials = vec![material];
+        request.model.load_cases[0].modulus_basis_ref = Some("temperature-point:hot".to_string());
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "MODULUS_BASIS_INPUT_MISSING" && item.severity == "blocking"));
+    }
+
+    #[test]
+    fn range_combination_records_each_operand_modulus_basis() {
+        let mut request = request();
+        request.materials = vec![hot_basis_material()];
+        request.model.load_cases[1].modulus_basis_ref = Some("temperature-point:hot".to_string());
+        request.model.combinations = vec![range_combination(
+            "combination:C-RANGE-BASIS",
+            &["load:L-100", "load:L-200"],
+            "max_abs",
+        )];
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let records = result
+            .results
+            .iter()
+            .filter(|item| item.kind == "combination_modulus_basis_record")
+            .collect::<Vec<_>>();
+        assert_eq!(records.len(), 2);
+        let base_record = records
+            .iter()
+            .find(|item| item.entity_ref == "load:L-100")
+            .unwrap();
+        assert_eq!(
+            base_record.metadata.as_ref().unwrap().basis,
+            "material_base_values"
+        );
+        let hot_record = records
+            .iter()
+            .find(|item| item.entity_ref == "load:L-200")
+            .unwrap();
+        assert!(hot_record
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("temperature_point:temperature-point:hot"));
+        assert!(records.iter().all(|item| {
+            item.basis_ref
+                == Some(ResultBasisRef {
+                    ref_type: "combination".to_string(),
+                    ref_id: "combination:C-RANGE-BASIS".to_string(),
+                })
+        }));
     }
 
     #[test]

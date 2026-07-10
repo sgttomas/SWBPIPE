@@ -43,6 +43,7 @@ class PipeSectionInput:
     outside_diameter: Quantity | None
     wall_thickness: Quantity | None
     corrosion_allowance: Quantity | None = None
+    mill_tolerance: Quantity | None = None
     material_density: Quantity | None = None
     contents_density: Quantity | None = None
     insulation_thickness: Quantity | None = None
@@ -81,6 +82,16 @@ def calculate_pipe_section_properties(inputs: PipeSectionInput) -> PipeSectionRe
         expected_dimensions=LENGTH_DIMENSIONS,
         diagnostics=diagnostics,
     )
+    # Mill tolerance is a user-entered absolute thickness dimension (length),
+    # consistent with SectionDimensionKind carrying dimensions only. No
+    # fractional form, catalog value, or default is applied; absence means no
+    # reduction (absence is not a default value of zero).
+    mill_tolerance = _optional_quantity(
+        inputs.mill_tolerance,
+        field="mill_tolerance",
+        expected_dimensions=LENGTH_DIMENSIONS,
+        diagnostics=diagnostics,
+    )
     insulation = _optional_quantity(
         inputs.insulation_thickness,
         field="insulation_thickness",
@@ -94,6 +105,7 @@ def calculate_pipe_section_properties(inputs: PipeSectionInput) -> PipeSectionRe
             ("outside_diameter", od),
             ("wall_thickness", wall),
             ("corrosion_allowance", corrosion),
+            ("mill_tolerance", mill_tolerance),
             ("insulation_thickness", insulation),
         )
         if item[1] is not None
@@ -140,17 +152,18 @@ def calculate_pipe_section_properties(inputs: PipeSectionInput) -> PipeSectionRe
     assert length_unit is not None
 
     corrosion_value = corrosion.magnitude if corrosion else 0.0
+    mill_tolerance_value = mill_tolerance.magnitude if mill_tolerance else 0.0
     insulation_value = insulation.magnitude if insulation else 0.0
-    effective_wall = wall.magnitude - corrosion_value
+    effective_wall = wall.magnitude - corrosion_value - mill_tolerance_value
     inside_diameter = od.magnitude - 2.0 * effective_wall
 
     if effective_wall <= 0:
         diagnostics.append(
             _blocking(
                 "SECTION_CALCULATION_INPUT_INVALID",
-                "corrosion_allowance",
-                "Corrosion allowance leaves no positive effective wall thickness.",
-                "Provide wall thickness greater than corrosion allowance.",
+                "corrosion_allowance,mill_tolerance",
+                "Corrosion allowance and mill tolerance leave no positive effective wall thickness.",
+                "Provide wall thickness greater than the sum of corrosion allowance and mill tolerance.",
             )
         )
     if inside_diameter < 0:
@@ -324,7 +337,11 @@ def _validate_quantity(
                 "Provide a dimensionally compatible quantity.",
             )
         )
-    if value.magnitude <= 0 and field not in {"corrosion_allowance", "insulation_thickness"}:
+    if value.magnitude <= 0 and field not in {
+        "corrosion_allowance",
+        "mill_tolerance",
+        "insulation_thickness",
+    }:
         diagnostics.append(
             _blocking(
                 "SECTION_CALCULATION_INPUT_INVALID",

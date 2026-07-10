@@ -42,6 +42,7 @@ The explicit source inventory is the `fixture_inventory()` list in
 | Imposed displacement | `MECH-IMPOSED-DISPLACEMENT-SPRING` |
 | Stiffness transform | `MECH-INCLINED-MEMBER-TRANSFORM` |
 | Curved-bend expansion loop | `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` |
+| Equivalent-static generation | `MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC` |
 
 Hand-calculation notes are in `validation/hand_calcs/mechanics/`.
 

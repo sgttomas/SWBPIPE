@@ -371,6 +371,37 @@ impl StressRecoveryResult {
 pub struct StressRangeResult {
     pub ranges: StressRangeComponents,
     pub findings: Vec<StressFinding>,
+    /// Explicit record of the modulus basis each range state solved with
+    /// (DEC-068 item 1). `None` when the caller did not supply a record;
+    /// range recovery performs no basis inference and no interpolation.
+    pub modulus_basis: Option<StressRangeModulusBasisRecord>,
+}
+
+/// Explicit per-state modulus-basis record for a stress range: each label
+/// names the user-entered material temperature-point basis (or the
+/// material base values) the corresponding mechanics state solved with.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StressRangeModulusBasisRecord {
+    pub first_state_basis_ref: String,
+    pub second_state_basis_ref: String,
+}
+
+impl StressRangeModulusBasisRecord {
+    pub fn new(
+        first_state_basis_ref: impl Into<String>,
+        second_state_basis_ref: impl Into<String>,
+    ) -> Result<Self, StressRecoveryError> {
+        let record = Self {
+            first_state_basis_ref: first_state_basis_ref.into(),
+            second_state_basis_ref: second_state_basis_ref.into(),
+        };
+        if record.first_state_basis_ref.trim().is_empty()
+            || record.second_state_basis_ref.trim().is_empty()
+        {
+            return Err(StressRecoveryError::MissingModulusBasisRef);
+        }
+        Ok(record)
+    }
 }
 
 impl StressRangeResult {
@@ -426,6 +457,7 @@ pub enum StressRecoveryError {
     NonFiniteInput { name: &'static str, value: f64 },
     NonPositiveInput { name: &'static str, value: f64 },
     InvalidStationFraction { value: f64 },
+    MissingModulusBasisRef,
 }
 
 impl fmt::Display for StressRecoveryError {
@@ -441,6 +473,12 @@ impl fmt::Display for StressRecoveryError {
                 write!(
                     f,
                     "station fraction must satisfy 0 <= value <= 1, got {value}"
+                )
+            }
+            Self::MissingModulusBasisRef => {
+                write!(
+                    f,
+                    "stress range modulus-basis record requires explicit non-empty basis labels for both states"
                 )
             }
         }
@@ -683,6 +721,7 @@ pub fn recover_stress_range(
         return StressRangeResult {
             ranges: StressRangeComponents::empty(),
             findings,
+            modulus_basis: None,
         };
     }
 
@@ -734,7 +773,22 @@ pub fn recover_stress_range(
             StressRangeComponents::empty()
         },
         findings,
+        modulus_basis: None,
     }
+}
+
+/// Stress range recovery that records the modulus basis each state solved
+/// with (DEC-068 item 1: expansion-range results record their basis
+/// explicitly). The record is carried through verbatim; no basis
+/// resolution, inference, or interpolation happens here.
+pub fn recover_stress_range_with_modulus_basis(
+    first: &StressRecoveryInput,
+    second: &StressRecoveryInput,
+    modulus_basis: StressRangeModulusBasisRecord,
+) -> StressRangeResult {
+    let mut result = recover_stress_range(first, second);
+    result.modulus_basis = Some(modulus_basis);
+    result
 }
 
 pub fn checked_positive(name: &'static str, value: f64) -> Result<f64, StressRecoveryError> {
@@ -1399,6 +1453,45 @@ mod tests {
             .iter()
             .any(|finding| finding.code == FindingCode::NonFiniteInput
                 && finding.subject_id == "axial_normal_range"));
+    }
+
+    #[test]
+    fn stress_range_with_modulus_basis_records_both_state_bases_verbatim() {
+        let first = StressRecoveryInput {
+            resultants: ForceResultants::new(Some(60.0), Some(-20.0), Some(10.0), Some(20.0)),
+            section: StressSectionProperties::new(
+                Some(12.0),
+                Some(25.0),
+                Some(15.0),
+                Some(80.0),
+                Some(2.0),
+            ),
+            pressure: None,
+            statuses: vec![AnalysisStatus::MechanicsSolved],
+        };
+        let second = StressRecoveryInput {
+            resultants: ForceResultants::new(Some(180.0), Some(80.0), Some(10.0), Some(60.0)),
+            section: first.section.clone(),
+            pressure: None,
+            statuses: vec![AnalysisStatus::MechanicsSolved],
+        };
+        let record =
+            StressRangeModulusBasisRecord::new("temperature_point:hot", "material_base_values")
+                .unwrap();
+
+        let plain = recover_stress_range(&first, &second);
+        let recorded = recover_stress_range_with_modulus_basis(&first, &second, record.clone());
+
+        assert!(plain.modulus_basis.is_none());
+        assert_eq!(recorded.modulus_basis, Some(record));
+        assert_eq!(recorded.ranges, plain.ranges);
+        assert_eq!(recorded.findings.len(), plain.findings.len());
+    }
+
+    #[test]
+    fn stress_range_modulus_basis_record_rejects_empty_labels() {
+        assert!(StressRangeModulusBasisRecord::new("", "material_base_values").is_err());
+        assert!(StressRangeModulusBasisRecord::new("temperature_point:hot", "  ").is_err());
     }
 
     #[test]

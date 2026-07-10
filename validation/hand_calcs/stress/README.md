@@ -46,6 +46,8 @@ The project unit catalog and conversion constants remain `TBD`.
 | `STRESS-TP-PHYS-008-THERMAL-AXIAL-EFFECT-TO-STRESS` | [tp_phys_008_thermal_axial_effect_to_stress.md](tp_phys_008_thermal_axial_effect_to_stress.md) |
 | `STRESS-TP-PHYS-009-COMBINED-AXIAL-BENDING-TO-STRESS` | [tp_phys_009_combined_axial_bending_to_stress.md](tp_phys_009_combined_axial_bending_to_stress.md) |
 | `STRESS-TP-PHYS-015-CANONICAL-RESULTANT-STRESS-RECOVERY` | [tp_phys_015_canonical_resultant_stress.md](tp_phys_015_canonical_resultant_stress.md) |
+| `STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS` | [tp_pmm_p3_milltol_effective_wall_stress.md](tp_pmm_p3_milltol_effective_wall_stress.md) |
+| `STRESS-TP-PMM-P3-MODULUSBASIS-RANGE-STRESS` | [tp_pmm_p3_modulusbasis_range_stress.md](tp_pmm_p3_modulusbasis_range_stress.md) |
 
 ## Formal Witness Renderings
 

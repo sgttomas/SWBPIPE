@@ -255,8 +255,34 @@
             "TBD"
           ]
         },
+        "modulus_basis_records": {
+          "description": "Explicit record of the modulus basis each range term solved with. Expansion-range combinations (result-state subtraction and range envelopes) record, per operand load case, the user-entered temperature-point basis id or the reserved label material_base_values. Records are declarations of the solved basis, not selectors; no interpolation is implied.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ModulusBasisRecord"
+          }
+        },
         "provenance": {
           "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ModulusBasisRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_ref",
+        "modulus_basis_ref"
+      ],
+      "properties": {
+        "load_case_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "modulus_basis_ref": {
+          "description": "User-assigned temperature-point basis id, or the reserved label material_base_values when the operand solved on the material base values.",
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -525,8 +551,91 @@
             "$ref": "#/$defs/LoadRecord"
           }
         },
+        "equivalent_static_generation": {
+          "$ref": "#/$defs/EquivalentStaticGeneration"
+        },
+        "modulus_basis_ref": {
+          "description": "Optional modulus basis: the user-assigned temperature-case id whose user-entered temperature-dependent material property values (elastic modulus and, when stored on the same point, thermal expansion coefficient) this load case solves with. Selection is exact - a reference matching no stored temperature-indexed value is a blocking diagnostic and no interpolation between stored points is performed.",
+          "$ref": "#/$defs/Id"
+        },
         "provenance": {
           "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "EquivalentStaticGeneration": {
+      "description": "User-entered static-equivalent occasional-load generation inputs. Seismic: per-global-axis g-factors and an explicit user-entered gravity acceleration multiply the model's own computed mass distribution. Wind: user-entered pressure and shape parameters project onto the exposed diameter of user-marked spans. No code coefficient, catalog value, or default is encoded; missing inputs are blocking diagnostics.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provenance"
+      ],
+      "properties": {
+        "seismic": {
+          "$ref": "#/$defs/SeismicEquivalentStaticInput"
+        },
+        "wind": {
+          "$ref": "#/$defs/WindEquivalentStaticInput"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "SeismicEquivalentStaticInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gravity_acceleration",
+        "g_factors"
+      ],
+      "properties": {
+        "gravity_acceleration": {
+          "$ref": "#/$defs/AccelerationQuantity"
+        },
+        "g_factors": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "x": {
+              "$ref": "#/$defs/DimensionlessQuantity"
+            },
+            "y": {
+              "$ref": "#/$defs/DimensionlessQuantity"
+            },
+            "z": {
+              "$ref": "#/$defs/DimensionlessQuantity"
+            }
+          }
+        }
+      }
+    },
+    "WindEquivalentStaticInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pressure",
+        "shape_factor",
+        "direction",
+        "exposed_element_refs"
+      ],
+      "properties": {
+        "pressure": {
+          "$ref": "#/$defs/PressureQuantity"
+        },
+        "shape_factor": {
+          "$ref": "#/$defs/DimensionlessQuantity"
+        },
+        "direction": {
+          "$ref": "#/$defs/ForceDirection"
+        },
+        "exposed_element_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ElementReference"
+          }
         }
       }
     },
@@ -751,6 +860,48 @@
           "properties": {
             "dimension": {
               "const": "force_per_length"
+            }
+          }
+        }
+      ]
+    },
+    "AccelerationQuantity": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Quantity"
+        },
+        {
+          "properties": {
+            "dimension": {
+              "const": "acceleration"
+            }
+          }
+        }
+      ]
+    },
+    "PressureQuantity": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Quantity"
+        },
+        {
+          "properties": {
+            "dimension": {
+              "const": "pressure"
+            }
+          }
+        }
+      ]
+    },
+    "DimensionlessQuantity": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Quantity"
+        },
+        {
+          "properties": {
+            "dimension": {
+              "const": "dimensionless"
             }
           }
         }

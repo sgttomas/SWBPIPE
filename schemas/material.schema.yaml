@@ -405,6 +405,7 @@
           "$ref": "#/$defs/MaterialPropertyKind"
         },
         "temperature_ref": {
+          "description": "Temperature index for this user-entered property value. Solve semantics (DEC-068 item 1): a load case that names a modulus basis selects the stored value with the exactly matching temperature index; a basis reference matching no stored value is a blocking diagnostic, and no interpolation between stored temperature points is performed while the temperature_interpolation_policy open decision (drafted as D-38) remains unruled.",
           "$ref": "#/$defs/Reference"
         },
         "value": {
