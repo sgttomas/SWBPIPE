@@ -1,1 +1,2 @@
 jsonschema>=4,<5
+coverage>=7,<8

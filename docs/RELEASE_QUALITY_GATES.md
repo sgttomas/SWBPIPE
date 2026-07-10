@@ -156,8 +156,16 @@ certification claims, code-compliance claims, or professional reliance claims.
 - TBD: final numerical tolerance policy for solver, stress, and nonlinear
   benchmarks.
 - TBD: performance thresholds and permitted variance policy.
-- TBD: coverage thresholds for Rust, Python, GUI, validation, and
-  protected-content gates.
+- Ruled 2026-07-04: coverage tooling and telemetry seam (`DEC-060`, basis
+  `execution/_Coordination/_DECISIONS/D-04b_coverage_tooling_floor_promotion.md`
+  Option O-A) — Rust `cargo-llvm-cov` (host-installed), TS Vitest `--coverage`
+  with `@vitest/coverage-v8`, Python `coverage.py`; the opt-in
+  `tools/release/run_coverage_telemetry.py` emits commit-bound telemetry to
+  `validation/evidence/coverage/`, recorded and never blocking, with missing
+  tools recorded as `not_measured`. Numeric coverage floors remain
+  nonexistent (not `TBD`-numbered) until a later human ruling promotes
+  observed baselines — at least five clean-head telemetry artifacts spanning
+  at least two distinct commits per lane — tighten-only thereafter.
 - Ruled 2026-06-11: evidence-execution location (`DEC-025` — hosted CI
   deferred; the five-surface local sweep `tools/release/run_evidence_sweep.py`
   is the commit-bound merge gate; hosted CI re-decided at `D-05b` with D-06)

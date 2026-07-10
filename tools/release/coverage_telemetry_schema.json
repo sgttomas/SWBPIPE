@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpipestress.coverage_telemetry.schema_v1",
+  "title": "OpenPipeStress coverage telemetry artifact (DEC-060, schema_version 1)",
+  "description": "Commit-bound, recorded-never-blocking coverage telemetry emitted by tools/release/run_coverage_telemetry.py beside (not inside) the DEC-025 five-surface evidence sweep. Missing or failed lanes are recorded as not_measured; no numeric floor exists under DEC-060.",
+  "type": "object",
+  "required": [
+    "artifact",
+    "schema_version",
+    "decision_basis",
+    "boundary_note",
+    "git",
+    "runtime",
+    "started_utc",
+    "finished_utc",
+    "duration_seconds",
+    "lanes",
+    "lanes_measured",
+    "lanes_not_measured"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "artifact": { "const": "openpipestress.coverage_telemetry" },
+    "schema_version": { "const": 1 },
+    "decision_basis": { "const": "DEC-060" },
+    "boundary_note": { "type": "string", "minLength": 1 },
+    "git": {
+      "type": "object",
+      "required": [
+        "commit_hash",
+        "branch",
+        "status_capture_failed",
+        "working_tree_dirty",
+        "dirty_paths"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "commit_hash": { "type": ["string", "null"] },
+        "branch": { "type": ["string", "null"] },
+        "status_capture_failed": { "type": "boolean" },
+        "working_tree_dirty": { "type": ["boolean", "null"] },
+        "dirty_paths": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["platform", "python"],
+      "additionalProperties": { "type": ["string", "null"] }
+    },
+    "started_utc": { "type": "string" },
+    "finished_utc": { "type": "string" },
+    "duration_seconds": { "type": "number", "minimum": 0 },
+    "lanes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/lane" }
+    },
+    "lanes_measured": { "type": "integer", "minimum": 0 },
+    "lanes_not_measured": { "type": "integer", "minimum": 0 }
+  },
+  "$defs": {
+    "axis_totals": {
+      "type": "object",
+      "required": ["count", "covered", "percent"],
+      "additionalProperties": false,
+      "properties": {
+        "count": { "type": "integer", "minimum": 0 },
+        "covered": { "type": "integer", "minimum": 0 },
+        "percent": { "type": ["number", "null"], "minimum": 0, "maximum": 100 }
+      }
+    },
+    "command": {
+      "type": "object",
+      "required": ["argv", "exit_code", "duration_seconds"],
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "exit_code": { "type": "integer" },
+        "duration_seconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "lane": {
+      "type": "object",
+      "required": [
+        "lane_id",
+        "tool",
+        "description",
+        "tool_version",
+        "status",
+        "reason",
+        "commands",
+        "metrics"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "lane_id": {
+          "enum": ["cargo_llvm_cov", "python_coverage", "desktop_vitest_coverage"]
+        },
+        "tool": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "tool_version": { "type": ["string", "null"] },
+        "status": { "enum": ["measured", "not_measured"] },
+        "reason": { "type": ["string", "null"] },
+        "commands": { "type": "array", "items": { "$ref": "#/$defs/command" } },
+        "metrics": { "type": ["object", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "not_measured" } } },
+          "then": { "properties": { "reason": { "type": "string", "minLength": 1 } } }
+        },
+        {
+          "if": { "properties": { "status": { "const": "measured" } } },
+          "then": {
+            "properties": {
+              "reason": { "type": "null" },
+              "metrics": { "type": "object" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lane_id": { "const": "cargo_llvm_cov" },
+              "status": { "const": "measured" }
+            }
+          },
+          "then": {
+            "properties": {
+              "metrics": {
+                "type": "object",
+                "required": ["crates", "aggregation", "aggregate"],
+                "additionalProperties": false,
+                "properties": {
+                  "crates": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": ["manifest", "measured"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "manifest": { "type": "string" },
+                        "measured": { "type": "boolean" },
+                        "lines": { "$ref": "#/$defs/axis_totals" },
+                        "functions": { "$ref": "#/$defs/axis_totals" },
+                        "regions": { "$ref": "#/$defs/axis_totals" }
+                      }
+                    }
+                  },
+                  "aggregation": {
+                    "const": "count_weighted_sum_across_crates"
+                  },
+                  "aggregate": {
+                    "type": "object",
+                    "required": ["lines", "functions", "regions"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "lines": { "$ref": "#/$defs/axis_totals" },
+                      "functions": { "$ref": "#/$defs/axis_totals" },
+                      "regions": { "$ref": "#/$defs/axis_totals" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lane_id": { "const": "python_coverage" },
+              "status": { "const": "measured" }
+            }
+          },
+          "then": {
+            "properties": {
+              "metrics": {
+                "type": "object",
+                "required": ["statements"],
+                "additionalProperties": false,
+                "properties": {
+                  "statements": { "$ref": "#/$defs/axis_totals" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lane_id": { "const": "desktop_vitest_coverage" },
+              "status": { "const": "measured" }
+            }
+          },
+          "then": {
+            "properties": {
+              "metrics": {
+                "type": "object",
+                "required": ["lines", "statements", "functions", "branches"],
+                "additionalProperties": false,
+                "properties": {
+                  "lines": { "$ref": "#/$defs/axis_totals" },
+                  "statements": { "$ref": "#/$defs/axis_totals" },
+                  "functions": { "$ref": "#/$defs/axis_totals" },
+                  "branches": { "$ref": "#/$defs/axis_totals" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
