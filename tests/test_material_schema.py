@@ -168,6 +168,17 @@ def main():
         "user_defined",
         "TBD",
     } <= enum_at(schema, "MaterialPropertyKind")
+
+    # DEC-068 item 1: temperature-indexed slots carry exact-selection solve
+    # semantics; interpolation remains an open decision (drafted as D-38).
+    temperature_ref = defs["MaterialPropertyValue"]["properties"]["temperature_ref"]
+    assert temperature_ref["$ref"] == "#/$defs/Reference"
+    assert "exact" in temperature_ref["description"]
+    assert "no interpolation" in temperature_ref["description"]
+    assert (
+        "temperature_interpolation_policy"
+        in defs["OpenDecision"]["properties"]["topic"]["enum"]
+    )
     assert {
         "density",
         "stress",

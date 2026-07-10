@@ -524,6 +524,42 @@ def test_equivalent_static_generation_rejects_defaulted_or_extra_fields():
     assert rejects(unknown_field)
 
 
+def test_modulus_basis_references_survive_transform_and_validate():
+    schema = load_json(MODEL_SCHEMA_PATH)
+    source = physical_model()
+    source["load_cases"][0]["modulus_basis_ref"] = "temperature-point.hot"
+
+    assert validate_instance(
+        schema_for_definition(schema, "LoadCase"), source["load_cases"][0]
+    )
+
+    combination = {
+        "id": "C-RANGE-1",
+        "name": "Invented expansion range",
+        "basis": "range_envelope",
+        "operand_refs": [ref("LoadCase", "LC-1")],
+        "mode": "max_abs",
+        "modulus_basis_records": [
+            {
+                "load_case_ref": ref("LoadCase", "LC-1"),
+                "modulus_basis_ref": "temperature-point.hot",
+            }
+        ],
+        "provenance": provenance("combination basis source"),
+    }
+    assert validate_instance(schema_for_definition(schema, "Combination"), combination)
+    source["combinations"] = [combination]
+
+    result = transform_physical_to_analytical(source)
+    analytical = result.analytical_model
+
+    assert not result.has_blocking_findings
+    assert analytical["load_cases"][0]["modulus_basis_ref"] == "temperature-point.hot"
+    assert analytical["combinations"][0]["modulus_basis_records"] == combination[
+        "modulus_basis_records"
+    ]
+
+
 def test_unresolved_load_quantity_dimension_blocks_transform_without_inference():
     source = physical_model()
     source["load_cases"][0]["loads"].append(

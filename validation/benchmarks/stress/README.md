@@ -51,5 +51,6 @@ the current fixture inventory.
 | Combined axial-bending-to-stress | `STRESS-TP-PHYS-009-COMBINED-AXIAL-BENDING-TO-STRESS` |
 | Canonical analytical resultant stress | `STRESS-TP-PHYS-015-CANONICAL-RESULTANT-STRESS-RECOVERY` |
 | Mill-tolerance effective-wall stress | `STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS` |
+| Modulus-basis stress range | `STRESS-TP-PMM-P3-MODULUSBASIS-RANGE-STRESS` |
 
 Hand-calculation notes are in `validation/hand_calcs/stress/`.

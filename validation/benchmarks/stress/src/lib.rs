@@ -12,9 +12,10 @@ use open_pipe_stress_straight_pipe::{
     UniformLoadSpan, UniformLocalLoad,
 };
 use open_pipe_stress_stress_recovery::{
-    recover_station_stress_sweep, recover_station_stresses, recover_stress_range, recover_stresses,
-    AnalysisStatus, ForceResultants, PressureBasis, StationStressRecoveryInput,
-    StationStressRecoveryResult, StressRangeResult, StressRecoveryInput, StressRecoveryResult,
+    recover_station_stress_sweep, recover_station_stresses, recover_stress_range,
+    recover_stress_range_with_modulus_basis, recover_stresses, AnalysisStatus, ForceResultants,
+    PressureBasis, StationStressRecoveryInput, StationStressRecoveryResult,
+    StressRangeModulusBasisRecord, StressRangeResult, StressRecoveryInput, StressRecoveryResult,
     StressSectionProperties,
 };
 
@@ -72,6 +73,7 @@ pub enum StressBenchmarkFamily {
     CombinedAxialBendingToStress,
     CanonicalAnalyticalResultantStress,
     MillToleranceEffectiveWallStress,
+    ModulusBasisStressRange,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -321,6 +323,7 @@ pub fn fixture_inventory() -> Vec<StressBenchmark> {
         tp_phys_009_combined_axial_bending_to_stress_fixture(),
         tp_phys_015_canonical_resultant_stress_fixture(),
         tp_pmm_p3_milltol_effective_wall_stress_fixture(),
+        tp_pmm_p3_modulusbasis_range_stress_fixture(),
     ]
 }
 
@@ -340,6 +343,7 @@ pub fn missing_required_families(fixtures: &[StressBenchmark]) -> Vec<StressBenc
         StressBenchmarkFamily::CombinedAxialBendingToStress,
         StressBenchmarkFamily::CanonicalAnalyticalResultantStress,
         StressBenchmarkFamily::MillToleranceEffectiveWallStress,
+        StressBenchmarkFamily::ModulusBasisStressRange,
     ];
 
     required
@@ -1608,6 +1612,104 @@ pub fn tp_pmm_p3_milltol_effective_wall_stress_fixture() -> StressBenchmark {
     }
 }
 
+// --- Per-load-case modulus basis stress range fixture
+// (TP-PMM-P3-MODULUSBASIS-001, DEC-068 item 1) ---
+
+const MODULUSBASIS_HOT_ELASTIC_MODULUS: f64 = 1.8e11;
+const MODULUSBASIS_HOT_EXPANSION_COEFFICIENT: f64 = 1.3e-5;
+const MODULUSBASIS_TEMPERATURE_CHANGE: f64 = 10.0;
+const MODULUSBASIS_METAL_AREA: f64 = 0.004;
+pub const MODULUSBASIS_HOT_BASIS_LABEL: &str = "temperature_point:hot";
+pub const MODULUSBASIS_COLD_BASIS_LABEL: &str = "material_base_values";
+
+/// Fixed-fixed uniform-temperature axial identity solved with the
+/// user-entered hot temperature-point values (exact selection).
+pub fn modulusbasis_hot_axial_force() -> f64 {
+    MODULUSBASIS_HOT_ELASTIC_MODULUS
+        * MODULUSBASIS_METAL_AREA
+        * MODULUSBASIS_HOT_EXPANSION_COEFFICIENT
+        * MODULUSBASIS_TEMPERATURE_CHANGE
+}
+
+fn modulusbasis_section() -> StressSectionProperties {
+    StressSectionProperties::new(
+        Some(MODULUSBASIS_METAL_AREA),
+        Some(1.0),
+        Some(1.0),
+        Some(1.0),
+        Some(1.0),
+    )
+}
+
+pub fn modulusbasis_hot_state_input() -> StressRecoveryInput {
+    StressRecoveryInput {
+        resultants: ForceResultants::new(
+            Some(modulusbasis_hot_axial_force()),
+            Some(0.0),
+            Some(0.0),
+            Some(0.0),
+        ),
+        section: modulusbasis_section(),
+        pressure: None,
+        statuses: vec![AnalysisStatus::MechanicsSolved],
+    }
+}
+
+pub fn modulusbasis_cold_state_input() -> StressRecoveryInput {
+    StressRecoveryInput {
+        resultants: ForceResultants::new(Some(0.0), Some(0.0), Some(0.0), Some(0.0)),
+        section: modulusbasis_section(),
+        pressure: None,
+        statuses: vec![AnalysisStatus::MechanicsSolved],
+    }
+}
+
+pub fn recover_modulusbasis_range_fixture() -> StressRangeResult {
+    recover_stress_range_with_modulus_basis(
+        &modulusbasis_hot_state_input(),
+        &modulusbasis_cold_state_input(),
+        StressRangeModulusBasisRecord::new(
+            MODULUSBASIS_HOT_BASIS_LABEL,
+            MODULUSBASIS_COLD_BASIS_LABEL,
+        )
+        .expect("fixture basis labels are explicit"),
+    )
+}
+
+pub fn tp_pmm_p3_modulusbasis_range_stress_fixture() -> StressBenchmark {
+    let hot_axial_stress = modulusbasis_hot_axial_force() / MODULUSBASIS_METAL_AREA;
+    StressBenchmark {
+        fixture_id: "STRESS-TP-PMM-P3-MODULUSBASIS-RANGE-STRESS",
+        family: StressBenchmarkFamily::ModulusBasisStressRange,
+        description: "Hot-solve/cold-eval stress range where the hot state solves with user-entered temperature-point E and alpha and the range records both modulus bases explicitly.",
+        assumptions: &[
+            "All temperature-dependent property values are user-entered; no catalog, curve, or default is encoded.",
+            "Modulus basis selection is exact; no interpolation between stored temperature points is performed (interpolation policy is drafted as D-38, not ruled).",
+            "The range basis record is a verbatim declaration of the solved bases, not a selector.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/stress/tp_pmm_p3_modulusbasis_range_stress.md",
+        ),
+        unit_basis: STRESS_FIXTURE_UNIT_BASIS,
+        expected_values: vec![
+            ExpectedValue {
+                name: "hot_axial_normal",
+                value: hot_axial_stress,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "axial_normal_range",
+                value: hot_axial_stress,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
 #[cfg(test)]
 fn assert_close(actual: f64, expected: f64) {
     assert!(
@@ -1625,7 +1727,7 @@ mod tests {
     fn inventory_covers_required_stress_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 14);
+        assert_eq!(fixtures.len(), 15);
         assert!(fixtures.iter().any(|fixture| {
             fixture.fixture_id == "STRESS-TP-PHYS-007-STATION-SWEEP-STRESS"
                 && fixture.family == StressBenchmarkFamily::StationSweepStress
@@ -1694,6 +1796,43 @@ mod tests {
                 fixture.provenance.source_location
             );
         }
+    }
+
+    #[test]
+    fn recovers_modulusbasis_range_fixture_with_recorded_bases() {
+        let fixture = tp_pmm_p3_modulusbasis_range_stress_fixture();
+        let expected = |name: &str| {
+            fixture
+                .expected_values
+                .iter()
+                .find(|value| value.name == name)
+                .unwrap_or_else(|| panic!("missing expected value {name}"))
+                .value
+        };
+
+        let hot = recover_stresses(&modulusbasis_hot_state_input());
+        assert!(!hot.is_blocked());
+        assert_close(
+            hot.components.axial_normal.unwrap(),
+            expected("hot_axial_normal"),
+        );
+
+        let range = recover_modulusbasis_range_fixture();
+        assert!(!range.is_blocked());
+        assert_close(
+            range.ranges.axial_normal_range.unwrap(),
+            expected("axial_normal_range"),
+        );
+        let record = range.modulus_basis.as_ref().expect("recorded basis");
+        assert_eq!(record.first_state_basis_ref, MODULUSBASIS_HOT_BASIS_LABEL);
+        assert_eq!(record.second_state_basis_ref, MODULUSBASIS_COLD_BASIS_LABEL);
+
+        let unrecorded = recover_stress_range(
+            &modulusbasis_hot_state_input(),
+            &modulusbasis_cold_state_input(),
+        );
+        assert!(unrecorded.modulus_basis.is_none());
+        assert_eq!(unrecorded.ranges, range.ranges);
     }
 
     #[test]

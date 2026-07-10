@@ -413,6 +413,16 @@ def check_schema_contract():
     assert defs["ElementUniformDistributedForceLoadRecord"]["properties"][
         "load_record_type"
     ]["const"] == "element_uniform_distributed_force"
+    # DEC-068 item 1: per-load-case modulus basis with exact selection.
+    assert "modulus_basis_ref" in defs["LoadCase"]["properties"]
+    modulus_basis_ref = defs["LoadCase"]["properties"]["modulus_basis_ref"]
+    assert "exact" in modulus_basis_ref["description"]
+    assert "no interpolation" in modulus_basis_ref["description"]
+    assert "modulus_basis_records" in defs["Combination"]["properties"]
+    modulus_record = defs["ModulusBasisRecord"]
+    assert modulus_record["additionalProperties"] is False
+    assert {"load_case_ref", "modulus_basis_ref"} <= set(modulus_record["required"])
+
     # DEC-068 item 2: static-equivalent occasional-load generation inputs.
     assert "equivalent_static_generation" in defs["LoadCase"]["properties"]
     equivalent_static = defs["EquivalentStaticGeneration"]

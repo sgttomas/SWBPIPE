@@ -255,8 +255,34 @@
             "TBD"
           ]
         },
+        "modulus_basis_records": {
+          "description": "Explicit record of the modulus basis each range term solved with. Expansion-range combinations (result-state subtraction and range envelopes) record, per operand load case, the user-entered temperature-point basis id or the reserved label material_base_values. Records are declarations of the solved basis, not selectors; no interpolation is implied.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ModulusBasisRecord"
+          }
+        },
         "provenance": {
           "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ModulusBasisRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_ref",
+        "modulus_basis_ref"
+      ],
+      "properties": {
+        "load_case_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "modulus_basis_ref": {
+          "description": "User-assigned temperature-point basis id, or the reserved label material_base_values when the operand solved on the material base values.",
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -527,6 +553,10 @@
         },
         "equivalent_static_generation": {
           "$ref": "#/$defs/EquivalentStaticGeneration"
+        },
+        "modulus_basis_ref": {
+          "description": "Optional modulus basis: the user-assigned temperature-case id whose user-entered temperature-dependent material property values (elastic modulus and, when stored on the same point, thermal expansion coefficient) this load case solves with. Selection is exact - a reference matching no stored temperature-indexed value is a blocking diagnostic and no interpolation between stored points is performed.",
+          "$ref": "#/$defs/Id"
         },
         "provenance": {
           "$ref": "#/$defs/Provenance"

@@ -397,6 +397,12 @@ pub struct PreviewLoadCase {
     /// computed mass distribution; missing inputs are blocking.
     #[serde(default)]
     pub equivalent_static: Option<EquivalentStaticGenerationInput>,
+    /// Optional modulus basis (DEC-068 item 1): names the user-entered
+    /// material temperature-point id whose E (and alpha, when supplied on
+    /// the point) this load case solves with. Exact selection only; a
+    /// reference matching no stored point is blocking.
+    #[serde(default)]
+    pub modulus_basis_ref: Option<String>,
     #[serde(default)]
     pub provenance: Option<String>,
 }
@@ -496,6 +502,26 @@ pub struct MaterialInput {
     pub id: String,
     pub elastic_modulus: Quantity,
     pub shear_modulus: Quantity,
+    #[serde(default)]
+    pub thermal_expansion_coefficient: Option<Quantity>,
+    /// User-entered temperature-indexed property points (DEC-068 item 1).
+    /// A load case may name one point id as its modulus basis; selection is
+    /// exact — no interpolation between points is performed (open
+    /// interpolation policy is drafted as D-38, not ruled).
+    #[serde(default)]
+    pub temperature_points: Vec<MaterialTemperaturePointInput>,
+    #[serde(default)]
+    pub provenance: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct MaterialTemperaturePointInput {
+    /// Stable user-assigned basis id (e.g. a temperature-case label).
+    pub id: String,
+    #[serde(default)]
+    pub temperature: Option<Quantity>,
+    #[serde(default)]
+    pub elastic_modulus: Option<Quantity>,
     #[serde(default)]
     pub thermal_expansion_coefficient: Option<Quantity>,
     #[serde(default)]
@@ -833,13 +859,74 @@ pub fn run_linear_static_preview_with_mode(
             spring.stiffness.value;
     }
 
+    // DEC-068 item 1: a load case may name a user-entered material
+    // temperature-point id as its modulus basis. Each distinct basis gets
+    // its own built model and assembled stiffness from the basis-resolved
+    // E; selection is exact (no interpolation; unresolved refs block).
+    let mut basis_solve_states: Vec<(
+        Option<String>,
+        Vec<MaterialInput>,
+        BuiltModel,
+        Vec<Vec<f64>>,
+    )> = vec![(None, materials.clone(), built, stiffness)];
     let mut load_case_solves = Vec::new();
     for load_case in &model.load_cases {
+        let basis_key = load_case.modulus_basis_ref.clone();
+        let state_index = match basis_solve_states
+            .iter()
+            .position(|(key, _, _, _)| *key == basis_key)
+        {
+            Some(index) => index,
+            None => {
+                let basis_ref = basis_key
+                    .as_deref()
+                    .expect("state index 0 owns the None basis key");
+                let Some(basis_materials) = materials_for_modulus_basis(
+                    &model,
+                    &materials,
+                    basis_ref,
+                    &load_case.id,
+                    &mut diagnostics,
+                ) else {
+                    return blocked_envelope(model, diagnostics);
+                };
+                let basis_built = build_model(&model, &basis_materials, &mut diagnostics);
+                if has_blocking(&diagnostics) {
+                    return blocked_envelope(model, diagnostics);
+                }
+                let basis_built = basis_built
+                    .expect("build_model returns Some when no blocking diagnostics were added");
+                let mut basis_stiffness = match assemble_global_stiffness_with_user_elements(
+                    basis_built.nodes.len(),
+                    &basis_built.frame_elements,
+                    &basis_built.user_stiffness_elements,
+                ) {
+                    Ok(stiffness) => stiffness,
+                    Err(error) => return solver_blocked(model, diagnostics, error),
+                };
+                add_curved_bend_stiffness_contributions(
+                    &mut basis_stiffness,
+                    &basis_built.curved_bend_elements,
+                );
+                for spring in &boundary.springs {
+                    basis_stiffness[spring.node_dof.global_index()]
+                        [spring.node_dof.global_index()] += spring.stiffness.value;
+                }
+                basis_solve_states.push((
+                    basis_key.clone(),
+                    basis_materials,
+                    basis_built,
+                    basis_stiffness,
+                ));
+                basis_solve_states.len() - 1
+            }
+        };
+        let (_, basis_materials, basis_built, basis_stiffness) = &basis_solve_states[state_index];
         match solve_load_case(
             &model,
-            &built,
-            &materials,
-            &stiffness,
+            basis_built,
+            basis_materials,
+            basis_stiffness,
             &boundary.restrained_dofs,
             &boundary.springs,
             load_case,
@@ -853,6 +940,7 @@ pub fn run_linear_static_preview_with_mode(
             return blocked_envelope(model, diagnostics);
         }
     }
+    let built = &basis_solve_states[0].2;
 
     let max_displacement = load_case_solves
         .first()
@@ -890,6 +978,7 @@ pub fn run_linear_static_preview_with_mode(
         }
     }
     append_combination_results(&model, &rows_by_base_id, &mut results, &mut diagnostics);
+    append_combination_modulus_basis_records(&model, &mut results);
     let component_user_stiffness_macro_element_count =
         append_expansion_joint_user_stiffness_results(&model, &mut results)
             + append_curved_bend_macro_element_results(&built.curved_bend_elements, &mut results);
@@ -1039,6 +1128,7 @@ fn solve_load_case(
 
     let mut results = Vec::new();
     append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, &linear_solve);
+    append_modulus_basis_record(&mut results, load_case);
     if solver_mode == PreviewSolverMode::DenseScrutiny {
         append_sparse_live_path_evidence(
             &mut results,
@@ -3521,6 +3611,48 @@ fn normalize_model_units(
                 diagnostics,
             );
         }
+        for point in &mut material.temperature_points {
+            let point_id = point.id.clone();
+            if let Some(temperature) = &mut point.temperature {
+                normalize_quantity(
+                    temperature,
+                    Dimension::Temperature,
+                    &format!(
+                        "diagnostic:unit-conversion:material:{}:temperature-point:{}:temperature",
+                        stable_suffix(&material.id),
+                        stable_suffix(&point_id)
+                    ),
+                    vec![material.id.clone(), point_id.clone()],
+                    diagnostics,
+                );
+            }
+            if let Some(elastic_modulus) = &mut point.elastic_modulus {
+                normalize_quantity(
+                    elastic_modulus,
+                    Dimension::Stress,
+                    &format!(
+                        "diagnostic:unit-conversion:material:{}:temperature-point:{}:elastic-modulus",
+                        stable_suffix(&material.id),
+                        stable_suffix(&point_id)
+                    ),
+                    vec![material.id.clone(), point_id.clone()],
+                    diagnostics,
+                );
+            }
+            if let Some(coefficient) = &mut point.thermal_expansion_coefficient {
+                normalize_quantity(
+                    coefficient,
+                    Dimension::ThermalExpansionCoefficient,
+                    &format!(
+                        "diagnostic:unit-conversion:material:{}:temperature-point:{}:thermal-expansion",
+                        stable_suffix(&material.id),
+                        stable_suffix(&point_id)
+                    ),
+                    vec![material.id.clone(), point_id.clone()],
+                    diagnostics,
+                );
+            }
+        }
     }
 
     for pipe in &mut model.pipe_segments {
@@ -4771,6 +4903,215 @@ fn append_equivalent_static_generated_loads(
         }
         if findings.is_empty() {
             loads.extend(generated);
+        }
+    }
+}
+
+/// Resolve the material set a load case solves with under a named modulus
+/// basis (DEC-068 item 1). Selection is exact: for every material used by
+/// a pipe segment, the named user-entered temperature point must exist and
+/// carry an elastic modulus; no interpolation between points is performed
+/// (interpolation policy is drafted as D-38, not ruled). The point's
+/// thermal expansion coefficient, when supplied, replaces the base value
+/// for this load case; when the point does not supply one, no base-value
+/// substitute is used (mixing bases silently is not lawful).
+fn materials_for_modulus_basis(
+    model: &PreviewModel,
+    materials: &[MaterialInput],
+    basis_ref: &str,
+    load_case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<Vec<MaterialInput>> {
+    let used_material_ids = model
+        .pipe_segments
+        .iter()
+        .map(|pipe| pipe.material.as_str())
+        .collect::<HashSet<_>>();
+    let mut resolved = Vec::with_capacity(materials.len());
+    let mut blocked = false;
+    for material in materials {
+        if !used_material_ids.contains(material.id.as_str()) {
+            resolved.push(material.clone());
+            continue;
+        }
+        let Some(point) = material
+            .temperature_points
+            .iter()
+            .find(|point| point.id == basis_ref)
+        else {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:modulus-basis:{}:{}:unresolved",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&material.id)
+                ),
+                "MODULUS_BASIS_UNRESOLVED",
+                "blocking",
+                format!(
+                    "load case names modulus basis {basis_ref}, but material {} stores no user-entered temperature point with that id; selection is exact and no interpolation between stored points is performed",
+                    material.id
+                ),
+                vec![
+                    load_case_id.to_string(),
+                    material.id.clone(),
+                    basis_ref.to_string(),
+                ],
+            ));
+            blocked = true;
+            continue;
+        };
+        let Some(elastic_modulus) = point.elastic_modulus.clone() else {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:modulus-basis:{}:{}:elastic-modulus",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&material.id)
+                ),
+                "MODULUS_BASIS_INPUT_MISSING",
+                "blocking",
+                format!(
+                    "modulus basis {basis_ref} on material {} carries no user-entered elastic modulus; the load case cannot solve on this basis and no value is defaulted",
+                    material.id
+                ),
+                vec![
+                    load_case_id.to_string(),
+                    material.id.clone(),
+                    basis_ref.to_string(),
+                ],
+            ));
+            blocked = true;
+            continue;
+        };
+        if !elastic_modulus.value.is_finite() || elastic_modulus.value <= 0.0 {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:modulus-basis:{}:{}:elastic-modulus-invalid",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&material.id)
+                ),
+                "MODULUS_BASIS_INPUT_INVALID",
+                "blocking",
+                format!(
+                    "modulus basis {basis_ref} elastic modulus on material {} must be a finite positive user-entered value",
+                    material.id
+                ),
+                vec![
+                    load_case_id.to_string(),
+                    material.id.clone(),
+                    basis_ref.to_string(),
+                ],
+            ));
+            blocked = true;
+            continue;
+        }
+        resolved.push(MaterialInput {
+            id: material.id.clone(),
+            elastic_modulus,
+            // The shear modulus stays the user-entered base value; a
+            // temperature-indexed shear modulus slot is a recorded residual
+            // outside the DEC-068 item 1 (E, alpha) grant.
+            shear_modulus: material.shear_modulus.clone(),
+            thermal_expansion_coefficient: point.thermal_expansion_coefficient.clone(),
+            temperature_points: material.temperature_points.clone(),
+            provenance: material.provenance.clone(),
+        });
+    }
+    if blocked {
+        None
+    } else {
+        Some(resolved)
+    }
+}
+
+/// Emit the explicit modulus-basis record row for a load case that names
+/// one (DEC-068 item 1 evidence shape).
+fn append_modulus_basis_record(results: &mut Vec<ResultItem>, load_case: &PreviewLoadCase) {
+    let Some(basis_ref) = &load_case.modulus_basis_ref else {
+        return;
+    };
+    results.push(ResultItem {
+        id: format!(
+            "result:modulus-basis:{}",
+            stable_suffix(&load_case.id)
+        ),
+        kind: "modulus_basis_record".to_string(),
+        value: 1.0,
+        unit: "record".to_string(),
+        entity_ref: load_case.id.clone(),
+        basis_ref: None,
+        source_result_refs: Vec::new(),
+        metadata: Some(ResultMetadata {
+            component: "material_modulus_basis".to_string(),
+            coordinate_system: "not_applicable".to_string(),
+            location: load_case.id.clone(),
+            basis: format!(
+                "temperature_point:{basis_ref}; selection=exact_user_entered_point; interpolation=not_performed"
+            ),
+            sign_convention: "presence record; value 1.0 means the load case solved with the named user-entered temperature-point basis".to_string(),
+        }),
+    });
+}
+
+/// Record the modulus basis of every operand of expansion-range
+/// combinations (result-state subtraction and range envelopes) explicitly
+/// (DEC-068 item 1).
+fn append_combination_modulus_basis_records(model: &PreviewModel, results: &mut Vec<ResultItem>) {
+    let basis_by_case = model
+        .load_cases
+        .iter()
+        .map(|case| (case.id.as_str(), case.modulus_basis_ref.as_deref()))
+        .collect::<HashMap<_, _>>();
+    for combination in &model.combinations {
+        let operand_ids: Vec<&str> = match combination.basis.as_str() {
+            "result_state_subtraction" => combination
+                .minuend_id
+                .iter()
+                .chain(combination.subtrahend_id.iter())
+                .map(|id| id.as_str())
+                .collect(),
+            "range_envelope" => combination
+                .operand_ids
+                .iter()
+                .flatten()
+                .map(|id| id.as_str())
+                .collect(),
+            _ => continue,
+        };
+        for operand_id in operand_ids {
+            let Some(basis) = basis_by_case.get(operand_id) else {
+                continue;
+            };
+            let basis_label = match basis {
+                Some(basis_ref) => format!(
+                    "temperature_point:{basis_ref}; selection=exact_user_entered_point; interpolation=not_performed"
+                ),
+                None => "material_base_values".to_string(),
+            };
+            results.push(ResultItem {
+                id: format!(
+                    "result:combination:{}:modulus-basis:{}",
+                    stable_suffix(&combination.id),
+                    stable_suffix(operand_id)
+                ),
+                kind: "combination_modulus_basis_record".to_string(),
+                value: 1.0,
+                unit: "record".to_string(),
+                entity_ref: operand_id.to_string(),
+                basis_ref: Some(ResultBasisRef {
+                    ref_type: "combination".to_string(),
+                    ref_id: combination.id.clone(),
+                }),
+                source_result_refs: Vec::new(),
+                metadata: Some(ResultMetadata {
+                    component: "material_modulus_basis".to_string(),
+                    coordinate_system: "not_applicable".to_string(),
+                    location: combination.id.clone(),
+                    basis: basis_label,
+                    sign_convention:
+                        "presence record; each range operand's solve basis is recorded explicitly"
+                            .to_string(),
+                }),
+            });
         }
     }
 }
@@ -6970,6 +7311,8 @@ fn is_combination_excluded_result_kind(kind: &str) -> bool {
             | "nonlinear_support_free_dof_work_residual"
             | "linear_solver_mode_basis"
             | "sparse_live_path_dense_parity_relative_delta"
+            | "modulus_basis_record"
+            | "combination_modulus_basis_record"
     )
 }
 
@@ -7462,6 +7805,7 @@ mod tests {
                 value: 0.000012,
                 unit: "1/degC".to_string(),
             }),
+            temperature_points: Vec::new(),
             provenance: Some("invented_example_no_material_standard".to_string()),
         }]
     }
@@ -10055,6 +10399,174 @@ mod tests {
             .iter()
             .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_MISSING"
                 && item.message.contains("insulation")));
+    }
+
+    fn hot_basis_material() -> MaterialInput {
+        let mut material = invented_materials().remove(0);
+        material.temperature_points = vec![MaterialTemperaturePointInput {
+            id: "temperature-point:hot".to_string(),
+            temperature: Some(Quantity {
+                value: 533.15,
+                unit: "K".to_string(),
+            }),
+            elastic_modulus: Some(Quantity {
+                value: 180_000_000_000.0,
+                unit: "Pa".to_string(),
+            }),
+            thermal_expansion_coefficient: Some(Quantity {
+                value: 0.000013,
+                unit: "1/K".to_string(),
+            }),
+            provenance: Some("invented_example_user_input".to_string()),
+        }];
+        material
+    }
+
+    #[test]
+    fn load_case_modulus_basis_selects_exact_user_entered_hot_point() {
+        let mut request = fixed_fixed_thermal_request("global_z");
+        request.materials = vec![hot_basis_material()];
+        request.model.load_cases[0].modulus_basis_ref = Some("temperature-point:hot".to_string());
+        let area = derive_pipe_section(
+            &request.model.pipe_segments[0].section,
+            "pipe:P-100",
+            &mut Vec::new(),
+        )
+        .unwrap()
+        .area;
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let expected_force = 180_000_000_000.0 * area * 0.000013 * 10.0;
+        let axial = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:force:pipe-P-100:axial")
+            .unwrap();
+        assert!((axial.value - round6(expected_force)).abs() < 1.0e-6);
+
+        let record = result
+            .results
+            .iter()
+            .find(|item| item.kind == "modulus_basis_record")
+            .expect("modulus basis record row");
+        assert_eq!(record.entity_ref, "load:L-100");
+        let metadata = record.metadata.as_ref().unwrap();
+        assert!(metadata
+            .basis
+            .contains("temperature_point:temperature-point:hot"));
+        assert!(metadata.basis.contains("interpolation=not_performed"));
+    }
+
+    #[test]
+    fn base_material_values_are_used_when_no_modulus_basis_is_named() {
+        let mut request = fixed_fixed_thermal_request("global_z");
+        request.materials = vec![hot_basis_material()];
+        let area = derive_pipe_section(
+            &request.model.pipe_segments[0].section,
+            "pipe:P-100",
+            &mut Vec::new(),
+        )
+        .unwrap()
+        .area;
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let expected_force = 200_000_000_000.0 * area * 0.000012 * 10.0;
+        let axial = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:force:pipe-P-100:axial")
+            .unwrap();
+        assert!((axial.value - round6(expected_force)).abs() < 1.0e-6);
+        assert!(!result
+            .results
+            .iter()
+            .any(|item| item.kind == "modulus_basis_record"));
+    }
+
+    #[test]
+    fn unresolved_modulus_basis_is_blocking_without_interpolation() {
+        let mut request = fixed_fixed_thermal_request("global_z");
+        request.materials = vec![hot_basis_material()];
+        request.model.load_cases[0].modulus_basis_ref =
+            Some("temperature-point:between".to_string());
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.diagnostics.iter().any(|item| {
+            item.code == "MODULUS_BASIS_UNRESOLVED"
+                && item.severity == "blocking"
+                && item.message.contains("no interpolation")
+        }));
+        assert!(result.results.is_empty());
+    }
+
+    #[test]
+    fn modulus_basis_point_without_elastic_modulus_is_blocking() {
+        let mut request = fixed_fixed_thermal_request("global_z");
+        let mut material = hot_basis_material();
+        material.temperature_points[0].elastic_modulus = None;
+        request.materials = vec![material];
+        request.model.load_cases[0].modulus_basis_ref = Some("temperature-point:hot".to_string());
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "MODULUS_BASIS_INPUT_MISSING" && item.severity == "blocking"));
+    }
+
+    #[test]
+    fn range_combination_records_each_operand_modulus_basis() {
+        let mut request = request();
+        request.materials = vec![hot_basis_material()];
+        request.model.load_cases[1].modulus_basis_ref = Some("temperature-point:hot".to_string());
+        request.model.combinations = vec![range_combination(
+            "combination:C-RANGE-BASIS",
+            &["load:L-100", "load:L-200"],
+            "max_abs",
+        )];
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let records = result
+            .results
+            .iter()
+            .filter(|item| item.kind == "combination_modulus_basis_record")
+            .collect::<Vec<_>>();
+        assert_eq!(records.len(), 2);
+        let base_record = records
+            .iter()
+            .find(|item| item.entity_ref == "load:L-100")
+            .unwrap();
+        assert_eq!(
+            base_record.metadata.as_ref().unwrap().basis,
+            "material_base_values"
+        );
+        let hot_record = records
+            .iter()
+            .find(|item| item.entity_ref == "load:L-200")
+            .unwrap();
+        assert!(hot_record
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis
+            .contains("temperature_point:temperature-point:hot"));
+        assert!(records.iter().all(|item| {
+            item.basis_ref
+                == Some(ResultBasisRef {
+                    ref_type: "combination".to_string(),
+                    ref_id: "combination:C-RANGE-BASIS".to_string(),
+                })
+        }));
     }
 
     #[test]
