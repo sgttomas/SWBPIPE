@@ -128,10 +128,23 @@ in-browser bundle is out of this tranche.
   across 34 crates; Python statements 87.0178% (14,820/17,031); desktop TS
   lines 84.3553% / statements 82.7811% / functions 90.4283% /
   branches 74.3885%.
-- Clean-head DEC-025 sweep summary: run at committed HEAD and committed
-  under `validation/evidence/sweeps/`; exact filename, bound commit, and
-  status recorded here by the sweep-evidence commit. (Filled in below once
-  emitted.)
+- DEC-025 sweep chain at the committed artifact HEAD
+  (`b1ff985c72eb7da8baefa16970920075c75b9cd9`):
+  - `validation/evidence/sweeps/SWEEP_20260710T232952Z_b1ff985c72eb.json` —
+    `overall_status=fail` at `desktop_playwright_e2e` only (cargo, pytest,
+    and vitest surfaces passed; production build `not_run`). Cause was
+    environmental, not this tranche: an orphaned `vite --port 5174` dev
+    server leaked from an already-deleted agent worktree was squatting the
+    Playwright `webServer` port and answering 404, so the config's 30s
+    readiness wait timed out. The orphan (its working directory no longer
+    existed) was terminated.
+  - `validation/evidence/sweeps/SWEEP_20260710T233408Z_b1ff985c72eb-dirty.json`
+    — immediate re-run, `overall_status=pass` on all five surfaces; recorded
+    `-dirty` only because the failed summary above was still untracked in
+    the working tree during the run.
+  - Final clean-head sweep at the committed HEAD that includes both
+    summaries above: recorded here by the sweep-evidence commit. (Filled in
+    once emitted.)
 
 ## Boundary Review
 
