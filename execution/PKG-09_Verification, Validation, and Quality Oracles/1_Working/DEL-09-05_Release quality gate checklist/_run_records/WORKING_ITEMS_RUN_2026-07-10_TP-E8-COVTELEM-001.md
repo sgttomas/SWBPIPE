@@ -143,8 +143,11 @@ in-browser bundle is out of this tranche.
     `-dirty` only because the failed summary above was still untracked in
     the working tree during the run.
   - Final clean-head sweep at the committed HEAD that includes both
-    summaries above: recorded here by the sweep-evidence commit. (Filled in
-    once emitted.)
+    summaries above:
+    `validation/evidence/sweeps/SWEEP_20260710T233804Z_1094b0deb266.json`,
+    bound to commit `1094b0deb266efad8fc3b1abb902f5d104562482` with
+    `working_tree_dirty=false`, `overall_status=pass` on all five surfaces.
+    The sweep plan, script, and semantics are unchanged by this tranche.
 
 ## Boundary Review
 
