@@ -149,3 +149,26 @@
     explicit-stiffness slot (blocking diagnostic in place), arc interior
     stations, consistent arc distributed loads, GUI emission of
     `bend_pipe_ref`.
+
+- **2026-07-10 — Receipt 6** (P2/P3/P4 execution, owner-steered subagent fan-out).
+  - Start: `main` at the PR #142 merge (`4ef14f686`); steer of record (launcher, Ryan
+    Tufts): "Fan out and fan in with subagents where warranted.  Use the subagent model
+    selection protocols in the LOOP instructions."
+  - Owner directions of record (2026-07-10, in-session, Ryan Tufts): "proceed with
+    merging both PRs" (PR #143, PR #144 — merged at `73b65246f` / `35abf5596`); "resume"
+    (P2 agent continuation after transient API terminations).
+  - Executed: P4 → PR #143 (TP-PMM-P4-ABSENTDOMAINS-001; DEC-069 naming mirrored onto
+    the v0.2 forward-authority surface, flagged for owner review, merged); P3 → PR #144
+    (TP-PMM-P3-MILLTOL/OCCLOADGEN/MODULUSBASIS-001, merged); P2 + P1 residual →
+    PR #145 (TP-PMM-P1-CURVEDBEND-003, TP-PMM-P2-COMPLEMENTARITY-001,
+    TP-PMM-P2-FRICTION-001) awaiting owner merge.
+  - New gate: register row `D-38` (temperature interpolation policy) AWAITING_RULING —
+    exact selection shipped as conservative floor.
+  - Checks: all suites pass per run records; self-check exit 0; harness pytest pass;
+    DEC-025 sweeps `SWEEP_20260710T201841Z_c6430cbd5c9b.json` and
+    `SWEEP_20260710T214950Z_37b327cf0687.json` (both clean).
+  - Gate outcome: executed within DEC-067/068/069/070 fences; no lifecycle transition;
+    parked owner gates D-12, D-07b (AWAITING_RULING), D-06b (NOT_PREPARED), D-38.
+    Named residuals: sliding prior-iterate direction / nonconvergence corner (run
+    records), arc interior stations, temperature-indexed shear modulus, sub-span wind
+    marking, GUI emission of new schema slots.
