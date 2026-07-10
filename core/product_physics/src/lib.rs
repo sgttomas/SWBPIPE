@@ -149,6 +149,10 @@ pub struct PreviewPipe {
 pub struct PipeSectionInput {
     pub outside_diameter: Quantity,
     pub wall_thickness: Quantity,
+    /// User-entered absolute mill-tolerance thickness reduction (length).
+    /// Absence means no reduction; absence is not a default value of zero.
+    #[serde(default)]
+    pub mill_tolerance: Option<Quantity>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -3477,6 +3481,18 @@ fn normalize_model_units(
             vec![pipe.id.clone(), "wall_thickness".to_string()],
             diagnostics,
         );
+        if let Some(mill_tolerance) = &mut pipe.section.mill_tolerance {
+            normalize_quantity(
+                mill_tolerance,
+                Dimension::Length,
+                &format!(
+                    "diagnostic:unit-conversion:pipe:{}:mill-tolerance",
+                    stable_suffix(&pipe.id)
+                ),
+                vec![pipe.id.clone(), "mill_tolerance".to_string()],
+                diagnostics,
+            );
+        }
     }
 
     for support in &mut model.supports {
@@ -4235,16 +4251,36 @@ fn derive_pipe_section(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Option<DerivedSection> {
     let od = input.outside_diameter.value;
-    let thickness = input.wall_thickness.value;
+    let nominal_thickness = input.wall_thickness.value;
     if !od.is_finite()
-        || !thickness.is_finite()
+        || !nominal_thickness.is_finite()
         || od <= 0.0
-        || thickness <= 0.0
-        || 2.0 * thickness >= od
+        || nominal_thickness <= 0.0
+        || 2.0 * nominal_thickness >= od
     {
         diagnostics.push(diag(&format!("diagnostic:section:{}", stable_suffix(pipe_id)), "PIPE_DIMENSION_INVALID", "blocking", "outside diameter and wall thickness must be explicit positive values with wall thickness less than radius", vec![pipe_id.to_string()]));
         return None;
     }
+    // Mill tolerance is an optional user-entered absolute thickness reduction
+    // consumed alongside the nominal wall (DEC-068 item 3). Absence means no
+    // reduction; a present-but-invalid slot is blocking (PRD section 6.2).
+    let thickness = match input.mill_tolerance.as_ref().map(|q| q.value) {
+        None => nominal_thickness,
+        Some(mill_tolerance) => {
+            let effective = nominal_thickness - mill_tolerance;
+            if !mill_tolerance.is_finite() || mill_tolerance < 0.0 || effective <= 0.0 {
+                diagnostics.push(diag(
+                    &format!("diagnostic:section:{}:mill-tolerance", stable_suffix(pipe_id)),
+                    "PIPE_DIMENSION_INVALID",
+                    "blocking",
+                    "mill tolerance must be a finite non-negative thickness that leaves a positive effective wall",
+                    vec![pipe_id.to_string(), "mill_tolerance".to_string()],
+                ));
+                return None;
+            }
+            effective
+        }
+    };
     let id = od - 2.0 * thickness;
     let area = PI * (od.powi(2) - id.powi(2)) / 4.0;
     let internal_area = PI * id.powi(2) / 4.0;
@@ -9047,6 +9083,120 @@ mod tests {
         assert!((axial_i.value - round6(expected_force)).abs() < 1.0e-6);
         assert!((axial_j.value + round6(expected_force)).abs() < 1.0e-6);
         assert!((stress_i.value - round6(expected_force / area / 1_000_000.0)).abs() < 1.0e-6);
+    }
+
+    fn mill_tolerance_section(mill_tolerance: Option<f64>) -> PipeSectionInput {
+        PipeSectionInput {
+            outside_diameter: Quantity {
+                value: 0.2,
+                unit: "m".to_string(),
+            },
+            wall_thickness: Quantity {
+                value: 0.01,
+                unit: "m".to_string(),
+            },
+            mill_tolerance: mill_tolerance.map(|value| Quantity {
+                value,
+                unit: "m".to_string(),
+            }),
+        }
+    }
+
+    #[test]
+    fn mill_tolerance_reduces_derived_effective_wall_and_section_modulus() {
+        let mut diagnostics = Vec::new();
+        let nominal = derive_pipe_section(
+            &mill_tolerance_section(None),
+            "pipe:P-MILL",
+            &mut diagnostics,
+        )
+        .unwrap();
+        let reduced = derive_pipe_section(
+            &mill_tolerance_section(Some(0.00125)),
+            "pipe:P-MILL",
+            &mut diagnostics,
+        )
+        .unwrap();
+        assert!(diagnostics.is_empty());
+
+        let od: f64 = 0.2;
+        let effective_wall = 0.01 - 0.00125;
+        let id = od - 2.0 * effective_wall;
+        let expected_modulus = PI * (od.powi(4) - id.powi(4)) / 64.0 / (od / 2.0);
+        assert!((reduced.wall_thickness - effective_wall).abs() < 1.0e-12);
+        assert!((reduced.section_modulus - expected_modulus).abs() < 1.0e-12);
+        assert!(reduced.section_modulus < nominal.section_modulus);
+        assert!(reduced.area < nominal.area);
+        assert!(reduced.internal_area > nominal.internal_area);
+    }
+
+    #[test]
+    fn absent_mill_tolerance_slot_means_no_reduction() {
+        let mut diagnostics = Vec::new();
+        let absent = derive_pipe_section(
+            &mill_tolerance_section(None),
+            "pipe:P-MILL",
+            &mut diagnostics,
+        )
+        .unwrap();
+        let zero = derive_pipe_section(
+            &mill_tolerance_section(Some(0.0)),
+            "pipe:P-MILL",
+            &mut diagnostics,
+        )
+        .unwrap();
+        assert!(diagnostics.is_empty());
+        assert_eq!(absent.wall_thickness, zero.wall_thickness);
+        assert_eq!(absent.section_modulus, zero.section_modulus);
+    }
+
+    #[test]
+    fn present_but_invalid_mill_tolerance_is_blocking() {
+        for invalid in [-0.001, 0.01, f64::NAN] {
+            let mut diagnostics = Vec::new();
+            let derived = derive_pipe_section(
+                &mill_tolerance_section(Some(invalid)),
+                "pipe:P-MILL",
+                &mut diagnostics,
+            );
+            assert!(derived.is_none());
+            assert!(diagnostics.iter().any(|item| {
+                item.code == "PIPE_DIMENSION_INVALID"
+                    && item.severity == "blocking"
+                    && item.affected_refs.contains(&"mill_tolerance".to_string())
+            }));
+        }
+    }
+
+    #[test]
+    fn mill_tolerance_units_are_normalized_at_preview_boundary() {
+        let mut base = request();
+        for pipe in &mut base.model.pipe_segments {
+            pipe.section.mill_tolerance = Some(Quantity {
+                value: 0.00125,
+                unit: "m".to_string(),
+            });
+        }
+        let mut millimeters = request();
+        for pipe in &mut millimeters.model.pipe_segments {
+            pipe.section.mill_tolerance = Some(Quantity {
+                value: 1.25,
+                unit: "mm".to_string(),
+            });
+        }
+
+        let base_result = run_linear_static_preview(base);
+        let millimeter_result = run_linear_static_preview(millimeters);
+        assert_eq!(base_result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(millimeter_result.status.mechanics, "MECHANICS_SOLVED");
+        for (left, right) in base_result
+            .results
+            .iter()
+            .zip(millimeter_result.results.iter())
+        {
+            assert_eq!(left.id, right.id);
+            assert_eq!(left.value, right.value);
+        }
     }
 
     #[test]

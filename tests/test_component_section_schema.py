@@ -141,6 +141,7 @@ def main():
         "outside_diameter",
         "wall_thickness",
         "corrosion_allowance",
+        "mill_tolerance",
         "nominal_size_label",
         "user_defined",
         "TBD",

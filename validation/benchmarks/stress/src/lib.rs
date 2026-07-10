@@ -71,6 +71,7 @@ pub enum StressBenchmarkFamily {
     ThermalAxialEffectToStress,
     CombinedAxialBendingToStress,
     CanonicalAnalyticalResultantStress,
+    MillToleranceEffectiveWallStress,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -319,6 +320,7 @@ pub fn fixture_inventory() -> Vec<StressBenchmark> {
         tp_phys_008_thermal_axial_effect_to_stress_fixture(),
         tp_phys_009_combined_axial_bending_to_stress_fixture(),
         tp_phys_015_canonical_resultant_stress_fixture(),
+        tp_pmm_p3_milltol_effective_wall_stress_fixture(),
     ]
 }
 
@@ -337,6 +339,7 @@ pub fn missing_required_families(fixtures: &[StressBenchmark]) -> Vec<StressBenc
         StressBenchmarkFamily::ThermalAxialEffectToStress,
         StressBenchmarkFamily::CombinedAxialBendingToStress,
         StressBenchmarkFamily::CanonicalAnalyticalResultantStress,
+        StressBenchmarkFamily::MillToleranceEffectiveWallStress,
     ];
 
     required
@@ -1466,6 +1469,145 @@ pub fn recover_asymmetric_pressure_range_fixture() -> StressRangeResult {
     recover_stress_range(&first, &second)
 }
 
+// --- Mill-tolerance effective-wall stress fixture (TP-PMM-P3-MILLTOL-001) ---
+
+const MILLTOL_OUTSIDE_DIAMETER: f64 = 0.2;
+const MILLTOL_NOMINAL_WALL: f64 = 0.01;
+const MILLTOL_CORROSION_ALLOWANCE: f64 = 0.002;
+const MILLTOL_MILL_TOLERANCE: f64 = 0.00125;
+const MILLTOL_AXIAL_FORCE: f64 = 5000.0;
+const MILLTOL_BENDING_MOMENT_Y: f64 = 1000.0;
+const MILLTOL_BENDING_MOMENT_Z: f64 = -400.0;
+const MILLTOL_TORSIONAL_MOMENT: f64 = 250.0;
+const MILLTOL_PRESSURE: f64 = 2000.0;
+
+/// Effective wall per the mill-tolerance slot semantics: nominal wall minus
+/// corrosion allowance minus the user-entered absolute mill tolerance.
+pub fn milltol_effective_wall() -> f64 {
+    MILLTOL_NOMINAL_WALL - MILLTOL_CORROSION_ALLOWANCE - MILLTOL_MILL_TOLERANCE
+}
+
+fn milltol_section_from_wall(effective_wall: f64) -> StressSectionProperties {
+    let od = MILLTOL_OUTSIDE_DIAMETER;
+    let id = od - 2.0 * effective_wall;
+    let area = core::f64::consts::PI / 4.0 * (od.powi(2) - id.powi(2));
+    let second_moment = core::f64::consts::PI / 64.0 * (od.powi(4) - id.powi(4));
+    let section_modulus = second_moment / (od / 2.0);
+    let torsion_constant = 2.0 * second_moment;
+    StressSectionProperties::new(
+        Some(area),
+        Some(section_modulus),
+        Some(section_modulus),
+        Some(torsion_constant),
+        Some(od / 2.0),
+    )
+}
+
+pub fn milltol_effective_wall_section() -> StressSectionProperties {
+    milltol_section_from_wall(milltol_effective_wall())
+}
+
+pub fn milltol_corrosion_only_section() -> StressSectionProperties {
+    milltol_section_from_wall(MILLTOL_NOMINAL_WALL - MILLTOL_CORROSION_ALLOWANCE)
+}
+
+pub fn milltol_stress_input() -> StressRecoveryInput {
+    StressRecoveryInput {
+        resultants: ForceResultants::new(
+            Some(MILLTOL_AXIAL_FORCE),
+            Some(MILLTOL_BENDING_MOMENT_Y),
+            Some(MILLTOL_BENDING_MOMENT_Z),
+            Some(MILLTOL_TORSIONAL_MOMENT),
+        ),
+        section: milltol_effective_wall_section(),
+        pressure: Some(PressureBasis::new(
+            Some(MILLTOL_PRESSURE),
+            Some((MILLTOL_OUTSIDE_DIAMETER - milltol_effective_wall()) / 2.0),
+            Some(milltol_effective_wall()),
+        )),
+        statuses: vec![AnalysisStatus::MechanicsSolved],
+    }
+}
+
+pub fn recover_milltol_fixture() -> StressRecoveryResult {
+    recover_stresses(&milltol_stress_input())
+}
+
+pub fn tp_pmm_p3_milltol_effective_wall_stress_fixture() -> StressBenchmark {
+    let section = milltol_effective_wall_section();
+    let area = section.area.expect("fixture area is explicit");
+    let section_modulus = section
+        .section_modulus_y
+        .expect("fixture section modulus is explicit");
+    let torsion_constant = section
+        .torsion_constant
+        .expect("fixture torsion constant is explicit");
+    let torsion_radius = section
+        .torsion_radius
+        .expect("fixture torsion radius is explicit");
+    let membrane_radius = (MILLTOL_OUTSIDE_DIAMETER - milltol_effective_wall()) / 2.0;
+    let hoop = MILLTOL_PRESSURE * membrane_radius / milltol_effective_wall();
+    StressBenchmark {
+        fixture_id: "STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS",
+        family: StressBenchmarkFamily::MillToleranceEffectiveWallStress,
+        description: "Invented resultants recovered over section properties derived from the user-entered mill-tolerance effective wall (nominal wall minus corrosion allowance minus mill tolerance).",
+        assumptions: &[
+            "Mill tolerance is a user-entered absolute thickness dimension; no fractional form, catalog value, or default is encoded.",
+            "Absence of the mill-tolerance slot means no reduction; absence is not a default value of zero.",
+            "Effective wall feeds area, section modulus, torsion constant, and the pressure membrane basis identically to the section-property calculator closed forms.",
+            "The fixture does not encode a code stress category, stress index, or acceptance criterion.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/stress/tp_pmm_p3_milltol_effective_wall_stress.md",
+        ),
+        unit_basis: STRESS_FIXTURE_UNIT_BASIS,
+        expected_values: vec![
+            ExpectedValue {
+                name: "axial_normal",
+                value: MILLTOL_AXIAL_FORCE / area,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "bending_normal_y",
+                value: MILLTOL_BENDING_MOMENT_Y / section_modulus,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "bending_normal_z",
+                value: MILLTOL_BENDING_MOMENT_Z / section_modulus,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "torsional_shear",
+                value: MILLTOL_TORSIONAL_MOMENT * torsion_radius / torsion_constant,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "pressure_hoop",
+                value: hoop,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "pressure_longitudinal",
+                value: hoop / 2.0,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
 #[cfg(test)]
 fn assert_close(actual: f64, expected: f64) {
     assert!(
@@ -1483,7 +1625,7 @@ mod tests {
     fn inventory_covers_required_stress_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 13);
+        assert_eq!(fixtures.len(), 14);
         assert!(fixtures.iter().any(|fixture| {
             fixture.fixture_id == "STRESS-TP-PHYS-007-STATION-SWEEP-STRESS"
                 && fixture.family == StressBenchmarkFamily::StationSweepStress
@@ -1552,6 +1694,49 @@ mod tests {
                 fixture.provenance.source_location
             );
         }
+    }
+
+    #[test]
+    fn recovers_milltol_effective_wall_fixture() {
+        let fixture = tp_pmm_p3_milltol_effective_wall_stress_fixture();
+        let result = recover_milltol_fixture();
+
+        assert!(!result.is_blocked());
+        let components = &result.components;
+        let expected = |name: &str| {
+            fixture
+                .expected_values
+                .iter()
+                .find(|value| value.name == name)
+                .unwrap_or_else(|| panic!("missing expected value {name}"))
+                .value
+        };
+        assert_close(components.axial_normal.unwrap(), expected("axial_normal"));
+        assert_close(
+            components.bending_normal_y.unwrap(),
+            expected("bending_normal_y"),
+        );
+        assert_close(
+            components.bending_normal_z.unwrap(),
+            expected("bending_normal_z"),
+        );
+        assert_close(
+            components.torsional_shear.unwrap(),
+            expected("torsional_shear"),
+        );
+        assert_close(components.pressure_hoop.unwrap(), expected("pressure_hoop"));
+        assert_close(
+            components.pressure_longitudinal.unwrap(),
+            expected("pressure_longitudinal"),
+        );
+    }
+
+    #[test]
+    fn milltol_reduction_strictly_reduces_section_modulus() {
+        let with_mill = milltol_effective_wall_section();
+        let corrosion_only = milltol_corrosion_only_section();
+        assert!(with_mill.section_modulus_y.unwrap() < corrosion_only.section_modulus_y.unwrap());
+        assert!(with_mill.area.unwrap() < corrosion_only.area.unwrap());
     }
 
     #[test]

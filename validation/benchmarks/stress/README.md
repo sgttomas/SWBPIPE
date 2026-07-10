@@ -50,5 +50,6 @@ the current fixture inventory.
 | Thermal axial-effect-to-stress | `STRESS-TP-PHYS-008-THERMAL-AXIAL-EFFECT-TO-STRESS` |
 | Combined axial-bending-to-stress | `STRESS-TP-PHYS-009-COMBINED-AXIAL-BENDING-TO-STRESS` |
 | Canonical analytical resultant stress | `STRESS-TP-PHYS-015-CANONICAL-RESULTANT-STRESS-RECOVERY` |
+| Mill-tolerance effective-wall stress | `STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS` |
 
 Hand-calculation notes are in `validation/hand_calcs/stress/`.
