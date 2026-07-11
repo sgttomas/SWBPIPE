@@ -3,7 +3,7 @@
 **Date:** 2026-07-10
 **Project:** OpenPipeStress (`projects/chirality-piping`)
 **Status:** DESIGN PROPOSAL — historical/non-governing method record; never a work-selection surface
-**Revised:** 2026-07-10 after the owner-adopted deliverable-driven loop consolidation
+**Revised:** 2026-07-10 after the owner-adopted deliverable-driven loop consolidation; 2026-07-11 per owner-session rulings (lifecycle rebaseline, suspension start-gate, activation mechanics, run-state model, shared-kernel extraction)
 **Prepared for:** owner-authorized reconciliation executed through the current standing loop after active development reaches a stable handoff
 **Write boundary:** `projects/chirality-piping/**` only
 
@@ -22,24 +22,35 @@ reliable source for:
 
 The live project currently represents 101 deliverables across `PKG-00` through
 `PKG-17`; the observed lifecycle distribution is 92 `IN_PROGRESS`, 8
-`CHECKING`, and 1 `ISSUED`. Those values are planning observations only. The run
-must re-enumerate current state from the filesystem and must not use lifecycle
-labels as implementation-completeness scores.
+`CHECKING`, and 1 `ISSUED`. The 2026-07-11 lifecycle rebaseline ruling (§3)
+moves the 8 `CHECKING` deliverables to `IN_PROGRESS` pending transcription, so
+the working census is 92 `IN_PROGRESS` / 8 `CHECKING`→`IN_PROGRESS` pending
+transcription / 1 `ISSUED`. Those values are planning observations only —
+re-enumerate live. The run must re-enumerate current state from the filesystem
+and must not use lifecycle labels as implementation-completeness scores.
+
+In lifecycle terms (§3), this program's purpose is that concordance is the
+process that makes each deliverable's `## Remaining` section warranted — and,
+under the checking-candidacy trigger, the path back to `CHECKING`.
 
 ## 2. Problem statement
 
 Much of the deliverable corpus began as setup-stage kits. Implementation has
 advanced substantially since then. The pilot found 20 active specifications
-that still use “setup” or “future implementation” language while the project
-contains 33 implementation crates, plus application, schema, fixture, and
-validation surfaces.
+that still use “setup” or “future implementation” language (unverified pilot
+observation — re-derive at R0) while the project contains 33 implementation
+crates, plus application, schema, fixture, and validation surfaces.
 
 `DEL-04-01` is representative: its specification and datasheet remain largely
 future-oriented, while `core/solver/frame_kernel` contains a substantial kernel
 and test suite and later review records recognize bounded implementation
-readiness. Its lifecycle history also shows that `CHECKING` was deliberately
-reversed to `IN_PROGRESS` because bounded implementation evidence did not equal
-full-deliverable readiness.
+readiness (unverified pilot observation — re-derive at R0). Its lifecycle
+history also shows that `CHECKING` was deliberately reversed to `IN_PROGRESS`
+because bounded implementation evidence did not equal full-deliverable
+readiness; the reversal fact is recorded in
+`execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Lifecycle_Correction_Register.csv`.
+Under the §3 lifecycle model that history reads cleanly: a failed check exits
+by reversal, and its findings become `## Remaining` items.
 
 The pass must therefore distinguish stale setup prose from legitimate remaining
 scope, and technical implementation from release or professional reliance.
@@ -72,9 +83,13 @@ reconciliation method.
 4. **No compliance or professional claims.** Reconciliation cannot certify code
    compliance, engineering correctness, release readiness, sealing, approval,
    or suitability for reliance.
-5. **No lifecycle transitions.** Status changes and issuance remain under their
-   existing human gates. Recommendations may be recorded but not applied by the
-   discovery run.
+5. **No lifecycle transitions by discovery.** Lifecycle states are change
+   regimes under the model below, and every transition remains an owner act
+   under its existing human gate. Discovery runs may record
+   `LIFECYCLE_REASSESSMENT_REQUIRED` recommendations but never apply them. The
+   one-time rebaseline transitions belong to the preceding rebaseline ruling's
+   dedicated tranche (see the lifecycle model below), not to any run under this
+   plan.
 6. **No automatic DAG mutation.** `DAG-007` is the current canonical dependency
    type-system authority. Older DAGs remain historical inputs. Dependency repair
    requires a separate authorized tranche.
@@ -99,15 +114,95 @@ reconciliation method.
     `(gated: ...)` and `(stage-gated: ...)` suffixes are preserved unless their
     owning authority changes them.
 
-## 4. Start gate and source-state control
+### Lifecycle model — change regimes, not maturity grades
 
-Begin only after the human owner identifies the concurrent remedial/physical
-model work as stable enough to inspect. Before any dispatch:
+The governing lifecycle model was settled by the owner in-session on
+2026-07-11: lifecycle states are change regimes, not maturity grades.
 
-1. confirm an owner direction or ruling authorizes the reconciliation scope and
-   creation of its immutable evidence run;
+- `IN_PROGRESS` — ordinary edits are permitted.
+- `CHECKING` — a frozen candidate under declared-basis review. Exit for change
+  is reversal-only; this project's `execution/_Reconciliation/LifecycleCorrection/`
+  DEL-04-01 reversals are the live precedent. Review evidence appends to run
+  and review records, never to the frozen claim surfaces.
+- `ISSUED` — changes flow only through the governed scope-change process.
+
+CHECKING candidacy has one trigger: a warranted-empty `## Remaining` — empty
+AND carrying a current evidence basis (a concordance pass or equivalent, bound
+to the candidate source state) certifying that the emptiness is warranted. The
+entry act is an owner declaration of the checking basis followed by the freeze.
+There are no disclosed-deferral carve-outs: any warranted `## Remaining` item —
+owner-gated included — keeps the deliverable `IN_PROGRESS`; rescope through the
+decision register before freezing, never carve out during review. A failed
+check exits by reversal, and its findings become `## Remaining` items.
+
+In these terms, this program's purpose is exact: concordance is the process
+that makes `## Remaining` sections warranted — under the trigger above, the
+path back to `CHECKING`.
+
+**One-time lifecycle rebaseline (preceding separate owner ruling — not this
+plan's work).** Ruled in-session on 2026-07-11 via decision slate: the 8
+`PKG-00` architecture deliverables — this project's only `CHECKING` states —
+move `CHECKING` → `IN_PROGRESS`. The recorded PKG-00 lock review
+(`execution/_Reconciliation/PKG00LockReview/PKG00_LOCK_REVIEW_2026-05-11_2218/`)
+is preserved as historical evidence and as the natural declared checking basis
+when those deliverables re-enter `CHECKING` under the new trigger. `DEL-01-01`
+— the sole `ISSUED` deliverable, the governance/license baseline — stays
+`ISSUED` and change-managed. This is an administrative semantics correction,
+not an invalidation of prior work. Transcription into a `D-XX` register row
+plus ruling record, and the 8 `_STATUS.md` transitions, are executed by a
+dedicated rebaseline tranche before discovery begins.
+
+## 4. Activation, start gate, and source-state control
+
+### Activation mechanics
+
+Activation is a recorded governance act, never an inference from this plan's
+existence.
+
+1. **Vehicle.** Activation is proposed as a new `D-XX` row (next free ID) in
+   `execution/_Coordination/_DECISIONS/_REGISTER.md` with a PROPOSAL packet.
+   On ruling, codification follows the project's `DEC-XXX` convention in
+   `execution/_Decomposition/SOFTWARE_DECOMP.md` §12. The ruling names the
+   activated scope: whole-corpus or a named package subset.
+2. **HARD RULE — the ruling lands on `main` before any dispatch.** The ruling
+   record and the register-row flip must be merged to `main` before any
+   concordance session is dispatched. Concurrent sessions are mutually blind;
+   on 2026-07-10 the sibling project suffered a real governance collision —
+   contradictory owner-attributed decision states written by parallel
+   sessions, reconciled only after the fact. That case study is why this rule
+   is hard.
+3. **Bootstrap `Remaining` items.** At packet time, each in-scope
+   deliverable's `_STATUS.md` `## Remaining` is seeded with exactly:
+
+   `- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8) (gated: D-XX)`
+
+   The ruling flips the suffixes. Until it does, the item stays gated and
+   nothing under this plan is selectable.
+4. **Ordering.** The ruling must satisfy the start gate below, and the
+   lifecycle rebaseline tranche (§3) must complete before discovery begins.
+
+### Start gate — named ruling precondition
+
+The start gate is a recorded act, not a prose judgment. The activation ruling
+must record the owner's suspension or stable-handoff declaration with its date
+and the commit SHA of the declared-stable tree. On 2026-07-11, in-session, the
+owner (Ryan Tufts) stated: "I will suspend work in Chirality Piping for the
+time being." The activation ruling cites this declaration (or a successor
+declaration) together with the SHA at which the tree froze.
+
+Under a suspended, frozen tree, whole-corpus discovery is viable: the
+stability rationale for subset-scoping evaporates. Package waves survive for
+tractability and checkpointing only (§8 R2), not as a stability control.
+
+### Source-state control
+
+Before any dispatch:
+
+1. confirm the activation ruling (above) authorizes the reconciliation scope
+   and creation of its immutable evidence run, and that it is on `main`;
 2. confirm selected reconciliation work is recorded in the affected
-   deliverables' `_STATUS.md` `## Remaining`; if not, stop for the
+   deliverables' `_STATUS.md` `## Remaining` per the bootstrap template above,
+   with the gate suffix flipped by the ruling; if not, stop for the
    owner-authorized bootstrap update rather than selecting work from this plan;
 3. derive `REPO_ROOT` and `WORKING_ROOT` from the checkout;
 4. record the exact reviewed source state;
@@ -190,7 +285,7 @@ Required ledger columns:
 | `VerificationEvidence` | Tests and reviewed source state or `NONE_FOUND` |
 | `ValidationEvidence` | Benchmark/witness/provenance or `NOT_APPLICABLE`/`NONE_FOUND` |
 | `SourceReliability` | `VETTED`, `REVIEWED`, `UNVERIFIED`, `NOT_APPLICABLE` |
-| `LifecycleState` | Copied without interpreting technical completeness |
+| `LifecycleState` | Copied as a change regime under the §3 lifecycle model; never read as a maturity grade or technical-completeness score |
 | `Disposition` | Controlled value from §7 |
 | `Confidence` | `HIGH`, `MEDIUM`, `LOW` |
 | `RemainingWork` | Specific residual, `NONE_OBSERVED`, or `UNKNOWN` |
@@ -216,8 +311,10 @@ to engineering validation.
   validation basis required for its claim class.
 - `ACCEPTED_DIVERGENCE` — a human decision permits a bounded transitional state,
   limitation, or deferral.
-- `LIFECYCLE_ONLY_MISMATCH` — status history or wording differs from evidence
-  without establishing a technical gap.
+- `LIFECYCLE_REASSESSMENT_REQUIRED` — status history or wording differs from
+  evidence without establishing a technical gap; the residue is a lifecycle
+  reassessment under the §3 change-regime model, owed to its human gate, not a
+  document repair.
 - `REMAINING_STATE_MISMATCH` — a landed or ruled-shut item remains recorded, an
   evidence-backed residual is omitted, or ownership/source/gate metadata no
   longer agrees with current authority and implementation.
@@ -233,6 +330,28 @@ Deliverable summaries must be computed from claim rows and must preserve mixed
 dispositions. Do not label a whole deliverable “complete” because a crate exists.
 
 ## 8. Execution phases
+
+### Run-level phase execution and program-state homes
+
+R1, R3, and R6 execute directly under the activation ruling as ruled-program
+work. `F-PIP-5` forbids new surfaces "without an owner ruling" — the
+activation ruling is that ruling; the precedent is this project's
+deliverable-less `DepClosure`, `Reviews`, and `LifecycleCorrection` runs under
+`execution/_Reconciliation/`. No control deliverable is created for the
+program.
+
+The program has exactly three kinds of state, and each already has a home:
+
+1. **One run's phase state** — the immutable run folder, via append-only
+   `RUN_BASIS.md` and `RUN_SUMMARY.md` (§9).
+2. **Cross-session open/closed visibility** — the activation register row's
+   ruling-record cell, checked every loop Step 0.
+3. **The recurring process asset** — checking-entry profiles and maturity
+   feedback live on a ruled docs profile surface (the sibling project's
+   `docs/ISSUE_READINESS_PROFILES.md` under its `D-APP-34` pattern is the
+   model; this project selects its own location at activation).
+
+No new standing pointer, register, or status surface exists beyond these (§9).
 
 ### R0 — Calibration pilots
 
@@ -294,6 +413,9 @@ dependency grouping is:
 
 Claims affected by concurrent physical-model mechanics work remain deferred
 until that work has a stable source state. Independent packages may continue.
+Under the suspended, frozen tree required by the §4 start gate this deferral
+clause is expected to be vacuous, and waves function as tractability and
+checkpointing partitions only.
 
 Each wave produces a package concordance, engineering/owner decision findings,
 an unmapped-implementation list, conflicts/unknowns, and proposed deliverable
@@ -409,8 +531,10 @@ These are immutable evidence artifacts, not queues or selection surfaces.
 `AGENT_WORKFLOW_OBSERVATIONS.md` contains only affected product claims, exact
 citations, and why reconciliation cannot resolve them; it makes no workflow
 recommendation. Do not create a new `_LATEST.md`, standing pointer, register, or
-status surface unless separately ruled. Continuing state is recorded in the
-affected deliverables and existing decision register.
+status surface unless separately ruled; the ruled docs profile surface named at
+activation (§8) is the one such separately ruled surface this program uses.
+Continuing state is recorded in the affected deliverables and existing decision
+register.
 
 ## 10. QA and acceptance criteria
 
@@ -448,7 +572,10 @@ run records.
 Each autonomous iteration selects an eligible deliverable-local
 `## Remaining` item under the newest standing workplan, never a package wave or
 repair finding from this proposal. The reconciliation method governs execution
-only after that selection. Each iteration re-derives its inputs, executes within
+only after that selection. R1, R3, and R6 differ in mechanism, not authority:
+they run as ruled-program work directly under the activation ruling (§8)
+rather than through a deliverable-local item, and they change only run
+artifacts and the ruled program-state homes. Each iteration re-derives its inputs, executes within
 an explicit write scope, validates its artifact contract, and records
 deliverable-local closeout before selection restarts. It must stop or defer a
 claim when:
@@ -481,3 +608,21 @@ Success means that each OpenPipeStress deliverable reliably states:
 Completion is an evidence and documentation-coherence state. It is not issuance,
 release readiness, professional approval, certification, sealing,
 authentication, or a code-compliance determination.
+
+## 13. Sibling method and shared kernel
+
+A sibling method plan exists at
+`projects/chirality-app-dev/plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md`.
+The divergence between the two plans is intentional: this plan's
+engineering-validation and provenance layer — `ClaimClass`,
+`SourceReliability`, `VERIFIED_NOT_VALIDATED`, `ENGINEERING_AUTHORITY_REQUIRED`,
+and the equation-source boundary — has no sibling counterpart, and the
+sibling's stale-inspection-assessment layer has none here. Do not
+resynchronize the two plans without owner direction.
+
+A distilled shared kernel exists at repo root
+`docs/DELIVERABLE_CONCORDANCE_METHOD.md` as a DRAFT canon-pattern document
+(owner-directed 2026-07-11: the method is part of Chirality itself). It is
+derivative and NON-BINDING until ratified after both projects' R0
+calibrations. While it remains DRAFT, this plan is the self-contained
+operative method for OpenPipeStress.
