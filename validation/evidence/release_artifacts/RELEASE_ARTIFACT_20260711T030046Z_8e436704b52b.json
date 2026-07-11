@@ -1,0 +1,75 @@
+{
+  "artifact": "openpipestress.release_artifact_record",
+  "schema_version": 1,
+  "decision_basis": "DEC-057",
+  "boundary_note": "Packaging mechanics only. Not a release act, publication, version tag, signing, notarization, release-readiness claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "recorded_utc": "2026-07-11T03:00:46+00:00",
+  "git": {
+    "commit_hash": "8e436704b52bcb4561632ad1b272e1f9f2ed5f41",
+    "branch": "claude/piping-e5-packaging",
+    "status_capture_failed": false,
+    "working_tree_dirty": false,
+    "dirty_paths": []
+  },
+  "runtime": {
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.7",
+    "node": "v24.5.0",
+    "npm": "11.5.2",
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)"
+  },
+  "evidence_profile": "DEC-025 five-surface sweep (commit-bound)",
+  "application": {
+    "product_name": "OpenPipeStress Technical Preview",
+    "version": "0.1.0",
+    "identifier": "org.openpipestress.technical-preview"
+  },
+  "release_matrix": {
+    "target_triple": "aarch64-apple-darwin",
+    "platform": "macos",
+    "basis": "DEC-057 O-A: macOS Apple Silicon only; Windows/Linux enter only through the evidence-gated matrix-expansion rider"
+  },
+  "installer_format": "tauri_app_bundle_zip",
+  "build_command": "npm run tauri -- build --bundles app",
+  "artifacts": [
+    {
+      "kind": "app_bundle_zip",
+      "path": "dist/release/OpenPipeStress-Technical-Preview_0.1.0_aarch64-apple-darwin.app.zip",
+      "size_bytes": 5471680,
+      "sha256": "569d6fa974b45c57f095fa41de7e3f0f5020563cd58c7e43f93c4d7c668b57ef",
+      "checksum_file": "dist/release/OpenPipeStress-Technical-Preview_0.1.0_aarch64-apple-darwin.app.zip.sha256"
+    }
+  ],
+  "signing": {
+    "state": "unsigned",
+    "notarization": "none",
+    "basis": "DEC-057",
+    "re_decision": "D-06b"
+  },
+  "publication": {
+    "state": "not_published: DEC-057 rules GitHub Releases on the prospective public sanitized-export OpenPipeStress repository (the D-05b surface); until that repository exists, artifacts are recorded locally per docs/BUILD_AND_RELEASE.md \u00a78 and distributed directly by the owner."
+  },
+  "authenticity_chain": {
+    "sweep_artifact": "validation/evidence/sweeps/SWEEP_20260711T025817Z_3115a08cdfee.json",
+    "sweep_commit": "3115a08cdfeedad3525721bc7dc22eae3a00092e",
+    "sweep_overall_status": "pass",
+    "record_commit": "8e436704b52bcb4561632ad1b272e1f9f2ed5f41",
+    "evidence_only_delta_paths": [
+      "validation/evidence/sweeps/SWEEP_20260711T025817Z_3115a08cdfee.json"
+    ],
+    "status": "verified",
+    "checksum_sha256": "569d6fa974b45c57f095fa41de7e3f0f5020563cd58c7e43f93c4d7c668b57ef"
+  },
+  "unsigned_install_caveat": "This build is not code-signed or notarized (DEC-057: v0.1 ships unsigned; signing/notarization is re-decided at D-06b). macOS Gatekeeper will quarantine the downloaded app. Before opening it, verify the artifact's SHA-256 checksum against the published .sha256 file and the commit-bound DEC-025 evidence-sweep artifact referenced in the release artifact record; then open the app explicitly (Control-click > Open, or remove the quarantine attribute). Authenticity is carried by the checksum + the commit-bound sweep artifact + the release artifact record, not by an OS code signature.",
+  "validation_status": "pass",
+  "known_limitations": [
+    "Unsigned and unnotarized (DEC-057; re-decided at D-06b).",
+    "No publication target exists yet; local record + direct distribution only (DEC-057/DEC-059).",
+    "A green sweep is development evidence, not a release claim; release publication requires the D-20 scan record, gate records, and human release-authority acceptance."
+  ],
+  "human_review": {
+    "state": "none_recorded",
+    "note": "Release publication requires the human release authority's acceptance (docs/BUILD_AND_RELEASE.md \u00a76/\u00a78); this record is packaging evidence only."
+  }
+}

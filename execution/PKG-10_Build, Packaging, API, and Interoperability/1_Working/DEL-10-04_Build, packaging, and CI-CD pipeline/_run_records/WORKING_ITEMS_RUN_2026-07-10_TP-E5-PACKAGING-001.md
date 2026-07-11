@@ -140,11 +140,44 @@ All on this host (macOS arm64, Node v24.5.0, rustc 1.92.0, Python 3.13.7),
 
 ## Evidence
 
-- Clean-head DEC-025 sweep at the implementation commit: recorded in the
-  evidence closeout commit (artifact under `validation/evidence/sweeps/`;
-  exact filename in the closeout commit message and below once appended).
-- First §8 release-artifact record at the committed state: recorded under
-  `validation/evidence/release_artifacts/` in the closeout commit.
+- DEC-025 sweep retry chain (each failed attempt committed before re-run;
+  every suite passes standalone throughout; no product code changed between
+  attempts 1-4):
+  - Attempt 1 `validation/evidence/sweeps/SWEEP_20260711T024049Z_f940b5b7c1af.json`
+    — `fail` at `desktop_vitest` (exit 1 under full sweep load immediately
+    after the cargo surface; 407/407 standalone before and after).
+  - Attempt 2 `validation/evidence/sweeps/SWEEP_20260711T024551Z_73e4b6f7c848.json`
+    — `fail` at `desktop_playwright_e2e` (vitest passed this attempt;
+    18/18 e2e standalone).
+  - Attempt 3 `validation/evidence/sweeps/SWEEP_20260711T024949Z_3c12cc27b158.json`
+    — `fail` at `desktop_playwright_e2e`: the vite webServer on the fixed
+    e2e port 5174 disappeared mid-suite (first tests passed, the remaining
+    16 saw `net::ERR_CONNECTION_REFUSED` at `127.0.0.1:5174`) —
+    port-collision-class interference from concurrent agent worktrees
+    sharing the fixed port; no listener or orphan remained afterward.
+    Waited ~90 s per the retry practice before attempt 4.
+  - Attempt 4 (passing) —
+    `validation/evidence/sweeps/SWEEP_20260711T025412Z_0b9944768560.json`,
+    bound to clean commit `0b9944768560f096b04935051176fba5b4ff9d1f`,
+    `overall_status=pass` on all five surfaces.
+- The first committed-state packaging run then exposed a chain-check bug
+  (`git diff --name-only` returns repository-root-relative paths, so the
+  evidence-only-delta check needed `--relative` inside the monorepo); the
+  fix landed as its own commit and a fresh sweep passed at that HEAD:
+  `validation/evidence/sweeps/SWEEP_20260711T025817Z_3115a08cdfee.json`,
+  bound to clean commit `3115a08cdfeedad3525721bc7dc22eae3a00092e`,
+  `overall_status=pass` on all five surfaces.
+- First §8 release-artifact record (committed state, chain `verified`):
+  `validation/evidence/release_artifacts/RELEASE_ARTIFACT_20260711T030046Z_8e436704b52b.json`
+  — zip `dist/release/OpenPipeStress-Technical-Preview_0.1.0_aarch64-apple-darwin.app.zip`
+  (untracked by design), sha256
+  `569d6fa974b45c57f095fa41de7e3f0f5020563cd58c7e43f93c4d7c668b57ef`,
+  authenticity chain `verified` against the clean sweep above with the
+  record commit trailing the sweep commit only by the evidence-only
+  closeout commit (recorded path-by-path in the record). The `.app` it
+  packaged was built by the release-compile verification run above; every
+  commit after the implementation commit differs only by evidence files
+  and the chain-check `--relative` repair (TP-MAC-141 provenance pattern).
 
 ## Boundary Review
 
