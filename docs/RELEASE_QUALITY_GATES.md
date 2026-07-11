@@ -54,6 +54,17 @@ Every gate record must include:
 - human governance acceptance or waiver record;
 - statement that release evidence is software-quality evidence only.
 
+Commit-bound gate-outcome records for the five gate families are emitted by
+`tools/release/run_release_gate_records.py` into `validation/evidence/gates/`
+from already-governed sources only (`DEC-025` sweep artifacts, the
+`DEC-026`/`DEC-046` governed tolerance records, `DEC-058` scan records,
+`DEC-060` coverage telemetry). Each criterion is recorded as `pass`, `fail`,
+or `TBD`; criteria whose governed thresholds are `TBD` stay `TBD`, and
+human-gated items (acceptance, waivers, wording/provenance review) are
+recorded `TBD` as not evaluable by an agent. A record documents measured gate
+outcomes at a commit; it mints no release label or readiness status
+(PB-TBD-003 remains human-gated) and is not a release claim.
+
 ## 4. Solver Gate
 
 Use this gate for changes to solver mechanics, load handling, stress recovery,
