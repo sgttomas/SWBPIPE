@@ -53,11 +53,10 @@ independent force-method witness
 including the k-sweep monotonicity evidence for `k in {1, 5, 10, 20}`. The
 comparison replicates the witness bending-only flexibility assumption with an
 axial-rigidity boost of `1.0e5` (boost study recorded at
-`EXPANSION_LOOP_AXIAL_RIGIDITY_BOOST` in `src/lib.rs`). This fixture is not
-yet registered in `fixture_inventory()` because the shared hand-calculation
-README inventory (owned under `validation/hand_calcs/mechanics/`) does not
-list the witness note yet; registration there is a follow-up once that
-inventory row lands.
+`EXPANSION_LOOP_AXIAL_RIGIDITY_BOOST` in `src/lib.rs`). The fixture is
+registered in `fixture_inventory()` and the shared hand-calculation README
+inventory (owned under `validation/hand_calcs/mechanics/`) lists the witness
+note.
 
 ## Readiness Boundary
 
