@@ -66,10 +66,19 @@
   review on skipped checks, provenance blocking, quarantine hygiene,
   normalized findings, no release-readiness claim, engine-CLI integration
   positive and clean-content negative).
-- Repo-wide Python pytest, practitioner-harness self-check and pytest, and
-  the DEC-025 five-surface sweep results are recorded in the tranche
-  completion-log entry and sweep artifact accompanying this run record's
-  commit chain.
+- Repo-wide `python3 -m pytest -q tests` passed 401/401.
+- Repo-root `PYTHONDONTWRITEBYTECODE=1 python3
+  tools/practitioner_harness/harness.py self-check` exited 0 (pre-existing
+  REVIEW/WARN findings only; none touch this tranche's files).
+- Practitioner-harness pytest passed 263 passed, 1 skipped.
+- DEC-025 five-surface sweep at the committed clean head `1d160589cbea`:
+  attempt 1 (`SWEEP_20260711T012456Z_1d160589cbea.json`, not committed)
+  failed environmentally at `desktop_vitest` — `vitest: command not found`
+  because the fresh worktree had no `node_modules`; remediation was
+  `npm ci --prefer-offline` from the existing lockfile (no dependency
+  changes); attempt 2 passed all five surfaces —
+  `validation/evidence/sweeps/SWEEP_20260711T012810Z_1d160589cbea.json`
+  (`overall: pass`).
 - All test fixtures are invented lookalikes (designator names plus
   obviously synthetic sequential values) created inline or in temp
   directories; no protected standards data was used or embedded.
