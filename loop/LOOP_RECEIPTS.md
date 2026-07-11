@@ -298,3 +298,41 @@
     menu + caller-side save binding for the report container, runner export-results
     payload binding, `geometry.center_of_gravity` vector-payload ruling
     (new D-XX if sought).
+
+- **2026-07-10 — Receipt 11** (wave 3 of the same session: E4/E6/E8 closure of the
+  unblocked Phase E surface; three fable subagents).
+  - Start: wave-1+2 PRs and fan-in #158 merged at owner direction (git history);
+    Receipt 10 named E4/E6/E8 as the lawful remainder.
+  - Executed (isolated worktrees, disjoint scopes): E6 public issue templates
+    (DEC-027 posture, project-local `.github/ISSUE_TEMPLATE/`, inert in monorepo) →
+    `TP-E6-ISSUETEMPLATES-001`, PR #164 (merged at owner direction); E8 gate-outcome
+    records (governed-values-only per-family records; TBD stays TBD; no labels —
+    PB-TBD-003; no floor promotion, DEC-060 base 1 artifact/1 commit recorded) →
+    `TP-E8-GATERECORDS-001`, PR #166 (merged at owner direction); E4 redaction
+    export-controls app binding (TS mirror + export-workflow panel,
+    private-by-default, shared 23-case parity corpus over all 16 reason codes) →
+    `TP-E4-REDACTION-001`, PR #167 (awaiting owner merge). Run records in
+    DEL-01-03 / DEL-09-05 / DEL-12-02; completion-log entries landed by this
+    fan-in commit.
+  - Checks: per run records — suites pass (E4: python 439, desktop 471; E8: pytest
+    421 + harness 263; E6: docs-class + sweep anyway); self-check exit 0 each;
+    DEC-025 clean-head sweeps `SWEEP_20260711T031432Z_1581b8c0de72.json`,
+    `SWEEP_20260711T032140Z_e2ea37194c8a.json` +
+    `SWEEP_20260711T032717Z_af74a1096ff0.json`,
+    `SWEEP_20260711T035249Z_9aa5dcdc1a29.json` all pass.
+  - Deltas (live tree wins): E4's live remainder confirmed as the app-side binding
+    (core contract complete since 2026-06-07; DEL-12-02 records show the binding
+    was never picked up); browser/wasm app cannot call the python core — parity
+    corpus pattern used instead of a runtime bridge (existing hash-seam precedent);
+    first E4 practitioner-pytest failures were the main checkout's live state, not
+    the tranche (clean from the worktree); E8's live coverage-artifact census:
+    1 of the ≥5/≥2-commit floor-promotion prerequisite.
+  - Gate outcome: executed within DEC-054/027/058/060-class adopted authority; no
+    lifecycle transition, no register change; no release act, publication, signing,
+    scan, or intake mechanism. Parked gates: D-38, D-12, D-07b (AWAITING_RULING),
+    D-06b (NOT_PREPARED); PB-TBD-003 (release-label vocabulary); §17.5 legal review;
+    corpus cases 66–75 human review entry. With this wave the unblocked Phase E
+    agent surface is exhausted — remaining named work is either owner-gated or
+    was newly unblocked by today's merges (desktop menu + caller-side save binding
+    for the report container, runner export-results payload binding, REXC-REQ-012
+    breadth, E2 tolerance-record fill, arc pressure-thrust treatment).
