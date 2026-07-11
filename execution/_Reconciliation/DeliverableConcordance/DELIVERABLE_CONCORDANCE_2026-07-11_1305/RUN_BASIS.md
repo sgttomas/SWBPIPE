@@ -176,6 +176,23 @@
   reproducible from the SHA (`git worktree add --detach <path>
   551f84ef6be656f1603ce0acfa5e3935aa9683c7`).
 
+- **2026-07-11 — Resumed; R2 W1 dispatched.** Resume verified against the
+  durable pause record: R1 complete, R2 never started, no partial W1
+  artifacts. Frozen evidence worktree recreated at the pinned SHA
+  (`551f84ef6be656f1603ce0acfa5e3935aa9683c7`; HEAD verified, porcelain
+  clean). Owner steer of record for this resume (verbatim in loop
+  Receipt 17): fable orchestrates; opus discovery pilots for W1/W3/W5 and
+  W4-except-PKG-12; fable discovery pilots for all of W2, PKG-12 in W4, and
+  PKG-01 in W1; fable-at-high-effort per-wave fan-in verification scoped to
+  all self-flagged rows, all non-ALIGNED rows, plus >=2
+  ALIGNED/IMPLEMENTED_UNDOCUMENTED rows per ledger; defective ledgers re-run
+  by fable pilots; R3/R6 agents fable. W1 = `PKG-00`–`PKG-03`, 25
+  deliverable-grained pilots under `R1_CONVENTIONS.md`, ledgers to
+  `WAVES/W1/CLAIM_CONCORDANCE_DEL-XX-XX.csv` + `NOTES_DEL-XX-XX.md`; at most
+  four concurrent pilots, each sub-batch persisted and structurally
+  validated before the next launches. DEL-01-01 remains ISSUED/read-only
+  with `SCOPE_CHANGE` routing and no bootstrap row.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`

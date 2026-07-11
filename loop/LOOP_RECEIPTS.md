@@ -444,3 +444,33 @@
     artifacts). Resume: R2 W1 (PKG-00–03) per RUN_BASIS resume point. No
     lifecycle transition; discovery read-only; repair tranches remain
     gate-stopped.
+
+- **2026-07-11 — Receipt 17** (concordance resume: pre-dispatch verification +
+  owner steer of record; R2 W1 dispatch follows).
+  - Start: dedicated worktree
+    `.claude/worktrees/chirality-piping-d41-concordance-9811cb`, branch
+    `claude/chirality-piping-d41-concordance-9811cb`, HEAD `052b3c2b2`
+    (includes the PR #184 merge `5e2763f0a`), tree clean. Account verified
+    ryan@chirality.ai ("ryan@chirality.ai's Organization"); orchestrator model
+    `claude-fable-5`; opus subagent availability verified by live ping.
+  - Frozen evidence worktree recreated at
+    `.claude-worktrees/piping-frozen-551f84ef6`; HEAD verified equal to the
+    full pinned SHA `551f84ef6be656f1603ce0acfa5e3935aa9683c7`; porcelain
+    clean; strictly read-only.
+  - Resume boundary re-verified: R1 complete; R2 never started; no `WAVES/`
+    or `PACKAGE_SUMMARIES/` artifacts exist (the aborted W1 launch produced
+    no agent output); R0/R0b ledgers remain calibration-only.
+  - Owner steer of record (2026-07-11, resume prompt, verbatim): "Steer (this
+    run, owner-ruled 2026-07-11, overrides LOOP_INIT §7 defaults per its own
+    terms): fable orchestrates; opus for R2 discovery pilots in waves W1-W5,
+    EXCEPT fable for ALL discovery pilots in W2 (PKG-04-05, solver mechanics —
+    engineering-adjudication risk), PKG-12 in W4 (security/privacy, F-PIP-1
+    fence-adjacent, first SECURITY-class encoding), and PKG-01 in W1 (F-PIP-2
+    professional-claims fence; DEL-01-01 ISSUED). Fable at high effort for the
+    per-wave fan-in verification pass, scoped to: all self-flagged rows, all
+    non-ALIGNED rows, plus >=2 ALIGNED/IMPLEMENTED_UNDOCUMENTED rows sampled
+    per ledger. Any ledger the verification pass finds defective is re-run by
+    a fable pilot. R3 synthesis and R6 backcheck agents are fable."
+  - Gate outcome: executing — R2 W1 (PKG-00–03, 25 pilots) dispatched under
+    `R1_CONVENTIONS.md`; ≤4 concurrent pilots; wave boundary =
+    validate/commit/push/PR/receipt, then STOP for owner merge direction.
