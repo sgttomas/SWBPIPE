@@ -1271,6 +1271,16 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "set_field",
         true
       ),
+      quantityField(
+        "Mill tolerance",
+        "section.mill_tolerance.value",
+        pipe.section.mill_tolerance?.value ?? "TBD",
+        "Element",
+        "length",
+        pipe.section.mill_tolerance?.unit ?? pipe.section.wall_thickness?.unit ?? model.project.units.length ?? "m",
+        "set_field",
+        true
+      ),
       scalarField("Material", "material", pipe.material, "Element", "dimensionless", "none", "material reference"),
       scalarField(
         "Provenance",
@@ -1377,6 +1387,15 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
           "dimensionless",
           "none",
           "user-entered bend plane orientation"
+        ),
+        scalarField(
+          "Bend pipe",
+          "geometry.bend_pipe_ref",
+          component.geometry?.bend_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered curved-bend span mapping (DEC-070); no inferred span"
         ),
         scalarField(
           "SIF user value",
@@ -1723,6 +1742,96 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "update_load"
       ),
       scalarField("Kind", "kind", loadCase.kind, "Load", "dimensionless", "none", "load case kind", "update_load"),
+      scalarField(
+        "Modulus basis",
+        "modulus_basis_ref",
+        loadCase.modulus_basis_ref ?? "TBD",
+        "Load",
+        "dimensionless",
+        "none",
+        "user-assigned temperature-point basis id; exact selection, no interpolation, no default",
+        "update_load"
+      ),
+      quantityField(
+        "Seismic gravity acceleration",
+        "equivalent_static.seismic.gravity_acceleration.value",
+        loadCase.equivalent_static?.seismic?.gravity_acceleration?.value ?? "TBD",
+        "Load",
+        "acceleration",
+        loadCase.equivalent_static?.seismic?.gravity_acceleration?.unit ?? "m/s^2",
+        "update_load",
+        true
+      ),
+      scalarField(
+        "Seismic g-factor X",
+        "equivalent_static.seismic.g_factor_x.value",
+        String(loadCase.equivalent_static?.seismic?.g_factor_x?.value ?? "TBD"),
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      scalarField(
+        "Seismic g-factor Y",
+        "equivalent_static.seismic.g_factor_y.value",
+        String(loadCase.equivalent_static?.seismic?.g_factor_y?.value ?? "TBD"),
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      scalarField(
+        "Seismic g-factor Z",
+        "equivalent_static.seismic.g_factor_z.value",
+        String(loadCase.equivalent_static?.seismic?.g_factor_z?.value ?? "TBD"),
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      quantityField(
+        "Wind pressure",
+        "equivalent_static.wind.pressure.value",
+        loadCase.equivalent_static?.wind?.pressure?.value ?? "TBD",
+        "Load",
+        "pressure",
+        loadCase.equivalent_static?.wind?.pressure?.unit ?? model.project.units.pressure ?? "Pa",
+        "update_load",
+        true
+      ),
+      scalarField(
+        "Wind shape factor",
+        "equivalent_static.wind.shape_factor.value",
+        String(loadCase.equivalent_static?.wind?.shape_factor?.value ?? "TBD"),
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered wind shape parameter; no code coefficient or default",
+        "update_load"
+      ),
+      scalarField(
+        "Wind direction",
+        "equivalent_static.wind.direction",
+        loadCase.equivalent_static?.wind?.direction ?? "TBD",
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered global axis token (global_x | global_y | global_z)",
+        "update_load"
+      ),
+      scalarField(
+        "Wind exposed spans",
+        "equivalent_static.wind.exposed_pipe_refs",
+        (loadCase.equivalent_static?.wind?.exposed_pipe_refs ?? []).join(", ") || "TBD",
+        "Load",
+        "dimensionless",
+        "none",
+        "user-marked exposed spans by pipe id (comma-separated); no span is marked by default",
+        "update_load"
+      ),
       quantityField(
         "First primitive magnitude",
         "primitive_loads.0.magnitude.value",

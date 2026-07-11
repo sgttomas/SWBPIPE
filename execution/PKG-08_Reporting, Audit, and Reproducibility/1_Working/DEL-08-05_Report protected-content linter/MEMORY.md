@@ -820,3 +820,27 @@ code-compliance decisions.
   unit conversion, private payload, protected content, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-07-10 - TP-E7-SCANEXT-001 DEC-058 scanner extension and scan-record tooling
+
+- Under the D-20 ruling (`DEC-058`), the engine gained standards-table
+  signature detection: designator-name/clause-label tokens within eight
+  lines of a dense numeric grid fail toward
+  `UnknownProvenanceReviewRequired` (`OPS-K-IP-3`, `HumanIpReview`),
+  never silent pass, never a protected-content determination. Tokens are
+  names/labels only; no standards content embedded.
+- New engine CLI `protected_content_lint_cli` (JSON findings, zero new
+  dependencies) and stdlib-only runner
+  `tools/release/run_release_candidate_scan.py`: AC-1..AC-6 inventory walk
+  with `not_applicable` recording, engine lint, IP-boundary §4 provenance
+  check, security profile, quarantine hygiene, and an UNSIGNED
+  `SCAN_<candidate>_<utc>_<commit12>.json` emitter with the owner
+  sign-off block pending. The scan act, dispositions, and signature remain
+  owner-only (`DEC-027`); `validation/evidence/releases/` stays absent
+  until the owner scans.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E7-SCANEXT-001.md`;
+  crate tests 15/15; `tests/test_release_candidate_scan.py` 14/14.
+- Boundary preserved: no legal clearance, release-readiness claim,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards content, private data, lifecycle transition, or new external
+  dependency.

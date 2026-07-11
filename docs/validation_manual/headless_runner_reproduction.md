@@ -75,10 +75,24 @@ Before treating this slice as maintainer-reviewed evidence, verify:
 - any comparison with committed generated outputs accounts only for intentional
   deterministic output-format changes reviewed in a bounded tranche.
 
+## Recorded Reproduction Deltas
+
+- 2026-07-10 (`TP-E2-VALMANUAL-001`): the three commands above were re-run at
+  the then-current head. Exit codes and diagnostic codes matched this slice
+  exactly. The regenerated caller input fixtures were byte-identical to the
+  committed ones. The live `solve` output reported 830 `result_refs` versus
+  the 822 recorded in the committed
+  `validation/witness/generated/tp_runner_015_final_cli_solve.json` (solver
+  result surface grew since the `TP-RUNNER-015` head); this slice's stated
+  expectation (`result_refs` non-empty) still holds, and refreshing the
+  committed generated witness outputs remains bounded `DEL-10-05` work.
+
 ## Remaining E2 Work
 
-This slice does not close `DEL-09-04` or Phase E row E2. Remaining work includes
-per-benchmark purpose/reference/tolerance/pass-fail records, public-benchmark
-threshold disposition, broader benchmark/regression payload bindings, a clean
+Per-case purpose/reference/tolerance/pass-fail records now live under
+`docs/validation_manual/cases/` (see the [manual index](index.md)). This slice
+still does not close `DEL-09-04` or Phase E row E2. Remaining work includes
+public-benchmark threshold disposition, broader benchmark/regression payload
+bindings (`run-benchmark` / `run-regression` remain structured stubs), a clean
 environment demonstration record, and any human-gated release-quality or
 professional-boundary review required at the R5 exit.
