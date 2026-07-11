@@ -106,9 +106,19 @@ PYTHONDONTWRITEBYTECODE=1 python3 tools/practitioner_harness/harness.py self-che
 ```
 
 DEC-025 five-surface evidence sweep at the committed clean head: executed
-after the docs/evidence commit; summary artifact committed under
-`validation/evidence/sweeps/` (see the sweep commit on this branch for the
-artifact name and bound head).
+after the docs/evidence commit `dfa5dd344`. Retry chain (all artifacts
+committed under `validation/evidence/sweeps/`):
+
+1. `SWEEP_20260711T012843Z_dfa5dd344429.json` — overall `fail` at
+   `desktop_vitest` (`vitest: command not found`): the fresh agent worktree
+   had no installed node dev dependencies. Environment provisioning issue,
+   not a code or evidence failure.
+2. Provisioned dev dependencies with `npm ci` (lockfile unchanged; no
+   tracked-file delta), re-ran: `SWEEP_20260711T013150Z_dfa5dd344429-dirty.json`
+   — overall `pass`, marked dirty only because artifact 1 was untracked in
+   the working tree at sweep time.
+3. Final clean-head sweep after committing the chain artifacts — overall
+   `pass`; artifact name recorded in the sweep-summary commit on this branch.
 
 ## Deltas Found (live tree vs recorded maps)
 
