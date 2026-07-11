@@ -214,3 +214,29 @@
     step 3 aligned (this directory).
   - Gate outcome: governance/docs edit executed at owner direction; no code, no
     lifecycle transition, no register change.
+
+- **2026-07-10 — Receipt 9** (loop-instruction consolidation, owner-adopted;
+  deliverables become the work-discovery surface).
+  - Owner directions of record (2026-07-10, in-session, Ryan Tufts): "I really want
+    the deliverables themselves to be the means of discovering work going forward,
+    with the loop mechanics included as the development loop instructions. ... We
+    need to simplify these instructions and avoid creating unnecessary registers or
+    plans."; on the presented consolidation proposal: "Adopted.  Use fable subagents
+    where warranted."
+  - Artifacts (commit `aceac0b6c288`): `WORKPLAN_2026-07-10_piping_loop.md`
+    (supersedes the 2026-07-04 plan; adds fence F-PIP-5); `_COORDINATION.md`
+    rewritten as a ruled-record stub (stage record, DEC-040 augmentation, H4
+    posture preserved verbatim); `## Remaining` sections in 24 deliverable
+    `_STATUS.md` files (51 open items rehomed from plans; rehoming record incl.
+    deliberately-not-rehomed F3 / FR-024 / Phase-I-generator items:
+    `plans/PLAN_COMPLETION_LOG.md` 2026-07-10 entry); plan retirement banners;
+    `NEXT_INSTANCE_PROMPT.md` historical banner; `list_deliverable_status.py`
+    `RemainingItems` column + tests; `LOOP_INIT.md` §7 synced to the 2026-07-05
+    owner revision; README/docs entry pointers aligned. PR from branch
+    `claude/chirality-piping-loop-init-57a151`, awaiting owner merge.
+  - Checks: self-check exit 0; harness pytest pass; coordination tests pass;
+    deliverable-status summary run (Remaining items: 51 across 24 deliverables);
+    DEC-025 clean-head sweep `SWEEP_20260711T031732Z_aceac0b6c288.json` pass.
+  - Gate outcome: coordination/control consolidation executed at owner adoption;
+    no lifecycle transition, no register change; parked gates unchanged: D-12,
+    D-07b, D-38 (AWAITING_RULING), D-06b (NOT_PREPARED).
