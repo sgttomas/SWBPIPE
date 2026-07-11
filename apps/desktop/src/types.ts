@@ -12,6 +12,9 @@ export type PreviewComponent = {
     bend_radius?: QuantityValue;
     bend_angle?: QuantityValue;
     bend_plane_orientation?: string;
+    /** User-entered pipe reference naming the realized curved-bend span
+     * (DEC-070). Starts absent; never defaulted or inferred. */
+    bend_pipe_ref?: string;
     bend_geometry_source_reference?: string;
     branch_header_pipe_ref?: string;
     branch_branch_pipe_ref?: string;
@@ -66,6 +69,38 @@ export type PreviewComponent = {
   }>;
 };
 
+/** User-entered seismic static-equivalent generation inputs, mirroring the
+ * preview-engine input surface (`core/product_physics`
+ * `SeismicGenerationInput`). All slots optional and user-entered; absence is
+ * absence, not zero. */
+export type SeismicEquivalentStaticGenerationInput = {
+  gravity_acceleration?: QuantityValue;
+  g_factor_x?: QuantityValue;
+  g_factor_y?: QuantityValue;
+  g_factor_z?: QuantityValue;
+};
+
+/** User-entered wind static-equivalent generation inputs, mirroring the
+ * preview-engine input surface (`core/product_physics`
+ * `WindGenerationInput`). `direction` is a global axis token
+ * (`global_x` | `global_y` | `global_z`); `exposed_pipe_refs` are
+ * user-marked exposed spans by pipe id. */
+export type WindEquivalentStaticGenerationInput = {
+  pressure?: QuantityValue;
+  shape_factor?: QuantityValue;
+  direction?: string;
+  exposed_pipe_refs?: string[];
+};
+
+/** User-entered static-equivalent occasional-load generation inputs
+ * (DEC-068 item 2), mirroring `core/product_physics`
+ * `EquivalentStaticGenerationInput`. */
+export type EquivalentStaticGenerationInput = {
+  seismic?: SeismicEquivalentStaticGenerationInput;
+  wind?: WindEquivalentStaticGenerationInput;
+  provenance?: string;
+};
+
 export type PreviewModel = {
   schema_version: string;
   document_kind: string;
@@ -111,6 +146,12 @@ export type PreviewModel = {
     label: string;
     from: string;
     to: string;
+    /** Per-span section quantities. Besides `outside_diameter` and
+     * `wall_thickness`, the record carries optional user-entered slots from
+     * the preview-engine input surface (`core/product_physics`
+     * `PipeSectionInput`), including `mill_tolerance` — the user-entered
+     * absolute mill-tolerance thickness reduction (length). Absence means no
+     * reduction; absence is not a default value of zero. */
     section: Record<string, { value: number; unit: string }>;
     material: string;
     y_reference?: Vec3;
@@ -157,6 +198,15 @@ export type PreviewModel = {
     status: string;
     provenance: string;
     primitive_loads?: Array<Record<string, unknown>>;
+    /** Optional user-entered modulus basis (DEC-068 item 1): the
+     * user-assigned temperature-point id whose stored material values this
+     * case solves with. Exact selection only; starts absent; no
+     * interpolation and no default. */
+    modulus_basis_ref?: string;
+    /** Optional user-entered static-equivalent occasional-load generation
+     * inputs (DEC-068 item 2). Starts absent; every value is user-entered;
+     * no code coefficient, catalog value, or physical-constant default. */
+    equivalent_static?: EquivalentStaticGenerationInput;
   }>;
   combinations?: Array<{
     id: string;

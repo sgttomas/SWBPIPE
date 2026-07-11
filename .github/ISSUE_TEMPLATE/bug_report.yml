@@ -1,0 +1,110 @@
+name: Bug report
+description: Report incorrect behavior, an error, or a defect in OpenPipeStress.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem.
+
+        **Contribution posture.** External code contributions are not
+        currently accepted. This tracker is for issue reports and questions
+        only; please do not attach patches or open pull requests. Reports are
+        reviewed as maintainer capacity allows — no response time, resolution,
+        support level, or release is promised.
+
+        **Data boundary — read before filling anything in.** Do NOT include
+        protected or proprietary standards data (standards-body code text,
+        tables, figures, examples, commentary, material allowables,
+        stress-intensification-factor tables, flexibility-factor tables, or
+        other protected dimensional tables) or private project data (real
+        project models, private component/material libraries, private rule
+        packs, proprietary vendor catalog data, or client-identifying
+        information) anywhere in this report, including screenshots, logs, and
+        attachments. Reproduce the problem with invented example data and
+        redact any private values before posting. Content on this tracker is
+        public.
+
+        OpenPipeStress is not affiliated with, endorsed by, certified by, or
+        approved by ASME or any other standards body. This tracker does not
+        provide engineering advice; code-specific values and rules must be
+        supplied and verified by the responsible engineer.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Describe the incorrect behavior, error, or defect you observed.
+      placeholder: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: Describe what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: >-
+        Minimal steps to reproduce, using invented example data only (for
+        example, the bundled invented examples). Never paste a real project
+        model or protected standards values here.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: The OpenPipeStress version or commit hash you were running.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: Operating system and version (for example, "macOS 15.5", "Windows 11", "Ubuntu 24.04").
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log or diagnostic output (optional)
+      description: >-
+        Paste relevant output here, REDACTED first: remove private project
+        values, private library or rule-pack contents, file paths that reveal
+        client or project identity, and any secrets. Text is rendered as a
+        code block.
+      render: text
+    validations:
+      required: false
+  - type: checkboxes
+    id: data-boundary
+    attributes:
+      label: Data-boundary confirmation
+      description: These confirmations are required before the report can be submitted.
+      options:
+        - label: >-
+            This report (including all text, screenshots, logs, and
+            attachments) contains no protected or proprietary standards data —
+            no standards-body code text, tables, figures, examples,
+            commentary, material allowables, SIF tables, flexibility-factor
+            tables, or other protected dimensional tables.
+          required: true
+        - label: >-
+            This report contains no private project data — no real project
+            models, private component/material libraries, private rule packs,
+            proprietary vendor catalog data, client-identifying information,
+            or secrets. Any example data included is invented.
+          required: true
+        - label: >-
+            I understand that external code contributions are not currently
+            accepted and that this report creates no obligation of response,
+            fix, support, or release.
+          required: true

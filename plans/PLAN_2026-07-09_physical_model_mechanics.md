@@ -1,7 +1,7 @@
 # Physical-Model Mechanics Program — tactical plan
 
 > **RETIRED AS A SELECTION SURFACE 2026-07-10** (owner-adopted consolidation; loop
-> Receipt 9). P1–P4 executed (Receipts 5–6; PRs #143/#144/#145); the open residuals
+> Receipt 11). P1–P4 executed (Receipts 5–6; PRs #143/#144/#145); the open residuals
 > and the §5 completion criteria were rehomed into deliverable `_STATUS.md`
 > `## Remaining` sections (primary: DEL-04-01, DEL-04-04, DEL-05-01, DEL-05-02,
 > DEL-07-02). Do not select work from this file; it is retained as a dated record

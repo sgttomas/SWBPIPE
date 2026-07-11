@@ -121,6 +121,7 @@ pub enum BenchmarkFamily {
     ImposedDisplacement,
     StiffnessTransform,
     CurvedBendExpansionLoop,
+    CurvedBendDistributedLoad,
     EquivalentStaticGeneration,
 }
 
@@ -563,6 +564,7 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
         imposed_displacement_spring_fixture(),
         inclined_member_transform_fixture(),
         expansion_loop_curved_bend_thermal_fixture(),
+        curved_bend_distributed_fixed_end_fixture(),
         tp_pmm_p3_occloadgen_equivalent_static_fixture(),
     ]
 }
@@ -2342,6 +2344,414 @@ pub fn validate_expansion_loop_curved_bend_thermal() -> bool {
             EXPANSION_LOOP_UX_T2_RELATIVE_TOLERANCE,
         )
     })
+}
+
+// ---------------------------------------------------------------------------
+// MECH-CURVED-BEND-DISTRIBUTED-FIXED-END
+//
+// Arc-consistent distributed-load and interior-station benchmark against the
+// independent hand-calculated force-method reference
+// `validation/hand_calcs/mechanics/curved_bend_distributed_load_fixed_end.md`
+// (D-34 / DEC-070 arc-residual closure evidence). A quarter-circle arc,
+// clamped at both ends, carries a uniform in-plane or out-of-plane load; the
+// comparison side forms the consistent equivalent nodal loads and section
+// resultants directly on the curved-bend macro-element crate. All numeric
+// inputs below are invented fixture values transcribed from the witness note;
+// the bending flexibility factor `k` is an opaque user-entered number.
+// ---------------------------------------------------------------------------
+
+// Invented witness inputs (units per PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K).
+const CBDFE_BEND_RADIUS: f64 = 1.2;
+const CBDFE_OUTER_DIAMETER: f64 = 0.1683;
+const CBDFE_WALL_THICKNESS: f64 = 0.0071;
+const CBDFE_ELASTIC_MODULUS: f64 = 200.0e9;
+const CBDFE_SHEAR_MODULUS: f64 = 80.0e9;
+const CBDFE_IN_PLANE_INTENSITY: f64 = -1500.0; // local -y, N per m of arc
+const CBDFE_OUT_OF_PLANE_INTENSITY: f64 = -800.0; // local -z, N per m of arc
+pub const CBDFE_FLEXIBILITY_FACTORS: [f64; 2] = [1.0, 2.0];
+pub const CBDFE_STATION_FRACTIONS: [f64; 3] = [0.25, 0.5, 0.75];
+// Comparison tolerance: both sides are closed-form (force method on the same
+// strain-energy model), so the DEC-026 analytic-class 1.0e-9 relative tier
+// applies with a near-zero absolute scale floor of 1.0e-3 (N / N-m; the
+// exact-zero midspan torsion row). Measured max deviation is recorded by
+// `curved_bend_distributed_fixture_matches_witness_reference_table`.
+const CBDFE_RELATIVE_TOLERANCE: f64 = 1.0e-9;
+const CBDFE_NEAR_ZERO_SCALE_FLOOR: f64 = 1.0e-3;
+
+// Witness expected values (support-on-element reactions in the arc local
+// frame; interior stations in the arc section frame) from the witness note
+// `Results` tables.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CurvedBendDistributedWitnessRow {
+    pub flexibility_factor: f64,
+    pub in_plane_tip: [f64; 3], // u_x [m], u_y [m], theta_z [rad]
+    pub in_plane_b: [f64; 3],   // F_x, F_y [N], M_z [N m] at B
+    pub in_plane_a: [f64; 3],   // F_x, F_y [N], M_z [N m] at A
+    pub in_plane_station_mz: [f64; 3],
+    pub out_of_plane_tip: [f64; 3], // u_z [m], theta_x, theta_y [rad]
+    pub out_of_plane_b: [f64; 3],   // F_z [N], M_x, M_y [N m] at B
+    pub out_of_plane_a: [f64; 3],   // F_z [N], M_x, M_y [N m] at A
+    pub out_of_plane_station_torsion: [f64; 3],
+    pub out_of_plane_station_bending_y: [f64; 3],
+}
+
+pub const CBDFE_WITNESS_ROWS: [CurvedBendDistributedWitnessRow; 2] = [
+    CurvedBendDistributedWitnessRow {
+        flexibility_factor: 1.0,
+        in_plane_tip: [-3.325456995161e-4, -4.901547357913e-4, 4.753498913120e-4],
+        in_plane_b: [518.6887093849, 675.8314673820, 152.2772588244],
+        in_plane_a: [-518.6887093849, 2151.6019208490, 48.2268874190],
+        in_plane_station_mz: [36.3621332981, -36.5602035248, -45.2741760268],
+        out_of_plane_tip: [-4.987403008669e-4, -2.430655343790e-4, -2.852099347872e-4],
+        out_of_plane_b: [753.9822368616, -15.0729196640, -262.2942354301],
+        out_of_plane_a: [753.9822368616, 262.2942354301, 15.0729196640],
+        out_of_plane_station_torsion: [29.1159479459, 0.0, -29.1159479459],
+        out_of_plane_station_bending_y: [-10.4566016240, -106.2339587762, -10.4566016240],
+    },
+    CurvedBendDistributedWitnessRow {
+        flexibility_factor: 2.0,
+        in_plane_tip: [-6.662709328105e-4, -9.777057497307e-4, 9.506997826241e-4],
+        in_plane_b: [603.4037708891, 589.0892325630, 122.9516066821],
+        in_plane_a: [-603.4037708891, 2238.3441556680, 75.1199315834],
+        in_plane_station_mz: [40.4485183865, -22.0575891752, -42.5043088892],
+        out_of_plane_tip: [-8.531453880460e-4, -5.384031070283e-4, -4.119699058038e-4],
+        out_of_plane_b: [753.9822368616, -12.2125547407, -259.4338705068],
+        out_of_plane_a: [753.9822368616, 259.4338705068, 12.2125547407],
+        out_of_plane_station_torsion: [30.6639662874, 0.0, -30.6639662874],
+        out_of_plane_station_bending_y: [-14.1938484988, -110.2791256441, -14.1938484988],
+    },
+];
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum CurvedBendDistributedLoadCase {
+    InPlane,
+    OutOfPlane,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CurvedBendDistributedFixedEndResult {
+    pub flexibility_factor: f64,
+    /// Free-tip displacements of the anchored arc solved under the consistent
+    /// load vector (all six local DOFs at node B).
+    pub tip_displacements: [f64; 6],
+    /// Clamped-end support-on-element reactions at A and B (local frame;
+    /// with both ends clamped these are the negated equivalent nodal loads).
+    pub reactions_a: [f64; 6],
+    pub reactions_b: [f64; 6],
+    /// Interior-station section-frame resultants at the witness fractions,
+    /// clamped-clamped state: [axial, shear_y, shear_z, torsion, bending_y,
+    /// bending_z] per station.
+    pub stations: [[f64; 6]; 3],
+}
+
+fn cbdfe_section_area_and_second_moment() -> (f64, f64) {
+    let outer = CBDFE_OUTER_DIAMETER;
+    let inner = outer - 2.0 * CBDFE_WALL_THICKNESS;
+    let area = std::f64::consts::PI / 4.0 * (outer * outer - inner * inner);
+    let second_moment = std::f64::consts::PI / 64.0 * (outer.powi(4) - inner.powi(4));
+    (area, second_moment)
+}
+
+fn cbdfe_element(flexibility_factor: f64) -> Result<CurvedBendMacroElement, String> {
+    let radius = CBDFE_BEND_RADIUS;
+    let node_a = FrameNode::new(0, [radius, 0.0, 0.0]).map_err(|error| error.to_string())?;
+    let node_b = FrameNode::new(1, [0.0, radius, 0.0]).map_err(|error| error.to_string())?;
+    let (area, second_moment) = cbdfe_section_area_and_second_moment();
+    CurvedBendMacroElement::new(
+        node_a,
+        node_b,
+        [0.0, 0.0, 0.0],
+        CBDFE_ELASTIC_MODULUS,
+        CBDFE_SHEAR_MODULUS,
+        area,
+        second_moment,
+        2.0 * second_moment,
+        flexibility_factor,
+        flexibility_factor,
+    )
+    .map_err(|error| error.to_string())
+}
+
+fn cbdfe_intensity(case: CurvedBendDistributedLoadCase) -> [f64; 3] {
+    // The arc local frame coincides with the global frame in this fixture
+    // (center at the origin, node A on +x, bend plane x-y).
+    match case {
+        CurvedBendDistributedLoadCase::InPlane => [0.0, CBDFE_IN_PLANE_INTENSITY, 0.0],
+        CurvedBendDistributedLoadCase::OutOfPlane => [0.0, 0.0, CBDFE_OUT_OF_PLANE_INTENSITY],
+    }
+}
+
+pub fn solve_curved_bend_distributed_fixed_end(
+    flexibility_factor: f64,
+    case: CurvedBendDistributedLoadCase,
+) -> Result<CurvedBendDistributedFixedEndResult, String> {
+    let element = cbdfe_element(flexibility_factor)?;
+    let intensity = cbdfe_intensity(case);
+    let equivalent = element
+        .consistent_uniform_nodal_loads(intensity)
+        .map_err(|error| error.to_string())?;
+
+    // Clamped-clamped state: zero displacements, so the support-on-element
+    // reactions are exactly the negated consistent equivalent nodal loads.
+    let mut reactions_a = [0.0; 6];
+    let mut reactions_b = [0.0; 6];
+    for dof in 0..DOF_PER_NODE {
+        reactions_a[dof] = -equivalent[dof];
+        reactions_b[dof] = -equivalent[DOF_PER_NODE + dof];
+    }
+
+    // Anchored-at-A free-tip solve under the same consistent load vector.
+    let stiffness = element
+        .global_stiffness()
+        .map_err(|error| error.to_string())?;
+    let dense: Vec<Vec<f64>> = stiffness.iter().map(|row| row.to_vec()).collect();
+    let restrained: Vec<usize> = (0..DOF_PER_NODE).collect();
+    let reduced =
+        reduce_system(&dense, &equivalent, &restrained).map_err(|error| error.to_string())?;
+    let solution =
+        solve_dense(&reduced.stiffness, &reduced.force).map_err(|error| error.to_string())?;
+    let mut tip_displacements = [0.0; DOF_PER_NODE];
+    tip_displacements.copy_from_slice(&solution);
+
+    // Interior stations of the clamped-clamped arc: the node-B end force is
+    // the clamped redundant, and the section resultants follow from segment
+    // equilibrium along the arc.
+    let mut stations = [[0.0; 6]; 3];
+    for (station, fraction) in stations.iter_mut().zip(CBDFE_STATION_FRACTIONS) {
+        *station = element
+            .arc_section_resultants(fraction, reactions_b, intensity)
+            .map_err(|error| error.to_string())?;
+    }
+
+    Ok(CurvedBendDistributedFixedEndResult {
+        flexibility_factor,
+        tip_displacements,
+        reactions_a,
+        reactions_b,
+        stations,
+    })
+}
+
+fn cbdfe_close(actual: f64, expected: f64) -> bool {
+    (actual - expected).abs()
+        <= CBDFE_RELATIVE_TOLERANCE * expected.abs().max(CBDFE_NEAR_ZERO_SCALE_FLOOR)
+}
+
+/// Maximum deviation of the solved fixture against the witness table,
+/// normalized per compared quantity by the DEC-026 relative+floor pair.
+pub fn curved_bend_distributed_fixed_end_max_normalized_deviation() -> Result<f64, String> {
+    let mut max_normalized = 0.0_f64;
+    let mut check = |actual: f64, expected: f64| {
+        let scale = expected.abs().max(CBDFE_NEAR_ZERO_SCALE_FLOOR);
+        max_normalized = max_normalized.max((actual - expected).abs() / scale);
+    };
+    for row in CBDFE_WITNESS_ROWS {
+        let in_plane = solve_curved_bend_distributed_fixed_end(
+            row.flexibility_factor,
+            CurvedBendDistributedLoadCase::InPlane,
+        )?;
+        check(in_plane.tip_displacements[UX], row.in_plane_tip[0]);
+        check(in_plane.tip_displacements[UY], row.in_plane_tip[1]);
+        check(in_plane.tip_displacements[RZ], row.in_plane_tip[2]);
+        check(in_plane.reactions_b[UX], row.in_plane_b[0]);
+        check(in_plane.reactions_b[UY], row.in_plane_b[1]);
+        check(in_plane.reactions_b[RZ], row.in_plane_b[2]);
+        check(in_plane.reactions_a[UX], row.in_plane_a[0]);
+        check(in_plane.reactions_a[UY], row.in_plane_a[1]);
+        check(in_plane.reactions_a[RZ], row.in_plane_a[2]);
+        for (station, expected) in in_plane.stations.iter().zip(row.in_plane_station_mz) {
+            check(station[5], expected);
+        }
+        let out_of_plane = solve_curved_bend_distributed_fixed_end(
+            row.flexibility_factor,
+            CurvedBendDistributedLoadCase::OutOfPlane,
+        )?;
+        check(out_of_plane.tip_displacements[UZ], row.out_of_plane_tip[0]);
+        check(out_of_plane.tip_displacements[RX], row.out_of_plane_tip[1]);
+        check(out_of_plane.tip_displacements[RY], row.out_of_plane_tip[2]);
+        check(out_of_plane.reactions_b[UZ], row.out_of_plane_b[0]);
+        check(out_of_plane.reactions_b[RX], row.out_of_plane_b[1]);
+        check(out_of_plane.reactions_b[RY], row.out_of_plane_b[2]);
+        check(out_of_plane.reactions_a[UZ], row.out_of_plane_a[0]);
+        check(out_of_plane.reactions_a[RX], row.out_of_plane_a[1]);
+        check(out_of_plane.reactions_a[RY], row.out_of_plane_a[2]);
+        for (station, expected) in out_of_plane
+            .stations
+            .iter()
+            .zip(row.out_of_plane_station_torsion)
+        {
+            check(station[3], expected);
+        }
+        for (station, expected) in out_of_plane
+            .stations
+            .iter()
+            .zip(row.out_of_plane_station_bending_y)
+        {
+            check(station[4], expected);
+        }
+    }
+    Ok(max_normalized)
+}
+
+pub fn validate_curved_bend_distributed_fixed_end() -> bool {
+    matches!(
+        curved_bend_distributed_fixed_end_max_normalized_deviation(),
+        Ok(deviation) if deviation <= CBDFE_RELATIVE_TOLERANCE
+    )
+}
+
+pub fn curved_bend_distributed_fixed_end_fixture() -> MechanicsBenchmark {
+    let mut expected_values = Vec::new();
+    for row in CBDFE_WITNESS_ROWS {
+        let (
+            labels_in_b,
+            labels_in_a,
+            labels_in_st,
+            labels_out_b,
+            labels_out_a,
+            labels_out_t,
+            labels_out_by,
+        ): (
+            [&'static str; 3],
+            [&'static str; 3],
+            [&'static str; 3],
+            [&'static str; 3],
+            [&'static str; 3],
+            [&'static str; 3],
+            [&'static str; 3],
+        ) = if row.flexibility_factor as u32 == 1 {
+            (
+                ["in_plane_b_fx_k1", "in_plane_b_fy_k1", "in_plane_b_mz_k1"],
+                ["in_plane_a_fx_k1", "in_plane_a_fy_k1", "in_plane_a_mz_k1"],
+                [
+                    "in_plane_station_mz_q1_k1",
+                    "in_plane_station_mz_mid_k1",
+                    "in_plane_station_mz_q3_k1",
+                ],
+                [
+                    "out_of_plane_b_fz_k1",
+                    "out_of_plane_b_mx_k1",
+                    "out_of_plane_b_my_k1",
+                ],
+                [
+                    "out_of_plane_a_fz_k1",
+                    "out_of_plane_a_mx_k1",
+                    "out_of_plane_a_my_k1",
+                ],
+                [
+                    "out_of_plane_station_torsion_q1_k1",
+                    "out_of_plane_station_torsion_mid_k1",
+                    "out_of_plane_station_torsion_q3_k1",
+                ],
+                [
+                    "out_of_plane_station_bending_y_q1_k1",
+                    "out_of_plane_station_bending_y_mid_k1",
+                    "out_of_plane_station_bending_y_q3_k1",
+                ],
+            )
+        } else {
+            (
+                ["in_plane_b_fx_k2", "in_plane_b_fy_k2", "in_plane_b_mz_k2"],
+                ["in_plane_a_fx_k2", "in_plane_a_fy_k2", "in_plane_a_mz_k2"],
+                [
+                    "in_plane_station_mz_q1_k2",
+                    "in_plane_station_mz_mid_k2",
+                    "in_plane_station_mz_q3_k2",
+                ],
+                [
+                    "out_of_plane_b_fz_k2",
+                    "out_of_plane_b_mx_k2",
+                    "out_of_plane_b_my_k2",
+                ],
+                [
+                    "out_of_plane_a_fz_k2",
+                    "out_of_plane_a_mx_k2",
+                    "out_of_plane_a_my_k2",
+                ],
+                [
+                    "out_of_plane_station_torsion_q1_k2",
+                    "out_of_plane_station_torsion_mid_k2",
+                    "out_of_plane_station_torsion_q3_k2",
+                ],
+                [
+                    "out_of_plane_station_bending_y_q1_k2",
+                    "out_of_plane_station_bending_y_mid_k2",
+                    "out_of_plane_station_bending_y_q3_k2",
+                ],
+            )
+        };
+        let force_dims: [&'static str; 3] = ["force", "force", "moment"];
+        let force_units: [&'static str; 3] = ["N", "N", "N-m"];
+        let out_dims: [&'static str; 3] = ["force", "moment", "moment"];
+        let out_units: [&'static str; 3] = ["N", "N-m", "N-m"];
+        for slot in 0..3 {
+            expected_values.push(ExpectedValue {
+                name: labels_in_b[slot],
+                value: row.in_plane_b[slot],
+                unit: force_units[slot],
+                dimension: force_dims[slot],
+                tolerance_policy: None,
+            });
+            expected_values.push(ExpectedValue {
+                name: labels_in_a[slot],
+                value: row.in_plane_a[slot],
+                unit: force_units[slot],
+                dimension: force_dims[slot],
+                tolerance_policy: None,
+            });
+            expected_values.push(ExpectedValue {
+                name: labels_in_st[slot],
+                value: row.in_plane_station_mz[slot],
+                unit: "N-m",
+                dimension: "moment",
+                tolerance_policy: None,
+            });
+            expected_values.push(ExpectedValue {
+                name: labels_out_b[slot],
+                value: row.out_of_plane_b[slot],
+                unit: out_units[slot],
+                dimension: out_dims[slot],
+                tolerance_policy: None,
+            });
+            expected_values.push(ExpectedValue {
+                name: labels_out_a[slot],
+                value: row.out_of_plane_a[slot],
+                unit: out_units[slot],
+                dimension: out_dims[slot],
+                tolerance_policy: None,
+            });
+            expected_values.push(ExpectedValue {
+                name: labels_out_t[slot],
+                value: row.out_of_plane_station_torsion[slot],
+                unit: "N-m",
+                dimension: "moment",
+                tolerance_policy: None,
+            });
+            expected_values.push(ExpectedValue {
+                name: labels_out_by[slot],
+                value: row.out_of_plane_station_bending_y[slot],
+                unit: "N-m",
+                dimension: "moment",
+                tolerance_policy: None,
+            });
+        }
+    }
+    MechanicsBenchmark {
+        fixture_id: "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END",
+        family: BenchmarkFamily::CurvedBendDistributedLoad,
+        description: "Invented clamped-clamped quarter-circle arc under uniform in-plane and out-of-plane distributed loads, compared for k in {1, 2} against the independent force-method witness MECH-CURVED-BEND-DISTRIBUTED-FIXED-END: arc-consistent fixed-end forces/moments and interior-station section resultants from the curved-bend macro-element closed forms.",
+        assumptions: &[
+            "The arc center sits at the origin with node A at (R, 0, 0) and node B at (0, R, 0); the arc local frame coincides with the global frame.",
+            "Both ends are fully clamped for the reaction and station tables; the free-tip deflection rows anchor A only and solve under the same consistent load vector.",
+            "The user-entered bending flexibility factor k (opaque number; no code content) applies to both bending planes, matching the product single-factor mapping.",
+            "The strain-energy model is Euler-Bernoulli bending + St. Venant torsion + axial stretch, identical on both comparison sides; shear deformation is excluded.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/mechanics/curved_bend_distributed_load_fixed_end.md",
+        ),
+        unit_basis: FIXTURE_UNIT_BASIS,
+        expected_values,
+    }
 }
 
 pub fn validate_imposed_displacement_fixture() -> bool {
@@ -5082,7 +5492,7 @@ mod tests {
     fn inventory_covers_required_mechanics_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 20);
+        assert_eq!(fixtures.len(), 21);
         assert!(fixtures
             .iter()
             .any(|fixture| fixture.fixture_id == "MECH-BRANCH-ASSEMBLY-THREE-MEMBER"));
@@ -5671,6 +6081,80 @@ mod tests {
             (stiff.t2_uy_displacement - free_uy).abs(),
             (flexible.t2_uy_displacement - free_uy).abs()
         );
+    }
+
+    #[test]
+    fn curved_bend_distributed_fixture_matches_witness_reference_table() {
+        let fixture = curved_bend_distributed_fixed_end_fixture();
+        assert_eq!(fixture.fixture_id, "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END");
+        assert!(fixture.has_dimensioned_expected_values());
+        assert!(fixture.provenance.is_publicly_usable());
+        // Both sides are closed-form; the measured normalized deviation must
+        // sit inside the DEC-026 analytic-class 1.0e-9 relative tier.
+        let deviation = curved_bend_distributed_fixed_end_max_normalized_deviation().unwrap();
+        eprintln!(
+            "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END measured normalized deviation: {deviation:e}"
+        );
+        assert!(
+            deviation <= CBDFE_RELATIVE_TOLERANCE,
+            "measured normalized deviation {deviation} exceeds the analytic-class tolerance"
+        );
+        assert!(validate_curved_bend_distributed_fixed_end());
+    }
+
+    #[test]
+    fn curved_bend_distributed_reactions_carry_the_exact_load_resultant() {
+        for flexibility_factor in CBDFE_FLEXIBILITY_FACTORS {
+            let radius = CBDFE_BEND_RADIUS;
+            let arc_length = radius * std::f64::consts::PI / 2.0;
+            let in_plane = solve_curved_bend_distributed_fixed_end(
+                flexibility_factor,
+                CurvedBendDistributedLoadCase::InPlane,
+            )
+            .unwrap();
+            // Force balance in the load direction.
+            let total = CBDFE_IN_PLANE_INTENSITY * arc_length;
+            assert!(
+                (in_plane.reactions_a[UY] + in_plane.reactions_b[UY] + total).abs()
+                    <= 1.0e-9 * total.abs()
+            );
+            let out_of_plane = solve_curved_bend_distributed_fixed_end(
+                flexibility_factor,
+                CurvedBendDistributedLoadCase::OutOfPlane,
+            )
+            .unwrap();
+            // Mirror symmetry of the quarter arc: each clamp carries exactly
+            // half the out-of-plane load, independent of k.
+            let half = -CBDFE_OUT_OF_PLANE_INTENSITY * arc_length / 2.0;
+            assert!((out_of_plane.reactions_a[UZ] - half).abs() <= 1.0e-9 * half);
+            assert!((out_of_plane.reactions_b[UZ] - half).abs() <= 1.0e-9 * half);
+            // Antisymmetric torsion with an exact midspan zero; symmetric
+            // bending about the inward radial.
+            let stations = out_of_plane.stations;
+            assert!((stations[0][3] + stations[2][3]).abs() <= 1.0e-9 * stations[0][3].abs());
+            assert!(stations[1][3].abs() <= 1.0e-6);
+            assert!((stations[0][4] - stations[2][4]).abs() <= 1.0e-9 * stations[0][4].abs());
+        }
+    }
+
+    #[test]
+    fn curved_bend_distributed_free_tip_matches_station_end_identity() {
+        // At fraction 1 the station resultants reduce to the node-B end
+        // force in the section frame; at the clamped state that end force is
+        // the redundant itself, so the fraction-1 station reproduces the
+        // tabulated B reactions rotated into the section frame at B
+        // (tangent (-1, 0, 0), inward radial (0, -1, 0), normal (0, 0, 1)).
+        let element = cbdfe_element(2.0).unwrap();
+        let intensity = cbdfe_intensity(CurvedBendDistributedLoadCase::InPlane);
+        let result =
+            solve_curved_bend_distributed_fixed_end(2.0, CurvedBendDistributedLoadCase::InPlane)
+                .unwrap();
+        let at_b = element
+            .arc_section_resultants(1.0, result.reactions_b, intensity)
+            .unwrap();
+        assert!((at_b[0] - -result.reactions_b[UX]).abs() <= 1.0e-9 * result.reactions_b[UX].abs());
+        assert!((at_b[1] - -result.reactions_b[UY]).abs() <= 1.0e-9 * result.reactions_b[UY].abs());
+        assert!((at_b[5] - result.reactions_b[RZ]).abs() <= 1.0e-9 * result.reactions_b[RZ].abs());
     }
 
     #[test]

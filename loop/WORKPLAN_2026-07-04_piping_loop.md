@@ -1,7 +1,7 @@
 # Piping Work Loop — standing plan (PRD-completion development loop)
 
 > **SUPERSEDED 2026-07-10** by `WORKPLAN_2026-07-10_piping_loop.md` in this directory
-> (owner-adopted consolidation; Receipt 9). Retained as a dated record only — the
+> (owner-adopted consolidation; Receipt 11). Retained as a dated record only — the
 > newest `WORKPLAN_*.md` governs. Do not follow this file's protocol or pointers.
 
 > **Epistemic status: agent-authored plan — not authority.** Written at owner direction

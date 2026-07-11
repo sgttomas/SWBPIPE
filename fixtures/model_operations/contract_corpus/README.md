@@ -24,7 +24,7 @@ running the Rust engine, and the TypeScript engine is held to them.
 | provenance_class | `PUBLIC_DOMAIN_OR_ORIGINAL` |
 | contributor_certification | Nothing in this corpus derives from protected standards content, vendor-proprietary data, or real project data. No code-specific allowables, SIFs, flexibility factors, or load-combination defaults appear anywhere in the corpus; numeric values are arbitrary invented scalars used only to exercise validation mechanics. |
 | engineering_status | Non-engineering test data. The corpus makes no release-readiness, professional-approval, certification, sealing, authentication, or code-compliance claim. |
-| review_status | Cases 01–57: human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12). Cases 58–65 (added by `TP-APP-R2-COMBEXPR-001`): human-reviewed and accepted 2026-06-12 (`DEC-032`, same register). Future case additions require their own review entry; they do not ride prior acceptances. |
+| review_status | Cases 01–57: human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12). Cases 58–65 (added by `TP-APP-R2-COMBEXPR-001`): human-reviewed and accepted 2026-06-12 (`DEC-032`, same register). Cases 66–75 (added by `TP-APP-R5-FIELDRULES-001`: component-geometry and load-case optional-slot field rules): blessed from the Rust contract reference on 2026-07-10; **pending their own human review entry**. Future case additions require their own review entry; they do not ride prior acceptances. |
 
 ## Case file format
 

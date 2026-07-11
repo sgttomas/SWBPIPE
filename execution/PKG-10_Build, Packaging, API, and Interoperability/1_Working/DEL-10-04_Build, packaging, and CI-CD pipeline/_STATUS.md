@@ -4,11 +4,10 @@
 **Last Updated:** 2026-07-10
 
 ## Remaining
-- E5 implementation per DEC-057: enable `bundle.active` with explicit targets and real `.icns` icons; produce the macOS aarch64 `.app` zip with published SHA-256 and BUILD_AND_RELEASE §8 release artifact record (source: PRD plan §3 E5 row / DEC-057)
-- Build the sanitized-export pipeline meeting the D-05b packet G1–G7 guarantees (named new Phase E work item) (source: DEC-059)
-- Activate public sanitized-export repo CI (gated: D-05b conditions — export pipeline + DEC-058 green scan + DEC-057 repo location; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059)
+- Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, making the export self-verifying or trimming its test set, and owner review of the v1 include/exclude allowlist (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
 - Sign/notarize release artifacts or record the explicit PRD §22.6 deviation (gated: D-06b) (source: PRD plan §3 E5 row / register row D-06b / DEC-057)
 - Record the CI browser-provisioning policy for Playwright surfaces (source: seam plan §9.5 roll-forward)
+- Map provider CI workflows to the provider-neutral phases in docs/BUILD_AND_RELEASE.md §7 (RGAP-003) (source: PRD plan §3 E5 row remaining scope / TP-E5-PACKAGING-001)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -22,4 +21,4 @@
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-07 - State set to CHECKING after REVIEW found no open findings, active execution dependencies satisfied, and provider-neutral release-readiness validation passed. This transition does not select a CI provider, publish a release, resolve package/release matrix decisions, or authorize professional/code-compliance claims.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
-- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 9); no state change.
+- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 11); no state change.

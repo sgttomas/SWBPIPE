@@ -238,3 +238,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Boundaries preserved: user-entered values only, no defaults, no protected
   content, no lifecycle transition, release-readiness, professional,
   certification, sealing, authentication, or code-compliance claim.
+
+## 2026-07-10 - TP-PMM-P2-NONCONVDIAG-001 nonconvergence-diagnostic corner closed
+
+- Closed the TP-PMM-P2-FRICTION-001 recorded corner: a sliding-seeded friction
+  support at `max_iterations == 1` returned `converged == false` with a zero
+  active-set residual and no diagnostic. The assembled loop in
+  `core/solver/nonlinear_integration` now guards every non-converged exit: if
+  the final diagnostics carry no residual-based `NonConvergence` code, it
+  emits a `NonConvergence` failure diagnostic naming the deferred
+  sliding-force cause (or a generic non-converged exit), the iteration count,
+  and the final active-set state summary, with remediation to raise
+  `max_iterations`.
+- Diagnostics only: no mechanics change, no friction history model (DEC-067
+  fence), no DEC-046 threshold change (TBD axes stay TBD), and the
+  residual-based classifier diagnostic path is unchanged (the guard never
+  double-emits when the classifier already reported nonconvergence).
+- New crate tests: sliding seed at the single-iteration cap emits exactly one
+  `NonConvergence` failure diagnostic; a sticking-friction solve that
+  genuinely converges at `max_iterations == 1` gains no false positive; the
+  existing state-switching capped-gap test now pins exactly one failure
+  diagnostic.
+- Residuals unchanged otherwise: anti-chatter oscillation still reaches the
+  visible cap (now always loud), sliding-force magnitude is not a residual
+  axis, arc interior stations remain open under DEC-070.

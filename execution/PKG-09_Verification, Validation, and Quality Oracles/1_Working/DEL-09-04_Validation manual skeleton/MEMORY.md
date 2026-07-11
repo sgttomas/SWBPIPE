@@ -11,6 +11,38 @@ revision: 0.5
 
 # MEMORY - DEL-09-04 Validation Manual Skeleton
 
+## 2026-07-10 - TP-E2-VALMANUAL-001 per-case validation manual (Phase E row E2)
+
+- Added 63 per-case validation-manual pages under
+  `docs/validation_manual/cases/` (20 mechanics, 15 stress recovery, 28
+  nonlinear support), each assembling the PRD section 16.5 fields (purpose,
+  input model, independent reference, expected result, software result,
+  tolerance, pass/fail, solver version) from the existing hand-calc witness
+  notes, fixture constructors, suite tests, and governed `DEC-046` policy
+  records already in the tree.
+- Pages are deterministic renderings from the committed generator
+  `docs/validation_manual/cases/generate_validation_case_pages.py`; the
+  hand-calc notes and crate fixtures remain the sources of record.
+- Rebuilt `docs/validation_manual/index.md` as the case index; corrected the
+  stale decomposition-authority pointer (revision `0.7` -> `0.8`; `DAG-007`
+  pointer verified current).
+- Recorded real reproduction runs on 2026-07-10 (rustc 1.92.0): mechanics
+  `30 passed; 0 failed`, stress `22 passed; 0 failed`, nonlinear
+  `19 passed; 0 failed`; `openpipestress-runner` solve exit 0 /
+  validate-input exit 1 (`HEADLESS_RUNNER_LOAD_BASIS_MISSING`) /
+  run-benchmark exit 1
+  (`HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD`).
+- Recorded delta: live runner `solve` reports 830 `result_refs` vs the 822 in
+  the committed `TP-RUNNER-015` generated witness; slice expectations still
+  hold; witness refresh remains bounded `DEL-10-05` work. Corrected a
+  verified-stale sentence in `validation/benchmarks/mechanics/README.md`
+  (the expansion-loop fixture is registered in `fixture_inventory()`).
+- Boundary preserved: no threshold invented, tightened beyond evidence, or
+  loosened; `DEC-046`/`DEC-024`/`DEC-026` `TBD` entries stay `TBD`; no
+  lifecycle transition; no release readiness, protected-content/legal
+  clearance, professional approval, certification, sealing, authentication,
+  or code-compliance claim.
+
 ## 2026-07-05 - TP-VALIDMANUAL-RUNNERREPRO-001 headless-runner reproduction slice
 
 - Added `docs/validation_manual/headless_runner_reproduction.md` as a draft

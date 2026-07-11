@@ -38,9 +38,20 @@ The current implementation lane is provider-neutral:
   the private monorepo remains prohibited absent an explicitly recorded §7
   private-data-handling authorization;
 - no `.github/` or other live workflow file is created by this deliverable;
-- no installer, signed binary, notarized package, attestation, or publication
-  target is generated;
-- no final OS/architecture release matrix is selected;
+- the v0.1 release matrix, installer format, and signing posture are ruled
+  (`DEC-057`, 2026-07-04, recorded in
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; packet
+  `execution/_Coordination/_DECISIONS/D-06_release_matrix_installers_publication.md`):
+  macOS Apple Silicon (`aarch64-apple-darwin`) only; the Tauri `.app` bundle
+  distributed as a zip archive with a published SHA-256 checksum; no signing
+  or notarization for v0.1 (re-decided at `D-06b`), with authenticity carried
+  by the checksum + the commit-bound `DEC-025` sweep artifact + the §8
+  release artifact record and the unsigned-install caveat;
+- no publication act occurs from this guide: packaging (§6) produces a local
+  zip + checksum + §8 record only; the ruled publication target (GitHub
+  Releases on the prospective public sanitized-export repository,
+  `DEC-057`/`DEC-059`) does not exist yet, and any publication is a separate
+  human release-authority act;
 - no final numerical tolerance, coverage, performance, or maintainer-quorum
   threshold is selected.
 
@@ -168,21 +179,58 @@ certification, sealing, authentication, or code-compliance determination.
 
 ## 6. Packaging Skeleton
 
-The current packaging skeleton is a checklist, not a package build:
+The packaging checklist for a release candidate:
 
 1. Confirm source revision and working-tree state.
 2. Run applicable local readiness profiles.
 3. Confirm release quality gates in `docs/RELEASE_QUALITY_GATES.md`.
 4. Confirm protected-content, private-data, and real-secret scan disposition.
-5. Prepare release notes from `docs/RELEASE_NOTES_TEMPLATE.md`.
+5. Prepare release notes from `docs/RELEASE_NOTES_TEMPLATE.md`; release notes
+   must carry the §8 unsigned-install caveat while `DEC-057`'s unsigned
+   posture stands.
 6. Record known limitations, unresolved `TBD` decisions, and human gate state.
-7. If binaries or installers are later produced, record package path, target,
-   build command, checksum, signing/notarization state, and publication state.
+7. If binaries or installers are produced, record package path, target, build
+   command, checksum, signing/notarization state, and publication state via
+   the §8 release-artifact record.
 
-Desktop packaging is expected to follow the accepted Tauri-supported
-macOS/Windows/Linux architecture baseline when a GUI package exists. Exact
-target triples, installer formats, signing identities, notarization process,
-and publication destinations remain `TBD`.
+### 6.1 Ruled v0.1 Package Path (`DEC-057`)
+
+- **Matrix:** macOS Apple Silicon (`aarch64-apple-darwin`) only. Windows and
+  Linux enter only through the evidence-gated matrix-expansion rider
+  (packaged build + recorded packaged-run smoke + §8 record per platform).
+- **Bundle:** `apps/desktop/src-tauri/tauri.conf.json` enables the bundler
+  (`bundle.active: true`, explicit `targets: ["app"]`) with the invented
+  OpenPipeStress mark as a real multi-resolution `.icns`
+  (`apps/desktop/src-tauri/icons/icon.icns`; regenerate deterministically
+  with `python3 tools/release/generate_app_icon.py`). Build the `.app` with:
+
+  ```bash
+  cd apps/desktop && npm run tauri -- build --bundles app
+  ```
+
+- **Artifact shape:** the `.app` zipped with a published SHA-256 checksum,
+  produced by the deterministic packaging entrypoint:
+
+  ```bash
+  python3 tools/release/package_release_artifact.py            # dry-run
+  python3 tools/release/package_release_artifact.py --execute \
+      --sweep-artifact validation/evidence/sweeps/SWEEP_<utc>_<commit12>.json
+  ```
+
+  The zip is deterministic where feasible (sorted entries, commit-derived
+  UTC timestamps, unix permissions and symlinks preserved, no extra fields);
+  the zip and `.zip.sha256` land under `dist/release/` (untracked), and the
+  §8 record lands under `validation/evidence/release_artifacts/`.
+- **Signing:** none for v0.1 (`DEC-057`); re-decided at `D-06b` before any
+  R5 "Signed releases" deliverable claim. Signing secrets stay local (§7).
+- **Publication:** no publication act from this path. The ruled target is
+  GitHub Releases on the prospective public sanitized-export repository
+  (`DEC-057`/`DEC-059`); until it exists, artifacts are recorded locally per
+  §8 and distributed directly by the owner.
+
+Producing a package under this path is packaging mechanics, not a release:
+an actual release additionally requires the `D-20` scan record, gate
+records, and the human release authority's acceptance.
 
 ## 7. Future CI Mapping
 
@@ -217,6 +265,45 @@ Every release candidate record should identify:
 - data-boundary and professional-boundary notices;
 - human review or waiver record.
 
+### 8.1 Record Emitter (`DEC-057` Mechanics)
+
+`python3 tools/release/package_release_artifact.py --execute` emits the
+machine-readable record
+`validation/evidence/release_artifacts/RELEASE_ARTIFACT_<utc>_<commit12>[-dirty].json`
+alongside the zip + checksum it produces. The record binds the fields above
+to the current commit hash and runtime versions and adds the `DEC-057`
+ruled-shape fields: release matrix (`aarch64-apple-darwin`), installer
+format (Tauri `.app` zip), build command, signing state (`unsigned`,
+re-decision `D-06b`), publication state, and the human-review placeholder
+(publication requires the human release authority's acceptance; the emitter
+never fills that field).
+
+### 8.2 Authenticity Chain And Unsigned-Install Caveat (`DEC-057`)
+
+v0.1 artifacts are unsigned, so authenticity is carried by three bound
+surfaces, recorded together in the emitted record's `authenticity_chain`:
+
+1. the artifact's SHA-256 checksum, published beside it as `<zip>.sha256`;
+2. the commit-bound `DEC-025` sweep artifact passed via `--sweep-artifact`
+   — the chain is `verified` only when the record's commit is clean and
+   identical to a passing, clean-tree sweep summary's bound commit, or
+   trails it only by evidence-only closeout commits (deltas confined to
+   `validation/evidence/`, recorded path-by-path in the record);
+3. this §8 release artifact record binding both to the source revision.
+
+Release notes and any distribution surface must carry the unsigned-install
+caveat (the emitter records it verbatim in every record):
+
+> This build is not code-signed or notarized (DEC-057: v0.1 ships unsigned;
+> signing/notarization is re-decided at D-06b). macOS Gatekeeper will
+> quarantine the downloaded app. Before opening it, verify the artifact's
+> SHA-256 checksum against the published .sha256 file and the commit-bound
+> DEC-025 evidence-sweep artifact referenced in the release artifact record;
+> then open the app explicitly (Control-click > Open, or remove the
+> quarantine attribute). Authenticity is carried by the checksum + the
+> commit-bound sweep artifact + the release artifact record, not by an OS
+> code signature.
+
 Release labels describe software maturity and validation evidence. They do not
 approve a project-specific piping calculation, authenticate a user rule pack,
 or replace competent professional review.
@@ -226,9 +313,17 @@ or replace competent professional review.
 - Decided 2026-06-11 (`DEC-025`): hosted CI deferred; the five-surface local
   sweep (§5.1) is the commit-bound merge gate; hosted workflow location is
   re-decided at `D-05b` (public sanitized-export CI, prepared with D-06).
-- TBD: final supported OS/architecture release matrix.
-- TBD: installer/package formats.
-- TBD: signing, notarization, checksum publication, and release attestation.
+- Decided 2026-07-04 (`DEC-057`, D-06 Option O-A): v0.1 release matrix is
+  macOS Apple Silicon (`aarch64-apple-darwin`) only; installer format is the
+  Tauri `.app` bundle zipped with a published SHA-256 checksum (§6.1);
+  signing/notarization is none for v0.1 with checksum + commit-bound sweep +
+  §8 record authenticity and the unsigned-install caveat (§8.2), re-decided
+  at `D-06b` before any R5 "Signed releases" claim; publication target is
+  GitHub Releases on the prospective public sanitized-export repository,
+  with local §8 recording and direct owner distribution until it exists.
+  Windows/Linux matrix growth is evidence-gated (new register rows).
 - TBD: coverage, performance, tolerance, and permitted-variance thresholds.
 - TBD: maintainer quorum and release authority.
-- TBD: final package/container format for desktop project files.
+- Decided: desktop project container is the multi-member archive per the
+  PKG-17 contracts (`DEC-028`, 2026-06-11), named `.opsproj` /
+  "OpenPipeStress Project Package" by the `DEC-057` naming rider.

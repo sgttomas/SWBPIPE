@@ -4,7 +4,7 @@
 **Last Updated:** 2026-07-10
 
 ## Remaining
-- Emit the new mechanics schema slots from the GUI editors: `bend_pipe_ref`, occasional-load/wind-marking inputs, `modulus_basis_records`, and mill-tolerance dimension (see also DEL-07-03, DEL-03-08) (source: Receipt 5-6 residuals / TP-PMM-P3-OCCLOADGEN/MODULUSBASIS-001 §Boundaries)
+- Add GUI entry/emission of the model-level modulus_basis_records table (schema model.schema.yaml; per-load-case modulus_basis_ref selection plus bend_pipe_ref/mill-tolerance/equivalent-static entry landed via TP-PMM-GUIEMIT-001 PR #156 and applier acceptance TP-APP-R5-FIELDRULES-001 PR #162) (source: Receipt 10 delta / model.schema.yaml)
 - Broaden app unit entry/pickers beyond the covered B-tail surfaces (residual hardening, select when it de-risks current-stage work) (source: PRD plan §3 Phase B-tail row / FR-002)
 - Backfill unit tests and factoring for LoadCaseManagerPanel, PipeViewport, PropertyInspector (see also DEL-07-01) (source: PRD plan §3 hardening row H3 / seam plan §9.4)
 - Complete broader canvas gestures and full model-tree/property-editor UX beyond landed selection/creation/drafting (source: PRD plan §4 FR-003/FR-013/FR-014 A3 residuals)
@@ -19,4 +19,4 @@
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-06 - State set to CHECKING by human instruction after PKG-07 CHECKING-readiness fan-in recommended `MOVE_TO_CHECKING` for DEL-07-02; lifecycle advancement remains review-gate handoff only, not acceptance or issuance.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
-- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 9); no state change.
+- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 11); no state change.

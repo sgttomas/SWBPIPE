@@ -17,7 +17,7 @@
 - **2026-07-09** (Receipt 3): the physical-model mechanics program is adopted
   (`DEC-066`–`DEC-070`); the loop pursues physical-model correctness alongside PRD
   completion. Method forks and thresholds stay owner-gated as register rows.
-- **2026-07-10** (Receipt 9): consolidation adopted — *deliverables themselves are the
+- **2026-07-10** (Receipt 11): consolidation adopted — *deliverables themselves are the
   means of discovering work*; this plan absorbs the operative mechanics of the
   Application Integration And Issuance Loop; `execution/_Coordination/_COORDINATION.md`
   is reduced to a ruled-record surface; `plans/` is retired as a selection surface

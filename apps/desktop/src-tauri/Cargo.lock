@@ -2098,6 +2098,13 @@ name = "open_pipe_stress_completeness_checker"
 version = "0.1.0"
 
 [[package]]
+name = "open_pipe_stress_curved_bend"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_frame_kernel",
+]
+
+[[package]]
 name = "open_pipe_stress_expression_evaluator"
 version = "0.1.0"
 
@@ -2131,6 +2138,7 @@ dependencies = [
 name = "open_pipe_stress_nonlinear_integration"
 version = "0.1.0"
 dependencies = [
+ "open_pipe_stress_curved_bend",
  "open_pipe_stress_frame_kernel",
  "open_pipe_stress_nonlinear_supports",
  "open_pipe_stress_solver_diagnostics",
@@ -2168,6 +2176,7 @@ dependencies = [
 name = "open_pipe_stress_product_physics"
 version = "0.1.0"
 dependencies = [
+ "open_pipe_stress_curved_bend",
  "open_pipe_stress_frame_kernel",
  "open_pipe_stress_linear_supports",
  "open_pipe_stress_load_case_algebra",

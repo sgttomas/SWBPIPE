@@ -20,7 +20,12 @@ Current slice:
   interactive by default, dense scrutiny when explicitly selected;
 - reconstructs full displacement and reaction vectors;
 - feeds trial support facts into `evaluate_active_set_iteration`;
-- stops when the active set converges or the explicit iteration cap is reached.
+- stops when the active set converges or the explicit iteration cap is reached;
+- guarantees every non-converged exit carries a visible `NonConvergence`
+  failure diagnostic, including the zero-residual capped exit where a
+  sliding-seeded first iterate defers convergence at `max_iterations == 1`
+  (recorded `TP-PMM-P2-FRICTION-001` corner, closed by
+  `TP-PMM-P2-NONCONVDIAG-001`).
 
 The current residual is the active-set state-change count exposed by the
 classifier. `DEC-046` supplies accepted active-set count controls for the

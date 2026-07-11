@@ -256,6 +256,228 @@ impl CurvedBendMacroElement {
         let orientation = self.orientation()?;
         Ok(transform_global_stiffness(&local, &orientation))
     }
+
+    /// Consistent equivalent nodal loads, in global coordinates ordered
+    /// [node i; node j], for a uniform distributed load of constant global
+    /// intensity (force per unit arc length).
+    ///
+    /// The fixed-end forces and moments come from the force method on the
+    /// same exact closed-form unit-load integration used for the element
+    /// stiffness: the free-tip deflection under the load is integrated along
+    /// the arc (extended {1, cos, sin, theta, theta cos, theta sin} basis, no
+    /// quadrature), the clamped-tip redundants follow from compatibility with
+    /// the element end flexibility, and the node-i share follows from rigid
+    /// equilibrium with the distributed-load resultant. The user flexibility
+    /// factors enter the bending curvature terms exactly as in
+    /// `end_flexibility`, so the load vector is consistent with the assembled
+    /// stiffness. Adding this vector to the global system load produces the
+    /// exact end response of the continuously loaded arc; the element's true
+    /// end forces are then `K d - p` with `p` this vector.
+    pub fn consistent_uniform_nodal_loads(
+        &self,
+        intensity_global: [f64; 3],
+    ) -> Result<[f64; ELEMENT_DOF], CurvedBendError> {
+        validate_finite_vector("uniform_load_intensity", intensity_global)?;
+        let geometry = self.geometry()?;
+        let intensity_local = rotate_to_local(&geometry.local_axes, intensity_global);
+        let tip_deflection = self.tip_deflection_under_uniform_load(&geometry, intensity_local);
+        let flexibility = self.end_flexibility()?;
+        let tip_stiffness = invert_symmetric6(&flexibility)?;
+
+        // Clamped-tip redundant (support-on-element force at node j in the
+        // both-ends-clamped state): X = -K_jj * delta0.
+        let mut clamped_tip_force = [0.0; DOF_PER_NODE];
+        for row in 0..DOF_PER_NODE {
+            for col in 0..DOF_PER_NODE {
+                clamped_tip_force[row] -= tip_stiffness[row][col] * tip_deflection[col];
+            }
+        }
+
+        // Distributed-load resultant about node i in the local frame:
+        // total force R*phi*w and moment R^2 * (sin phi - phi, 1 - cos phi, 0) x w.
+        let radius = geometry.radius;
+        let included_angle = geometry.included_angle;
+        let moment_arm = [
+            radius * radius * (included_angle.sin() - included_angle),
+            radius * radius * (1.0 - included_angle.cos()),
+            0.0,
+        ];
+        let load_moment_about_i = cross(moment_arm, intensity_local);
+        let mut load_resultant_at_i = [0.0; DOF_PER_NODE];
+        for axis in 0..3 {
+            load_resultant_at_i[axis] = radius * included_angle * intensity_local[axis];
+            load_resultant_at_i[3 + axis] = load_moment_about_i[axis];
+        }
+
+        // Equivalent nodal loads: p_j = -X and p_i = H X + W_i, with H the
+        // rigid transfer of node-j forces to node i over the chord.
+        let chord_local = [
+            radius * (included_angle.cos() - 1.0),
+            radius * included_angle.sin(),
+            0.0,
+        ];
+        let transfer = equilibrium_transfer(chord_local);
+        let mut local_loads = [0.0; ELEMENT_DOF];
+        for row in 0..DOF_PER_NODE {
+            let mut transferred = 0.0;
+            for col in 0..DOF_PER_NODE {
+                transferred += transfer[row][col] * clamped_tip_force[col];
+            }
+            local_loads[row] = transferred + load_resultant_at_i[row];
+            local_loads[DOF_PER_NODE + row] = -clamped_tip_force[row];
+        }
+
+        let mut global_loads = [0.0; ELEMENT_DOF];
+        for block in 0..(ELEMENT_DOF / 3) {
+            let local_block = [
+                local_loads[3 * block],
+                local_loads[3 * block + 1],
+                local_loads[3 * block + 2],
+            ];
+            let global_block = rotate_to_global(&geometry.local_axes, local_block);
+            global_loads[3 * block] = global_block[0];
+            global_loads[3 * block + 1] = global_block[1];
+            global_loads[3 * block + 2] = global_block[2];
+        }
+        Ok(global_loads)
+    }
+
+    /// Section resultants at arc fraction `fraction` (0 at node i, 1 at
+    /// node j) from segment equilibrium of the arc between the section and
+    /// node j, ordered [axial, shear_y, shear_z, torsion, bending_y,
+    /// bending_z] in the right-handed arc section frame (x tangent toward
+    /// node j, z the bend-plane normal, y = z cross x pointing to the arc
+    /// center).
+    ///
+    /// `node_j_force_global` is the true node-on-element force at node j in
+    /// global coordinates (for an assembled solve, `K d - p` with `p` the
+    /// consistent load vector) and `intensity_global` the same uniform
+    /// distributed intensity passed to `consistent_uniform_nodal_loads`
+    /// (zero when the span carries no distributed load). At fraction 1 the
+    /// resultants equal the node-j end force; at fraction 0 they equal the
+    /// negated node-i end force by whole-element equilibrium.
+    pub fn arc_section_resultants(
+        &self,
+        fraction: f64,
+        node_j_force_global: [f64; DOF_PER_NODE],
+        intensity_global: [f64; 3],
+    ) -> Result<[f64; DOF_PER_NODE], CurvedBendError> {
+        if !(fraction.is_finite() && (0.0..=1.0).contains(&fraction)) {
+            return Err(FrameKernelError::NonFiniteInput {
+                name: "arc_station_fraction",
+                value: fraction,
+            }
+            .into());
+        }
+        for value in node_j_force_global {
+            if !value.is_finite() {
+                return Err(FrameKernelError::NonFiniteInput {
+                    name: "node_j_force_global",
+                    value,
+                }
+                .into());
+            }
+        }
+        validate_finite_vector("uniform_load_intensity", intensity_global)?;
+        let geometry = self.geometry()?;
+        let radius = geometry.radius;
+        let included_angle = geometry.included_angle;
+        let theta = fraction * included_angle;
+        let intensity_local = rotate_to_local(&geometry.local_axes, intensity_global);
+        let tip_force_local = rotate_to_local(
+            &geometry.local_axes,
+            [
+                node_j_force_global[0],
+                node_j_force_global[1],
+                node_j_force_global[2],
+            ],
+        );
+        let tip_moment_local = rotate_to_local(
+            &geometry.local_axes,
+            [
+                node_j_force_global[3],
+                node_j_force_global[4],
+                node_j_force_global[5],
+            ],
+        );
+
+        // Equilibrium of the arc segment [theta, included_angle]: the section
+        // resultant is the j-side action on the section.
+        let remaining_angle = included_angle - theta;
+        let mut section_force = [0.0; 3];
+        for axis in 0..3 {
+            section_force[axis] =
+                tip_force_local[axis] + radius * remaining_angle * intensity_local[axis];
+        }
+        // Arm from the section point to node j.
+        let section_to_j = [
+            radius * (included_angle.cos() - theta.cos()),
+            radius * (included_angle.sin() - theta.sin()),
+            0.0,
+        ];
+        let tip_force_moment = cross(section_to_j, tip_force_local);
+        // Distributed-load moment about the section point:
+        // R^2 * a(theta) x w with a from the closed-form segment integral.
+        let distributed_arm = [
+            radius
+                * radius
+                * ((included_angle.sin() - theta.sin()) - remaining_angle * theta.cos()),
+            radius
+                * radius
+                * ((theta.cos() - included_angle.cos()) - remaining_angle * theta.sin()),
+            0.0,
+        ];
+        let distributed_moment = cross(distributed_arm, intensity_local);
+        let mut section_moment = [0.0; 3];
+        for axis in 0..3 {
+            section_moment[axis] =
+                tip_moment_local[axis] + tip_force_moment[axis] + distributed_moment[axis];
+        }
+
+        // Section frame rows in the local frame: x tangent, y = z cross x, z normal.
+        let tangent = [-theta.sin(), theta.cos(), 0.0];
+        let inward = [-theta.cos(), -theta.sin(), 0.0];
+        let normal = [0.0, 0.0, 1.0];
+        Ok([
+            dot(section_force, tangent),
+            dot(section_force, inward),
+            dot(section_force, normal),
+            dot(section_moment, tangent),
+            dot(section_moment, inward),
+            dot(section_moment, normal),
+        ])
+    }
+
+    // Free-tip (node i clamped) deflection at node j under the uniform load,
+    // local frame, by the unit-load theorem with the same strain-energy
+    // weights as `end_flexibility`.
+    fn tip_deflection_under_uniform_load(
+        &self,
+        geometry: &ArcGeometry,
+        intensity_local: [f64; 3],
+    ) -> [f64; DOF_PER_NODE] {
+        let gram = trig_extended_gram(geometry.included_angle);
+        let cases = unit_load_actions(geometry.radius, geometry.included_angle);
+        let load =
+            distributed_load_actions(geometry.radius, geometry.included_angle, intensity_local);
+        let bending_rigidity = self.elastic_modulus * self.second_moment;
+        let torsion_rigidity = self.shear_modulus * self.torsion_constant;
+        let axial_rigidity = self.elastic_modulus * self.area;
+
+        let mut deflection = [0.0; DOF_PER_NODE];
+        for (row, case) in cases.iter().enumerate() {
+            deflection[row] = geometry.radius
+                * (self.in_plane_flexibility_factor
+                    * cross_quad(&gram, case.in_plane_moment, load.in_plane_moment)
+                    / bending_rigidity
+                    + self.out_of_plane_flexibility_factor
+                        * cross_quad(&gram, case.out_of_plane_moment, load.out_of_plane_moment)
+                        / bending_rigidity
+                    + cross_quad(&gram, case.torsion, load.torsion) / torsion_rigidity
+                    + cross_quad(&gram, case.axial, load.axial) / axial_rigidity);
+        }
+        deflection
+    }
 }
 
 // Coefficients of {1, cos(theta), sin(theta)} for an internal action along
@@ -326,6 +548,156 @@ fn unit_load_actions(radius: f64, included_angle: f64) -> [UnitLoadActions; 6] {
             axial: zero,
         },
     ]
+}
+
+// Coefficients of {1, cos(theta), sin(theta), theta, theta cos(theta),
+// theta sin(theta)} for an internal action along the arc under a uniform
+// distributed load (constant local intensity, per unit arc length).
+type ExtendedSeries = [f64; 6];
+
+struct DistributedLoadActions {
+    in_plane_moment: ExtendedSeries,
+    out_of_plane_moment: ExtendedSeries,
+    torsion: ExtendedSeries,
+    axial: ExtendedSeries,
+}
+
+// Internal actions at arc angle theta caused by the uniform local intensity
+// w on the free segment [theta, phi], from segment equilibrium (same section
+// convention as `unit_load_actions`). With the segment force
+// f = R (phi - theta) w and segment moment m = R^2 a(theta) x w where
+// a(theta) = (sin phi - sin theta - (phi - theta) cos theta,
+//             cos theta - cos phi - (phi - theta) sin theta, 0):
+// in-plane bending is the z moment component R^2 (a_x w_y - a_y w_x);
+// out-of-plane bending m . r reduces to R^2 w_z (1 - cos(phi - theta));
+// torsion m . t reduces to R^2 w_z ((phi - theta) - sin(phi - theta));
+// axial force is f . t = R (phi - theta)(w_y cos theta - w_x sin theta).
+fn distributed_load_actions(
+    radius: f64,
+    included_angle: f64,
+    intensity_local: [f64; 3],
+) -> DistributedLoadActions {
+    let sin_end = included_angle.sin();
+    let cos_end = included_angle.cos();
+    let [w_x, w_y, w_z] = intensity_local;
+    let radius_squared = radius * radius;
+
+    // a_x over the extended basis: [sin phi, -phi, -1, 0, 1, 0];
+    // a_y over the extended basis: [-cos phi, 1, -phi, 0, 0, 1].
+    let a_x: ExtendedSeries = [sin_end, -included_angle, -1.0, 0.0, 1.0, 0.0];
+    let a_y: ExtendedSeries = [-cos_end, 1.0, -included_angle, 0.0, 0.0, 1.0];
+    let mut in_plane_moment = [0.0; 6];
+    for term in 0..6 {
+        in_plane_moment[term] = radius_squared * (w_y * a_x[term] - w_x * a_y[term]);
+    }
+
+    let out_of_plane_moment: ExtendedSeries = [
+        radius_squared * w_z,
+        -radius_squared * w_z * cos_end,
+        -radius_squared * w_z * sin_end,
+        0.0,
+        0.0,
+        0.0,
+    ];
+    let torsion: ExtendedSeries = [
+        radius_squared * w_z * included_angle,
+        -radius_squared * w_z * sin_end,
+        radius_squared * w_z * cos_end,
+        -radius_squared * w_z,
+        0.0,
+        0.0,
+    ];
+    let axial: ExtendedSeries = [
+        0.0,
+        radius * w_y * included_angle,
+        -radius * w_x * included_angle,
+        0.0,
+        -radius * w_y,
+        radius * w_x,
+    ];
+    DistributedLoadActions {
+        in_plane_moment,
+        out_of_plane_moment,
+        torsion,
+        axial,
+    }
+}
+
+// Exact integrals over [0, phi] of products of the trig basis {1, cos, sin}
+// (rows) with the extended basis {1, cos, sin, theta, theta cos, theta sin}
+// (columns).
+fn trig_extended_gram(included_angle: f64) -> [[f64; 6]; 3] {
+    let phi = included_angle;
+    let sin_end = phi.sin();
+    let cos_end = phi.cos();
+    let sin_double = (2.0 * phi).sin();
+    let cos_double = (2.0 * phi).cos();
+    // Antiderivative identities: int theta cos = phi sin + cos - 1;
+    // int theta sin = sin - phi cos; int theta cos^2 = phi^2/4
+    // + phi sin(2 phi)/4 + (cos(2 phi) - 1)/8; int theta sin^2 = phi^2/4
+    // - phi sin(2 phi)/4 - (cos(2 phi) - 1)/8; int theta sin cos
+    // = sin(2 phi)/8 - phi cos(2 phi)/4.
+    let int_theta_cos = phi * sin_end + cos_end - 1.0;
+    let int_theta_sin = sin_end - phi * cos_end;
+    let int_theta_cos_cos = 0.25 * phi * phi + 0.25 * phi * sin_double + 0.125 * (cos_double - 1.0);
+    let int_theta_sin_sin = 0.25 * phi * phi - 0.25 * phi * sin_double - 0.125 * (cos_double - 1.0);
+    let int_theta_sin_cos = 0.125 * sin_double - 0.25 * phi * cos_double;
+    [
+        [
+            phi,
+            sin_end,
+            1.0 - cos_end,
+            0.5 * phi * phi,
+            int_theta_cos,
+            int_theta_sin,
+        ],
+        [
+            sin_end,
+            0.5 * phi + 0.25 * sin_double,
+            0.5 * sin_end * sin_end,
+            int_theta_cos,
+            int_theta_cos_cos,
+            int_theta_sin_cos,
+        ],
+        [
+            1.0 - cos_end,
+            0.5 * sin_end * sin_end,
+            0.5 * phi - 0.25 * sin_double,
+            int_theta_sin,
+            int_theta_sin_cos,
+            int_theta_sin_sin,
+        ],
+    ]
+}
+
+fn cross_quad(gram: &[[f64; 6]; 3], left: TrigSeries, right: ExtendedSeries) -> f64 {
+    let mut sum = 0.0;
+    for row in 0..3 {
+        for col in 0..6 {
+            sum += left[row] * gram[row][col] * right[col];
+        }
+    }
+    sum
+}
+
+// Local components of a global vector: rows of `local_axes` are the local
+// axes expressed in global coordinates.
+fn rotate_to_local(local_axes: &[[f64; 3]; 3], global: [f64; 3]) -> [f64; 3] {
+    [
+        dot(local_axes[0], global),
+        dot(local_axes[1], global),
+        dot(local_axes[2], global),
+    ]
+}
+
+fn rotate_to_global(local_axes: &[[f64; 3]; 3], local: [f64; 3]) -> [f64; 3] {
+    let mut global = [0.0; 3];
+    for axis in 0..3 {
+        for component in 0..3 {
+            global[component] += local_axes[axis][component] * local[axis];
+        }
+    }
+    global
 }
 
 // Exact integrals over [0, phi] of pairwise products of {1, cos, sin}.
@@ -974,6 +1346,375 @@ mod tests {
                 );
             }
         }
+    }
+
+    // Solve the anchored-at-i arc under an arbitrary 12-slot global load
+    // vector with the frame-kernel reduction, returning full displacements.
+    fn anchored_solution(
+        element: &CurvedBendMacroElement,
+        force: &[f64; ELEMENT_DOF],
+    ) -> [f64; ELEMENT_DOF] {
+        let stiffness = element.global_stiffness().unwrap();
+        let dense: Vec<Vec<f64>> = stiffness.iter().map(|row| row.to_vec()).collect();
+        let restrained: Vec<usize> = (0..DOF_PER_NODE).collect();
+        let reduced = reduce_system(&dense, force, &restrained).unwrap();
+        let solution = solve_dense(&reduced.stiffness, &reduced.force).unwrap();
+        let mut displacements = [0.0; ELEMENT_DOF];
+        for (offset, value) in solution.iter().enumerate() {
+            displacements[DOF_PER_NODE + offset] = *value;
+        }
+        displacements
+    }
+
+    // True node-on-element end forces of the loaded arc: K d - p.
+    fn end_forces(
+        element: &CurvedBendMacroElement,
+        displacements: &[f64; ELEMENT_DOF],
+        equivalent_loads: &[f64; ELEMENT_DOF],
+    ) -> [f64; ELEMENT_DOF] {
+        let stiffness = element.global_stiffness().unwrap();
+        let mut forces = [0.0; ELEMENT_DOF];
+        for row in 0..ELEMENT_DOF {
+            for col in 0..ELEMENT_DOF {
+                forces[row] += stiffness[row][col] * displacements[col];
+            }
+            forces[row] -= equivalent_loads[row];
+        }
+        forces
+    }
+
+    // Straight-limit convergence of the consistent uniform load: a shallow
+    // arc over a chord along global x must approach the classical straight
+    // fixed-end vector [0, wy L/2, wz L/2, 0, -wz L^2/12, wy L^2/12] at
+    // node i (opposite end-moment signs at node j).
+    #[test]
+    fn consistent_uniform_load_matches_straight_fixed_end_in_straight_limit() {
+        let chord_length = 2.0;
+        let intensity = [0.0, -13.0, 7.0];
+        let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(1, [chord_length, 0.0, 0.0]).unwrap();
+        let expected_share = |w: f64| w * chord_length / 2.0;
+        let expected_moment = |w: f64| w * chord_length * chord_length / 12.0;
+        let expected = [
+            0.0,
+            expected_share(intensity[1]),
+            expected_share(intensity[2]),
+            0.0,
+            -expected_moment(intensity[2]),
+            expected_moment(intensity[1]),
+            0.0,
+            expected_share(intensity[1]),
+            expected_share(intensity[2]),
+            0.0,
+            expected_moment(intensity[2]),
+            -expected_moment(intensity[1]),
+        ];
+        let scale = expected
+            .iter()
+            .fold(0.0_f64, |max, value| max.max(value.abs()));
+
+        let relative_error = |included_angle: f64| -> f64 {
+            let radius = chord_length / (2.0 * (included_angle / 2.0).sin());
+            let sagitta_offset = (radius * radius - 0.25 * chord_length * chord_length).sqrt();
+            let center = [0.5 * chord_length, -sagitta_offset, 0.0];
+            let loads = CurvedBendMacroElement::new(
+                node_i,
+                node_j,
+                center,
+                ELASTIC_MODULUS,
+                SHEAR_MODULUS,
+                AREA,
+                SECOND_MOMENT,
+                TORSION_CONSTANT,
+                1.0,
+                1.0,
+            )
+            .unwrap()
+            .consistent_uniform_nodal_loads(intensity)
+            .unwrap();
+            loads
+                .iter()
+                .zip(expected.iter())
+                .fold(0.0_f64, |max, (actual, target)| {
+                    max.max((actual - target).abs())
+                })
+                / scale
+        };
+
+        // The chord-vs-arc difference is O(included_angle); below ~1e-3 rad
+        // floating-point cancellation in the closed-form integrals dominates,
+        // so this test uses a documented looser tolerance at 1e-3 rad and
+        // additionally checks first-order convergence from 1e-2 rad.
+        let error_coarse = relative_error(1.0e-2);
+        let error_fine = relative_error(1.0e-3);
+        assert!(
+            error_fine <= 2.0e-3,
+            "straight-limit consistent-load relative error {error_fine} exceeds 2.0e-3"
+        );
+        assert!(
+            error_fine < error_coarse,
+            "error must shrink as the arc flattens: fine {error_fine} vs coarse {error_coarse}"
+        );
+    }
+
+    // The equivalent nodal loads must carry the exact distributed-load
+    // resultant: sum of forces equals w * arc_length and the moment of the
+    // nodal loads about the global origin equals the moment of the
+    // distributed load, on the rotated arc as well.
+    #[test]
+    fn consistent_uniform_load_satisfies_rigid_equilibrium() {
+        let base = quarter_circle_element(2.5, 1.75);
+        let shifted = CurvedBendMacroElement::new(
+            FrameNode::new(0, [RADIUS + 0.4, 0.7, -0.3]).unwrap(),
+            FrameNode::new(1, [0.4, 0.7 + RADIUS, -0.3]).unwrap(),
+            [0.4, 0.7, -0.3],
+            ELASTIC_MODULUS,
+            SHEAR_MODULUS,
+            AREA,
+            SECOND_MOMENT,
+            TORSION_CONSTANT,
+            2.5,
+            1.75,
+        )
+        .unwrap();
+        for element in [base, shifted] {
+            let intensity = [4.0, -13.0, -9.0];
+            let loads = element.consistent_uniform_nodal_loads(intensity).unwrap();
+            let geometry = element.geometry().unwrap();
+            let arc_length = geometry.radius * geometry.included_angle;
+
+            // Total distributed force and its moment about the global origin
+            // from the closed-form arc integrals in the local frame.
+            let local_intensity = rotate_to_local(&geometry.local_axes, intensity);
+            let total_force_local = [
+                local_intensity[0] * arc_length,
+                local_intensity[1] * arc_length,
+                local_intensity[2] * arc_length,
+            ];
+            // Moment about node i plus transport to the global origin.
+            let moment_arm = [
+                geometry.radius
+                    * geometry.radius
+                    * (geometry.included_angle.sin() - geometry.included_angle),
+                geometry.radius * geometry.radius * (1.0 - geometry.included_angle.cos()),
+                0.0,
+            ];
+            let moment_about_i_local = cross(moment_arm, local_intensity);
+            let total_force = rotate_to_global(&geometry.local_axes, total_force_local);
+            let moment_about_i = rotate_to_global(&geometry.local_axes, moment_about_i_local);
+            let position_i = element.node_i.coordinates;
+            let moment_about_origin = [
+                moment_about_i[0] + position_i[1] * total_force[2] - position_i[2] * total_force[1],
+                moment_about_i[1] + position_i[2] * total_force[0] - position_i[0] * total_force[2],
+                moment_about_i[2] + position_i[0] * total_force[1] - position_i[1] * total_force[0],
+            ];
+
+            let position_j = element.node_j.coordinates;
+            for axis in 0..3 {
+                let force_sum = loads[axis] + loads[DOF_PER_NODE + axis];
+                assert_close(force_sum, total_force[axis]);
+            }
+            let nodal_moment = |axis: usize| -> f64 {
+                let force_i = [loads[0], loads[1], loads[2]];
+                let force_j = [loads[6], loads[7], loads[8]];
+                let arm_i = cross(position_i, force_i);
+                let arm_j = cross(position_j, force_j);
+                loads[3 + axis] + loads[DOF_PER_NODE + 3 + axis] + arm_i[axis] + arm_j[axis]
+            };
+            for axis in 0..3 {
+                assert_close(nodal_moment(axis), moment_about_origin[axis]);
+            }
+        }
+    }
+
+    // Independent longhand quarter-circle checks: the anchored arc solved
+    // under the consistent load vector must reproduce the unit-load-theorem
+    // tip deflections written out longhand. In-plane uniform w_y:
+    //   M_q = R^2 w_y (1 - sin - (pi/2 - theta) cos), N_q = R w_y (pi/2 - theta) cos,
+    //   u_x = w_y [k_in R^4 (3 - 7 pi/8) / EI - R^2 pi / (8 EA)]
+    //   u_y = w_y [k_in R^4 (pi^2/16 - 1/4) / EI + R^2 (pi^2/16 + 1/4) / EA]
+    //   r_z = k_in R^3 w_y (pi/2 - 2) / EI
+    // Uniform w_x adds r_z = -k_in R^3 w_x (2 - pi/2) / EI. Out-of-plane w_z:
+    //   u_z = R^4 w_z [k_out / (2 EI) + (pi^2/8 - pi/2 + 1/2) / GJ].
+    #[test]
+    fn anchored_arc_under_consistent_uniform_load_matches_longhand_tip_deflection() {
+        for (k_in, k_out) in [(1.0, 1.0), (2.0, 1.75)] {
+            let element = quarter_circle_element(k_in, k_out);
+            let bending = ELASTIC_MODULUS * SECOND_MOMENT;
+            let torsion = SHEAR_MODULUS * TORSION_CONSTANT;
+            let axial = ELASTIC_MODULUS * AREA;
+            let r = RADIUS;
+            let (w_x, w_y, w_z) = (4.0, -13.0, -9.0);
+
+            let loads = element
+                .consistent_uniform_nodal_loads([w_x, w_y, w_z])
+                .unwrap();
+            let displacements = anchored_solution(&element, &loads);
+
+            let expected_ux = w_y
+                * (k_in * r.powi(4) * (3.0 - 7.0 * PI / 8.0) / bending
+                    - r * r * PI / (8.0 * axial))
+                + w_x
+                    * (k_in * r.powi(4) * (1.25 - PI / 2.0 + PI * PI / 16.0) / bending
+                        + r * r * (PI * PI / 16.0 - 0.25) / axial);
+            let expected_uy = w_y
+                * (k_in * r.powi(4) * (PI * PI / 16.0 - 0.25) / bending
+                    + r * r * (PI * PI / 16.0 + 0.25) / axial)
+                + w_x * (k_in * r.powi(4) * (PI / 8.0) / bending - r * r * PI / (8.0 * axial));
+            let expected_rz =
+                k_in * r.powi(3) * (w_y * (PI / 2.0 - 2.0) - w_x * (2.0 - PI / 2.0)) / bending;
+            let expected_uz = r.powi(4)
+                * w_z
+                * (k_out * 0.5 / bending + (PI * PI / 8.0 - PI / 2.0 + 0.5) / torsion);
+            let expected_rx =
+                r.powi(3) * w_z * (k_out * 0.5 / bending - (PI / 2.0 - 1.5) / torsion);
+            let expected_ry = r.powi(3)
+                * w_z
+                * (k_out * (1.0 - 0.25 * PI) / bending + (1.0 - 0.25 * PI) / torsion);
+
+            assert_close(displacements[DOF_PER_NODE], expected_ux);
+            assert_close(displacements[DOF_PER_NODE + 1], expected_uy);
+            assert_close(displacements[DOF_PER_NODE + 2], expected_uz);
+            assert_close(displacements[DOF_PER_NODE + 3], expected_rx);
+            assert_close(displacements[DOF_PER_NODE + 4], expected_ry);
+            assert_close(displacements[DOF_PER_NODE + 5], expected_rz);
+        }
+    }
+
+    // Section resultants must close the equilibrium chain: at fraction 1
+    // they equal the node-j end force in the section frame, at fraction 0
+    // the negated node-i end force, and at the free tip of an unloaded-end
+    // cantilever the interior values reduce to the longhand distributed
+    // segment actions.
+    #[test]
+    fn arc_section_resultants_match_end_forces_and_longhand_interior() {
+        let element = quarter_circle_element(2.0, 1.75);
+        let (w_x, w_y, w_z) = (4.0, -13.0, -9.0);
+        let intensity = [w_x, w_y, w_z];
+        let mut force = element.consistent_uniform_nodal_loads(intensity).unwrap();
+        // Add a nodal tip load so the end forces are non-trivial.
+        force[DOF_PER_NODE + 1] += 500.0;
+        force[DOF_PER_NODE + 3] += 40.0;
+        let displacements = anchored_solution(&element, &force);
+        let equivalent = element.consistent_uniform_nodal_loads(intensity).unwrap();
+        let true_forces = end_forces(&element, &displacements, &equivalent);
+
+        let node_j_force = [
+            true_forces[6],
+            true_forces[7],
+            true_forces[8],
+            true_forces[9],
+            true_forces[10],
+            true_forces[11],
+        ];
+        let geometry = element.geometry().unwrap();
+        let phi = geometry.included_angle;
+
+        // Fraction 1: the section frame at node j is [t(phi), -r(phi), z].
+        let at_j = element
+            .arc_section_resultants(1.0, node_j_force, intensity)
+            .unwrap();
+        let tangent_j = [-phi.sin(), phi.cos(), 0.0];
+        let inward_j = [-phi.cos(), -phi.sin(), 0.0];
+        let normal = [0.0, 0.0, 1.0];
+        let force_j = [node_j_force[0], node_j_force[1], node_j_force[2]];
+        let moment_j = [node_j_force[3], node_j_force[4], node_j_force[5]];
+        assert_close(at_j[0], dot(force_j, tangent_j));
+        assert_close(at_j[1], dot(force_j, inward_j));
+        assert_close(at_j[2], dot(force_j, normal));
+        assert_close(at_j[3], dot(moment_j, tangent_j));
+        assert_close(at_j[4], dot(moment_j, inward_j));
+        assert_close(at_j[5], dot(moment_j, normal));
+
+        // Fraction 0: whole-element equilibrium gives the negated node-i force.
+        let at_i = element
+            .arc_section_resultants(0.0, node_j_force, intensity)
+            .unwrap();
+        let tangent_i = [0.0, 1.0, 0.0];
+        let inward_i = [-1.0, 0.0, 0.0];
+        let force_i = [true_forces[0], true_forces[1], true_forces[2]];
+        let moment_i = [true_forces[3], true_forces[4], true_forces[5]];
+        assert_close(at_i[0], -dot(force_i, tangent_i));
+        assert_close(at_i[1], -dot(force_i, inward_i));
+        assert_close(at_i[2], -dot(force_i, normal));
+        assert_close(at_i[3], -dot(moment_i, tangent_i));
+        assert_close(at_i[4], -dot(moment_i, inward_i));
+        assert_close(at_i[5], -dot(moment_i, normal));
+
+        // Free-tip cantilever under the distributed load only: node-j end
+        // forces vanish and the interior section actions are the longhand
+        // segment-equilibrium values at theta = pi/4.
+        let distributed_only = element.consistent_uniform_nodal_loads(intensity).unwrap();
+        let free_displacements = anchored_solution(&element, &distributed_only);
+        let free_forces = end_forces(&element, &free_displacements, &distributed_only);
+        for dof in 0..DOF_PER_NODE {
+            assert!(
+                free_forces[DOF_PER_NODE + dof].abs() <= 1.0e-9 * 500.0,
+                "free tip must carry no end force, got {}",
+                free_forces[DOF_PER_NODE + dof]
+            );
+        }
+        let midpoint = element
+            .arc_section_resultants(0.5, [0.0; DOF_PER_NODE], intensity)
+            .unwrap();
+        let theta = phi / 2.0;
+        let remaining = phi - theta;
+        let r = RADIUS;
+        // Longhand distributed segment actions at theta (same fields the
+        // deflection integrals used, evaluated pointwise).
+        let a_x = (phi.sin() - theta.sin()) - remaining * theta.cos();
+        let a_y = (theta.cos() - phi.cos()) - remaining * theta.sin();
+        let expected_in_plane = r * r * (a_x * w_y - a_y * w_x);
+        // The section frame's y axis is the inward radial (-r), so the
+        // reported bending_y is the negated radial moment component.
+        let expected_out_of_plane = -(r * r * w_z * (1.0 - (remaining).cos()));
+        let expected_torsion = r * r * w_z * (remaining - remaining.sin());
+        let expected_axial = r * remaining * (w_y * theta.cos() - w_x * theta.sin());
+        assert_close(midpoint[5], expected_in_plane);
+        assert_close(midpoint[4], expected_out_of_plane);
+        assert_close(midpoint[3], expected_torsion);
+        assert_close(midpoint[0], expected_axial);
+    }
+
+    #[test]
+    fn consistent_uniform_load_and_stations_reject_invalid_inputs() {
+        let element = quarter_circle_element(1.0, 1.0);
+        assert!(matches!(
+            element
+                .consistent_uniform_nodal_loads([f64::NAN, 0.0, 0.0])
+                .unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput {
+                name: "uniform_load_intensity",
+                ..
+            })
+        ));
+        assert!(matches!(
+            element
+                .arc_section_resultants(1.5, [0.0; DOF_PER_NODE], [0.0; 3])
+                .unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput {
+                name: "arc_station_fraction",
+                ..
+            })
+        ));
+        assert!(matches!(
+            element
+                .arc_section_resultants(-0.1, [0.0; DOF_PER_NODE], [0.0; 3])
+                .unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput {
+                name: "arc_station_fraction",
+                ..
+            })
+        ));
+        assert!(matches!(
+            element
+                .arc_section_resultants(0.5, [0.0, f64::INFINITY, 0.0, 0.0, 0.0, 0.0], [0.0; 3])
+                .unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput {
+                name: "node_j_force_global",
+                ..
+            })
+        ));
     }
 
     #[test]
