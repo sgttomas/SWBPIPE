@@ -279,7 +279,16 @@ def _evidence_only_delta(
     """
     try:
         completed = subprocess.run(
-            ("git", "diff", "--name-only", sweep_commit, record_commit),
+            # --relative: the project may live inside a larger repository;
+            # the evidence-path check below is project-root-relative.
+            (
+                "git",
+                "diff",
+                "--name-only",
+                "--relative",
+                sweep_commit,
+                record_commit,
+            ),
             cwd=root,
             capture_output=True,
             text=True,
