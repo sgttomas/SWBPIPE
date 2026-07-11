@@ -390,3 +390,22 @@
     (owner merge) before any concordance dispatch; discovery reads bind to a
     frozen worktree at 551f84ef6; R0 calibration (DEL-04-01, DEL-10-05,
     DEL-12-02) reports to owner before wave scale-out.
+
+- **2026-07-11 — Receipt 14** (D-41 tranche merged; R0 calibration executed;
+  same session as Receipt 13).
+  - Owner direction of record (2026-07-11, in-session, Ryan Tufts, on the
+    PR #179 merge gate): "You have my permission to merge it yourself." —
+    self-merge grant for PR #179 only; merged as e3998349b (HARD RULE
+    satisfied before dispatch). Ruling SHA backfilled into
+    `D-41_RULING_2026-07-11.md` per the D-31 precedent.
+  - Run opened: `execution/_Reconciliation/DeliverableConcordance/DELIVERABLE_CONCORDANCE_2026-07-11_1305/`
+    (RUN_BASIS.md; census 101 = 100 IN_PROGRESS + 1 ISSUED re-verified;
+    DAG-007 pointer re-verified live at frozen tree).
+  - R0 executed per plan §8: three fable pilot ledgers + notes and an
+    independent reviewer pass under `R0_CALIBRATION/`; reviewer verdict
+    READY WITH NAMED CONVENTIONS (28/0/2 citation checks; 8 conventions
+    proposed for R1+; details in R0_REVIEW.md — never here).
+  - Gate outcome: stopped/awaiting owner — R0 findings reported in-session
+    per the owner's R0-first direction; wave scale-out (R1+) and the
+    convention set await the owner's response. No lifecycle transition; no
+    deliverable or product surface edited; run artifacts only.
