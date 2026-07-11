@@ -87,8 +87,17 @@ forces the overall result non-converged, so the capped exit returned
   transition fixtures green).
 - `cargo fmt --check` clean on the touched crate.
 - Repo-wide practitioner harness `self-check`: exit 0.
-- DEC-025 evidence sweep at the committed clean head recorded as its own
-  commit (artifact named in the sweep commit).
+- DEC-025 evidence sweep retry chain (fresh worktree, no npm dependencies;
+  not a dev-server port collision): first run at content commit 968b4f7de
+  failed at the desktop_vitest surface (vitest not found) and recorded
+  `validation/evidence/sweeps/SWEEP_20260711T012340Z_968b4f7de74e.json`;
+  after `npm ci` the re-run passed all surfaces but recorded the untracked
+  first artifact as a working-tree delta
+  (`SWEEP_20260711T012615Z_968b4f7de74e-dirty.json`). Both artifacts
+  committed as the retry-chain commit 658e15a5b; the clean-head sweep at
+  658e15a5b passed all surfaces:
+  `validation/evidence/sweeps/SWEEP_20260711T012926Z_658e15a5bb46.json`,
+  committed as its own summary commit.
 
 ## Boundaries And Residuals
 
