@@ -68,6 +68,47 @@ Evidence:
 `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E3-PDFEMIT-001.md`
 
 ---
+## 2026-07-10 - E8 coverage-tooling portion: DEC-060 telemetry seam (`TP-E8-COVTELEM-001`)
+
+Landed the first implementation tranche of `DEC-060` (D-04b Option O-A):
+the seam-2 opt-in coverage telemetry runner
+`tools/release/run_coverage_telemetry.py` plus its draft 2020-12 artifact
+schema `tools/release/coverage_telemetry_schema.json` and focused tests
+`tests/test_coverage_telemetry_script.py`. The runner walks the three ruled
+lanes — Rust `cargo-llvm-cov` (host-installed, over the existing
+`discover_cargo_manifests()` list), Python `coverage.py`
+(`requirements-dev.txt`), desktop Vitest `--coverage` with
+`@vitest/coverage-v8` (`apps/desktop` devDependency) — and writes a
+commit-bound, schema-versioned JSON artifact to
+`validation/evidence/coverage/`. Recorded, never blocking: missing tools and
+failed runs record `not_measured`; lane outcomes never affect the exit code;
+the `DEC-025` five-surface sweep is untouched (guarded by test).
+
+The packet §2 unresolved `ASSUMPTION`s all verified on this host
+(macOS arm64, stable rustc 1.92.0): cargo-llvm-cov 0.8.7 measured all 34
+non-workspace crate manifests in one walk; `@vitest/coverage-v8` 4.1.10
+paired with Vitest 4.1.10; coverage.py 7.15.0 ran the pytest suite. No lane
+reverted to `not_measured`, so no feasibility follow-up returns to D-04b.
+Recorded in-tranche choices: Rust cross-crate aggregation is the
+count-weighted sum across crates; the Python lane measures the whole repo
+source tree (`--source=.`). The `docs/RELEASE_QUALITY_GATES.md` §10
+coverage-thresholds TBD closed to the DEC-060 ruled pointer.
+
+Validation: clean-head telemetry artifact with all three lanes `measured`
+committed under `validation/evidence/coverage/` (first of the at-least-five
+clean-head artifacts across at-least-two commits per lane that a future
+floor-promotion row requires), and a full clean-head `DEC-025` sweep passed
+(summary committed under `validation/evidence/sweeps/`; filenames in the run
+record).
+
+Boundary: dev-tooling only (DEC-023 zero-runtime-dependency distinction
+preserved); no numeric coverage floor exists or is created; no CI
+activation; no lifecycle, release-readiness, professional, certification,
+or code-compliance claim. Remaining E8 scope (gate-family records,
+release-label vocabulary) stays in the plan row.
+
+Evidence:
+`execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E8-COVTELEM-001.md`.
 
 ## 2026-06-23 - R4 exit clearance successor packet (`TP-DECIDE-D27-R4EXITCLEAR-001`)
 

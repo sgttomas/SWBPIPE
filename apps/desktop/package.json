@@ -31,6 +31,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.181.0",
+    "@vitest/coverage-v8": "^4.1.7",
     "jsdom": "^25.0.0",
     "typescript": "^5.7.0",
     "vitest": "^4.1.7"
