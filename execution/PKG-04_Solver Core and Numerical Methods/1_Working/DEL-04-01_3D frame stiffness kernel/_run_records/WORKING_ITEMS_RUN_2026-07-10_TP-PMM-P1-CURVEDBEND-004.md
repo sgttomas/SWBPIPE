@@ -117,8 +117,16 @@ tested replacements.
   tools/practitioner_harness/harness.py self-check`: exit 0.
 - Full practitioner-harness pytest (`tools/practitioner_harness/`):
   263 passed, 1 skipped.
-- `DEC-025` five-surface sweep at the committed clean head: commit-bound
-  summary under `validation/evidence/sweeps/` recorded with this tranche.
+- `DEC-025` five-surface sweep retry chain: the first sweep at the clean
+  code head `50f230b09` failed at surface `desktop_vitest` (`vitest: command
+  not found` — fresh worktree without node dev dependencies;
+  `SWEEP_20260711T020214Z_50f230b09885.json`, environment failure, not a
+  code failure); `npm ci` installed the committed lockfile dependencies; the
+  immediate re-run passed all five surfaces but recorded `-dirty` because
+  the first summary sat untracked
+  (`SWEEP_20260711T020414Z_50f230b09885-dirty.json`); both artifacts are
+  committed as the retry chain and the final clean-committed-head sweep
+  summary is committed on top (named in the closing commit).
 
 ## Boundaries And Residuals
 
