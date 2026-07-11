@@ -91,8 +91,13 @@ artifacts, gate outcomes, check pass/fail) so the next iteration starts clean.
 Standing constraints and the loop protocol live in the plan — follow them as
 written. The session conventions are:
 
-- Subagent model assignments: `opus` for exploration and reporting; `fable`
-  for orchestration, planning, and implementing work.
+- Subagent model assignments (owner-revised 2026-07-05; this section is the
+  convention's home — a per-run steer may override): `opus` agents for
+  discovery, research, summaries, running deterministic checks, and breadth
+  verification; `fable` agents at `high` reasoning effort for planning, for
+  adversarial verification of anything that will be recorded as fact, and for
+  execution that touches governed artifacts, fences, or rulings; `fable` at
+  `low` effort only for mechanical execution of fully specified changes.
 
 If the owner appended a steer for this run (the launcher's `Steer` line, their
 message, or a line below), honor it on top of the plan and over §5's defaults;

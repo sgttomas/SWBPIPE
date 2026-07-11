@@ -1,5 +1,12 @@
 # OpenPipeStress — PRD Completion Plan
 
+> **RETIRED AS A SELECTION SURFACE 2026-07-10** (owner-adopted consolidation; loop
+> Receipt 9). Every open row was rehomed into the owning deliverable's `_STATUS.md`
+> `## Remaining` section; landed rows are archived in `PLAN_COMPLETION_LOG.md`. Work
+> is now discovered from deliverable folders per the newest `loop/WORKPLAN_*.md`
+> (F-PIP-5). Do not select work from this file; it is retained as a dated record
+> because ruled decisions cite it by path.
+
 **Date:** 2026-06-17
 
 **Supersedes:** [PLAN_2026-06-10_prd_completion.md](PLAN_2026-06-10_prd_completion.md). That plan carried the full inline detail of the R2/R3 build-out (Phases A, B, C, and C5.1–C5.5); its landed detail is retained there and, compressed, in [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md). This successor re-baselines at the current state (R3 exit readiness) and details the remaining arc toward PRD completion. The 2026-06-10 plan is archived (see its superseded banner); this is the active tactical selection instrument.

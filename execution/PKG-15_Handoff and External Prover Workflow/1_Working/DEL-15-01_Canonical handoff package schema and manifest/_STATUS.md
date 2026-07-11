@@ -1,7 +1,10 @@
 # Status: DEL-15-01 Canonical handoff package schema and manifest
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-02
+**Last Updated:** 2026-07-10
+
+## Remaining
+- Phase H program: design-knowledge schema/entry and constraint engine, physical-to-analytical transform contract, canonical handoff package + manifest, target-mapping/unsupported-behavior contract, downstream export workflow, external-prover boundary metadata, and remaining PKG-17 wire-format completion (stage-gated: v0.2 R6; DEL-17-01 vendor questions gate CAEPIPE MBF-specific claims) (see also DEL-13-01..04, DEL-15-02, DEL-15-03, DEL-15-04, DEL-17-01..09) (source: PRD plan §3 Forward Horizon row H / DEC-056)
 
 ## History
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
@@ -12,3 +15,4 @@
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-07 - Human-approved lifecycle transition to CHECKING after `REV_PKG-15_2026-06-07_1340` recommended `RECOMMEND_ADVANCE_TO_CHECKING` for DEL-15-01. This transition records review-gate readiness only; it does not issue the deliverable, close human-owned review dispositions, approve release, certify/seal/authenticate engineering work, or make a code-compliance/professional-acceptance claim.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
+- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 9); no state change.

@@ -1,7 +1,11 @@
 # Status: DEL-04-05 Sparse solver performance harness
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-02
+**Last Updated:** 2026-07-10
+
+## Remaining
+- Promote release/external sparse thresholds: timing, allocator/RSS memory, conditioning beyond the pivot-ratio proxy, and cross-machine hardware-normalized pass/fail gates (stage-gated: R5 release) (source: PRD plan §3 D7 row + Phase D sparse update / DEC-050/DEC-053)
+- Provide hosted-CI sparse evidence once public-export CI activates (gated: D-05b conditions per DEC-059) (source: PRD plan §3 D7 row)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -13,3 +17,4 @@
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-05 — State set to CHECKING (REVIEW)
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
+- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 9); no state change.

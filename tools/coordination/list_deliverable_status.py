@@ -4,7 +4,9 @@
 This is a read-only coordination helper. It discovers deliverables from local
 `_STATUS.md` files and joins to the selected DAG's `DeliverableNodes.csv` for
 node presence and path context when available. Local `_STATUS.md` values are
-the lifecycle source of truth for work selection.
+the lifecycle source of truth for work selection. A `## Remaining` section in
+`_STATUS.md`, when present, records the deliverable's open scope as top-level
+bullets; its bullet count is reported as `RemainingItems` (absent section = 0).
 """
 
 from __future__ import annotations
@@ -34,6 +36,7 @@ HEADER = [
     "LocalStatus",
     "LastUpdated",
     "StatusVocabulary",
+    "RemainingItems",
     "DeliverablePath",
     "StatusPath",
     "DAG",
@@ -49,6 +52,7 @@ class LocalStatus:
     deliverable_name: str
     status: str
     last_updated: str
+    remaining_items: int
     deliverable_path: Path
     status_path: Path
 
@@ -89,6 +93,8 @@ def deliverable_parts_from_path(path: Path) -> tuple[str, str]:
 def parse_status_file(path: Path) -> LocalStatus:
     status = ""
     last_updated = ""
+    remaining_items = 0
+    in_remaining = False
     for line in path.read_text(encoding="utf-8").splitlines():
         status_match = STATUS_RE.match(line)
         if status_match:
@@ -97,6 +103,12 @@ def parse_status_file(path: Path) -> LocalStatus:
         updated_match = UPDATED_RE.match(line)
         if updated_match:
             last_updated = updated_match.group("date").strip()
+            continue
+        if line.startswith("## "):
+            in_remaining = line.strip() == "## Remaining"
+            continue
+        if in_remaining and line.startswith("- "):
+            remaining_items += 1
 
     deliverable_path = path.parent
     package_id = package_id_from_path(deliverable_path)
@@ -107,6 +119,7 @@ def parse_status_file(path: Path) -> LocalStatus:
         deliverable_name=deliverable_name,
         status=status,
         last_updated=last_updated,
+        remaining_items=remaining_items,
         deliverable_path=deliverable_path,
         status_path=path,
     )
@@ -150,6 +163,7 @@ def rows(root: Path, dag: str, statuses: Iterable[LocalStatus]) -> list[dict[str
                 "LocalStatus": item.status,
                 "LastUpdated": item.last_updated,
                 "StatusVocabulary": status_vocabulary(item.status),
+                "RemainingItems": str(item.remaining_items),
                 "DeliverablePath": rel(item.deliverable_path, root),
                 "StatusPath": rel(item.status_path, root),
                 "DAG": dag,
@@ -188,6 +202,7 @@ def write_table(output_rows: list[dict[str, str]]) -> None:
         "PackageID",
         "LocalStatus",
         "StatusVocabulary",
+        "RemainingItems",
         "DAGNodePresent",
         "DeliverablePath",
     ]
@@ -209,6 +224,7 @@ def write_markdown(output_rows: list[dict[str, str]]) -> None:
         "PackageID",
         "LocalStatus",
         "StatusVocabulary",
+        "RemainingItems",
         "DAGNodePresent",
         "DeliverablePath",
     ]
@@ -223,8 +239,17 @@ def print_summary(output_rows: list[dict[str, str]]) -> None:
     for row in output_rows:
         counts[row["LocalStatus"]] = counts.get(row["LocalStatus"], 0) + 1
     status_counts = ", ".join(f"{key}={counts[key]}" for key in sorted(counts))
+    remaining_total = sum(int(row["RemainingItems"]) for row in output_rows)
+    remaining_deliverables = sum(
+        1 for row in output_rows if int(row["RemainingItems"]) > 0
+    )
     print(f"Rows: {len(output_rows)}", file=sys.stderr)
     print(f"Status counts: {status_counts}", file=sys.stderr)
+    print(
+        f"Remaining items: {remaining_total} across "
+        f"{remaining_deliverables} deliverables",
+        file=sys.stderr,
+    )
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:

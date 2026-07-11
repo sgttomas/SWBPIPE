@@ -43,7 +43,7 @@ Use this sequence before changing files.
 | 5 | [`docs/CONTRACT.md`](../CONTRACT.md) | Check invariant IDs for IP, data, governance, privacy, and agent behavior. |
 | 6 | [`docs/TYPES.md`](../TYPES.md) | Confirm package, deliverable, status, and professional-boundary vocabulary. |
 | 7 | [`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) | Confirm public/private data, provenance, and quarantine rules. |
-| 8 | [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) | Confirm authority intake, work selection, execution discipline, evidence expectations, and review gates. |
+| 8 | The newest [`loop/WORKPLAN_*.md`](../../loop/) (development loop instructions) and [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) (ruled records) | Confirm work selection from deliverable folders, execution discipline, evidence expectations, review gates, and the current target stage. |
 | 9 | [`execution/_Decomposition/SOFTWARE_DECOMP.md`](../../execution/_Decomposition/SOFTWARE_DECOMP.md) and [`docs/_Registers`](../_Registers/) | Confirm the active package/deliverable identity and scope rows. |
 | 10 | Your assigned sealed brief and deliverable folder | Confirm the exact write scope, acceptance criteria, and verification commands. |
 

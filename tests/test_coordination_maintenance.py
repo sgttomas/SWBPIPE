@@ -20,11 +20,16 @@ def load_module():
     return module
 
 
-def write_status(root: Path, package: str, folder: str, state: str) -> Path:
+def write_status(
+    root: Path, package: str, folder: str, state: str, remaining: list[str] | None = None
+) -> Path:
     deliverable_dir = root / "execution" / package / "1_Working" / folder
     deliverable_dir.mkdir(parents=True)
     status_path = deliverable_dir / "_STATUS.md"
     deliverable_id = folder.split("_", maxsplit=1)[0]
+    remaining_lines = (
+        ["", "## Remaining", *[f"- {item}" for item in remaining]] if remaining else []
+    )
     status_path.write_text(
         "\n".join(
             [
@@ -32,6 +37,7 @@ def write_status(root: Path, package: str, folder: str, state: str) -> Path:
                 "",
                 f"**Current State:** {state}",
                 "**Last Updated:** 2026-06-03",
+                *remaining_lines,
                 "",
                 "## History",
                 f"- 2026-06-03 - Fixture state set to {state}.",
@@ -62,7 +68,13 @@ def write_fixture_repo(root: Path) -> None:
         encoding="utf-8",
     )
     write_status(root, "PKG-00_Runway", "DEL-00-01_Architecture baseline", "SEMANTIC_READY")
-    write_status(root, "PKG-01_Governance", "DEL-01-01_Governance", "IN_PROGRESS")
+    write_status(
+        root,
+        "PKG-01_Governance",
+        "DEL-01-01_Governance",
+        "IN_PROGRESS",
+        remaining=["Open item one (gated: D-99)", "Open item two"],
+    )
     write_status(root, "PKG-02_Domain", "DEL-02-01_Domain schema", "CHECKING")
 
 
@@ -78,6 +90,8 @@ def test_discovers_local_status_and_dag_context(tmp_path):
     assert by_id["DEL-01-01"]["LocalStatus"] == "IN_PROGRESS"
     assert by_id["DEL-02-01"]["DAGNodePresent"] == "TRUE"
     assert by_id["DEL-00-01"]["StatusVocabulary"] == "NONSTANDARD_TOLERATED"
+    assert by_id["DEL-01-01"]["RemainingItems"] == "2"
+    assert by_id["DEL-02-01"]["RemainingItems"] == "0"
 
 
 def test_filters_statuses_without_hiding_inventory_by_default(tmp_path):

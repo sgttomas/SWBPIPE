@@ -14,6 +14,23 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-07-10 - Plans retired as selection surfaces (owner-adopted consolidation)
+
+Owner-adopted consolidation (loop Receipt 9): deliverable folders are now the
+means of discovering work. Every open row of the active completion plan
+(`PLAN_2026-06-17_prd_completion.md`) and the mechanics plan
+(`PLAN_2026-07-09_physical_model_mechanics.md`) was rehomed into the owning
+deliverable's `_STATUS.md` `## Remaining` section (24 deliverables across
+PKG-01/02/04/05/07/08/09/10/12/14/15/16); the seam-unification plan
+(`PLAN_2026-06-11_operation_seam_unification.md`) contributed no open rows
+(already CLOSED; its corpus `review_status` residual is closed per
+`DEC-030`/`DEC-032`). Items deliberately NOT rehomed: F3 register/DAG hygiene
+(covered by the `DEC-040` event-driven re-derivation rule recorded in
+`_COORDINATION.md`); FR-024 dynamics disposition (lives in the `D-12` packet);
+the Phase I candidate-generator ownership gap (needs a decomposition act —
+noted in DEL-16-04's `Remaining`). Selection protocol: the newest
+`loop/WORKPLAN_*.md`. This log remains the archive for landed detail.
+
 ## 2026-07-10 - E3 hash-bound deterministic PDF emitter (`TP-E3-PDFEMIT-001`)
 
 Landed the `DEC-061` / D-10b Option O-A ruling: the pure in-repo minimal

@@ -1,7 +1,11 @@
 # Status: DEL-08-05 Report protected-content linter
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-02
+**Last Updated:** 2026-07-10
+
+## Remaining
+- E7 scanner-extension tranche: add standards-table signature patterns failing toward `UnknownProvenanceReviewRequired` per the DEC-058 procedure (source: PRD plan §3 E7 row / DEC-058)
+- Execute the AC-1–AC-6 release-candidate scan writing `validation/evidence/releases/SCAN_*.json` with owner sign-off block (gated: owner sole signatory per DEC-058; stage-gated: first release candidate) (source: PRD plan §3 E7 row / DEC-058)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -13,3 +17,4 @@
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-03 - TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001 accepted migration-caused evidence-commit aberrations and confirmed current source/test traceability; explicit human approval advanced this deliverable to CHECKING for formal review. No ISSUED, release, compatibility, code-compliance, or professional-engineering authentication claim was made.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
+- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 9); no state change.

@@ -40,7 +40,7 @@ This package is the **v0.2 current downstream decomposition basis** for agentic 
 
 ## How agents should use this package
 
-1. Start from `INIT.md`, then follow `execution/_Coordination/_COORDINATION.md` for authority intake, work selection, execution discipline, validation, and handoff.
+1. Start from `init/init-prompt.md` → `loop/LOOP_INIT.md` → the newest `loop/WORKPLAN_*.md` (the development loop instructions: discovery, work selection from deliverable folders, execution discipline, validation, and handoff). `execution/_Coordination/_COORDINATION.md` remains the ruled-record surface (current target stage).
 2. Use `docs/_Decomposition/SOFTWARE_DECOMP.md` as the authoritative working surface for packages and deliverables.
 3. Use `docs/_Registers/*.csv` for machine-checkable mappings.
 4. Treat every deliverable as bounded: no agent may expand scope silently.

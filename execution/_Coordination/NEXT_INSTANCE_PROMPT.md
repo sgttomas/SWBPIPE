@@ -1,5 +1,12 @@
 # NEXT INSTANCE PROMPT
 
+> **HISTORICAL — pre-loop session entry (superseded 2026-07-04; marked 2026-07-10).**
+> This is a dated map from the pre-loop session convention, never authority. The
+> current session entry is `init/init-prompt.md` → `loop/LOOP_INIT.md` → the newest
+> `loop/WORKPLAN_*.md`; status claims below are frozen as of their writing and are
+> not refreshed. The live tree, the decision register, and deliverable-local
+> `_STATUS.md` files govern on any disagreement.
+
 ## Current Authority
 
 - Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.

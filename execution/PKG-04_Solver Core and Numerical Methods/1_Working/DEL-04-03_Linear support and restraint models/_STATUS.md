@@ -1,7 +1,10 @@
 # Status: DEL-04-03 Linear support and restraint models
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-02
+**Last Updated:** 2026-07-10
+
+## Remaining
+- Implement full constant-effort spring-hanger solve behavior beyond the landed user-data slice (catalog sizing and protected/default values stay excluded per DEC-049) (source: PRD plan §3 D5 row / DEC-049)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -13,3 +16,4 @@
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-05 - Human approved moving DEL-04-03 to CHECKING using `TP-DEL-04-03-04-06-REVIEW-READINESS-001` package fan-in recommendation `READY_FOR_HUMAN_CHECKING_GATE`. This is a lifecycle review transition only; no ISSUED, release, professional approval, certification, sealing, authentication, code-compliance, dependency-closure, or review-finding disposition claim was made.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
+- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 9); no state change.

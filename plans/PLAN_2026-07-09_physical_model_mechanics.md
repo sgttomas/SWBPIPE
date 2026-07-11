@@ -1,5 +1,12 @@
 # Physical-Model Mechanics Program — tactical plan
 
+> **RETIRED AS A SELECTION SURFACE 2026-07-10** (owner-adopted consolidation; loop
+> Receipt 9). P1–P4 executed (Receipts 5–6; PRs #143/#144/#145); the open residuals
+> and the §5 completion criteria were rehomed into deliverable `_STATUS.md`
+> `## Remaining` sections (primary: DEL-04-01, DEL-04-04, DEL-05-01, DEL-05-02,
+> DEL-07-02). Do not select work from this file; it is retained as a dated record
+> because `DEC-066`–`DEC-070` cite it by path.
+
 > **Epistemic status: agent-authored PROPOSAL — non-governing.** Written
 > 2026-07-09 at owner direction (verbatim in `loop/LOOP_RECEIPTS.md`
 > Receipt 3; scope adoption codified as `DEC-066`–`DEC-069` in

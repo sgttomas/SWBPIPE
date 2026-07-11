@@ -1,263 +1,22 @@
 # Coordination Record
 
-## Active Surface
+**Epistemic status (rewritten 2026-07-10 at owner adoption, K-AUTH-1).** This
+file is now a ruled-record surface and pointer, not the operative protocol.
+The development-loop instructions live in the newest `WORKPLAN_*.md` under
+`loop/`. This file carries only the owner-ruled records that decision packets
+and register rows name it for. It must never accumulate status, queues, or
+counts; the pre-2026-07-10 text is preserved in git history.
 
-Keep this surface lean. Use canonical project instructions, approved DAG
-artifacts, and deliverable-local records as the active state.
+Path anchor: resolve `REPO_ROOT` with `git rev-parse --show-toplevel`; paths
+below are relative to `{REPO_ROOT}/projects/chirality-piping`.
 
-Path anchors for executable prompts:
+## Current Target Stage (ruled record)
 
-- Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.
-- Set `WORKING_ROOT` to `{REPO_ROOT}/projects/chirality-piping`.
-
-Primary pointers:
-
-- `{REPO_ROOT}/AGENTS.md`
-- `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`
-- `{WORKING_ROOT}/AGENTS.md` - project-local agent posture and closeout discipline
-- `docs/DIRECTIVE.md`
-- `docs/CONTRACT.md`
-- `docs/TYPES.md`
-- `docs/SPEC.md`
-- `docs/PRD.md`
-- `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` - forward PRD authority after
-  D-21 / DEC-056 and SCA-005; read historical v0.1 FR and milestone tokens
-  through the D-21 Annex A crosswalk
-- `docs/PLAN.md`
-- `docs/IP_AND_DATA_BOUNDARY.md`
-- `docs/VALIDATION_STRATEGY.md`
-- `docs/RELEASE_QUALITY_GATES.md`
-- `docs/BUILD_AND_RELEASE.md`
-- `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
-- `docs/_Registers/*.csv`
-- `plans/PLAN_2026-06-17_prd_completion.md`
-- `execution/_Coordination/_DECISIONS/_REGISTER.md`
-- `package.json`
-- `apps/desktop/package.json`
-- `apps/desktop/SMOKE.md`
-- `apps/desktop/src/**`
-- `apps/desktop/src-tauri/**`
-- `core/product_physics/**`
-- `fixtures/product_preview/**`
-- `execution/_Decomposition/SOFTWARE_DECOMP.md`
-- `execution/_DAG/_LATEST.md`
-- `execution/_DAG/DAG-007/APPROVAL_RECORD.md`
-- `execution/_DAG/DAG-007/DAG_Audit.md`
-- `execution/_DAG/DAG-007/DependencyEdges.csv`
-- `execution/_DAG/DAG-007/DeliverableNodes.csv`
-- `execution/_DAG/DAG-007/` - current approved canonical dependency
-  type-system rectification package
-- `execution/PKG-*/1_Working/DEL-*/MEMORY.md`
-- `execution/PKG-*/1_Working/DEL-*/_STATUS.md`
-- `tools/coordination/list_deliverable_status.py`
-
-## Authority Intake Tiers
-
-Use progressive intake. Do not turn every session into a full manual reread of
-the repository, but do ground each session in the governing documents before
-selecting or executing work.
-
-Baseline intake for every new session:
-
-- `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md` for the active persona.
-- `{WORKING_ROOT}/AGENTS.md` for project-local agent posture, write-scope
-  discipline, and closeout routing.
-- `docs/DIRECTIVE.md` for founding intent and stop rules.
-- `docs/CONTRACT.md` for invariant authority.
-- `docs/TYPES.md` for lifecycle states, identifiers, artifact vocabulary, and
-  domain terms.
-- `docs/IP_AND_DATA_BOUNDARY.md` for public/private data and protected-content
-  boundaries.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` for the current package and
-  deliverable working surface.
-- `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md` as the forward product
-  completion yardstick for ordinary tranche selection after D-21 / DEC-056 and
-  SCA-005. `docs/PRD.md` remains historical v0.1 text; ruled records that cite
-  v0.1 FR/milestone tokens are read forward through Annex A of
-  `execution/_Coordination/_DECISIONS/D-21_prd_scope_change_v0_2_milestone_set.md`.
-- `docs/PLAN.md` — the non-governing strategic roadmap: the definition of
-  "complete per the PRD", the current milestone position, the layer-relation
-  map, and roadmap-level risks. It routes to the authorities (this record is
-  authoritative for the current target stage) and to the completion plan for
-  tranche selection; it is strategic orientation, not a work queue.
-- `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan
-  (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase
-  ordering, the dependency spine, the FR completion map, and the human
-  decision register `D-01..D-27` (`D-27` ruled by `DEC-054`: conditional R4
-  gate accepted, target stage advanced to R5, §16.2/§16.5 evidence-system
-  residual carried forward; D-21/DEC-056 adopted v0.2 and SCA-005 propagated
-  the forward-authority pointers without creating a lifecycle advance, release
-  claim, or live binding). Update this pointer when a successor plan is
-  accepted.
-- `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
-  preparation status and rulings pending with the human project authority.
-- `execution/_Coordination/_COORDINATION.md`,
-  `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`, and authoritative
-  discovery surfaces named here for current entry protocol and state.
-- `execution/_DAG/_LATEST.md`, the current DAG approval record, and the current
-  DAG node/edge registers for approved relationship context.
-
-Baseline governance documents are the usable authority for ordinary work.
-Deliverable-local folders are read for the selected deliverable and for active
-DAG-discovered dependencies only. Do not read governance deliverable folders
-merely to understand project-wide policy unless the selected work, local
-references, or active DAG edges point there.
-
-Execution intake when selecting or implementing a deliverable:
-
-- `docs/SPEC.md` for technical architecture and implementation mechanics.
-- Relevant rows from `docs/_Registers/*.csv`; query the rows needed for the
-  selected package or deliverable instead of reading every register wholesale.
-- The selected deliverable-local folder, including `_STATUS.md`, `MEMORY.md`,
-  `_CONTEXT.md`, `_REFERENCES.md`, dependency files, run records, semantic or
-  lensing files when present, review files when present, the four-document kit,
-  and primary artifacts.
-- DAG-discovered upstream and downstream deliverable-local files as needed for
-  context.
-
-Review, closeout, or release-readiness intake:
-
-- `docs/VALIDATION_STRATEGY.md` for verification and release-quality
-  expectations.
-- `docs/RELEASE_QUALITY_GATES.md` for the gate definitions that
-  release-readiness evidence, threshold work (`D-04`), and Phase E tranches
-  must satisfy.
-- Applicable deliverable-local review files, `Review_Findings.csv`, run
-  records, validation evidence, source indexes, and aggregation or
-  reconciliation snapshots.
-- Relevant register rows and active DAG context needed to check closure,
-  dependency satisfaction, and lifecycle-gate boundaries.
-
-Application integration intake when selecting or implementing a desktop-app
-slice:
-
-- root and desktop package manifests: `package.json`,
-  `apps/desktop/package.json`;
-- desktop UI/runtime surfaces: `apps/desktop/src/**`,
-  `apps/desktop/src-tauri/**`, and `apps/desktop/SMOKE.md`;
-- current mechanics bridge and preview data:
-  `core/product_physics/**` and `fixtures/product_preview/**`;
-- relevant `core/**` modules for the selected app slice;
-- `docs/BUILD_AND_RELEASE.md` and `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` for
-  build, release-evidence, and contributor workflow context.
-
-Read deliverable-local packets only when the selected app slice needs their
-authority, acceptance criteria, unresolved TBDs, review findings, or
-dependency context. Use the current approved DAG pointer to discover those
-related deliverables, then inspect local artifacts directly. As of 2026-06-22,
-`DAG-007` is the approved canonical dependency type-system rectification
-pointer.
-
-## State Tracking Rules
-
-Use two layers of state. Do not let handoff prose become substitute authority.
-
-Authoritative state:
-
-1. `execution/_Decomposition/SOFTWARE_DECOMP.md` says what must be built and why.
-2. `execution/_DAG/_LATEST.md` names the approved DAG pointer. As of
-   2026-06-22 it points to `DAG-007`, the approved canonical type-system
-   rectification successor. `DAG-007` is built from refreshed
-   deliverable-local dependency registers, uses canonical v3.1 enum values in
-   the current edge register, and excludes candidate rows from
-   `DependencyEdges.csv`. `DAG-001` through `DAG-006` remain immutable
-   historical snapshots with legacy dependency enum values. Current and future
-   dependency writes must use canonical v3.1 enum values only;
-   legacy-readable values are migration inputs, not emit-able current values.
-   Candidate rows remain non-gating worklist items unless explicitly promoted by
-   a later human gate and graph revalidation. SCCs are the primary diagnostic of
-   undecided ordering: any edge that participates in a cycle is non-gating until
-   the SCC is resolved by a recorded move (decompose / invert / merge / cut;
-   cut/merge are human-gated). The active edge set is kept acyclic by
-   construction; unresolved cycles live only in candidate worklists pending
-   resolution. Later approved DAG versions are event-driven by a decomposition
-   revision / SCA or another explicit governance rectification, not periodic.
-   Canonical doctrine: the shared repo-root `docs/CYCLE_DRIVEN_RESOLUTION.md`.
-   This project's adoption and rollout record:
-   `plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md`.
-3. Deliverable-local `_STATUS.md`, `MEMORY.md`, and `_run_records/**` carry
-   lifecycle, working memory, and execution evidence inside each deliverable's
-   ownership boundary.
-4. `tools/coordination/list_deliverable_status.py` is a read-only discovery
-   helper. It lists local `_STATUS.md` values and optional DAG node
-   presence/path context; it does not write state and is not a substitute for
-   deliverable-local inspection.
-5. The current application implementation state lives in the repository app,
-   core, fixture, test, and build surfaces. App code and test evidence do not
-   replace decomposition truth, DAG authority, deliverable lifecycle state, or
-   human review gates, but they are now the primary ordinary development
-   surface for producing a working desktop application.
-6. The completion plan (`plans/PLAN_2026-06-17_prd_completion.md`) and the
-   decision register (`execution/_Coordination/_DECISIONS/_REGISTER.md`) are
-   non-governing guidance surfaces: they order tranche selection toward the
-   PRD yardstick and track human decision preparation. They do not replace
-   decomposition truth, DAG authority, deliverable lifecycle state, or human
-   gates. When they disagree with authoritative surfaces, surface the
-   discrepancy and correct the plan or register, not the authority.
-
-Handoff and state discovery:
-
-- `execution/_Coordination/NEXT_INSTANCE_PROMPT.md` contains stable entry
-  instructions for the next agent instance.
-- There is no separate handoff-state authority. Current state must be
-  discovered from authoritative artifacts:
-  `projects/chirality-piping/execution/_DAG/_LATEST.md`, approved DAG
-  artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`,
-  dependency/review files, and current aggregation or review artifacts as
-  needed.
-- Handoff prose, when created inside a deliverable or review/audit artifact,
-  must cite the owning authoritative artifacts. It must not replace
-  decomposition truth, DAG authority, deliverable-local lifecycle files, review
-  records, release records, or professional/acceptance records.
-
-At session closeout, update affected deliverable-local `MEMORY.md` and
-`_run_records/**` and any explicitly approved review/audit evidence surfaces.
-For application-integration work, update only the app/code/docs/test/evidence
-surfaces authorized by the tranche, the completion-plan and decision-register
-rows the tranche or a recorded human ruling affects, and any explicitly
-selected deliverable memory or review surfaces. After validation and evidence
-recording, autonomously hand off to a `CHANGE` agent/subagent for final
-Git/file-state review under `{WORKING_ROOT}/AGENTS.md` closeout discipline.
-Leave `NEXT_INSTANCE_PROMPT.md` stable unless the entry protocol itself
-changes. Do not create a session-steering coordination state file.
-
-## Application Integration And Issuance Phase
-
-The project has moved out of ordinary deliverable-by-deliverable buildout.
-Do not infer lifecycle state from this coordination prose; run the local
-status-discovery command and use deliverable-local `_STATUS.md` files as the
-authority. The latest discovery during 2026-06-21 closeout reported
-`CHECKING=8`, `IN_PROGRESS=92`, and `ISSUED=1`; `DEL-01-01` is the sole
-currently `ISSUED` deliverable and remains the accepted governance baseline
-unless a human-approved change path opens it.
-
-Until all deliverables are `ISSUED`, ordinary development is app-centric:
-produce a working desktop application while using the current approved DAG
-pointer, the decomposition, and deliverable-local records according to their
-discovered lifecycle state. As of 2026-06-22, that pointer is `DAG-007`.
-`CHECKING` means design authority is
-mature; it does not mean the application has absorbed that deliverable's
-scope. `IN_PROGRESS` records remain current development surfaces and must not
-be described as issued or closed. The completion plan's FR map tracks
-absorption toward the PRD yardstick. Formal issuance remains a separate
-human-gated lifecycle workflow.
-
-### Working Desktop Application Standard
-
-The application standard is staged. Every stage keeps every boundary
-prohibition below; stages raise only the functional bar, never relax the
-boundary.
-
-**Stage floor — technical preview (met as of 2026-06-10).** A desktop app
-that:
-
-- builds and tests locally through the root/desktop package scripts;
-- loads invented preview project/model/design-knowledge data;
-- exposes local-only project create/open/save controls;
-- runs preview mechanics through the accepted app/core boundary and renders
-  results, diagnostics, report context, and review-only agent proposals;
-- shows the professional, release, protected-content, and private-data
-  boundaries visibly.
+Ruling lineage: `DEC-048` set the R4 target stage; `D-26`/`DEC-053` held R4
+pending the named sparse default-promotion repair; `D-27`/`DEC-054` accepted
+the conditional R4 gate and advanced the target stage to R5. Register rows
+`D-14`, `D-26`, and `D-27` name this file as the recording surface for the
+Working Desktop Application Standard current target stage.
 
 **Current target stage - PRD R5 exit criterion (advanced 2026-06-23 by
 `DEC-054`, after the conditional R4 target-stage gate in `D-27`).** Phase D/R4
@@ -275,490 +34,63 @@ residual work to gather later, including once the agent harness is active and
 can participate. Boundary prohibitions continue unchanged: no protected
 standards content, private-data defaults, unapproved release-readiness claim,
 professional approval, certification, sealing, authentication, or
-code-compliance claim. R4 evidence basis: D1
-bend-object app absorption landed for the invented preview path across
-visibility/provenance (`TP-R4-D1-BENDVIS-001`) and
-mechanics/stress-recovery/report evidence (`TP-R4-D1-BENDSTRESS-001`). D2
-branch-object app absorption landed for the invented preview path through
-`TP-R4-D2-BRANCHSTRESS-001`. D3 rigid/semi-rigid component app absorption
-landed for the invented preview path through `TP-R4-D3-RIGIDVIS-001`, with
-`mechanics_geometry_only` data/provenance/diagnostic evidence and no
-frame-stiffness behavior change. D4 expansion-joint app absorption landed for
-the invented preview path through `TP-R4-D4-EJSTIFF-001`,
-`TP-R4-D4-EJMACRO-001`, and `TP-R4-D4-EJTHRUST-001`, with user-stiffness
-review rows, the `DEC-045` EJ solver macro-element, and explicit load-side
-pressure-thrust evidence from user effective area plus named pressure loads.
-D5 spring-hanger user-data model evidence landed through
-`TP-R4-D5-HANGERDATA-001` under `DEC-049`, covering invented variable spring
-and constant-effort support records without catalog sizing, protected defaults,
-hidden support values, or professional/code-compliance claims. The loop-core
-slice
-`TP-R4-D6-LOOPCORE-001` added
-`core/solver/nonlinear_integration` as the assembled active-set loop owner
-under `DEC-044`/`DEC-046`, and `TP-R4-D6-PHYSINTEG-001` bound that loop
-into the invented product/app/result-envelope preview path for one explicit
-nonlinear support. `TP-R4-D9-ASSEMBLEDSEED-001` added the first assembled
-global-loop validation seed for one-way deactivation, gap closure, and lift-off
-release; `TP-R4-D9-FRICTIONSEED-001` and
-`TP-R4-D9-FRICTIONSLIDE-001` added explicit-normal friction sticking/sliding
-assembled and product-preview evidence. `TP-R4-D6-FRICTIONNORMAL-001` added
-derived friction normal-reaction evidence from named restrained support DOFs
-in the active-set loop, product adapter, nonlinear benchmark inventory, and
-invented preview fixture. `TP-R4-D8-COMPPROVREPORT-001` added component
-provenance and missing-provenance warnings to the hash-bound rendered report
-path. `TP-R4-D9-BRANCHASSEMBLY-001` added the PRD §16.2 public-original
-three-member branch-assembly mechanics benchmark.
-`TP-R4-D9-CONVOBS-001` records structured observed convergence values for the
-current assembled nonlinear fixture set. `TP-R4-D9-CONVPOLICY-001` promotes the
-governed `DEC-046-CV-B-active-set-count-validation-v1` policy for that current
-assembled validation seed only: active-set changed-support-count residual,
-relative tolerance `0.0`, absolute floor `0.0`, max iteration cap `4`, keyed to
-one-way/gap/lift-off/friction classes. `TP-R4-D9-FREEDOFRESIDPOLICY-001`
-promotes free-DOF force/moment residual threshold policies for the current
-assembled validation seed and invented product-preview surface only, leaving
-release, sparse-default, external, and broader non-seed threshold axes open.
-`TP-R4-D9-MULTISUPPORTOBS-001` adds an observation-only
-multi-DOF / multi-support assembled validation-depth fixture, with a two-support
-Ux/Uy state-change case kept outside the accepted seed policy and marked
-`TolerancePolicyTbd`. `TP-R4-D9-MULTISUPPORTPOLICY-001` adds a separate
-public-original Ux/Uy multi-support validation fixture with accepted
-`DEC-046` active-set-count and free-DOF force/moment policies for that
-non-seed fixture only. `TP-R4-D9-MULTISUPPORTBREADTH-001` broadens that
-accepted multi-support fixture set with a second public-original lift-off/gap
-companion under the same narrow active-set, free-DOF force/moment, and
-free-DOF work policies. `TP-R4-D9-MULTISUPPORTFRICTION-001` adds a third
-public-original friction/gap companion with explicit invented normal-reaction
-evidence under those same narrow multi-support policies.
-`TP-R4-D9-MULTISUPPORT3DOF-001` adds a fourth public-original accepted
-companion that changes three nonlinear supports across three translational
-DOFs under the same narrow multi-support policies.
-`TP-R4-D9-MULTISUPPORTROT-001` adds a fifth public-original accepted
-companion that changes supports across translation and rotation groups under
-the same narrow multi-support policies.
-`TP-R4-D9-MULTISUPPORTDERIVED-001` adds a sixth public-original accepted
-companion that combines derived-normal friction sliding with gap closure under
-the same narrow multi-support policies.
-`TP-R4-D9-MULTISUPPORTDERIVEDROT-001` adds a seventh public-original accepted
-companion that combines derived-normal friction sliding with rotational lift-off
-under the same narrow multi-support policies.
-`TP-R4-D9-MULTISUPPORTCASCADE-001` adds an eighth public-original accepted
-companion that records a sequential active-set cascade: Rz lift-off release
-followed by Uy gap closure before final convergence under the same narrow
-multi-support policies.
-`TP-R4-D9-MULTISUPPORTNEGAP-001` adds a ninth public-original accepted
-companion that pairs negative-direction Uy gap closure with Ux one-way release
-under the same narrow multi-support policies.
-`TP-R4-D9-MULTISUPPORT4CLASS-001` adds a tenth public-original accepted
-companion that combines friction sliding, gap closure, one-way release, and
-rotational lift-off release in one fixture under the same narrow multi-support
-policies.
-`TP-R4-D9-MULTISUPPORTOPPGAP-001` adds an eleventh public-original accepted
-companion that closes positive-direction Ux and negative-direction Uy gaps in
-one gap-only opposing-direction fixture under the same narrow multi-support
-policies.
-`TP-R4-D9-MULTISUPPORTSPAN-001` adds a twelfth public-original accepted
-companion that exercises nonlinear supports on separate nodes in a two-span
-frame topology under the same narrow multi-support policies.
-`TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001` adds a thirteenth public-original
-accepted companion that combines the two-span topology with opposing gap
-directions on separate nodes under the same narrow multi-support policies.
-`TP-R4-D9-DISPREACTIONOBS-001` adds observation-only displacement/reaction-delta
-axis ledgers for the current assembled validation seed and accepted
-multi-support fixture set, plus product-preview metadata that initially marked
-those axes `threshold_policy_status=tbd`.
-`TP-R4-D9-DISPREACTIONPOLICY-001` promotes fixture-evidence-envelope
-displacement/reaction delta threshold policies for the current assembled
-validation seed and accepted thirteen-fixture multi-support set only; product
-preview, broader non-seed, sparse-default, release, and external delta
-thresholds remain open.
-`TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes an accepted product-preview-only
-displacement/reaction delta policy for emitted rows from the invented mixed
-one-way/gap/friction surface; broader non-seed, sparse-default, release, and
-external delta thresholds remain open.
-`TP-R4-D9-ENERGYOBS-001` records final-iteration
-free-DOF work residual observations in the active-set loop, nonlinear validation
-inventory, and invented product-preview surface. `TP-R4-D9-WORKPOLICY-001`
-promotes a bounded final-iteration free-DOF work residual policy for the current
-assembled validation seed, invented product-preview surface, and accepted
-multi-support fixture set only. `TP-R4-D9-GENERALENERGYPOLICY-001` promotes
-bounded general-energy residual policies for the current assembled validation
-seed, invented product-preview surface, and accepted thirteen-fixture
-multi-support set only. Accepted displacement/reaction-delta thresholds beyond
-the current seed, accepted thirteen-fixture set, and product-preview surface,
-non-seed force/displacement beyond the accepted thirteen-fixture set, broader non-seed
-general-energy residual thresholds, release, sparse-default, external, total
-strain-energy, modal-energy, and CI threshold axes remain open.
-`TP-R4-D6-LIVEBUNDLE-001` added mixed one-way/gap/friction product live-loop
-coverage in one invented solve. `TP-R4-D7-SPARSELIVE-001`
-landed the `DEC-050` sparse evidence lane while dense remained the default at
-that historical step.
-`TP-R4-D7-SPARSEPROFILE-001` adds direct reduced profile-entry assembly for
-product-preview sparse evidence rows. `TP-R4-D7-NONLINEARPROFILE-001` moves
-the nonlinear integration sparse evidence lane to direct reduced profile
-entries from the active free-DOF map. `TP-R4-D7-SPARSESUITABILITYOBS-001`
-adds generated-grid sparse suitability observations from the performance
-harness. `TP-R4-D7-SPARSETHRESHOLDPOLICY-001` promotes bounded DEC-050
-generated-grid sparse suitability thresholds for dense-vs-sparse relative delta,
-sparse residual, repeatability, and nonpositive pivots as historical DEC-050
-evidence.
-`TP-R4-D7-SPARSESTORAGEOBS-001` adds deterministic f64 value-storage
-observations for reduced dense matrices and sparse profile entries in the
-performance harness.
-`TP-R4-D7-SPARSECONDITIONPOLICY-001` promotes a bounded DEC-050
-generated-grid sparse pivot-ratio conditioning policy for the same observation
-set. `D-26` was ruled by `DEC-053` as O-B, selecting sparse default promotion
-as the named residual repair before R4 exit acceptance. The repair tranche
-`TP-R4-D7-SPARSEDEFAULTPROMOTE-001` promotes sparse interactive as the default
-preview/render/live-model-change path, keeps dense scrutiny explicitly
-selectable, requires sparse-to-dense fallback to be diagnostic/result-basis
-visible, and records a bounded 9-record local sparse-promotion observation
-packet with practical size bands, dense/sparse timing observations,
-value-storage and RSS observations, hardware metadata, dense/sparse parity,
-residual, repeat determinism, pivot-ratio proxy, and true condition number from
-the reduced dense symmetric matrix. Timing/RSS/hardware/CI evidence is
-observed, not threshold-gated, and no hosted-CI, hardware-normalized pass/fail,
-release-performance, professional, certification, sealing, authentication, or
-code-compliance claim is created.
-`TP-R4-D9-EXITGAP-001` recorded the pre-`D-25` R4 exit verdict as not ready:
-non-seed force/displacement threshold promotion beyond the accepted thirteen-fixture set,
-broader displacement/reaction-delta threshold promotion beyond the accepted
-current-seed, thirteen-fixture, and product-preview
-surfaces, broader multi-DOF /
-multi-support nonlinear acceptance thresholds beyond the accepted thirteen-fixture set,
-default sparse promotion plus sparse timing/memory/CI/hardware-normalized
-threshold promotion and conditioning evidence beyond the generated-grid
-pivot-ratio policy,
-deeper spring-hanger behavior, and
-the remaining D9 validation evidence remain open. Broader non-seed, release,
-external, sparse-default, total strain-energy, modal-energy, and CI
-general-energy threshold axes remain outside the accepted
-`TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
-`D-25` is ruled by `DEC-052` Option O-B: those residuals are explicit
-post-R4/R5 or non-blocking hardening residuals for this R4 packet unless a
-later human gate selects one as blocking. `DEC-053` selected the sparse
-default-promotion residual as a blocking R4 repair and that repair tranche has
-landed. `TP-R4-D9-EXITCHAIN-001` and
-`plans/VERIFICATION_2026-06-22_r4_exit_chain.md` remain the historical R4 exit
-packet. The current refreshed packet is
-`plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
-(`TP-R4-D9-EXITCHAINREFRESH-001`) and includes
-`TP-R4-D7-SPARSEDEFAULTPROMOTE-001`. The clean-head sweep
-`validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json` binds the
-refreshed packet to `16cca07f3`. `D-27` is ruled by `DEC-054`: the conditional
-R4 gate is accepted, R5 is the current target stage, and PRD §16.2 / §16.5
-remain explicit benchmark/manual evidence-system residuals.
-`DAG-007` is the current approved dependency graph pointer; `DAG-001` through
-`DAG-006` remain historical snapshots.
+code-compliance claim.
 
-Interactive authoring of user-created local models — applying editor
-operations to a persisted local model document — remains in scope and does not
-violate the technical-preview boundary. The boundary prohibitions concern
-claims, network surfaces, and data classes, not interactivity:
-
-- no cloud, daemon, network, telemetry, or repository-default private-data
-  writes;
-- bundled examples and fixtures remain invented; user-created models stay in
-  local project storage and are never committed to the repository;
-- no protected standards content and no private project data in the
-  repository;
-- no release-readiness claims, professional approval claims, certification,
-  sealing, authentication, or code-compliance claims.
-
-**Later stages.** After R4-stage evidence is recorded and human-reviewed,
-subsequent target stages follow the completion plan: R5 (engineering beta).
 Agents propose stage advancement with evidence; only a human-approved
-coordination update advances the target stage recorded here.
+coordination update advances the target stage recorded here. This standard is
+not a release gate, legal clearance, professional reliance record, or final
+`ISSUED` lifecycle decision.
 
-This standard is not a release gate, legal clearance, professional reliance
-record, or final `ISSUED` lifecycle decision.
+## State Tracking Rules (ruled records)
+
+`DEC-040` cycle-driven resolution augmentation, unchanged: SCCs are the
+primary diagnostic of undecided ordering: any edge that participates in a
+cycle is non-gating until the SCC is resolved by a recorded move (decompose /
+invert / merge / cut; cut/merge are human-gated). The active edge set is kept
+acyclic by construction; unresolved cycles live only in candidate worklists
+pending resolution. Later approved DAG versions are event-driven by a
+decomposition revision / SCA or another explicit governance rectification,
+not periodic. Canonical doctrine: the shared repo-root
+`docs/CYCLE_DRIVEN_RESOLUTION.md`. This project's adoption and rollout record:
+`plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md`.
+
+Guidance-surface correction rule, unchanged (applies to the decision register
+and the standing workplans under `loop/`): they are non-governing guidance
+surfaces. They do not replace decomposition truth, DAG authority, deliverable
+lifecycle state, or human gates. When they disagree with authoritative
+surfaces, surface the discrepancy and correct the plan or register, not the
+authority.
 
 ## Application Integration And Issuance Loop
 
-Use this loop as the default OpenPipeStress development driver from this point
-until a later coordination update replaces it. If a human has already approved
-an implementation, review, issuance, or release-readiness tranche, continue
-that tranche within its write bounds. Otherwise propose exactly one next
-bounded tranche.
+The steps of this loop are absorbed into the newest `WORKPLAN_*.md` under
+`loop/` as of 2026-07-10 (owner-adopted, K-AUTH-1). Historical references to
+this heading — e.g. decision packets "prepared per the Application Integration
+And Issuance Loop decision-escalation step" — resolve to the corresponding
+protocol steps of that workplan. The pre-2026-07-10 loop text is in git
+history at this path.
 
-1. **Authority intake.** Read `{REPO_ROOT}/agents/AGENT_TASK.md`,
-   `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`, `{WORKING_ROOT}/AGENTS.md`,
-   the baseline governance documents above, current app intake surfaces needed
-   for the selected slice, `SOFTWARE_DECOMP`, and the current approved DAG
-   pointer. As of 2026-06-22,
-   `projects/chirality-piping/execution/_DAG/_LATEST.md` points to `DAG-007`.
-2. **Status and git discovery.** Run
-   `python3 tools/coordination/list_deliverable_status.py --dag DAG-007 --format table --summary`
-   or the same command with `--format csv` when machine-readable output is
-   needed. Record `git status --short` before coordination-sensitive planning
-   or execution.
-3. **Default candidate selection.** For ordinary development, select the
-   highest-leverage application-integration tranche in this order:
-   1. the earliest unblocked item on the completion plan's dependency spine
-      for the current target stage (R4/Phase D per `DEC-048`). C1-C4 and C5
-      are landed, and the R3 exit evidence was accepted through `D-23`.
-      Select Phase D/R4 work in plan order. D1 bend-object app absorption
-      landed for the invented preview path through `TP-R4-D1-BENDVIS-001` and
-      `TP-R4-D1-BENDSTRESS-001`; D2 branch-object app absorption landed through
-      `TP-R4-D2-BRANCHSTRESS-001`; D3 rigid/semi-rigid component app
-      absorption landed through `TP-R4-D3-RIGIDVIS-001`; D4 expansion-joint
-      app absorption landed through `TP-R4-D4-EJSTIFF-001`,
-      `TP-R4-D4-EJMACRO-001`, and `TP-R4-D4-EJTHRUST-001`. D5 spring-hanger
-      user-data model evidence landed through `TP-R4-D5-HANGERDATA-001` under
-      `DEC-049`, with deeper catalog sizing and full constant-effort solve
-      behavior left outside that slice. The D6/D9 residuals after
-      `TP-R4-D6-LOOPCORE-001`, `TP-R4-D6-PHYSINTEG-001`,
-      `TP-R4-D6-LIVECOVER-001`, `TP-R4-D9-FRICTIONSEED-001`,
-      `TP-R4-D9-FRICTIONSLIDE-001`, `TP-R4-D6-FRICTIONNORMAL-001`,
-      `TP-R4-D9-BRANCHASSEMBLY-001`, `TP-R4-D9-CONVPOLICY-001`,
-      `TP-R4-D6-LIVEBUNDLE-001`, `TP-R4-D9-FREEDOFRESIDPOLICY-001`,
-      `TP-R4-D9-MULTISUPPORTOBS-001`, `TP-R4-D9-ENERGYOBS-001`,
-      `TP-R4-D9-MULTISUPPORTPOLICY-001`, `TP-R4-D9-WORKPOLICY-001`,
-      `TP-R4-D9-MULTISUPPORTBREADTH-001`,
-      `TP-R4-D9-MULTISUPPORTFRICTION-001`,
-      `TP-R4-D9-MULTISUPPORT3DOF-001`,
-      `TP-R4-D9-MULTISUPPORTROT-001`,
-      `TP-R4-D9-MULTISUPPORTDERIVED-001`,
-      `TP-R4-D9-MULTISUPPORTDERIVEDROT-001`,
-      `TP-R4-D9-DISPREACTIONPOLICY-001`,
-      and the D8 rendered report-provenance slice
-      `TP-R4-D8-COMPPROVREPORT-001`;
-      `TP-R4-D9-CONVOBS-001` records observed convergence values for the
-      current assembled fixtures and `TP-R4-D9-CONVPOLICY-001` promotes the
-      governed active-set-count policy for that validation seed only.
-      `TP-R4-D9-FREEDOFRESIDPOLICY-001` promotes free-DOF force/moment
-      residual threshold policies for the current assembled validation seed and
-      invented product-preview surface only.
-      `TP-R4-D9-MULTISUPPORTOBS-001` adds one observation-only multi-DOF /
-      multi-support validation-depth fixture outside those accepted threshold
-      policies. `TP-R4-D9-MULTISUPPORTPOLICY-001` adds one accepted non-seed
-      multi-support validation companion under narrow `DEC-046` active-set and
-      free-DOF force/moment policies. `TP-R4-D9-MULTISUPPORTBREADTH-001`
-      adds a second accepted non-seed lift-off/gap companion under the same
-      narrow multi-support active-set, free-DOF force/moment, and free-DOF
-      work policies. `TP-R4-D9-MULTISUPPORTFRICTION-001` adds a third
-      accepted non-seed friction/gap companion under those same narrow
-      multi-support policies. `TP-R4-D9-MULTISUPPORT3DOF-001` adds a fourth
-      accepted non-seed three-support / three-translation companion under the
-      same narrow multi-support policies. `TP-R4-D9-MULTISUPPORTROT-001`
-      adds a fifth accepted non-seed mixed translation/rotation companion
-      under the same narrow multi-support policies.
-      `TP-R4-D9-MULTISUPPORTDERIVED-001` adds a sixth accepted non-seed
-      derived-normal friction/gap companion under the same narrow multi-support
-      policies. `TP-R4-D9-MULTISUPPORTDERIVEDROT-001` adds a seventh accepted
-      non-seed derived-normal friction/rotational lift-off companion under the
-      same narrow multi-support policies. `TP-R4-D9-MULTISUPPORTCASCADE-001`
-      adds an eighth accepted non-seed sequential gap/lift-off cascade companion
-      under the same narrow multi-support policies.
-      `TP-R4-D9-MULTISUPPORTNEGAP-001` adds a ninth accepted non-seed
-      negative-direction gap/one-way companion under the same narrow
-      multi-support policies.
-      `TP-R4-D9-MULTISUPPORT4CLASS-001` adds a tenth accepted non-seed
-      four-class companion under the same narrow multi-support policies.
-      `TP-R4-D9-MULTISUPPORTOPPGAP-001` adds an eleventh accepted non-seed
-      gap-only opposing-direction companion under the same narrow
-      multi-support policies.
-      `TP-R4-D9-MULTISUPPORTSPAN-001` adds a twelfth accepted non-seed
-      multi-node / two-span companion under the same narrow multi-support
-      policies.
-      `TP-R4-D9-MULTISUPPORTTWOSPANGAPS-001` adds a thirteenth accepted
-      non-seed two-span opposing-gap companion under the same narrow
-      multi-support policies.
-      `TP-R4-D9-DISPREACTIONOBS-001` records
-      displacement/reaction-delta observation axes for the current seed,
-      accepted multi-support fixture set, and product-preview metadata.
-      `TP-R4-D9-DISPREACTIONPOLICY-001` promotes accepted
-      displacement/reaction delta threshold envelopes for the current seed and
-      accepted thirteen-fixture multi-support set only.
-      `TP-R4-D9-PRODDISPREACTIONPOLICY-001` promotes accepted
-      displacement/reaction delta threshold metadata for emitted rows from the
-      invented mixed product-preview surface only. `TP-R4-D9-ENERGYOBS-001` adds
-      final-iteration free-DOF work residual rows. `TP-R4-D9-WORKPOLICY-001`
-      promotes bounded free-DOF work residual policies for the current
-      assembled validation seed, invented product-preview surface, and accepted
-      multi-support fixture set only. `TP-R4-D9-GENERALENERGYPOLICY-001`
-      promotes bounded general-energy residual policies for the current
-      assembled validation seed, invented product-preview surface, and accepted
-      thirteen-fixture multi-support set only; broader non-seed, release, external,
-      sparse-default, total strain-energy, modal-energy, and CI energy
-      threshold axes remain `TBD`.
-      `TP-R4-D7-SPARSELIVE-001` binds `core/solver/sparse_direct` into the
-      assembled nonlinear integration and product-preview reduced solve paths
-      as the `DEC-050` sparse evidence lane, with dense remaining default.
-      `TP-R4-D7-SPARSEPROFILE-001` adds direct reduced profile-entry assembly
-      for product-preview sparse evidence rows while dense remains the product
-      solve path and parity oracle.
-      `TP-R4-D7-NONLINEARPROFILE-001` moves nonlinear integration sparse
-      evidence to direct reduced profile entries from the active free-DOF map.
-      `TP-R4-D7-SPARSESUITABILITYOBS-001` records generated-grid sparse
-      suitability observations. `TP-R4-D7-SPARSETHRESHOLDPOLICY-001`
-      promotes bounded generated-grid sparse suitability thresholds while dense
-      remains default and timing/memory/CI/hardware/default promotion stays
-      `TBD`.
-      `TP-R4-D7-SPARSESTORAGEOBS-001` records deterministic f64 value-storage
-      observations for reduced dense matrices and sparse profile entries while
-      allocator/RSS memory, timing, conditioning, CI, hardware-normalized, and
-      default-promotion thresholds remain `TBD`.
-      `TP-R4-D7-SPARSECONDITIONPOLICY-001` promotes a bounded generated-grid
-      sparse pivot-ratio conditioning policy while true condition-number, CI,
-      hardware-normalized, timing, allocator/RSS memory, and default-promotion
-      thresholds remain `TBD`.
-      `TP-R4-D9-EXITGAP-001` recorded the pre-`D-25` R4 exit verdict as not ready:
-      non-seed force/displacement threshold promotion beyond the accepted
-      thirteen-fixture set, broader displacement/reaction-delta thresholds beyond
-      the accepted current-seed, thirteen-fixture, and product-preview surfaces,
-      broader multi-DOF /
-      multi-support nonlinear acceptance thresholds beyond the accepted
-      thirteen-fixture set,
-      default sparse promotion plus sparse timing/memory/CI/hardware-normalized
-      thresholds and conditioning evidence beyond the generated-grid
-      pivot-ratio policy, deeper
-      spring-hanger behavior, and the R4 exit evidence
-      package remain open
-      under `DEC-044`/`DEC-046`/`DEC-050`. Broader non-seed, release,
-      external, sparse-default, total strain-energy, modal-energy, and CI
-      general-energy threshold axes remain outside the accepted
-      `TP-R4-D9-GENERALENERGYPOLICY-001` policy envelope.
-      `D-25` is ruled by `DEC-052` Option O-B: those residuals are explicit
-      post-R4/R5 or non-blocking hardening residuals for this R4 packet unless
-      a later human gate selects one as blocking. `D-26` is ruled by
-      `DEC-053` Option O-B: R4 held pending the named sparse default-promotion
-      repair, which landed as `TP-R4-D7-SPARSEDEFAULTPROMOTE-001`.
-      `TP-R4-D9-EXITCHAIN-001` prepared the historical
-      `plans/VERIFICATION_2026-06-22_r4_exit_chain.md` packet; the current
-      packet for human R4 exit review is
-      `plans/VERIFICATION_2026-06-23_r4_exit_chain_refresh.md`
-      (`TP-R4-D9-EXITCHAINREFRESH-001`), now bound by clean-head sweep
-      `validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json`.
-      `D-27` is ruled by `DEC-054`: the conditional R4 gate is accepted and the
-      current target stage advances to R5, while PRD §16.2 / §16.5 remain
-      explicit benchmark/manual evidence-system residuals.
-      `D-20`
-      remains a Phase E lead-up decision; held `D-21` does not authorize
-      v0.2/R6/R7 scope;
-   2. regression repair: failed or insufficient app tests, build breaks, or
-      smoke-evidence gaps in already-landed surfaces;
-   3. residual hardening (missing app-to-core seams, preview workflow gaps,
-      build/package gaps, validation evidence gaps) when it blocks or
-      de-risks a current-stage plan item.
-   Do not require an `IN_PROGRESS` deliverable candidate. Do not select
-   hardening work ahead of an unblocked current-stage plan item without
-   recording why in the tranche proposal.
-4. **Decision escalation.** When the next plan item is blocked by a human
-   decision (`D-01..D-27` in the completion plan/register, or any newly discovered
-   human-gated TBD):
-   - if no decision packet exists, the tranche is a decision-preparation
-     tranche: assemble options, evidence, impacts, and a recommendation
-     labeled `PROPOSAL` into
-     `execution/_Coordination/_DECISIONS/D-XX_<slug>.md` and update
-     `execution/_Coordination/_DECISIONS/_REGISTER.md`;
-   - if a packet already awaits ruling, proceed to the next unblocked
-     implementation item;
-   - if no current-stage plan item remains unblocked, stop: do not
-     substitute out-of-stage scope or unrelated hardening work. Finish any
-     validated work in hand, route it through autonomous `CHANGE` closeout,
-     ensure every blocking decision has a prepared packet, end the session
-     with the pending-rulings summary, and await the human ruling. A
-     continuous or unsupervised loop halts here by design and resumes only
-     after a human records the ruling(s);
-   - agents never resolve these decisions; rulings are human records,
-     captured per existing `DEC`/`SCA` decision practice and reflected back
-     into the register and plan;
-   - every session summary lists the decision packets awaiting human ruling.
-5. **Issuance candidate selection.** For human-directed lifecycle closeout,
-   select from `CHECKING` deliverables. `ISSUED` deliverables are not
-   work-selection scope except through a human-approved change path.
-6. **Context selection.** Start from the app/code/test surfaces for app
-   integration work. Use the current approved DAG pointer only to discover
-   related deliverables whose local artifacts need inspection. As of
-   2026-06-22, that pointer is `DAG-007`. DAG rows do not replace local
-   artifact inspection.
-7. **Bounded execution.** After approval, dispatch canonical `TASK` workers or
-   work locally inside a sealed tranche. Several workers may run concurrently
-   only when file sets are disjoint and write scopes are explicit. App
-   tranches may cross deliverable boundaries only when the tranche names the
-   app-owned slice and its allowed write targets.
-8. **Fan-in and validation.** Fan in worker results, check for scope drift, and
-   run validation appropriate to the changed app slice. For app integration,
-   expected evidence usually includes `npm test --workspace apps/desktop`,
-   `npm run build --workspace apps/desktop`, applicable Rust/Python checks,
-   and browser/smoke evidence when UI behavior changes.
-   UI evidence posture: when a tranche changes user-visible desktop
-   behavior, the default evidence is an extension of the Playwright e2e
-   spec(s) exercising the changed behavior in a real browser; a manual
-   live-browser smoke note in `apps/desktop/SMOKE.md` without a spec
-   extension is the exception and must record why automation was not
-   extended. New React components land with unit tests (Vitest) at or above
-   the slice's existing coverage pattern; a component with no unit test is a
-   recorded evidence gap, not a silent omission. Homogeneous UI slices
-   (several near-identical forms, rows, or panels produced from one
-   template) may record one template-level test plus per-instance smoke
-   assertions instead of duplicating the full suite per instance, provided
-   the run record names every instance covered by the template rule.
-   (Inserted 2026-06-11 per the human-approved H4 amendment; draft basis
-   `plans/DRAFT_2026-06-11_H4_coordination_evidence_posture.md`.)
-9. **Handoff and git closeout.** Record completed work, residual app gaps,
-   validation state, and boundary review in the touched app/evidence surfaces
-   and any explicitly selected deliverable memory/review files. Update the
-   completion-plan and decision-register rows affected by the tranche or by
-   any recorded human ruling. Keep the plan a selection instrument, not a
-   history: compress landed items to one line — `LANDED <date>`, tranche id,
-   residual hand-offs, and pointers to the run record and
-   `plans/PLAN_COMPLETION_LOG.md` — and move the narrative detail to that
-   log; partially-landed items keep remaining scope in the row. Before
-   pushing, run `python3 tools/release/run_evidence_sweep.py --execute` at
-   the committed HEAD and commit the summary (DEC-025). Then autonomously hand
-   off to a `CHANGE` agent/subagent for final Git/file-state review under
-   `{WORKING_ROOT}/AGENTS.md` closeout discipline. Do not advance lifecycle
-   state, make release claims, or issue deliverables unless the human
-   explicitly approves that gate.
+## Ruled workflow records
 
-## Execution Discipline
+- UI evidence posture (human-approved H4 amendment, 2026-06-11; draft basis
+  `plans/DRAFT_2026-06-11_H4_coordination_evidence_posture.md`) remains
+  binding on the workplan's validation step: user-visible desktop behavior
+  changes default to Playwright e2e spec extensions; manual `SMOKE.md`-only
+  evidence is the recorded exception; new React components land with unit
+  tests or a recorded evidence gap; homogeneous UI slices may use one
+  template-level test plus per-instance smoke assertions.
+- Pre-push local evidence sweep (`DEC-025`) and issuance waves W1–W7
+  (`D-11`/`DEC-062`) are codified in
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` §12, not here.
 
-Roles and authority:
+## Pointers
 
-| Role | Function | Authority |
-|---|---|---|
-| Human project authority | Confirms scope, resolves ambiguity, accepts deliverables and gates. | Binding decisions. |
-| Type 1 `WORKING_ITEMS` persona agent | Decomposes, routes, reconciles, prepares briefs, and fans in results. | Draft/proposal authority only. |
-| Type 2 `TASK` subagent or bounded worker | Executes one sealed deliverable or explicit tranche slice with bounded context. | Draft/proposal authority only. |
-| Deterministic tools | Validate schemas, tests, hashes, reports, lint rules, and status discovery. | Evidence only. |
-
-A bounded worker must:
-
-- execute only the assigned `DEL-XX-YY` or explicitly approved tranche slice;
-- not expand scope silently;
-- not introduce protected public data;
-- label unknowns as `TBD`;
-- surface conflicts and missing inputs;
-- produce tests or evidence appropriate to the deliverable type;
-- update only its declared write scope and deliverable-local evidence surface;
-- return a concise run summary with artifacts, evidence, warnings, and open
-  issues;
-- query only the relevant rows from `docs/_Registers/*.csv`;
-- use the active DAG only to discover relationship context, never as a
-  substitute for inspecting local deliverable artifacts;
-- avoid creating project-wide readiness or blocker authority unless the human
-  explicitly requests that derivative package.
-
-Review readiness requires:
-
-- deliverable ID and package match the decomposition;
-- anticipated artifacts exist or deferrals are recorded;
-- tests/lints pass where applicable;
-- no suspected protected data is present;
-- private data paths are respected;
-- assumptions and warnings are visible;
-- cross-deliverable dependencies are recorded;
-- local status, memory, run records, dependency files, and review files are
-  internally consistent or discrepancies are surfaced;
-- no claim exceeds its warrant.
-
-Human approval is required for lifecycle changes, candidate promotion, release
-claims, acceptance records, or any professional/code compliance claim. The
-human project authority has authorized `CHANGE` closeout under
-`{WORKING_ROOT}/AGENTS.md` as the normal terminal step for completed,
-validated app-integration tranches; this git closeout does not itself create
-lifecycle approval, release readiness, professional acceptance,
-certification, sealing, authentication, or code-compliance claims.
-Read-only verification snapshots and derivative gap registers are not release,
-professional, code-compliance, or acceptance claims.
+- Session entry: `init/init-prompt.md` → `loop/LOOP_INIT.md` → the newest
+  `loop/WORKPLAN_*.md` → `loop/LOOP_RECEIPTS.md`.
+- Work surface: deliverable folders (`execution/PKG-*/1_Working/DEL-*/`) and
+  `tools/coordination/list_deliverable_status.py` (read-only discovery).
+- Decision register: `execution/_Coordination/_DECISIONS/_REGISTER.md`.
+- Codified rulings: `execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
+- Approved DAG pointer: `execution/_DAG/_LATEST.md`.
+- `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`: dated historical map
+  (pre-loop session entry; never authority).
