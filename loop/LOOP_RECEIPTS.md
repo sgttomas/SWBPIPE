@@ -16,7 +16,12 @@
    records, run records, and deliverable-local files — never here.
 2. **Owner directions verbatim.** Any owner direction not otherwise captured in
    a governed artifact is quoted word-for-word with its date. This is the one
-   place chat-only directions become durable.
+   place chat-only directions become durable. Exception (owner-ruled
+   2026-07-10): a direction whose entire content and outcome are re-derivable
+   from git/PR history — e.g. "merge PR #N", executed as the recorded merges —
+   needs no receipt entry; rule 1 governs (work history lives in commits and
+   PRs). Quote a merge direction only when it carries anything beyond the
+   merge itself (scope grants, conditions, follow-on instructions).
 3. **Measurements as check summaries only.** `self-check pass; harness pytest
    pass; deliverable-status summary run; work-type checks pass` is the maximum —
    counts and tables belong in run records and evidence artifacts.
@@ -195,3 +200,17 @@
   - Gate outcome: executed within the DEC-060/DEC-061 fences; no lifecycle transition,
     no register change; parked gates D-12, D-07b, D-38 (AWAITING_RULING), D-06b
     (NOT_PREPARED, R5-exit lead-up). E3/E8 remainders kept in their plan rows.
+
+- **2026-07-10 — Receipt 8** (receipt-rule clarification, owner-directed; same session
+  as Receipt 7).
+  - Context: PRs #147/#148/#149 merged at owner direction (`a331c8a83`/`4b3ac073d`/
+    `ea627df63`; the merges themselves are git history, not receipt content — this
+    entry exists only for the protocol change below).
+  - Owner direction of record (2026-07-10, in-session, Ryan Tufts): 'Make this clear
+    in your instructions: "merge direction itself needs no receipt addendum — the
+    merges are re-derivable from git history, which per the ledger rules is where
+    work history lives."'
+  - Artifacts: rule 2 exception added to this ledger's Rules; WORKPLAN protocol
+    step 3 aligned (this directory).
+  - Gate outcome: governance/docs edit executed at owner direction; no code, no
+    lifecycle transition, no register change.

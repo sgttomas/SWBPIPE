@@ -74,8 +74,9 @@ below. Method forks and thresholds stay owner-gated as ordinary register rows
    already awaits ruling, take the next unblocked item.
 3. **Gate.** STOP; adoption/ruling/direction is the owner's act (K-AUTH-1; D-GOV-04).
    In-session directions/rulings are quoted verbatim in the receipt and recorded in their
-   governed artifact as part of execution. Record every gate outcome — including no-ops
-   and their reason.
+   governed artifact as part of execution — except directions fully re-derivable from
+   git/PR history (e.g. bare merge directions), per the receipt ledger's local rule 2.
+   Record every gate outcome — including no-ops and their reason.
 4. **Execute + check.** Branch-first + PR unless the owner directs otherwise; never
    self-merge; write scopes stay inside `projects/chirality-piping/**` unless the owner
    grants wider scope. Checks per `_COORDINATION.md`'s validation requirements and the
