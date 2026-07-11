@@ -425,3 +425,22 @@
   - Gate outcome: stopped/awaiting owner — conventions+addenda adoption and
     R1+ scale-out are the owner's ruling; no lifecycle transition; run
     artifacts only.
+
+- **2026-07-11 — Receipt 16** (scale-out adopted; R1 complete; paused before
+  R2; same session).
+  - Owner directions of record (2026-07-11, in-session, verbatim): scale-out
+    slate — "Adopt + scale out (Recommended)"; PR #182 — "Merge it yourself"
+    (merged 07781c664); pause — "Pause once R1 is done.  Record your
+    progress as appropriate for this task.  And give me a prompt to resume
+    the work."
+  - Artifacts: `R1_CONVENTIONS.md` (adopted binding set: conventions 1–8 +
+    addenda 1–13 + repairs + wave plan); R1 index set in the run folder
+    (DELIVERABLE_INVENTORY 101 / IMPLEMENTATION_SURFACES 231 /
+    VERIFICATION_INDEX 147 suites / VALIDATION_AND_PROVENANCE_INDEX 396 /
+    AUTHORITY map + DECISIONS_INDEX 74); RUN_BASIS phase log incl. pause
+    entry.
+  - Gate outcome: paused at owner direction after R1. R2 not started (the
+    W1 launch aborted mechanically before any agent ran; no wave
+    artifacts). Resume: R2 W1 (PKG-00–03) per RUN_BASIS resume point. No
+    lifecycle transition; discovery read-only; repair tranches remain
+    gate-stopped.

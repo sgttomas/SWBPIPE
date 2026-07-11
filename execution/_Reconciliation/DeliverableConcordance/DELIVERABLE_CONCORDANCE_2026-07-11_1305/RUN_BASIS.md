@@ -162,6 +162,20 @@
   (deliverable-grained pilots under `R1_CONVENTIONS.md`; wave-boundary
   reviewer checkpoints; ledgers under `WAVES/W<N>/`).
 
+- **2026-07-11 — PAUSED after R1 at owner direction.** Owner direction of
+  record (in-session, verbatim): "Pause once R1 is done.  Record your
+  progress as appropriate for this task.  And give me a prompt to resume
+  the work." R1 is complete and committed; R2 has NOT started — the W1
+  orchestration launch aborted on a mechanical scripting error before any
+  pilot agent ran (zero agents dispatched, no wave artifacts written), so
+  there is no partial-wave state. Resume point: dispatch R2 wave W1
+  (`PKG-00`–`PKG-03`, 25 deliverable-grained pilots) under
+  `R1_CONVENTIONS.md`, frozen tree `551f84ef6`, ledgers to `WAVES/W1/`,
+  wave-boundary reviewer checkpoint, then `PACKAGE_SUMMARIES/PKG-0X.md`;
+  waves W2–W5 follow per Part D. The frozen evidence worktree is
+  reproducible from the SHA (`git worktree add --detach <path>
+  551f84ef6be656f1603ce0acfa5e3935aa9683c7`).
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
