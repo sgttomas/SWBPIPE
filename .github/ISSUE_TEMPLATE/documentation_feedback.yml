@@ -1,0 +1,73 @@
+name: Documentation feedback
+description: Report unclear, incorrect, or missing documentation in OpenPipeStress.
+title: "[Docs]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to report documentation that is unclear, incorrect,
+        incomplete, or missing — user guide, developer guide, theory notes,
+        validation manual, examples, or in-repo reference documents.
+
+        **Contribution posture.** External code contributions are not
+        currently accepted, and that includes documentation patches — please
+        describe the problem here rather than opening a pull request.
+        Feedback is read as maintainer capacity allows; no response time,
+        correction, support level, or release is promised.
+
+        **Data boundary.** Do NOT include protected or proprietary standards
+        data (standards-body code text, tables, figures, examples,
+        commentary, material allowables, SIF tables, flexibility-factor
+        tables) or private project data (real project models, private
+        libraries, private rule packs, proprietary vendor data,
+        client-identifying information) in this report — even when suggesting
+        corrected wording. Suggested text must not reproduce protected
+        standards content. Use invented example data. Content on this tracker
+        is public.
+
+        Documentation describes open mechanical methods only; it does not
+        provide engineering advice or code-compliance determinations, and
+        code-specific values and rules must be supplied and verified by the
+        responsible engineer.
+  - type: input
+    id: location
+    attributes:
+      label: Document or page
+      description: Which document, page, or section the feedback is about (path, title, or URL).
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is unclear, incorrect, or missing
+      description: Describe the documentation problem as specifically as you can.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement (optional)
+      description: >-
+        How the documentation could be improved. Suggested wording must be
+        your own and must not reproduce protected standards content or
+        private data.
+    validations:
+      required: false
+  - type: checkboxes
+    id: data-boundary
+    attributes:
+      label: Data-boundary confirmation
+      description: These confirmations are required before the feedback can be submitted.
+      options:
+        - label: >-
+            This feedback (including all text, screenshots, attachments, and
+            suggested wording) contains no protected or proprietary standards
+            data and no private project data. Any example data included is
+            invented.
+          required: true
+        - label: >-
+            I understand that external code contributions (including
+            documentation patches) are not currently accepted and that this
+            feedback creates no obligation of response, correction, or
+            release.
+          required: true
