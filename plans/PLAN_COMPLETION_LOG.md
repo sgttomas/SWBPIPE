@@ -14,6 +14,91 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-07-10 - E5 packaging mechanics (`TP-E5-PACKAGING-001`)
+
+Landed the separate E5 implementation tranche named by the `DEC-057` ruling
+(D-06 O-A): the ruled v0.1 packaging mechanics, macOS Apple Silicon
+(`aarch64-apple-darwin`) only (DEL-10-04, PR #163).
+`apps/desktop/src-tauri/tauri.conf.json` enables `bundle.active` with
+explicit `["app"]` targets and real icons; `npm run tauri -- build` bundles
+from config alone (the TP-MAC-141 `--bundles app` workaround retires). The
+invented OpenPipeStress mark ships as a genuine multi-resolution `.icns` +
+512 px `icon.png`, reproduced byte-exactly by the committed pure-stdlib
+generator `tools/release/generate_app_icon.py` (no third-party art).
+`tools/release/package_release_artifact.py` produces the ruled artifact
+shape: a deterministic zip of the `.app` (byte-identical across runs) with a
+published SHA-256 checksum file, enforcing the ruled thin-arm64 matrix, and
+emits the `docs/BUILD_AND_RELEASE.md` §8 release-artifact record with the
+verbatim DEC-057 unsigned-install caveat and the checksum + commit-bound
+`DEC-025` sweep authenticity chain. First verified-chain record:
+`validation/evidence/release_artifacts/RELEASE_ARTIFACT_20260711T030046Z_8e436704b52b.json`.
+BUILD_AND_RELEASE §2/§6/§8/§9 and RELEASE_QUALITY_GATES §10 TBDs close to
+the ruled selections; 17 focused tests; zero new dependencies; real
+`tauri build` bundle boot-checked from the unzipped artifact. Evidence:
+sweeps `SWEEP_20260711T025412Z_0b9944768560.json` /
+`SWEEP_20260711T025817Z_3115a08cdfee.json` (retry chain recorded). Boundary:
+packaging mechanics only (F-PIP-2) — no release act, publication, tag,
+signing, or notarization occurred; `D-06b` remains `NOT_PREPARED`; remaining
+E5 scope (§7 provider workflows, `DEC-059` conditional CI activation, signed
+releases) stays in the plan row. Run record: DEL-10-04
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E5-PACKAGING-001.md`.
+
+## 2026-07-10 - DEC-059 sanitized-export pipeline built (`TP-E5-EXPORTPIPE-001`)
+
+The D-05b/`DEC-059` prerequisite export pipeline exists and self-tests green
+(DEL-10-04, PR #161): `tools/release/export_public_openpipestress.py`
+(stdlib-only; plan-only default, `--execute` to explicit target, `--verify`
+drift detection) with fail-toward-exclusion allowlist staging, sanitize
+pass, commit-bound sha256 manifest, mechanical boundary check, and the
+DEL-08-05 protected-content lint gate via `protected_content_lint_cli`
+consumed as-is; 20 self-tests (`tests/test_export_public_openpipestress.py`).
+Real-tree dry run into a temp directory: 892 files staged, gates pass
+(reviewed expected findings ledgered and reported; 0 unexpected),
+deterministic, tamper-detecting. Evidence: DEL-10-04 run record
+`WORKING_ITEMS_RUN_2026-07-10_TP-E5-EXPORTPIPE-001.md`; DEC-025 sweep
+`SWEEP_20260711T024350Z_b9ba51af9f3c.json` at clean HEAD. DEC-059
+prerequisite (1) is implemented pending owner review; prerequisites (2)
+owner-signed D-20 scan and (3) public-repo creation/naming, plus CI
+activation and any publication act, remain open owner-gated items. No
+release-readiness, clearance, or milestone claim.
+
+## 2026-07-10 - Operation-applier field rules: component geometry + DEC-068 load-case slots (`TP-APP-R5-FIELDRULES-001`)
+
+The `core/model_operations/operation_applier` field-rule registry now
+accepts the GUI inspector's component-geometry families (bend/elbow, branch,
+rigid, expansion-joint incl. the EJSTIFF stiffness values) and the DEC-068
+user-entered slots (`section.mill_tolerance`, `modulus_basis_ref`,
+seismic/wind `equivalent_static` inputs), with schema-shaped validation (Id
+pattern, closed vocabularies, `{value, unit}` payloads with pinned
+dimension-kind checks) and deterministic application that authors absent
+optional slots from explicit user entry only (DEL-16-02, PR #162). Value
+constraints mirror solve-side validation; no default, catalog value,
+conversion, or threshold was invented. `geometry.center_of_gravity` remains
+an explicit unsupported residual pending a vector-payload ruling; contract
+corpus cases 66–75 await their own human review entry. Evidence: applier
+72/72 lib tests, corpus 2/2 over 75 cases, desktop Vitest 427 incl. the
+cross-engine corpus mirror; DEL-16-02 run record
+`WORKING_ITEMS_RUN_2026-07-10_TP-APP-R5-FIELDRULES-001.md`; DEC-025 sweep
+`SWEEP_20260711T024706Z_9fc322fcad8d.json`.
+
+## 2026-07-10 - E3 container landed: full report package assembly (`TP-E3-CONTAINER-001`)
+
+The §22.6 "full report package" container now assembles under
+`DEC-028`/`DEC-057` (DEL-08-01, PR #160): new zero-new-dependency crate
+`core/reporting/report_package` produces the multi-member archive
+(`.opsproj`, "OpenPipeStress Project Package") whose members are the
+DEL-17-02-style package manifest (per-member JCS-basis SHA-256; manifest
+hash = package identity), the `DEC-061` canonical HTML + hash-bound PDF
+pair, the audit-manifest member (DEL-08-02), result-export envelope
+member(s) (DEL-08-04), and state/comparison/handoff report-section member(s)
+(DEL-08-06) — deterministic throughout (fixed-order stored ZIP, fixed epoch
+timestamps, no IDs; byte-golden double-build tests). Remaining E3 scope:
+app/runner binding of the package seam (no natural `DEC-065` verb home
+exists; desktop menu binding is the named follow-on) and caller-side atomic
+on-disk save. Evidence: report_package 12/12 tests; DEC-025 sweep
+`SWEEP_20260711T023430Z_a4fbed24b6b4.json`; DEL-08-01 run record
+`WORKING_ITEMS_RUN_2026-07-10_TP-E3-CONTAINER-001.md`.
+
 ## 2026-07-10 - P1 arc-residual closure: consistent distributed loads + interior stations (`TP-PMM-P1-CURVEDBEND-004`)
 
 Closed the two remaining DEC-070 arc residuals (DEL-04-01, PR #157):
