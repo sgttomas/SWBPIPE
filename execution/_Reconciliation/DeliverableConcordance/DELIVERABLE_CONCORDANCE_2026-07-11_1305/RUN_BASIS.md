@@ -88,6 +88,44 @@
   review itself — no orchestrator authorship. Findings reported to the owner;
   wave scale-out awaits the owner's response per the R0-first direction.
 
+- **2026-07-11 — R0b dispatched (owner-directed second calibration round).**
+  Owner slate answer of record (2026-07-11, in-session, verbatim): "Another
+  R0 round first" — test the reviewer's proposed conventions on a second
+  small sample before committing the corpus. Convention set under test:
+  `R0B_CALIBRATION/R0B_CONVENTIONS.md` (provisional, calibration-only, not
+  adopted for R1+). Sample (contrasting with R0; none repeated):
+  `DEL-05-03` (fundamental stress recovery — mechanics class,
+  physical-model-program overlap), `DEL-07-05` (results viewer — GUI class,
+  H4 desktop evidence posture), `DEL-09-01` (mechanics benchmark suite —
+  validation-class deliverable). Same source-state binding (frozen tree
+  `551f84ef6`); artifacts under `R0B_CALIBRATION/`. Run-level caveat per
+  convention 6: the owner's suspension declaration (see Authorization) means
+  no discovery-independent work is dispatched from selectability findings;
+  `SelectableUnderCurrentLoop` cells are mechanical DAG/lifecycle/gate
+  derivations only. Run-level codification per convention 8: gate-state
+  cells reflect the frozen register state (D-41 `AWAITING_RULING` at
+  `551f84ef6`); the run's authority is the live register's RULED row
+  (`DEC-073`, PR #179 merge `e3998349b`) — ruling-after-freeze mechanics,
+  not a conflict.
+
+- **2026-07-11 — R0b complete.** Three convention-bound pilot ledgers
+  (65 rows: DEL-05-03 17, DEL-07-05 23, DEL-09-01 25; uniform headers,
+  RFC-4180 clean; frozen tree verified untouched including after sandboxed
+  test re-executions) plus per-convention friction notes, and the reviewer
+  pass `R0B_CALIBRATION/R0B_REVIEW.md`. Verdict: **SCALE-READY** — R0
+  divergences 7 RESOLVED / 4 PARTIALLY / 0 NOT RESOLVED; every R0
+  aggregation-killer closed; citation spot-checks 24 pass / 1 qualified /
+  1 FAIL (DEL-09-01 fixture count is 21, not 22 — correction recorded in the
+  review; no disposition affected); 13 convention addenda proposed
+  (R0B_REVIEW.md §6) plus two named repairs (21-count correction at R1;
+  SECURITY-encoding spot-check on the first SECURITY-class R1 deliverable).
+  **Run-level note (per the review's recommendation): the R0 and R0b
+  ledgers PREDATE the final convention set and are calibration evidence
+  only — they must not enter any aggregation surface; the six calibration
+  deliverables are re-encoded as ordinary members of their R1 waves under
+  the adopted conventions+addenda.** Wave scale-out (R1+) and
+  convention+addenda adoption await the owner's ruling.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`

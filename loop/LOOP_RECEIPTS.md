@@ -409,3 +409,19 @@
     per the owner's R0-first direction; wave scale-out (R1+) and the
     convention set await the owner's response. No lifecycle transition; no
     deliverable or product surface edited; run artifacts only.
+
+- **2026-07-11 — Receipt 15** (R0b convention-calibration round; same session).
+  - Owner directions of record (2026-07-11, in-session slate answers,
+    verbatim): scale-out question — "Another R0 round first"; PR #180 —
+    "Merge it yourself" (self-merge grant for #180 only; merged 4a594adfa).
+  - R0b executed: convention set under test
+    `R0B_CALIBRATION/R0B_CONVENTIONS.md`; pilots DEL-05-03/DEL-07-05/
+    DEL-09-01 (fable; frozen tree 551f84ef6; tree verified clean); reviewer
+    pass `R0B_CALIBRATION/R0B_REVIEW.md`.
+  - Outcome: SCALE-READY — divergences 7 RESOLVED / 4 PARTIALLY / 0 NOT;
+    spot-checks 24/1/1 (one count correction recorded); 13 addenda + 2
+    repairs proposed; R0/R0b ledgers marked calibration-only
+    (predates-conventions note in RUN_BASIS.md).
+  - Gate outcome: stopped/awaiting owner — conventions+addenda adoption and
+    R1+ scale-out are the owner's ruling; no lifecycle transition; run
+    artifacts only.
