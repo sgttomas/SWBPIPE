@@ -7,7 +7,7 @@
 - Bind the report-package seam: desktop menu binding + caller-side atomic on-disk save (write-temp/rename per the D-09 packet); runner side is the export-results downstream payload binding (HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD; no new runner verb without a ruling) (see also DEL-10-05) (source: Receipt 10 named remainders / TP-E3-CONTAINER-001 residuals)
 - Add the cross-layer TypeScript-to-Rust component-provenance test (hardening) (source: PRD plan §3 Phase D current-state note on TP-R4-D8-COMPPROVREPORT-001)
 - Define the .opsproj container compatibility-window/versioning policy beyond schema_version 1.0.0 (DEC-028 bounded-tranche territory) (see also DEL-02-05) (source: TP-E3-CONTAINER-001 residuals)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

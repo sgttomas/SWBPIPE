@@ -371,3 +371,22 @@
   - Gate outcome: coordination/control consolidation executed at owner adoption;
     no lifecycle transition, no register change; parked gates unchanged: D-12,
     D-07b, D-38 (AWAITING_RULING), D-06b (NOT_PREPARED).
+
+- **2026-07-11 — Receipt 13** (D-41 concordance activation ruled; on-ruling
+  tranche).
+  - Start: main at the PR #177 merge (551f84ef6); fresh worktree branch
+    `claude/piping-concordance-2026-07-11`.
+  - Owner ruling of record (2026-07-11, in-session D-41 decision slate, Ryan
+    Tufts), answers verbatim: scope — "O-A: Whole-corpus (Recommended)";
+    declaration — "Affirm the 2026-07-11 declaration" (reaffirming "I will
+    suspend work in Chirality Piping for the time being."); frozen SHA —
+    "551f84ef6 — current origin/main (Recommended)".
+  - Artifacts: `D-41_RULING_2026-07-11.md`; packet §10 transcription; register
+    row D-41 → RULED; `DEC-073` (SOFTWARE_DECOMP.md §12); 100 `_STATUS.md`
+    bootstrap items flipped to `(ruled: D-41, 2026-07-11)` with pinned SHA
+    `551f84ef6be656f1603ce0acfa5e3935aa9683c7`; ruled profile surface stub
+    `docs/CHECKING_ENTRY_PROFILES.md`. DEL-01-01 untouched.
+  - Gate outcome: ruled/executed; HARD RULE — this tranche merges to main
+    (owner merge) before any concordance dispatch; discovery reads bind to a
+    frozen worktree at 551f84ef6; R0 calibration (DEL-04-01, DEL-10-05,
+    DEL-12-02) reports to owner before wave scale-out.

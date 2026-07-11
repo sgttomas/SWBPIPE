@@ -5,7 +5,7 @@
 
 ## Remaining
 - Phase I program: agent rationale + FR-AGENT-005 professional-boundary hard gate over the existing operation seam, plus route/support candidate generation (generator currently has no owning deliverable — ownership needs a decomposition act) (stage-gated: v0.2 R7; gated: app-dev F3 live-binding per DEC-063 remaining gate set) (see also DEL-16-01, DEL-16-02, DEL-16-03) (source: PRD plan §3 Forward Horizon row I / DEC-056/DEC-063)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.

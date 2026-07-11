@@ -7,7 +7,7 @@
 - Stand up the contributor intake mechanism if external contributions open (gated: D-07b) (source: PRD plan §3 E6 row / DEC-027 / register row D-07b)
 - Complete the §17.5 pre-release legal review, explicitly including the E6 public issue templates and all public-facing language (gated: owner/counsel) (see also DEL-01-02) (source: PRD plan §3 E6 row / TP-E6-ISSUETEMPLATES-001 residual)
 - Wire projects/chirality-piping/.github/ISSUE_TEMPLATE/ to the public repository root .github/ISSUE_TEMPLATE/ in the sanitized public export when that machinery is exercised (see also DEL-10-04) (source: TP-E6-ISSUETEMPLATES-001 residuals)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

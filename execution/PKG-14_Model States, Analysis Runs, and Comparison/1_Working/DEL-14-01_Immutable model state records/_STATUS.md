@@ -5,7 +5,7 @@
 
 ## Remaining
 - Phase G program: build immutable model-state records, analysis-run records, state/run comparison engines, mapping/tolerance/export contracts, the comparison workspace GUI, and state/comparison report sections (stage-gated: v0.2 R3) (see also DEL-14-02, DEL-14-03, DEL-14-04, DEL-14-05, DEL-07-08, DEL-08-06) (source: PRD plan §3 Forward Horizon row G / DEC-056/SCA-005)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.

@@ -221,4 +221,13 @@ RULE). Discovery then begins at R0 under the plan's source-state control.
 
 ## 10. Human Ruling And Disposition
 
-*(unruled — this section is completed by the human project authority)*
+**RULED 2026-07-11** — owner (Ryan Tufts), in-session decision slate. Recorded
+answers, verbatim: scope — "O-A: Whole-corpus (Recommended)"; declaration —
+"Affirm the 2026-07-11 declaration" (reaffirming: "I will suspend work in
+Chirality Piping for the time being."); frozen-tree SHA — "551f84ef6 — current
+origin/main (Recommended)" = `551f84ef6be656f1603ce0acfa5e3935aa9683c7`.
+Pinned plan revision: the same SHA. Ruling record:
+[D-41_RULING_2026-07-11.md](D-41_RULING_2026-07-11.md); codification `DEC-073`
+in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; session context
+`projects/chirality-piping/loop/LOOP_RECEIPTS.md` Receipt 13. This section
+transcribes the owner's act without broadening it.

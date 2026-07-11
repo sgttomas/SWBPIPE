@@ -5,7 +5,7 @@
 
 ## Remaining
 - Implement the distinct FR-025 local FEA submodel export, or record its explicit deferral (gated: D-12, R5 gate) (source: PRD plan §4 FR-025 row / register row D-12)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

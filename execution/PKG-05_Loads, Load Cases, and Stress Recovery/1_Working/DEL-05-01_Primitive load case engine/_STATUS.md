@@ -5,7 +5,7 @@
 
 ## Remaining
 - Extend wind marking to sub-span (partial-extent) exposure in occasional-load generation — whole-span exposed_pipe_refs marking landed via TP-PMM-GUIEMIT-001 (source: Receipt 6 residual / TP-PMM-P3-OCCLOADGEN-001 §Boundaries / DEC-068 item 2)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

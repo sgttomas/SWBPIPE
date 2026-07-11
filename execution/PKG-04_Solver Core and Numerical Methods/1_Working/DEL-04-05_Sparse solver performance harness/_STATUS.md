@@ -6,7 +6,7 @@
 ## Remaining
 - Promote release/external sparse thresholds: timing, allocator/RSS memory, conditioning beyond the pivot-ratio proxy, and cross-machine hardware-normalized pass/fail gates (stage-gated: R5 release) (source: PRD plan §3 D7 row + Phase D sparse update / DEC-050/DEC-053)
 - Provide hosted-CI sparse evidence once public-export CI activates (gated: D-05b conditions per DEC-059) (source: PRD plan §3 D7 row)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

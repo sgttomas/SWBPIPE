@@ -8,7 +8,7 @@
 - Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan §3 Phase D D6/D9 rows / DEC-046)
 - Promote broader displacement/reaction-delta and energy thresholds beyond the accepted current-seed/thirteen-fixture/product-preview surfaces (see also DEL-09-03) (source: PRD plan §3 D6/D9 rows)
 - Promote broader multi-DOF/multi-support acceptance thresholds and external validation convergence thresholds (stage-gated: R5 release evidence) (source: PRD plan §3 D9 row / DEC-052/DEC-054 residual list)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

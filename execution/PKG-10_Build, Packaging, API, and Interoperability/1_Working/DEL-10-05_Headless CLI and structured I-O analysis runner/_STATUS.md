@@ -7,7 +7,7 @@
 - Bind the openpipestress-runner export-results downstream payload (HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD) — also the report-package container's runner home (see also DEL-08-01) (source: Receipt 10 named remainder / TP-E3-CONTAINER-001)
 - Bind benchmark/regression runner payloads (E2 per-case reproduction currently runs through suite tests) (source: TP-E2-VALMANUAL-001 residuals)
 - Refresh the TP-RUNNER-015 witness — live runner solve emits 830 result_refs vs 822 in the witness (source: Receipt 9 delta)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

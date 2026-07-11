@@ -5,7 +5,7 @@
 
 ## Remaining
 - Extend the redaction seam beyond the export-workflow surface (REXC-REQ-012 breadth: adapters, plugins, CLI exports, report preview/export, and the bug-report surface route through the same contract) — the E4 app binding landed via TP-E4-REDACTION-001, PR #167 (source: Receipt 11 named remainder / TP-E4-REDACTION-001 residuals)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
