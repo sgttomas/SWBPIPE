@@ -70,6 +70,12 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
       ["To", pipe.to],
       ["OD", `${pipe.section.outside_diameter.value} ${pipe.section.outside_diameter.unit}`],
       ["Wall", `${pipe.section.wall_thickness.value} ${pipe.section.wall_thickness.unit}`],
+      // Optional user-entered mill-tolerance reduction: absence means no
+      // reduction (not a zero default), so the row appears only when the
+      // user entered a value.
+      ...(pipe.section.mill_tolerance
+        ? ([["Mill tolerance", quantityDisplay(pipe.section.mill_tolerance)]] as Array<[string, string]>)
+        : []),
       ["Material", pipe.material],
       ["Provenance", pipe.provenance]
     ];
@@ -115,7 +121,19 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
       rows.push(
         ["Bend radius", quantityDisplay(component.geometry?.bend_radius)],
         ["Bend angle", quantityDisplay(component.geometry?.bend_angle)],
-        ["Bend plane", component.geometry?.bend_plane_orientation ?? "TBD"],
+        ["Bend plane", component.geometry?.bend_plane_orientation ?? "TBD"]
+      );
+      // User-entered curved-bend span mapping (DEC-070). The slot is
+      // optional for the straight-chord modes, so an absent value is shown
+      // (and flagged) only when the component requests the assembled
+      // curved-bend realization, where its absence is engine-blocking.
+      if (
+        component.geometry?.bend_pipe_ref ||
+        component.mechanics_interface?.solver_consumption === "curved_bend_macro_element"
+      ) {
+        rows.push(["Bend pipe", component.geometry?.bend_pipe_ref ?? "TBD"]);
+      }
+      rows.push(
         ["Geometry source", component.geometry?.bend_geometry_source_reference ?? "TBD"],
         ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
         ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
@@ -190,15 +208,43 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
   const loadCase = model.load_cases.find((item) => item.id === selection.id);
   if (loadCase) {
     const primitiveLoads = loadCase.primitive_loads ?? [];
-    return [
+    const rows: Array<[string, string]> = [
       ["ID", loadCase.id],
       ["Kind", loadCase.kind],
       ["Status", loadCase.status],
       ["Load records", primitiveLoads.length.toString()],
       ["Categories", primitiveLoadCategories(primitiveLoads)],
-      ["Targets", primitiveLoadTargets(primitiveLoads)],
-      ["Provenance", loadCase.provenance]
+      ["Targets", primitiveLoadTargets(primitiveLoads)]
     ];
+    // Optional user-entered modulus basis (DEC-068 item 1): absence means
+    // the case solves on the material base values, so the row appears only
+    // when the user assigned a basis id.
+    if (loadCase.modulus_basis_ref) {
+      rows.push(["Modulus basis", loadCase.modulus_basis_ref]);
+    }
+    if (loadCase.equivalent_static?.seismic) {
+      const seismic = loadCase.equivalent_static.seismic;
+      rows.push(
+        ["Seismic gravity", quantityDisplay(seismic.gravity_acceleration)],
+        ["Seismic g-factor X", quantityDisplay(seismic.g_factor_x)],
+        ["Seismic g-factor Y", quantityDisplay(seismic.g_factor_y)],
+        ["Seismic g-factor Z", quantityDisplay(seismic.g_factor_z)]
+      );
+    }
+    if (loadCase.equivalent_static?.wind) {
+      const wind = loadCase.equivalent_static.wind;
+      rows.push(
+        ["Wind pressure", quantityDisplay(wind.pressure)],
+        ["Wind shape factor", quantityDisplay(wind.shape_factor)],
+        ["Wind direction", wind.direction ?? "TBD"],
+        ["Wind exposed spans", (wind.exposed_pipe_refs ?? []).join(", ") || "TBD"]
+      );
+    }
+    if (loadCase.equivalent_static?.provenance) {
+      rows.push(["Generation provenance", loadCase.equivalent_static.provenance]);
+    }
+    rows.push(["Provenance", loadCase.provenance]);
+    return rows;
   }
   const combination = model.combinations?.find((item) => item.id === selection.id);
   if (combination) {

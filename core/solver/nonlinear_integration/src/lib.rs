@@ -17,7 +17,10 @@ use open_pipe_stress_nonlinear_supports::{
     GapDirection, NonlinearSupport, NonlinearSupportBehavior, NonlinearSupportError,
     SupportStateRecord, TrialSupportState,
 };
-use open_pipe_stress_solver_diagnostics::{tolerance_policy_tbd_diagnostic, SolverDiagnostic};
+use open_pipe_stress_solver_diagnostics::{
+    tolerance_policy_tbd_diagnostic, DiagnosticSeverity, DiagnosticSource, SolverDiagnostic,
+    SolverDiagnosticCode,
+};
 use open_pipe_stress_sparse_direct::{solve_symmetric_system_from_entries, SymmetricMatrixEntry};
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
@@ -463,6 +466,26 @@ pub fn solve_active_set_frame_with_mode(
                 .last()
                 .expect("just pushed nonlinear iteration record");
             final_diagnostics.extend(final_iteration.active_set.diagnostics.clone());
+            // Every non-converged exit must fail loudly. The active-set
+            // classifier emits its residual-based nonconvergence diagnostic
+            // only when the state-change residual exceeds the tolerance, so a
+            // run reaching the iteration cap with a zero residual -- e.g. a
+            // sliding-seeded friction support at max_iterations == 1, whose
+            // first-iterate convergence is deferred so the bounded sliding
+            // force can be applied -- would otherwise return
+            // converged == false without any visible diagnostic (recorded
+            // corner in WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P2-FRICTION-001).
+            if !converged
+                && !final_diagnostics
+                    .iter()
+                    .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::NonConvergence)
+            {
+                final_diagnostics.push(nonconverged_exit_diagnostic(
+                    iteration_index,
+                    sliding_force_deferred,
+                    &current_states,
+                ));
+            }
             return Ok(NonlinearFrameSolveResult {
                 converged,
                 policy_ref: input.convergence.policy_ref.clone(),
@@ -1329,6 +1352,56 @@ fn multiply_matrix_vector(
     Ok(result)
 }
 
+/// Failure diagnostic for a non-converged loop exit that carries no
+/// residual-based `NonConvergence` diagnostic from the active-set classifier.
+///
+/// The only such exit today is the deferred-sliding-force corner: a friction
+/// support seeded sliding defers first-iterate convergence so the bounded
+/// +/- mu*N force is applied before the loop can converge, and at
+/// `max_iterations == 1` the cap is reached while the classifier residual is
+/// zero. The guard is written for every non-converged exit so the
+/// `converged == false` -> visible-diagnostic contract does not depend on
+/// which path produced the exit. Diagnostics only; no mechanics change.
+fn nonconverged_exit_diagnostic(
+    iteration_count: usize,
+    sliding_force_deferred: bool,
+    final_states: &[SupportStateRecord],
+) -> SolverDiagnostic {
+    let cause = if sliding_force_deferred {
+        "the sliding-seeded first iterate defers convergence so the bounded sliding-friction \
+         force can be applied, and the iteration cap was reached before a post-deferral \
+         iterate could be evaluated"
+    } else {
+        "the loop exited before the active-set convergence check accepted an iterate"
+    };
+    let remediation = if sliding_force_deferred {
+        "Raise max_iterations above 1 so the loop can evaluate an iterate after the deferred \
+         sliding-force first iterate."
+    } else {
+        "Raise max_iterations or review the nonlinear support configuration before reuse."
+    };
+    let state_summary = if final_states.is_empty() {
+        "none".to_string()
+    } else {
+        final_states
+            .iter()
+            .map(|record| format!("{}={}", record.support_id, record.state.as_str()))
+            .collect::<Vec<_>>()
+            .join(",")
+    };
+    SolverDiagnostic::new(
+        SolverDiagnosticCode::NonConvergence,
+        DiagnosticSeverity::Failure,
+        DiagnosticSource::SolverIteration,
+        format!(
+            "nonlinear active-set solve exited non-converged after {iteration_count} iteration(s) \
+             without a residual-based nonconvergence diagnostic: {cause}; active-set states: \
+             {state_summary}"
+        ),
+    )
+    .with_remediation(remediation)
+}
+
 fn policy_diagnostics(convergence: &ConvergenceControl) -> Vec<SolverDiagnostic> {
     if convergence.emits_tbd_diagnostic() {
         vec![tolerance_policy_tbd_diagnostic().with_affected_ref(convergence.policy_ref.clone())]
@@ -1828,6 +1901,91 @@ mod tests {
     }
 
     #[test]
+    fn sliding_seed_at_single_iteration_cap_emits_nonconvergence_diagnostic() {
+        // TP-PMM-P2-NONCONVDIAG-001: recorded TP-PMM-P2-FRICTION-001 corner.
+        // A sliding seed defers first-iterate convergence so the bounded
+        // sliding force can be applied, so at max_iterations == 1 the loop
+        // exits converged == false while the classifier residual is zero.
+        // That exit must still carry a visible NonConvergence failure
+        // diagnostic instead of passing silently.
+        let support_id = "NL-FRICTION-SLIDE-CAP-ONE";
+        let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
+        let mut input = two_node_axial_problem(
+            vec![support],
+            vec![SupportStateRecord::new(support_id, ActiveSetState::Sliding)],
+            1,
+        );
+        input.friction_normal_reactions =
+            vec![FrictionNormalReaction::new(support_id, 10.0).unwrap()];
+
+        let result = solve_active_set_frame(&input).unwrap();
+
+        assert!(!result.converged);
+        assert!(result.is_blocked());
+        assert_eq!(result.iterations.len(), 1);
+        // The classifier itself reports a converged unchanged active set at
+        // zero residual, so the diagnostic must come from the integration
+        // loop's non-converged exit guard.
+        assert_eq!(result.iterations[0].active_set.residual_norm, 0.0);
+        assert!(result.iterations[0].active_set.converged);
+        let nonconvergence: Vec<_> = result
+            .diagnostics
+            .iter()
+            .filter(|diagnostic| {
+                diagnostic.code
+                    == open_pipe_stress_solver_diagnostics::SolverDiagnosticCode::NonConvergence
+            })
+            .collect();
+        assert_eq!(nonconvergence.len(), 1);
+        assert_eq!(
+            nonconvergence[0].severity,
+            open_pipe_stress_solver_diagnostics::DiagnosticSeverity::Failure
+        );
+        assert!(nonconvergence[0]
+            .message
+            .contains("defers convergence so the bounded sliding-friction force"));
+        assert!(nonconvergence[0]
+            .message
+            .contains(&format!("{support_id}=sliding")));
+        assert!(nonconvergence[0].remediation.is_some());
+    }
+
+    #[test]
+    fn sticking_friction_converged_at_single_iteration_cap_has_no_false_positive() {
+        // TP-PMM-P2-NONCONVDIAG-001: a solve that genuinely converges on its
+        // single allowed iteration must not gain a NonConvergence diagnostic
+        // from the non-converged exit guard.
+        let support_id = "NL-FRICTION-STICK-CAP-ONE";
+        let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
+        let mut input = two_node_axial_problem(
+            vec![support],
+            vec![SupportStateRecord::new(
+                support_id,
+                ActiveSetState::Sticking,
+            )],
+            1,
+        );
+        // mu * N = 0.30 * 40 = 12 N bounds the 10 N tangential reaction, so
+        // the sticking state is confirmed unchanged on the first iterate.
+        input.friction_normal_reactions =
+            vec![FrictionNormalReaction::new(support_id, 40.0).unwrap()];
+
+        let result = solve_active_set_frame(&input).unwrap();
+
+        assert!(result.converged);
+        assert!(!result.is_blocked());
+        assert_eq!(result.iterations.len(), 1);
+        assert!(result.diagnostics.is_empty());
+        assert_eq!(
+            result.final_states,
+            vec![SupportStateRecord::new(
+                support_id,
+                ActiveSetState::Sticking
+            )]
+        );
+    }
+
+    #[test]
     fn friction_support_derives_normal_from_named_support_reaction() {
         let support_id = "NL-FRICTION-DERIVED-NORMAL";
         let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
@@ -1964,9 +2122,17 @@ mod tests {
         assert!(!result.converged);
         assert!(result.is_blocked());
         assert_eq!(result.iterations.len(), 1);
+        // Exactly one NonConvergence diagnostic: the state-switching support
+        // at max_iterations == 1 keeps the classifier's residual-based
+        // diagnostic, and the non-converged exit guard must not add a second.
+        assert_eq!(result.diagnostics.len(), 1);
         assert_eq!(
             result.diagnostics[0].code,
             open_pipe_stress_solver_diagnostics::SolverDiagnosticCode::NonConvergence
+        );
+        assert_eq!(
+            result.diagnostics[0].severity,
+            open_pipe_stress_solver_diagnostics::DiagnosticSeverity::Failure
         );
     }
 
