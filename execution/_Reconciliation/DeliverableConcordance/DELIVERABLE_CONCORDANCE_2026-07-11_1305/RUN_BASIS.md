@@ -126,6 +126,42 @@
   the adopted conventions+addenda.** Wave scale-out (R1+) and
   convention+addenda adoption await the owner's ruling.
 
+- **2026-07-11 — Conventions adopted; R1 dispatched.** Owner ruling of
+  record (in-session scale-out slate, verbatim): "Adopt + scale out
+  (Recommended)". Binding encoding rules consolidated in
+  `R1_CONVENTIONS.md` (conventions 1–8 + addenda 1–13 + named repairs +
+  wave plan). R1 whole-corpus read-only inventory dispatched per plan §5
+  (authority map) and §8 R1 (index set): `DELIVERABLE_INVENTORY.csv`,
+  `IMPLEMENTATION_SURFACES.csv`, `VERIFICATION_INDEX.csv`,
+  `VALIDATION_AND_PROVENANCE_INDEX.csv`,
+  `AUTHORITY_AND_SOURCE_RELIABILITY_MAP.md` — all from the frozen tree
+  `551f84ef6`. R2 waves W1–W5 follow with wave-boundary reviewer
+  checkpoints.
+
+- **2026-07-11 — R1 complete.** Five parallel index builders (fable; frozen
+  tree verified clean by each). Artifacts: `DELIVERABLE_INVENTORY.csv`
+  (101 rows, reconciled ID-for-ID with the coordination tool; 100
+  `IN_PROGRESS` + 1 `ISSUED`; 26 deliverables carry 50 non-bootstrap
+  remaining items; 16 mechanically selectable per convention 6);
+  `IMPLEMENTATION_SURFACES.csv` (231 surfaces; 8 with `NONE_FOUND`
+  deliverable attribution — the wave unmapped shortlist);
+  `VERIFICATION_INDEX.csv` (147 suites, 1,592 static tests; 13 suites with
+  no recorded execution evidence, incl. 9 script-style pytest no-ops and
+  the src-tauri crate outside sweep roots);
+  `VALIDATION_AND_PROVENANCE_INDEX.csv` (396 evidence rows; fixture counts
+  crate-asserted — DEL-09-01 = 21, confirming the Part C repair; 2
+  equation-source boundary CANDIDATE flags, both sweep dirty-path captures
+  only, no validation content citing `domains/piping-design`);
+  `AUTHORITY_AND_SOURCE_RELIABILITY_MAP.md` + `DECISIONS_INDEX.csv`
+  (12 authority families; no open `AUTHORITY_CONFLICT`; 74 decisions
+  indexed; 38 reviews indexed with the pre-DEC-025 commit-binding caveat).
+  Notable corpus anomalies for waves: DEL-03-03/DEL-03-05 requirement-ID
+  collision (identical R01–R11 token sets); 19 deliverables with
+  non-self-identifying requirement schemes; 5 desktop panels attributable
+  only via `data-testid` prefixes. R2 waves W1–W5 dispatch next
+  (deliverable-grained pilots under `R1_CONVENTIONS.md`; wave-boundary
+  reviewer checkpoints; ledgers under `WAVES/W<N>/`).
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
