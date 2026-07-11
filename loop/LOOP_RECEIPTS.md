@@ -172,3 +172,26 @@
     Named residuals: sliding prior-iterate direction / nonconvergence corner (run
     records), arc interior stations, temperature-indexed shear modulus, sub-span wind
     marking, GUI emission of new schema slots.
+
+- **2026-07-10 — Receipt 7** (adopted-ruling execution: DEC-061 E3 + DEC-060 coverage tranche).
+  - Start: `main` at the PR #146 merge (`199c6d545`); PR #145 merged since Receipt 6;
+    steer: none (autonomous run). Step 0: no rulings newer than Receipt 6; census
+    ISSUED=1/CHECKING=8/IN_PROGRESS=92; self-check exit 0; harness pytest pass.
+  - Executed (parallel fable subagents, disjoint scopes, adopted-but-unexecuted
+    rulings per WORKPLAN §5): DEC-061/E3 → `TP-E3-PDFEMIT-001`, PR #148
+    (`core/reporting/pdf_emitter`, run record in DEL-08-01); DEC-060 first coverage
+    tranche → `TP-E8-COVTELEM-001`, PR #147 (all three lanes measured, first
+    clean-head artifact `COVERAGE_20260710T232606Z_e9cd806811b3.json`, no floors;
+    run record in DEL-09-05). Both PRs awaiting owner merge; both touch
+    `plans/PLAN_COMPLETION_LOG.md` — second merge needs a trivial rebase.
+  - Checks: per run records — crate/python/desktop suites pass; self-check exit 0;
+    DEC-025 clean-head sweeps `SWEEP_20260710T234618Z_dc63c4a83eed.json` and
+    `SWEEP_20260710T233804Z_1094b0deb266.json` pass.
+  - Deltas (live tree wins): D-10b packet's "assembled section model" was private and
+    HTML-shaped — made public emission-neutral with byte-identity verified; package
+    assembly lives in `pdf_emitter`, not `report_generator` (dependency cycle) — both
+    in the TP-E3 run record. Completion-plan E4 row understates the live tree
+    (`core/security/redaction` + schema + docs exist, tests pass).
+  - Gate outcome: executed within the DEC-060/DEC-061 fences; no lifecycle transition,
+    no register change; parked gates D-12, D-07b, D-38 (AWAITING_RULING), D-06b
+    (NOT_PREPARED, R5-exit lead-up). E3/E8 remainders kept in their plan rows.
