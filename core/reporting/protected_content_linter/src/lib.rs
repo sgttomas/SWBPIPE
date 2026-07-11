@@ -328,6 +328,8 @@ pub fn lint_target(target: &LintTarget) -> Vec<LintFinding> {
         }
     }
 
+    findings.extend(standards_table_signature_findings(target));
+
     if target.provenance.redistribution_status == RedistributionStatus::Unknown
         || target.provenance.review_status == ReviewStatus::Pending
     {
@@ -407,6 +409,228 @@ fn synthetic_markers() -> &'static [Marker] {
             review_route: ReviewRoute::MaintainerProvenanceReview,
         },
     ]
+}
+
+/// Standards-table signature detection (DEC-058 check (b), bounded tranche
+/// TP-E7-SCANEXT-001).
+///
+/// Detects the SHAPE of protected standards-table content: a standards
+/// designator or standards-clause label adjacent to a dense numeric grid.
+/// The tokens below are designator NAMES and generic clause labels only —
+/// no standards text, table values, or other protected content is embedded
+/// here. Detection is heuristic; the failure direction is
+/// `UnknownProvenanceReviewRequired` routed to human IP review, never a
+/// silent pass, and a match is not a determination that content is
+/// protected.
+const STANDARDS_SIGNAL_WINDOW_LINES: usize = 8;
+const GRID_MIN_CONSECUTIVE_DENSE_ROWS: usize = 3;
+const DENSE_ROW_MIN_NUMERIC_FIELDS: usize = 4;
+
+pub const STANDARDS_TABLE_SIGNATURE_POLICY: &str = "OPS-K-IP-3";
+
+/// Designator-name and clause-label tokens (lowercase). Tokens ending in
+/// `.` or `-` are prefixes (e.g. `b16.` matches `b16.5`).
+fn standards_signal_tokens() -> &'static [&'static str] {
+    &[
+        "asme",
+        "b31.1",
+        "b31.3",
+        "b31.4",
+        "b31.5",
+        "b31.8",
+        "b31.9",
+        "b31.12",
+        "b31j",
+        "b16.",
+        "b36.10",
+        "b36.19",
+        "mss sp-",
+        "en 13480",
+        "iso 14692",
+        "csa z662",
+        "allowable stress",
+        "material allowable",
+        "stress intensification",
+        "flexibility factor",
+        "sif table",
+        "code table",
+    ]
+}
+
+fn is_token_char(character: char) -> bool {
+    character.is_ascii_alphanumeric()
+}
+
+/// Case-insensitive token search with boundary checks: the character before
+/// the match must not be alphanumeric, and — unless the token is an explicit
+/// prefix ending in `.` or `-` — the character after must not be
+/// alphanumeric either (so `carb31.3x`-style substrings do not match, while
+/// `b16.` still matches `b16.5`).
+fn find_standards_signal(lower_line: &str) -> Option<&'static str> {
+    for token in standards_signal_tokens() {
+        let mut search_from = 0;
+        while let Some(offset) = lower_line[search_from..].find(token) {
+            let start = search_from + offset;
+            let end = start + token.len();
+            let boundary_before = lower_line[..start]
+                .chars()
+                .next_back()
+                .is_none_or(|character| !is_token_char(character));
+            let is_prefix_token = token.ends_with('.') || token.ends_with('-');
+            let boundary_after = is_prefix_token
+                || lower_line[end..]
+                    .chars()
+                    .next()
+                    .is_none_or(|character| !is_token_char(character));
+            if boundary_before && boundary_after {
+                return Some(token);
+            }
+            search_from = end;
+        }
+    }
+    None
+}
+
+fn is_table_markup_token(field: &str) -> bool {
+    matches!(
+        field,
+        "td" | "th" | "tr" | "tbody" | "thead" | "table" | "span" | "div" | "p" | "br"
+    )
+}
+
+fn is_numeric_field(field: &str) -> bool {
+    !field.is_empty() && field.parse::<f64>().is_ok()
+}
+
+/// A dense numeric row looks like one row of a code-table-like grid: at
+/// least `DENSE_ROW_MIN_NUMERIC_FIELDS` numeric fields making up at least
+/// 60 percent of the non-markup fields on the line.
+fn is_dense_numeric_row(line: &str) -> bool {
+    let fields: Vec<&str> = line
+        .split(|character: char| {
+            character.is_whitespace()
+                || matches!(
+                    character,
+                    ',' | ';'
+                        | '|'
+                        | '['
+                        | ']'
+                        | '('
+                        | ')'
+                        | '{'
+                        | '}'
+                        | ':'
+                        | '"'
+                        | '\''
+                        | '='
+                        | '<'
+                        | '>'
+                        | '/'
+                )
+        })
+        .filter(|field| !field.is_empty())
+        .filter(|field| !is_table_markup_token(&field.to_ascii_lowercase()))
+        .collect();
+
+    if fields.is_empty() {
+        return false;
+    }
+
+    let numeric_count = fields
+        .iter()
+        .filter(|field| is_numeric_field(field))
+        .count();
+
+    numeric_count >= DENSE_ROW_MIN_NUMERIC_FIELDS && numeric_count * 5 >= fields.len() * 3
+}
+
+struct NumericGrid {
+    start_line: usize,
+    end_line: usize,
+    row_count: usize,
+}
+
+fn numeric_grids(lines: &[&str]) -> Vec<NumericGrid> {
+    let mut grids = Vec::new();
+    let mut run_start: Option<usize> = None;
+
+    for (index, line) in lines.iter().enumerate() {
+        if is_dense_numeric_row(line) {
+            run_start.get_or_insert(index);
+        } else if let Some(start) = run_start.take() {
+            if index - start >= GRID_MIN_CONSECUTIVE_DENSE_ROWS {
+                grids.push(NumericGrid {
+                    start_line: start + 1,
+                    end_line: index,
+                    row_count: index - start,
+                });
+            }
+        }
+    }
+
+    if let Some(start) = run_start {
+        if lines.len() - start >= GRID_MIN_CONSECUTIVE_DENSE_ROWS {
+            grids.push(NumericGrid {
+                start_line: start + 1,
+                end_line: lines.len(),
+                row_count: lines.len() - start,
+            });
+        }
+    }
+
+    grids
+}
+
+/// One finding per numeric grid that has a standards designator or clause
+/// label within `STANDARDS_SIGNAL_WINDOW_LINES` lines of it. The excerpt is
+/// the matched signal token only — grid values are never copied into the
+/// finding.
+fn standards_table_signature_findings(target: &LintTarget) -> Vec<LintFinding> {
+    let lines: Vec<&str> = target.text.lines().collect();
+    let lower_lines: Vec<String> = lines
+        .iter()
+        .map(|line| line.to_ascii_lowercase())
+        .collect();
+    let mut findings = Vec::new();
+
+    for grid in numeric_grids(&lines) {
+        let window_start = grid
+            .start_line
+            .saturating_sub(STANDARDS_SIGNAL_WINDOW_LINES + 1);
+        let window_end = usize::min(
+            grid.end_line + STANDARDS_SIGNAL_WINDOW_LINES,
+            lower_lines.len(),
+        );
+
+        let signal = lower_lines[window_start..window_end]
+            .iter()
+            .find_map(|line| find_standards_signal(line));
+
+        if let Some(token) = signal {
+            findings.push(make_finding(
+                target,
+                FindingCode::UnknownProvenanceReviewRequired,
+                FindingClass::ProvenanceWarning,
+                FindingSeverity::Warning,
+                grid.start_line,
+                1,
+                token,
+                STANDARDS_TABLE_SIGNATURE_POLICY,
+                format!(
+                    "Standards-table signature: a {}-row numeric grid appears near a \
+                     standards designator or clause label; provenance review is required \
+                     before any public release surface may carry it.",
+                    grid.row_count
+                ),
+                "Route to human IP review: verify the table is invented or lawfully \
+                 redistributable with recorded provenance, or remove/quarantine it per \
+                 docs/IP_AND_DATA_BOUNDARY.md section 5.",
+                ReviewRoute::HumanIpReview,
+            ));
+        }
+    }
+
+    findings
 }
 
 fn prohibited_claim_phrases() -> &'static [&'static str] {
@@ -543,6 +767,278 @@ mod tests {
 
         assert_eq!(run.summary.finding_count, 0);
         assert!(!run.summary.clean_scan_is_clearance);
+    }
+
+    // All standards-table signature fixtures below are INVENTED lookalikes
+    // for pattern testing only: designator names plus obviously synthetic
+    // sequential values. No standards content, table values, or other
+    // protected data is reproduced.
+
+    const INVENTED_DESIGNATOR_GRID: &str = "\
+Invented lookalike fixture: no standards values copied.\n\
+ASME B31.3 Table X-1 (invented placeholder heading)\n\
+101.1 202.2 303.3 404.4 505.5\n\
+111.1 222.2 333.3 444.4 555.5\n\
+121.1 242.2 363.3 484.4 605.5\n";
+
+    const INVENTED_CLAUSE_LABEL_GRID: &str = "\
+Invented allowable stress table (synthetic demonstration values only)\n\
+| 10.1 | 20.2 | 30.3 | 40.4 |\n\
+| 11.1 | 21.2 | 31.3 | 41.4 |\n\
+| 12.1 | 22.2 | 32.3 | 42.4 |\n\
+| 13.1 | 23.2 | 33.3 | 43.4 |\n";
+
+    #[test]
+    fn designator_adjacent_numeric_grid_fails_toward_provenance_review() {
+        let run = lint_targets(
+            "run-sig-001",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-designator",
+                "fixtures/report_lint/invented/designator_grid.txt",
+                SurfaceKind::PublicReportExample,
+                INVENTED_DESIGNATOR_GRID,
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 1);
+        assert_eq!(run.summary.blocking_finding_count, 0);
+        let finding = &run.findings[0];
+        assert_eq!(finding.code, FindingCode::UnknownProvenanceReviewRequired);
+        assert_eq!(finding.class, FindingClass::ProvenanceWarning);
+        assert_eq!(finding.severity, FindingSeverity::Warning);
+        assert_eq!(finding.review_route, ReviewRoute::HumanIpReview);
+        assert_eq!(finding.matched_policy, STANDARDS_TABLE_SIGNATURE_POLICY);
+        assert_eq!(finding.source_location.line, 3);
+        assert_eq!(finding.excerpt, "asme");
+        assert!(!run.summary.clean_scan_is_clearance);
+    }
+
+    #[test]
+    fn clause_label_adjacent_numeric_grid_fails_toward_provenance_review() {
+        let run = lint_targets(
+            "run-sig-002",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-clause",
+                "fixtures/report_lint/invented/clause_label_grid.txt",
+                SurfaceKind::PublicFixture,
+                INVENTED_CLAUSE_LABEL_GRID,
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 1);
+        assert_eq!(
+            run.findings[0].code,
+            FindingCode::UnknownProvenanceReviewRequired
+        );
+        assert_eq!(run.findings[0].excerpt, "allowable stress");
+        assert_eq!(run.findings[0].review_route, ReviewRoute::HumanIpReview);
+    }
+
+    #[test]
+    fn json_shaped_numeric_grid_near_designator_is_detected() {
+        let text = "\
+{\n\
+  \"note\": \"invented lookalike, B16.5-style label only\",\n\
+  \"rows\": [\n\
+    [15.1, 25.2, 35.3, 45.4],\n\
+    [16.1, 26.2, 36.3, 46.4],\n\
+    [17.1, 27.2, 37.3, 47.4]\n\
+  ]\n\
+}\n";
+        let run = lint_targets(
+            "run-sig-003",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-json",
+                "fixtures/report_lint/invented/designator_grid.json",
+                SurfaceKind::PublicFixture,
+                text,
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 1);
+        assert_eq!(run.findings[0].excerpt, "b16.");
+    }
+
+    #[test]
+    fn designator_prose_without_numeric_grid_is_not_flagged() {
+        let run = lint_targets(
+            "run-sig-004",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-prose",
+                "fixtures/report_lint/invented/designator_prose.txt",
+                SurfaceKind::PublicReportExample,
+                "Code-specific values such as ASME B31.3 allowables are user-entered \
+                 on the private side of the code-neutral boundary and never shipped.",
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 0);
+    }
+
+    #[test]
+    fn numeric_grid_without_standards_signal_is_not_flagged() {
+        let run = lint_targets(
+            "run-sig-005",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-plain-grid",
+                "fixtures/report_lint/invented/plain_grid.txt",
+                SurfaceKind::PublicFixture,
+                "Invented node coordinates for the preview model.\n\
+                 1.0 2.0 3.0 4.0\n\
+                 5.0 6.0 7.0 8.0\n\
+                 9.0 10.0 11.0 12.0\n",
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 0);
+    }
+
+    #[test]
+    fn signal_outside_window_is_not_flagged() {
+        let mut text = String::from("ASME (designator name mentioned in prose only)\n");
+        for _ in 0..STANDARDS_SIGNAL_WINDOW_LINES + 2 {
+            text.push_str("prose line without numbers\n");
+        }
+        text.push_str("21.1 22.2 23.3 24.4\n25.1 26.2 27.3 28.4\n29.1 30.2 31.3 32.4\n");
+
+        let run = lint_targets(
+            "run-sig-006",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-window",
+                "fixtures/report_lint/invented/out_of_window.txt",
+                SurfaceKind::PublicFixture,
+                &text,
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 0);
+    }
+
+    #[test]
+    fn embedded_token_substrings_do_not_match() {
+        let run = lint_targets(
+            "run-sig-007",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-substring",
+                "fixtures/report_lint/invented/substring.txt",
+                SurfaceKind::PublicFixture,
+                "carb31.3x label9 basmea\n\
+                 31.1 32.2 33.3 34.4\n\
+                 35.1 36.2 37.3 38.4\n\
+                 39.1 40.2 41.3 42.4\n",
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 0);
+    }
+
+    #[test]
+    fn short_or_sparse_numeric_rows_do_not_form_a_grid() {
+        let run = lint_targets(
+            "run-sig-008",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-sparse",
+                "fixtures/report_lint/invented/sparse.txt",
+                SurfaceKind::PublicReportExample,
+                "ASME designator name in prose.\n\
+                 case 1 ran in 2.5 seconds with 3 warnings and 4 notes\n\
+                 case 2 ran in 3.5 seconds with 1 warning and 2 notes\n\
+                 case 3 ran in 4.5 seconds with 0 warnings and 1 note\n\
+                 totals: 10.5 4 7\n",
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 0);
+    }
+
+    #[test]
+    fn two_grids_near_signals_emit_two_findings_in_stable_order() {
+        let text = format!(
+            "{}\nsafe prose separator without numbers\nrepeat separator\n\
+             more separator prose\nanother separator line\nyet another line\n\
+             separator seven\nseparator eight\nseparator nine\n{}",
+            INVENTED_DESIGNATOR_GRID, INVENTED_CLAUSE_LABEL_GRID
+        );
+        let run = lint_targets(
+            "run-sig-009",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-two-grids",
+                "fixtures/report_lint/invented/two_grids.txt",
+                SurfaceKind::PublicFixture,
+                &text,
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 2);
+        assert_eq!(run.findings[0].finding_id, "RPLC-F0001");
+        assert_eq!(run.findings[1].finding_id, "RPLC-F0002");
+        assert!(
+            run.findings[0].source_location.line < run.findings[1].source_location.line
+        );
+        assert!(run
+            .findings
+            .iter()
+            .all(|finding| finding.code == FindingCode::UnknownProvenanceReviewRequired));
+    }
+
+    #[test]
+    fn accepted_provenance_does_not_suppress_signature_review() {
+        // The shape check is independent of recorded provenance: even a
+        // target whose provenance is accepted still routes a
+        // standards-table signature to human IP review (fail toward review,
+        // never silent pass).
+        let mut lint_target_value = target(
+            "target-sig-accepted",
+            "fixtures/report_lint/invented/accepted_provenance.txt",
+            SurfaceKind::PublicFixture,
+            INVENTED_DESIGNATOR_GRID,
+        );
+        lint_target_value.provenance.review_status = ReviewStatus::Accepted;
+        lint_target_value.provenance.redistribution_status =
+            RedistributionStatus::PublicPermissive;
+
+        let run = lint_targets(
+            "run-sig-010",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![lint_target_value],
+        );
+
+        assert_eq!(run.summary.finding_count, 1);
+        assert_eq!(
+            run.findings[0].code,
+            FindingCode::UnknownProvenanceReviewRequired
+        );
+    }
+
+    #[test]
+    fn markup_wrapped_numeric_grid_is_detected() {
+        let text = "\
+<h2>Invented flexibility factor demonstration (synthetic values)</h2>\n\
+<tr><td>51.1</td><td>52.2</td><td>53.3</td><td>54.4</td></tr>\n\
+<tr><td>55.1</td><td>56.2</td><td>57.3</td><td>58.4</td></tr>\n\
+<tr><td>59.1</td><td>60.2</td><td>61.3</td><td>62.4</td></tr>\n";
+        let run = lint_targets(
+            "run-sig-011",
+            LintConfiguration::public_surfaces_only("cfg-001"),
+            vec![target(
+                "target-sig-markup",
+                "fixtures/report_lint/invented/markup_grid.html",
+                SurfaceKind::PublicReportExample,
+                text,
+            )],
+        );
+
+        assert_eq!(run.summary.finding_count, 1);
+        assert_eq!(run.findings[0].excerpt, "flexibility factor");
     }
 
     #[test]
