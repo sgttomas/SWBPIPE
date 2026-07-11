@@ -42,6 +42,7 @@ The explicit source inventory is the `fixture_inventory()` list in
 | Imposed displacement | `MECH-IMPOSED-DISPLACEMENT-SPRING` |
 | Stiffness transform | `MECH-INCLINED-MEMBER-TRANSFORM` |
 | Curved-bend expansion loop | `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` |
+| Curved-bend distributed load | `MECH-CURVED-BEND-DISTRIBUTED-FIXED-END` |
 | Equivalent-static generation | `MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC` |
 
 Hand-calculation notes are in `validation/hand_calcs/mechanics/`.
@@ -54,9 +55,19 @@ including the k-sweep monotonicity evidence for `k in {1, 5, 10, 20}`. The
 comparison replicates the witness bending-only flexibility assumption with an
 axial-rigidity boost of `1.0e5` (boost study recorded at
 `EXPANSION_LOOP_AXIAL_RIGIDITY_BOOST` in `src/lib.rs`). The fixture is
-registered in `fixture_inventory()` and the shared hand-calculation README
-inventory (owned under `validation/hand_calcs/mechanics/`) lists the witness
-note.
+registered in `fixture_inventory()` and in the shared hand-calculation
+README inventory under `validation/hand_calcs/mechanics/`.
+
+`MECH-CURVED-BEND-DISTRIBUTED-FIXED-END` (D-34 / DEC-070 arc-residual
+closure evidence) compares the arc-consistent distributed-load fixed-end
+forces/moments and the interior-station section resultants of the
+curved-bend macro element against the independent force-method witness
+`validation/hand_calcs/mechanics/curved_bend_distributed_load_fixed_end.md`
+for user-entered bending flexibility factors `k in {1, 2}`, in-plane and
+out-of-plane uniform loads on a clamped-clamped quarter-circle arc. Both
+comparison sides are closed-form; the measured agreement sits inside the
+DEC-026 analytic-class `1.0e-9` relative tier (near-zero absolute scale
+floor `1.0e-3` N / N-m for the exact-zero midspan torsion row).
 
 ## Readiness Boundary
 
