@@ -1,12 +1,13 @@
 # Status: DEL-09-05 Release quality gate checklist
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-10
+**Last Updated:** 2026-07-11
 
 ## Remaining
 - Restrict release labels to maturity/evidence vocabulary with no reliance/compliance language (gated: PB-TBD-003, human) (see also DEL-01-04) (source: PRD plan §3 E8 row / RGAP-007)
 - Propose coverage-floor promotion once ≥5 clean-head telemetry artifacts span ≥2 commits per lane (gated: new D-XX row per DEC-060) (source: DEC-060 / Receipt 7)
 - F1: prepare W1–W7 issuance wave review packets for the CHECKING deliverables to the DEC-062 five-point evidence bar; each issuance is a separate owner lifecycle act on deliverable-local `_STATUS.md` (gated: D-11 waves, owner-paced; DEL-01-01 is the ISSUED precedent) (source: PRD plan §3 F1 row / DEC-062)
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -21,3 +22,4 @@
 - 2026-06-07 - Human-approved Gate 5 transition after REVIEW recommendation `RECOMMEND_ADVANCE` in `execution/_Reconciliation/Reviews/REV_DEL-09-05_2026-06-07_1455/`; state set to CHECKING for formal review. Remaining release-governance TBDs remain human-owned; no ISSUED, release, professional approval, certification, sealing, authentication, or code-compliance claim was made.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 12); no state change.
+- 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).

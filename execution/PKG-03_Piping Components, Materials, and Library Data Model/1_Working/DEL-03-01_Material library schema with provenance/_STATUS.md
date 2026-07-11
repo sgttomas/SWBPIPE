@@ -1,13 +1,17 @@
 # Status: DEL-03-01 Material library schema with provenance
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-02
+**Last Updated:** 2026-07-11
+
+## Remaining
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - Four-document setup evidence drafted (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)
 - 2026-04-30 - Four-document setup evidence enriched from semantic lensing register (TASK+four-documents P3)
+- 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 
 - 2026-05-02 - Lifecycle aligned to CHECKING after committed DEV-001 implementation evidence `3793e87`.
 - 2026-05-11 - TP-RECON-01 reconciled committed DEV-001 evidence `3793e87` into deliverable-local history; state preserved as CHECKING.

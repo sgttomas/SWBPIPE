@@ -1,7 +1,10 @@
 # Status: DEL-02-02 Unit system and dimensional-analysis core contract
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-02
+**Last Updated:** 2026-07-11
+
+## Remaining
+- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision) (gated: D-41)
 
 ## History
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
@@ -13,3 +16,4 @@
 - 2026-06-03 - TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001 accepted migration-caused evidence-commit aberrations and confirmed current source/test traceability; explicit human approval advanced this deliverable to CHECKING for formal review. No ISSUED, release, compatibility, code-compliance, or professional-engineering authentication claim was made.
 - 2026-06-12 - TP-UNITS-B1-CATALOG-001 added the crate-side DEC-018 unit catalog and conversion implementation in `core/units`; lifecycle state remains CHECKING with B2/B3 integration handoffs recorded in MEMORY and the run record.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
+- 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
