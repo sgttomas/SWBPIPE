@@ -155,6 +155,23 @@ enum UnitSource {
     ProjectUnits(&'static str),
 }
 
+/// Value-range constraint for optional user-entered quantity slots. Each
+/// token mirrors the constraint the downstream consumer
+/// (`core/product_physics` / `core/loads/primitive_loads`) already enforces
+/// at solve time for the same slot; the applier introduces no threshold of
+/// its own.
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum ValueConstraint {
+    /// Any finite value (finiteness is enforced for every numeric edit).
+    AnyFinite,
+    /// Strictly positive, mirroring the crate convention that rejects
+    /// non-physical zero/negative geometry, modifier, and stiffness values.
+    Positive,
+    /// Non-negative, mirroring the effective-wall consumer that rejects a
+    /// negative mill-tolerance reduction while accepting an explicit zero.
+    NonNegative,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum FieldKind {
     Text,
@@ -175,6 +192,37 @@ enum FieldKind {
     },
     /// Comma-separated restraint direction tokens stored as a string array.
     RestraintSet,
+    /// Optional user-entered free-text slot (schema `Option<String>`);
+    /// authorable when absent. Absence is displayed and staleness-checked as
+    /// the explicit `TBD` sentinel the inspector emits.
+    OptionalText,
+    /// Optional user-entered id slot validated against the schema `Id`
+    /// pattern `^[A-Za-z][A-Za-z0-9_.:-]*$`; authorable when absent.
+    OptionalId,
+    /// Optional reference to an entity id inside another model collection;
+    /// authorable when absent. Referenced entities are never created
+    /// implicitly.
+    OptionalEntityRef {
+        collection: &'static str,
+    },
+    /// Optional closed-vocabulary token slot; authorable when absent.
+    OptionalEnum {
+        tokens: &'static [&'static str],
+    },
+    /// Optional comma-separated list of entity references stored as a string
+    /// array (schema `minItems: 1`); authorable when absent.
+    OptionalEntityRefList {
+        collection: &'static str,
+    },
+    /// Optional dimensioned `{ value, unit }` quantity slot pinned to one
+    /// schema dimension. Editable in place, and authorable when absent
+    /// through explicit unit entry (the B2 `{value, unit}` payload or the
+    /// intent's explicit unit field) — no default and no hidden fallback
+    /// unit is ever supplied.
+    OptionalQuantity {
+        constraint: ValueConstraint,
+        dimension: &'static str,
+    },
 }
 
 struct FieldRule {
@@ -194,6 +242,11 @@ const COMBINATION_BASIS_CLOSED_SET: [&str; 3] =
 /// Closed range-envelope mode tokens, mirroring
 /// `core/loads/load_case_algebra::RangeMode`.
 const COMBINATION_RANGE_MODE_TOKENS: [&str; 4] = ["min", "max", "min_abs", "max_abs"];
+
+/// Closed global-axis vocabulary for the wind equivalent-static direction
+/// slot, mirroring `core/loads/primitive_loads` global-axis handling and the
+/// `core/product_physics` preview-model contract (DEC-068 item 2).
+const WIND_DIRECTION_TOKENS: [&str; 3] = ["global_x", "global_y", "global_z"];
 
 /// Inspector-offered fields whose application is deliberately deferred to a
 /// later completion-plan item. Returned as explicit blocked findings so the
@@ -296,6 +349,17 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                     unit_source: UnitSource::SiblingUnitField,
                 },
             },
+            // DEC-068 item 3: user-entered absolute mill-tolerance thickness
+            // reduction consumed by the effective-wall calculation. Zero is a
+            // meaningful explicit entry; a negative reduction is rejected the
+            // same way the effective-wall consumer rejects it.
+            FieldRule {
+                field_path: "section.mill_tolerance.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::NonNegative,
+                    dimension: "length",
+                },
+            },
         ],
         "Support" => &[
             FieldRule {
@@ -332,6 +396,230 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                     collection: "nodes",
                 },
             },
+            // Component-geometry field families (TP-APP-R5-FIELDRULES-001).
+            // Every slot is user-entered `Option<...>` data in the preview
+            // model contract (`core/product_physics` component inputs); the
+            // value constraints mirror the solve-side validation for the same
+            // slot, and `geometry.center_of_gravity` stays unsupported (its
+            // vector payload format needs a design ruling).
+            //
+            // Bend / elbow family.
+            FieldRule {
+                field_path: "geometry.bend_pipe_ref",
+                kind: FieldKind::OptionalEntityRef {
+                    collection: "pipe_segments",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.bend_radius.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "length",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.bend_angle.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "angle",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.bend_plane_orientation",
+                kind: FieldKind::OptionalText,
+            },
+            // Branch family.
+            FieldRule {
+                field_path: "geometry.branch_header_pipe_ref",
+                kind: FieldKind::OptionalEntityRef {
+                    collection: "pipe_segments",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.branch_branch_pipe_ref",
+                kind: FieldKind::OptionalEntityRef {
+                    collection: "pipe_segments",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.branch_run_size.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "length",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.branch_header_size.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "length",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.branch_connection_angle.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "angle",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.branch_connection_type",
+                kind: FieldKind::OptionalText,
+            },
+            // Rigid / semi-rigid family.
+            FieldRule {
+                field_path: "geometry.rigid_pipe_ref",
+                kind: FieldKind::OptionalEntityRef {
+                    collection: "pipe_segments",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.rigid_body_length.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "length",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.end_a_size.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "length",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.end_b_size.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "length",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.weight.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::AnyFinite,
+                    dimension: "force",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.stiffness_behavior_reference",
+                kind: FieldKind::OptionalText,
+            },
+            // Expansion-joint family (DEC-045 / TP-R4-D4-EJSTIFF-001 entry
+            // seam: explicit pipe mapping, user-entered effective pressure
+            // area and movement limit, provenance references).
+            FieldRule {
+                field_path: "geometry.expansion_joint_pipe_ref",
+                kind: FieldKind::OptionalEntityRef {
+                    collection: "pipe_segments",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.effective_area.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "area",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.movement_limit.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "length",
+                },
+            },
+            FieldRule {
+                field_path: "geometry.hardware_reference",
+                kind: FieldKind::OptionalText,
+            },
+            FieldRule {
+                field_path: "geometry.manufacturer_reference",
+                kind: FieldKind::OptionalText,
+            },
+            FieldRule {
+                field_path: "geometry.pressure_thrust_reference",
+                kind: FieldKind::OptionalText,
+            },
+            // User-entered modifier values (no code table, no catalog value,
+            // no default; positivity mirrors the product-physics validation
+            // for each slot).
+            FieldRule {
+                field_path: "modifiers.sif_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.branch_header_sif_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.branch_branch_sif_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.flexibility_factor_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.stiffness_scaling_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.linear_stiffness_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "linear_stiffness",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.rotational_stiffness_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "rotational_stiffness",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.axial_stiffness_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "linear_stiffness",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.lateral_stiffness_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "linear_stiffness",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.angular_stiffness_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "rotational_stiffness",
+                },
+            },
+            FieldRule {
+                field_path: "modifiers.torsional_stiffness_user_value.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "rotational_stiffness",
+                },
+            },
         ],
         "Load" => &[
             FieldRule {
@@ -349,6 +637,76 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
             FieldRule {
                 field_path: "provenance",
                 kind: FieldKind::Text,
+            },
+            // DEC-068 item 1: user-assigned temperature-point basis id (or
+            // the reserved label `material_base_values`). The applier
+            // enforces the schema Id shape only; exact-selection matching
+            // against stored temperature points is the solve-side contract
+            // (`core/product_physics`), which blocks a dangling reference —
+            // no interpolation anywhere (D-38 remains AWAITING_RULING).
+            FieldRule {
+                field_path: "modulus_basis_ref",
+                kind: FieldKind::OptionalId,
+            },
+            // DEC-068 item 2: user-entered static-equivalent generation
+            // inputs. Constraints mirror `core/loads/primitive_loads`
+            // generation validation (gravity finite positive; g-factors,
+            // pressure, and shape factor finite; direction a global axis;
+            // exposed spans a non-empty pipe-reference list). No code
+            // coefficient, catalog value, or default is supplied here.
+            FieldRule {
+                field_path: "equivalent_static.seismic.gravity_acceleration.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "acceleration",
+                },
+            },
+            FieldRule {
+                field_path: "equivalent_static.seismic.g_factor_x.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::AnyFinite,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "equivalent_static.seismic.g_factor_y.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::AnyFinite,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "equivalent_static.seismic.g_factor_z.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::AnyFinite,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "equivalent_static.wind.pressure.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::AnyFinite,
+                    dimension: "pressure",
+                },
+            },
+            FieldRule {
+                field_path: "equivalent_static.wind.shape_factor.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::AnyFinite,
+                    dimension: "dimensionless",
+                },
+            },
+            FieldRule {
+                field_path: "equivalent_static.wind.direction",
+                kind: FieldKind::OptionalEnum {
+                    tokens: &WIND_DIRECTION_TOKENS,
+                },
+            },
+            FieldRule {
+                field_path: "equivalent_static.wind.exposed_pipe_refs",
+                kind: FieldKind::OptionalEntityRefList {
+                    collection: "pipe_segments",
+                },
             },
         ],
         "Combination" => &[
@@ -1142,6 +1500,17 @@ fn run(
     }
 }
 
+/// How a validated write resolves its target path on apply.
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum WriteMode {
+    /// The full path must already exist in the entity (required fields).
+    RequireExisting,
+    /// Missing intermediate objects along the path are created (optional
+    /// schema slots being authored); an existing non-object intermediate is
+    /// a blocking finding, never silently overwritten.
+    CreatePath,
+}
+
 struct ResolvedField {
     kind: FieldKind,
     /// Display form of the current model value using the same conventions the
@@ -1153,6 +1522,8 @@ struct ResolvedField {
     segments: Vec<String>,
     /// Additional sibling writes that belong to the same validated edit.
     additional_writes: Vec<(Vec<String>, Value)>,
+    /// Whether apply may create missing intermediate objects on the path.
+    write_mode: WriteMode,
 }
 
 struct QuantityEdit {
@@ -4466,6 +4837,7 @@ fn resolve_field(
                 applied_value: Value::String(trimmed.to_string()),
                 segments,
                 additional_writes: Vec::new(),
+                write_mode: WriteMode::RequireExisting,
             })
         }
         FieldKind::Number { require_positive } => {
@@ -4561,6 +4933,7 @@ fn resolve_field(
                 applied_value: Value::Number(number),
                 segments,
                 additional_writes: Vec::new(),
+                write_mode: WriteMode::RequireExisting,
             })
         }
         FieldKind::Quantity {
@@ -4781,6 +5154,7 @@ fn resolve_field(
                 applied_value: Value::Number(number),
                 segments,
                 additional_writes,
+                write_mode: WriteMode::RequireExisting,
             })
         }
         FieldKind::EntityRef {
@@ -4821,6 +5195,7 @@ fn resolve_field(
                 applied_value: Value::String(replacement.to_string()),
                 segments,
                 additional_writes: Vec::new(),
+                write_mode: WriteMode::RequireExisting,
             })
         }
         FieldKind::RestraintSet => {
@@ -4848,6 +5223,449 @@ fn resolve_field(
                 applied_value: Value::Array(tokens.into_iter().map(Value::String).collect()),
                 segments,
                 additional_writes: Vec::new(),
+                write_mode: WriteMode::RequireExisting,
+            })
+        }
+        FieldKind::OptionalText => {
+            let replacement =
+                resolve_optional_text_common(entity, &segments, before, after, target_ref, field_path, checker)?;
+            Some(ResolvedField {
+                kind,
+                current_display: optional_text_current_display(entity, &segments),
+                applied_value: Value::String(replacement),
+                segments,
+                additional_writes: Vec::new(),
+                write_mode: WriteMode::CreatePath,
+            })
+        }
+        FieldKind::OptionalId => {
+            let replacement =
+                resolve_optional_text_common(entity, &segments, before, after, target_ref, field_path, checker)?;
+            if !is_valid_schema_id(&replacement) {
+                checker.push(
+                    "OP-ID-PATTERN-INVALID",
+                    "blocking",
+                    format!(
+                        "Replacement value `{replacement}` for `{field_path}` does not match the schema Id pattern `^[A-Za-z][A-Za-z0-9_.:-]*$`."
+                    ),
+                    "Enter a user-assigned id starting with a letter and using only letters, digits, `_`, `.`, `:`, or `-`.",
+                    vec![target_ref.to_string(), replacement.clone()],
+                );
+                return None;
+            }
+            Some(ResolvedField {
+                kind,
+                current_display: optional_text_current_display(entity, &segments),
+                applied_value: Value::String(replacement),
+                segments,
+                additional_writes: Vec::new(),
+                write_mode: WriteMode::CreatePath,
+            })
+        }
+        FieldKind::OptionalEnum { tokens } => {
+            let replacement =
+                resolve_optional_text_common(entity, &segments, before, after, target_ref, field_path, checker)?;
+            if !tokens.contains(&replacement.as_str()) {
+                checker.push(
+                    "OP-ENUM-TOKEN-INVALID",
+                    "blocking",
+                    format!(
+                        "Replacement value `{replacement}` for `{field_path}` is outside the explicit closed vocabulary {}.",
+                        tokens.join("/")
+                    ),
+                    "Choose one of the closed-vocabulary tokens; no other value is applied.",
+                    vec![target_ref.to_string(), replacement.clone()],
+                );
+                return None;
+            }
+            Some(ResolvedField {
+                kind,
+                current_display: optional_text_current_display(entity, &segments),
+                applied_value: Value::String(replacement),
+                segments,
+                additional_writes: Vec::new(),
+                write_mode: WriteMode::CreatePath,
+            })
+        }
+        FieldKind::OptionalEntityRef {
+            collection: ref_collection,
+        } => {
+            let replacement =
+                resolve_optional_text_common(entity, &segments, before, after, target_ref, field_path, checker)?;
+            if find_entity(model, ref_collection, &replacement).is_none() {
+                checker.reference_state = "blocked";
+                checker.push(
+                    "OP-REFERENCE-NOT-FOUND",
+                    "blocking",
+                    format!("Replacement reference `{replacement}` does not exist in model collection `{ref_collection}`."),
+                    "Reference an existing entity id; referenced entities are not created implicitly.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+            if checker.reference_state == "not_run" {
+                checker.reference_state = "passed";
+            }
+            Some(ResolvedField {
+                kind,
+                current_display: optional_text_current_display(entity, &segments),
+                applied_value: Value::String(replacement),
+                segments,
+                additional_writes: Vec::new(),
+                write_mode: WriteMode::CreatePath,
+            })
+        }
+        FieldKind::OptionalEntityRefList {
+            collection: ref_collection,
+        } => {
+            let current_tokens: Option<Vec<String>> = value_at_segments(entity, &segments)
+                .and_then(Value::as_array)
+                .map(|items| {
+                    items
+                        .iter()
+                        .filter_map(Value::as_str)
+                        .map(str::to_string)
+                        .collect()
+                });
+            let current_display = current_tokens
+                .map(|tokens| tokens.join(", "))
+                .unwrap_or_else(|| "TBD".to_string());
+            check_before(&current_display, before, target_ref, field_path, checker);
+            let mut tokens: Vec<String> = Vec::new();
+            for raw in after.split(',') {
+                let token = raw.trim().to_string();
+                if token.is_empty() {
+                    continue;
+                }
+                if !tokens.contains(&token) {
+                    tokens.push(token);
+                }
+            }
+            if tokens.is_empty() {
+                checker.push(
+                    "OP-VALUE-EMPTY",
+                    "blocking",
+                    format!(
+                        "Replacement reference list for `{field_path}` is empty; the schema requires at least one entry."
+                    ),
+                    "Provide at least one comma-separated entity reference.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+            for token in &tokens {
+                if find_entity(model, ref_collection, token).is_none() {
+                    checker.reference_state = "blocked";
+                    checker.push(
+                        "OP-REFERENCE-NOT-FOUND",
+                        "blocking",
+                        format!("Replacement reference `{token}` does not exist in model collection `{ref_collection}`."),
+                        "Reference existing entity ids; referenced entities are not created implicitly.",
+                        vec![target_ref.to_string(), token.clone()],
+                    );
+                    return None;
+                }
+            }
+            if checker.reference_state == "not_run" {
+                checker.reference_state = "passed";
+            }
+            Some(ResolvedField {
+                kind,
+                current_display,
+                applied_value: Value::Array(tokens.into_iter().map(Value::String).collect()),
+                segments,
+                additional_writes: Vec::new(),
+                write_mode: WriteMode::CreatePath,
+            })
+        }
+        FieldKind::OptionalQuantity {
+            constraint,
+            dimension: rule_dimension,
+        } => resolve_optional_quantity(
+            entity,
+            segments,
+            before,
+            after,
+            unit,
+            dimension,
+            rule_dimension,
+            constraint,
+            kind,
+            target_ref,
+            field_path,
+            checker,
+        ),
+    }
+}
+
+/// Shared resolution for the optional text-shaped slots (`OptionalText`,
+/// `OptionalId`, `OptionalEnum`, `OptionalEntityRef`): staleness-checks the
+/// current value (absence is the explicit `TBD` sentinel the inspector
+/// emits) and requires a non-empty replacement. Returns the trimmed
+/// replacement string.
+fn resolve_optional_text_common(
+    entity: &Value,
+    segments: &[String],
+    before: &str,
+    after: &str,
+    target_ref: &str,
+    field_path: &str,
+    checker: &mut Checker,
+) -> Option<String> {
+    let current_display = optional_text_current_display(entity, segments);
+    check_before(&current_display, before, target_ref, field_path, checker);
+    let trimmed = after.trim();
+    if trimmed.is_empty() {
+        checker.push(
+            "OP-VALUE-EMPTY",
+            "blocking",
+            format!("Replacement value for `{field_path}` is empty."),
+            "Provide a non-empty replacement value (or `TBD` to mark an explicit unknown).",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    Some(trimmed.to_string())
+}
+
+fn optional_text_current_display(entity: &Value, segments: &[String]) -> String {
+    value_at_segments(entity, segments)
+        .and_then(Value::as_str)
+        .map(str::to_string)
+        .unwrap_or_else(|| "TBD".to_string())
+}
+
+/// Schema `Id` pattern from `schemas/model.schema.yaml`
+/// (`^[A-Za-z][A-Za-z0-9_.:-]*$`), implemented directly so the shape check
+/// stays dependency-free.
+fn is_valid_schema_id(value: &str) -> bool {
+    let mut chars = value.chars();
+    let Some(first) = chars.next() else {
+        return false;
+    };
+    if !first.is_ascii_alphabetic() {
+        return false;
+    }
+    chars.all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '_' | '.' | ':' | '-'))
+}
+
+/// Resolution for optional `{ value, unit }` quantity slots pinned to one
+/// schema dimension. Present slots are edited in place (sibling-unit
+/// semantics, unit-preserving, no conversion); absent slots are authored
+/// from the explicit user-entered unit — never from a default.
+#[allow(clippy::too_many_arguments)]
+fn resolve_optional_quantity(
+    entity: &Value,
+    segments: Vec<String>,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    rule_dimension: &'static str,
+    constraint: ValueConstraint,
+    kind: FieldKind,
+    target_ref: &str,
+    field_path: &str,
+    checker: &mut Checker,
+) -> Option<ResolvedField> {
+    if dimension != rule_dimension {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-MISMATCH",
+            "blocking",
+            format!(
+                "Field `{field_path}` carries dimension `{rule_dimension}`; intent dimension `{dimension}` is not accepted."
+            ),
+            "Emit the quantity edit with the field's schema dimension.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let dimension_enum = match Dimension::from_schema_value(rule_dimension) {
+        Ok(dimension_enum) => dimension_enum,
+        Err(error) => {
+            checker.unit_state = "blocked";
+            checker.push(
+                "OP-UNIT-DIMENSION-UNKNOWN",
+                "blocking",
+                format!(
+                    "Dimension `{rule_dimension}` is outside the DEC-018 catalog vocabulary: {error}."
+                ),
+                "Use a governed dimension token for quantity edits.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+    };
+
+    let quantity_edit = if after.trim_start().starts_with('{') {
+        parse_quantity_edit(after, target_ref, field_path, checker)?
+    } else {
+        None
+    };
+    if let Some(edit) = quantity_edit.as_ref() {
+        if edit.unit != unit {
+            checker.unit_state = "blocked";
+            checker.push(
+                "OP-QUANTITY-PAYLOAD-INVALID",
+                "blocking",
+                format!(
+                    "Quantity payload unit `{}` must match intent unit `{unit}`.",
+                    edit.unit
+                ),
+                "Refresh the quantity edit intent from the selected value and unit fields.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+    }
+    // Unit shape: the entered unit must be an accepted DEC-018 symbol for the
+    // field's dimension. Dimensionless slots also accept the stored `none`
+    // marker the preview model uses for user-entered scalar factors.
+    let unit_ok = unit_symbol_matches_dimension(unit, dimension_enum)
+        || (rule_dimension == "dimensionless" && unit == "none");
+    if !unit_ok {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!(
+                "Intent unit `{unit}` is not an accepted DEC-018 unit for dimension `{rule_dimension}` on `{field_path}`."
+            ),
+            "Select an accepted DEC-018 unit; no hidden fallback unit is supplied.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let entered_value = if let Some(edit) = quantity_edit.as_ref() {
+        edit.value
+    } else {
+        let Some(parsed) = parse_finite_number(after) else {
+            checker.push(
+                "OP-VALUE-NOT-NUMERIC",
+                "blocking",
+                format!("Replacement value `{after}` for `{field_path}` is not a finite number."),
+                "Provide a finite numeric value in the entered unit.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        };
+        parsed
+    };
+    match constraint {
+        ValueConstraint::AnyFinite => {}
+        ValueConstraint::Positive => {
+            if entered_value <= 0.0 {
+                checker.push(
+                    "OP-VALUE-NOT-POSITIVE",
+                    "blocking",
+                    format!(
+                        "Replacement value `{after}` for `{field_path}` must be greater than zero to remain physically meaningful."
+                    ),
+                    "Provide a positive value for geometric, modifier, and stiffness quantities.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+        }
+        ValueConstraint::NonNegative => {
+            if entered_value < 0.0 {
+                checker.push(
+                    "OP-VALUE-NEGATIVE",
+                    "blocking",
+                    format!(
+                        "Replacement value `{after}` for `{field_path}` must not be negative; an explicit zero is accepted."
+                    ),
+                    "Provide a non-negative value; the downstream consumer rejects a negative reduction.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+        }
+    }
+    let Some(number) = Number::from_f64(entered_value) else {
+        checker.push(
+            "OP-VALUE-NOT-NUMERIC",
+            "blocking",
+            format!(
+                "Replacement value `{after}` for `{field_path}` cannot be encoded as a JSON number."
+            ),
+            "Provide a finite numeric value in the entered unit.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+
+    let current = value_at_segments(entity, &segments).and_then(Value::as_f64);
+    match current {
+        Some(current_number) => {
+            let mut unit_segments = segments.clone();
+            unit_segments.pop();
+            unit_segments.push("unit".to_string());
+            let stored_unit = value_at_segments(entity, &unit_segments)
+                .and_then(Value::as_str)
+                .map(str::to_string);
+            let Some(stored_unit) = stored_unit else {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-UNIT-METADATA-MISSING",
+                    "blocking",
+                    format!(
+                        "Stored quantity `{field_path}` on `{target_ref}` has no unit metadata."
+                    ),
+                    "Repair the model document's unit metadata before editing this quantity.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            if quantity_edit.is_none() && unit != stored_unit {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                    "blocking",
+                    format!(
+                        "Intent unit `{unit}` does not match stored unit `{stored_unit}` for `{field_path}`; changing the stored unit requires the explicit value-and-unit payload and no silent conversion is performed."
+                    ),
+                    "Refresh the quantity edit intent from the selected value and unit fields.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+            checker.unit_state = "passed";
+            check_before_numeric(current_number, before, target_ref, field_path, checker);
+            let additional_writes = if quantity_edit.is_some() {
+                vec![(unit_segments, Value::String(unit.to_string()))]
+            } else {
+                Vec::new()
+            };
+            Some(ResolvedField {
+                kind,
+                current_display: display_number(current_number),
+                applied_value: Value::Number(number),
+                segments,
+                additional_writes,
+                write_mode: WriteMode::RequireExisting,
+            })
+        }
+        None => {
+            // Authoring an absent optional slot: the whole `{ value, unit }`
+            // record is written from the explicit user entry; absence is
+            // staleness-checked as the inspector's `TBD` sentinel.
+            checker.unit_state = "passed";
+            check_before("TBD", before, target_ref, field_path, checker);
+            let mut parent_segments = segments;
+            parent_segments.pop();
+            Some(ResolvedField {
+                kind,
+                current_display: "TBD".to_string(),
+                applied_value: serde_json::json!({
+                    "value": Value::Number(number),
+                    "unit": unit,
+                }),
+                segments: parent_segments,
+                additional_writes: Vec::new(),
+                write_mode: WriteMode::CreatePath,
             })
         }
     }
@@ -4925,7 +5743,19 @@ fn apply_resolved_field(
         );
         return false;
     };
-    let Some(slot) = value_at_segments_mut(entity, &field.segments) else {
+    let main_written = match field.write_mode {
+        WriteMode::RequireExisting => match value_at_segments_mut(entity, &field.segments) {
+            Some(slot) => {
+                *slot = field.applied_value.clone();
+                true
+            }
+            None => false,
+        },
+        WriteMode::CreatePath => {
+            write_value_creating_path(entity, &field.segments, &field.applied_value)
+        }
+    };
+    if !main_written {
         checker.push(
             "OP-FIELD-NOT-PRESENT",
             "blocking",
@@ -4937,10 +5767,19 @@ fn apply_resolved_field(
             vec![target_ref.to_string()],
         );
         return false;
-    };
-    *slot = field.applied_value.clone();
+    }
     for (segments, value) in &field.additional_writes {
-        let Some(extra_slot) = value_at_segments_mut(entity, segments) else {
+        let extra_written = match field.write_mode {
+            WriteMode::RequireExisting => match value_at_segments_mut(entity, segments) {
+                Some(slot) => {
+                    *slot = value.clone();
+                    true
+                }
+                None => false,
+            },
+            WriteMode::CreatePath => write_value_creating_path(entity, segments, value),
+        };
+        if !extra_written {
             checker.push(
                 "OP-FIELD-NOT-PRESENT",
                 "blocking",
@@ -4952,10 +5791,46 @@ fn apply_resolved_field(
                 vec![target_ref.to_string()],
             );
             return false;
-        };
-        *extra_slot = value.clone();
+        }
     }
     let _ = field.kind;
+    true
+}
+
+/// Write `value` at `segments` inside `entity`, creating missing
+/// intermediate objects along the way (optional schema slots being
+/// authored). Array segments must already exist and resolve by index —
+/// arrays are never created implicitly — and an existing non-object
+/// intermediate is a failure, never silently overwritten. Deterministic:
+/// object-key insertion order does not affect the RFC 8785 canonical form.
+fn write_value_creating_path(entity: &mut Value, segments: &[String], value: &Value) -> bool {
+    let Some((last, parents)) = segments.split_last() else {
+        return false;
+    };
+    let mut current = entity;
+    for segment in parents {
+        if current.is_array() {
+            let Ok(index) = segment.parse::<usize>() else {
+                return false;
+            };
+            let Some(next) = current.get_mut(index) else {
+                return false;
+            };
+            current = next;
+            continue;
+        }
+        let Some(map) = current.as_object_mut() else {
+            return false;
+        };
+        let next = map
+            .entry(segment.clone())
+            .or_insert_with(|| Value::Object(serde_json::Map::new()));
+        current = next;
+    }
+    let Some(map) = current.as_object_mut() else {
+        return false;
+    };
+    map.insert(last.clone(), value.clone());
     true
 }
 
@@ -9514,6 +10389,645 @@ mod tests {
             }
             assert!(!outcome.acceptance.acceptance_is_professional_approval);
         }
+    }
+
+    /// Live probe for TP-APP-R5-FIELDRULES-001: GUI inspector bend-geometry
+    /// intents must apply to the session model instead of blocking on
+    /// `OP-FIELD-PATH-UNSUPPORTED`.
+    #[test]
+    fn bend_radius_value_edit_applies_to_existing_component_geometry() {
+        let mut model = sample_model();
+        model["components"][0]["geometry"] = json!({
+            "bend_radius": { "value": 0.45, "unit": "m" }
+        });
+        let intent = modify_intent(
+            "Component",
+            "component:C-1",
+            "set_field",
+            "geometry.bend_radius.value",
+            "0.45",
+            "{\"value\":0.5,\"unit\":\"m\"}",
+            "m",
+            "length",
+        );
+        let outcome = apply_operation(&model, &intent, None);
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["components"][0]["geometry"]["bend_radius"]["value"],
+            json!(0.5)
+        );
+        assert_eq!(
+            applied["components"][0]["geometry"]["bend_radius"]["unit"],
+            json!("m")
+        );
+    }
+
+    #[test]
+    fn bend_geometry_authoring_creates_absent_optional_slots_from_explicit_entry() {
+        // sample_model's component:C-1 carries no geometry block at all.
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let intent = modify_intent(
+            "Component",
+            "component:C-1",
+            "set_field",
+            "geometry.bend_radius.value",
+            "TBD",
+            "{\"value\":0.45,\"unit\":\"m\"}",
+            "m",
+            "length",
+        );
+        let outcome = apply_operation(&model, &intent, None);
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.validation.before_state_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].before, "TBD");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["components"][0]["geometry"]["bend_radius"],
+            json!({ "value": 0.45, "unit": "m" })
+        );
+        let mut expected = before_snapshot.clone();
+        expected["components"][0]["geometry"] =
+            json!({ "bend_radius": { "value": 0.45, "unit": "m" } });
+        assert_eq!(applied, expected, "only the requested slot may be created");
+    }
+
+    #[test]
+    fn bend_pipe_ref_requires_an_existing_pipe_segment() {
+        let model = sample_model();
+        let accepted = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "geometry.bend_pipe_ref",
+                "TBD",
+                "pipe:P-1",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(
+            accepted.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            accepted.diagnostics
+        );
+        assert_eq!(accepted.validation.reference_validation, "passed");
+        assert_eq!(
+            accepted.applied_model.expect("applied model")["components"][0]["geometry"]
+                ["bend_pipe_ref"],
+            json!("pipe:P-1")
+        );
+
+        let dangling = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "geometry.bend_pipe_ref",
+                "TBD",
+                "pipe:P-999",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(codes(&dangling).contains(&"OP-REFERENCE-NOT-FOUND"));
+        assert!(dangling.applied_model.is_none());
+    }
+
+    #[test]
+    fn optional_quantity_rules_enforce_dimension_unit_and_positivity() {
+        let model = sample_model();
+        // Wrong dimension token for the pinned rule dimension.
+        let wrong_dimension = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "geometry.bend_radius.value",
+                "TBD",
+                "{\"value\":0.45,\"unit\":\"m\"}",
+                "m",
+                "area",
+            ),
+            None,
+        );
+        assert!(codes(&wrong_dimension).contains(&"OP-UNIT-DIMENSION-MISMATCH"));
+
+        // Unit outside the accepted catalog set for the dimension.
+        let wrong_unit = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "geometry.bend_radius.value",
+                "TBD",
+                "{\"value\":0.45,\"unit\":\"Pa\"}",
+                "Pa",
+                "length",
+            ),
+            None,
+        );
+        assert!(codes(&wrong_unit).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+
+        // Non-physical zero geometry value.
+        let non_positive = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "geometry.bend_radius.value",
+                "TBD",
+                "{\"value\":0,\"unit\":\"m\"}",
+                "m",
+                "length",
+            ),
+            None,
+        );
+        assert!(codes(&non_positive).contains(&"OP-VALUE-NOT-POSITIVE"));
+
+        // Authoring an absent slot claims a numeric before-value: stale.
+        let stale = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "geometry.bend_radius.value",
+                "0.45",
+                "{\"value\":0.5,\"unit\":\"m\"}",
+                "m",
+                "length",
+            ),
+            None,
+        );
+        assert!(codes(&stale).contains(&"OP-STALE-BEFORE-VALUE"));
+    }
+
+    #[test]
+    fn expansion_joint_stiffness_edits_apply_and_preserve_entered_units() {
+        let mut model = sample_model();
+        model["components"][0]["kind"] = json!("expansion_joint");
+        model["components"][0]["modifiers"] = json!({
+            "axial_stiffness_user_value": { "value": 3200000.0, "unit": "N/m" }
+        });
+        // In-place edit of the existing user-entered stiffness value.
+        let edited = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "modifiers.axial_stiffness_user_value.value",
+                "3200000",
+                "{\"value\":3400000,\"unit\":\"N/m\"}",
+                "N/m",
+                "linear_stiffness",
+            ),
+            None,
+        );
+        assert!(
+            edited.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            edited.diagnostics
+        );
+        let applied = edited.applied_model.expect("applied model");
+        assert_eq!(
+            applied["components"][0]["modifiers"]["axial_stiffness_user_value"],
+            json!({ "value": 3400000.0, "unit": "N/m" })
+        );
+
+        // Authoring the absent torsional slot creates the record verbatim.
+        let authored = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "modifiers.torsional_stiffness_user_value.value",
+                "TBD",
+                "{\"value\":620000,\"unit\":\"N*m/rad\"}",
+                "N*m/rad",
+                "rotational_stiffness",
+            ),
+            None,
+        );
+        assert!(
+            authored.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            authored.diagnostics
+        );
+        assert_eq!(
+            authored.applied_model.expect("applied model")["components"][0]["modifiers"]
+                ["torsional_stiffness_user_value"],
+            json!({ "value": 620000.0, "unit": "N*m/rad" })
+        );
+
+        // A plain-number edit may not silently change the stored unit.
+        let unit_drift = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "modifiers.axial_stiffness_user_value.value",
+                "3200000",
+                "3400",
+                "N/mm",
+                "linear_stiffness",
+            ),
+            None,
+        );
+        assert!(codes(&unit_drift).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+    }
+
+    #[test]
+    fn dimensionless_modifier_values_accept_the_stored_none_unit_marker() {
+        let mut model = sample_model();
+        model["components"][0]["modifiers"] = json!({
+            "sif_user_value": { "value": 1.15, "unit": "none" }
+        });
+        let edited = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "modifiers.sif_user_value.value",
+                "1.15",
+                "1.3",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(
+            edited.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            edited.diagnostics
+        );
+        assert_eq!(
+            edited.applied_model.expect("applied model")["components"][0]["modifiers"]
+                ["sif_user_value"],
+            json!({ "value": 1.3, "unit": "none" })
+        );
+
+        let authored = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "modifiers.flexibility_factor_user_value.value",
+                "TBD",
+                "1.08",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(
+            authored.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            authored.diagnostics
+        );
+        assert_eq!(
+            authored.applied_model.expect("applied model")["components"][0]["modifiers"]
+                ["flexibility_factor_user_value"],
+            json!({ "value": 1.08, "unit": "none" })
+        );
+    }
+
+    #[test]
+    fn mill_tolerance_accepts_explicit_zero_and_rejects_negative_entries() {
+        let model = sample_model();
+        let zero = apply_operation(
+            &model,
+            &modify_intent(
+                "Element",
+                "pipe:P-1",
+                "set_field",
+                "section.mill_tolerance.value",
+                "TBD",
+                "{\"value\":0,\"unit\":\"m\"}",
+                "m",
+                "length",
+            ),
+            None,
+        );
+        assert!(
+            zero.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            zero.diagnostics
+        );
+        assert_eq!(
+            zero.applied_model.expect("applied model")["pipe_segments"][0]["section"]
+                ["mill_tolerance"],
+            json!({ "value": 0.0, "unit": "m" })
+        );
+
+        let negative = apply_operation(
+            &model,
+            &modify_intent(
+                "Element",
+                "pipe:P-1",
+                "set_field",
+                "section.mill_tolerance.value",
+                "TBD",
+                "{\"value\":-0.0005,\"unit\":\"m\"}",
+                "m",
+                "length",
+            ),
+            None,
+        );
+        assert!(codes(&negative).contains(&"OP-VALUE-NEGATIVE"));
+        assert!(negative.applied_model.is_none());
+    }
+
+    #[test]
+    fn modulus_basis_ref_enforces_the_schema_id_shape() {
+        let model = sample_model();
+        let accepted = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "modulus_basis_ref",
+                "TBD",
+                "tpoint:200C",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(
+            accepted.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            accepted.diagnostics
+        );
+        assert_eq!(
+            accepted.applied_model.expect("applied model")["load_cases"][0]["modulus_basis_ref"],
+            json!("tpoint:200C")
+        );
+
+        let reserved = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "modulus_basis_ref",
+                "TBD",
+                "material_base_values",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(
+            reserved.diagnostics.is_empty(),
+            "the reserved material_base_values label must stay accepted: {:?}",
+            reserved.diagnostics
+        );
+
+        let malformed = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "modulus_basis_ref",
+                "TBD",
+                "9bad id",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(codes(&malformed).contains(&"OP-ID-PATTERN-INVALID"));
+        assert!(malformed.applied_model.is_none());
+    }
+
+    #[test]
+    fn equivalent_static_generation_inputs_author_nested_user_entered_slots() {
+        let model = sample_model();
+        let gravity = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "equivalent_static.seismic.gravity_acceleration.value",
+                "TBD",
+                "{\"value\":9.80665,\"unit\":\"m/s^2\"}",
+                "m/s^2",
+                "acceleration",
+            ),
+            None,
+        );
+        assert!(
+            gravity.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            gravity.diagnostics
+        );
+        assert_eq!(
+            gravity.applied_model.expect("applied model")["load_cases"][0]["equivalent_static"]
+                ["seismic"]["gravity_acceleration"],
+            json!({ "value": 9.80665, "unit": "m/s^2" })
+        );
+
+        // g-factors are finite user-entered scalars; sign is meaningful.
+        let g_factor = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "equivalent_static.seismic.g_factor_x.value",
+                "TBD",
+                "{\"value\":-0.3,\"unit\":\"none\"}",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(
+            g_factor.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            g_factor.diagnostics
+        );
+
+        let direction = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "equivalent_static.wind.direction",
+                "TBD",
+                "global_x",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(
+            direction.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            direction.diagnostics
+        );
+        assert_eq!(
+            direction.applied_model.expect("applied model")["load_cases"][0]["equivalent_static"]
+                ["wind"]["direction"],
+            json!("global_x")
+        );
+
+        let bad_direction = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "equivalent_static.wind.direction",
+                "TBD",
+                "north",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(codes(&bad_direction).contains(&"OP-ENUM-TOKEN-INVALID"));
+
+        let exposed = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "equivalent_static.wind.exposed_pipe_refs",
+                "TBD",
+                "pipe:P-1",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(
+            exposed.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            exposed.diagnostics
+        );
+        assert_eq!(
+            exposed.applied_model.expect("applied model")["load_cases"][0]["equivalent_static"]
+                ["wind"]["exposed_pipe_refs"],
+            json!(["pipe:P-1"])
+        );
+
+        let dangling_exposed = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "equivalent_static.wind.exposed_pipe_refs",
+                "TBD",
+                "pipe:P-1, pipe:P-404",
+                "none",
+                "dimensionless",
+            ),
+            None,
+        );
+        assert!(codes(&dangling_exposed).contains(&"OP-REFERENCE-NOT-FOUND"));
+
+        let non_positive_gravity = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "equivalent_static.seismic.gravity_acceleration.value",
+                "TBD",
+                "{\"value\":0,\"unit\":\"m/s^2\"}",
+                "m/s^2",
+                "acceleration",
+            ),
+            None,
+        );
+        assert!(codes(&non_positive_gravity).contains(&"OP-VALUE-NOT-POSITIVE"));
+    }
+
+    #[test]
+    fn optional_slot_authoring_is_deterministic_and_never_mutates_input() {
+        let model = sample_model();
+        let snapshot = model.clone();
+        let intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "update_load",
+            "equivalent_static.wind.pressure.value",
+            "TBD",
+            "{\"value\":450,\"unit\":\"Pa\"}",
+            "Pa",
+            "pressure",
+        );
+        let first_outcome = apply_operation(&model, &intent, None);
+        assert_eq!(
+            first_outcome.validation.application_status, "applied_to_session_model",
+            "determinism check must compare applied outcomes: {:?}",
+            first_outcome.diagnostics
+        );
+        assert_eq!(model, snapshot, "apply must not mutate the input model");
+        let first = serde_json::to_string(&first_outcome).unwrap();
+        let second = serde_json::to_string(&apply_operation(&model, &intent, None)).unwrap();
+        assert_eq!(first, second);
+    }
+
+    #[test]
+    fn center_of_gravity_stays_unsupported_pending_payload_ruling() {
+        let model = sample_model();
+        let outcome = apply_operation(
+            &model,
+            &modify_intent(
+                "Component",
+                "component:C-1",
+                "set_field",
+                "geometry.center_of_gravity",
+                "TBD",
+                "x=0.1, y=0.2, z=0.3 m",
+                "m",
+                "length",
+            ),
+            None,
+        );
+        assert!(codes(&outcome).contains(&"OP-FIELD-PATH-UNSUPPORTED"));
+        assert!(outcome.applied_model.is_none());
     }
 
     #[test]
