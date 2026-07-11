@@ -1,0 +1,71 @@
+name: Question
+description: Ask a question about using, building, or understanding OpenPipeStress.
+title: "[Question]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for questions about installing, running, building, or
+        understanding OpenPipeStress and its documentation.
+
+        **Contribution posture.** External code contributions are not
+        currently accepted. This tracker is for issue reports and questions
+        only; please do not attach patches or open pull requests. Questions
+        are read as maintainer capacity allows — no response time or support
+        level is promised.
+
+        **What this channel is not.** This tracker does not provide
+        engineering advice, design review, or code-compliance determinations.
+        OpenPipeStress performs piping flexibility and stress analysis using
+        open mechanical methods; it does not include ASME code text, ASME
+        tables, ASME material allowables, or proprietary code data.
+        Code-specific values and rules must be supplied and verified by the
+        responsible engineer. OpenPipeStress is not affiliated with, endorsed
+        by, certified by, or approved by ASME or any other standards body.
+
+        **Data boundary.** Do NOT include protected or proprietary standards
+        data (code text, tables, figures, examples, material allowables, SIF
+        tables, flexibility-factor tables) or private project data (real
+        project models, private libraries, private rule packs, proprietary
+        vendor data, client-identifying information) in your question,
+        screenshots, or attachments. Use invented example data and redact
+        private values. Content on this tracker is public.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: Ask your question, with enough context to understand what you are trying to do.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: What you have already tried or read (optional)
+      description: >-
+        Documentation pages consulted, commands run, or approaches attempted.
+        Redact private values first.
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit (optional)
+      description: The OpenPipeStress version or commit hash, if your question is about specific behavior.
+    validations:
+      required: false
+  - type: checkboxes
+    id: data-boundary
+    attributes:
+      label: Data-boundary confirmation
+      description: These confirmations are required before the question can be submitted.
+      options:
+        - label: >-
+            This question (including all text, screenshots, and attachments)
+            contains no protected or proprietary standards data and no private
+            project data. Any example data included is invented.
+          required: true
+        - label: >-
+            I understand this is not an engineering-advice or code-compliance
+            channel, that external code contributions are not currently
+            accepted, and that no response time or support level is promised.
+          required: true
