@@ -718,6 +718,10 @@ struct CurvedBendMacroBuild {
     bend_radius: f64,
     flexibility_factor: f64,
     source_reference: String,
+    /// The validated macro-element itself, kept for the arc-consistent
+    /// distributed-load and interior-station closed forms so every consumer
+    /// shares the build-time-validated geometry.
+    macro_element: CurvedBendMacroElement,
 }
 
 #[derive(Debug, Clone)]
@@ -1087,6 +1091,10 @@ fn solve_load_case(
         .iter()
         .map(|element| (element.pipe_index, element))
         .collect::<HashMap<_, _>>();
+    let curved_bend_uniform_intensity = curved_bend_uniform_intensity_by_pipe(
+        &load_application.element_uniform_loads,
+        &curved_bends_by_pipe,
+    );
     let mut force = load_application.global_load_vector(built.nodes.len());
     add_uniform_element_loads(
         &mut force,
@@ -1230,9 +1238,14 @@ fn solve_load_case(
     let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
         let macro_bend = curved_bends_by_pipe.get(&pipe_index).copied();
+        let uniform_intensity = curved_bend_uniform_intensity
+            .get(&pipe_index)
+            .copied()
+            .unwrap_or([0.0; 3]);
         let corrected_local_forces = if let Some(bend) = macro_bend {
             // Macro-span end forces come from the assembled arc stiffness
-            // (K_macro * d minus the exact free-expansion thermal part),
+            // (K_macro * d minus the exact free-expansion thermal part and
+            // minus the arc-consistent distributed equivalent loads),
             // expressed in the chord frame so the existing result-envelope
             // rows keep their coordinate convention.
             match recover_curved_bend_local_forces(
@@ -1241,6 +1254,7 @@ fn solve_load_case(
                 &displacements,
                 &thermal_loads,
                 &pressure_thrust_loads,
+                uniform_intensity,
             ) {
                 Ok(local_forces) => local_forces,
                 Err(message) => {
@@ -1276,30 +1290,57 @@ fn solve_load_case(
             )
         };
         append_element_force_results(&mut results, &pipe.element_id, &corrected_local_forces);
-        // Arc interior stations are a recorded residual: the endpoint-linear
-        // interpolation below is only meaningful for straight spans.
+        // Interior stations: straight spans keep the endpoint-linear
+        // interpolation; curved-bend macro spans evaluate true section
+        // resultants along the arc by segment equilibrium from the recovered
+        // assembled end forces (closed form in the curved-bend crate).
         let station_resultants = if let Some(bend) = macro_bend {
-            diagnostics.push(diag(
-                &format!(
-                    "diagnostic:curved-bend:{}:{}:interior-stations",
-                    stable_suffix(&load_case.id),
-                    stable_suffix(&pipe.element_id)
-                ),
-                "CURVED_BEND_INTERIOR_STATIONS_NOT_EVALUATED",
-                "info",
-                format!(
-                    "curved-bend span {} reports end forces from the assembled macro-element stiffness only; arc interior station resultants and stresses are a recorded residual and no straight-line interpolation is emitted",
-                    pipe.element_id
-                ),
-                vec![
-                    pipe.element_id.clone(),
-                    bend.component_id.clone(),
-                    load_case.id.clone(),
-                ],
-            ));
-            Vec::new()
+            match curved_bend_station_resultants(
+                bend,
+                pipe,
+                &corrected_local_forces,
+                uniform_intensity,
+            ) {
+                Ok(stations) => stations.to_vec(),
+                Err(message) => {
+                    diagnostics.push(diag(
+                        &format!(
+                            "diagnostic:curved-bend:{}:{}:interior-stations",
+                            stable_suffix(&load_case.id),
+                            stable_suffix(&pipe.element_id)
+                        ),
+                        "ELEMENT_FORCE_RECOVERY_FAILED",
+                        "warning",
+                        format!(
+                            "curved-bend span {} could not evaluate arc interior station resultants: {message}",
+                            pipe.element_id
+                        ),
+                        vec![
+                            pipe.element_id.clone(),
+                            bend.component_id.clone(),
+                            load_case.id.clone(),
+                        ],
+                    ));
+                    Vec::new()
+                }
+            }
         } else {
             station_grid_resultants_from_endpoints(&corrected_local_forces).to_vec()
+        };
+        let (station_basis, station_sign_convention, station_coordinate_system) = if macro_bend
+            .is_some()
+        {
+            (
+                    CURVED_BEND_STATION_BASIS,
+                    "positive value follows the j-side arc segment action on the section in the arc section frame (x tangent toward end j, z bend-plane normal, y toward the arc center)",
+                    "arc_section_frame",
+                )
+        } else {
+            (
+                "interpolated_from_endpoint_resultants",
+                "positive value is linearly interpolated from endpoint element-local resultants",
+                "element_local",
+            )
         };
         for station in &station_resultants {
             append_station_force_results(
@@ -1307,6 +1348,9 @@ fn solve_load_case(
                 &pipe.element_id,
                 station.location,
                 &station.resultants,
+                station_basis,
+                station_sign_convention,
+                station_coordinate_system,
             );
         }
         let section = built
@@ -1392,7 +1436,7 @@ fn solve_load_case(
                 &stress.components,
                 pressure.is_some(),
                 include_pressure_longitudinal,
-                "interpolated_from_endpoint_resultants",
+                station_basis,
             );
         }
         let mut summary_values = [
@@ -3491,6 +3535,7 @@ fn build_curved_bend_macro_elements(
                 .filter(|value| !value.trim().is_empty())
                 .unwrap_or("source_reference_missing")
                 .to_string(),
+            macro_element: element,
         });
     }
 
@@ -5179,38 +5224,58 @@ fn add_uniform_element_loads(
         ) {
             continue;
         }
-        // Curved-bend macro spans lump the arc's tributary intensity 50/50 to
-        // the two end nodes over the arc length; the arc macro-element has no
-        // distributed-load machinery, so the missing consistent end moments
-        // are a documented approximation recorded as an explicit residual.
-        let length = if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
-            diagnostics.push(diag(
-                &format!(
-                    "diagnostic:curved-bend:{}:{}:distributed-load",
-                    stable_suffix(load_case_id),
-                    stable_suffix(&load.load_id)
-                ),
-                "CURVED_BEND_DISTRIBUTED_LOAD_LUMPED",
-                "info",
-                format!(
-                    "uniform load {} on curved-bend span {} is lumped 50/50 to the two end nodes over the arc tributary length {} m; consistent distributed-load end moments for the arc are a recorded residual, not a silent consistency claim",
-                    load.load_id,
-                    bend.pipe_id,
-                    rounded_scalar(bend.arc_length)
-                ),
-                vec![
-                    load.load_id.clone(),
-                    bend.pipe_id.clone(),
-                    bend.component_id.clone(),
-                    load_case_id.to_string(),
-                ],
-            ));
-            bend.arc_length
-        } else {
-            let Ok(length) = pipes[load.element_index].length() else {
-                continue;
+        // Curved-bend macro spans consume arc-consistent equivalent nodal
+        // loads: fixed-end forces and moments from exact closed-form
+        // integration of the uniform intensity along the arc, consistent with
+        // the assembled macro-element stiffness. Element uniform loads are
+        // validated translational upstream, so the intensity is a global
+        // force per unit arc length along one global axis.
+        if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
+            let dof = load.direction.dof_index();
+            let equivalent = if dof < 3 {
+                let mut intensity = [0.0; 3];
+                intensity[dof] = load.magnitude.value;
+                bend.macro_element
+                    .consistent_uniform_nodal_loads(intensity)
+                    .map_err(|error| error.to_string())
+            } else {
+                Err("uniform element loads on curved-bend macro spans require a translational direction".to_string())
             };
-            length
+            match equivalent {
+                Ok(equivalent) => {
+                    let dof_map = element_dof_map(bend.node_i, bend.node_j);
+                    for (local_dof, &global_dof) in dof_map.iter().enumerate() {
+                        force[global_dof] += equivalent[local_dof];
+                    }
+                }
+                Err(message) => {
+                    // No silent drop or lumped fallback: an inapplicable
+                    // uniform load on a realized arc blocks the solve.
+                    diagnostics.push(diag(
+                        &format!(
+                            "diagnostic:curved-bend:{}:{}:distributed-load",
+                            stable_suffix(load_case_id),
+                            stable_suffix(&load.load_id)
+                        ),
+                        "LOAD_INPUT_INVALID",
+                        "blocking",
+                        format!(
+                            "uniform load {} on curved-bend span {} could not be converted to arc-consistent equivalent nodal loads: {message}",
+                            load.load_id, bend.pipe_id
+                        ),
+                        vec![
+                            load.load_id.clone(),
+                            bend.pipe_id.clone(),
+                            bend.component_id.clone(),
+                            load_case_id.to_string(),
+                        ],
+                    ));
+                }
+            }
+            continue;
+        }
+        let Ok(length) = pipes[load.element_index].length() else {
+            continue;
         };
         let pipe = &model.pipe_segments[load.element_index];
         let Some(i) = node_index(model, &pipe.from) else {
@@ -5485,19 +5550,22 @@ fn corrected_local_forces_for_axial_effects(
     corrected
 }
 
-// Macro-span recovery: end forces are K_macro * (d - u_free) in global
-// coordinates — the exact free-expansion correction mirrors
+// Macro-span recovery: end forces are K_macro * (d - u_free) minus the
+// arc-consistent distributed equivalent loads, in global coordinates — the
+// exact free-expansion correction mirrors
 // `corrected_local_forces_for_axial_effects` so recovered forces exclude the
-// self-equilibrated thermal part — then rotated to the chord frame of the
-// replaced straight span so the existing result rows keep their convention.
-// Pressure thrust keeps the straight-element equal/opposite chord-axial
-// correction.
+// self-equilibrated thermal part, and the equivalent-load subtraction turns
+// the nodal solve response into the true node-on-element end forces of the
+// continuously loaded arc — then rotated to the chord frame of the replaced
+// straight span so the existing result rows keep their convention. Pressure
+// thrust keeps the straight-element equal/opposite chord-axial correction.
 fn recover_curved_bend_local_forces(
     bend: &CurvedBendMacroBuild,
     pipe: &StraightPipeElement,
     displacements: &[f64],
     thermal_loads: &[ThermalElementLoad],
     pressure_loads: &[PressureThrustLoad],
+    uniform_intensity: [f64; 3],
 ) -> Result<Vec<f64>, String> {
     let required = (bend.node_i.max(bend.node_j) + 1) * DOF_PER_NODE;
     if displacements.len() < required {
@@ -5532,6 +5600,15 @@ fn recover_curved_bend_local_forces(
             *force += bend.global_stiffness[row][col] * displacement;
         }
     }
+    if uniform_intensity != [0.0; 3] {
+        let equivalent = bend
+            .macro_element
+            .consistent_uniform_nodal_loads(uniform_intensity)
+            .map_err(|error| error.to_string())?;
+        for (force, load) in global_forces.iter_mut().zip(equivalent.iter()) {
+            *force -= load;
+        }
+    }
 
     let frame_element = pipe.frame_element().map_err(|error| error.to_string())?;
     let orientation = frame_element
@@ -5551,6 +5628,106 @@ fn recover_curved_bend_local_forces(
         local_forces[DOF_PER_NODE + UX] -= pressure_axial_load;
     }
     Ok(local_forces)
+}
+
+// Result-metadata basis for curved-bend interior stations: true section
+// resultants from segment equilibrium of the arc between the station and the
+// recovered assembled end force at node j (closed form in the curved-bend
+// crate), not an endpoint interpolation.
+const CURVED_BEND_STATION_BASIS: &str = "arc_section_equilibrium_from_assembled_end_forces";
+
+// Summed global uniform intensity (force per unit arc length) per realized
+// curved-bend span. The consistent equivalent loads are linear in the
+// intensity, so the sum carries every uniform load on the span; pressure and
+// temperature-change dimensioned loads follow their own dedicated paths.
+fn curved_bend_uniform_intensity_by_pipe(
+    loads: &[open_pipe_stress_primitive_loads::ElementUniformLoadContribution],
+    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
+) -> HashMap<usize, [f64; 3]> {
+    let mut intensity_by_pipe: HashMap<usize, [f64; 3]> = HashMap::new();
+    for load in loads {
+        if matches!(
+            load.magnitude.dimension,
+            LoadDimension::Pressure | LoadDimension::TemperatureChange
+        ) {
+            continue;
+        }
+        if !curved_bends_by_pipe.contains_key(&load.element_index) {
+            continue;
+        }
+        let dof = load.direction.dof_index();
+        if dof >= 3 {
+            continue;
+        }
+        intensity_by_pipe
+            .entry(load.element_index)
+            .or_insert([0.0; 3])[dof] += load.magnitude.value;
+    }
+    intensity_by_pipe
+}
+
+// Arc interior stations from the assembled macro-element: rotate the
+// recovered chord-frame end-j force back to global and evaluate section
+// resultants along the arc by segment equilibrium (closed form in the
+// curved-bend crate). The recovered end forces already exclude the
+// self-equilibrated thermal free-expansion part and carry the recorded
+// chord-axial pressure-thrust treatment, so the stations inherit both
+// recovery decisions; the station grid mirrors the straight-span fractions.
+fn curved_bend_station_resultants(
+    bend: &CurvedBendMacroBuild,
+    pipe: &StraightPipeElement,
+    corrected_local_forces: &[f64],
+    uniform_intensity: [f64; 3],
+) -> Result<[StationResultants; 3], String> {
+    if corrected_local_forces.len() < ELEMENT_DOF {
+        return Err(format!(
+            "curved-bend station evaluation requires {} recovered end-force entries, got {}",
+            ELEMENT_DOF,
+            corrected_local_forces.len()
+        ));
+    }
+    let frame_element = pipe.frame_element().map_err(|error| error.to_string())?;
+    let orientation = frame_element
+        .orientation()
+        .map_err(|error| error.to_string())?;
+    let axes = orientation.local_axes;
+    // Chord-frame end-j force back to global: transpose of the chord rotation
+    // applied to the force and moment blocks.
+    let mut node_j_force = [0.0; DOF_PER_NODE];
+    for block in 0..2 {
+        for component in 0..3 {
+            let mut value = 0.0;
+            for (axis, axis_row) in axes.iter().enumerate() {
+                value +=
+                    axis_row[component] * corrected_local_forces[DOF_PER_NODE + 3 * block + axis];
+            }
+            node_j_force[3 * block + component] = value;
+        }
+    }
+    let locations: [(&'static str, f64); 3] =
+        [("quarter_1", 0.25), ("midspan", 0.5), ("quarter_3", 0.75)];
+    let mut stations = [
+        StationResultants {
+            location: "quarter_1",
+            resultants: [0.0; 6],
+        },
+        StationResultants {
+            location: "midspan",
+            resultants: [0.0; 6],
+        },
+        StationResultants {
+            location: "quarter_3",
+            resultants: [0.0; 6],
+        },
+    ];
+    for (station, (location, fraction)) in stations.iter_mut().zip(locations.into_iter()) {
+        station.location = location;
+        station.resultants = bend
+            .macro_element
+            .arc_section_resultants(fraction, node_j_force, uniform_intensity)
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(stations)
 }
 
 fn pressure_thrust_for_pipe(element_index: usize, pressure_loads: &[PressureThrustLoad]) -> f64 {
@@ -5862,6 +6039,9 @@ fn append_station_force_results(
     pipe_id: &str,
     location: &str,
     resultants: &[f64; 6],
+    basis: &str,
+    sign_convention: &str,
+    coordinate_system: &str,
 ) {
     let suffix = stable_suffix(pipe_id);
     let station = station_id_location(location);
@@ -5919,7 +6099,9 @@ fn append_station_force_results(
             value,
             unit,
             location,
-            "positive value is linearly interpolated from endpoint element-local resultants",
+            basis,
+            sign_convention,
+            coordinate_system,
         );
     }
 }
@@ -5953,6 +6135,7 @@ fn append_endpoint_force_result(
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 fn append_station_force_result(
     results: &mut Vec<ResultItem>,
     pipe_id: &str,
@@ -5962,7 +6145,9 @@ fn append_station_force_result(
     value: f64,
     unit: &str,
     location: &str,
+    basis: &str,
     sign_convention: &str,
+    coordinate_system: &str,
 ) {
     results.push(ResultItem {
         id: id.to_string(),
@@ -5974,9 +6159,9 @@ fn append_station_force_result(
         source_result_refs: Vec::new(),
         metadata: Some(ResultMetadata {
             component: component.to_string(),
-            coordinate_system: "element_local".to_string(),
+            coordinate_system: coordinate_system.to_string(),
             location: location.to_string(),
-            basis: "interpolated_from_endpoint_resultants".to_string(),
+            basis: basis.to_string(),
             sign_convention: sign_convention.to_string(),
         }),
     });
@@ -6456,7 +6641,7 @@ fn append_curved_bend_macro_element_results(
                 coordinate_system: "component_local_preview".to_string(),
                 location: element.pipe_id.clone(),
                 basis: format!(
-                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_tributary_end_lumped;pressure_thrust_treatment=straight_chord_axial_end_forces;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=recorded_residual",
+                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=straight_chord_axial_end_forces;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
                     rounded_scalar(element.flexibility_factor),
                     rounded_scalar(element.bend_radius),
                     rounded_scalar(element.included_angle),
@@ -11361,9 +11546,8 @@ mod tests {
     }
 
     // Independent oracle: the same invented arc built directly on the
-    // curved-bend crate, anchored at node i, loaded at node j, and solved with
-    // the frame-kernel reduction (no product-physics assembly involved).
-    fn curved_bend_direct_tip_displacements(loaded_dof: usize, magnitude: f64) -> [f64; 6] {
+    // curved-bend crate (no product-physics assembly involved).
+    fn curved_bend_direct_element() -> CurvedBendMacroElement {
         let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
         let node_j = FrameNode::new(1, [CURVED_BEND_TEST_CHORD_M, 0.0, 0.0]).unwrap();
         let half_chord = 0.5 * CURVED_BEND_TEST_CHORD_M;
@@ -11377,7 +11561,7 @@ mod tests {
         let inner = od - 2.0 * thickness;
         let area = PI * (od.powi(2) - inner.powi(2)) / 4.0;
         let second_moment = PI * (od.powi(4) - inner.powi(4)) / 64.0;
-        let element = CurvedBendMacroElement::new(
+        CurvedBendMacroElement::new(
             node_i,
             node_j,
             center,
@@ -11389,17 +11573,47 @@ mod tests {
             CURVED_BEND_TEST_FLEXIBILITY,
             CURVED_BEND_TEST_FLEXIBILITY,
         )
-        .unwrap();
+        .unwrap()
+    }
+
+    // Anchored-at-i solve of the direct arc under a 12-slot global load
+    // vector, returning full element displacements.
+    fn curved_bend_direct_solution(force: &[f64; ELEMENT_DOF]) -> [f64; ELEMENT_DOF] {
+        let element = curved_bend_direct_element();
         let stiffness = element.global_stiffness().unwrap();
         let dense: Vec<Vec<f64>> = stiffness.iter().map(|row| row.to_vec()).collect();
-        let mut force = vec![0.0; ELEMENT_DOF];
-        force[DOF_PER_NODE + loaded_dof] = magnitude;
         let restrained: Vec<usize> = (0..DOF_PER_NODE).collect();
-        let reduced = reduce_system(&dense, &force, &restrained).unwrap();
+        let reduced = reduce_system(&dense, force.as_slice(), &restrained).unwrap();
         let solution = solve_dense(&reduced.stiffness, &reduced.force).unwrap();
+        let mut displacements = [0.0; ELEMENT_DOF];
+        displacements[DOF_PER_NODE..].copy_from_slice(&solution);
+        displacements
+    }
+
+    fn curved_bend_direct_tip_displacements(loaded_dof: usize, magnitude: f64) -> [f64; 6] {
+        let mut force = [0.0; ELEMENT_DOF];
+        force[DOF_PER_NODE + loaded_dof] = magnitude;
+        let displacements = curved_bend_direct_solution(&force);
         let mut tip = [0.0; DOF_PER_NODE];
-        tip.copy_from_slice(&solution);
+        tip.copy_from_slice(&displacements[DOF_PER_NODE..]);
         tip
+    }
+
+    fn curved_bend_uniform_weight_load() -> PreviewPrimitiveLoad {
+        PreviewPrimitiveLoad {
+            id: "load:L-100-W".to_string(),
+            category: "weight".to_string(),
+            target: LoadTargetInput::Element {
+                pipe: "pipe:P-100".to_string(),
+            },
+            direction: "global_z".to_string(),
+            magnitude: Quantity {
+                value: -190.0,
+                unit: "N/m".to_string(),
+            },
+            dimension: "force_per_length".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }
     }
 
     #[test]
@@ -11443,11 +11657,19 @@ mod tests {
 
     #[test]
     fn curved_bend_macro_element_keeps_dense_sparse_parity() {
-        let sparse = run_linear_static_preview(curved_bend_span_request());
-        let dense = run_linear_static_preview_with_mode(
-            curved_bend_span_request(),
-            PreviewSolverMode::DenseScrutiny,
-        );
+        // The tip force plus the uniform arc weight exercise both the
+        // assembled arc stiffness and the arc-consistent distributed-load
+        // vector on the two solve lanes.
+        let loaded_request = || {
+            let mut loaded = curved_bend_span_request();
+            loaded.model.load_cases[0]
+                .primitive_loads
+                .push(curved_bend_uniform_weight_load());
+            loaded
+        };
+        let sparse = run_linear_static_preview(loaded_request());
+        let dense =
+            run_linear_static_preview_with_mode(loaded_request(), PreviewSolverMode::DenseScrutiny);
 
         assert_eq!(sparse.status.mechanics, "MECHANICS_SOLVED");
         assert_eq!(dense.status.mechanics, "MECHANICS_SOLVED");
@@ -11457,10 +11679,13 @@ mod tests {
             .find(|item| item.id == "result:sparse-live:dense-parity-relative-delta")
             .expect("dense scrutiny keeps the sparse parity row with a curved bend assembled");
         assert!(parity.value <= 1.0e-9);
-        assert_eq!(
-            result_value(&sparse, "result:disp:node-N-110:uy"),
-            result_value(&dense, "result:disp:node-N-110:uy"),
-        );
+        for row in [
+            "result:disp:node-N-110:uy",
+            "result:disp:node-N-110:uz",
+            "result:force:pipe-P-100:midspan:shear-z",
+        ] {
+            assert_eq!(result_value(&sparse, row), result_value(&dense, row));
+        }
     }
 
     #[test]
@@ -11496,13 +11721,13 @@ mod tests {
             .contains("thermal_load_treatment=exact_free_expansion_identity"));
         assert!(metadata
             .basis
-            .contains("distributed_load_treatment=arc_tributary_end_lumped"));
+            .contains("distributed_load_treatment=arc_consistent_fixed_end_integration"));
         assert!(metadata
             .basis
             .contains("pressure_thrust_treatment=straight_chord_axial_end_forces"));
         assert!(metadata
             .basis
-            .contains("interior_stations=recorded_residual"));
+            .contains("interior_stations=arc_section_equilibrium_stations"));
         assert!(metadata
             .sign_convention
             .contains("consumed by the assembled curved-bend macro-element stiffness"));
@@ -11562,21 +11787,98 @@ mod tests {
     }
 
     #[test]
-    fn curved_bend_macro_element_skips_interior_stations_with_recorded_residual() {
-        let result = run_linear_static_preview(curved_bend_span_request());
+    fn curved_bend_macro_element_emits_arc_interior_station_results() {
+        let mut arc_request = curved_bend_span_request();
+        arc_request.model.load_cases[0]
+            .primitive_loads
+            .push(curved_bend_uniform_weight_load());
+        let result = run_linear_static_preview(arc_request);
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        // The interior-station residual is retired: no station suppression
+        // diagnostic fires and all three station grids are emitted.
+        assert!(result
+            .diagnostics
+            .iter()
+            .all(|item| !item.id.contains(":interior-stations")));
         let result_ids = result
             .results
             .iter()
             .map(|item| item.id.as_str())
             .collect::<HashSet<_>>();
+        for station in ["quarter-1", "midspan", "quarter-3"] {
+            for tail in ["axial", "shear-y", "shear-z"] {
+                assert!(
+                    result_ids
+                        .contains(format!("result:force:pipe-P-100:{station}:{tail}").as_str()),
+                    "missing arc station force row {station}:{tail}"
+                );
+            }
+            for tail in ["torsion", "bending-y", "bending-z"] {
+                assert!(
+                    result_ids
+                        .contains(format!("result:moment:pipe-P-100:{station}:{tail}").as_str()),
+                    "missing arc station moment row {station}:{tail}"
+                );
+            }
+            assert!(
+                result_ids
+                    .contains(format!("result:stress:pipe-P-100:{station}:axial-normal").as_str()),
+                "missing arc station stress row {station}"
+            );
+        }
 
-        assert!(result_ids.contains("result:force:pipe-P-100:axial"));
-        assert!(result_ids.contains("result:force:pipe-P-100:axial:end-j"));
-        assert!(!result_ids.contains("result:force:pipe-P-100:midspan:axial"));
-        assert!(!result_ids.contains("result:force:pipe-P-100:quarter-1:shear-y"));
-        assert!(result.diagnostics.iter().any(|item| item.code
-            == "CURVED_BEND_INTERIOR_STATIONS_NOT_EVALUATED"
-            && item.severity == "info"));
+        // Independent oracle: the free loaded tip carries exactly the applied
+        // nodal force, so the midspan section resultants follow from segment
+        // equilibrium on the direct arc.
+        let element = curved_bend_direct_element();
+        let intensity = [0.0, 0.0, -190.0];
+        let node_j_force = [0.0, 1000.0, 0.0, 0.0, 0.0, 0.0];
+        let expected = element
+            .arc_section_resultants(0.5, node_j_force, intensity)
+            .unwrap();
+        let midspan_rows = [
+            ("result:force:pipe-P-100:midspan:axial", 0),
+            ("result:force:pipe-P-100:midspan:shear-y", 1),
+            ("result:force:pipe-P-100:midspan:shear-z", 2),
+            ("result:moment:pipe-P-100:midspan:torsion", 3),
+            ("result:moment:pipe-P-100:midspan:bending-y", 4),
+            ("result:moment:pipe-P-100:midspan:bending-z", 5),
+        ];
+        for (row_id, slot) in midspan_rows {
+            let value = result_value(&result, row_id);
+            assert!(
+                (value - round6(expected[slot])).abs() <= 1.0e-3,
+                "midspan station row {row_id} value {value} must match the direct arc segment equilibrium {}",
+                expected[slot]
+            );
+        }
+        let station_row = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:force:pipe-P-100:midspan:shear-z")
+            .expect("midspan station row present");
+        let metadata = station_row.metadata.as_ref().unwrap();
+        assert_eq!(
+            metadata.basis,
+            "arc_section_equilibrium_from_assembled_end_forces"
+        );
+        assert_eq!(metadata.coordinate_system, "arc_section_frame");
+        assert!(metadata.sign_convention.contains("arc section frame"));
+        // Straight spans keep the endpoint-interpolation basis untouched.
+        let straight = run_linear_static_preview(request());
+        let straight_row = straight
+            .results
+            .iter()
+            .find(|item| {
+                item.id.contains(":midspan:") && item.kind == "element_local_shear_force_y"
+            })
+            .expect("straight midspan station row present");
+        let straight_metadata = straight_row.metadata.as_ref().unwrap();
+        assert_eq!(
+            straight_metadata.basis,
+            "interpolated_from_endpoint_resultants"
+        );
+        assert_eq!(straight_metadata.coordinate_system, "element_local");
     }
 
     #[test]
@@ -11654,44 +11956,72 @@ mod tests {
     }
 
     #[test]
-    fn curved_bend_macro_element_lumps_uniform_weight_over_arc_length() {
+    fn curved_bend_macro_element_consumes_arc_consistent_uniform_weight() {
         let mut request = curved_bend_span_request();
-        request.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
-            id: "load:L-100-W".to_string(),
-            category: "weight".to_string(),
-            target: LoadTargetInput::Element {
-                pipe: "pipe:P-100".to_string(),
-            },
-            direction: "global_z".to_string(),
-            magnitude: Quantity {
-                value: -190.0,
-                unit: "N/m".to_string(),
-            },
-            dimension: "force_per_length".to_string(),
-            provenance: Some("invented_example_user_input".to_string()),
-        }];
+        request.model.load_cases[0].primitive_loads = vec![curved_bend_uniform_weight_load()];
         let result = run_linear_static_preview(request);
 
         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
-        let lumped = result
+        // The lumping disclosure is retired with the consistent path: no
+        // curved-bend distributed-load diagnostic fires on a valid load.
+        assert!(result
             .diagnostics
             .iter()
-            .find(|item| item.code == "CURVED_BEND_DISTRIBUTED_LOAD_LUMPED")
-            .expect("arc tributary weight lumping is a documented approximation");
-        assert_eq!(lumped.severity, "info");
+            .all(|item| !item.id.contains(":distributed-load")));
+
+        // Independent oracle: consistent equivalent loads on the direct arc,
+        // anchored solve, true end forces K d - p. The chord frame coincides
+        // with global axes in this fixture.
+        let element = curved_bend_direct_element();
+        let intensity = [0.0, 0.0, -190.0];
+        let equivalent = element.consistent_uniform_nodal_loads(intensity).unwrap();
+        let displacements = curved_bend_direct_solution(&equivalent);
+        let stiffness = element.global_stiffness().unwrap();
+        let mut expected_forces = [0.0; ELEMENT_DOF];
+        for row in 0..ELEMENT_DOF {
+            for col in 0..ELEMENT_DOF {
+                expected_forces[row] += stiffness[row][col] * displacements[col];
+            }
+            expected_forces[row] -= equivalent[row];
+        }
+
+        // The anchored-end member force carries the full distributed
+        // resultant (the tributary end-lumping carried only half) plus the
+        // consistent fixed-end moments; the free tip carries no end force.
         let arc_length = CURVED_BEND_TEST_RADIUS_M * PI / 2.0;
-        assert!(lumped
-            .message
-            .contains(&rounded_scalar(arc_length).to_string()));
-        assert!(lumped.message.contains("recorded residual"));
-        // The recovered end-i chord-frame shear carries the full lumped tip
-        // share w * arc_length / 2 (the anchor-node share passes directly
-        // into the reaction).
-        let tip_share = 190.0 * arc_length / 2.0;
+        let total_load = 190.0 * arc_length;
+        let rows = [
+            ("result:force:pipe-P-100:axial", UX),
+            ("result:force:pipe-P-100:shear-y", UY),
+            ("result:force:pipe-P-100:shear-z", UZ),
+            ("result:moment:pipe-P-100:torsion", RX),
+            ("result:moment:pipe-P-100:bending-y", RY),
+            ("result:moment:pipe-P-100:bending-z", RZ),
+        ];
+        for (row_id, dof) in rows {
+            let end_i = result_value(&result, row_id);
+            assert!(
+                (end_i - round6(expected_forces[dof])).abs() <= 1.0e-3,
+                "end-i row {row_id} value {end_i} must match the direct oracle {}",
+                expected_forces[dof]
+            );
+            let end_j = result_value(&result, &format!("{row_id}:end-j"));
+            assert!(
+                end_j.abs() <= 1.0e-3,
+                "free tip must carry no end force for {row_id}, got {end_j}"
+            );
+        }
         let shear_z_end_i = result_value(&result, "result:force:pipe-P-100:shear-z");
         assert!(
-            (shear_z_end_i.abs() - tip_share).abs() <= 1.0e-3 * tip_share,
-            "end-i shear {shear_z_end_i} must carry the arc tributary tip share {tip_share}"
+            (shear_z_end_i - total_load).abs() <= 1.0e-3 * total_load,
+            "end-i shear {shear_z_end_i} must carry the full distributed resultant {total_load}"
+        );
+
+        // The solved tip displacement matches the direct consistent-load solve.
+        let uz_mm = result_value(&result, "result:disp:node-N-110:uz");
+        assert!(
+            (uz_mm - round6(displacements[DOF_PER_NODE + UZ] * 1000.0)).abs() <= 1.0e-6,
+            "tip displacement {uz_mm} mm must match the direct consistent-load solve"
         );
     }
 
@@ -11887,9 +12217,5 @@ mod tests {
             metadata.sign_convention,
             "positive value is base open-mechanics stress summary multiplied by user-entered component modifiers; base frame stiffness unchanged"
         );
-        assert!(result
-            .diagnostics
-            .iter()
-            .all(|item| item.code != "CURVED_BEND_INTERIOR_STATIONS_NOT_EVALUATED"));
     }
 }

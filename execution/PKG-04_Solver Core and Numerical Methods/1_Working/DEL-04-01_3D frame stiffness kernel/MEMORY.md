@@ -375,3 +375,37 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, code-compliance claim, protected
   standards content, public defaults, or private data was introduced.
+
+## 2026-07-10 - TP-PMM-P1-CURVEDBEND-004 arc-consistent loads and interior stations
+
+- `core/solver/curved_bend` now forms consistent equivalent nodal loads for a
+  uniform distributed intensity on the arc (`consistent_uniform_nodal_loads`:
+  exact closed-form unit-load integration over the extended
+  `{1, cos, sin, theta, theta cos, theta sin}` basis, force-method redundants
+  against the element's own end flexibility, rigid-equilibrium node-i share)
+  and true section resultants at any arc fraction
+  (`arc_section_resultants`: segment equilibrium in the arc section frame,
+  x tangent toward node j, z bend-plane normal, y toward the arc center).
+- `core/product_physics` consumes both: uniform element loads on realized
+  bend spans assemble the consistent fixed-end vector (the 50/50 arc
+  tributary lumping and its `CURVED_BEND_DISTRIBUTED_LOAD_LUMPED` disclosure
+  are retired); recovery subtracts the equivalent loads so end forces are the
+  true member forces of the continuously loaded arc; interior stations at the
+  straight-span fractions are emitted from arc segment equilibrium with basis
+  `arc_section_equilibrium_from_assembled_end_forces` (the
+  `CURVED_BEND_INTERIOR_STATIONS_NOT_EVALUATED` residual is retired). The
+  review-row basis now records
+  `distributed_load_treatment=arc_consistent_fixed_end_integration` and
+  `interior_stations=arc_section_equilibrium_stations`.
+- Witness `MECH-CURVED-BEND-DISTRIBUTED-FIXED-END`
+  (`validation/hand_calcs/mechanics/curved_bend_distributed_load_fixed_end.md`)
+  plus a benchmark fixture in `validation/benchmarks/mechanics` compare
+  fixed-end reactions, free-tip deflections, and interior-station resultants
+  for k in {1, 2}, in-plane and out-of-plane, at the DEC-026 analytic-class
+  1.0e-9 relative tier (measured normalized deviation 3.6e-10, limited by the
+  10-significant-figure witness transcription).
+- Pressure thrust keeps the recorded straight-chord axial treatment on macro
+  spans (stations inherit it); D-38 temperature semantics untouched.
+- No lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards content, public defaults, or private data was introduced.
