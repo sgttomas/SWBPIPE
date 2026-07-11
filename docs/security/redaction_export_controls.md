@@ -112,6 +112,34 @@ secret-material flags, cloud or network references, direct SQL or raw SQLite
 access, and storage-bypass metadata. Concrete path indicators are reduced to a
 redacted representation so concrete user paths are not emitted.
 
+## Application Binding
+
+The desktop technical preview binds this contract into the export workflow
+(TP-E4-REDACTION-001):
+
+- `apps/desktop/src/features/redaction-controls/redactionExportControls.ts` is
+  a TypeScript mirror of `core/security/redaction/controls.py`. Semantic
+  parity between the two implementations is pinned by the shared invented
+  corpus `fixtures/redaction_export_controls/cases.json`, which both
+  `tests/security/test_redaction_export_controls.py` and
+  `apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts`
+  assert against; the corpus exercises every governed reason code.
+- `apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx`
+  is the user-facing surface: the export context starts at `local_private`
+  (private-by-default), every warning and blocking finding is rendered before
+  any export artifact is offered, no download link exists while a blocking
+  finding is present, private values are retained locally only after the user
+  records explicit local-private intent, and the offered redacted manifest
+  carries a canonical sha256 checksum computed through the same wasm hash seam
+  the engines use.
+
+The application binding classifies a metadata-only export representation of
+the user-entered model; it never mutates the source model and never transmits
+anything. Its warnings inform the local export decision only — they do not
+certify redaction sufficiency and do not create a release, legal-clearance,
+professional, certification, sealing, authentication, approval, or
+code-compliance claim.
+
 ## Source Data
 
 The implementation copies the export/report representation before applying

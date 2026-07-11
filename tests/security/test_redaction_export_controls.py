@@ -19,6 +19,7 @@ from core.security.redaction import (  # noqa: E402
 
 SCHEMA_PATH = ROOT / "schemas" / "redaction_export_controls.schema.yaml"
 DOC_PATH = ROOT / "docs" / "security" / "redaction_export_controls.md"
+PARITY_FIXTURE_PATH = ROOT / "fixtures" / "redaction_export_controls" / "cases.json"
 MEMORY_PATH = (
     ROOT
     / "execution"
@@ -435,6 +436,59 @@ def test_missing_metadata_does_not_silently_export_value_bearing_record():
     assert "MISSING_METADATA_REDACTED" in finding_codes(result)
 
 
+def test_shared_parity_fixture_matches_core_decisions():
+    """The shared fixture pins the core contract for the app-side TS mirror.
+
+    `fixtures/redaction_export_controls/cases.json` is consumed by BOTH this
+    suite and the desktop mirror test
+    (`apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts`),
+    so a semantic change on either side fails one of the two suites instead of
+    drifting silently.
+    """
+    corpus = load_json(PARITY_FIXTURE_PATH)
+    assert corpus["deliverable_id"] == "DEL-12-02"
+    assert corpus["cases"], "parity corpus must not be empty"
+
+    covered_reason_codes = set()
+    seen_case_ids = set()
+    for case in corpus["cases"]:
+        case_id = case["case_id"]
+        assert case_id not in seen_case_ids, f"duplicate case_id {case_id}"
+        seen_case_ids.add(case_id)
+
+        original_item = copy.deepcopy(case["item"])
+        expected = case["expected"]
+        decision = classify_export_item(
+            case["item"],
+            export_context=case["export_context"],
+            explicit_local_private_intent=case["explicit_local_private_intent"],
+        )
+        assert case["item"] == original_item, f"{case_id}: classification mutated the item"
+        assert decision.action == expected["action"], case_id
+        assert decision.reason_code == expected["reason_code"], case_id
+        assert decision.source_metadata_present == expected["source_metadata_present"], case_id
+        covered_reason_codes.add(decision.reason_code)
+
+        result = redact_export_payload(
+            {"item": case["item"]},
+            export_context=case["export_context"],
+            explicit_local_private_intent=case["explicit_local_private_intent"],
+        )
+        if expected["finding"] is None:
+            assert not result.findings, case_id
+        else:
+            assert len(result.findings) == 1, case_id
+            finding = result.findings[0]
+            assert finding.code == expected["reason_code"], case_id
+            assert finding.severity == expected["finding"]["severity"], case_id
+            assert finding.as_schema_dict()["class"] == expected["finding"]["class"], case_id
+
+    schema = load_json(SCHEMA_PATH)
+    assert covered_reason_codes == enum_at(schema, "ReasonCode"), (
+        "parity corpus must exercise every governed reason code"
+    )
+
+
 def test_documentation_and_memory_record_scope_boundaries():
     doc = DOC_PATH.read_text(encoding="utf-8")
     memory = MEMORY_PATH.read_text(encoding="utf-8")
@@ -457,6 +511,7 @@ def test_changed_files_do_not_embed_disallowed_example_content():
         SCHEMA_PATH,
         DOC_PATH,
         MEMORY_PATH,
+        PARITY_FIXTURE_PATH,
         ROOT / "core" / "security" / "redaction" / "__init__.py",
         ROOT / "core" / "security" / "redaction" / "controls.py",
         Path(__file__),
@@ -473,5 +528,6 @@ if __name__ == "__main__":
     test_local_private_export_requires_explicit_intent_then_retains_with_warning()
     test_protected_or_professional_boundary_metadata_blocks_export()
     test_missing_metadata_does_not_silently_export_value_bearing_record()
+    test_shared_parity_fixture_matches_core_decisions()
     test_documentation_and_memory_record_scope_boundaries()
     test_changed_files_do_not_embed_disallowed_example_content()
