@@ -350,6 +350,7 @@ function componentKeyword(component: PreviewModel["components"][number]): string
       ? `${component.geometry.bend_angle.value} ${component.geometry.bend_angle.unit}`
       : "",
     component.geometry?.bend_plane_orientation ?? "",
+    component.geometry?.bend_pipe_ref ?? "",
     component.geometry?.bend_geometry_source_reference ?? "",
     component.geometry?.branch_header_pipe_ref ?? "",
     component.geometry?.branch_branch_pipe_ref ?? "",
@@ -706,7 +707,15 @@ function gridRows(model: PreviewModel, entityType: GridEntityType): GridRow[] {
   }
   if (entityType === "pipes") {
     return model.pipe_segments.map((pipe) =>
-      row(pipe.id, pipe.label, "pipe", pipe, [pipe.id, pipe.label, pipe.from, pipe.to, pipe.material, pipe.provenance])
+      row(pipe.id, pipe.label, "pipe", pipe, [
+        pipe.id,
+        pipe.label,
+        pipe.from,
+        pipe.to,
+        pipe.material,
+        pipe.section.mill_tolerance ? `${pipe.section.mill_tolerance.value} ${pipe.section.mill_tolerance.unit}` : "",
+        pipe.provenance
+      ])
     );
   }
   if (entityType === "supports") {
@@ -742,6 +751,9 @@ function gridRows(model: PreviewModel, entityType: GridEntityType): GridRow[] {
         loadCase.label,
         loadCase.kind,
         loadCase.status,
+        loadCase.modulus_basis_ref ?? "",
+        loadCase.equivalent_static?.wind?.direction ?? "",
+        (loadCase.equivalent_static?.wind?.exposed_pipe_refs ?? []).join(" "),
         loadCase.provenance
       ])
     );
@@ -776,6 +788,14 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
       scalarGridColumn("label", "Label", "label", "Element", "pipe segment label only"),
       readonlyGridColumn("from", "From", "from", "Element"),
       readonlyGridColumn("to", "To", "to", "Element"),
+      quantityGridColumn(
+        "mill-tolerance",
+        "Mill tol.",
+        "section.mill_tolerance.value",
+        "Element",
+        "length",
+        lengthUnit
+      ),
       scalarGridColumn("material", "Material", "material", "Element", "material reference"),
       scalarGridColumn("provenance", "Provenance", "provenance", "Element", "public/private source note")
     ];
@@ -856,6 +876,13 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "geometry.bend_plane_orientation",
         "Component",
         "user-entered bend plane orientation"
+      ),
+      scalarGridColumn(
+        "bend-pipe",
+        "Bend pipe",
+        "geometry.bend_pipe_ref",
+        "Component",
+        "user-entered curved-bend span mapping (DEC-070)"
       ),
       scalarGridColumn(
         "sif-user",
@@ -1010,6 +1037,80 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
       scalarGridColumn("label", "Label", "label", "Load", "load case label only", "update_load"),
       scalarGridColumn("kind", "Kind", "kind", "Load", "load case kind", "update_load"),
       scalarGridColumn("status", "Status", "status", "Load", "load case status", "update_load"),
+      scalarGridColumn(
+        "modulus-basis",
+        "Modulus basis",
+        "modulus_basis_ref",
+        "Load",
+        "user-assigned temperature-point basis id; exact selection, no interpolation",
+        "update_load"
+      ),
+      quantityGridColumn(
+        "seismic-gravity",
+        "Seismic gravity",
+        "equivalent_static.seismic.gravity_acceleration.value",
+        "Load",
+        "acceleration",
+        "m/s^2",
+        "update_load"
+      ),
+      scalarGridColumn(
+        "seismic-gx",
+        "g X",
+        "equivalent_static.seismic.g_factor_x.value",
+        "Load",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      scalarGridColumn(
+        "seismic-gy",
+        "g Y",
+        "equivalent_static.seismic.g_factor_y.value",
+        "Load",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      scalarGridColumn(
+        "seismic-gz",
+        "g Z",
+        "equivalent_static.seismic.g_factor_z.value",
+        "Load",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      quantityGridColumn(
+        "wind-pressure",
+        "Wind pressure",
+        "equivalent_static.wind.pressure.value",
+        "Load",
+        "pressure",
+        model.project.units.pressure ?? "Pa",
+        "update_load"
+      ),
+      scalarGridColumn(
+        "wind-shape",
+        "Wind shape",
+        "equivalent_static.wind.shape_factor.value",
+        "Load",
+        "user-entered wind shape parameter; no code coefficient or default",
+        "update_load"
+      ),
+      scalarGridColumn(
+        "wind-direction",
+        "Wind dir",
+        "equivalent_static.wind.direction",
+        "Load",
+        "user-entered global axis token (global_x | global_y | global_z)",
+        "update_load"
+      ),
+      scalarGridColumn(
+        "wind-exposed",
+        "Wind spans",
+        "equivalent_static.wind.exposed_pipe_refs",
+        "Load",
+        "user-marked exposed spans by pipe id; no span is marked by default",
+        "update_load"
+      ),
       scalarGridColumn("provenance", "Provenance", "provenance", "Load", "public/private source note", "update_load")
     ];
   }
