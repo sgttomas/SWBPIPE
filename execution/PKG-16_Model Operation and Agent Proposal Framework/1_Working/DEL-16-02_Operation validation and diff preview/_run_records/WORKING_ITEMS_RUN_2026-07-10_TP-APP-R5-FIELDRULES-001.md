@@ -183,3 +183,14 @@ diagnostic; recorded as residual, not guessed):
   (`geometry.bend_pipe_ref`, `section.mill_tolerance.value`,
   `modulus_basis_ref`, `equivalent_static.*`); the apply seam now accepts
   them, so the inspector/manager emitters are follow-up GUI work.
+
+## Sweep addendum
+
+DEC-025 five-surface evidence sweep executed from the project root at the
+committed clean head `9fc322fcad8d0ce13c93f82319d72bab0c08647d`
+(`python3 tools/release/run_evidence_sweep.py --execute`): overall **pass**,
+all five surfaces pass (cargo_crate_sweep, python_pytest, desktop_vitest,
+desktop_playwright_e2e, desktop_production_build). Artifact:
+`validation/evidence/sweeps/SWEEP_20260711T024706Z_9fc322fcad8d.json`
+(committed in the follow-up sweep-summary commit so the artifact binds to the
+code commit). No Playwright port collision occurred; no retry chain.
