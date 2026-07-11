@@ -4,6 +4,7 @@
 **Last Updated:** 2026-07-10
 
 ## Remaining
+- Treat arc pressure-thrust beyond the recorded straight-chord treatment for curved-bend macro spans (source: Receipt 11 named remainder / TP-PMM-P1-CURVEDBEND-004 boundaries)
 - Verify mechanics-program §5 completion: assessment gap rows G1/G2/G4 and M2/M3 methods defects closed or explicitly re-dispositioned by owner ruling (see also DEL-04-04, DEL-05-01, DEL-05-02) (gated: owner re-disposition where not closed by evidence) (source: mechanics plan §5 / DEC-066–070)
 
 ## History
@@ -16,4 +17,4 @@
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-05 - State set to CHECKING after approved blocker-closure ruling and lifecycle-readiness review `REV_DEL-04-01_2026-06-05_2120`.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
-- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 11); no state change.
+- 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 12); no state change.

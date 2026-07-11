@@ -9,6 +9,40 @@ package_id: PKG-12
 
 # MEMORY - DEL-12-02
 
+## 2026-07-10 - TP-E4-REDACTION-001 app-side redaction/export-controls binding
+
+- Primary role for completion-plan row E4: the core metadata-only redaction
+  contract is now bound into the desktop export workflow as a user-facing
+  surface.
+- New app surfaces:
+  `apps/desktop/src/features/redaction-controls/redactionExportControls.ts`
+  (TypeScript mirror of `core/security/redaction/controls.py`) and
+  `apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx`
+  (context selector defaulting to `local_private`, explicit local-private
+  intent control, findings rendered before any artifact is offered, download
+  link withheld while any blocking finding exists, canonical sha256 checksum
+  on the offered redacted manifest via the wasm hash seam).
+- Cross-language parity is pinned by the new shared invented corpus
+  `fixtures/redaction_export_controls/cases.json`, asserted by
+  `tests/security/test_redaction_export_controls.py`
+  (`test_shared_parity_fixture_matches_core_decisions`, which also requires
+  the corpus to exercise every governed reason code) and by
+  `apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts`.
+- Panel behavior evidence:
+  `apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.test.tsx`
+  (private-by-default blocking, explicit-intent retention with visible
+  warning, public-context value redaction, disabled intent outside
+  `local_private`, checksum, boundary language).
+- Documentation: `docs/security/redaction_export_controls.md` gained an
+  "Application Binding" section; completion-plan row E4 updated.
+- Boundaries preserved: classification remains explicit-metadata-only; the
+  panel classifies a metadata-only representation of user-entered values,
+  invented fixtures only; no source mutation, no transmission, no quarantine
+  movement, no encrypted-storage decision, no legal review workflow, no
+  redaction-sufficiency certification, and no release, professional,
+  certification, sealing, authentication, approval, or code-compliance claim.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E4-REDACTION-001.md`.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 primary export-review matrix cleanup
 
 - Primary role for Phase B-tail Export Safety Review matrix cleanup: Export
