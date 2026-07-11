@@ -214,3 +214,43 @@
     step 3 aligned (this directory).
   - Gate outcome: governance/docs edit executed at owner direction; no code, no
     lifecycle transition, no register change.
+
+- **2026-07-10 — Receipt 9** (five-tranche fable fan-out: E2/E7 + mechanics residuals).
+  - Start: `main` at the PR #151 merge (`3752891a3`); steer of record (launcher, Ryan
+    Tufts): "Fan-out and fan-in with subagents where warranted.  Use only `fable`
+    models, contrary to your loop instructions." Step 0: no rulings newer than
+    Receipt 8; census ISSUED=1/CHECKING=8/IN_PROGRESS=92; self-check exit 0.
+  - Executed (five parallel fable subagents, isolated worktrees, disjoint scopes; all
+    adopted-but-unexecuted scope per WORKPLAN §5): E7 scanner-extension tooling
+    (DEC-058) → `TP-E7-SCANEXT-001`, PR #152; DEC-067 nonconvergence-diagnostic
+    corner → `TP-PMM-P2-NONCONVDIAG-001`, PR #153; E2 validation manual, 63 case
+    pages (DEC-054-carried §16.2/§16.5) → `TP-E2-VALMANUAL-001`, PR #154; GUI
+    emission of DEC-068/070 user-entered slots → `TP-PMM-GUIEMIT-001`, PR #156;
+    DEC-070 arc residuals (consistent distributed loads + interior stations) →
+    `TP-PMM-P1-CURVEDBEND-004`, PR #157. All PRs awaiting owner merge; run records
+    in DEL-08-05 / DEL-04-04 / DEL-09-04 / DEL-07-02 / DEL-04-01; completion-log
+    entries landed by this fan-in PR (agents held them to avoid the Receipt-7
+    dual-prepend conflict).
+  - Checks: per run records — all crate/python/desktop suites pass; self-check
+    exit 0 each tranche; DEC-025 clean-head sweeps
+    `SWEEP_20260711T012810Z_1d160589cbea.json`,
+    `SWEEP_20260711T012926Z_658e15a5bb46.json`,
+    `SWEEP_20260711T013618Z_4012b4c57496.json`,
+    `SWEEP_20260711T014521Z_8b456e6e1c02.json`,
+    `SWEEP_20260711T020757Z_67f06454737f.json` all pass (fresh-worktree
+    `npm ci` retry chains recorded where they occurred; no port collisions).
+  - Deltas (live tree wins): practitioner harness lives at repo root
+    `tools/practitioner_harness/`, not under the project (three agents confirmed);
+    `operation_applier` accepts no component-geometry `set_field` paths — GUI slots
+    (like all existing geometry fields) enter/emit but await a core-scoped
+    field-rule-registry tranche; live runner solve emits 830 result_refs vs 822 in
+    the TP-RUNNER-015 witness (refresh is bounded DEL-10-05 work); stale
+    `validation/benchmarks/mechanics/README.md` registration note fixed in both
+    PR #154 and PR #157 — the one predicted merge conflict; prefer #157's text.
+  - Gate outcome: executed within DEC-054/058/067/068/070-class adopted authority;
+    no lifecycle transition, no register change; owner scan/sign-off acts untouched
+    (`validation/evidence/releases/` left absent). Parked gates: D-38, D-12, D-07b
+    (AWAITING_RULING), D-06b (NOT_PREPARED). Named lawful remainder: E3 container
+    assembly, E5 packaging tranche + DEC-059 export-pipeline build, E4 remainder,
+    E6 issue-template authoring, E8 gate-outcome records, applier field-rule
+    registry extension.

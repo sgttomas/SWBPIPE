@@ -14,6 +14,109 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-07-10 - P1 arc-residual closure: consistent distributed loads + interior stations (`TP-PMM-P1-CURVEDBEND-004`)
+
+Closed the two remaining DEC-070 arc residuals (DEL-04-01, PR #157):
+arc-consistent distributed loads (closed-form fixed-end integration in
+`core/solver/curved_bend`, consumed by `core/product_physics` on all solve
+lanes with recovery subtraction) and arc interior stations by segment
+equilibrium from the assembled macro-element.
+`CURVED_BEND_DISTRIBUTED_LOAD_LUMPED` /
+`CURVED_BEND_INTERIOR_STATIONS_NOT_EVALUATED` and their provenance strings
+retired with live tested replacements. Witness
+`MECH-CURVED-BEND-DISTRIBUTED-FIXED-END` + benchmark fixture at the DEC-026
+analytic-class 1.0e-9 tier (measured 3.6e-10); dense/sparse parity green with
+the arc uniform load; full crate suites, project pytest (387), harness
+self-check exit 0, practitioner pytest, and DEC-025 clean-head sweep
+`SWEEP_20260711T020757Z_67f06454737f.json` pass. Named residuals: pressure
+thrust keeps the recorded straight-chord axial treatment on macro spans; the
+preview load model accepts only constant-direction uniform element
+intensities. Run record: DEL-04-01
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P1-CURVEDBEND-004.md`. No
+k/SIF equation, catalog value, or default ships; no threshold loosening; no
+lifecycle or release-readiness claim.
+
+## 2026-07-10 - GUI emission of user-entered schema slots (`TP-PMM-GUIEMIT-001`)
+
+Desktop absorption of the DEC-068/DEC-070 user-entered slots (in-scope
+remainder; TP-PMM-P3-* residual "GUI/editors do not yet emit either"), PR
+#156: the property inspector, model-tree grid, and model view now enter and
+emit `geometry.bend_pipe_ref` (bends), `section.mill_tolerance` (pipe spans),
+`modulus_basis_ref`, and seismic/wind `equivalent_static` generation inputs
+(load cases). All slots start absent, carry no defaults or code coefficients,
+and are omitted from emitted model JSON when un-entered; entry rides the
+DEC-020 structured-operation seam only. Residual: the
+`core/model_operations/operation_applier` field-rule registry does not yet
+accept these paths (explicit `OP-FIELD-PATH-UNSUPPORTED`, identical to every
+pre-existing geometry inspector field) — a core-scoped tranche should extend
+the registry and contract corpus. Evidence: desktop suite 20 files / 417
+tests green (10 new in
+`apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx`, incl.
+schema-binding checks against `schemas/model.schema.yaml` /
+`schemas/section.schema.yaml`); DEC-025 clean-head sweep
+`SWEEP_20260711T014521Z_8b456e6e1c02.json`; run record: DEL-07-02
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-PMM-GUIEMIT-001.md`.
+
+## 2026-07-10 - E2 per-case validation manual, first assembly (`TP-E2-VALMANUAL-001`)
+
+Authored the per-case validation manual under `docs/validation_manual/cases/`
+(DEL-09-04, PR #154, Phase E row E2 partial): 63 case pages (20 mechanics
+incl. `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL`, 15 stress recovery, 28
+nonlinear support) assembling the PRD §16.5 fields from existing hand-calc
+witnesses, fixture constructors, suite tests, and governed DEC-046 records,
+via the committed deterministic generator
+`generate_validation_case_pages.py`. Rebuilt `docs/validation_manual/index.md`
+as the case index and fixed a verified-stale authority pointer (decomp rev
+0.7→0.8). Recorded real reproduction runs (mechanics 30 / stress 22 /
+nonlinear 19 passed, 0 failed; runner solve/validate-input/run-benchmark
+outcomes per DEC-065) and the measured runner result_refs 830-vs-822 delta.
+Clean-head DEC-025 sweep pass `SWEEP_20260711T013618Z_4012b4c57496.json`.
+Residual in row: DEC-024/DEC-026 governed tolerance record unfilled; runner
+benchmark/regression payload bindings stubbed; clean-environment
+demonstration and human-gated R5 reviews open. Run record: DEL-09-04
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`. No
+threshold invented/tightened/loosened; no release/professional claims.
+
+## 2026-07-10 - P2 nonconvergence-diagnostic corner closed (`TP-PMM-P2-NONCONVDIAG-001`)
+
+Closed the TP-PMM-P2-FRICTION-001 recorded corner (DEL-04-04, PR #153): the
+assembled nonlinear active-set loop now guarantees every non-converged exit
+carries a visible `NonConvergence` failure diagnostic, including the
+zero-residual capped exit where a sliding-seeded friction support's deferred
+first iterate reaches `max_iterations == 1`. Diagnostics only — no mechanics
+change, no friction history model (DEC-067 fence), no DEC-046 threshold
+change. New crate tests pin the corner (one Failure diagnostic emitted), the
+converged single-iteration no-false-positive case, and no double emission
+beside the classifier's residual diagnostic; transition suites stay green
+(nonlinear_integration 16, nonlinear_supports 19, product_physics 71,
+benchmarks/nonlinear 19). Harness self-check exit 0; DEC-025 clean-head sweep
+pass `SWEEP_20260711T012926Z_658e15a5bb46.json` (npm-dependency retry chain
+recorded). Run record: DEL-04-04
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P2-NONCONVDIAG-001.md`.
+
+## 2026-07-10 - E7 scanner extension and unsigned scan-record tooling (`TP-E7-SCANEXT-001`)
+
+Landed the agent-lawful tooling half of the `DEC-058` / D-20 ruling toward
+completion-plan row E7 (DEL-08-05, PR #152). The DEL-08-05 engine
+(`core/reporting/protected_content_linter`) gained standards-table signature
+patterns — designator-name/clause-label tokens adjacent to dense numeric
+grids — failing toward `UnknownProvenanceReviewRequired` → `HumanIpReview`
+(`OPS-K-IP-3`), never silent pass; detection tokens are names/labels only and
+all test fixtures are invented lookalikes. New `protected_content_lint_cli`
+bin (JSON findings, zero new dependencies) and stdlib-only
+`tools/release/run_release_candidate_scan.py`: AC-1..AC-6 inventory walk with
+mandatory `not_applicable` recording, engine lint, IP-boundary §4 provenance
+check, security profile, quarantine hygiene, and an UNSIGNED
+`SCAN_<candidate>_<utc>_<commit12>.json` emitter with the owner sign-off
+block explicitly pending. `validation/evidence/releases/` remains absent: the
+scan act, finding dispositions, and the legal/protected-data gate signature
+stay owner-only (`DEC-027`), so E7 remains open pending the owner's recorded
+scan. Evidence: crate tests 15/15; `tests/test_release_candidate_scan.py`
+14/14; clean-head sweep `SWEEP_20260711T012810Z_1d160589cbea.json`; run
+record: DEL-08-05
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E7-SCANEXT-001.md`. Not a
+release, legal-clearance, certification, or milestone claim.
+
 ## 2026-07-10 - E3 hash-bound deterministic PDF emitter (`TP-E3-PDFEMIT-001`)
 
 Landed the `DEC-061` / D-10b Option O-A ruling: the pure in-repo minimal
