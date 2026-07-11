@@ -14,6 +14,66 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-07-10 - E4 landed: redaction export-controls app binding (`TP-E4-REDACTION-001`)
+
+The core metadata-only redaction contract gained its app-side binding
+(DEL-12-02, PR #167): `apps/desktop/src/features/redaction-controls/` adds a
+TypeScript mirror of `core/security/redaction/controls.py` and a user-facing
+Redaction & Export Controls panel in the export workflow — `local_private`
+default context (private-by-default), every warning/blocking finding
+rendered before any export artifact is offered, download link withheld while
+any blocking finding exists, private values retained locally only after
+explicit user intent, canonical sha256 checksum on the offered redacted
+manifest. Cross-language parity pinned by the shared invented corpus
+`fixtures/redaction_export_controls/cases.json` (all 16 governed reason
+codes; asserted by both the python suite and the vitest mirror suite).
+Warnings inform only — no redaction-sufficiency, release, legal-clearance,
+or professional claim. Checks: python 439 pass, desktop 471 pass, harness
+self-check exit 0, DEC-025 clean-head sweep
+`SWEEP_20260711T035249Z_9aa5dcdc1a29.json`. Residuals: REXC-REQ-012 breadth
+beyond the export-workflow surface; quarantine movement, encrypted storage,
+and §17.5 legal review remain E6/E7/human-gated. Run record: DEL-12-02
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E4-REDACTION-001.md`.
+
+## 2026-07-10 - E8 gate-outcome records (`TP-E8-GATERECORDS-001`)
+
+The remaining agent-lawful E8 portion landed (DEL-09-05, PR #166):
+`tools/release/run_release_gate_records.py` + `release_gate_record_schema.json`
+emit commit-bound per-family (Solver/Rule-engine/GUI/Report-template/
+Mixed-union) pass/fail/TBD records to `validation/evidence/gates/` from
+already-governed sources only (DEC-025 sweeps, DEC-026/DEC-046 tolerance
+records, DEC-058 scans, DEC-060 telemetry); TBD governed thresholds stay
+TBD, human-gated criteria are recorded TBD, no release label or readiness
+status is minted (PB-TBD-003 human-gated), and no coverage floor is promoted
+(live DEC-060 base recorded: 1 clean-head artifact / 1 commit). First record
+set at evaluated commit `e2ea37194c8a` (solver 7/0/3, rule_engine 5/0/5, gui
+3/0/6, report_template 5/0/4, mixed 20/0/10 pass/fail/TBD; zero fails)
+against clean-head sweep `SWEEP_20260711T032140Z_e2ea37194c8a.json`; final
+clean-head sweep `SWEEP_20260711T032717Z_af74a1096ff0.json` pass. Run
+record: DEL-09-05
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E8-GATERECORDS-001.md`. E8
+remainder is human-gated: release-label vocabulary (PB-TBD-003), gate-record
+acceptance/waivers, wording/provenance reviews, and any future
+floor-promotion D-XX.
+
+## 2026-07-10 - E6 public issue templates authored (`TP-E6-ISSUETEMPLATES-001`)
+
+Public issue templates authored for the future public repository (creation
+owner-gated; repo does not exist) at project-local `.github/ISSUE_TEMPLATE/`
+(DEL-01-03, PR #164) — `config.yml` (blank issues disabled),
+`bug_report.yml`, `question.yml`, `documentation_feedback.yml`, plus a
+directory README mapping the surface to DEC-027/D-07b and pending §17.5
+review; inert in the monorepo (root `.github/` untouched). Every form states
+the DEC-027 closed-contribution posture (issue reports and questions only),
+promises no review SLA/support level/release, carries the F-PIP-1
+protected-standards/private-data caution with required confirmation
+checkboxes, and makes no F-PIP-2 claims. D-07b intake untouched
+(AWAITING_RULING). Harness self-check exit 0; DEC-025 sweep pass
+`SWEEP_20260711T031432Z_1581b8c0de72.json`. Remaining E6 scope: §17.5 legal
+review (human), D-07b ruling, export wiring of the template directory into
+the public-export manifest. Run record: DEL-01-03
+`_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E6-ISSUETEMPLATES-001.md`.
+
 ## 2026-07-10 - E5 packaging mechanics (`TP-E5-PACKAGING-001`)
 
 Landed the separate E5 implementation tranche named by the `DEC-057` ruling
