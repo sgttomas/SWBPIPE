@@ -11,6 +11,33 @@ revision: 0.5
 
 # MEMORY - DEL-10-04 Build, Packaging, And CI/CD Pipeline
 
+## 2026-07-10 - TP-E5-EXPORTPIPE-001 DEC-059 sanitized-export pipeline build
+
+- Built the DEC-059/D-05b prerequisite export pipeline
+  (`tools/release/export_public_openpipestress.py`, stdlib-only) with
+  self-tests (`tests/test_export_public_openpipestress.py`, 20 tests):
+  fail-toward-exclusion allowlist staging, sanitize pass,
+  `path/size_bytes/sha256` manifest bound to the canonical commit,
+  mechanical boundary check, DEL-08-05 protected-content lint gate via the
+  engine's `protected_content_lint_cli` (consumed as-is; same DEC-058
+  check (b) surface as `run_release_candidate_scan.py`), export
+  record/report emission, and `--verify` drift detection. Plan-only by
+  default; `--execute` writes only to an explicit caller-named target
+  directory outside the source root.
+- Real-tree dry run into a temp directory: 892 files staged, boundary and
+  lint gates pass (1 reviewed expected boundary finding, 5 reviewed
+  expected blocking lint findings on invented lint fixtures +
+  docs/TYPES.md prohibition prose, 1 provenance-review warning),
+  deterministic across consecutive runs.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E5-EXPORTPIPE-001.md`.
+- Boundary preserved (DEC-059 hard fences): no public repository created,
+  nothing pushed/published, no CI activated, no `.github/workflows` file
+  added, no linter/scan-surface edits, no release-readiness or clearance
+  claim; the export act stays owner-gated behind the three DEC-059
+  prerequisites (G1-G7 pipeline; D-20/DEC-058 owner-signed green scan
+  before any push; D-06/DEC-057 repo location/naming).
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 supporting export-review classification
 
 - Supporting role for Export Safety Review matrix cleanup: the
