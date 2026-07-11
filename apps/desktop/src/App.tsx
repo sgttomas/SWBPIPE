@@ -30,6 +30,7 @@ import { EditorContractPanel } from "./features/editor-contract/EditorContractPa
 import { ExportAdapterSdkPanel } from "./features/export-adapter-sdk/ExportAdapterSdkPanel";
 import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
 import { ExternalProverBoundaryPanel } from "./features/external-prover/ExternalProverBoundaryPanel";
+import { RedactionExportControlsPanel } from "./features/redaction-controls/RedactionExportControlsPanel";
 import { HandoffPanel } from "./features/handoff/HandoffPanel";
 import { HeadlessRunnerPanel } from "./features/headless-runner/HeadlessRunnerPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
@@ -1399,6 +1400,7 @@ export function App() {
                 selectedReviewTarget={selectedReviewTarget}
                 storageCapability={storageCapability}
               />
+              <RedactionExportControlsPanel model={model} />
             </section>
 
             <section
