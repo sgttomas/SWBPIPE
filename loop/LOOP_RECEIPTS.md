@@ -327,7 +327,7 @@
     records.
   - Checks: self-check exit 0; harness pytest pass; coordination tests pass;
     deliverable-status summary run (Remaining items: 50 across 26 deliverables);
-    DEC-025 clean-head sweep `SWEEP_PENDING.json` pass.
+    DEC-025 clean-head sweep `SWEEP_20260711T034808Z_049c49328bfc.json` pass.
   - Gate outcome: coordination/control consolidation executed at owner adoption;
     no lifecycle transition, no register change; parked gates unchanged: D-12,
     D-07b, D-38 (AWAITING_RULING), D-06b (NOT_PREPARED).
