@@ -65,13 +65,17 @@
 ## Validation
 
 - Repo-root `PYTHONDONTWRITEBYTECODE=1 python3
-  tools/practitioner_harness/harness.py self-check` — see closeout section
-  for exit status at the committed head.
+  tools/practitioner_harness/harness.py self-check` exited 0 (pre-existing
+  REVIEW/WARN findings only; none touch this tranche's files).
 - DEC-025 five-surface sweep: `_COORDINATION.md` workflow step 9 requires the
-  sweep before pushing on parallel agent development branches without a
-  docs-only carve-out, so it is run at the committed clean head (after
-  `npm ci` in `apps/desktop` for the fresh worktree) and the summary
-  committed; result recorded in the closeout addendum below.
+  sweep before pushing on parallel agent development branches and carries no
+  docs-only carve-out, so it was run at the committed clean head
+  `1581b8c0de72` (after `npm ci --prefer-offline` in `apps/desktop` for the
+  fresh worktree; lockfile unchanged, no dependency changes). All five
+  surfaces passed:
+  `validation/evidence/sweeps/SWEEP_20260711T031432Z_1581b8c0de72.json`
+  (`overall: pass`), committed in the follow-on evidence commit per the
+  established sweep-summary pattern.
 
 ## Boundary
 
