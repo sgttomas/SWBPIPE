@@ -170,7 +170,15 @@ certification claims, code-compliance claims, or professional reliance claims.
   deferred; the five-surface local sweep `tools/release/run_evidence_sweep.py`
   is the commit-bound merge gate; hosted CI re-decided at `D-05b` with D-06)
   and maintainer quorum (`DEC-027` — sole maintainer and release authority).
-- TBD: release matrix, signing, and release attestation (D-06).
+- Ruled 2026-07-04: release matrix, installer format, signing, and
+  attestation posture (`DEC-057`, basis
+  `execution/_Coordination/_DECISIONS/D-06_release_matrix_installers_publication.md`
+  Option O-A) — v0.1 ships macOS Apple Silicon (`aarch64-apple-darwin`)
+  only, as the Tauri `.app` zipped with a published SHA-256 checksum;
+  unsigned for v0.1, with attestation carried by the checksum + the
+  commit-bound `DEC-025` sweep artifact + the `docs/BUILD_AND_RELEASE.md`
+  §8 release artifact record and the unsigned-install caveat, until the
+  `D-06b` signing/notarization re-decision at the R5-exit lead-up.
 - TBD: exact automation owners, gate owners, waiver approver roles, and command
   names.
 - TBD: release-note format for known limitations and accepted risks.
