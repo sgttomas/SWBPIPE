@@ -77,10 +77,10 @@ answer.
 | 1. Intent externalization | What are we trying to define? | Package or deliverable scaffold. | Authority intake, deliverable identity, scope boundaries, acceptance criteria, and open questions. |
 | 2. Dependency resolution | What depends on what? | Dependency edge, blocker, or clarifying deliverable note. | DAG semantics, cycle checks, edge amendments, blockers, and graph validation. |
 | 3. Deliverable maturation | Is this deliverable sufficiently defined and evidenced? | One deliverable or a small dependency-linked set. | Local memory, issue burn-down, acceptance evidence, validation, and bounded improvement. |
-| 4. `CHECKING` transition | Is this ready for formal checking? | Review candidate. | Review packet completeness, residual issue policy, status update authority, and audit trail. |
+| 4. `CHECKING` transition | Is this candidate ready to freeze for formal checking? | Review candidate. | Layered entry conditions per `docs/TYPES.md` §9 (as amended per `D-39`): warranted-empty `## Remaining` evidence, declared checking basis, human declaration and freeze, status update authority, and audit trail. |
 | 5. Application integration | What bounded app capability should become real next? | App slice spanning UI, core, fixtures, tests, and evidence as needed. | Working desktop application, app/code/test intake, cross-deliverable context, fan-in, and preview boundary. |
 | 6. App feedback and gap closure | What does the application reveal that documents did not? | App-discovered gap or failed workflow. | Smoke evidence, gap classification, routing to code/schema/fixture/review, and before/after validation. |
-| 7. Issuance | Is this deliverable formally accepted as authoritative? | Human-approved issuance candidate. | Final evidence, immutable records, human gate, frozen `ISSUED` authority, and formal change path. |
+| 7. Issuance | Is this deliverable formally accepted as authoritative? | Human-approved issuance candidate. | Final evidence, immutable records, human gate, frozen `ISSUED` authority, and the governed scope-change process. |
 
 The stable heuristic is:
 
@@ -88,7 +88,7 @@ The stable heuristic is:
 Externalize intent as deliverables.
 Resolve dependencies into a usable graph.
 Mature deliverables until they are reviewable.
-Move mature deliverables into CHECKING.
+Freeze candidates into CHECKING when the layered entry conditions hold.
 Shift ordinary work from deliverables to product integration.
 Use the working application to expose remaining gaps.
 Issue deliverables through a separate human-gated lifecycle path.
@@ -97,8 +97,11 @@ Issue deliverables through a separate human-gated lifecycle path.
 The important transition is from deliverable production to product
 integration. Mature deliverables define intended behavior, but the working
 application tests whether those intentions compose. Once the DAG is coherent
-and deliverables are in `CHECKING`, ordinary work should default to bounded app
-slices. Formal issuance remains separate from ordinary development.
+and candidates have entered `CHECKING` through the layered entry conditions of
+`docs/TYPES.md` §9 — warranted-empty `## Remaining`, a declared checking
+basis, and human freeze, not a maturity milestone — ordinary work should
+default to bounded app slices. Formal issuance remains separate from ordinary
+development.
 
 Every agent instance must be able to operate from its local instructions,
 authority surfaces, current state, write scope, validation expectations, and
@@ -187,9 +190,13 @@ explicit deliverable-local scopes with clear acceptance criteria.
 
 ### Phase 4: CHECKING Transition
 
-`_COORDINATION.md` should define `CHECKING` entry criteria, review packet
-requirements, allowed residual issues, status-update authority, and review
-evidence expectations.
+`_COORDINATION.md` should define `CHECKING` entry per the layered conditions
+in `docs/TYPES.md` §9 (as amended per `D-39`): a warranted-empty `_STATUS.md`
+`## Remaining` with a current evidence basis, a candidate-specific declared
+checking basis, and human declaration and freeze. There are no allowed
+residual issues at entry; boundary adjustments are rescoped through the
+decision register before freeze. It should also define review packet
+requirements, status-update authority, and review evidence expectations.
 
 `NEXT_INSTANCE_STATE.md`, if used, should record phase
 `CHECKING_TRANSITION`, deliverables eligible for `CHECKING`, deliverables
@@ -217,7 +224,7 @@ for app tranches.
 
 `NEXT_INSTANCE_STATE.md`, if used, should record phase
 `APPLICATION_INTEGRATION`, current app status, working or failing build and
-test commands, active app gaps, relevant `CHECKING` deliverables used as
+test commands, active app gaps, relevant frozen `CHECKING` candidates used as
 design context, known `ISSUED` deliverables, dirty git state, and any active
 tranche.
 
@@ -262,8 +269,9 @@ review scopes.
 ### Phase 7: Issuance
 
 `_COORDINATION.md` should define `ISSUED` criteria, the human approval gate,
-immutable evidence requirements, the change path for already-issued
-deliverables, final review and closure records, and boundary language for
+immutable evidence requirements, the governed scope-change process for
+already-issued deliverables (`docs/TYPES.md` §9, as amended per `D-39`),
+final review and closure records, and boundary language for
 release, professional, legal, certification, and code-compliance claims.
 
 `NEXT_INSTANCE_STATE.md`, if used, should record phase `ISSUANCE`,
@@ -275,14 +283,14 @@ last issuance decision record.
 without human approval, inspect final review packets and evidence, confirm
 dependency closure and app-related findings, update status to `ISSUED` only
 through the approved lifecycle path, and treat `ISSUED` deliverables as frozen
-authority unless a formal change path opens them.
+authority unless the governed scope-change process opens them.
 
 The init prompt phase clause should be:
 
 ```text
 Consider one human-approved issuance tranche. Do not select ISSUED
-deliverables for ordinary work; reopen them only through the formal change
-path.
+deliverables for ordinary work; reopen them only through the governed
+scope-change process.
 ```
 
 ## Default Development Loop

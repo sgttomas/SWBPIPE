@@ -242,4 +242,39 @@ Companion boundary schemas:
 OPEN → INITIALIZED → IN_PROGRESS → CHECKING → ISSUED
 ```
 
+Lifecycle states are governed production and change-control regimes with
+maturity/readiness entry conditions, not percentage-complete scores. Advancing
+carries maturity meaning; the states themselves define which changes are
+lawful to a deliverable and under what control.
+
+| State | Change-control regime |
+|---|---|
+| `IN_PROGRESS` | Ordinary authorized edits. The honest holding state whenever warranted open scope exists, however advanced the implementation. |
+| `CHECKING` | A frozen candidate under review against a declared basis. Review evidence appends to run/review records, never to the frozen claim surfaces. Reversal to `IN_PROGRESS` is the only edit path. |
+| `ISSUED` | Accepted baseline. Changes only through the governed scope-change process. |
+
 `ISSUED` means accepted as a development artifact by the human project authority. It does not mean professional engineering authentication of any piping calculation.
+
+Entry to `CHECKING` is layered, not a single trigger:
+
+1. Universal minimums. The deliverable's `_STATUS.md` `## Remaining` is
+   warranted-empty — empty, with a current evidence basis bound to the
+   candidate source state certifying that the emptiness is warranted.
+2. A candidate-specific declared checking basis appropriate to the
+   deliverable's claims and risk — for this project including its engineering
+   validation and provenance disciplines. These criteria are emergent and
+   harden into ruled profiles.
+3. Human declaration of the checking basis and freeze of the candidate.
+
+There are no disclosed-deferral carve-outs: any warranted `## Remaining` item
+keeps the deliverable `IN_PROGRESS`; boundary adjustments are rescoped through
+the decision register before freeze, never carved out during review. A failed
+check exits by reversal, and its findings become `## Remaining` items.
+
+Rebaseline asymmetry: demotion to `IN_PROGRESS` requires no criteria beyond
+the absence of a current accepted basis for the asserted state; promotion
+requires a contemporary declared basis. Lifecycle corrections are
+human-authorized administrative acts recorded through the decision register.
+
+Reference formulation: repo-root `docs/DELIVERABLE_CONCORDANCE_METHOD.md` §4
+(ratified 2026-07-11). Amended per `D-39` (2026-07-11).
