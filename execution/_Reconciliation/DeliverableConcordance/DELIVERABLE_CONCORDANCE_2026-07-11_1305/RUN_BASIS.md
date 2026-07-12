@@ -479,6 +479,21 @@
   pass. Summary: `PACKAGE_SUMMARIES/PKG-14.md`. PKG-15..17, full-W5
   closeout, R3, R6, and `RUN_SUMMARY.md` remain outstanding.
 
+- **2026-07-12 — R2 W5 PKG-15 checkpoint COMPLETE.** Four distinct
+  deliverable-grained GPT-5 pilot assignments ran in two capacity-bounded
+  batches (DEL-15-01/02/03, then DEL-15-04), producing four ledgers and notes
+  with 117 corrected rows. Independent highest-capability GPT-5 high-effort
+  fan-in checked every self-flagged and non-ALIGNED row plus at least two
+  ALIGNED rows per ledger: pre-correction 3 SOUND / 1 DEFECTIVE and 49 PASS /
+  0 QUALIFIED / 3 FAIL across 52 scoped rows. The DEL-15-02 owning pilot
+  changed REM-001..003 Confidence HIGH→MEDIUM and the notes confidence
+  histogram to 22/9 under addendum 13; no type, disposition, authority, or
+  scope judgment changed. Package structure, enums, contiguous type-matched
+  ClaimIDs, RFC-4180 CRLF, histograms, bootstrap/selectability rules, and
+  addendum-9 containment pass. Summary: `PACKAGE_SUMMARIES/PKG-15.md`.
+  PKG-16..17, full-W5 closeout, R3, R6, and `RUN_SUMMARY.md` remain
+  outstanding.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
