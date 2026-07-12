@@ -549,6 +549,25 @@
   `da12adc4f`, `dffa6d998`, `289114c26`. W5 is ready for wave-boundary
   commit/push/PR reconciliation; R3, R6, and `RUN_SUMMARY.md` remain.
 
+- **2026-07-12 — R3 cross-package synthesis COMPLETE.** Deterministic corpus
+  assembly preserved the 2,484 corrected deliverable rows from 101 ordinary
+  W1–W5 ledgers byte-semantically and appended eight authoritative R1
+  attribution gaps as run-level `IMPLEMENTED_UNMAPPED` rows, yielding
+  `CLAIM_CONCORDANCE.csv` at 2,492 unique claims. The same eight rows populate
+  `UNMAPPED_IMPLEMENTATION.csv`. `CONFLICTS_AND_UNKNOWNS.csv` contains 20
+  deduplicated provenance-backed findings, preserves the sole UNKNOWN, and
+  records two no-conflict ownership checks. Evidence-only proposed engineering
+  and owner route artifacts contain no R4 packets/rulings. The 77-row
+  `PROPOSED_DELIVERABLE_UPDATES.csv` covers all 532 non-ALIGNED aggregate
+  ClaimIDs exactly once; zero `DEFERRED_AGENT_WORKFLOW` rows enter it.
+  `AGENT_WORKFLOW_OBSERVATIONS.md` records the evidence-backed zero result and
+  distinguishes project-local tool attribution from agent-workflow
+  dependency. Cross-artifact validation confirms source-prefix identity,
+  unique IDs, exact unmapped mirroring, contiguous R3 IDs, complete update
+  coverage, resolved citations, RFC-4180 CRLF, and non-operative fences. R6,
+  `COVERAGE_AND_QA.md`, `RUN_SUMMARY.md`, final push/PR update, and the hard
+  STOP before R4/R5 remain.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
