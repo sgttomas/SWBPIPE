@@ -43,3 +43,11 @@ No authoritative examples are available in the accessible source set for this de
 | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
 | None | No source conflicts were identified during this P1/P2 setup pass. | N/A | N/A | N/A | N/A | TBD |
+
+## D-41 R5 T4 guidance
+
+Treat the persisted-run helper as a narrow read-side application-service
+binding. It proves that canonical records can reach backend report sections
+without dropping governed review context. It does not turn a stored record
+into an approval, select an external payload partition, render a report, or
+close solver/rule/adapter producer integrations.

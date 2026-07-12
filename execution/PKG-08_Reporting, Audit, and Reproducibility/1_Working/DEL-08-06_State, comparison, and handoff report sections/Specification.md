@@ -60,3 +60,14 @@ Expected deliverable-local records and downstream artifacts:
 - Tests or review notes proving boundary wording, SOW-024 coverage, deterministic assembly, provenance/checksum preservation, and protected-content avoidance.
 - Source notes that identify upstream record contracts consumed by the sections.
 - Any unresolved implementation/API/schema decisions recorded as TBD rather than inferred.
+
+## D-41 R5 T4 persisted-run reporting seam
+
+The bounded `project.run_history` application-service handoff may assemble
+existing model-state and analysis-run records into backend report sections.
+It shall preserve warnings, unresolved assumptions, explicit limitations,
+solver context, provenance, and only the governed software analysis-status
+vocabulary. It shall not mutate the project, execute a solver, infer
+`HUMAN_APPROVED_FOR_PROJECT` or `CODE_COMPLIANT`, redefine external/non-JSON
+payload partitioning, or imply rendered-report, runtime-adapter, or whole-
+workflow closure.

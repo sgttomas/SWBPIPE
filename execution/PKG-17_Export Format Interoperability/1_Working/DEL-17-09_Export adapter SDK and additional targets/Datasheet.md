@@ -68,3 +68,7 @@ Expected descriptive fields for later registry, profile, and checklist records:
 ## D-41 R5 T2A canonicalization evidence (2026-07-12)
 
 Adapter SDK package checksums use `deterministic_sorted_compact_json_payload_hash`: sorted-key compact ASCII-escaped Python JSON. The label records the implemented deterministic bytes and makes no RFC 8785/JCS claim.
+
+## D-41 R5 T4 PDU-004 evidence state
+
+The implemented nine-category checklist is admission metadata only. Distinct mechanics-readiness and rule-check-readiness categories are absent, and reviewer role, signoff format, and approval artifact remain `TBD` pending owner selection. No current field supplies a validation or readiness outcome.

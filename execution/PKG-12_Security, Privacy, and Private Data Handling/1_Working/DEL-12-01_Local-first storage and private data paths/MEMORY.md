@@ -1,5 +1,10 @@
 # Memory: DEL-12-01 Local-first storage and private data paths
 
+## 2026-07-12 - D-41 R5 T4 PDU-036 bounded evidence
+
+- Recorded the adjacent invented physical-to-analytical trace-gap fixture as verification-only evidence.
+- LFSP-REQ-011 runtime path, package round-trip/migration, and report/export integration tests remain absent until their owning implementations exist; the adjacent fixture does not substitute for them or promote validation.
+
 ## Current Session
 
 2026-05-02 - Implemented from sealed dispatch brief

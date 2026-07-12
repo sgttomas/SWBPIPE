@@ -1,12 +1,14 @@
 # Status: DEL-14-05 Comparison mapping, tolerance, and export contracts
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
+- Bind comparison export/report-section references through the reporting owner with explicit analysis-status and limitation preservation; the current T4 evidence covers persisted state/run records only and does not select layout or tolerance policy.
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T4 PDU-022 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-04 - State set to INITIALIZED (TASK+four-documents)
 - 2026-05-04 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

@@ -246,6 +246,27 @@ def test_parser_only_package_binds_rows_to_sidecar_stable_ids():
     assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
 
 
+def test_parser_boundary_preserves_supported_mapping_units_and_diagnostics():
+    package = parser_only_package()
+    parsed = package["parsed_csv"]
+
+    assert parsed["source_csv_ref"] == ref(
+        "CsvArtifact", "csv:invented-caepipe-results"
+    )
+    assert {(row["target_id"], row["stable_id"]) for row in parsed["rows"]} == {
+        ("N001", "node:invented:A"),
+        ("N002", "node:invented:B"),
+        ("P001", "pipe:invented:001"),
+    }
+    assert {(row["section"], row["unit"]) for row in parsed["rows"]} == {
+        ("NODE_DISPLACEMENTS", "m"),
+        ("ELEMENT_FORCES", "N"),
+    }
+    assert parsed["parser_status"] == "parsed_parser_only_fixture"
+    assert package["execution_result"]["attempted"] is False
+    assert package["professional_boundary"]["software_makes_caepipe_compatibility_claim"] is False
+
+
 def test_parser_records_unknown_sections_and_unmapped_rows_as_warnings():
     text = (
         CSV_FIXTURE_PATH.read_text(encoding="ascii")

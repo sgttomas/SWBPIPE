@@ -22,6 +22,7 @@ from schema_validation import schema_for_definition, validate_instance  # noqa: 
 
 MODEL_SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
 PHYSICAL_SOURCE_FIXTURE = ROOT / "fixtures" / "domain" / "invented_physical_source_of_truth_model.json"
+TRACE_GAP_FIXTURE = ROOT / "fixtures" / "domain" / "invented_physical_to_analytical_trace_gap.json"
 PREVIEW_ONLY_FIXTURE_KEYS = {
     "load_kind",
     "local_x_axis",
@@ -391,6 +392,39 @@ def test_component_scalar_trace_is_not_emitted_for_invalid_quantity_metadata():
         link
         for link in result.traceability_links
         if link.get("source_field_path")
+    ]
+
+
+def test_pdu036_fixture_links_omission_warning_and_assumption_without_validation_promotion():
+    fixture = load_json(TRACE_GAP_FIXTURE)
+    source = physical_model()
+    source["components"] = [fixture["component"]]
+    source["elements"][0]["component_ref"] = ref(
+        "Component", fixture["component"]["id"]
+    )
+
+    result = transform_physical_to_analytical(source)
+    expected = fixture["expected"]
+    omitted_id = expected["omitted_component_id"]
+    warning = next(
+        item for item in result.diagnostics if item["code"] == expected["warning_code"]
+    )
+    diagnostic_link = next(
+        link
+        for link in result.traceability_links
+        if link["source_ref"] == ref("Component", omitted_id)
+        and link["target_ref"]["object_type"] == expected["trace_target_type"]
+    )
+
+    assert fixture["fixture_status"] == "verification_only_not_independent_validation"
+    assert omitted_id not in {item["id"] for item in result.analytical_model["components"]}
+    assert warning["class"] == expected["warning_class"]
+    assert diagnostic_link["diagnostics"] == [warning]
+    assert not [
+        link
+        for link in result.traceability_links
+        if link.get("source_field_path")
+        and link["source_ref"] == ref("Component", omitted_id)
     ]
 
 

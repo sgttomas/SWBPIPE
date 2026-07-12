@@ -85,3 +85,5 @@ Phase A records are:
 - `_run_records/TASK_RUN_2026-05-18_1156.md`
 
 Future records remain `TBD` and may include a profile artifact, manifest, ID map, loss report, diagnostics, generated GLB/glTF artifact, and invented fixtures only when a later task explicitly authorizes those writes.
+
+PDU-036 check: verify every emitted line primitive has current authoritative ID-map correlation. Record impossible-bend diagnostic coverage as absent/outside the selected profile; do not add GLB, viewer, or broader bend geometry.

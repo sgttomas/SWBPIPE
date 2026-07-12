@@ -180,6 +180,22 @@ def test_fixture_and_builder_validate_against_schema():
     check_jsonschema_validation()
 
 
+def test_manifest_source_basis_refs_are_schema_required():
+    import pytest
+
+    schema = load_json(SCHEMA_PATH)
+    package = build_from_source()
+    del package["manifest"]["source_basis_refs"]
+
+    with pytest.raises(AssertionError, match="source_basis_refs.*required"):
+        validate_instance(
+            schema,
+            package,
+            schema_label=str(SCHEMA_PATH),
+            instance_label="review geometry package without manifest source basis",
+        )
+
+
 def test_builder_is_deterministic_and_preserves_package_members():
     first = build_from_source()
     second = build_from_source()
@@ -236,6 +252,34 @@ def test_sidecar_id_map_and_manifest_preserve_canonical_identity():
     assert artifact["node_count"] == 2
     assert artifact["mesh_count"] == 2
     assert artifact["embedded_buffer"] is True
+
+
+def test_manifest_records_profile_basis_members_and_bounded_loss_content():
+    package = build_from_source()
+    manifest = package["manifest"]
+
+    assert manifest["source_model_ref"] == package["source_model_ref"]
+    assert manifest["export_profile_ref"] == ref(
+        "ExportProfile", package["export_profile"]["profile_id"]
+    )
+    assert manifest["source_basis_refs"] == package["export_profile"]["source_basis_refs"]
+    assert {item["member_role"] for item in manifest["package_members"]} == {
+        "manifest",
+        "model_gltf",
+        "stable_id_map",
+        "loss_report",
+        "validation_report",
+        "diagnostics",
+    }
+    assert {item["category"] for item in package["loss_report"]} == {
+        "exported",
+        "omitted",
+    }
+    assert package["geometry_payload"]["omitted_entities"] == [
+        ref("Support", "support:invented:A")
+    ]
+    assert package["export_profile"]["artifact_format"] == "gltf_json_embedded_buffer"
+    assert package["professional_boundary"]["software_makes_target_compatibility_claim"] is False
 
 
 def test_written_json_gltf_and_sidecar_round_trip_stable_identity(tmp_path):

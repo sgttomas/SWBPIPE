@@ -776,3 +776,25 @@ dispositions are never represented as owner or engineering rulings.
   found the bypass and a second GPT-5 pilot performed the post-correction
   read-only PASS; the GPT-5 orchestrator integrated validation and closeout.
   No silent substitution. T4 may proceed.
+
+- **2026-07-12 — R5 T4 application/interoperability/report/export checkpoint
+  COMPLETE.** `R5_T4_CLOSEOUT.md` (SHA-256
+  `1ce30a24dac7d6967f8327055d004cc098292cafa1cfab8eb1b8c503176b999c`)
+  records bounded reference passthrough, JSON-glTF manifest content,
+  read-only persisted-run report sections, a verification-only governed
+  stress result envelope, and trace-gap/interop fixtures. PDU-004 exact
+  checklist/reviewer/signoff taxonomy remains held; GLB/broader geometry,
+  compatibility, tolerances, runtime/API binding, validation, and release or
+  professional conclusions remain open.
+
+  Independent fan-in found one PDU-020 schema/fixture gap for emitted
+  `source_basis_refs`; the DEL-17-08 owning pilot made the field required,
+  regenerated the checksum-consistent exact-builder fixture, and added an
+  omission-negative test. Final fan-in PASS. Integrated project pytest passed
+  494/494; the governed stress crate passed 23/23 plus doc tests with
+  `--locked` and an external target. All touched states remain IN_PROGRESS
+  with bootstrap preserved; no review/dependency-ledger/DAG/register/
+  decomposition/ISSUED change or validation promotion occurred. GPT-5 owning
+  pilots executed three bounded partitions; cross-pilot GPT-5 fan-in found
+  and revalidated the correction; GPT-5 orchestrator integrated closeout. No
+  silent substitution. T5 may proceed.

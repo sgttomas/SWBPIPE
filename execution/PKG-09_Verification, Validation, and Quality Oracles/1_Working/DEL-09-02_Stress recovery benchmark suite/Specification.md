@@ -50,3 +50,7 @@ The exact benchmark file names, expected numeric values, sign conventions, stres
 | Conflict ID | Issue | Contenders | Human ruling |
 |---|---|---|---|
 | None | No source conflict identified in setup evidence. | N/A | N/A |
+
+## D-41 R5 T4 PDU-039 governed-envelope evidence
+
+`governed_complete_stress_result_envelope()` routes the existing complete rights-safe stress-recovery output through the DEL-08-04 governed result-export types and validator. Six stress components carry explicit Pa/stress metadata, recovery-to-result trace links, deterministic fixture hashes, an evidence-only diagnostic, `MECHANICS_SOLVED`, `HUMAN_REVIEW_REQUIRED`, and the default no-authority professional boundary. Passing this conformance check is verification, not engineering validation or release readiness.

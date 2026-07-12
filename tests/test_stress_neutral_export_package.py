@@ -133,6 +133,13 @@ def source_payload() -> dict[str, object]:
                 "downstream_implication": "Does not define comparison pass/fail or professional reliance semantics.",
             }
         ],
+        "unresolved_assumption_refs": [
+            ref("Assumption", "assumption:invented-result-review"),
+        ],
+        "reproducibility_refs": [
+            ref("AnalysisRun", "run:invented-del-17-06"),
+            ref("AuditManifest", "audit-manifest:invented-del-17-06"),
+        ],
     }
 
 
@@ -259,6 +266,21 @@ def test_csv_and_json_rows_are_synchronized_and_ascii_safe():
     assert "result:invented:stress:P001:sustained" in text
     assert {row["unit"] for row in package["result_rows"]} == {"N", "Pa"}
     assert {row["dimension"] for row in package["result_rows"]} == {"force", "stress"}
+
+
+def test_assumption_and_reproducibility_refs_pass_through_to_package_and_manifest():
+    payload = source_payload()
+    package = build_stress_neutral_export_package(**payload)
+
+    for key in ("unresolved_assumption_refs", "reproducibility_refs"):
+        assert package[key] == payload[key]
+        assert package["manifest"][key] == payload[key]
+
+    payload["unresolved_assumption_refs"][0]["ref"] = "mutated-after-build"
+    assert package["unresolved_assumption_refs"][0]["ref"] == (
+        "assumption:invented-result-review"
+    )
+    assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
 
 
 def test_missing_units_stable_ids_and_loss_report_are_blocking():

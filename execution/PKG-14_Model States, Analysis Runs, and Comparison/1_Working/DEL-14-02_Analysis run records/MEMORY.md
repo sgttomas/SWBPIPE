@@ -1,5 +1,10 @@
 # MEMORY - DEL-14-02 Analysis Run Records
 
+## 2026-07-12 - D-41 R5 T4 PDU-040 supporting evidence
+
+- Canonical analysis-run records can now traverse persistence into backend report sections without dropping governed context. Producer diagnostic breadth and PDU-033 unit/dimension binding remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-07-12 - D-41 R5 T2A canonicalization-label fidelity
 
 - Under `DEC-074` E1 and PDU-003, DEL-14-02 now emits

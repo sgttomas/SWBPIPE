@@ -106,3 +106,7 @@ Future target-admission runs should add records only under their own sealed writ
 ## D-41 R5 T2A canonicalization check (2026-07-12)
 
 Before accepting adapter package hashes, execute the exact-byte/fixed-hash vector, stable-order test, mutation test, schema/fixture validation, and explicit no-JCS assertion.
+
+## D-41 R5 T4 PDU-004 hold check
+
+Inventory only fields and categories emitted by the current builder. Record distinct mechanics/rule-check categories and reviewer/signoff/approval fields as absent and owner-unselected. Do not add placeholder schema fields or normalize existing evidence into a readiness or acceptance record.

@@ -1,5 +1,10 @@
 # MEMORY - DEL-04-04 Nonlinear Support Active-Set Solver
 
+## 2026-07-12 - D-41 R5 T4 PDU-021 supporting evidence
+
+- The downstream report reader preserves solver context, warnings, assumptions, limitations, and provenance when present in canonical run records. Direct nonlinear-solver producer binding and existing PDU-035/threshold holds remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-05-01 bounded implementation
 
 Human project authority authorized one deliberately scoped `DEL-04-04` item after

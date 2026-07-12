@@ -75,3 +75,5 @@ Acceptable future examples shall be invented or rights-cleared and shall demonst
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | None | No source conflict identified in Phase A. Remaining open items are `TBD`, not conflicts. | N/A | N/A | N/A | N/A | N/A |
+
+For PDU-036, do not manufacture impossible-bend geometry merely to satisfy a diagnostic species. Preserve the O11 profile and record the absent bend-specific evidence honestly.

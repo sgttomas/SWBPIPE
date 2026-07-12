@@ -78,3 +78,5 @@ These slots remain descriptive records, not implementation authority. They are k
 | IP-DATA | `docs/IP_AND_DATA_BOUNDARY.md` |
 | SPEC / TYPES | `docs/SPEC.md`, `docs/TYPES.md` |
 | MODEL-SCHEMA | `schemas/model.schema.yaml` |
+
+PDU-036 evidence state: emitted-entity mapping completeness is checked only for current JSON line geometry; impossible-bend, GLB, viewer, and broader geometry diagnostics remain outside O11 scope and unvalidated.

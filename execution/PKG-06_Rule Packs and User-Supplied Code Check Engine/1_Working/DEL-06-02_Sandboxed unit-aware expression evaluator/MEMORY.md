@@ -1,5 +1,10 @@
 # MEMORY - DEL-06-02 Sandboxed Unit-Aware Expression Evaluator
 
+## 2026-07-12 - D-41 R5 T4 PDU-021 supporting evidence
+
+- The downstream report reader preserves governed run records only. Evaluator execution, final diagnostic taxonomy, and result-envelope producer integration remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-07-12 - D41-R5-T2B-PDU024 downstream version integration
 
 - Recorded the bounded downstream integration for PDU-024: project-carried evaluator inputs consume DEL-02-05's accepted `0.2.0` model-document family and explicit current/stale/unsupported/newer/failed version-check behavior.

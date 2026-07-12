@@ -118,3 +118,4 @@ The deliverable has materialized as a provider-neutral Python transform contract
 |---|---|---|
 | 3D centerline/frame target | Deterministic transform and section-property preservation tests; bounded TP-PHYS-015 section-property oracle binding. | Independent validation of broader mechanics suitability. |
 | Component field scalar | Paired paths on valid geometry quantity copy-through. | Runtime result-envelope continuation has no accepted producer/home. |
+| PDU-036 trace-gap witness | Invented unsupported component is omitted with linked `ASSUMPTION_WARNING`; invalid/omitted scalar path is absent. | Project-owned verification only; broader field/runtime trace validation remains open. |

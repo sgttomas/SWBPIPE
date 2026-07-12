@@ -110,3 +110,7 @@ Current bounded implementation records include:
 - `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU029-PDU031.md`.
 
 No binary GLB, broad geometry, viewer-compatibility, engineering-validation, public-API, GUI, or release work is authorized by this repair.
+
+## D-41 R5 T4 PDU-036 O11 boundary
+
+REQ-043 evidence is bounded to the selected JSON glTF line/centerline profile. Current emitted line entities require authoritative ID-map correlation. Impossible-bend display geometry is not present in this profile, so its specific diagnostic remains an explicit out-of-scope gap rather than an invented bend representation or validation claim.

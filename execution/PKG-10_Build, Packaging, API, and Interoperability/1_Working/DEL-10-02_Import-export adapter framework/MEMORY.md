@@ -1,5 +1,10 @@
 # MEMORY - DEL-10-02 Import/export adapter framework
 
+## 2026-07-12 - D-41 R5 T4 PDU-012/PDU-022 supporting evidence
+
+- The persisted-run report path does not dispatch an adapter. Concrete rule/report hooks, adapter runtime, capability grants, and end-to-end interop remain unselected.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

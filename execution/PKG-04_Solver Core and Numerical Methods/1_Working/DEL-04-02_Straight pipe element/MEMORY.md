@@ -1,5 +1,10 @@
 # MEMORY - DEL-04-02 Straight Pipe Element
 
+## 2026-07-12 - D-41 R5 T4 PDU-040 supporting evidence
+
+- The downstream persisted-record report reader preserves governed context but does not bind straight-pipe diagnostics/results into the analysis-run producer.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## Decisions And Rulings
 
 - 2026-05-01 - Human project authority authorized proceeding with

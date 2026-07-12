@@ -7,6 +7,7 @@
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T4 PDU-010/PDU-038 added focused parser-boundary conformance evidence for supported section/unit/stable-ID preservation; external target behavior and compatibility remain unclaimed.
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)
 - 2026-05-18 - State set to INITIALIZED (TASK+four-documents)
 - 2026-05-18 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

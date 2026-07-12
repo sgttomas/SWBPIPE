@@ -76,3 +76,5 @@ Executable invented examples are available in `fixtures/domain/invented_physical
 A correct circular-section calculation is not a validation basis for the overall physical-to-analytical 3D mechanics boundary. Keep the existing deterministic verification and the new bounded oracle binding distinct from the unresolved suitability judgment.
 
 PDU-023 field paths prove scalar identity through the current copy boundary only; they do not claim downstream solver or runtime result-envelope production.
+
+PDU-036 uses an invented negative fixture to make one omission/warning/assumption relationship executable. Treat its missing scalar trace as an explicit gap caused by omission, not as evidence that every scalar or runtime result path is traced.

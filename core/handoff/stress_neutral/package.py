@@ -107,6 +107,8 @@ def build_stress_neutral_export_package(
     result_rows: list[Mapping[str, Any]],
     stable_id_map: list[Mapping[str, Any]],
     loss_report: list[Mapping[str, Any]],
+    unresolved_assumption_refs: list[Mapping[str, Any]] | None = None,
+    reproducibility_refs: list[Mapping[str, Any]] | None = None,
     unit_system_disclosure: Mapping[str, Any] | None = None,
     export_profile: Mapping[str, Any] | None = None,
     validation_checks: list[Mapping[str, Any]] | None = None,
@@ -121,6 +123,8 @@ def build_stress_neutral_export_package(
     provenance_record = deepcopy(dict(provenance or ENGINE_PROVENANCE))
     privacy_record = _privacy(privacy)
     notes = list(boundary_notes or DEFAULT_BOUNDARY_NOTES)
+    assumption_refs = deepcopy(list(unresolved_assumption_refs or []))
+    reproduction_refs = deepcopy(list(reproducibility_refs or []))
     profile = _export_profile(export_profile, notes)
     rows = _result_rows(result_rows, provenance_record)
     unit_record = _unit_system_disclosure(
@@ -197,6 +201,8 @@ def build_stress_neutral_export_package(
         "source_run_ref": deepcopy(dict(source_run_ref)),
         "source_model_ref": deepcopy(dict(source_model_ref)),
         "source_hashes": deepcopy(list(source_hashes)),
+        "unresolved_assumption_refs": deepcopy(assumption_refs),
+        "reproducibility_refs": deepcopy(reproduction_refs),
         "export_profile_ref": _ref("ExportProfile", profile["profile_id"]),
         "boundary_notes": notes,
         "member_hashes": checksums,
@@ -213,6 +219,8 @@ def build_stress_neutral_export_package(
         "source_run_ref": deepcopy(dict(source_run_ref)),
         "source_model_ref": deepcopy(dict(source_model_ref)),
         "source_hashes": deepcopy(list(source_hashes)),
+        "unresolved_assumption_refs": deepcopy(assumption_refs),
+        "reproducibility_refs": deepcopy(reproduction_refs),
         "export_profile_ref": _ref("ExportProfile", profile["profile_id"]),
         "package_members": _package_members(export_id, checksums),
         "checksums": _stable(list(checksums.values()) + deepcopy(list(source_hashes))),
@@ -231,6 +239,8 @@ def build_stress_neutral_export_package(
         "source_run_ref": deepcopy(dict(source_run_ref)),
         "source_model_ref": deepcopy(dict(source_model_ref)),
         "source_hashes": deepcopy(list(source_hashes)),
+        "unresolved_assumption_refs": deepcopy(assumption_refs),
+        "reproducibility_refs": deepcopy(reproduction_refs),
         "export_profile": profile,
         "manifest": manifest,
         "unit_system_disclosure": unit_record,

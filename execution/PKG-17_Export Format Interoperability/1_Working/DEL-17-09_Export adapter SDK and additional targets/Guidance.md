@@ -87,3 +87,7 @@ Not acceptable:
 ## D-41 R5 T2A canonicalization guidance (2026-07-12)
 
 Keep the narrow sorted-compact JSON label coupled to exact-byte and mutation tests. Do not upgrade the label to JCS without a governed RFC 8785 implementation and conformance evidence.
+
+## D-41 R5 T4 PDU-004 guidance
+
+Do not infer missing categories from nearby evidence or convert the current `export_review`/`human_review` records into mechanics, rule-check, reviewer, signoff, or approval semantics. Preserve the exact missing taxonomy as an owner hold.

@@ -73,3 +73,15 @@
 - CAEPIPE user-output evidence now defaults to `private_user_controlled`, local-only, telemetry-disabled handling; partial caller overrides cannot erase those defaults.
 - Focused negative/no-bypass evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU016.md`.
 - This is one selected seam only, not a whole-product security/privacy claim; lifecycle remains `IN_PROGRESS`.
+
+## 2026-07-12 - D-41 R5 T4 PDU-010/PDU-038 conformance evidence
+
+- Added an executable parser-boundary witness covering the current invented
+  `NODE_DISPLACEMENTS`/metres and `ELEMENT_FORCES`/newtons rows, target IDs,
+  stable IDs, source CSV reference, and parser-only/no-execution status.
+- This is fixture-level parser verification. Invocation layout, live output
+  discovery, broader section coverage, comparison semantics, target
+  compatibility, and external validation remain unresolved and unclaimed.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU010-PDU038.md`.
+  Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

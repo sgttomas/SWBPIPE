@@ -143,3 +143,5 @@ Implementation records are no longer `TBD` for the current transform, internal a
 Treat section-property numeric evidence as evidence for the carried section-property values only. Do not use it to infer broader 3D frame suitability, shell/solid equivalence, release readiness, or professional acceptance. Record that missing independent basis as a held residual.
 
 For PDU-023, require paired source/target scalar paths only after quantity metadata passes current validation. Do not synthesize a result-envelope continuation.
+
+For PDU-036, load the invented trace-gap fixture, verify the unsupported component is absent from analytical output, verify its `ASSUMPTION_WARNING` is attached to the diagnostic trace link, and verify no field-scalar link is emitted for the omitted record. Record the result as verification, not independent validation.

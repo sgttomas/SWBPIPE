@@ -1,5 +1,10 @@
 # DEL-14-04 Memory
 
+## 2026-07-12 - D-41 R5 T4 PDU-021 supporting evidence
+
+- The selected T4 reader consumes persisted state/run records, not comparison results. Named result-family coverage and PDU-011/PDU-047 holds remain unchanged.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-07-12 - D-41 R5 T2C PDU-030 stable/manual mapping round trip
 
 - Added `derive_exact_result_id_mappings` to produce deterministic DEL-14-05

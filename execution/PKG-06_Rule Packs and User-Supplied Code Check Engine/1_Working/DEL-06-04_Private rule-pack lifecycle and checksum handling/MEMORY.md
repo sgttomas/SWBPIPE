@@ -1,5 +1,10 @@
 # MEMORY - DEL-06-04 Private rule-pack lifecycle and checksum handling
 
+## 2026-07-12 - D-41 R5 T4 PDU-040 supporting evidence
+
+- The downstream report reader does not expand the lifecycle crate or supply DEL-06-03 data-gap evaluation. Runtime binding and exact non-JSON/binary partitioning remain held.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## Current Implementation Notes
 
 - 2026-05-02: Implemented bounded Rust crate

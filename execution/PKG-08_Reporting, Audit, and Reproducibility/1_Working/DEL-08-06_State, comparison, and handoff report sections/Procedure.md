@@ -50,3 +50,16 @@ Define an operational procedure for producing and verifying the DEL-08-06 report
 - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` for semantic lensing, not engineering authority.
 - `Dependencies.csv` and `_DEPENDENCIES.md` as the approved DAG-006 local mirror/evidence surface.
 - Future implementation tests and review notes for section assembly, protected-content avoidance, professional-boundary wording, provenance/checksum preservation, deterministic output, and missing-data findings.
+
+## D-41 R5 T4 persisted-run procedure
+
+1. Accept a canonical project persistence envelope.
+2. Read only embedded model-state and analysis-run records from
+   `project.run_history`.
+3. Assemble backend sections with the existing DEL-08-06 path.
+4. Verify warnings, assumptions, limitations, solver context, provenance, and
+   permitted analysis statuses survive.
+5. Verify no project mutation, solver execution, human approval,
+   code-compliance result, or external/non-JSON partition decision is emitted.
+6. Keep producer-side solver/rule/adapter bindings and rendered-report layout
+   as explicit residuals.

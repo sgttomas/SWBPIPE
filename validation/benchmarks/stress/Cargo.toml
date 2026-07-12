@@ -10,5 +10,7 @@ path = "src/lib.rs"
 
 [dependencies]
 open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
+open_pipe_stress_result_export = { path = "../../../core/reporting/result_export" }
 open_pipe_stress_stress_recovery = { path = "../../../core/loads/stress_recovery" }
 open_pipe_stress_straight_pipe = { path = "../../../core/solver/straight_pipe" }
+sha2 = "0.10"

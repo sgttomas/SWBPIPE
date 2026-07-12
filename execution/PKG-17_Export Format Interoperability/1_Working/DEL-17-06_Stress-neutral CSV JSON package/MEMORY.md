@@ -96,3 +96,17 @@
 - Narrowed DEL-17-06 JSON checksum labels from an unproved JCS-compatible claim to `deterministic_sorted_compact_json_payload_hash`; serialization bytes and checksum values did not change.
 - Updated the schema and governed invented fixtures and added exact-byte, fixed-hash, ordering, mutation, and no-JCS evidence.
 - CSV normalization remains separately labeled. Lifecycle remains `IN_PROGRESS`; the D-41 corpus-currentness bootstrap remains pending T7.
+
+## 2026-07-12 - D-41 R5 T4 PDU-001/PDU-038 reference passthrough
+
+- The stress-neutral builder now accepts conditional
+  `unresolved_assumption_refs` and `reproducibility_refs`, preserves them
+  in both the package and hash-bound manifest seed, and emits empty arrays
+  when the source supplies none.
+- Strict-schema properties and mutation-resistant passthrough tests cover the
+  seam. The references remain references only; no assumption is resolved and
+  no validation, comparison threshold, compatibility, or professional
+  disposition is inferred.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU001-PDU038.md`.
+  Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

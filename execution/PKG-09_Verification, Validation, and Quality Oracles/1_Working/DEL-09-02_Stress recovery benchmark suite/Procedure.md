@@ -42,3 +42,5 @@ Define the operating procedure for producing the future stress recovery benchmar
 - `Dependencies.csv` and `_DEPENDENCIES.md`.
 - `_run_records/*` setup run records.
 - `_STATUS.md` showing `SEMANTIC_READY` only after setup gates pass.
+
+For PDU-039, execute the stress benchmark crate with an external `CARGO_TARGET_DIR`; require the governed-envelope test to preserve the six recovered values, trace links, evidence diagnostic, deterministic hashes, `HUMAN_REVIEW_REQUIRED`, and no approval claim. Record the run as verification only.

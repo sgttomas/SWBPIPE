@@ -4,6 +4,7 @@
 **Last Updated:** 2026-07-12
 
 ## Remaining
+- Bind nonlinear solver version, warnings, assumptions, limitations, and diagnostic provenance into the governed analysis-run producer path; the T4 persisted-record report reader does not create that producer integration or alter PDU-035/threshold holds.
 - Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
 - Resolve sliding-direction dependence on the prior iterate (anti-chatter / friction path-history follow-on) (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
 - Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan §3 Phase D D6/D9 rows / DEC-046)
@@ -12,6 +13,7 @@
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T4 PDU-021 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T2 recorded the PDU-035 formal-review and dimensional-validation hold; no review disposition or threshold changed.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)

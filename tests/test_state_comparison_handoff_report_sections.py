@@ -13,9 +13,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from core.reporting.state_comparison_handoff_sections import (  # noqa: E402
+    build_persisted_project_report_sections,
     build_state_comparison_handoff_report_sections,
     canonical_json,
     diagnostics_for_report_sections,
+)
+from core.project_persistence import (  # noqa: E402
+    build_project_persistence_envelope,
+    round_trip_project_envelope,
 )
 
 
@@ -128,6 +133,27 @@ def analysis_run() -> dict[str, object]:
             "unit_system_ref": ref("UnitSystem", "units:invented-del-08-06"),
             "load_basis_refs": [ref("LoadCase", "load:invented")],
             "diagnostics": [],
+            "warnings": [
+                {
+                    "code": "RUN-INVENTED-WARNING",
+                    "severity": "warning",
+                    "message": "Invented run warning preserved for report review.",
+                    "provenance": provenance("Invented run warning"),
+                }
+            ],
+            "unresolved_assumptions": [
+                {
+                    "assumption_id": "assumption:invented-run-review",
+                    "statement": "Invented run assumption remains unresolved.",
+                    "provenance": provenance("Invented run assumption"),
+                }
+            ],
+            "limitations": [
+                {
+                    "limitation_id": "limitation:invented-run-scope",
+                    "statement": "Invented run covers the bounded mechanics fixture only.",
+                }
+            ],
             "result_refs": [ref("ResultEnvelope", "results:invented-del-08-06")],
             "rule_pack_refs": [
                 {
@@ -366,6 +392,13 @@ def test_sections_preserve_ids_hashes_warnings_assumptions_units_and_review_stat
     assert state_section["privacy_classification"] == "invented_public_example"
     assert state_section["review_state"] == "machine_checked"
     assert run_section["unit_context"] == ref("UnitSystem", "units:invented-del-08-06")
+    assert run_section["warnings"][0]["code"] == "RUN-INVENTED-WARNING"
+    assert run_section["assumptions"][0]["assumption_id"] == "assumption:invented-run-review"
+    assert run_section["limitations"][0]["limitation_id"] == "limitation:invented-run-scope"
+    assert run_section["limitations"][0]["human_review_required"] is True
+    assert run_section["solver_context"]["version"] == "0.0.0-fixture"
+    assert run_section["source_provenance"]["source_name"] == "Invented analysis run"
+    assert run_section["analysis_status"] == ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED"]
     assert run_section["rule_pack_refs"][0]["checksum"]["value"] == "sha256:invented-rule"
     assert comparison_section["unit_normalized_deltas"][0]["normalized_unit"] == "Pa"
     assert comparison_section["tolerance_profile_refs"] == ["tolerance:invented-review"]
@@ -390,6 +423,47 @@ def test_missing_source_values_become_explicit_findings_and_tbds():
     assert any(item["severity"] == "warning" for item in record["diagnostics"])
     assert any("unit_context" in item["tbd_id"] for item in record["unresolved_tbds"])
     assert any("source_provenance" in item["tbd_id"] for item in record["unresolved_tbds"])
+
+
+def test_persisted_run_history_binds_to_report_sections_without_state_inference():
+    persistence_envelope = build_project_persistence_envelope(
+        project_id="project:persisted-report-fixture",
+        project_name="Invented persisted report fixture",
+        model_payload={"model_id": "model:invented-del-08-06"},
+        model_state_records=[model_state()],
+        analysis_run_records=[analysis_run()],
+    )
+    round_trip = round_trip_project_envelope(persistence_envelope)
+    assert round_trip["semantic_equal"] is True
+
+    record = build_persisted_project_report_sections(
+        section_set_id="sections:persisted-invented-run",
+        persistence_envelope=round_trip["envelope"],
+    )
+    binding = record["application_service_binding"]
+    run_section = next(
+        item
+        for item in record["sections"]["state_run_sections"]
+        if item["section_kind"] == "analysis_run_record"
+    )
+
+    assert binding == {
+        "source": "project.run_history",
+        "workflow_grain": "persisted_run_history_to_report_sections",
+        "canonical_records_only": True,
+        "project_mutated": False,
+        "solver_executed": False,
+        "human_approval_inferred": False,
+        "code_compliance_inferred": False,
+        "external_payload_partitioning": "unchanged_source_contract",
+    }
+    assert run_section["warnings"][0]["code"] == "RUN-INVENTED-WARNING"
+    assert run_section["assumptions"][0]["assumption_id"] == "assumption:invented-run-review"
+    assert run_section["limitations"][0]["limitation_id"] == "limitation:invented-run-scope"
+    assert run_section["analysis_status"] == ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED"]
+    assert "CODE_COMPLIANT" not in canonical_json(record)
+    assert "HUMAN_APPROVED_FOR_PROJECT" not in canonical_json(record)
+    assert persistence_envelope["hash"]["payload_partition_status"] == "json_payloads_defined"
 
 
 def test_authority_claims_are_diagnosed_without_copying_claim_text():

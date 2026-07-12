@@ -91,3 +91,7 @@ Required downstream artifacts remain future work and `TBD`:
 ## D-41 R5 T2A canonicalization requirement (2026-07-12)
 
 All DEL-17-09-produced JSON checksum records SHALL use `deterministic_sorted_compact_json_payload_hash` for the existing sorted-key compact ASCII-escaped Python JSON serializer and SHALL NOT claim RFC 8785/JCS conformance.
+
+## D-41 R5 T4 PDU-004 held taxonomy
+
+The current admission record fields are `check_id`, `category`, `description`, `status`, `required_before_target_admission`, `evidence_refs`, `affected_refs`, `human_review_required`, and `provenance`. The exact additional category taxonomy and the reviewer-role, signoff-format, and approval-artifact fields remain owner-unselected. `human_review_required=true` is only a boundary flag; it is not reviewer identity, signoff, acceptance, or approval.

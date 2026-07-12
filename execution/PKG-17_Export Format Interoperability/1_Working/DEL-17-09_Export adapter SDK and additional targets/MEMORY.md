@@ -1,5 +1,11 @@
 # MEMORY: DEL-17-09
 
+## 2026-07-12 - D-41 R5 T4 PDU-004 taxonomy hold
+
+- The implemented admission checklist exposes nine current categories and evidence/status/reference fields.
+- Exact mechanics-readiness, rule-check-readiness, reviewer-role, signoff-format, and approval-artifact taxonomy remains owner-unselected. Existing `human_review_required=true` is a boundary flag, not reviewer identity or signoff.
+- No checklist category, reviewer, signoff, approval, validation outcome, target readiness, or lifecycle state was invented.
+
 ## 2026-05-18 - SCA-004 PREPARATION scaffold
 - Created minimum viable fileset from SOFTWARE_DECOMP revision 0.7.
 - Populated local context, dependencies placeholder, references, semantic placeholder, and status.
@@ -79,3 +85,13 @@
 - DEL-10-02's deny-only declaration gate rejects disabled provenance/privacy controls and never dispatches rejected, quarantined, or currently conforming declarations while runtime remains unselected.
 - The SDK admission package is still not a runtime loader, and PDU-018 provenance-detail grains remain incomplete. PDU-034's exact readiness-category taxonomy remains held and unchanged.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.
+
+## 2026-07-12 - D-41 R5 T4 PDU-038 hold preservation
+
+- PKG-17 fixture/conformance improvements do not admit an additional target
+  or runtime. Binary GLB, broader review geometry, target-specific behavior,
+  layout, tolerances, comparison semantics, compatibility, and validation
+  outcomes remain outside the current SDK declaration evidence.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU038-HOLD.md`.
+  Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

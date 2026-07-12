@@ -1,5 +1,11 @@
 # MEMORY: DEL-17-08
 
+## 2026-07-12 - D-41 R5 T4 PDU-036 O11 boundary
+
+- Current emitted line-entity mapping completeness evidence is bounded to the selected JSON glTF centerline profile.
+- Impossible-bend display diagnostics remain outside that profile because bend geometry, GLB, viewer behavior, and broader geometry were not selected under O11.
+- No validation, target compatibility, or lifecycle outcome was inferred.
+
 ## 2026-07-12 - D-41 R5 T2B PDU-029/PDU-031
 
 - `DEC-074` O11/E7 preserves the current bounded JSON `.gltf` profile:
@@ -87,3 +93,22 @@
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-07-12 - D-41 R5 T4 PDU-010/PDU-020/PDU-038 manifest evidence
+
+- The hash-bound review-geometry manifest now copies the selected export
+  profile's `source_basis_refs` alongside its source-model ref, profile ref,
+  glTF artifact, package-member inventory, boundary notes, and diagnostics.
+- The strict manifest schema requires those refs, and the governed package
+  fixture carries them with the corresponding regenerated manifest checksum;
+  omission is covered by a negative schema test.
+- Focused evidence checks the complete current manifest/content path and the
+  explicit exported-versus-omitted loss content for the invented centerline
+  fixture.
+- Scope remains JSON `.gltf` with embedded buffer and `LINES` centerlines.
+  Binary GLB, surfaces/tubes, broader entity coverage, viewer compatibility,
+  rendered visual QA, target tolerances, and engineering validation remain
+  held and unclaimed.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU010-PDU020-PDU038.md`.
+  Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

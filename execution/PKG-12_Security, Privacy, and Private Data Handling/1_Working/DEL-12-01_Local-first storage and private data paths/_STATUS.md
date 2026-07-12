@@ -5,9 +5,11 @@
 
 ## Remaining
 - Bind all applicable adapter/plugin and result/report runtime surfaces to governed local-first/private-data enforcement; the selected deny-only declaration gate does not create those runtime bindings.
+- Complete LFSP-REQ-011's runtime path-resolution, storage round-trip/migration, and report/export integration test families only when their owning implementations exist. PDU-036's transform trace-gap fixture is adjacent verification evidence and does not validate or substitute for these absent storage families.
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T4 PDU-036 recorded the bounded adjacent trace-gap fixture while preserving LFSP-REQ-011's absent runtime storage/package/migration/report-export test families; no validation promotion.
 - 2026-07-12 - D-41 R5 T3 PDU-028 recorded private-transmission no-bypass evidence at adapter declaration admission; broader storage/result/report runtime enforcement remains open.
 
 - 2026-04-30 - State set to OPEN (PREPARATION).

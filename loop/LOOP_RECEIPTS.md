@@ -1023,3 +1023,24 @@
     cross-pilot GPT-5 fan-in and post-correction re-review passed; GPT-5
     orchestrator integrated closeout. No silent substitution.
   - Gate outcome: T3 complete; T4 may proceed.
+
+- **2026-07-12 — Receipt 38** (D-41 R5 T4 application/interoperability/
+  reporting/export checkpoint).
+  - Applied: PDU-001/010/012/020/021/022/036/038/039/040 bounded export,
+    report-section, workflow, trace-gap, and result-envelope evidence.
+  - Held: PDU-004 exact taxonomy; non-JSON partitioning; runtime/API/live
+    integration; GLB/broader geometry; tolerances, compatibility, validation,
+    release/publication, and professional reliance.
+  - Evidence: `R5_T4_CLOSEOUT.md`, SHA-256
+    `1ce30a24dac7d6967f8327055d004cc098292cafa1cfab8eb1b8c503176b999c`;
+    project pytest 494/494; stress Cargo 23/23 plus doc tests, locked/external
+    target; fixture/builder/schema coherence PASS.
+  - Fan-in: one PDU-020 schema/fixture omission found and corrected through
+    DEL-17-08 owner; final integrated fan-in PASS.
+  - Boundaries: lifecycle/bootstrap preserved; no review/dependency-ledger/
+    DAG/register/decomposition/ISSUED change or validation/compatibility/
+    professional claim. D-42 remains AWAITING_RULING.
+  - Model attribution: GPT-5 owning pilots executed three partitions;
+    cross-pilot GPT-5 fan-in and GPT-5 orchestrator closeout. No silent
+    substitution.
+  - Gate outcome: T4 complete; T5 may proceed.

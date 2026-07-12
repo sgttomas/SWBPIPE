@@ -61,3 +61,5 @@ Future benchmark cases are expected to be small, deterministic, synthetic or cle
 | Which result-envelope fields must every benchmark assertion inspect? | `TBD` |
 | Which provenance checklist is mandatory before adding public benchmark source files? | `TBD` |
 | Which exact file layout under `validation/benchmarks/stress` is authorized for implementation? | `TBD` |
+
+PDU-039 current evidence: one complete invented benchmark output is validated in-memory by `open_pipe_stress_result_export`; six stress values preserve diagnostics, trace, units, deterministic hashes, and human-review boundaries. Final tolerances and release/validation outcomes remain `TBD`.

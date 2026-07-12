@@ -46,3 +46,5 @@ Example source patterns for future work are `TBD`. This setup pass intentionally
 ## Pass 3 Lensing Notes
 
 Semantic lensing items were applied as setup clarifications only. Additions were limited to explicit coverage slots, provenance fields, tolerance authority placeholders, result-envelope review language, and professional-boundary wording. Sources reread: `_CONTEXT.md`; `docs/CONTRACT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`.
+
+PDU-039 guidance: use the governed envelope witness to prove interface and diagnostic preservation only. Do not interpret a clean envelope validator result as tolerance suitability, benchmark independence, validation success, or professional acceptance.

@@ -1,5 +1,10 @@
 # MEMORY - DEL-16-04 Agent rationale and professional-boundary controls
 
+## 2026-07-12 - D-41 R5 T4 PDU-012 supporting evidence
+
+- The persisted-run report workflow infers neither human approval nor code compliance, but does not create the stage-gated F3/v0.2 R7 agent-rationale live binding.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## Implementation Notes
 
 - Added `core/model_operations/agent_rationale/` as a deterministic Python

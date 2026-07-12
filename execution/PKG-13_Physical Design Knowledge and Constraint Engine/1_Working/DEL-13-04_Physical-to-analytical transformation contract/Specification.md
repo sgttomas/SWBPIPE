@@ -108,3 +108,7 @@ The TP-PHYS-015 production section-property binding is relevant downstream evide
 ## D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
 
 REQ-004 now has a minimal field-scalar link for valid copied component geometry quantities. Each link pairs source and target scalar paths on the existing object references. Incomplete quantity metadata is diagnosed and emits no scalar link. Runtime result-envelope continuation remains held.
+
+## D-41 R5 T4 PDU-036 fixture evidence
+
+`fixtures/domain/invented_physical_to_analytical_trace_gap.json` provides one verification-only unsupported-component witness. The transform omits the component, emits `PTA-COMPONENT-TYPE-UNSUPPORTED` as `ASSUMPTION_WARNING`, attaches that warning to the component-to-diagnostic trace link, and emits no scalar link for the omitted quantity. This bounded witness does not promote independent validation or close broader trace coverage.

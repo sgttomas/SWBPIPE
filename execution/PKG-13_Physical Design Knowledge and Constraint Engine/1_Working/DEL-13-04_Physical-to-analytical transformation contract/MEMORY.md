@@ -1,5 +1,11 @@
 # MEMORY - DEL-13-04 Physical-to-analytical transformation contract
 
+## 2026-07-12 - D-41 R5 T4 PDU-036 trace-gap fixture
+
+- Added `fixtures/domain/invented_physical_to_analytical_trace_gap.json` and a focused transform test.
+- The witness proves an unsupported component is omitted, carries an `ASSUMPTION_WARNING`, remains linked to its diagnostic, and receives no field-scalar trace.
+- Evidence is project-owned verification only; broader trace coverage, independent validation, and runtime result-envelope continuation remain open.
+
 ## Implementation Notes
 
 - Added a provider-neutral Python transform contract at `core/model_transform/physical_to_analytical/contract.py`.
