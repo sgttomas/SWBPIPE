@@ -91,13 +91,23 @@ artifacts, gate outcomes, check pass/fail) so the next iteration starts clean.
 Standing constraints and the loop protocol live in the plan — follow them as
 written. The session conventions are:
 
-- Subagent model assignments (owner-revised 2026-07-05; this section is the
-  convention's home — a per-run steer may override): `opus` agents for
-  discovery, research, summaries, running deterministic checks, and breadth
-  verification; `fable` agents at `high` reasoning effort for planning, for
-  adversarial verification of anything that will be recorded as fact, and for
-  execution that touches governed artifacts, fences, or rulings; `fable` at
-  `low` effort only for mechanical execution of fully specified changes.
+- Subagent capability assignments (owner-revised 2026-07-12: MODEL-AGNOSTIC —
+  no named-model conventions; this section is the convention's home and a
+  per-run steer may override; earlier named-model steers, including the
+  2026-07-05 convention and this run's Receipt-17 steer, are rescinded going
+  forward and survive only as historical record of how past waves were
+  executed): the owner names the model(s) in session-time or dispatch-time
+  instructions; absent that, assign the session's available models by
+  capability tier, not by name. Standard-capability agents for discovery,
+  research, summaries, running deterministic checks, and breadth
+  verification; highest-available-capability agents (at high reasoning effort
+  where the harness supports it) for planning, for adversarial verification
+  of anything that will be recorded as fact, and for execution that touches
+  governed artifacts, fences, or rulings; reduced effort only for mechanical
+  execution of fully specified changes. Record in each receipt which model
+  actually performed each dispatched role; never silently substitute models
+  mid-task — a model or capability-tier change within a wave is a
+  receipt-worthy event.
 
 If the owner appended a steer for this run (the launcher's `Steer` line, their
 message, or a line below), honor it on top of the plan and over §5's defaults;

@@ -634,3 +634,107 @@
     verbatim): "merge PR #198" — executed; PR #198 merged to main as
     `0129780f38d6af7f3854fd51c344030b958ed751`. The pause otherwise stands;
     W4 still awaits owner direction.
+
+- **2026-07-12 — Receipt 25** (model-agnostic conversion of task/loop
+  instructions; no phase work).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "**Direction:
+    make all task and loop instructions model-agnostic (owner direction
+    2026-07-12).** The `fable` and `opus` model conventions are no longer
+    valid; I will be using OpenAI models. Instructions must not name models
+    or assign model types to task types. Where an instruction strongly
+    encoded a model preference, convert it so that I provide the model in my
+    session-time or dispatch-time instructions. 1. Work only within your
+    existing worktree and write scope for the D41 concordance run. Do not
+    touch chirality-app-dev, the primary checkout, or other worktrees. The
+    app-dev side is already done — use `main` commits `280de8213` (Receipt
+    34, LOOP_INIT rewording) and `5b3b68f14` (Receipt 35, agents/tools
+    surfaces) as the wording precedent, and note the repo-root shared
+    surfaces (`agents/AGENT_*.md`, `tools/REGISTRY.md`,
+    `_DomainEngines/bridge/LOOP_INIT.md`) are ALREADY converted — do not
+    re-edit them. 2. Edit `projects/chirality-piping/loop/LOOP_INIT.md` §7:
+    replace the named-model subagent assignments (`opus` for
+    discovery/checks/breadth verification; `fable` at high effort for
+    planning/adversarial verification/governed execution) with
+    model-agnostic language: the owner names the model(s) in session- or
+    dispatch-time instructions; absent that, assign by capability tier
+    (standard capability for discovery, research, summaries, deterministic
+    checks, breadth verification; highest available capability for planning,
+    adversarial verification of anything recorded as fact, and execution
+    touching governed artifacts, fences, or rulings; reduced effort only for
+    mechanical fully-specified changes). Add the obligation to record in
+    each receipt which model actually performed each dispatched role, and
+    never to silently substitute models mid-task. 3. Sweep the rest of your
+    project's LIVE instruction surfaces for named-model directives
+    (`grep -rniE '\bfable\b|\bopus\b|\bsonnet\b|\bhaiku\b|claude-'
+    projects/chirality-piping/ --include='*.md'` and filter): convert live
+    instructions the same way. Do NOT edit historical records — receipts,
+    decision registers/rulings, run records, `_run_records/**`, completed
+    plans, and any file with a superseded/historical banner stay frozen as
+    evidence. When in doubt whether a file is live instruction or historical
+    record, list it for me instead of editing. 4. Also update the handoff
+    prompt `init/piping-resume-one-time.md` in the primary checkout root
+    (this specific file only; I authorize that single write outside your
+    worktree): make its model-verification step provider-neutral (verify
+    account/organization and metering context; record which model performs
+    each role; never silently substitute) and remove any named-model steer,
+    pointing instead at LOOP_INIT §7. 5. Record a receipt in your loop's
+    `LOOP_RECEIPTS.md` quoting this direction verbatim, noting that prior
+    named-model steers in your run's receipts are rescinded going forward
+    but stand as immutable historical record of how past waves were actually
+    executed. 6. Commit and push on your work branch and open a PR; do not
+    merge it without my direction. No phase work, no lifecycle transitions,
+    and no change to your run's evidence artifacts under this direction.
+    Also, check whether any of your run's ledger or register rows hash-pin
+    the repo-root `agents/AGENT_*.md` files — six of them changed content in
+    `5b3b68f14`, so hash-pinned references now mismatch the live files
+    (evidence stays valid at its bound SHA; it's forward-looking drift to
+    note, not repair silently). And if your run pinned a plan revision by
+    SHA, the pin is unaffected — these changes touched no `plans/PLAN_*`
+    content in piping."
+  - Rescission of record: the named-model steers in this run's receipts —
+    the Receipt-17 steer (opus/fable role assignments for W1–W5, fan-in,
+    R3/R6) and the 2026-07-05 LOOP_INIT §7 convention — are **rescinded
+    going forward**. They stand as immutable historical record of how waves
+    W1–W3 were actually executed. Going forward the owner names models in
+    session- or dispatch-time instructions; LOOP_INIT §7 (as revised) holds
+    the capability-tier fallback and the receipt-attribution obligation.
+  - Edits made (live instruction surfaces only): `loop/LOOP_INIT.md` §7
+    rewritten model-agnostic on the `280de8213` app-dev precedent, adding
+    owner-names-models-at-dispatch-time, per-receipt model attribution, and
+    the no-silent-substitution rule; root handoff prompt
+    `init/piping-resume-one-time.md` (primary checkout; single authorized
+    out-of-worktree write) made provider-neutral, named-model steer removed,
+    now pointing at LOOP_INIT §7 with the PKG-12 risk shape retained
+    model-agnostically. Repo-root shared surfaces not re-edited per the
+    direction.
+  - Sweep classification (grep per the direction): all other hits are
+    historical/evidence and stay frozen — LOOP_RECEIPTS.md, RUN_BASIS.md,
+    R0/R0b/R1 notes, W1–W3 NOTES_* and W*_VERIFICATION_*, PACKAGE_SUMMARIES,
+    AUTHORITY_AND_SOURCE_RELIABILITY_MAP.md (path-level references only),
+    `_run_records/**`, and `plans/INIT_2026-06-18_...` (completed; its sole
+    hit is a factual SDK package name). WORKPLAN files: no hits.
+  - Listed for owner (doubt/defect items NOT edited under this direction):
+    (a) RUN_BASIS.md forward-looking resume lines name the rescinded steer
+    ("W4 ... opus pilots per the Receipt-17 steer" in the W3 pause entry) —
+    run record, left frozen; superseded by LOOP_INIT §7 via this receipt.
+    (b) FACTUAL DEFECT in evidence artifacts: `PACKAGE_SUMMARIES/PKG-06.md`,
+    `PKG-07.md`, `PKG-08.md` each state "All pilots fable per the Receipt-17
+    steer" — W3 discovery pilots were opus per that steer (the summary
+    writers copied the W2 exemplar phrasing); the fan-in verifier statements
+    ("fable, high effort") are correct. Flagged for owner ruling; not
+    repaired silently.
+  - Hash-pin check (per the direction's addendum): no ledger CSV or register
+    row references `agents/AGENT_*.md` at all; the only references are
+    path-level (no SHA/hash pin) in the AUTHORITY map's scoping list and a
+    descriptive pointer in `docs/DIRECTIVE.md`. All run evidence binds to
+    the frozen worktree at pinned SHA `551f84ef6...`, which predates
+    `5b3b68f14` — no mismatch, no forward-looking drift note owed beyond
+    this check. The plan-revision pin (`551f84ef6...`) is unaffected, as the
+    owner stated.
+  - Model attribution for this direction's work (per the new obligation):
+    all edits, the sweep, and this receipt were performed by the
+    orchestrator (`claude-fable-5`); no subagents dispatched.
+  - Gate outcome: committed and pushed on
+    `claude/chirality-piping-d41-concordance-9811cb`; PR opened and left
+    OPEN for owner merge direction. No phase work; no lifecycle transition;
+    no evidence artifact changed; run remains PAUSED before W4 (Receipt 24).
