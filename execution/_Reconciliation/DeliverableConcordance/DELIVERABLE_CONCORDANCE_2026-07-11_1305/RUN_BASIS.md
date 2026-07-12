@@ -193,6 +193,33 @@
   validated before the next launches. DEL-01-01 remains ISSUED/read-only
   with `SCOPE_CHANGE` routing and no bootstrap row.
 
+- **2026-07-11 — R2 W1 complete (PKG-00–PKG-03).** 25 deliverable-grained
+  ledgers (504 claim rows; 21 opus pilots + 4 fable PKG-01 pilots per the
+  Receipt-17 steer; ≤4 concurrent; every sub-batch structurally validated
+  before the next launched; one pilot resumed from transcript after a
+  connection drop with no artifact loss). Fan-in verification (4 fable
+  verifiers at high effort, one per package; scope per the steer plus the
+  Part C SECURITY spot-check): 17 SOUND / 8 DEFECTIVE; reports
+  `WAVES/W1/W1_VERIFICATION_PKG-0{0..3}.md`. All 8 defective ledgers re-run
+  by fable pilots (each independently re-verified the named defects; zero
+  disagreements): DEL-00-02/04/05/06/07 (rev-0.7 authority-pointer drift
+  adjudicated STALE-side under addendum 4, owner-calibration caveat
+  recorded), DEL-02-04 (2 DECL flips + REQ-014), DEL-03-04 (overtaken Gate-C
+  review prose), DEL-03-05 (convention-5 gate-column mechanical repair).
+  Three SOUND ledgers took owning-pilot string corrections (DEL-02-02
+  overtaken claim; DEL-03-02/DEL-03-08 addendum-10 qualifier truncation).
+  Part C SECURITY spot-checks: PASS (DEL-02-04 REQ-013, DEL-02-05
+  REQ-013/025, DEL-03-07 REQ-003/004) with two W2+ harmonizations named
+  (em-dash marker form; OWNER routing). Full-wave structural revalidation
+  clean; frozen tree porcelain empty throughout; zero
+  AUTHORITY_CONFLICT/UNKNOWN/IMPLEMENTED_UNMAPPED rows; W1 mechanical
+  selectability: 11 YES rows (2 DEL-01-03, 9 DEL-02-05). Package summaries:
+  `PACKAGE_SUMMARIES/PKG-0{0..3}.md` (ClaimType×Disposition histograms
+  computed from ledgers; cross-ledger risks for W2–W5 and R3 recorded
+  there). Wave boundary: committed, pushed, PR opened; STOPPED for owner
+  merge direction per the Receipt-17 protocol. W2 (PKG-04–05, all-fable
+  pilots) dispatches only after the owner acts.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`

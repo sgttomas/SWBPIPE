@@ -474,3 +474,24 @@
   - Gate outcome: executing — R2 W1 (PKG-00–03, 25 pilots) dispatched under
     `R1_CONVENTIONS.md`; ≤4 concurrent pilots; wave boundary =
     validate/commit/push/PR/receipt, then STOP for owner merge direction.
+
+- **2026-07-11 — Receipt 18** (R2 W1 complete; wave-boundary stop).
+  - Executed per Receipt 17's steer: 25 W1 ledgers (504 rows; opus pilots,
+    fable for PKG-01), fable high-effort fan-in (17 SOUND / 8 DEFECTIVE),
+    8 fable re-runs + 3 owning-pilot string corrections, Part C SECURITY
+    spot-checks PASS. Artifacts: `WAVES/W1/` (25 ledgers + notes + 4
+    verification reports) and `PACKAGE_SUMMARIES/PKG-0{0..3}.md` in the run
+    folder; phase detail in RUN_BASIS (W1-complete entry) — never here.
+  - Checks: full-wave structural validation pass (header/enums/ClaimID/
+    addenda sweeps, 0 errors); notes histograms reproduce; frozen worktree
+    porcelain empty throughout; no product/deliverable surface touched, so
+    no DEC-025 sweep owed (run artifacts only).
+  - Notable for W2 calibration (detail in package summaries): rev-0.7
+    pointer-drift encoding adjudicated STALE-side with owner-calibration
+    caveat; SECURITY marker/routing harmonization; overtaken Gate-C review
+    prose encodes STALE on affected DECL rows.
+  - Gate outcome: stopped/awaiting owner — wave branch pushed and PR opened
+    (branch `claude/chirality-piping-d41-concordance-9811cb`); W1 merge
+    direction or explicit per-PR self-merge grant required before W2
+    (PKG-04–05, all-fable) dispatches. No lifecycle transition; no register
+    change; discovery read-only.
