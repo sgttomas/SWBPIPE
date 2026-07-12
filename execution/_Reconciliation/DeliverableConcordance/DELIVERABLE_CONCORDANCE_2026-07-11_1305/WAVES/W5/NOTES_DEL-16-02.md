@@ -16,7 +16,8 @@ The requirement census preserves REQ-16-02-001..008 one-for-one. Eight
 acceptance rows preserve the eight distinct Specification verification
 targets. The declaration census is the four-document kit plus `_STATUS.md`
 and `MEMORY.md`; no deliverable-owned README exists. DECL-005 copies both
-non-bootstrap residuals in status order and excludes the D-41 bootstrap.
+substantive residuals in status order, then the exact D-41 bootstrap; the
+bootstrap remains excluded from residual, gate, and selectability analysis.
 `NormativeSource` paths are relative to the frozen DEL-16-02 folder unless a
 repository path is explicit.
 

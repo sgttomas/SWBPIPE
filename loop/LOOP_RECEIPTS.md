@@ -824,3 +824,42 @@
   - Gate outcome: R2 W5 COMPLETE and ready for wave-boundary push/PR
     reconciliation, then R3 and R6. No lifecycle/register/DAG/product/R4/R5
     change.
+
+- **2026-07-12 — Receipt 31** (D-41 R3/R6 closeout; hard stop before R4/R5).
+  - R3 artifacts: the 2,484-row ordinary corpus plus eight authoritative
+    unmapped rows form a 2,492-row unique aggregate; 20 conflict/unknown
+    findings retain owners/actions; the sole UNKNOWN is preserved; 77 proposed
+    update groups cover all 532 non-ALIGNED ClaimIDs exactly once; engineering
+    and owner outputs remain evidence-only routes, not R4 packets or rulings.
+  - R6 corrections: 11 derivative ledgers normalized to CRLF after parsed-row
+    identity checks; bootstrap/status metadata corrected at source grain; four
+    genuine full-status transcription defects corrected through owning pilots.
+    Final source-based audit selected status rows by `_STATUS.md`
+    `NormativeSource`, reproduced 101/101 frozen Remaining arrays (100
+    bootstrap + 50 substantive bullets), and rejected three fixed-ClaimID
+    false positives without edits.
+  - Checks: 101 ordinary ledgers / 2,484 rows; aggregate 2,492 unique rows with
+    exact source prefix and eight-row unmapped suffix; 18 summaries and 18
+    independent verifiers reproduce; complete plan-§9 artifact inventory;
+    practitioner-harness self-check exit 0 with no D-41 BLOCK; cache-disabled
+    pytest 263 passed / 1 skipped; CRLF-aware diff check clean; frozen
+    ignored-aware porcelain exactly the six addendum-9 allow-listed paths.
+  - Model attribution: GPT-5 owning correction pilots; GPT-5 synthesis/QA and
+    summary pilots; independent highest-available-capability GPT-5 high-effort
+    R6 auditor; GPT-5 orchestrator final validation and closeout. The owner's
+    temporary four-total-slot capacity exception remained session-scoped, at
+    most three delegated pilots were active, and no silent substitution
+    occurred.
+  - Handoff state: accepted upstream frozen snapshot
+    `551f84ef6be656f1603ce0acfa5e3935aa9683c7`; derivative run package complete
+    through R6; closure verdict `BACKCHECK COMPLETE WITH PRESERVED OPEN
+    FINDINGS`; rerun is required if the accepted source snapshot changes;
+    remaining blockers/routes are the 34 remaining-state mismatches, one
+    UNKNOWN, eight unmapped surfaces, 13 verified-not-validated claims, and
+    open owner/engineering/review candidates.
+  - Gate outcome: D-41 discovery/reconciliation is COMPLETE through R6 and
+    `RUN_SUMMARY.md`; repair completion is not claimed. No lifecycle,
+    product, dependency/DAG/register/decomposition, decision-ruling, R4, or R5
+    work occurred. **HARD STOP before R4/R5.** Final change set is carried by
+    the commit containing this receipt and is to be pushed to the existing
+    exact-branch PR #211; the PR is not merged by this task.

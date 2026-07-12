@@ -56,11 +56,13 @@ preserve the five bullets, including the grouped later-assigned surfaces.
   from `_STATUS.md`. No human disposition is inferred.
 - **REQ-002/006/008/010 and ACC-003/004/005 — bounded evidence grain.** Their
   `RemainingWork` qualifiers preserve current-slice limits without promoting
-  narrative TBDs into formally recorded `_STATUS.md` remaining items. Only
-  REQ-009 carries the extracted Phase I program item and its two gates.
-- The sole `_STATUS.md` remaining item is the byte-exact D-41 bootstrap. It is
-  present only on DECL-005 and excluded from residual/gate/selectability
-  analysis.
+  narrative TBDs into formally recorded `_STATUS.md` remaining items. REQ-009
+  carries the substantive Phase I program item at requirement grain, and
+  DECL-005 reproduces it verbatim as part of the status-surface census.
+- `_STATUS.md` Remaining contains the Phase I program item plus the byte-exact
+  D-41 bootstrap. DECL-005 records both in source order; its substantive
+  source/gate metadata comes only from the Phase I item, while the bootstrap is
+  excluded from residual/gate/selectability analysis.
 
 ## Verification and addendum-9 containment
 

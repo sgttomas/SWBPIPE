@@ -576,3 +576,64 @@ agent-workflow redesign (`DEFERRED_AGENT_WORKFLOW` → observations artifact
 only); no release-readiness, issuance, certification, sealing,
 professional-approval, or code-compliance claim (F-PIP-1..5); agent
 dispositions are never represented as owner or engineering rulings.
+
+- **2026-07-12 — R6 backcheck and run closeout COMPLETE; HARD STOP before
+  R4/R5.** R6 independently re-extracted the 101 frozen `_STATUS.md`
+  Remaining surfaces by selecting the unique `DECLARED_STATE` row whose
+  `NormativeSource` resolves to `_STATUS.md`; it did not assume a fixed
+  ClaimID. The final source check reproduces all 101 bullet arrays verbatim
+  and in order: 100 bootstrap bullets plus 50 substantive bullets, with zero
+  bootstrap-derived source/gate metadata and selectability derived only from
+  substantive gates. The correction trail normalized 11 pre-existing
+  derivative ledgers from bare LF to RFC-4180 CRLF after proving parsed-row
+  identity; repaired 14 omitted/malformed bootstrap encodings and 13
+  bootstrap/composite metadata encodings; and restored four genuinely
+  incomplete exact status transcriptions (DEL-09-05, DEL-10-03, DEL-16-02,
+  DEL-16-04). Apparent issues on DEL-06-02, DEL-06-05, and DEL-08-02 were
+  rejected as false positives after source-based row selection; no correction
+  was made to those ledgers. Corrections remained derivative run evidence and
+  preserved claim/disposition/lifecycle histograms.
+
+  Final deterministic identity: 101 ordinary CRLF ledgers, 2,484 ordinary
+  rows, and eight unchanged authoritative unmapped rows produce 2,492 unique
+  aggregate ClaimIDs. The first 2,484 aggregate rows exactly reproduce the
+  ordered source rows and the final eight exactly reproduce
+  `UNMAPPED_IMPLEMENTATION.csv`. Ordinary-record prefix SHA-256:
+  `e5ad64a12e50cf975678ac9aa627f6dab08119cc240da0bb2568497c49c928c3`;
+  ordered-ledger digest-list SHA-256:
+  `a9bb036c2a6ae5f211a9c2b4b4fe0db9b5ce0c7be54b72cff575c1b7b273e8c3`;
+  aggregate SHA-256:
+  `32095986662b4932d9b1bf403e1756addb87dac3142b488f56acd926178361e0`;
+  unmapped SHA-256:
+  `9391174a59ede1ed18d1393c666ead464c1291060351bc1fcce0167df989b442`.
+  All 532 non-ALIGNED claims are covered exactly once by the 77 proposed
+  update groups. All 20 conflict/unknown rows retain an authority owner and
+  smallest next action; the sole UNKNOWN and eight unmapped surfaces remain
+  open. Eighteen package summaries and eighteen verification reports
+  reproduce the 2,484-row package corpus.
+
+  `COVERAGE_AND_QA.md` records the complete QA and correction trail (SHA-256
+  `169aafd8411aef535f4b615adc57ec9f2edbe1cfc793d1cb3db186ef82bbd6bf`).
+  `RUN_SUMMARY.md` completes the 16-family plan-§9 artifact inventory
+  (pre-closeout SHA-256
+  `c8bcd9386913cca9ac75520d392342084c344309981c170d7d9fc054d886c2d5`).
+  Practitioner-harness self-check exited 0 with no D-41 BLOCK; cache-disabled
+  pytest passed 263 with one skip. Frozen ignored-aware porcelain remained
+  exactly the six addendum-9 allow-listed paths, with no tracked change or
+  seventh ignored path.
+
+  Model/capability attribution: GPT-5 owning correction pilots performed the
+  bounded ledger/notes corrections; a GPT-5 QA pilot rebuilt the aggregate
+  and `COVERAGE_AND_QA.md`; an independent highest-available-capability GPT-5
+  high-effort auditor reproduced the final R6 checks and returned PASS; a
+  separate GPT-5 summary pilot wrote `RUN_SUMMARY.md`; and the GPT-5
+  orchestrator performed final cross-artifact, Git-scope, containment, and
+  closeout validation. The owner-authorized four-total-slot, at-most-three-
+  delegated-pilot runtime exception remained session-scoped; no silent model
+  substitution occurred.
+
+  Gate outcome: the ruled discovery/reconciliation run is complete through
+  R6 with open findings preserved, not repair-closed. No lifecycle transition,
+  product repair, dependency/DAG/register/decomposition change, decision
+  ruling, R4, or R5 work occurred. The run terminates here at the required
+  **HARD STOP before R4/R5**.
