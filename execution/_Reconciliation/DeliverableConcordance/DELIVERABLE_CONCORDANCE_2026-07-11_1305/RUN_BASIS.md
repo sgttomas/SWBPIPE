@@ -527,6 +527,28 @@
   are complete; full-W5 closeout, R3, R6, and `RUN_SUMMARY.md` remain
   outstanding.
 
+- **2026-07-12 — R2 W5 full-wave closeout COMPLETE.** All 26 W5
+  deliverables (`PKG-13`–`PKG-17`) have corrected ledgers and notes, all five
+  package summaries exist, and every package has an independent fan-in plus
+  post-correction closure. Full-wave validation covers 26 exact-header
+  RFC-4180 CRLF ledgers and 848 rows with zero errors after applying the
+  binding multi-residual rule to DEL-14-01/DEL-15-01's permitted composite
+  `_STATUS.md` rows. Controlled enums, contiguous type-matched ClaimIDs,
+  declared-state reliability, bootstrap placement, all-NO selectability,
+  summary histograms, and addendum-9 containment pass. Final W5 ClaimType:
+  REQUIREMENT 339 / ACCEPTANCE 207 / EXCLUSION 104 / DECLARED_STATE 156 /
+  REMAINING_WORK 42. Final dispositions: ALIGNED 697 /
+  PARTIALLY_IMPLEMENTED 50 / STALE_SETUP_SPECIFICATION 70 /
+  ACCEPTED_DIVERGENCE 7 / REMAINING_STATE_MISMATCH 19 /
+  VERIFIED_NOT_VALIDATED 4 / STALE_REVIEW_OR_EVIDENCE 1. AuthorityNeeded:
+  NO 661 / OWNER 165 / ENGINEERING 22. All 69 SECURITY rows carry zero
+  convention-6 sufficiency markers. The temporary four-total-slot runtime
+  exception was honored through one owning pilot per deliverable in capacity-
+  bounded schedules; independent fan-in and owning-pilot correction were
+  preserved. Package checkpoint commits: `37ebbeae5`, `e596d31b5`,
+  `da12adc4f`, `dffa6d998`, `289114c26`. W5 is ready for wave-boundary
+  commit/push/PR reconciliation; R3, R6, and `RUN_SUMMARY.md` remain.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`

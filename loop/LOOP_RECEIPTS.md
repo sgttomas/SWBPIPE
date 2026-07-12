@@ -808,3 +808,19 @@
   - This exception is recorded only in the active D-41 run basis and this
     receipt; standing instructions remain unchanged because the limitation is
     session-scoped. No lifecycle/register/DAG/product/R4/R5 change.
+
+- **2026-07-12 — Receipt 30** (R2 W5 complete; wave-boundary handoff).
+  - W5 artifacts: corrected ledgers/notes for all 26 deliverables under
+    `WAVES/W5/`, independent fan-in records for `PKG-13`–`PKG-17`, and
+    `PACKAGE_SUMMARIES/PKG-13.md` through `PKG-17.md`; detailed counts and
+    checkpoint SHAs in `RUN_BASIS.md`.
+  - Checks: full-W5 exact-header/enums/ClaimIDs/RFC-4180 CRLF, declared-state,
+    bootstrap/multi-residual, selectability, histogram, SECURITY-marker, and
+    ignored-aware containment validation pass.
+  - Model attribution: GPT-5 deliverable-grained owning pilots under the
+    temporary capacity-bounded schedule; independent highest-capability GPT-5
+    high-effort package fan-ins; every correction returned to its owning
+    pilot; no silent substitution.
+  - Gate outcome: R2 W5 COMPLETE and ready for wave-boundary push/PR
+    reconciliation, then R3 and R6. No lifecycle/register/DAG/product/R4/R5
+    change.
