@@ -30,8 +30,9 @@ qualified.
 ## 1. Histograms (recount from the CSV)
 
 Disposition histogram (16 rows):
-- ALIGNED — 15
+- ALIGNED — 12
 - PARTIALLY_IMPLEMENTED — 1
+- STALE_SETUP_SPECIFICATION — 3
 
 ClaimType histogram (16 rows):
 - REQUIREMENT — 5
@@ -113,6 +114,67 @@ Both reproduce exactly from the ledger (verified by re-parsing the CSV).
   review only as a historical checking basis, so the content is currently
   pre-acceptance (agent-generated kit awaiting the Specification's Human Review
   Gate). I encoded UNVERIFIED. See friction note 4.
+- **DEL-00-07-DECL-001 / DECL-002 / DECL-004** — rev-0.7 authority-pointer
+  drift, originally kept ALIGNED with in-row notes; re-encoded to
+  `STALE_SETUP_SPECIFICATION` in the fan-in repair below per the W1
+  verification adjudication under addendum 4 (see
+  `## Fan-in repair (fable re-run)`). AuthorityNeeded stays NO on all three
+  rows: the decomposition's own §13 gate posture sanctions the state as
+  permitted-pending-refresh "by their owning workflows", so no per-row
+  authority routing is needed beyond the disposition.
+
+## Fan-in repair (fable re-run)
+
+W1 fan-in verification (`W1_VERIFICATION_PKG-00.md`, DEL-00-07 section:
+DEFECTIVE) ruled the rev-0.7 authority-pointer drift rows DECL-001, DECL-002,
+and DECL-004 on the wrong side under the addendum-4 adjudication (drift noted
+on all three rows but kept ALIGNED; STALE_SETUP_SPECIFICATION is the
+convention-correct side). Owner-ruled repair protocol: defective ledgers are
+re-run by a fable pilot who owns the changed claims. This section records that
+re-run.
+
+Independent re-verification against the frozen tree (before re-encoding):
+
+- `Specification.md` line 32: "Upstream authority is
+  …SOFTWARE_DECOMP.md revision 0.7, the SCA-001/SCA-003/SCA-004
+  architecture-basis records, and approved …DAG-007…" — confirmed present at
+  frozen SHA 551f84ef6.
+- `Datasheet.md` line 33: "…SOFTWARE_DECOMP.md revision 0.7 for package and
+  deliverable authority." — confirmed.
+- `Procedure.md` line 8: "…SOFTWARE_DECOMP.md revision 0.7 is the current
+  basis." — confirmed.
+- Frozen `execution/_Decomposition/SOFTWARE_DECOMP.md` header:
+  `revision: 0.8`, `status: current_basis` — confirmed; §13 gate posture
+  states downstream surfaces "may be stale relative to revision 0.8 until
+  refreshed by their owning workflows" — confirmed.
+
+Disagreements with the verifier adjudication: NONE. The Procedure line
+declares a fact about the current authority basis that is false at the frozen
+SHA; the corpus's own accepted language classifies the state as *stale*
+(permitted-pending-refresh); addendum 4's widened definition ("the surface's
+declaration no longer describes the frozen implemented slice … one controlled
+value") covers this post-alignment drift, and the §13 sanction properly
+informs AuthorityNeeded/immateriality notes, not the controlled disposition.
+
+Rows changed (old -> new):
+
+- DEL-00-07-DECL-001: ALIGNED -> STALE_SETUP_SPECIFICATION (drift facts
+  expanded in-row; AuthorityNeeded stays NO; Confidence stays HIGH).
+- DEL-00-07-DECL-002: ALIGNED -> STALE_SETUP_SPECIFICATION (drift facts
+  expanded in-row; anticipated-artifact content retained; AuthorityNeeded
+  stays NO; Confidence stays MEDIUM).
+- DEL-00-07-DECL-004: ALIGNED -> STALE_SETUP_SPECIFICATION (drift facts
+  expanded in-row; AuthorityNeeded stays NO; Confidence stays HIGH).
+
+No other row changed. Histograms above are recounted post-repair
+(ALIGNED 15 -> 12; STALE_SETUP_SPECIFICATION 0 -> 3; ClaimType histogram
+unchanged). This encoding matches the peer repairs applied to
+DEL-00-02/04/05/06.
+
+Owner-calibration caveat (per the verifier's flip note): if the owner later
+calibrates this corpus-wide rev-0.7 pattern to ALIGNED-with-note instead, the
+flip back is mechanical — all drift facts remain in-row and the three ClaimIDs
+are named here.
 
 ## 3. Evidence-execution log
 
@@ -126,6 +188,13 @@ Both reproduce exactly from the ledger (verified by re-parsing the CSV).
 - **Porcelain:** `git -C <FROZEN> status --porcelain` was empty before work
   began and empty after all reads (HEAD confirmed
   `551f84ef6be656f1603ce0acfa5e3935aa9683c7`). No writes into the frozen tree.
+- **Fan-in repair pass (fable re-run):** re-executed only side-effect-free
+  reads (`git status --porcelain`, `git rev-parse HEAD`, `grep`/`sed` over the
+  frozen kit and SOFTWARE_DECOMP) to independently re-verify the rev-0.7 lines
+  and the frozen 0.8/`current_basis` header plus the §13 sanction before
+  re-encoding. Porcelain EMPTY before and after the repair pass; frozen HEAD
+  confirmed `551f84ef6be656f1603ce0acfa5e3935aa9683c7`. Writes confined to the
+  two output files.
 - **Cited-as-recorded (not re-executed):** PKG00_LOCK_REVIEW_2026-05-11_2218
   (human review, later administratively reset by D-40/DEC-072), marked
   `not re-executed at frozen SHA 551f84ef6`. All DecisionBasis values resolve

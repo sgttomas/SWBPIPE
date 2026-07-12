@@ -31,8 +31,8 @@ exact prose surface for each.
 
 ## Disposition histogram (recount from CSV)
 
-- ALIGNED — 15
-- STALE_SETUP_SPECIFICATION — 2
+- ALIGNED — 13
+- STALE_SETUP_SPECIFICATION — 4
 
 Total 17.
 
@@ -91,18 +91,72 @@ DEL-14-01 — none unmapped in this deliverable's orbit.
   the STALE disposition rather than raised as a separate finding.
 - Cross-cutting revision-pointer drift: the four kit documents, `_CONTEXT.md`,
   and `_DEPENDENCIES.md` cite SOFTWARE_DECOMP "revision 0.7" while the live and
-  frozen basis is revision 0.8 (through DEC-072). Persistence architecture content
-  is unchanged 0.7->0.8, so this was dispositioned as a minor kit-wide metadata
-  refresh (ALIGNED on DECL-001/DECL-004, AuthorityNeeded=NO; folded into the R5
-  repair RemainingWork on DECL-002) rather than REMAINING_STATE_MISMATCH per row.
-  Flagged for reviewer confirmation that the measured (non-inflating) treatment
-  is preferred over a per-surface metadata-mismatch call.
+  frozen basis is revision 0.8 (through DEC-072). Originally dispositioned as a
+  minor kit-wide metadata refresh (ALIGNED-with-note on DECL-001/DECL-004);
+  re-encoded to `STALE_SETUP_SPECIFICATION` in the fan-in repair below per the
+  W1 verification adjudication under addendum 4 (see
+  `## Fan-in repair (fable re-run)`). AuthorityNeeded stays NO on both rows:
+  the decomposition's own §13 gate posture sanctions the state as
+  permitted-pending-refresh "by their owning workflows", so no per-row
+  authority routing is needed beyond the disposition.
 - ACC/EXC census grain: the 3 ACCEPTANCE + 3 EXCLUSION rows were derived from the
   Specification Acceptance Criteria bullets and the Datasheet/Guidance/_CONTEXT
   scope-boundary prose (acceptance bullets 2/4/5 folded into exclusion rows to
   avoid double-encoding). A reviewer may merge or re-split at a different grain;
   the six global Required Invariants (OPS-K-*) were folded into the governing
   REQ/EXC rows rather than given their own rows (not addendum-12 grain).
+
+## Fan-in repair (fable re-run)
+
+W1 fan-in verification (`W1_VERIFICATION_PKG-00.md`, DEL-00-04 section:
+DEFECTIVE (narrow)) ruled the rev-0.7 authority-pointer drift rows on the
+wrong side under the addendum-4 adjudication. Owner-ruled repair protocol:
+defective ledgers are re-run by a fable pilot who owns the changed claims.
+This section records that re-run.
+
+Independent re-verification against the frozen tree (before re-encoding):
+
+- `Specification.md` Interface Commitments: "…SOFTWARE_DECOMP.md revision 0.7,
+  the SCA-001/SCA-003/SCA-004 architecture-basis records, and approved
+  …DAG-007…" — confirmed present at frozen SHA 551f84ef6.
+- `Datasheet.md` references: "…SOFTWARE_DECOMP.md revision 0.7 for package and
+  deliverable authority." — confirmed.
+- `Procedure.md` Prerequisites: "…SOFTWARE_DECOMP.md revision 0.7 is the
+  current basis." — confirmed.
+- Frozen `execution/_Decomposition/SOFTWARE_DECOMP.md` header: `revision: 0.8`,
+  `status: current_basis` — confirmed; §13 gate posture states downstream
+  surfaces "may be stale relative to revision 0.8 until refreshed by their
+  owning workflows" — confirmed.
+
+Disagreements with the verifier adjudication: NONE. The Procedure line
+declares a fact about the current authority basis that is false at the frozen
+SHA; the corpus's own accepted language classifies the state as *stale*
+(permitted-pending-refresh); and keeping ALIGNED was internally inconsistent
+with this ledger's own overtaken-TBD STALE calls (DECL-002/DECL-003), which
+are the same species of accepted-record-overtakes-declared-prose drift.
+
+Rows re-encoded (old → new):
+
+- `DEL-00-04-DECL-001`: Disposition ALIGNED → `STALE_SETUP_SPECIFICATION`;
+  Confidence MEDIUM → HIGH (drift directly re-verified); VerificationEvidence
+  reframed from "metadata drift" to addendum-4 post-alignment drift with the
+  §13 sanction cited; RemainingWork reworded as a repair candidate
+  (revision-pointer refresh 0.7 → 0.8). AuthorityNeeded stays NO (state is
+  corpus-sanctioned pending-refresh; no owner ruling needed per-row).
+- `DEL-00-04-DECL-004`: same flip, same rationale, on the Procedure surface
+  ("revision 0.7 is the current basis" is a false current-state declaration at
+  the frozen SHA). The pre-existing SEMANTIC_READY/IN_PROGRESS lifecycle note
+  is retained unchanged (a lifecycle fact, not a procedure defect).
+
+No other row changed. Histograms above are recounted from the repaired CSV
+(ALIGNED 15 → 13; STALE_SETUP_SPECIFICATION 2 → 4; ClaimType histogram
+unchanged).
+
+Owner-calibration caveat (from the verifier's flip caveat): if the owner later
+calibrates this corpus-wide pattern to ALIGNED-with-note instead, these two
+rows flip back to their original encoding (which already carried full in-row
+notes) and this ledger becomes the package exemplar; the repair is mechanical
+in either direction because all facts are recorded in-row.
 
 ## Evidence-execution log
 
@@ -118,6 +172,13 @@ DEL-14-01 — none unmapped in this deliverable's orbit.
   project_persistence.schema.yaml, D-40 ruling record, and the R1 index CSVs.
 - Frozen-tree `git status --porcelain` verified EMPTY before all reads and again
   after the final CSV write and validation.
+- Fan-in repair pass (fable re-run): re-executed only side-effect-free reads
+  (`git status --porcelain`, `git rev-parse HEAD`, `sed`/`grep` over the frozen
+  kit and SOFTWARE_DECOMP) to independently re-verify the rev-0.7 lines and the
+  frozen 0.8/`current_basis` header plus §13 sanction before re-encoding.
+  Porcelain EMPTY before and after the repair pass; frozen HEAD confirmed
+  `551f84ef6be656f1603ce0acfa5e3935aa9683c7`. Writes confined to the two
+  output files.
 
 ## Convention friction notes
 

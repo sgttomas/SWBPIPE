@@ -42,9 +42,9 @@ files), all at the frozen SHA.
 
 ## Disposition histogram (reproduces from the CSV)
 
-- ALIGNED — 13
+- ALIGNED — 11
 - PARTIALLY_IMPLEMENTED — 1
-- STALE_SETUP_SPECIFICATION — 2
+- STALE_SETUP_SPECIFICATION — 4
 - Total — 16
 
 ## ClaimType histogram (reproduces from the CSV)
@@ -115,6 +115,11 @@ files are the deliverable's only outputs.
   TBDs surfaced and routed, not silently chosen — yes). The subsequent
   non-update after DEC-009 is dispositioned as staleness on the surface rows, not
   as an acceptance failure here, to avoid double-counting.
+- **DEL-00-05-DECL-001 / DEL-00-05-DECL-004** — STALE_SETUP_SPECIFICATION (HIGH),
+  re-encoded at fan-in (see repair section). The rev-0.7-vs-0.8 authority-pointer
+  drift is encoded to the STALE side per the W1 verifier's addendum-4
+  adjudication; flagged because the encoding side is subject to the pending
+  owner calibration on this corpus-wide pattern.
 
 ## Evidence-execution log
 
@@ -148,10 +153,18 @@ files are the deliverable's only outputs.
 2. **SourceReliability for basis-backed requirement rows.** Addendum 6 gives
    REVIEWED only with a named human ruling covering the record. SCA-001's gates
    (DEC-008/012, human-approved) cover REQ-05-01/02/03 and the diagnostics basis
-   for REQ-05-05 → REVIEWED. REQ-05-04's property-inspector portion has no such
-   ruling and is agent-authored pending disposition → UNVERIFIED. Prose
-   declared-state rows are NOT_APPLICABLE per addendum 6 (this overrides the
-   pre-addenda exemplar, which used REVIEWED on _STATUS).
+   for REQ-05-05 → REVIEWED (SCA-001 is codified in the current_basis
+   decomposition and untouched by the D-40 lifecycle reset). REQ-05-04's
+   property-inspector portion has no such ruling and is agent-authored pending
+   disposition → UNVERIFIED. Prose declared-state rows are NOT_APPLICABLE per
+   addendum 6 (this overrides the pre-addenda exemplar, which used REVIEWED on
+   _STATUS). ACC/EXC rows: originally REVIEWED on the strength of the PKG00 lock
+   review; re-encoded UNVERIFIED at fan-in (see repair section) — the lock
+   review is an agent-authored recommend-only record, and the only human
+   acceptance in its chain (the 2026-06-04 CHECKING move) was administratively
+   reversed by D-40/DEC-072 on the codified ground of "absence of a current
+   accepted basis," so no named human ruling/disposition currently covers the
+   cited records at the frozen SHA.
 3. **Cross-deliverable staleness ownership.** The framework/viewport TBD
    staleness originates from a decision (DEC-009) owned by another deliverable
    (DEL-00-01). Convention 1 reserves STALE for declared-state rows; I applied it
@@ -172,3 +185,63 @@ files are the deliverable's only outputs.
   judgments; authority is routed via `AuthorityNeeded` (OWNER on the three R5/
   scope-boundary rows), never phrased as owner or engineering rulings.
 - Frozen-tree porcelain clean before and after (empty `git status --porcelain`).
+
+## Fan-in repair (fable re-run)
+
+W1 fan-in verification (`W1_VERIFICATION_PKG-00.md`) found this ledger
+DEFECTIVE: the rev-0.7-vs-0.8 authority-pointer drift (identical generated kit
+lines at Specification.md:32, Datasheet.md:34, Procedure.md:8) was entirely
+uncaptured — no disposition and no note on DECL-001/DECL-004, and DECL-002's
+existing STALE row omitted the rev-pointer element. Owner-ruled repair
+protocol: a fable pilot re-runs the defective rows and owns the changed claims.
+
+**Independent re-verification before re-encoding (all reads at frozen SHA
+551f84ef6; porcelain empty before and after):**
+
+- Specification.md line 32 carries "…SOFTWARE_DECOMP.md revision 0.7, the
+  SCA-001/SCA-003/SCA-004 architecture-basis records…"; Datasheet.md line 34
+  carries "…revision 0.7 for package and deliverable authority"; Procedure.md
+  line 8 carries "…revision 0.7 is the current basis" — confirmed verbatim.
+- Frozen `execution/_Decomposition/SOFTWARE_DECOMP.md` header: `revision: 0.8`,
+  `status: current_basis`; §13 gate posture states downstream surfaces "may be
+  stale relative to revision 0.8 until refreshed by their owning workflows" —
+  confirmed. The verifier's addendum-4 adjudication (STALE side; sanction
+  informs immateriality/AuthorityNeeded, not the controlled disposition) is
+  supported by this evidence; no disagreement.
+- PKG00 lock review (`PKG00_LOCK_REVIEW_2026-05-11_2218`): agent-authored,
+  recommend-only ("This record is recommend-only"; lock rows effective "after
+  human acceptance of this recommendation"). D-40/DEC-072 reversed the only
+  human acceptance in its chain (2026-06-04 CHECKING move) citing "absence of
+  a current accepted basis," preserving the review as historical evidence
+  only. Addendum-6 ladder therefore resolves the ACC/EXC cells to UNVERIFIED
+  (agent-generated evidence pending human disposition), matching the DEL-00-07
+  encoding the verifier endorsed — harmonization supported; no disagreement.
+
+**Rows changed (old → new):**
+
+| ClaimID | Field | Old | New |
+|---|---|---|---|
+| DEL-00-05-DECL-001 | Disposition | ALIGNED | STALE_SETUP_SPECIFICATION |
+| DEL-00-05-DECL-001 | RemainingWork | NONE_OBSERVED | rev-0.7→0.8 authority-pointer refresh (immaterial; decomp §13 sanction) |
+| DEL-00-05-DECL-002 | DeclaredState/Evidence/RemainingWork | rev-pointer element absent | Required Source Basis rev-0.7 pointer added to the drift record and repair list (Disposition unchanged: STALE_SETUP_SPECIFICATION) |
+| DEL-00-05-DECL-004 | Disposition | ALIGNED | STALE_SETUP_SPECIFICATION |
+| DEL-00-05-DECL-004 | Confidence | MEDIUM | HIGH |
+| DEL-00-05-ACC-001/002/003, EXC-001/002 | SourceReliability | REVIEWED | UNVERIFIED |
+
+DECL-001/DECL-004 keep `AuthorityNeeded=NO` (refresh is sanctioned
+owning-workflow work per decomp §13; consistent with the verified-SOUND
+DEL-00-03/08 encodings). No disposition changed on any ACC/EXC row.
+
+**Owner-calibration caveat (rev-drift rows DECL-001/DECL-002/DECL-004):** the
+STALE side follows the W1 verifier's addendum-4 adjudication of a
+corpus-wide pattern (every kit refreshed to 0.7). The verifier's report asks
+the owner/orchestrator to calibrate the pattern before W2; if the owner
+instead calibrates it to ALIGNED-with-note, DECL-001 and DECL-004 flip back to
+ALIGNED (the drift facts now recorded in-row are correct under either ruling,
+and DECL-002 remains STALE on its independent DEC-009 grounds). These
+dispositions remain agent judgments, not owner or engineering rulings.
+
+**Contract/hygiene:** header unchanged (20 columns, byte-for-byte); 16 rows;
+RFC-4180 CRLF preserved; histograms above recounted from the re-encoded CSV.
+Writes confined to this ledger's two W1 files. Frozen-tree porcelain empty
+before and after all repair reads.

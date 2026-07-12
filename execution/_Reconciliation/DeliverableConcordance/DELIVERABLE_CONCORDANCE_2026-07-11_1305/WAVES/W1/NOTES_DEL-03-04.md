@@ -21,7 +21,8 @@ form `DEL-03-04-REQ-00N`. Mapping is 1:1 identity:
 
 Disposition histogram (15 rows):
 
-- ALIGNED = 14
+- ALIGNED = 11
+- STALE_SETUP_SPECIFICATION = 3
 - PARTIALLY_IMPLEMENTED = 1
 
 ClaimType histogram (15 rows):
@@ -71,14 +72,31 @@ ClaimType histogram (15 rows):
 
 ## Disposition rationale (key rows)
 
-- **REQ-001..004, 007, EXC-001/002, DECL-001..006 -> ALIGNED.** The four-document
-  kit was refreshed (2026-06-05 evidence reconciliation) to describe the frozen
-  implemented slice in present tense; it does **not** carry setup-era
-  future-tense prose, so declared-state rows are ALIGNED, not
-  `STALE_SETUP_SPECIFICATION`. Requirement substance is implemented in
-  `schemas/component.schema.yaml` + fixture and verified by
-  `tests/test_component_section_schema.py`, re-executed passing at the frozen SHA
-  (see evidence log).
+- **REQ-001..004, 007, EXC-001/002, DECL-001/005/006 -> ALIGNED.** The
+  four-document kit was refreshed (2026-06-05 evidence reconciliation) to
+  describe the frozen implemented slice in present tense; requirement substance
+  is implemented in `schemas/component.schema.yaml` + fixture and verified by
+  `tests/test_component_section_schema.py`, re-executed passing at the frozen
+  SHA (see evidence log).
+- **DECL-002/003/004 -> STALE_SETUP_SPECIFICATION** (fan-in repair; see the
+  repair section below). Each of Datasheet.md L85–87, Guidance.md Review
+  Posture (L58–64), and Procedure.md step 6 (L39–40) declares the two PKG-02
+  review findings still conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with
+  `HumanDisposition=TBD` and the CSV "not edited" — contradicted at the frozen
+  SHA by `Review_Findings.csv` (PKG03-DEL-03-04-PKG02-001/002 both
+  `ACCEPT_AS_IS`/`RESOLVED`) and the `_STATUS.md` History 2026-06-05 Gate C
+  record (package Gate C run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-05_HUMAN_DISPOSITION_GATE_C.md`,
+  which covers DEL-03-04). This is post-alignment drift under the widened
+  convention-1 definition (addendum 4): the surfaces' review-disposition
+  declaration no longer describes the frozen state. Identical pattern to the
+  DEL-03-05 DECL-001..004 encoding under the same Gate C record. The rest of
+  each surface (implemented-slice descriptions, named verification command)
+  remains accurate — that is recorded in `RemainingWork`, not a downgrade of
+  the staleness call. Specification.md carries no such prose (grep-verified),
+  so DECL-001 remains ALIGNED. MEMORY.md's pending-disposition language sits
+  inside dated entries (2026-05-16, 2026-06-05) — historical per addendum 1;
+  DECL-006 already discloses the then-pending -> Gate C-accepted sequence.
 - **REQ-006 -> PARTIALLY_IMPLEMENTED.** The schema-level public/private boundary
   and no-bypass property (additionalProperties=false, required privacy_class/
   provenance/completeness, no `default` keys) is implemented and schema-tested.
@@ -133,6 +151,14 @@ Confidence cap no longer binds.
   (DEL-02-04), even though the schema-level boundary is fully implemented and
   tested. A reviewer may prefer ALIGNED-with-cross-reference if the
   service-boundary verification is judged wholly out of this deliverable's slice.
+- **DEL-03-04-DECL-002/003/004** — value-label judgment call (fan-in repair
+  rows). Encoded `STALE_SETUP_SPECIFICATION` (widened convention-1 definition
+  covers post-alignment drift), matching the DEL-03-05 DECL-001..004 treatment
+  of the identical overtaken review-disposition prose under the same Gate C
+  record. A reviewer weighing STALE vs STALE_REVIEW_OR_EVIDENCE vs
+  ALIGNED-with-note (the DEL-03-08 Guidance treatment) has the drift facts
+  in-row either way; cross-package census consistency with the sibling ledger
+  drove the choice. `AuthorityNeeded=REVIEW` for the kit-prose refresh routing.
 - **DEL-03-04-EXC census** — judgment call on splitting durable product
   exclusions (EXC-001 IP/no-defaults, EXC-002 no professional claims) from the
   reconciliation-pass write-scope statements (folded into DECL-001). Flagged in
@@ -160,6 +186,18 @@ Cited-as-recorded (not re-executed) evidence:
 - Gate C human disposition 2026-06-05 (Review_Findings.csv ACCEPT_AS_IS/RESOLVED;
   _STATUS.md History) — cited as DecisionBasis on REQ-003/REQ-005; both records
   resolve in the frozen tree.
+- Fan-in repair cross-check (direct inspection at frozen SHA 551f84ef6):
+  Datasheet.md L85–87, Guidance.md L58–64, Procedure.md L39–40 pending-
+  disposition prose read directly; `Review_Findings.csv` both rows
+  `ACCEPT_AS_IS`/`RESOLVED`; `_STATUS.md` History 2026-06-05 Gate C line;
+  package Gate C run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-05_HUMAN_DISPOSITION_GATE_C.md`
+  (accepts the 6 listed DEL-03-04/05/06 findings) — cited as DecisionBasis on
+  DECL-002/003/004; all records resolve in the frozen tree. `grep` sweep
+  confirmed `TECHNICALLY_ADDRESSED_PENDING_HUMAN` appears in Datasheet,
+  Guidance, Procedure, MEMORY (dated entries), and the dated 2026-06-05 task
+  run record, but NOT in Specification.md. Read-only inspection; no
+  re-execution needed; porcelain re-verified empty after the repair pass.
 
 ## 4. Convention-friction notes
 
@@ -195,3 +233,55 @@ Cited-as-recorded (not re-executed) evidence:
 - Frozen evidence tree verified clean (porcelain empty) before and after all
   re-execution; HEAD at the pinned SHA. Writes confined to
   `WAVES/W1/CLAIM_CONCORDANCE_DEL-03-04.csv` and `WAVES/W1/NOTES_DEL-03-04.md`.
+
+## Fan-in repair (fable re-run)
+
+W1 fan-in verification (`W1_VERIFICATION_PKG-03.md`, DEL-03-04 verdict:
+DEFECTIVE) named a discovery miss: the ledger's DECL-002/003/004 were silent
+`ALIGNED`/`NONE_OBSERVED` despite overtaken review-disposition prose in the
+frozen kit. Bounded re-run by a fable repair pilot (owner-ruled); the repair
+pilot now owns the changed claims.
+
+**Independent re-verification (before re-encoding), frozen SHA 551f84ef6:**
+
+- `Datasheet.md` L85–87: "Review findings remain conceptually
+  `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; the CSV
+  was not edited by this reconciliation" — read directly; present.
+- `Guidance.md` Review Posture (heading L58, prose L60–64): same pending
+  declaration for the unit-dependency and diagnostic-envelope findings —
+  present. (Verifier cited L59–62; the section spans L58–64 by direct count —
+  same passage, no substantive disagreement.)
+- `Procedure.md` step 6 (L39–40): "Do not edit `Review_Findings.csv`; keep its
+  findings conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with
+  `HumanDisposition=TBD`" — present.
+- `Review_Findings.csv`: PKG03-DEL-03-04-PKG02-001 and -002 both
+  `HumanDisposition=ACCEPT_AS_IS`, `Status=RESOLVED`.
+- `_STATUS.md` History 2026-06-05: Gate C acceptance of both findings as
+  `ACCEPT_AS_IS`/`RESOLVED`; package run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-05_HUMAN_DISPOSITION_GATE_C.md`
+  confirms Gate C accepted the 6 listed DEL-03-04/05/06 findings.
+- `Specification.md`: no pending-disposition prose (grep-verified) — DECL-001
+  re-checked, stays ALIGNED.
+
+**Verification outcome: AGREE with the verifier.** The drift is real and is
+the same pattern DEL-03-05 encodes as STALE_SETUP_SPECIFICATION under the same
+Gate C record. Disagreements: NONE (line-range bookkeeping on the Guidance
+passage only, noted above).
+
+**Rows changed (old -> new):**
+
+| ClaimID | Old | New |
+|---|---|---|
+| DEL-03-04-DECL-002 | ALIGNED / HIGH; DecisionBasis NONE_FOUND; RemainingWork = revision-0.7 authority-cadence note only; AuthorityNeeded NO | STALE_SETUP_SPECIFICATION / HIGH; DecisionBasis = Gate C run record 2026-06-05; DeclaredState/evidence now carry the Datasheet L85–87 overtaken prose + Review_Findings.csv contradiction; RemainingWork = refresh L85–87 to ACCEPT_AS_IS/RESOLVED (revision-0.7 note retained); AuthorityNeeded REVIEW |
+| DEL-03-04-DECL-003 | ALIGNED / HIGH; DecisionBasis NONE_FOUND; RemainingWork NONE_OBSERVED; AuthorityNeeded NO | STALE_SETUP_SPECIFICATION / HIGH; DecisionBasis = Gate C run record 2026-06-05; DeclaredState/evidence now carry the Review Posture (L58–64) overtaken prose + contradiction; RemainingWork = refresh Review Posture; AuthorityNeeded REVIEW |
+| DEL-03-04-DECL-004 | ALIGNED / HIGH; DecisionBasis NONE_FOUND; RemainingWork NONE_OBSERVED; AuthorityNeeded NO | STALE_SETUP_SPECIFICATION / HIGH; DecisionBasis = Gate C run record 2026-06-05; DeclaredState/evidence now carry the step 6 (L39–40) overtaken keep-pending direction + contradiction; RemainingWork = refresh step 6 (pytest re-execution evidence retained); AuthorityNeeded REVIEW |
+
+Rows NOT changed: all REQ/EXC rows, DECL-001 (re-checked, no overtaken prose),
+DECL-005, DECL-006 (MEMORY pending-language is inside dated entries;
+addendum-1 note treatment already in place). Histograms above recounted from
+the repaired CSV (11 ALIGNED / 3 STALE_SETUP_SPECIFICATION /
+1 PARTIALLY_IMPLEMENTED; ClaimType histogram unchanged). CSV header and
+20-column contract re-validated (csv module parse: 16 lines x 20 fields).
+Repair-pass fences: reads confined to the frozen tree (read-only) and run
+folder; writes confined to the same two output files; frozen-tree porcelain
+verified empty after the repair (no re-execution was performed in this pass).

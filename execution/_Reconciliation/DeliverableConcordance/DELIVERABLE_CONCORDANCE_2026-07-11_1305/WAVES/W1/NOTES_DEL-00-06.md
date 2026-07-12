@@ -31,7 +31,8 @@ Disposition histogram:
 
 | Disposition | Count |
 |---|---|
-| ALIGNED | 17 |
+| ALIGNED | 14 |
+| STALE_SETUP_SPECIFICATION | 3 |
 | (all other dispositions) | 0 |
 
 ClaimType histogram:
@@ -128,15 +129,18 @@ are mapped).
   primarily on the human-accepted `AB-00-06`/`SCA-001` architecture basis, which
   is verbatim with these requirements; TP-DIAG-019 is corroborating. Reviewer
   may prefer to weight TP-DIAG-019 as attestation-level.
-- **DEL-00-06-DECL-001 / -002** (decomp-revision drift): the kit cites
-  `SOFTWARE_DECOMP` revision 0.7 as current basis while the frozen tree is
-  revision 0.8. Kept `ALIGNED` (not a staleness disposition) because the
-  deliverable's own basis-of-record (MEMORY 2026-06-04 authority refresh) is 0.7
-  and no ruling rehomed it to 0.8; the divergence is a source-metadata refresh
-  candidate. The sibling PKG-00 ledgers took the same non-firing stance on the
-  analogous DAG-006/DAG-007 drift. Flagged for a possible corpus-wide
-  metadata-refresh owner decision; I did not invent precedence between 0.7 and
-  0.8.
+- **DEL-00-06-DECL-001 / -002 / -004** (decomp-revision drift; re-encoded in
+  fan-in repair): the kit cites `SOFTWARE_DECOMP` revision 0.7 as current basis
+  (Specification.md:32, Datasheet.md:33, Procedure.md:8) while the frozen tree
+  is revision 0.8 / `status: current_basis`. Now dispositioned
+  `STALE_SETUP_SPECIFICATION` per the W1 fan-in adjudication of addendum 4
+  (post-alignment drift; one controlled value) — see `## Fan-in repair` below.
+  The decomp ~line 655 sanction ("may be stale relative to revision 0.8 until
+  refreshed by their owning workflows") is carried as immateriality context in
+  `RemainingWork`, not as grounds for `ALIGNED`. The original discovery pass
+  kept these `ALIGNED` on a basis-of-record reading that the adjudication
+  rejected (the Procedure line declares a fact about the current authority
+  basis, not about the docs-only slice).
 - **DEL-00-06-DECL-002** (Datasheet anticipated artifacts): the Datasheet lists
   `docs/architecture/diagnostics_contract.md` and a result envelope schema as
   "Outputs Expected From This Deliverable", but neither exists in the tree and
@@ -187,17 +191,22 @@ are mapped).
   `ALIGNED` is the best fit but "applicable evidence agree" is interpreted as
   "the human-accepted basis governs the claim" rather than "the acceptance
   review has completed." The sibling PKG-00 ledgers resolve this the same way.
-- **Source-metadata staleness has no clean home.** A superseded decomp-revision
-  citation (0.7 vs frozen 0.8) is neither `STALE_SETUP_SPECIFICATION`
-  (declaration still describes the docs-only implemented slice) nor cleanly a
-  `REMAINING_STATE_MISMATCH` (the deliverable's basis-of-record is still 0.7 and
-  no ruling rehomed it). Recorded as a self-flagged note rather than a
-  disposition; a corpus-wide owner metadata-refresh call would resolve it.
-- **All-ALIGNED result.** Unlike GUI/solver deliverables where setup prose
+- **Source-metadata staleness (RESOLVED by fan-in adjudication).** The original
+  discovery pass argued a superseded decomp-revision citation (0.7 vs frozen
+  0.8) "has no clean home" among the §7 dispositions and recorded it as a
+  self-flagged note under `ALIGNED`. The W1 fan-in verification adjudicated the
+  pattern under addendum 4: "revision 0.7 is the current basis" is a
+  current-state declaration false at the frozen SHA — post-alignment drift,
+  `STALE_SETUP_SPECIFICATION`, one controlled value. The decomp's own sanction
+  language (permitted-pending-refresh) informs `AuthorityNeeded=NO` and
+  immateriality notes, not the controlled disposition. The ledger now encodes
+  this on DECL-001/-002/-004, matching DEL-00-01/03/08.
+- **Near-all-ALIGNED result.** Unlike GUI/solver deliverables where setup prose
   contradicts landed code, DEL-00-06's setup/architecture prose still describes
-  the frozen slice (documents only, no code, TBDs surfaced), so no staleness
-  fires — the ledger is uniformly `ALIGNED`, which is the honest reading here,
-  not a coverage gap.
+  the frozen slice (documents only, no code, TBDs surfaced). The only staleness
+  that fires is the corpus-wide rev-0.7 authority-pointer drift on the three kit
+  surfaces that carry it (DECL-001/-002/-004); the remaining 14 rows are
+  `ALIGNED`.
 
 ## 7. Boundary-compliance statement
 
@@ -215,3 +224,42 @@ are mapped).
 - Dispositions are **agent judgments**, routed via `AuthorityNeeded`
   (REVIEW/NO here), never phrased as owner or engineering rulings. No
   `DEFERRED_AGENT_WORKFLOW` items arose.
+
+## Fan-in repair (fable re-run)
+
+The W1 fan-in verification (`W1_VERIFICATION_PKG-00.md`, package finding 1 and
+the DEL-00-06 section) found this ledger DEFECTIVE on the corpus-wide rev-0.7
+authority-pointer drift: DECL-001/DECL-002 noted + self-flagged the drift but
+kept `ALIGNED` (wrong side under the addendum-4 adjudication), and DECL-004's
+Procedure.md:8 drift ("revision 0.7 is the current basis") was uncaptured even
+as a note. The all-ALIGNED histogram was an artifact of the wrong-side
+encoding. Owner-ruled repair: re-run by a fable pilot, who now owns the changed
+claims.
+
+**Independent re-verification at frozen SHA 551f84ef6 (before re-encoding):**
+Specification.md:32 cites "revision 0.7"; Datasheet.md:33 cites "revision 0.7
+for package and deliverable authority"; Procedure.md:8 declares "revision 0.7
+is the current basis"; frozen `SOFTWARE_DECOMP.md` header is `revision: 0.8` /
+`status: current_basis`; the ~line-655 sanction language ("may be stale
+relative to revision 0.8 until refreshed by their owning workflows") is
+present. All verifier facts confirmed; **no disagreement** with the defect
+findings or the adjudicated encoding.
+
+**Rows re-encoded (old → new):**
+
+| ClaimID | Old | New |
+|---|---|---|
+| DEL-00-06-DECL-001 | `ALIGNED` / MEDIUM (drift noted, self-flagged) | `STALE_SETUP_SPECIFICATION` / HIGH; inspection evidence added to `VerificationEvidence`; `RemainingWork` = authority-pointer refresh 0.7→0.8 with sanction-as-immateriality note |
+| DEL-00-06-DECL-002 | `ALIGNED` / MEDIUM (drift noted in passing) | `STALE_SETUP_SPECIFICATION` / HIGH; same pattern (Datasheet.md:33); anticipated-artifacts self-flag retained as a non-staleness note |
+| DEL-00-06-DECL-004 | `ALIGNED` / HIGH (rev drift uncaptured; only SEMANTIC_READY wording noted) | `STALE_SETUP_SPECIFICATION` / HIGH; Procedure.md:8 drift captured; SEMANTIC_READY completion-condition note retained |
+
+All other 14 rows unchanged. `AuthorityNeeded` stays `NO` on all three rows
+(the decomp sanction makes the refresh a mechanical owning-workflow action, not
+a ruling need). Histograms in §1 recounted from the repaired CSV
+(ALIGNED 14, STALE_SETUP_SPECIFICATION 3).
+
+**Owner-calibration caveat (flip risk):** the adjudication carries an explicit
+caveat — if the owner later calibrates this corpus-wide pattern to
+ALIGNED-with-note instead of STALE, these three rows flip back to `ALIGNED`
+(with the drift notes retained). The drift facts are now captured in-row on all
+three surfaces, so the flip in either direction is mechanical.

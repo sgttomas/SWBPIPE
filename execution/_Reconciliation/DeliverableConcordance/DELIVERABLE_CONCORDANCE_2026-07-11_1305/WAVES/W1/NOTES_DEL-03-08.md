@@ -151,6 +151,14 @@ verified, not validation-bound → `VERIFIED_NOT_VALIDATED` (method §6; convent
   STALE. Also notes the Conflict Table still shows
   TECHNICALLY_ADDRESSED_PENDING_HUMAN while Review_Findings.csv/MEMORY record Gate A
   ACCEPT_AS_IS/RESOLVED (2026-06-05).
+- **DEL-03-08-DECL-004** — ALIGNED-with-note (verifier-prompted, re-verified by
+  this pilot): Procedure L38's Review-finding check row still expects findings to
+  remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`, but
+  Review_Findings.csv rows PKG03-DEL-03-08-PKG02-001..003 carry Gate A
+  `ACCEPT_AS_IS`/`RESOLVED` (2026-06-05) — overtaken pending prose, same drift
+  class as DECL-003's Conflict Table note. Disposition unchanged (ALIGNED): a
+  single overtaken expected-result row in a process document, consistent with
+  the treatment applied to Guidance.
 - **DEL-03-08-DECL-006** — MEMORY historical-drift notes (addendum 1, note not
   disposition): superseded test count ("8" → 13) and no MEMORY entry for the
   2026-07-10 mill_tolerance run (only in `_run_records`).
@@ -163,12 +171,20 @@ verified, not validation-bound → `VERIFIED_NOT_VALIDATED` (method §6; convent
   `git -C <FROZEN> status --porcelain` **empty before and after**. Redirected no
   build artifacts (pure-Python, cache provider disabled). Cited on all REQ/EXC
   evidence rows as `RE-EXECUTED at frozen SHA 551f84ef6`.
-- **Cited as recorded (not re-executed):** the VERIFICATION_INDEX `PY-66`
-  recorded pass carries the addendum-10 content-identical qualifier
-  (`content-identical at frozen SHA 551f84ef6… (diff empty over tests/, schemas/,
-  fixtures/, tools/, api/, core/, apps/, examples/, validation/witness/, docs/)`);
-  reproduced from R1, not independently re-diffed by this pilot (my own
-  re-execution supersedes it for the pass claim).
+- **Cited as recorded, qualifier independently re-diffed:** the
+  VERIFICATION_INDEX `PY-66` recorded pass is cited with the addendum-10
+  content-identical qualifier. Per the W1 fan-in repair, this pilot re-ran the
+  diff itself at the frozen worktree:
+  `git diff --name-only e648462f1d0521e26df15d04a988391343018886
+  551f84ef6be656f1603ce0acfa5e3935aa9683c7` over the cited path set →
+  **empty over tests/, schemas/, fixtures/, tools/, api/, core/, apps/,
+  examples/, validation/witness/; docs/ differs only in
+  AGENTIC_DEVELOPMENT_WORKFLOW.md and TYPES.md** (ancestor relation confirmed
+  via `git merge-base --is-ancestor`). The ledger qualifier string names this
+  true path set; an earlier draft's `…, docs/)` literal (which dropped PY-66's
+  exclusion clause and was false as written) was repaired in place on 8 cells
+  (REQ-001..007, EXC-002). My own re-execution supersedes the recorded pass for
+  the pass claim.
 - **Validation artifacts inspected, not executed:** confirmed
   `validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json`
   has zero references to `section_properties`/`calculator` (standalone hand-calc

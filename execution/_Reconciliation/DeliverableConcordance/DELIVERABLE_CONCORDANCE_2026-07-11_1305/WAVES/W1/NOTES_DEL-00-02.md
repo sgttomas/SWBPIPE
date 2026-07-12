@@ -23,7 +23,8 @@ NNN from 001 within each TYPE.
 
 ## Disposition histogram (reproduces from CSV column 17)
 
-- ALIGNED — 15
+- ALIGNED — 12
+- STALE_SETUP_SPECIFICATION — 3
 - PARTIALLY_IMPLEMENTED — 1
 
 Total 16.
@@ -117,6 +118,80 @@ kit-hygiene / sufficiency-gate oriented and no concrete drift-detection check
   operation_applier crate) are all multi-deliverable-mapped, so none is an
   unmapped surface (addendum 8 material-grain, unmapped-only test not met).
 
+## Fan-in repair (fable re-run)
+
+The W1 fan-in verification (`W1_VERIFICATION_PKG-00.md`) found this ledger
+DEFECTIVE on three rows; per the owner ruling the ledger was re-run by a
+fable repair pilot, who owns the changed claims below. All repair
+dispositions remain agent judgments, not owner or engineering rulings.
+
+**Named defects (verifier):** DECL-001, DECL-002, DECL-004 — the
+SOFTWARE_DECOMP rev-0.7 authority-pointer drift neither dispositioned nor
+noted (discovery miss); wrong disposition under the addendum-4 adjudication.
+**Named QUALIFIED item:** EXC-001 `SourceReliability=REVIEWED` with
+`DecisionBasis=NONE_FOUND` (addendum-6 edge).
+
+**Independent re-verification at frozen SHA 551f84ef6 (not taken on faith):**
+
+- `Specification.md` line 32: "Upstream authority is
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, the
+  SCA-001/SCA-003/SCA-004 architecture-basis records, and approved
+  `execution/_DAG/DAG-007/` graph authority." — confirmed present.
+- `Datasheet.md` line 32: "`execution/_Decomposition/SOFTWARE_DECOMP.md`
+  revision 0.7 for package and deliverable authority." — confirmed present.
+- `Procedure.md` line 8: "`execution/_Decomposition/SOFTWARE_DECOMP.md`
+  revision 0.7 is the current basis." — confirmed present.
+- Frozen `execution/_Decomposition/SOFTWARE_DECOMP.md` header: `revision:
+  0.8`, `status: current_basis` — confirmed; §13 gate posture ("This v0.8
+  decomposition is the accepted current decomposition basis after SCA-005")
+  states downstream surfaces "may be stale relative to revision 0.8 until
+  refreshed by their owning workflows" — confirmed.
+- Conclusion: the verifier's findings are correct. The original ledger's
+  ALIGNED-with-no-note encoding was a discovery miss; under addendum 4
+  (widened `STALE_SETUP_SPECIFICATION`: post-alignment drift, one controlled
+  value) the Procedure prerequisite "revision 0.7 is the current basis" is a
+  current-state declaration false at the frozen SHA, and the Specification/
+  Datasheet authority pointers are the same overtaken-pointer species. The
+  decomp's own sanction language makes the state permitted-pending-refresh,
+  which informs `AuthorityNeeded=NO` and the immateriality note in
+  `RemainingWork`, not the controlled disposition.
+- EXC-001 ladder: addendum 6 requires "a named human ruling or recorded
+  human disposition covering the cited record" for `REVIEWED`; the row's
+  evidence is agent direct inspection with `DecisionBasis=NONE_FOUND`, so
+  `REVIEWED` was not supported. `UNVERIFIED` is the correct rung (matches
+  EXC-003's identical posture and DEL-00-07's package-better-side reading).
+  EXC-002's `REVIEWED` rests on named human-approved DEC-008 and is
+  unchanged.
+
+**Disagreements with the verifier:** NONE.
+
+**Changes (old → new), bounded to the named surface plus verification of
+those rows:**
+
+- DEL-00-02-DECL-001: Disposition ALIGNED → STALE_SETUP_SPECIFICATION;
+  DeclaredState now cites the rev-0.7 Interface Commitments pointer;
+  ImplementationEvidence `Specification.md` → drift evidence (frozen decomp
+  header 0.8; DAG pointer matches, revision pointer does not);
+  VerificationEvidence NOT_APPLICABLE → inspection citation (Spec:32 vs
+  decomp header); RemainingWork NONE_OBSERVED+note → authority-pointer
+  refresh 0.7→0.8 with sanction/immateriality note (prior SEMANTIC_READY/D-40
+  note retained). Confidence HIGH and AuthorityNeeded NO unchanged.
+- DEL-00-02-DECL-002: Disposition ALIGNED → STALE_SETUP_SPECIFICATION; same
+  pattern (Datasheet:32 Required Source Basis pointer); prior
+  module_boundaries.md deferral note retained.
+- DEL-00-02-DECL-004: Disposition ALIGNED → STALE_SETUP_SPECIFICATION; same
+  pattern (Procedure:8 "revision 0.7 is the current basis" false at frozen
+  SHA); prior SEMANTIC_READY/D-40 note retained.
+- DEL-00-02-EXC-001: SourceReliability REVIEWED → UNVERIFIED (addendum-6
+  ladder repair; no disposition, confidence, or histogram impact).
+
+**Owner-calibration caveat:** the verifier's addendum-4 adjudication of the
+rev-0.7 pattern to the STALE side is the encoding applied here. If the owner
+later calibrates this corpus-wide pattern to ALIGNED-with-note instead, the
+three DECL rows above flip back to ALIGNED with the drift note retained; the
+drift facts and evidence citations in the rows are ruling-neutral, so that
+flip is mechanical.
+
 ## Self-flagged rows
 
 - **DEL-00-02-EXC-001** — Judgment call worth reviewer eyes. The deliverable's
@@ -157,6 +232,12 @@ kit-hygiene / sufficiency-gate oriented and no concrete drift-detection check
   DEL-00-02's orbit).
 - Frozen-tree `git status --porcelain` empty BEFORE and AFTER all work (exit 0
   both times); HEAD confirmed `551f84ef6be656f1603ce0acfa5e3935aa9683c7`.
+- Fan-in repair pass (fable re-run): read-only frozen-tree inspection only
+  (`sed`/file reads of the DEL-00-02 kit and SOFTWARE_DECOMP.md; no
+  re-execution of any build/test); frozen-tree `git status --porcelain`
+  empty before and after the repair reads; HEAD re-confirmed
+  `551f84ef6be656f1603ce0acfa5e3935aa9683c7`. Repair writes confined to the
+  same two W1 output files.
 
 ## Convention friction notes
 

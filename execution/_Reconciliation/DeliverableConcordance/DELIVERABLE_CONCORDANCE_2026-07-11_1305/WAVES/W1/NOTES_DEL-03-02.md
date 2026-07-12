@@ -120,10 +120,24 @@ Cited as recorded (not solely re-run):
 - PY-20's recorded pass in `VERIFICATION_INDEX.csv` carries the addendum-10
   qualifier `content-identical at frozen SHA
   551f84ef6be656f1603ce0acfa5e3935aa9683c7 (diff empty over tests/, schemas/,
-  fixtures/, tools/, api/, core/, apps/, examples/, validation/witness/, docs/)`
-  (execution commit `e648462f1d05...`, ancestor of the frozen SHA). Both the
-  live re-execution and this qualifier support the verification bar; requirement
-  rows carry the re-execution as primary evidence.
+  fixtures/, tools/, api/, core/, apps/, examples/, validation/witness/, docs/
+  excluding AGENTIC_DEVELOPMENT_WORKFLOW.md and TYPES.md)` (execution commit
+  `e648462f1d05...`, ancestor of the frozen SHA). Diff independently re-run by
+  this pilot at the frozen tree: `git diff --name-only
+  e648462f1d0521e26df15d04a988391343018886..551f84ef6be656f1603ce0acfa5e3935aa9683c7`
+  over the cited paths returns exactly `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
+  and `docs/TYPES.md`; with those two excluded the diff is empty (ancestry
+  confirmed via `git merge-base --is-ancestor`; porcelain empty before and
+  after). Both the live re-execution and this qualifier support the
+  verification bar; requirement rows carry the re-execution as primary
+  evidence.
+- **Fan-in repair (post-verifier, applied by this pilot):** the ledger's first
+  issue of the qualifier dropped R1's exclusion clause ("excluding
+  AGENTIC_DEVELOPMENT_WORKFLOW.md and TYPES.md"), making the literal string
+  false as written. After independently re-running the diff above, the
+  qualifier was corrected in 14 rows' `VerificationEvidence` (REQ-001..009,
+  REQ-011..013, EXC-001, EXC-002 — REQ-010 and the six DECL rows never carried
+  the qualifier). Dispositions, histograms, and all other cells unchanged.
 
 Structural checks re-verified against the frozen tree (side-effect-free reads):
 - Referenced `$defs`/top-level keys confirmed present in

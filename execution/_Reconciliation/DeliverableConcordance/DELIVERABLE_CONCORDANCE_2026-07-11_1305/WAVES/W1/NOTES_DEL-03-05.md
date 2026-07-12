@@ -93,6 +93,51 @@ Recorded deferred items across the kit/memory that are NOT `_STATUS.md ## Remain
 - **INVENTORY selectability vs per-row:** `DELIVERABLE_INVENTORY.csv` marks DEL-03-05 `SelectableUnderCurrentLoop=YES` with remaining-count 1 — that reflects the pre-exclusion mechanical read of the single bootstrap item. Under addendum 2 the bootstrap is excluded from selectability, so post-exclusion the deliverable has no selectable residual and every claim row is mechanically `NO` (addendum 12: NO on rows with no recorded item). The owner suspension is treated as a run-level caveat only, never per-row (convention 6).
 - **Bootstrap gate cell:** DECL-005 (`_STATUS.md`) carries the bootstrap text verbatim in `RecordedRemaining` but `GateOrStageConstraint=NONE_RECORDED` and `SelectableUnderCurrentLoop=NO`, because the `(gated: D-41)` item is excluded from gate/selectability analysis (addendum 2).
 
+## Fan-in repair (fable re-run)
+
+W1 fan-in verification (`W1_VERIFICATION_PKG-03.md`, DEL-03-05 verdict: DEFECTIVE — mechanical
+encoding defects only; all substance dispositions verified sound) triggered an owner-ruled fable
+re-run of this ledger. The repair pilot independently re-verified the convention texts
+(`R0B_CALIBRATION/R0B_CONVENTIONS.md` convention 5; pinned plan §6 `RemainingSource` contract;
+R1_CONVENTIONS addendum 6) and the affected evidence (frozen `_STATUS.md ## Remaining` carries only
+the addendum-2 bootstrap item — no residual exists on any REQ/EXC row; `docs/CONTRACT.md` /
+`docs/DIRECTIVE.md` inspected at the frozen SHA) before re-encoding. **No Disposition, Confidence,
+AuthorityNeeded, or evidence cell was changed; both histograms recounted from the repaired CSV and
+reproduce the values above exactly.**
+
+Cells changed (19 cells, 16 rows):
+
+1. **`GateOrStageConstraint`: `UNGATED` → `NONE_RECORDED`** on all 14 REQUIREMENT/EXCLUSION rows
+   (REQ-001..REQ-011, EXC-001..EXC-003). Convention 5 fixes `NONE_RECORDED` when no residual
+   exists; `UNGATED` is reserved for an existing residual lacking a gate suffix. Every one of these
+   rows has `RecordedRemaining=NONE_RECORDED` (re-verified against the frozen `_STATUS.md`), so
+   `UNGATED` falsely encoded 14 ungated residuals into any cross-package aggregation.
+2. **`RemainingSource` → `NONE_RECORDED`** on the 3 no-residual rows that carried a populated
+   source: REQ-007 (was `KIT/_REVIEW.md DEL-02-04 PASS_WITH_DEFERRED_EVIDENCE`), REQ-008 (was
+   `KIT/_REVIEW.md DEL-02-05 WARNING`), REQ-010 (was `KIT/Specification.md#R10 (Human ruling
+   remains TBD)`). §6 contract: "source named by the residual or NONE_RECORDED" — with
+   `RecordedRemaining=NONE_RECORDED` there is no residual to name a source. No information lost:
+   each row's deferral citation is retained verbatim in its `VerificationEvidence`/`RemainingWork`
+   cells.
+3. **`SourceReliability`: `REVIEWED` → `UNVERIFIED`** on EXC-002 and EXC-003 (addendum-6 ladder,
+   applied independently). Repair-pilot verification note: `docs/CONTRACT.md` and
+   `docs/DIRECTIVE.md` are owner-RATIFIED at the frozen SHA (named ruling of record 2026-07-11,
+   K-AUTH-1 — "You can now take all the `docs/` out of the DRAFT state, making them
+   authoritative"), so the original REVIEWED was not baseless; but the ratification covers those
+   governance documents themselves, not a human disposition covering these rows' cited records
+   (EXC-002's fixture/test guardrail evidence is project-original agent-generated with agent
+   audit; EXC-003 cites no technical record at all). Addendum 6's REVIEWED bar ("named human
+   ruling or recorded human disposition covering the cited record") is therefore not met.
+   `UNVERIFIED` chosen over `NOT_APPLICABLE` for in-ledger consistency with EXC-001 (verified
+   PASS by the fan-in verifier) and with siblings DEL-03-01/DEL-03-06; the
+   `NOT_APPLICABLE`-for-pure-prose alternative (DEL-03-03/DEL-03-07 pattern) remains open as a
+   wave-level canonicalization question.
+
+Disagreements with the verifier report: NONE on defects 1 and 2 (verified mechanically). On
+defect 3 a nuance is recorded above (the documents do carry a named ratification ruling), but the
+verification supports the downgrade the verifier suggested. Frozen tree porcelain re-verified
+empty before and after all repair-pilot reads; writes confined to this ledger's two files.
+
 ## Boundary-compliance statement
 
 - Fences held: discovery was read-only over the frozen tree; no lifecycle transition applied (none proposed); no DAG mutation; no cross-project edit; no edit to any `_STATUS.md`, register, review CSV, schema, or product file. No release-readiness, issuance, certification, sealing, professional-approval, or code-compliance claim appears in these outputs (F-PIP-1..5). All dispositions are agent judgments routed via `AuthorityNeeded`, never phrased as owner/engineering rulings.
