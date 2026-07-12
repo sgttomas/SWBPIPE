@@ -374,6 +374,53 @@
   `init/piping-resume-one-time.md`. Receipt 24 records the wave boundary
   and this pause.
 
+- **2026-07-12 — R2 wave W4 COMPLETE (PKG-09, PKG-10, PKG-11, PKG-12).**
+  20 deliverable-grained ledgers, 491 rows after owning-pilot corrections
+  (PKG-09: 120 across DEL-09-01..05; PKG-10: 125 across DEL-10-01..05;
+  PKG-11: 115 across DEL-11-01..05; PKG-12: 131 across DEL-12-01..05).
+  Discovery ran in seven batches with at most three concurrent GPT-5 pilots;
+  PKG-12 pilots used the highest-available-capability posture because the
+  package is SECURITY/privacy and F-PIP-1 fence-adjacent. Batch commits:
+  `2fd52012a`, `9c40d02c3`, `677effa7c`, `e4f9e5b04`, `21252aad6`,
+  `b22ced693`, `c52823cf6`; the DEL-12-03 enum correction is `13d85560b`.
+  Addendum-9 mitigation was binding throughout: ignored-aware porcelain,
+  the six incident paths allow-listed, copy-out cargo where needed, pytest
+  `-p no:cacheprovider`, and no in-tree `py_compile`. The frozen worktree
+  remained at the pinned SHA and showed exactly the six known ignored paths,
+  with no seventh path.
+
+- **2026-07-12 — W4 fan-in and correction pass COMPLETE.** Four independent
+  highest-capability GPT-5 high-effort verifiers (one per package; PKG-12 by
+  the orchestrator) checked all self-flagged rows, all non-ALIGNED rows, and
+  at least two ALIGNED rows per ledger. Reports:
+  `WAVES/W4/W4_VERIFICATION_PKG-09.md` through `..._PKG-12.md`. Initial
+  verdicts were 12 SOUND / 8 DEFECTIVE; every failure was a bounded
+  owning-pilot correction and no discovery rerun was required. Corrections
+  covered evidence/source-reliability strings, UTF-8 normalization,
+  gate/selectability defaults, convention-6 marker scope, declaration-grain
+  adjudication, and one added currentness-mismatch row; commit `76aa949b5`.
+  Full-wave post-correction validation: 20 exact-header RFC-4180 CRLF ledgers,
+  491 rows, controlled enums, contiguous type-matched ClaimIDs, DECL
+  reliability, bootstrap placement, SECURITY marker exactness, and
+  gate/selectability invariants — 0 errors. Final corpus counts: ClaimType
+  REQUIREMENT 210 / ACCEPTANCE 70 / EXCLUSION 55 / DECLARED_STATE 124 /
+  REMAINING_WORK 32; dispositions ALIGNED 353 /
+  PARTIALLY_IMPLEMENTED 44 / STALE_SETUP_SPECIFICATION 65 /
+  ACCEPTED_DIVERGENCE 9 / REMAINING_STATE_MISMATCH 15 /
+  IMPLEMENTED_DIFFERENTLY 2 / STALE_REVIEW_OR_EVIDENCE 1 /
+  DOCUMENTED_UNIMPLEMENTED 2. Package summaries:
+  `PACKAGE_SUMMARIES/PKG-09.md` through `PKG-12.md`.
+
+- **2026-07-12 — PAUSED at owner direction after W4.** Owner direction of
+  record (in-session, verbatim): "pause after W4 is complete, before setting
+  out for W5." W4 is complete through discovery, fan-in, owning-pilot
+  corrections, full-wave revalidation, package summaries, and wave-boundary
+  handoff. W5 (`PKG-13`–`PKG-17`, 26 deliverables) has NOT been dispatched;
+  no agents are in flight on W5 and no W5 artifacts exist. Resume point:
+  W5 under `R1_CONVENTIONS.md`, the binding W1–W4 package-summary calibration,
+  and the addendum-9 containment controls, only on new owner direction.
+  The hard STOP before R4/R5 remains unchanged.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
