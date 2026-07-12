@@ -2,7 +2,7 @@
 
 Deliverable: **DEL-06-03** (PKG-06), BACKEND_FEATURE_SLICE, IN_PROGRESS.
 Frozen source tree: `main` @ `551f84ef6be656f1603ce0acfa5e3935aa9683c7`.
-Ledger: `CLAIM_CONCORDANCE_DEL-06-03.csv` (16 rows, 20 columns, RFC-4180 clean).
+Ledger: `CLAIM_CONCORDANCE_DEL-06-03.csv` (17 rows, 20 columns, RFC-4180 clean).
 
 Run-level `NormativeSource` alias (addendum 12): the crate slice cited throughout
 is `core/rules/completeness_checker` (Cargo package `open_pipe_stress_completeness_checker`).
@@ -22,15 +22,15 @@ analysis (addendum 2). No real non-bootstrap residual exists.
 ## 1. Histograms (recount from the CSV)
 
 Disposition histogram:
-- ALIGNED — 12
+- ALIGNED — 13
 - STALE_SETUP_SPECIFICATION — 4
 
 ClaimType histogram:
 - REQUIREMENT — 7
 - EXCLUSION — 3
-- DECLARED_STATE — 6
+- DECLARED_STATE — 7
 
-Total rows: 16. (Both histograms reproduce exactly from the ledger.)
+Total rows: 17. (Both histograms reproduce exactly from the ledger.)
 
 ## 2. Self-flagged rows
 
@@ -105,10 +105,23 @@ Total rows: 16. (Both histograms reproduce exactly from the ledger.)
   row takes a rev-drift `STALE_SETUP_SPECIFICATION` disposition; the drift is
   recorded as an in-row note on the MEMORY surface (DECL-006) and here.
   AuthorityNeeded stays NO for the pure pointer drift (calibration item 1).
-- **No README DECL row.** The DEL-06-03 folder contains no deliverable-owned
-  README. `core/rules/completeness_checker/README.md` is an *implementation*
-  surface (mapped, SURF-116) and is cited as implementation/boundary evidence, not
-  enumerated as a deliverable-kit README (addendum 1 / W2 calibration item 10).
+- **README DECL row (DECL-007) — censused per the W3 README-census item.**
+  `core/rules/completeness_checker/README.md` opens "This crate is the bounded
+  implementation slice for `DEL-06-03`", the exact self-identifying species the
+  W3 calibration item (from W2 §3.2) directs to census. Although the crate is a
+  shared implementation surface (SURF-116 maps DEL-05-04/DEL-06-02/DEL-06-03), the
+  README's own text resolves the deliverable-ownership question the census item
+  keys on, so it is a deliverable-owned declared-state surface and is censused as
+  `DEL-06-03-DECL-007` (DOCUMENTATION / DECLARED_STATE). Re-verified against the
+  frozen crate: the Scope/Boundary/Verification sections accurately describe the
+  implemented required/supplied-input checking API, the `RULE_INPUTS_INCOMPLETE`
+  readiness mapping, the no-parse/no-evaluate/no-standards/no-code-compliance
+  boundary, and the unit-test coverage, with no omitted or overstated capability →
+  **ALIGNED** (HIGH; SourceReliability NOT_APPLICABLE; AuthorityNeeded NO). This
+  matches the sibling census of the identical species in DEL-06-02 DECL-007 and
+  DEL-06-04 DECL-007. (An earlier reading excluded this README as a pure
+  implementation surface; the wave-uniform census reading, applied here, includes
+  it.)
 - **No ACCEPTANCE rows.** The Specification's per-requirement "Verification
   approach" column and its "Verification" prose section merely restate the
   requirements as future tests; there is no acceptance-criteria table at

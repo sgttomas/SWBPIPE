@@ -102,16 +102,34 @@ ALIGNED (status accurate; MEMORY overtaken block corrected in-file — see §4).
 
 ## 3. Evidence-execution log
 
-All re-executions honored addendum 9 (external `CARGO_TARGET_DIR` to my scratch dir,
-`PYTHONDONTWRITEBYTECODE=1`); `git -C FROZEN status --porcelain` was **empty before and after
-every command**.
+Re-executions used an external `CARGO_TARGET_DIR` to my scratch dir and
+`PYTHONDONTWRITEBYTECODE=1`; plain `git -C FROZEN status --porcelain` (tracked-only) was
+**empty before and after every command**, and frozen HEAD stayed `551f84ef6...` throughout.
+**Disclosed exception (W3 fan-in, addendum-9 breach):** the in-tree `cargo test` on
+`core/reporting/report_generator` wrote `core/reporting/report_generator/Cargo.lock` into the
+frozen tree — that crate's lockfile is git-ignored and was absent at the SHA (unlike
+`report_renderer`/`report_package`/`pdf_emitter`, which carry committed `Cargo.lock` files, so
+their re-runs wrote nothing), and cargo writes the lockfile beside `Cargo.toml` even with an
+external `CARGO_TARGET_DIR`. Because the artifact is git-ignored the plain porcelain check
+truthfully passed while the write occurred; a `git status --porcelain --ignored=matching`
+check would have surfaced it. The **test results themselves are not invalidated** — a
+generated lockfile from a fixed-dependency `Cargo.toml` affects no pass/fail outcome or
+encoded fact, and no tracked content changed (frozen HEAD unchanged). Containment (worktree
+restore) is escalated to the orchestrator per W3 verification §3.1; the affected per-row
+`VerificationEvidence` cells carry the same disclosure. See the `cargo test` line below.
 
-Re-executed side-effect-free at frozen SHA `551f84ef6` (all PASS; frozen tree clean after):
+Re-executed at frozen SHA `551f84ef6` (all PASS; tracked tree clean after — with the disclosed
+`report_generator/Cargo.lock` exception above):
 
 - `cargo test` (external target dir): `core/reporting/report_generator` 10/10;
   `core/reporting/report_renderer` 8/8; `core/reporting/report_package` 12/12 (incl. double
   independent-build byte-identity, manifest/member-hash agreement, JCS idempotence, input-
-  change hash propagation); `core/reporting/pdf_emitter` 8/8.
+  change hash propagation); `core/reporting/pdf_emitter` 8/8. **Addendum-9 disclosure (W3
+  fan-in):** the `report_generator` run wrote `core/reporting/report_generator/Cargo.lock`
+  (git-ignored, untracked; that crate has no committed lockfile) into the frozen tree —
+  invisible to plain `git status --porcelain`; the other three crates carry committed
+  lockfiles and wrote nothing. Test results unaffected; see the §3 disclosed exception above
+  and W3 verification §3.1.
 - `python3 tests/test_report_generator_contract.py` PASS;
   `python3 tests/test_report_sections_contract.py` PASS;
   `python3 tests/test_report_protected_content_linter.py` PASS.
@@ -175,7 +193,9 @@ Direct-inspection facts verified at the frozen SHA: `tools/validation/` contains
 
 ## 5. Boundary-compliance statement
 
-- All fences held. Discovery was read-only outside my two output files
+- All fences held **except the disclosed addendum-9 exception** (§3): the in-tree `cargo test`
+  on `report_generator` wrote `core/reporting/report_generator/Cargo.lock` into the frozen
+  tree. Otherwise discovery was read-only outside my two output files
   (`WAVES/W3/CLAIM_CONCORDANCE_DEL-08-01.csv` and `WAVES/W3/NOTES_DEL-08-01.md`). No
   `_STATUS.md`, register, DAG, product file, or cross-project file was edited; no lifecycle
   transition was applied (`STALE_SETUP_SPECIFICATION` and repair candidates are recorded as
@@ -183,9 +203,15 @@ Direct-inspection facts verified at the frozen SHA: `tools/validation/` contains
 - No F-PIP-1..5 claim (release-readiness, issuance, certification, sealing, professional
   approval, code-compliance) appears in either output.
 - No `DEFERRED_AGENT_WORKFLOW` implications arose for this deliverable.
-- Frozen evidence tree: `git status --porcelain` empty before AND after every read and
-  re-execution; all build/bytecode artifacts were redirected outside the frozen tree
-  (external `CARGO_TARGET_DIR`; `PYTHONDONTWRITEBYTECODE=1`). Frozen HEAD verified
-  `551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout.
+- Frozen evidence tree: plain `git status --porcelain` (tracked-only) empty before AND after
+  every read and re-execution; build/bytecode artifacts were redirected outside the frozen
+  tree (external `CARGO_TARGET_DIR`; `PYTHONDONTWRITEBYTECODE=1`). Frozen HEAD verified
+  `551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout. **Disclosed exception (W3 fan-in):**
+  the `report_generator` `cargo test` wrote `core/reporting/report_generator/Cargo.lock` into
+  the frozen tree (that crate's lockfile is git-ignored and uncommitted; cargo writes it beside
+  `Cargo.toml` regardless of `CARGO_TARGET_DIR`) — an untracked git-ignored artifact invisible
+  to plain porcelain, an addendum-9 breach disclosed in §3 and W3 verification §3.1. Test
+  results are not invalidated and no tracked content changed; containment (worktree restore) is
+  escalated to the orchestrator.
 - STOP-worthy contradictions: NONE (the D-41 `AWAITING_RULING` frozen-register state is
   ruling-after-freeze mechanics per RUN_BASIS, not a conflict).

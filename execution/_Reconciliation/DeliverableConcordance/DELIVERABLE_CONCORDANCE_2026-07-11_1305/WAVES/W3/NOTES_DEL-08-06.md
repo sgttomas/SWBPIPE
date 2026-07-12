@@ -74,7 +74,10 @@ ALIGNED (status accurate; MEMORY entries all dated and accurate). `SelectableUnd
 - **REMAINING_WORK: 0.** The only `_STATUS.md ## Remaining` item is the seeded `(gated: D-41)`
   concordance bootstrap item, recorded byte-exact ONLY in the DECL-005 (_STATUS)
   `RecordedRemaining` and given no REM row and no gate/source/selectability annotation
-  (addendum 2 / calibration 3). This matches the inventory row
+  (addendum 2 / calibration 3). **W3 fan-in correction:** the source citation's `§§6–8`
+  en dash (U+2013) had been transcribed as an ASCII hyphen (`§§6-8`); the cell was
+  re-transcribed to restore byte-exactness against the frozen `_STATUS.md ## Remaining`
+  item. This matches the inventory row
   (`RemainingItemCount=1`, `BootstrapItemPresent=YES`, `NonBootstrapItems=NONE`,
   `GateSuffixes=NONE`, `SelectableUnderCurrentLoop=NO`). Independently re-verified against the
   frozen `_STATUS.md`: no non-bootstrap residual exists.
@@ -124,11 +127,17 @@ ALIGNED (status accurate; MEMORY entries all dated and accurate). `SelectableUnd
 
 ## 4. Evidence-execution log
 
-All re-executions honored addendum 9 (`PYTHONDONTWRITEBYTECODE=1`; no build/bytecode artifacts
-written into the frozen tree). `git -C FROZEN status --porcelain` was **empty before and after
-every command**, and frozen HEAD stayed `551f84ef6...` throughout.
+Re-executions ran under `PYTHONDONTWRITEBYTECODE=1`; plain `git -C FROZEN status --porcelain`
+(tracked-only) was **empty before and after every command**, and frozen HEAD stayed
+`551f84ef6...` throughout. **Disclosed exception (W3 fan-in, addendum-9 breach):** the
+`python3 -m py_compile` step below wrote `__pycache__` bytecode into the frozen tree —
+`py_compile` writes bytecode regardless of `PYTHONDONTWRITEBYTECODE`, and because the artifacts
+are git-ignored the plain porcelain check truthfully passed while the writes occurred. A
+`git status --porcelain --ignored=matching` check would have surfaced them. See the disclosure
+note on the `py_compile` line below and W3 verification §3.1.
 
-Re-executed side-effect-free at frozen SHA `551f84ef6` (all PASS; frozen tree clean after):
+Re-executed at frozen SHA `551f84ef6` (all PASS; tracked tree clean after — with the disclosed
+`__pycache__` exception below):
 
 - `python3 tests/test_state_comparison_handoff_report_sections.py` → all **9/9** focused tests
   PASS via the module's `main()` runner (deterministic family coverage; ref/hash/provenance/
@@ -137,8 +146,19 @@ Re-executed side-effect-free at frozen SHA `551f84ef6` (all PASS; frozen tree cl
   numeric/comparison unit-metadata gates; boundary-flag immutability; clean-source boundary
   language). Test-function count independently recounted: `grep -c '^def test_'` = 9.
   (pytest was deliberately NOT used — it would write a `.pytest_cache` into the frozen tree;
-  the script runner is side-effect-free.)
-- `python3 -m py_compile core/reporting/state_comparison_handoff_sections/engine.py tests/test_state_comparison_handoff_report_sections.py` → OK.
+  the script runner itself is side-effect-free. **The separate `py_compile` step below defeated
+  that intent** — see the disclosure note.)
+- `python3 -m py_compile core/reporting/state_comparison_handoff_sections/engine.py tests/test_state_comparison_handoff_report_sections.py` → OK. **Addendum-9 disclosure (W3 fan-in):**
+  explicit `py_compile` emits bytecode regardless of `PYTHONDONTWRITEBYTECODE=1`, so this step
+  wrote `core/reporting/state_comparison_handoff_sections/__pycache__/engine.cpython-313.pyc`
+  and `tests/__pycache__/test_state_comparison_handoff_report_sections.cpython-313.pyc` into the
+  frozen tree — untracked, git-ignored artifacts invisible to plain `git status --porcelain`
+  (hence the truthful-but-incomplete "clean" checks above). This is an addendum-9 breach (writes
+  into the frozen tree are forbidden even on git-ignored paths). The **test results themselves
+  are not invalidated** — bytecode caches affect no pass/fail outcome or encoded fact, and no
+  tracked content changed (frozen HEAD unchanged). Containment (worktree restore) is escalated
+  to the orchestrator per W3 verification §3.1; the affected per-row `VerificationEvidence` cells
+  carry the same disclosure.
 - `git -C FROZEN diff --check` → clean.
 - `python3 tools/validation/validate_dependencies_schema.py <DEL-08-06>/Dependencies.csv` →
   VALID (RegisterSchemaVersion v3.1, 29 columns, 29 data rows). Backs ACC-001.
@@ -207,9 +227,11 @@ used (no ancestor-commit diff was run).
 
 ## 6. Boundary-compliance statement
 
-- All fences held. Discovery was read-only outside my two output files
-  (`WAVES/W3/CLAIM_CONCORDANCE_DEL-08-06.csv` and `WAVES/W3/NOTES_DEL-08-06.md`). No
-  `_STATUS.md`, register, DAG, product file, or cross-project file was edited; no lifecycle
+- All fences held **except the disclosed addendum-9 exception** (§4): the `py_compile` step
+  wrote `__pycache__` bytecode into the frozen tree. Otherwise discovery was read-only outside
+  my two output files (`WAVES/W3/CLAIM_CONCORDANCE_DEL-08-06.csv` and
+  `WAVES/W3/NOTES_DEL-08-06.md`). No `_STATUS.md`, register, DAG, product file, or cross-project
+  file was edited; no lifecycle
   transition was applied (`STALE_SETUP_SPECIFICATION` and R5 repair candidates are recorded as
   dispositions/RemainingWork only); `LIFECYCLE_REASSESSMENT_REQUIRED` was never applied; no DAG
   mutation.
@@ -217,9 +239,13 @@ used (no ancestor-commit diff was run).
   professional approval, code-compliance) appears in either output outside attributed quotes of
   the deliverable's own negative obligations.
 - No `DEFERRED_AGENT_WORKFLOW` implications arose for this deliverable.
-- Frozen evidence tree: `git status --porcelain` empty **before AND after** every read and
-  re-execution; all bytecode redirected out of the tree (`PYTHONDONTWRITEBYTECODE=1`); pytest
-  avoided to prevent a `.pytest_cache` write. Frozen HEAD verified
-  `551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout.
+- Frozen evidence tree: plain `git status --porcelain` (tracked-only) empty **before AND after**
+  every read and re-execution; pytest avoided to prevent a `.pytest_cache` write; frozen HEAD
+  verified `551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout. **Disclosed exception (W3
+  fan-in):** the `py_compile` step wrote `__pycache__` bytecode into the frozen tree
+  (`core/reporting/state_comparison_handoff_sections/__pycache__/`, `tests/__pycache__/`) —
+  untracked git-ignored artifacts invisible to plain porcelain; an addendum-9 breach disclosed
+  in §4 and W3 verification §3.1. Test results are not invalidated and no tracked content
+  changed; containment (worktree restore) is escalated to the orchestrator.
 - **STOP-worthy contradictions: NONE** (the D-41 `AWAITING_RULING` frozen-register state is
   ruling-after-freeze mechanics per RUN_BASIS, not a conflict).

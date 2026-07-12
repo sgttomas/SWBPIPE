@@ -2,7 +2,7 @@
 
 Deliverable: **DEL-07-03** (PKG-07), status IN_PROGRESS. Ledger:
 `CLAIM_CONCORDANCE_DEL-07-03.csv` (23 claim rows, 20 columns, RFC-4180 clean,
-LF). Frozen source SHA `551f84ef6be656f1603ce0acfa5e3935aa9683c7`.
+CRLF). Frozen source SHA `551f84ef6be656f1603ce0acfa5e3935aa9683c7`.
 
 Run-level `NormativeSource` alias (addendum 12): the deliverable folder
 `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/`

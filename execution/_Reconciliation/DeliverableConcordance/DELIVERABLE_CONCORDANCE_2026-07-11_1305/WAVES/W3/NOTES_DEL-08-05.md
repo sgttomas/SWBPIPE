@@ -164,12 +164,23 @@ corroborating "the recorded scan … remain owner-only" — the owner has not ye
 
 ## 4. Evidence-execution log
 
-All re-executions honored addendum 9 (external `CARGO_TARGET_DIR` to my scratch dir;
-`PYTHONDONTWRITEBYTECODE=1`; `TMPDIR` redirected to scratch for pytest tmp dirs);
-`git -C FROZEN status --porcelain` was **empty before and after every command**, and
-frozen HEAD stayed `551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout.
+Re-executions redirected build/bytecode/temp artifacts outside the frozen tree (external
+`CARGO_TARGET_DIR` to my scratch dir; `PYTHONDONTWRITEBYTECODE=1`; `TMPDIR` redirected to
+scratch for pytest tmp dirs); plain `git -C FROZEN status --porcelain` (tracked-only) was
+**empty before and after every command**, and frozen HEAD stayed
+`551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout. **Disclosed exception (W3 fan-in,
+addendum-9 breach):** the `python3 -m pytest tests/test_release_candidate_scan.py` step
+below wrote a `.pytest_cache/` directory into the frozen project root — the scratch
+`TMPDIR` redirection covers only pytest's tmp-path fixtures, not the rootdir cache, and no
+`-p no:cacheprovider` was used, so the cache was written; because the artifact is
+git-ignored the plain porcelain check truthfully passed while the write occurred. A `git
+status --porcelain --ignored=matching` check would have surfaced it. See the disclosure
+note on the pytest line below and W3 verification §3.1. The `cargo test` run (committed
+crate `Cargo.lock` + external target dir) and the `python3 tests/...` script runner
+(`PYTHONDONTWRITEBYTECODE=1`, no pytest cache) genuinely wrote nothing.
 
-Re-executed side-effect-free at frozen SHA `551f84ef6` (all PASS; frozen tree clean after):
+Re-executed at frozen SHA `551f84ef6` (all PASS; tracked tree clean after — with the
+disclosed `.pytest_cache/` exception below):
 
 - `cargo test --manifest-path core/reporting/protected_content_linter/Cargo.toml`
   (external target dir) → **15/15** (synthetic-marker ordering/blocking, private-surface
@@ -178,10 +189,22 @@ Re-executed side-effect-free at frozen SHA `551f84ef6` (all PASS; frozen tree cl
 - `python3 tests/test_report_protected_content_linter.py` → **PASS** (schema/fixture
   contract: `$defs`, const fields, FindingCode/Class enums, forbidden-fixture-term
   absence, DEL-11-04 example-ref absence).
-- `python3 -m pytest tests/test_release_candidate_scan.py` (external target dir; scratch
-  `TMPDIR`) → **14/14** (record fields, all-six-classes-recorded, checksums, determinism,
-  unsigned/pending sign-off, skipped-checks-fail-toward-review, provenance/quarantine
-  blocking findings, engine-integration flags invented lookalike, clean-content negative).
+- `python3 -m pytest tests/test_release_candidate_scan.py` (scratch `TMPDIR`) → **14/14**
+  (record fields, all-six-classes-recorded, checksums, determinism, unsigned/pending
+  sign-off, skipped-checks-fail-toward-review, provenance/quarantine blocking findings,
+  engine-integration flags invented lookalike, clean-content negative). **Addendum-9
+  disclosure (W3 fan-in):** this pytest invocation wrote a `.pytest_cache/` directory into
+  the frozen project root (`projects/chirality-piping/.pytest_cache/`; cached nodeids are
+  exactly this module's 14 tests) — an untracked git-ignored artifact invisible to plain
+  `git status --porcelain` (hence the truthful-but-incomplete "clean" checks above). The
+  scratch `TMPDIR` redirection covers pytest's tmp fixtures but not the rootdir cache; `-p
+  no:cacheprovider` would have suppressed it. This is an addendum-9 breach (writes into the
+  frozen tree are forbidden even on git-ignored paths). The **test results themselves are
+  not invalidated** — a pytest cache affects no pass/fail outcome or encoded fact, and no
+  tracked content changed (frozen HEAD unchanged). Containment (worktree restore) is
+  escalated to the orchestrator per W3 verification §3.1; the affected per-row
+  `VerificationEvidence` cells (REQ-002/003/004/009/010 + REM-001) carry the same
+  disclosure.
 - `python3 tools/validation/validate_dependencies_schema.py <DEL-08-05>/Dependencies.csv`
   → **VALID** (29 columns, 13 rows: 13 ACTIVE / 0 RETIRED).
 
@@ -241,7 +264,9 @@ the crate `Cargo.toml` is dependency-free (backs REQ-011).
 
 ## 5. Fence attestation / boundary-compliance statement
 
-- All fences held. Discovery was read-only outside my two output files
+- All fences held **except the disclosed addendum-9 exception** (§4): the `python3 -m
+  pytest tests/test_release_candidate_scan.py` step wrote a `.pytest_cache/` directory into
+  the frozen project root. Otherwise discovery was read-only outside my two output files
   (`WAVES/W3/CLAIM_CONCORDANCE_DEL-08-05.csv` and `WAVES/W3/NOTES_DEL-08-05.md`). No
   `_STATUS.md`, register, DAG, schema, crate, tool, product file, or cross-project file was
   edited; no lifecycle transition was applied (`LIFECYCLE_REASSESSMENT_REQUIRED` never
@@ -251,10 +276,17 @@ the crate `Cargo.toml` is dependency-free (backs REQ-011).
   professional approval, code-compliance) appears in either output outside attributed
   quotes of the deliverable's own declared boundaries.
 - No `DEFERRED_AGENT_WORKFLOW` implications arose for this deliverable.
-- Frozen evidence tree: `git status --porcelain` **empty before AND after** every read and
-  re-execution; all build/bytecode/temp artifacts were redirected outside the frozen tree
-  (external `CARGO_TARGET_DIR`; `PYTHONDONTWRITEBYTECODE=1`; scratch `TMPDIR`). Frozen HEAD
-  verified `551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout.
+- Frozen evidence tree: plain `git status --porcelain` (tracked-only) **empty before AND
+  after** every read and re-execution; cargo build artifacts and Python bytecode were
+  redirected outside the frozen tree (external `CARGO_TARGET_DIR`; `PYTHONDONTWRITEBYTECODE=1`;
+  scratch `TMPDIR`), and the linter crate's committed `Cargo.lock` meant the `cargo test`
+  run wrote nothing. Frozen HEAD verified `551f84ef6be656f1603ce0acfa5e3935aa9683c7`
+  throughout. **Disclosed exception (W3 fan-in):** the `python3 -m pytest
+  tests/test_release_candidate_scan.py` step wrote a `.pytest_cache/` directory into the
+  frozen project root (`projects/chirality-piping/.pytest_cache/`) — an untracked git-ignored
+  artifact invisible to plain porcelain; an addendum-9 breach disclosed in §4 and W3
+  verification §3.1. Test results are not invalidated and no tracked content changed;
+  containment (worktree restore) is escalated to the orchestrator.
 - **STOP-worthy contradictions: NONE.** (The D-41 `AWAITING_RULING` frozen-register state
   is ruling-after-freeze mechanics per RUN_BASIS, not a conflict. The owner-gated,
   as-yet-unexecuted release-candidate scan is a stage-gated residual with tooling complete,

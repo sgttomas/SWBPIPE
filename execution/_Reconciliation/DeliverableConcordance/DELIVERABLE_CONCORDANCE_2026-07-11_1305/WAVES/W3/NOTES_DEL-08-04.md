@@ -168,17 +168,33 @@ DEL-08-01 exemplar's 4-STALE pattern: **DECL-003 (Guidance) is ALIGNED here**, n
 
 ## 5. Evidence-execution log
 
-All re-executions honored addendum 9 (external `CARGO_TARGET_DIR` to my scratch dir,
-`PYTHONDONTWRITEBYTECODE=1`); `git -C FROZEN status --porcelain` was **empty before and after
-every command**, and frozen HEAD stayed `551f84ef6be656f1603ce0acfa5e3935aa9683c7`.
+Re-executions redirected build/bytecode artifacts outside the frozen tree where possible
+(external `CARGO_TARGET_DIR` to my scratch dir, `PYTHONDONTWRITEBYTECODE=1`); plain
+`git -C FROZEN status --porcelain` (tracked-only) was **empty before and after every command**
+and frozen HEAD stayed `551f84ef6be656f1603ce0acfa5e3935aa9683c7`. **Addendum-9 disclosure (W3
+fan-in):** the `cargo test` step below nonetheless wrote a `Cargo.lock` into the frozen
+`result_export` crate — cargo emits a lockfile beside `Cargo.toml` even with an external
+`CARGO_TARGET_DIR`, and because that path is git-ignored the plain porcelain check truthfully
+passed while the write occurred. A `git status --porcelain --ignored=matching` check would have
+surfaced it. See the disclosure note on the `cargo test` line below and W3 verification §3.1.
 
-Re-executed side-effect-free at frozen SHA `551f84ef6` (all PASS; frozen tree clean after):
+Re-executed at frozen SHA `551f84ef6` (all PASS; frozen tree tracked-porcelain clean after, with
+the `Cargo.lock` exception below):
 
 - `cargo test` (external target dir): `core/reporting/result_export` **12/12** (envelope
   validation; unit/dimension blocking; force/moment/section-property metadata mandatory;
   governed result-set vocabulary; human-review-status mandatory; professional-boundary block;
   rule-pack redaction + protected-suspected block; deterministic ordering; TP-PHYS-015 and
-  TP-SECTION-021 fixture serialization). Doc-tests 0/0.
+  TP-SECTION-021 fixture serialization). Doc-tests 0/0. **Addendum-9 disclosure (W3 fan-in):**
+  cargo writes a lockfile beside `Cargo.toml` even with an external `CARGO_TARGET_DIR`, so this
+  step wrote `core/reporting/result_export/Cargo.lock` into the frozen tree — an untracked,
+  git-ignored artifact (the crate's lockfile is gitignored and was absent at the SHA) invisible
+  to plain `git status --porcelain` (writes into the frozen tree are forbidden even on git-ignored
+  paths). The **test results themselves are not invalidated** — a lockfile generated from a
+  fixed/zero-dependency `Cargo.toml` affects no pass/fail outcome or encoded fact, and no tracked
+  content changed. Containment (worktree restore) is escalated to the orchestrator per W3
+  verification §3.1; the affected per-row `VerificationEvidence` cells (REQ-001..REQ-012, EXC-002,
+  REM-001) carry the same disclosure.
 - `python3 tests/test_results_schema.py` **PASS** (structural schema checks + jsonschema
   instance validation of both invented result fixtures; no SKIP emitted → jsonschema path ran).
 - `python3 tools/validation/validate_dependencies_schema.py <DEL-08-04>/Dependencies.csv`
@@ -200,7 +216,10 @@ stops at `HUMAN_REVIEW_REQUIRED` with the "human acceptance external and hash-bo
 
 ## 6. Boundary-compliance statement
 
-- All fences held. Discovery was read-only outside my two output files
+- All fences held **except the disclosed addendum-9 exception** (§5 / `cargo test` line): the
+  `cargo test` step wrote a `Cargo.lock` into the frozen `result_export` crate (untracked,
+  git-ignored; test results not invalidated; containment escalated per W3 verification §3.1).
+  Otherwise discovery was read-only outside my two output files
   (`WAVES/W3/CLAIM_CONCORDANCE_DEL-08-04.csv` and `WAVES/W3/NOTES_DEL-08-04.md`). No
   `_STATUS.md`, register, DAG, product file, schema, crate, or cross-project file was edited;
   no lifecycle transition was applied (`STALE_SETUP_SPECIFICATION` and R5 repair candidates
@@ -210,9 +229,13 @@ stops at `HUMAN_REVIEW_REQUIRED` with the "human acceptance external and hash-bo
   approval, code-compliance) appears in either output outside attributed quotes of the
   deliverable's own negative obligations.
 - No `DEFERRED_AGENT_WORKFLOW` implications arose for this deliverable.
-- Frozen evidence tree: `git status --porcelain` empty **before AND after** every read and
-  re-execution; all build/bytecode artifacts were redirected outside the frozen tree (external
-  `CARGO_TARGET_DIR`; `PYTHONDONTWRITEBYTECODE=1`). Frozen HEAD verified
-  `551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout.
+- Frozen evidence tree: plain `git status --porcelain` (tracked-only) empty **before AND after**
+  every read and re-execution; Python bytecode was suppressed (`PYTHONDONTWRITEBYTECODE=1`) and
+  cargo build output redirected (external `CARGO_TARGET_DIR`). **Addendum-9 exception (W3 fan-in):**
+  the `cargo test` step nonetheless wrote `core/reporting/result_export/Cargo.lock` into the frozen
+  tree — an untracked git-ignored artifact invisible to plain porcelain (a `--ignored=matching`
+  check would have surfaced it); disclosed in §5 and W3 verification §3.1. Test results are not
+  invalidated and no tracked content changed; worktree restoration is escalated to the
+  orchestrator. Frozen HEAD verified `551f84ef6be656f1603ce0acfa5e3935aa9683c7` throughout.
 - **STOP-worthy contradictions: NONE** (the D-41 `AWAITING_RULING` frozen-register state is
   ruling-after-freeze mechanics per RUN_BASIS, not a conflict).

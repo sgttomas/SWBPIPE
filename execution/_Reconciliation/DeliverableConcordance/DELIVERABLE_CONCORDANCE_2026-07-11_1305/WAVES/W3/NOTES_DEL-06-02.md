@@ -10,10 +10,9 @@ Run-level `NormativeSource` alias (addendum 12): `SOFTWARE_DECOMP §12` =
 ## 1. Histograms (recomputed from the CSV)
 
 **Disposition histogram (20 rows):**
-- ALIGNED — 11
+- ALIGNED — 12
 - PARTIALLY_IMPLEMENTED — 4
 - STALE_SETUP_SPECIFICATION — 4
-- VERIFIED_NOT_VALIDATED — 1
 
 **ClaimType histogram (20 rows):**
 - REQUIREMENT — 11
@@ -25,10 +24,16 @@ Run-level `NormativeSource` alias (addendum 12): `SOFTWARE_DECOMP §12` =
 ## 2. Self-flagged rows
 
 - **DEL-06-02-REQ-001** (SECURITY, sandbox/no-arbitrary-code): dispositioned
-  VERIFIED_NOT_VALIDATED rather than ALIGNED. The sandbox is structural (typed
-  AST, no parser, no host-access execution node) and unit-tested, but per the
-  brief I must not assert sandbox sufficiency — validation of escape resistance
-  is owner-gated. Convention-6 SECURITY marker + AuthorityNeeded=OWNER applied.
+  ALIGNED (fan-in W3 harmonization). The sandbox is structural (typed
+  AST, no parser, no host-access execution node) and unit-tested; sandbox
+  sufficiency (validation of escape resistance) is owner-gated. Convention 6
+  forbids a VERIFIED_NOT_VALIDATED downgrade on the owner-gated
+  sufficiency-deferral ground, so the deferral is carried by the em-dash
+  ValidationEvidence marker + AuthorityNeeded=OWNER + RemainingWork rather than
+  by the disposition; the row is ALIGNED with the marker. (I originally
+  dispositioned VERIFIED_NOT_VALIDATED and self-flagged the choice for fan-in
+  harmonization; this is that correction, matching DEL-06-01 REQ-007 and the
+  DEL-06-04 marker rows.)
 - **DEL-06-02-REQ-010** (SECURITY, adapter/plugin no-bypass): dispositioned
   PARTIALLY_IMPLEMENTED (no plugin path exists in-crate; adapter/plugin
   integration and bypass tests are downstream) *and* carries the convention-6
@@ -171,11 +176,12 @@ historical log entry (addendum 1) and is noted here rather than dispositioned.
 
 - **SECURITY disposition vs the marker.** Convention-6 / W1 calibration item 2
   fixes the ValidationEvidence marker and OWNER routing for owner-gated SECURITY
-  sufficiency, but leaves the §7 disposition to pilot judgment. I used
-  VERIFIED_NOT_VALIDATED where the mechanism is complete but sufficiency is
-  unvalidated (REQ-001), and PARTIALLY_IMPLEMENTED where the mechanism itself is
-  downstream (REQ-010). Flagged for fan-in harmonization across SECURITY-class
-  deliverables in this wave.
+  sufficiency. Fan-in resolved the disposition question: convention 6 forbids a
+  VERIFIED_NOT_VALIDATED downgrade on the owner-gated sufficiency-deferral
+  ground, so a mechanism-complete row whose only open item is that deferral is
+  ALIGNED with the marker (REQ-001, corrected in W3). PARTIALLY_IMPLEMENTED still
+  applies where the mechanism itself is downstream (REQ-010). Harmonized with
+  DEL-06-01 REQ-007 and the DEL-06-04 marker rows.
 - **Requirement-that-declares-a-TBD resolved by a later ruling (REQ-006).** The
   binding set (addenda 5/11) covers "TBD accepted by a ruling that *permits* the
   deferral" (→ ACCEPTED_DIVERGENCE) and "recorded adoption" (→ ALIGNED), but the

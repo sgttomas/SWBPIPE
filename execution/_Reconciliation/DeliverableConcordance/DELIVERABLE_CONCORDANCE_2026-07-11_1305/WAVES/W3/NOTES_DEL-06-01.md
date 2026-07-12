@@ -25,7 +25,7 @@ ClaimType histogram:
 - (total 19)
 
 Supporting counts: ClaimClass {SCHEMA 7, DOCUMENTATION 6, GOVERNANCE 5,
-SECURITY 1}; AuthorityNeeded {NO 14, OWNER 5}; Confidence {HIGH 12, MEDIUM 7}.
+SECURITY 1}; AuthorityNeeded {NO 14, OWNER 5}; Confidence {HIGH 15, MEDIUM 4}.
 No ACCEPTANCE, REMAINING_WORK, or IMPLEMENTED_UNMAPPED rows (rationale below).
 
 ## 2. Census reasoning
