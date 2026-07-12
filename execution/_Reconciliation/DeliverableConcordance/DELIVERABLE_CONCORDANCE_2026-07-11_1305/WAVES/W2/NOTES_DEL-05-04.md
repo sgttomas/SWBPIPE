@@ -198,3 +198,27 @@ NOT_APPLICABLE per addendum 6.
   cells (all NO for this ledger). `SelectableUnderCurrentLoop` cells are
   mechanical only (no recorded non-bootstrap items → NO per addendum 12); the
   owner suspension remains a run-level caveat.
+
+## 6. Post-fan-in amendment (2026-07-12)
+
+- **REQ-014 evidence-pointer addition (verifier provenance:
+  `W2_VERIFICATION_PKG-05.md`, DEL-05-04 check 2 and section 7 item 6).**
+  The W2 fan-in verification found the REQ-014 evidence inventory
+  under-reported two declaration-level const-flag asserts present in the
+  frozen tree. Re-verified independently by this owning pilot at frozen SHA
+  `551f84ef6be656f1603ce0acfa5e3935aa9683c7` before editing:
+  `tests/test_persistence_schema.py` lines 236–239 (inside
+  `check_schema_contract`, pytest-collected via
+  `test_project_persistence_schema_contract`) asserts `HumanAcceptanceRef`
+  requires `invalidates_on_hash_change` with `const` true, and
+  `tests/test_model_state_schema.py` line 164 (inside `main`,
+  pytest-collected via `test_model_state_schema_contract`) asserts
+  `ImmutabilityPolicy.hash_invalidates_external_acceptance` `const` true.
+  The REQ-014 `VerificationEvidence` cell was extended to cite both, with
+  the explicit qualifier that these are declaration-level checks (the
+  schemas declare the invalidation semantic), not the missing stale-hash
+  acceptance-reuse negative test. No other cell or row was changed; the
+  disposition remains PARTIALLY_IMPLEMENTED and the confidence remains
+  MEDIUM. Histograms in section 1 are unaffected (no disposition or
+  ClaimType changed). Frozen-tree porcelain verified empty before and after
+  the re-verification reads.

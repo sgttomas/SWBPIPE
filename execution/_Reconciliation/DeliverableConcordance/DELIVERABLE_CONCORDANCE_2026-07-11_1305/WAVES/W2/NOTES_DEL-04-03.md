@@ -69,6 +69,25 @@ owner suspension is a run-level caveat (RUN_BASIS), never per-row.
   tests), Confidence capped MEDIUM, AuthorityNeeded=OWNER. Reviewer eyes
   welcome on whether the cap applies when the pending record is a
   *review-finding resolution* rather than validation evidence proper.
+- **DEL-04-03-REQ-004 — post-verification string correction (2026-07-12).**
+  Per the W2 fan-in verification (`W2_VERIFICATION_PKG-04.md` §3.1,
+  QUALIFIED, string correction recommended), the ValidationEvidence cell's
+  transcribed pointer to
+  `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/RESOLUTION_MATRIX.csv`
+  does not resolve anywhere in the frozen tree (absence re-verified by this
+  owning pilot with a full-tree `find` before editing). The path was
+  transcribed from the DEL-04-03 kit MEMORY.md ("Resolution evidence is
+  indexed in ..."), so the convention-7 attestation marker
+  `ATTESTED: DEL-04-03 kit MEMORY.md, record not present in tree at frozen
+  SHA 551f84ef6` was appended inside that cell's parenthetical, directly
+  after the path. No other cell or row was touched; the row's disposition
+  (ALIGNED), Confidence (MEDIUM), and AuthorityNeeded (OWNER) are unchanged,
+  as the disposition rests on the in-tree Review_Findings.csv record and
+  independent code inspection + re-executed tests, not on the matrix.
+  Histogram recount: the edit touched only citation prose in
+  ValidationEvidence — no ClaimType, LifecycleState, disposition, gate, or
+  selectability field changed, so the §1 histograms are unaffected.
+  Frozen-tree porcelain re-checked empty after the correction.
 - **DEL-04-03-REQ-009** — process-discipline claim ("before release use"):
   no release exists, so the conditional is unexercised; encoded ALIGNED /
   MEDIUM mirroring the R0b DEL-05-03 RQ-006 pattern.

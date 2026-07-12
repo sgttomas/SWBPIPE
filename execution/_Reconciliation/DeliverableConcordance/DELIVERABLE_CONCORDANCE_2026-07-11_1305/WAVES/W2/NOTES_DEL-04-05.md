@@ -112,6 +112,22 @@ codification.
   verification section carried substance beyond the requirement table
   (DEC-067 transition witnesses); no analogous extra substance exists here.
 
+- 2026-07-12 post-verification string correction (W2_VERIFICATION_PKG-04.md
+  §3.1, verifier-recommended; applied by the owning pilot) —
+  DEL-04-05-REQ-006 VerificationEvidence: the citation
+  `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/RESOLUTION_MATRIX.csv`
+  was transcribed from the kit MEMORY.md 2026-05-16 finding-resolution
+  addendum but the directory does not exist anywhere in the frozen tree
+  (absence re-verified by this pilot by full-tree find before editing). Marked
+  per convention 7: `(ATTESTED: kit MEMORY.md 2026-05-16 DEV-001 PKG-02
+  grounded finding-resolution addendum, record not present in tree at frozen
+  SHA 551f84ef6)` appended inside the cell. No other cell, row, or disposition
+  changed; the substantive Review_Findings.csv citation on the row resolves
+  in-tree and the disposition never rested on the matrix. Histogram recount:
+  the edit touched only VerificationEvidence text — no disposition,
+  ClaimClass, ClaimType, Confidence, or AuthorityNeeded value changed, so the
+  section-1 histograms are unaffected and stand as recounted.
+
 ## 3. Evidence-execution log
 
 Re-executed side-effect-free at frozen SHA 551f84ef6 (artifacts redirected
