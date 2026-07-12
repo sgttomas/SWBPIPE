@@ -84,3 +84,6 @@ Not acceptable:
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | None | No current conflict detected. | NA | NA | NA | NA | TBD |
+## D-41 R5 T2A canonicalization guidance (2026-07-12)
+
+Keep the narrow sorted-compact JSON label coupled to exact-byte and mutation tests. Do not upgrade the label to JCS without a governed RFC 8785 implementation and conformance evidence.

@@ -72,7 +72,10 @@
       "required": ["algorithm", "canonicalization", "payload_ref", "payload_scope", "value"],
       "properties": {
         "algorithm": {"const": "sha256"},
-        "canonicalization": {"const": "JCS_compatible_json_payload_hash"},
+        "canonicalization": {
+          "description": "Sorted-key compact Python JSON; deterministic but not RFC 8785/JCS.",
+          "const": "deterministic_sorted_compact_json_payload_hash"
+        },
         "payload_ref": {"$ref": "#/$defs/Reference"},
         "payload_scope": {"type": "string", "minLength": 1},
         "value": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}

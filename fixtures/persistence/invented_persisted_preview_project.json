@@ -6,7 +6,7 @@
     "profile": "sqlite_local_project_store",
     "decision_ref": "SCA-003",
     "storage_role": "local_store_index_projection",
-    "canonical_truth": "canonical_json_jcs_payload",
+    "canonical_truth": "sorted_compact_json_payload",
     "sql_public_contract": false,
     "direct_sql_access_allowed": false,
     "hosted_db_allowed": false,
@@ -717,7 +717,7 @@
     }
   ],
   "round_trip_manifest": {
-    "serialization": "canonical_json_jcs",
+    "serialization": "sorted_compact_json",
     "semantic_equality": [
       "model_content",
       "unit_metadata",
@@ -912,10 +912,10 @@
   },
   "diagnostics": [],
   "hash": {
-    "canonicalization": "JCS",
+    "canonicalization": "SORTED_COMPACT_JSON",
     "project_payload_hash": {
       "algorithm": "sha256",
-      "canonicalization": "JCS",
+      "canonicalization": "SORTED_COMPACT_JSON",
       "payload_ref": {
         "ref_kind": "project_persistence",
         "ref": "project-payload"
@@ -926,7 +926,7 @@
     "hash_manifest": [
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS",
+        "canonicalization": "SORTED_COMPACT_JSON",
         "payload_ref": {
           "ref_kind": "project_persistence",
           "ref": "project-payload"
@@ -936,7 +936,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS",
+        "canonicalization": "SORTED_COMPACT_JSON",
         "payload_ref": {
           "ref_kind": "model_payload",
           "ref": "model-payload"
@@ -946,13 +946,13 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS",
+        "canonicalization": "SORTED_COMPACT_JSON",
         "payload_ref": {
           "ref_kind": "project_persistence",
           "ref": "project-envelope-without-hash"
         },
         "payload_scope": "project_envelope",
-        "value": "958a223d427a8ebf6f32ff06b1abf6048650d4da21c0a15aeb33a422e40ff85a"
+        "value": "6d4a1a7cfc03ab99be55735f967f67d620d247e593a43d32137f09ce2efe28fe"
       }
     ],
     "payload_partition_status": "json_payloads_defined",

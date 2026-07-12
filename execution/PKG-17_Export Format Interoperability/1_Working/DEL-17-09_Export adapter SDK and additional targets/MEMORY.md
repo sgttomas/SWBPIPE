@@ -64,3 +64,8 @@
   target-specific writer, target support claim, compatibility claim, release
   claim, code-compliance claim, external execution, solver-validation claim, or
   professional-reliance claim changed.
+## 2026-07-12 - D-41 R5 T2A canonicalization-label repair
+
+- Narrowed producer, schema, and governed fixture labels to `deterministic_sorted_compact_json_payload_hash`; existing serialization and hashes are unchanged.
+- Added exact-byte/fixed-hash, ordering, mutation, and no-JCS checks.
+- Lifecycle remains `IN_PROGRESS`; no target admission, compatibility, or release claim was created.

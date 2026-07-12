@@ -1,6 +1,7 @@
 """Stress-neutral CSV/JSON export package foundation."""
 
 from .package import (
+    CANONICALIZATION_LABEL,
     STRESS_NEUTRAL_EXPORT_VERSION,
     build_stress_neutral_export_package,
     canonical_csv,
@@ -11,6 +12,7 @@ from .package import (
 )
 
 __all__ = [
+    "CANONICALIZATION_LABEL",
     "STRESS_NEUTRAL_EXPORT_VERSION",
     "build_stress_neutral_export_package",
     "canonical_csv",

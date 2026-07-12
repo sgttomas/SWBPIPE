@@ -3,7 +3,8 @@
 This module builds deterministic project persistence envelopes for invented or
 cleared payloads and implements the SCA-003 MVP local SQLite store/index
 profile. SQLite is used as a local payload container and projection substrate;
-canonical JSON/JCS-compatible payload bytes remain the domain truth.
+sorted-key compact JSON payload bytes remain the domain truth. This byte basis
+is deterministic but is not RFC 8785/JCS.
 """
 
 from __future__ import annotations
@@ -24,6 +25,8 @@ MODEL_STATE_SCHEMA_REF = "schemas/model_state.schema.json"
 ANALYSIS_RUN_SCHEMA_REF = "schemas/analysis_run.schema.json"
 SQLITE_STORE_PROFILE = "sqlite_local_project_store"
 SQLITE_STORE_SCHEMA_VERSION = "1"
+CANONICALIZATION_LABEL = "SORTED_COMPACT_JSON"
+CANONICAL_TRUTH_LABEL = "sorted_compact_json_payload"
 
 PROFESSIONAL_BOUNDARY = {
     "human_review_required": True,
@@ -61,7 +64,7 @@ def physical_container_profile() -> dict[str, Any]:
         "profile": SQLITE_STORE_PROFILE,
         "decision_ref": "SCA-003",
         "storage_role": "local_store_index_projection",
-        "canonical_truth": "canonical_json_jcs_payload",
+        "canonical_truth": CANONICAL_TRUTH_LABEL,
         "sql_public_contract": False,
         "direct_sql_access_allowed": False,
         "hosted_db_allowed": False,
@@ -141,7 +144,7 @@ def build_project_persistence_envelope(
         "external_artifacts": [],
         "retrieval_sidecars": retrieval_sidecar_manifest(),
         "round_trip_manifest": {
-            "serialization": "canonical_json_jcs",
+            "serialization": "sorted_compact_json",
             "semantic_equality": [
                 "model_content",
                 "unit_metadata",
@@ -235,7 +238,7 @@ def validate_project_persistence_envelope(envelope: Mapping[str, Any]) -> list[d
 
 
 def canonical_json(value: Any) -> str:
-    """Return deterministic JSON used for TP-PER-01 hashes."""
+    """Return sorted compact Python JSON; this is not RFC 8785/JCS."""
 
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
@@ -316,7 +319,7 @@ def save_project_store(store_path: str | Path, envelope: Mapping[str, Any]) -> d
                 "profile",
                 SQLITE_STORE_PROFILE,
                 "canonical_truth",
-                "canonical_json_jcs_payload",
+                CANONICAL_TRUTH_LABEL,
                 "direct_sql_public_contract",
                 "false",
             ),
@@ -466,7 +469,7 @@ def round_trip_project_envelope(envelope: Mapping[str, Any]) -> dict[str, Any]:
     source_hash = _checksum(_artifact_ref("project_persistence", "round-trip:source"), "project_envelope", _envelope_without_hash(source))
     restored_hash = _checksum(_artifact_ref("project_persistence", "round-trip:restored"), "project_envelope", _envelope_without_hash(restored))
     return {
-        "serialization": "canonical_json_jcs",
+        "serialization": "sorted_compact_json",
         "semantic_equal": canonical_json(source) == canonical_json(restored),
         "source_hash": source_hash,
         "round_trip_hash": restored_hash,
@@ -522,7 +525,7 @@ def _hash_metadata(envelope_without_hash: Mapping[str, Any]) -> dict[str, Any]:
             if isinstance(ref, Mapping) and ref.get("hash"):
                 manifest.append(deepcopy(dict(ref["hash"])))
     return {
-        "canonicalization": "JCS",
+        "canonicalization": CANONICALIZATION_LABEL,
         "project_payload_hash": project_payload_hash,
         "hash_manifest": manifest,
         "payload_partition_status": "external_artifacts_by_reference"
@@ -616,7 +619,7 @@ def _store_project_projection(connection: sqlite3.Connection, envelope: Mapping[
 def _checksum(payload_ref: Mapping[str, Any], payload_scope: str, payload: Any) -> dict[str, Any]:
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS",
+        "canonicalization": CANONICALIZATION_LABEL,
         "payload_ref": deepcopy(dict(payload_ref)),
         "payload_scope": payload_scope,
         "value": sha256(canonical_json(payload).encode("utf-8")).hexdigest(),

@@ -53,7 +53,7 @@ This procedure describes how to produce and use the DEL-02-02 unit-system contra
 
 7. Define schema and storage conventions.
 
-   Bind unit-bearing fields to JSON Schema 2020-12 definitions. Require versioned, unit-aware, schema-governed, provenance-preserving, round-trip-testable storage. Where JSON payloads are hashed, use the accepted canonical JSON/JCS-compatible hash basis.
+   Bind unit-bearing fields to JSON Schema 2020-12 definitions. Require versioned, unit-aware, schema-governed, provenance-preserving, round-trip-testable storage. At the current Python persistence boundary, hash the declared sorted-key compact JSON bytes and label them `SORTED_COMPACT_JSON`; do not claim JCS without a governed RFC 8785 implementation and conformance evidence.
 
 8. Define diagnostics.
 
@@ -105,3 +105,6 @@ Maintain these records when this procedure is executed by later implementation t
 - Protected-content/provenance review results for any public fixture or conversion data.
 - Open-decision register for unresolved `TBD` items.
 - Human review acceptance record before treating the contract as issued.
+## D-41 R5 T2A persistence hash check (2026-07-12)
+
+Run exact-byte and fixed-SHA vectors, equivalent-order stability, mutation sensitivity, schema/fixture validation, SQLite round-trip tests, and a no-JCS assertion for the project persistence byte contract.

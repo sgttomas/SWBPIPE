@@ -151,9 +151,11 @@
         },
         "canonicalization": {
           "type": "string",
+          "description": "Canonicalization vocabulary for the hashed payload. deterministic_sorted_compact_json_payload_hash means UTF-8 JSON emitted with lexicographically sorted object keys and compact separators by the existing Python producer basis; it is deterministic but is not RFC 8785 JCS. JCS and JCS_compatible_json_payload_hash remain accepted for backward compatibility with producers not repaired by this tranche.",
           "enum": [
             "JCS",
             "JCS_compatible_json_payload_hash",
+            "deterministic_sorted_compact_json_payload_hash",
             "external_file_native",
             "NONE",
             "TBD"

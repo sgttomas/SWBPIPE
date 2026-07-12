@@ -86,7 +86,7 @@
   "source_hashes": [
     {
       "algorithm": "sha256",
-      "canonicalization": "JCS_compatible_json_payload_hash",
+      "canonicalization": "deterministic_sorted_compact_json_payload_hash",
       "payload_ref": {
         "object_type": "ResultEnvelope",
         "ref": "result-envelope:invented-del-17-06"

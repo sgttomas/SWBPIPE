@@ -169,7 +169,7 @@ def main():
     assert physical["profile"]["const"] == "sqlite_local_project_store"
     assert physical["decision_ref"]["const"] == "SCA-003"
     assert physical["storage_role"]["const"] == "local_store_index_projection"
-    assert physical["canonical_truth"]["const"] == "canonical_json_jcs_payload"
+    assert physical["canonical_truth"]["const"] == "sorted_compact_json_payload"
     assert physical["sql_public_contract"]["const"] is False
     assert physical["direct_sql_access_allowed"]["const"] is False
     assert physical["hosted_db_allowed"]["const"] is False

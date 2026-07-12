@@ -65,3 +65,6 @@ Expected descriptive fields for later registry, profile, and checklist records:
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-17, DEL-17-09, SOW, objective, architecture-basis, and open-issue context. |
 | `DEL-17-01` four-document kit plus `Source_Basis_Register.md` and `CAEPIPE_Question_Dossier.md` | Source-admission and target-claim boundary. |
 | `DEL-17-02` four-document kit | Common export package/profile/stable-ID/manifest/loss-report contract consumed by DEL-17-09. |
+## D-41 R5 T2A canonicalization evidence (2026-07-12)
+
+Adapter SDK package checksums use `deterministic_sorted_compact_json_payload_hash`: sorted-key compact ASCII-escaped Python JSON. The label records the implemented deterministic bytes and makes no RFC 8785/JCS claim.

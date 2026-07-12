@@ -689,3 +689,31 @@ dispositions are never represented as owner or engineering rulings.
   GPT-5 orchestrator backcheck passed changed-file, source-evidence,
   unique-home, status, scope, and whitespace checks. T2 may proceed; T7 still
   owns declaration-currentness backcheck before bootstrap removal.
+
+- **2026-07-12 — R5 T2A canonicalization-label checkpoint COMPLETE.**
+  PDU-002 and PDU-003 are repaired across DEL-02-02, DEL-14-02, DEL-15-01,
+  DEL-15-03, DEL-17-03, DEL-17-06, and DEL-17-09. Existing Python
+  serializers are now labeled as their implemented sorted-key compact
+  ASCII-escaped JSON byte contracts, explicitly not RFC 8785/JCS. Supplied
+  checksum metadata is carried without false relabeling; locally computed
+  hashes retain producer-specific narrow labels. Active kits, schemas,
+  governed fixtures, and tests are aligned. `R5_T2A_CLOSEOUT.md` SHA-256:
+  `6b9dc9d906b5d9e87691dca025f48c33be0e13de799bfa4156d115675a9dd895`.
+
+  Independent GPT-5 fan-in initially returned FAIL on four defects: false
+  relabeling of a carried native source checksum, lost list recursion in a
+  protected/private-content scan, contradictory active JCS clauses in three
+  kits, and a stale DEL-14-02 cross-owner residual. Corrections were routed
+  through the owning producer/state pilot or owning deliverable surface, then
+  revalidated. All seven states remain IN_PROGRESS and exact D-41 bootstrap
+  items remain for T7.
+
+  Validation: focused post-correction fan-in 73/73; cache-disabled project
+  pytest 469/469; practitioner self-check exit 0 with no D-41 BLOCK and
+  harness pytest 264/264; copy-out 36-crate Cargo sweep PASS; copy-out desktop
+  Vitest 471/471, production build PASS with the existing chunk-size warning,
+  Playwright dev 18/18 and dist 1/1. An in-tree generic sweep was stopped when
+  it began violating addendum-9; only artifacts created by that invocation
+  were removed, revalidation used copy-out, and the frozen evidence worktree
+  remains exactly the six allow-listed ignored paths. D-42 remains
+  AWAITING_RULING. T2 continues with its remaining subtranches.

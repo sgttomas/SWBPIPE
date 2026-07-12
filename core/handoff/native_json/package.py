@@ -20,6 +20,7 @@ from core.handoff.external_prover.authority_boundary import (
 
 
 NATIVE_JSON_EXPORT_VERSION = "0.1.0"
+CANONICALIZATION_LABEL = "deterministic_sorted_compact_json_payload_hash"
 
 LOSS_CATEGORIES = {
     "exported",
@@ -485,17 +486,21 @@ def _package_members(native_export_id: str, checksums: Mapping[str, Mapping[str,
 def _source_model_hash(source_model_hash: Mapping[str, Any] | str, source_ref: Mapping[str, Any]) -> dict[str, Any]:
     if isinstance(source_model_hash, Mapping):
         record = dict(source_model_hash)
-        record.setdefault("algorithm", "sha256")
-        record.setdefault("canonicalization", "JCS_compatible_json_payload_hash")
+        if record.get("algorithm") != "sha256":
+            raise ValueError("source_model_hash mapping must declare algorithm='sha256'")
+        if not isinstance(record.get("canonicalization"), str) or not record["canonicalization"].strip():
+            raise ValueError("source_model_hash mapping must declare its canonicalization label")
+        value = record.get("value")
+        if not isinstance(value, str) or not _is_sha256_digest(value):
+            raise ValueError("source_model_hash mapping must contain a sha256:<64 lowercase hex> digest")
         record.setdefault("payload_ref", deepcopy(dict(source_ref)))
         record.setdefault("payload_scope", "source_model_hash")
-        value = str(record.get("value", ""))
-        if not value.startswith("sha256:"):
-            record["value"] = _sha256(value)
+        if record["payload_scope"] != "source_model_hash":
+            raise ValueError("source_model_hash mapping payload_scope must be 'source_model_hash'")
         return deepcopy(record)
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": CANONICALIZATION_LABEL,
         "payload_ref": deepcopy(dict(source_ref)),
         "payload_scope": "source_model_hash",
         "value": _sha256(str(source_model_hash)),
@@ -512,7 +517,7 @@ def _privacy(privacy: Mapping[str, Any] | None) -> dict[str, Any]:
 def _checksum(value: Any, payload_ref: Mapping[str, Any], payload_scope: str) -> dict[str, Any]:
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": CANONICALIZATION_LABEL,
         "payload_ref": deepcopy(dict(payload_ref)),
         "payload_scope": payload_scope,
         "value": _sha256(canonical_json(value)),
@@ -521,6 +526,13 @@ def _checksum(value: Any, payload_ref: Mapping[str, Any], payload_scope: str) ->
 
 def _sha256(value: str) -> str:
     return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _is_sha256_digest(value: str) -> bool:
+    digest = value.removeprefix("sha256:")
+    return value.startswith("sha256:") and len(digest) == 64 and all(
+        character in "0123456789abcdef" for character in digest
+    )
 
 
 def _diagnostic(

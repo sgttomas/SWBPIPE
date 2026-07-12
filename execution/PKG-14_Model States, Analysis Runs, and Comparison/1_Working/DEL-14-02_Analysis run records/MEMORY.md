@@ -1,5 +1,28 @@
 # MEMORY - DEL-14-02 Analysis Run Records
 
+## 2026-07-12 - D-41 R5 T2A canonicalization-label fidelity
+
+- Under `DEC-074` E1 and PDU-003, DEL-14-02 now emits
+  `SORTED_COMPACT_JSON` checksum metadata and
+  `sorted_compact_json_payload` canonical-truth metadata for its actual
+  Python sorted-key compact JSON serializer with ASCII escaping.
+- The serializer implementation and hash inputs are unchanged. The
+  compatibility name `canonical_json` remains, but its documentation now
+  explicitly states that it is not an RFC 8785/JCS implementation.
+- Focused evidence proves exact serialized bytes and SHA-256, equivalent-map
+  stability, existing result-value mutation sensitivity, exact emitted labels,
+  schema alignment, and absence of a JCS claim in generated analysis-run
+  envelopes: `10 passed`.
+- The analysis-run schema continues to accept legacy `JCS` checksum metadata
+  and `canonical_json_jcs_payload` truth metadata for backward compatibility;
+  DEL-14-02 does not emit those labels.
+- Fan-in confirmed that the PDU-003 DEL-02-02 declaration-currentness repair
+  is present in the same diff. The temporary cross-owner `_STATUS.md`
+  residual is therefore closed; the D-41 program bootstrap and lifecycle
+  `IN_PROGRESS` remain preserved.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2A-PDU003.md`.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RUNAUDITLINTUNITS-001 supporting analysis-run evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

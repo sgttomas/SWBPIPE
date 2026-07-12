@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -18,6 +19,7 @@ if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
 from core.handoff.export_adapter_sdk import (  # noqa: E402
+    CANONICALIZATION_LABEL,
     build_export_adapter_sdk_package,
     canonical_json,
 )
@@ -123,6 +125,28 @@ def test_builder_is_deterministic_and_preserves_package_members():
     }
     assert all(SHA256_PATTERN.match(item["value"]) for item in first["manifest"]["checksums"])
     assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
+
+
+def test_json_hash_contract_is_exact_deterministic_and_not_jcs():
+    sample = {"z": "café", "a": [1, {"b": True}]}
+    expected = b'{"a":[1,{"b":true}],"z":"caf\\u00e9"}'
+    assert canonical_json(sample).encode("ascii") == expected
+    assert hashlib.sha256(expected).hexdigest() == (
+        "9fe3dcafeafda5780fb9062a482c657fdd139cb98c1d4e4356e7123b64665753"
+    )
+
+    package = build_from_source()
+    checksums = package["manifest"]["checksums"]
+    assert checksums
+    assert {item["canonicalization"] for item in checksums} == {
+        CANONICALIZATION_LABEL
+    }
+    assert "JCS" not in canonical_json(package)
+
+    mutated = source_payload()
+    mutated["target_registry"][0]["target_id"] = "target:invented-mutated"
+    changed = build_export_adapter_sdk_package(**mutated)
+    assert changed["manifest"]["checksums"] != checksums
 
 
 def test_unit_policy_evidence_records_dec018_without_conversion_or_target_claim():

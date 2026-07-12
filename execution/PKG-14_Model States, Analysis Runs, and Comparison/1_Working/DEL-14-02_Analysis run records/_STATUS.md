@@ -1,7 +1,7 @@
 # Status: DEL-14-02 Analysis run records
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
@@ -16,3 +16,4 @@
 - 2026-06-07 - State set to CHECKING for TP-PKG14-Remaining Checking Alignment after bounded TASK validation of analysis-run schema, run-record evidence, and deliverable-local consistency. No release, professional-approval, certification, sealing, authentication, or code-compliance claim was made.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
+- 2026-07-12 - D-41 R5 T2A applied DEC-074 E1 to PDU-003 for DEL-14-02: emitted checksum/canonical-truth labels now describe deterministic sorted compact JSON rather than JCS, with exact-byte/hash, mutation-sensitivity, and no-JCS-claim tests. Hash behavior is preserved. Fan-in confirmed the DEL-02-02 declaration-currentness repair in the same diff, so that temporary cross-owner residual is closed; the D-41 bootstrap remains and lifecycle stays IN_PROGRESS.

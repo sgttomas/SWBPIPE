@@ -67,7 +67,7 @@ def check_schema_contract():
     assert {"$ref": "model.schema.yaml"} in model_payload["allOf"]
 
     hash_metadata = defs["HashMetadata"]
-    assert hash_metadata["properties"]["canonicalization"]["const"] == "JCS"
+    assert hash_metadata["properties"]["canonicalization"]["const"] == "SORTED_COMPACT_JSON"
     assert {
         "canonicalization",
         "project_payload_hash",
@@ -178,7 +178,7 @@ def check_schema_contract():
 
     round_trip = defs["RoundTripManifest"]
     assert {"serialization", "semantic_equality"} <= set(round_trip["required"])
-    assert "canonical_json_jcs" in round_trip["properties"]["serialization"]["enum"]
+    assert "sorted_compact_json" in round_trip["properties"]["serialization"]["enum"]
     assert {
         "schema_approved_only",
         "no_silent_engineering_defaults",
@@ -292,7 +292,7 @@ def check_persistence_fixture_contract():
     )
     assert fixture["retrieval_sidecars"][0]["sidecar_kind"] == "sqlite_fts5_bm25"
     assert fixture["retrieval_sidecars"][0]["affects_project_hash"] is False
-    assert fixture["round_trip_manifest"]["serialization"] == "canonical_json_jcs"
+    assert fixture["round_trip_manifest"]["serialization"] == "sorted_compact_json"
     assert "no_silent_engineering_defaults" in fixture["round_trip_manifest"][
         "normalization_rules"
     ]

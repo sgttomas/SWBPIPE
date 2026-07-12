@@ -444,8 +444,11 @@ def diagnostics_for_export_adapter_sdk_package(
     return _stable(diagnostics)
 
 
+CANONICALIZATION_LABEL = "deterministic_sorted_compact_json_payload_hash"
+
+
 def canonical_json(value: Any) -> str:
-    """Serialize adapter SDK values with deterministic JSON key ordering."""
+    """Serialize with sorted compact Python JSON; this is not RFC 8785/JCS."""
 
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
@@ -705,7 +708,7 @@ def _privacy(privacy: Mapping[str, Any] | None) -> dict[str, Any]:
 def _checksum(value: Any, payload_ref: Mapping[str, Any], payload_scope: str) -> dict[str, Any]:
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": CANONICALIZATION_LABEL,
         "payload_ref": deepcopy(dict(payload_ref)),
         "payload_scope": payload_scope,
         "value": _sha256(canonical_json(value)),

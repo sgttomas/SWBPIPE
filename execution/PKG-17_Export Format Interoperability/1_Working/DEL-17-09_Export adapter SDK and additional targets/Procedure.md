@@ -103,3 +103,6 @@ This Phase A run should leave:
 - `_run_records/TASK_RUN_*.md`
 
 Future target-admission runs should add records only under their own sealed write scope. Expected decision artifacts remain `TBD` unless a later brief names them; candidates include a target registry record, source-basis admission record, validation checklist record, and run record. `MEMORY.md` is intentionally not updated in this phase.
+## D-41 R5 T2A canonicalization check (2026-07-12)
+
+Before accepting adapter package hashes, execute the exact-byte/fixed-hash vector, stable-order test, mutation test, schema/fixture validation, and explicit no-JCS assertion.

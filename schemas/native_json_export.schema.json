@@ -117,6 +117,35 @@
     "Checksum": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "payload_scope": {
+                "const": "source_model_hash"
+              }
+            },
+            "required": [
+              "payload_scope"
+            ]
+          },
+          "then": {
+            "properties": {
+              "canonicalization": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "canonicalization": {
+                "const": "deterministic_sorted_compact_json_payload_hash"
+              }
+            }
+          }
+        }
+      ],
       "required": [
         "algorithm",
         "canonicalization",
@@ -129,7 +158,8 @@
           "const": "sha256"
         },
         "canonicalization": {
-          "const": "JCS_compatible_json_payload_hash"
+          "type": "string",
+          "minLength": 1
         },
         "payload_ref": {
           "$ref": "#/$defs/Reference"

@@ -77,3 +77,6 @@ These slots are placeholders for later schema, writer, fixture, and validation w
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private/protected data boundary and contribution constraints. |
 | `DEL-17-01` four-document kit | Source-basis and target-claim boundaries for PKG-17. |
 | `DEL-17-02` four-document kit | Common export package, profile, stable ID map, manifest, and loss-report contract consumed by DEL-17-06. |
+## D-41 R5 T2A canonicalization evidence (2026-07-12)
+
+JSON checksum records emitted by DEL-17-06 use `deterministic_sorted_compact_json_payload_hash`: UTF-8 Python JSON with lexicographically sorted keys, compact separators, and ASCII escaping. This is a deterministic local byte contract, not an RFC 8785/JCS claim. CSV members retain `normalized_ascii_lf_text`.

@@ -202,7 +202,9 @@
         },
         "canonicalization": {
           "type": "string",
+          "description": "Serialization label. DEL-14-02 emits SORTED_COMPACT_JSON for Python json.dumps with sorted keys, compact separators, and ASCII escaping; that label does not claim RFC 8785/JCS conformance. JCS remains accepted only for compatibility with records produced by a separately demonstrated JCS implementation.",
           "enum": [
+            "SORTED_COMPACT_JSON",
             "JCS",
             "NONE",
             "TBD"
@@ -393,7 +395,11 @@
           "const": "local_store_index_projection"
         },
         "canonical_truth": {
-          "const": "canonical_json_jcs_payload"
+          "description": "DEL-14-02 emits sorted_compact_json_payload. canonical_json_jcs_payload remains accepted only for backward compatibility with existing records and does not describe the current DEL-14-02 serializer.",
+          "enum": [
+            "sorted_compact_json_payload",
+            "canonical_json_jcs_payload"
+          ]
         },
         "sql_public_contract": {
           "const": false

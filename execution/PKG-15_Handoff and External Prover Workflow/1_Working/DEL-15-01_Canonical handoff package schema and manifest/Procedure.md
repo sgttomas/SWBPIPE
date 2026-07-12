@@ -22,13 +22,14 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/CON
 1. Confirm deliverable identity from `_CONTEXT.md`, including DEL-15-01, PKG-15, type `API_CONTRACT`, SOW-074, OBJ-017, and anticipated artifacts.
 2. Read the DEL-15-01 decomposition entry and associated SOW-074 / OBJ-017 rows. Record scope as schema/manifest contract work, not runtime export implementation.
 3. List required handoff-package slots from SOW-074: model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, unsupported-target flags, and provenance.
-4. Apply architecture-basis constraints that are explicitly injected into `_CONTEXT.md`: JSON Schema 2020-12 contracts, canonical JSON/JCS-compatible hash basis for JSON payloads, schema-first envelopes, and no-bypass adapter controls.
+4. Apply architecture-basis constraints that are explicitly injected into `_CONTEXT.md`: JSON Schema 2020-12 contracts, precise canonicalization metadata, schema-first envelopes, and no-bypass adapter controls. For the existing Python sorted-key compact-JSON basis, use `deterministic_sorted_compact_json_payload_hash` and do not claim RFC 8785 JCS.
 5. Treat `schemas/handoff_package.schema.json`, its `$id`, and `fixtures/invented_handoff_package.json` as materialized contract evidence; keep package container, concrete mappings, target field coverage, and target-specific implementation gated under OI-015 / DEL-17-01 / DEL-17-02.
 6. Draft or review schema artifacts and fixtures so they preserve references and metadata without copying protected standards text, private project data, private rule-pack payloads, proprietary commercial data, or real secrets.
 7. Ensure the manifest design includes structured warnings, assumptions, provenance, unit metadata, hashes, and professional-boundary posture.
 8. Verify that target mapping metadata and unsupported-target flags are present as contract surfaces while detailed semantics remain delegated to DEL-15-02.
 9. Check that no field, enum, status, or explanatory text creates automatic professional approval, certification, sealing, authentication, endorsement, or code-compliance claims.
 10. Validate dependency artifacts locally if `Dependencies.csv` exists using `python3 tools/validation/validate_dependencies_schema.py`.
+11. Confirm `JCS_compatible_json_payload_hash` remains accepted for backward compatibility, while producer outputs and fixtures remain unchanged until separately authorized repair tasks.
 
 ## Verification
 
@@ -36,6 +37,7 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/CON
 |---|---|
 | Source grounding | Check each non-trivial requirement against `_CONTEXT.md`, decomposition, registers, local DAG-002 mirror, or governing references. |
 | Schema baseline | Validate `schemas/handoff_package.schema.json` with `jsonschema.Draft202012Validator.check_schema` and validate the invented fixture with `python3 tests/test_handoff_package_schema.py`. |
+| Canonicalization vocabulary | Run focused pytest cases proving the new non-JCS label validates, the legacy JCS-compatible label still validates, and the schema explicitly denies RFC 8785 conformance for the new label. |
 | Required slots | Confirm the SOW-074 slots are present as requirements or explicit TBD surfaces. |
 | TBD discipline | Confirm package container, concrete mappings, target field coverage, and target-specific implementation are not invented. Schema property names and validation fixture are now materialized evidence. |
 | Data boundary | Check that schema guidance does not embed protected/private/proprietary payloads or examples. |

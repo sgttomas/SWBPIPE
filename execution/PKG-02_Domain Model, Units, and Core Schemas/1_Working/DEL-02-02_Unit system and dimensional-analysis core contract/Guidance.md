@@ -43,7 +43,7 @@ Some engineering quantities require more than multiplicative scaling. Temperatur
 
 ### Storage and reproducibility
 
-The architecture basis requires unit-aware, schema-governed, deterministic round trips and canonical JSON/JCS-compatible hashing where JSON payloads are hashed. This creates a design tension: preserving the user-entered unit representation helps auditability and round-trip behavior, while a canonical calculation representation helps deterministic computation. The recommended draft direction is to preserve the entered unit plus use explicit canonicalization rules for calculations and hashes, but the final data shape is a human design decision.
+The architecture basis requires unit-aware, schema-governed, deterministic round trips and an explicit JSON hash byte contract. The current Python persistence implementation is sorted-key compact ASCII-escaped JSON and is not JCS. Preserving the user-entered unit representation helps auditability and round-trip behavior, while a canonical calculation representation helps deterministic computation. The recommended draft direction is to preserve the entered unit plus use explicit rules for calculations and hashes, but the final quantity data shape remains a human design decision.
 
 ### Diagnostics
 
@@ -80,3 +80,6 @@ TBD. The accessible sources do not provide source-backed numeric unit-conversion
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | C-DEL-02-02-001 | Repository overview text still describes v0.3 as the current downstream decomposition basis, while the sealed deliverable context and decomposition for this run identify revision 0.7 with SCA-001 injection. | `docs/README.md` governance map text | `_CONTEXT.md` Decomposition Reference and Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision notes | References, run record, source basis | Use the sealed `_CONTEXT.md` revision 0.7 and `SOFTWARE_DECOMP.md` revision 0.7 for this deliverable. | TBD |
+## D-41 R5 T2A persistence hash guidance (2026-07-12)
+
+Keep project persistence, model-state consumers, headless-runner consumers, schemas, and fixtures aligned to the narrow sorted-compact labels. Do not call this serializer JCS without a governed RFC 8785 implementation and conformance suite.

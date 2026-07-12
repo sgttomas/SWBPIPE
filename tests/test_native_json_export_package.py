@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -15,6 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from core.handoff.native_json import (  # noqa: E402
+    CANONICALIZATION_LABEL,
     build_native_json_export_package,
     canonical_json,
     write_native_json_export_package,
@@ -46,8 +48,8 @@ def load_json(path: Path) -> dict[str, object]:
         return json.load(handle)
 
 
-def build_from_fixture() -> dict[str, object]:
-    fixture = load_json(FIXTURE_PATH)
+def build_from_fixture(fixture: dict[str, object] | None = None) -> dict[str, object]:
+    fixture = fixture or load_json(FIXTURE_PATH)
     return build_native_json_export_package(
         native_export_id=fixture["native_export_id"],
         source_model_ref=fixture["manifest"]["source_model_ref"],
@@ -71,6 +73,24 @@ def walk_strings(value):
     elif isinstance(value, list):
         for item in value:
             yield from walk_strings(item)
+
+
+def walk_mappings(value):
+    if isinstance(value, dict):
+        yield value
+        for item in value.values():
+            yield from walk_mappings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from walk_mappings(item)
+
+
+def checksum_for_scope(package, payload_scope):
+    return next(
+        item
+        for item in package["manifest"]["checksums"]
+        if item["payload_scope"] == payload_scope
+    )
 
 
 def check_jsonschema_validation():
@@ -131,6 +151,91 @@ def test_builder_is_deterministic_and_preserves_native_package_members():
     assert {item["loss_category"] for item in first["stable_id_map"]} == {"exported"}
     assert {"exported", "TBD"} <= {item["category"] for item in first["loss_report"]}
     assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
+
+
+def test_hash_label_bytes_and_mutation_match_the_implemented_contract():
+    fixture = load_json(FIXTURE_PATH)
+    first = build_from_fixture(fixture)
+    second = build_from_fixture(deepcopy(fixture))
+    first_bytes = canonical_json(first).encode("ascii")
+    second_bytes = canonical_json(second).encode("ascii")
+
+    assert first_bytes == second_bytes
+    assert hashlib.sha256(first_bytes).digest() == hashlib.sha256(second_bytes).digest()
+
+    checksum_records = [
+        item
+        for item in walk_mappings(first)
+        if item.get("algorithm") == "sha256" and "canonicalization" in item
+    ]
+    assert checksum_records
+    assert {item["canonicalization"] for item in checksum_records} == {CANONICALIZATION_LABEL}
+    assert "JCS" not in first_bytes.decode("ascii")
+    assert not {
+        key
+        for item in walk_mappings(first)
+        for key in item
+        if "timestamp" in key.lower()
+    }
+
+    mutated_fixture = deepcopy(fixture)
+    mutated_fixture["model_payload"]["entities"]["nodes"][0]["id"] = "node:mutated"
+    mutated = build_from_fixture(mutated_fixture)
+    repeated_mutation = build_from_fixture(deepcopy(mutated_fixture))
+    original_hash = checksum_for_scope(first, "native_json_model_payload")["value"]
+    mutated_hash = checksum_for_scope(mutated, "native_json_model_payload")["value"]
+
+    assert mutated_hash != original_hash
+    assert mutated_hash == checksum_for_scope(
+        repeated_mutation, "native_json_model_payload"
+    )["value"]
+
+
+def test_supplied_source_checksum_preserves_governed_metadata_without_relabelling():
+    fixture = load_json(FIXTURE_PATH)
+    supplied = deepcopy(fixture["manifest"]["source_model_hash"])
+    supplied["canonicalization"] = "upstream_governed_hash_v2"
+    supplied["value"] = "sha256:" + "ab" * 32
+    fixture["manifest"]["source_model_hash"] = supplied
+
+    package = build_from_fixture(fixture)
+    emitted = package["manifest"]["source_model_hash"]
+
+    assert emitted["canonicalization"] == supplied["canonicalization"]
+    assert emitted["value"] == supplied["value"]
+    assert checksum_for_scope(package, "source_model_hash") == emitted
+    assert {
+        item["canonicalization"]
+        for item in package["manifest"]["checksums"]
+        if item["payload_scope"] != "source_model_hash"
+    } == {CANONICALIZATION_LABEL}
+
+    schema = load_json(SCHEMA_PATH)
+    assert validate_instance(
+        schema,
+        package,
+        schema_label=str(SCHEMA_PATH),
+        instance_label="native package with governed upstream source checksum",
+    )
+
+    malformed_fixture = deepcopy(fixture)
+    del malformed_fixture["manifest"]["source_model_hash"]["canonicalization"]
+    try:
+        build_from_fixture(malformed_fixture)
+    except ValueError as exc:
+        assert "canonicalization label" in str(exc)
+    else:
+        raise AssertionError("malformed supplied source checksum was not rejected")
+
+
+def test_schema_and_governed_fixture_make_no_jcs_claim():
+    schema_text = SCHEMA_PATH.read_text(encoding="utf-8")
+    fixture_text = FIXTURE_PATH.read_text(encoding="utf-8")
+
+    assert CANONICALIZATION_LABEL in schema_text
+    assert CANONICALIZATION_LABEL in fixture_text
+    assert "JCS" not in schema_text
+    assert "JCS" not in fixture_text
 
 
 def test_missing_units_stable_ids_and_loss_report_are_blocking_not_defaulted():
@@ -202,6 +307,9 @@ def test_fixture_contains_no_private_or_protected_payload_text():
 def main():
     check_jsonschema_validation()
     test_builder_is_deterministic_and_preserves_native_package_members()
+    test_hash_label_bytes_and_mutation_match_the_implemented_contract()
+    test_supplied_source_checksum_preserves_governed_metadata_without_relabelling()
+    test_schema_and_governed_fixture_make_no_jcs_claim()
     test_missing_units_stable_ids_and_loss_report_are_blocking_not_defaulted()
     test_privacy_and_authority_boundary_diagnostics_block_public_package()
     test_fixture_contains_no_private_or_protected_payload_text()

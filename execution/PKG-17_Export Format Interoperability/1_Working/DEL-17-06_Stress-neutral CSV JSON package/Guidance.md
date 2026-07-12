@@ -60,3 +60,6 @@ Acceptable future examples should be invented or otherwise rights-cleared and sh
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | none | No source conflict identified in Phase A. | n/a | n/a | n/a | n/a | n/a |
+## D-41 R5 T2A canonicalization guidance (2026-07-12)
+
+Do not describe `canonical_json` as JCS. Preserve exact sorted-key compact Python JSON bytes and the precise `deterministic_sorted_compact_json_payload_hash` label unless a later governed change introduces and proves an RFC 8785 implementation.

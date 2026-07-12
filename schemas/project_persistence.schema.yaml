@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/project_persistence.schema.yaml",
   "title": "OpenPipeStress Project Persistence Envelope Schema",
-  "description": "Strict JSON syntax schema for versioned project persistence. The envelope defines deterministic JSON round-trip, migration status, canonical hash metadata, private-data markers, and a model payload governed by the canonical model schema. SCA-003 selects a local SQLite-backed project store/index as the MVP physical container while canonical JSON/JCS remains the domain and interchange truth.",
+  "description": "Strict JSON syntax schema for versioned project persistence. The envelope defines deterministic JSON round-trip, migration status, hash metadata, private-data markers, and a model payload governed by the canonical model schema. SCA-003 selects a local SQLite-backed project store/index as the MVP physical container while sorted-key compact JSON remains the domain and interchange truth; no RFC 8785/JCS claim is made.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -126,7 +126,7 @@
         "canonicalization": {
           "type": "string",
           "enum": [
-            "JCS",
+            "SORTED_COMPACT_JSON",
             "NONE",
             "TBD"
           ]
@@ -226,7 +226,8 @@
       ],
       "properties": {
         "canonicalization": {
-          "const": "JCS"
+          "description": "Sorted-key compact ASCII-escaped Python JSON; deterministic but not RFC 8785/JCS.",
+          "const": "SORTED_COMPACT_JSON"
         },
         "project_payload_hash": {
           "$ref": "#/$defs/Checksum"
@@ -379,7 +380,7 @@
           "const": "local_store_index_projection"
         },
         "canonical_truth": {
-          "const": "canonical_json_jcs_payload"
+          "const": "sorted_compact_json_payload"
         },
         "sql_public_contract": {
           "const": false
@@ -763,7 +764,7 @@
         "serialization": {
           "type": "string",
           "enum": [
-            "canonical_json_jcs",
+            "sorted_compact_json",
             "TBD"
           ]
         },

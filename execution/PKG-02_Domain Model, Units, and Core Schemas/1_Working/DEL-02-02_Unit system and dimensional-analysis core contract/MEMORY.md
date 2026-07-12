@@ -2337,3 +2337,8 @@ Boundary note:
   content, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+## 2026-07-12 - D-41 R5 T2A persistence canonicalization repair
+
+- Narrowed the project persistence producer and consuming schema vocabulary to the implemented sorted-compact Python JSON byte contract.
+- Updated the governed persistence fixture, recomputed the envelope checksum affected by metadata relabeling, and added exact-byte/fixed-hash/no-JCS evidence.
+- Lifecycle remains `IN_PROGRESS`; D-41 corpus-currentness remains pending T7.

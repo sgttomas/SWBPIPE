@@ -95,7 +95,10 @@ Future implementation closeout checks, once implementation artifacts exist:
 - Generated stress-neutral CSV schemas, JSON schemas, CSV outputs, JSON outputs, manifests, loss reports, and fixtures are present only if authorized by that later task.
 - Package-member paths, source model references, analysis-run references, manifest references, ID-map references, and validation-report references are populated or explicitly left `TBD`.
 - CSV and JSON representations pass a synchronization check for identity, units, manifest basis, loss-report content, diagnostics, and boundary notices.
-- Hash records identify payload scope; JSON payload hashes use the canonical JSON/JCS-compatible basis where applicable, and non-JSON partitioning remains explicit.
+- Hash records identify payload scope; JSON payload hashes use the declared sorted-compact Python JSON basis without a JCS claim, CSV hashes use normalized ASCII/LF text, and non-JSON partitioning remains explicit.
 - Fixture/example data has provenance and redistribution evidence, or remains absent/`TBD`.
 - Target-specific support flags cite source evidence or remain `TBD`.
 - Comparison semantics cite DEL-14-02/DEL-14-05 or remain diagnostic/audit-only and `TBD`.
+## D-41 R5 T2A canonicalization check (2026-07-12)
+
+Verify exact serialized bytes, a fixed SHA-256 vector, ordering stability, mutation sensitivity, the JSON/CSV label split, schema acceptance, and absence of a JCS claim before accepting checksum evidence.

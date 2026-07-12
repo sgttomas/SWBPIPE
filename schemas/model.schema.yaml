@@ -107,6 +107,7 @@
         "canonicalization": {
           "type": "string",
           "enum": [
+            "SORTED_COMPACT_JSON",
             "JCS",
             "NONE",
             "TBD"

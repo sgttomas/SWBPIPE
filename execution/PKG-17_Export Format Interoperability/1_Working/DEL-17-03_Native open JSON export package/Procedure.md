@@ -17,7 +17,7 @@ Bounded native JSON foundation work must:
 1. Define concrete package schema and builder/writer artifacts inside the DEL-17-03 scope.
 2. Preserve manifest, stable ID map, loss report, validation report, and diagnostics behavior.
 3. Use invented public fixtures only.
-4. Test deterministic hashes, member inventory, diagnostics, privacy/professional-boundary flags, canonical writer output, and protected/private payload screening.
+4. Test the exact `deterministic_sorted_compact_json_payload_hash` label on DEL-17-03-computed hashes, lossless pass-through of governed upstream source checksum metadata, repeatable key-sorted compact bytes and SHA-256 digests, mutation sensitivity, timestamp-free hash inputs, member inventory, diagnostics, privacy/professional-boundary flags, writer output, and protected/private payload screening; do not represent this project-local algorithm as RFC 8785 conformance.
 5. Keep protected, proprietary, release, compatibility, target-support, code-compliance, solver-validation, professional-reliance, and professional-acceptance claims out of the package.
 6. Leave public API, GUI behavior, persistence runtime, project-store export flow, and downstream target-adapter behavior to separately scoped work.
 

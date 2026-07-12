@@ -117,7 +117,8 @@
       "properties": {
         "algorithm": {"const": "sha256"},
         "canonicalization": {
-          "enum": ["JCS_compatible_json_payload_hash", "normalized_ascii_lf_text"]
+          "description": "JSON members use deterministic_sorted_compact_json_payload_hash for sorted-key compact Python JSON; this does not claim RFC 8785/JCS conformance. CSV members use normalized_ascii_lf_text.",
+          "enum": ["deterministic_sorted_compact_json_payload_hash", "normalized_ascii_lf_text"]
         },
         "payload_ref": {"$ref": "#/$defs/Reference"},
         "payload_scope": {"type": "string", "minLength": 1},

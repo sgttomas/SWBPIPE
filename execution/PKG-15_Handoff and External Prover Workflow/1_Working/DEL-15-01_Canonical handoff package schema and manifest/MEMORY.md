@@ -1,5 +1,24 @@
 # MEMORY - DEL-15-01 Canonical handoff package schema and manifest
 
+## 2026-07-12 - D-41 R5 T2A E1 canonicalization vocabulary prerequisite
+
+- Added `deterministic_sorted_compact_json_payload_hash` to the handoff
+  checksum canonicalization vocabulary for the existing Python sorted-key,
+  compact-separator JSON byte basis. This label is explicitly not an RFC 8785
+  JCS conformance claim.
+- Retained `JCS_compatible_json_payload_hash` and `JCS` in the enum for
+  backward compatibility with current fixtures and producers. No producer,
+  fixture, downstream schema, or output was changed in this prerequisite.
+- Focused schema tests validate the new label and the retained legacy label;
+  the existing invented fixture remains unchanged and valid.
+- Authority/evidence: D-41 `DEC-074` E1; PDU-002 prerequisite; schema owner
+  DEL-15-01; read-only consumer audit over current handoff producers,
+  fixtures, tests, and schemas.
+- Both `_STATUS.md ## Remaining` items are preserved verbatim, including the
+  D-41 program item. Lifecycle remains `IN_PROGRESS`.
+- Run record:
+  `_run_records/TASK_RUN_2026-07-12_D41-R5-T2A-E1-canonicalization-vocabulary.md`.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-HANDOFFLINTUNITS-001 supporting handoff inventory evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

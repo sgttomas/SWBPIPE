@@ -32,9 +32,9 @@ This deliverable owns the bounded native JSON package foundation: schema contrac
 | Artifact | Role |
 |---|---|
 | `schemas/native_json_export.schema.json` | JSON Schema 2020-12 contract for the native JSON package foundation. |
-| `core/handoff/native_json/` | Deterministic builder and canonical writer helper for native JSON package evidence. |
+| `core/handoff/native_json/` | Deterministic key-sorted, compact JSON builder/writer and SHA-256 helper labelled `deterministic_sorted_compact_json_payload_hash` for hashes computed here; governed source checksum metadata is passed through without relabelling, and no RFC 8785 conformance is asserted. |
 | `fixtures/native_json/invented/native_json_export_package.json` | Invented public fixture for package-shape and boundary checks. |
-| `tests/test_native_json_export_package.py` | Focused tests for deterministic hashes, member inventory, diagnostics, privacy/professional-boundary flags, canonical writer output, and protected/private payload screening. |
+| `tests/test_native_json_export_package.py` | Focused tests for the exact computed-hash label, governed source-checksum pass-through, deterministic bytes/digests, mutation sensitivity, timestamp-free inputs, member inventory, diagnostics, privacy/professional-boundary flags, writer output, and protected/private payload screening. |
 
 ## Profile Basis
 

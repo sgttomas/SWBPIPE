@@ -88,3 +88,6 @@ Required downstream artifacts remain future work and `TBD`:
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | None | No source conflict detected in Phase A sources. | NA | NA | NA | NA | TBD |
+## D-41 R5 T2A canonicalization requirement (2026-07-12)
+
+All DEL-17-09-produced JSON checksum records SHALL use `deterministic_sorted_compact_json_payload_hash` for the existing sorted-key compact ASCII-escaped Python JSON serializer and SHALL NOT claim RFC 8785/JCS conformance.

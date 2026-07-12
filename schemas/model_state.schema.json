@@ -125,6 +125,7 @@
         "canonicalization": {
           "type": "string",
           "enum": [
+            "SORTED_COMPACT_JSON",
             "JCS",
             "NONE",
             "TBD"
@@ -433,7 +434,7 @@
           "const": "local_store_index_projection"
         },
         "canonical_truth": {
-          "const": "canonical_json_jcs_payload"
+          "const": "sorted_compact_json_payload"
         },
         "sql_public_contract": {
           "const": false
@@ -602,7 +603,7 @@
           "const": "schemas/project_persistence.schema.yaml"
         },
         "canonicalization": {
-          "const": "JCS_compatible_json_payload_hashes"
+          "const": "sorted_compact_json_payload_hashes"
         },
         "physical_project_container": {
           "$ref": "#/$defs/PhysicalProjectContainer"

@@ -940,3 +940,31 @@
     scope, and evidence backcheck. No silent substitution.
   - Gate outcome: T1 complete for all non-conflicted scope; T2 may proceed.
     D-42 and other named R5 holds remain owner/review/change-path gated.
+
+- **2026-07-12 — Receipt 35** (D-41 R5 T2A canonicalization-label
+  checkpoint).
+  - Applied: PDU-002/PDU-003 across DEL-02-02, DEL-14-02, DEL-15-01,
+    DEL-15-03, DEL-17-03, DEL-17-06, and DEL-17-09. Current Python
+    sorted-compact serializers now carry precise non-JCS labels; supplied
+    source checksum metadata is preserved rather than falsely relabeled.
+  - Evidence: exact bytes/fixed SHA-256, equivalent ordering, mutation,
+    schema/fixture, pass-through/rejection, timestamp, JSON/CSV split, and
+    no-unproved-JCS checks; `R5_T2A_CLOSEOUT.md` SHA-256
+    `6b9dc9d906b5d9e87691dca025f48c33be0e13de799bfa4156d115675a9dd895`.
+  - Fan-in: independent GPT-5 review found four defects; all four were
+    corrected through owning surfaces and revalidated. Seven lifecycle states
+    remain IN_PROGRESS; exact D-41 bootstrap items remain pending T7.
+  - Checks: focused 73/73; project pytest 469/469; practitioner self-check
+    exit 0 and harness pytest 264/264; copy-out Cargo 36/36; desktop Vitest
+    471/471; production build PASS with existing warning; Playwright dev
+    18/18 and dist 1/1; CRLF-aware diff clean. Frozen ignored-aware porcelain
+    remains exactly the six addendum-9 paths after an interrupted in-tree
+    wrapper invocation was contained and re-run by copy-out.
+  - Boundaries: no lifecycle, scope-expansion, dependency/DAG/register,
+    ISSUED-baseline, compatibility, release, code-compliance, validation-
+    outcome, or professional-reliance ruling. D-42 remains AWAITING_RULING.
+  - Model attribution: GPT-5 owning pilots handled DEL-14-02, DEL-15-01, and
+    DEL-17-03 work; the GPT-5 orchestrator handled the remaining bounded
+    owning surfaces; an independent highest-available-capability GPT-5
+    reviewer performed fan-in. No silent substitution.
+  - Gate outcome: T2A complete; remaining T2 subtranches may proceed.

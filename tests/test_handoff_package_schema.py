@@ -88,6 +88,11 @@ FORBIDDEN_SCHEMA_TEXT = {
     "professional approval by the software",
 }
 
+DETERMINISTIC_SORTED_COMPACT_JSON_LABEL = (
+    "deterministic_sorted_compact_json_payload_hash"
+)
+LEGACY_JCS_COMPATIBLE_LABEL = "JCS_compatible_json_payload_hash"
+
 
 def load_schema():
     with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
@@ -104,6 +109,43 @@ def validate_fixture(schema):
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(load_fixture()), key=lambda item: item.path)
     assert not errors, [error.message for error in errors]
+
+
+def validate_instance(schema, instance):
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(instance), key=lambda item: item.path)
+    assert not errors, [error.message for error in errors]
+
+
+def assert_canonicalization_vocabulary(schema):
+    canonicalization = schema["$defs"]["Checksum"]["properties"][
+        "canonicalization"
+    ]
+    values = set(canonicalization["enum"])
+    assert DETERMINISTIC_SORTED_COMPACT_JSON_LABEL in values
+    assert LEGACY_JCS_COMPATIBLE_LABEL in values
+    description = canonicalization["description"]
+    assert "sorted object keys" in description
+    assert "compact separators" in description
+    assert "not RFC 8785 JCS" in description
+
+
+def test_deterministic_sorted_compact_json_label_validates_checksum():
+    schema = load_schema()
+    fixture = load_fixture()
+    fixture["handoff_package_manifest"]["model_hash"]["canonicalization"] = (
+        DETERMINISTIC_SORTED_COMPACT_JSON_LABEL
+    )
+    validate_instance(schema, fixture)
+
+
+def test_legacy_jcs_compatible_label_remains_valid():
+    schema = load_schema()
+    fixture = load_fixture()
+    assert fixture["handoff_package_manifest"]["model_hash"][
+        "canonicalization"
+    ] == LEGACY_JCS_COMPATIBLE_LABEL
+    validate_instance(schema, fixture)
 
 
 def required_at(schema, definition_name):
@@ -237,10 +279,12 @@ def main():
     assert {
         "JCS",
         "JCS_compatible_json_payload_hash",
+        "deterministic_sorted_compact_json_payload_hash",
         "external_file_native",
         "NONE",
         "TBD",
     } <= set(defs["Checksum"]["properties"]["canonicalization"]["enum"])
+    assert_canonicalization_vocabulary(schema)
     assert {
         "handoff_package_manifest",
         "canonical_handoff_record",

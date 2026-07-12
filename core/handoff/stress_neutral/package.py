@@ -396,8 +396,11 @@ def diagnostics_for_stress_neutral_export_package(
     return _stable(diagnostics)
 
 
+CANONICALIZATION_LABEL = "deterministic_sorted_compact_json_payload_hash"
+
+
 def canonical_json(value: Any) -> str:
-    """Serialize package values with deterministic JSON key ordering."""
+    """Serialize with sorted compact Python JSON; this is not RFC 8785/JCS."""
 
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
@@ -612,7 +615,7 @@ def _unit_system_disclosure(
 def _checksum(value: Any, payload_ref: Mapping[str, Any], payload_scope: str) -> dict[str, Any]:
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": CANONICALIZATION_LABEL,
         "payload_ref": deepcopy(dict(payload_ref)),
         "payload_scope": payload_scope,
         "value": "sha256:" + hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest(),

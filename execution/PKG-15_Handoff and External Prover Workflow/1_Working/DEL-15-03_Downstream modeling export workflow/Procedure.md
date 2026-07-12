@@ -49,3 +49,6 @@ Define the conservative procedure for producing and validating the generic downs
 - Target mapping taxonomy/source: `schemas/target_mapping.schema.json`.
 - Dependency validation evidence: `Dependencies.csv` schema validation output.
 - Boundary review evidence: focused protected/private/prohibited-authority term scan and exporter tests.
+## D-41 R5 T2A checksum-boundary check (2026-07-12)
+
+Verify that model and manifest checksum labels are carried unchanged into export payload context and that DEL-15-03 makes no independent JCS claim or checksum-validity ruling.

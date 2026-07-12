@@ -1,12 +1,13 @@
 # Status: DEL-02-02 Unit system and dimensional-analysis core contract
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T2A narrowed project persistence hash/truth labels to the implemented sorted-compact Python JSON byte contract and added executable evidence; state remains IN_PROGRESS.
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

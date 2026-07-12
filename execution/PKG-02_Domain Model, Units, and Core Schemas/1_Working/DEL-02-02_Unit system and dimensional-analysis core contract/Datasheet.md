@@ -29,7 +29,7 @@ created: 2026-04-30
 | Core responsibility | Define the software contract for unit-aware calculations, schemas, imports, exports, and rule evaluations. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/CONTRACT.md` OPS-K-UNIT-1 |
 | Architectural owner | Domain core owns unit invariant enforcement; adapters must not bypass unit, provenance, or data-boundary checks. | `docs/SPEC.md` Sections 1, 2; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-02 and AB-00-07 |
 | Public schema baseline | JSON Schema 2020-12 for public schemas/interchange. | `_CONTEXT.md` Architecture Basis Injection; `SOFTWARE_DECOMP.md` Section 8.2 |
-| Persistence/hash baseline | Versioned, unit-aware, schema-governed JSON persistence; JCS-compatible canonical JSON basis where JSON payloads are hashed. | `_CONTEXT.md` Architecture Basis Injection; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-04 and Section 8.2 |
+| Persistence/hash baseline | Versioned, unit-aware, schema-governed JSON persistence. The current Python persistence boundary is sorted-key compact ASCII-escaped JSON labeled `SORTED_COMPACT_JSON`, explicitly not JCS; RFC 8785 requires a later governed implementation and proof. | `_CONTEXT.md` Architecture Basis Injection; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-04 and Section 8.2; D-41 R5 T2A |
 | Runtime baseline | Rust core/application services. Exact dependency versions remain TBD. | `_CONTEXT.md` Architecture Basis Injection; `SOFTWARE_DECOMP.md` Section 8.2 |
 | Result/diagnostic envelope link | Unit errors and warnings must fit the project diagnostic/result-envelope model where emitted. | `_CONTEXT.md` applicable AB-00-06; `docs/SPEC.md` Section 7 |
 | Unit catalog | TBD. No authoritative unit catalog, conversion table, or dimensional registry was supplied in the accessible references. | `_REFERENCES.md` Package-Specific References; `docs/CONTRACT.md` OPS-K-AGENT-1 |
@@ -75,3 +75,6 @@ The DEL-02-02 implementation surface should be constructed as a domain-core unit
 - `docs/VALIDATION_STRATEGY.md` Sections 2-5 for unit/schema test and benchmark-source expectations.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 Sections 4-8 for SOW-025, OBJ-001, OBJ-012, PKG-02, DEL-02-02, and SCA-001 architecture basis.
 - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` rows for DEL-02-02 and SOW-025.
+## D-41 R5 T2A persistence hash evidence (2026-07-12)
+
+Project persistence emits `SORTED_COMPACT_JSON` checksum metadata and `sorted_compact_json_payload` canonical-truth metadata for sorted-key compact ASCII-escaped Python JSON. These labels describe the implemented deterministic byte contract and do not claim RFC 8785/JCS.

@@ -91,3 +91,8 @@
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T2A canonicalization-label repair
+
+- Narrowed DEL-17-06 JSON checksum labels from an unproved JCS-compatible claim to `deterministic_sorted_compact_json_payload_hash`; serialization bytes and checksum values did not change.
+- Updated the schema and governed invented fixtures and added exact-byte, fixed-hash, ordering, mutation, and no-JCS evidence.
+- CSV normalization remains separately labeled. Lifecycle remains `IN_PROGRESS`; the D-41 corpus-currentness bootstrap remains pending T7.

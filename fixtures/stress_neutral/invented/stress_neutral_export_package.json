@@ -93,7 +93,7 @@
     "checksums": [
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "ResultEnvelope",
           "ref": "result-envelope:invented-del-17-06"
@@ -103,7 +103,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "StressNeutralMember",
           "ref": "stress-neutral:invented-del-17-06:diagnostics"
@@ -113,7 +113,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "StressNeutralMember",
           "ref": "stress-neutral:invented-del-17-06:loss_report"
@@ -123,7 +123,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "StressNeutralMember",
           "ref": "stress-neutral:invented-del-17-06:manifest"
@@ -133,7 +133,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "StressNeutralMember",
           "ref": "stress-neutral:invented-del-17-06:result_rows"
@@ -143,7 +143,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "StressNeutralMember",
           "ref": "stress-neutral:invented-del-17-06:stable_id_map"
@@ -153,7 +153,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "StressNeutralMember",
           "ref": "stress-neutral:invented-del-17-06:unit_system_disclosure"
@@ -163,7 +163,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "StressNeutralMember",
           "ref": "stress-neutral:invented-del-17-06:validation_report"
@@ -207,7 +207,7 @@
       {
         "checksum": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "StressNeutralMember",
             "ref": "stress-neutral:invented-del-17-06:diagnostics"
@@ -222,7 +222,7 @@
       {
         "checksum": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "StressNeutralMember",
             "ref": "stress-neutral:invented-del-17-06:loss_report"
@@ -237,7 +237,7 @@
       {
         "checksum": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "StressNeutralMember",
             "ref": "stress-neutral:invented-del-17-06:manifest"
@@ -252,7 +252,7 @@
       {
         "checksum": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "StressNeutralMember",
             "ref": "stress-neutral:invented-del-17-06:result_rows"
@@ -267,7 +267,7 @@
       {
         "checksum": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "StressNeutralMember",
             "ref": "stress-neutral:invented-del-17-06:stable_id_map"
@@ -282,7 +282,7 @@
       {
         "checksum": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "StressNeutralMember",
             "ref": "stress-neutral:invented-del-17-06:unit_system_disclosure"
@@ -297,7 +297,7 @@
       {
         "checksum": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "StressNeutralMember",
             "ref": "stress-neutral:invented-del-17-06:validation_report"
@@ -313,7 +313,7 @@
     "source_hashes": [
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "ResultEnvelope",
           "ref": "result-envelope:invented-del-17-06"
@@ -463,7 +463,7 @@
   "source_hashes": [
     {
       "algorithm": "sha256",
-      "canonicalization": "JCS_compatible_json_payload_hash",
+      "canonicalization": "deterministic_sorted_compact_json_payload_hash",
       "payload_ref": {
         "object_type": "ResultEnvelope",
         "ref": "result-envelope:invented-del-17-06"

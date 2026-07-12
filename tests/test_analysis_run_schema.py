@@ -117,7 +117,13 @@ def main():
     assert physical["profile"]["const"] == "sqlite_local_project_store"
     assert physical["decision_ref"]["const"] == "SCA-003"
     assert physical["storage_role"]["const"] == "local_store_index_projection"
-    assert physical["canonical_truth"]["const"] == "canonical_json_jcs_payload"
+    assert {
+        "sorted_compact_json_payload",
+        "canonical_json_jcs_payload",
+    } <= set(physical["canonical_truth"]["enum"])
+    assert "does not describe the current DEL-14-02 serializer" in (
+        physical["canonical_truth"]["description"]
+    )
     assert physical["sql_public_contract"]["const"] is False
     assert physical["direct_sql_access_allowed"]["const"] is False
     assert physical["hosted_db_allowed"]["const"] is False
@@ -180,8 +186,12 @@ def main():
         "payload_scope",
         "value",
     } <= checksum_required
-    assert {"JCS", "NONE", "TBD"} <= set(
+    canonicalizations = set(
         defs["Checksum"]["properties"]["canonicalization"]["enum"]
+    )
+    assert {"SORTED_COMPACT_JSON", "JCS", "NONE", "TBD"} <= canonicalizations
+    assert "does not claim RFC 8785/JCS conformance" in (
+        defs["Checksum"]["properties"]["canonicalization"]["description"]
     )
     assert {
         "analysis_run_record",
