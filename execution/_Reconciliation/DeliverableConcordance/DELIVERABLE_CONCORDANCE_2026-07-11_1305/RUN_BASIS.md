@@ -653,3 +653,22 @@ dispositions are never represented as owner or engineering rulings.
   `AUTHORITY_CONFLICT`. R5 may proceed directly in bounded tranches, with E5
   sequenced after O7 and all lifecycle, scope-expansion, ISSUED-baseline,
   release/professional, and silent DAG/dependency/register fences preserved.
+
+- **2026-07-12 — R5 tranche plan RECORDED; two O3 items returned as
+  AUTHORITY_CONFLICT.** `R5_TRANCHE_PLAN.md` partitions all 77 proposed update
+  rows and all 532 affected claims exactly once across nine tranches
+  (SHA-256
+  `53f41acbf84264b29ac74d6d10225f0d9836da26839b34a3978166473ed24fa8`).
+  Independent accepted-scope inspection passed telemetry → DEL-12-03, root
+  `package.json` → DEL-10-04, and the four shared-infrastructure
+  classifications. It found two required conflicts: DEL-09-05 explicitly
+  excludes GUI implementation while the build-readiness panel self-identifies
+  as DEL-10-04; DEL-17-02 is contract-only while export-unit disclosure is an
+  executable shared desktop helper. Those two mappings are stopped under
+  PDU-077 and returned in `D-42_o3_attribution_authority_conflicts.md`
+  (SHA-256
+  `f8e55c4b000d7d7ad1f399da9aa2abab8c3a228438bab0165d01bda61897af6a`),
+  register row D-42 `AWAITING_RULING`. Non-conflicted T1 work may proceed.
+  Exact unselected policy values, formal review sufficiency, live CAEPIPE
+  profile gates, SCOPE_CHANGE, and the ISSUED baseline remain held as listed
+  in the tranche plan.

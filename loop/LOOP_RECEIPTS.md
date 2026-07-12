@@ -891,3 +891,28 @@
     ruling; independent highest-available-capability GPT-5 agents audit the
     decision-record mechanism, O3 scope compatibility, and R5 tranche
     partition before execution; no silent substitution.
+
+- **2026-07-12 — Receipt 33** (D-41 R5 tranche plan; D-42 authority-conflict
+  return).
+  - Plan: `R5_TRANCHE_PLAN.md` assigns all 77 PDU rows / 532 non-ALIGNED
+    claims exactly once to T1–T9; SHA-256
+    `53f41acbf84264b29ac74d6d10225f0d9836da26839b34a3978166473ed24fa8`.
+    T1–T7 are sequenced operative families subject to their named holds; T8
+    stays on governed change paths; T9 is controlling-deferral backcheck only.
+  - O3 audit: telemetry → DEL-12-03, root `package.json` → DEL-10-04, and the
+    shared-infrastructure classifications PASS. Build-readiness → DEL-09-05
+    and export-unit disclosure → DEL-17-02 are `AUTHORITY_CONFLICT`: the first
+    contradicts DEL-09-05's no-GUI scope and the panel's own DEL-10-04
+    identity; the second contradicts DEL-17-02's contract-only/no-GUI scope.
+  - Return: D-42 packet created `AWAITING_RULING`, SHA-256
+    `f8e55c4b000d7d7ad1f399da9aa2abab8c3a228438bab0165d01bda61897af6a`;
+    those two surfaces are not executed. Recommended O-A attributes the first
+    to DEL-10-04 and classifies the second as shared desktop export
+    infrastructure consuming DEL-17-02's contract.
+  - Other holds: exact unselected policy values and formal review outcomes,
+    optional live CAEPIPE profile gates, SCOPE_CHANGE PDU-051, and ISSUED
+    baseline PDU-057 remain held. Independent non-conflicted R5 work proceeds.
+  - Model attribution: highest-available-capability GPT-5 planning agent
+    produced the exact partition; independent GPT-5 scope auditor performed
+    O3 accepted-scope inspection; GPT-5 orchestrator recorded the derivative
+    plan/decision packet and owns execution fan-in. No silent substitution.
