@@ -262,6 +262,22 @@
   approval, then the fable high-effort fan-in over all 11 ledgers and the
   wave-boundary protocol. Receipt 21 records the pause.
 
+- **2026-07-12 — Resumed; W2 batch 3 dispatched; standing self-merge grant
+  recorded.** Owner direction of record (in-session, verbatim): "Proceed now
+  with the immediate next step of dispatch batch 3.  You may continue
+  through successive PRs in this matter by approving merger yourself, not
+  waiting for human ruling until you get to R4." Effect: (a) W2 batch 3
+  (DEL-05-03, DEL-05-04, DEL-05-05; fable pilots per the Receipt-17 steer)
+  dispatched; (b) the owner has granted a standing authorization — scoped to
+  this concordance exercise — for the orchestrator to open AND self-merge
+  the wave-boundary PRs and continue through waves W2–W5, R3, and R6
+  without stopping for per-PR merge direction. This supersedes, by explicit
+  owner direction, the earlier per-PR "never reuse an earlier grant" pacing
+  for merge approvals only; all other fences, batch validation gates, and
+  the Receipt-17 steer remain unchanged. The run still STOPs before R4/R5:
+  no decision gates, repairs, or lifecycle transitions without explicit
+  owner ruling. Receipt 22 records the resume and grant.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`

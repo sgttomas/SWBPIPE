@@ -541,3 +541,26 @@
     batch 3 (DEL-05-03/04/05, fable pilots) on owner approval, then the
     wave fan-in and the standard wave-boundary protocol. Pause entry
     appended to RUN_BASIS.
+
+- **2026-07-12 — Receipt 22** (resume: W2 batch 3 dispatched; standing
+  self-merge grant through R4 boundary).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "Proceed
+    now with the immediate next step of dispatch batch 3.  You may continue
+    through successive PRs in this matter by approving merger yourself, not
+    waiting for human ruling until you get to R4."
+  - Interpretation of record: standing authorization, scoped to this
+    concordance exercise, for the orchestrator to open and self-merge the
+    wave-boundary PRs and continue autonomously through W2–W5, R3, R6, and
+    RUN_SUMMARY. It supersedes — by explicit owner direction — the earlier
+    per-PR merge-grant pacing ("Never reuse an earlier grant") for merge
+    approvals only. Everything else stands: Receipt-17 model steer, ≤4
+    concurrent pilots, per-batch structural validation and commits, fan-in
+    scope, fences F-PIP-1..5, frozen-tree read-only discipline, and the
+    hard STOP before R4/R5 (no decision gates, repairs, lifecycle
+    transitions, or register/DAG changes without explicit owner ruling).
+  - Pre-dispatch state verified: branch clean at `cffc205c7`; frozen
+    worktree at pinned SHA `551f84ef6` with empty porcelain; W2 batches 1–2
+    validated and committed; scratchpad W2 brief intact.
+  - Action: dispatched W2 batch 3 — DEL-05-03, DEL-05-04, DEL-05-05, three
+    concurrent fable discovery pilots under W2_PILOT_BRIEF (R1_CONVENTIONS
+    + W1 calibration items). RUN_BASIS resume/grant entry appended.
