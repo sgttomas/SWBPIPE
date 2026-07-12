@@ -589,3 +589,40 @@
     (Receipt 22): PR opened and self-merged by the orchestrator; W3
     (opus pilots per the Receipt-17 steer) proceeds without a per-PR
     stop. Hard STOP before R4/R5 unchanged.
+
+- **2026-07-12 — Receipt 24** (R2 wave W3 complete; PR self-merged under
+  standing grant; PAUSED at owner direction before W4; handoff prepared).
+  - W3 (PKG-06..08, 19 deliverables, opus pilots per the Receipt-17 steer)
+    executed in five ≤4-concurrency batches (commits `28a9c97a9`,
+    `3ca576915`, `f898a6fb0`, `816add923`, `9ee1ef92f`; batch 4 recovered
+    at session resume). Post-correction wave totals: 399 rows (PKG-06 99,
+    PKG-07 168, PKG-08 132).
+  - Fan-in (fable, high effort, one verifier per package): **19/19 SOUND**,
+    199 PASS / 49 QUALIFIED / 7 FAIL, zero DEFECTIVE, zero re-runs; all
+    FAILs string-correctable. Part-C-style SECURITY spot-check of
+    DEL-08-05's convention-6 split: PASS. Reports
+    `WAVES/W3/W3_VERIFICATION_PKG-0{6,7,8}.md`.
+  - Ten non-defect corrections routed to owning pilots (never centrally),
+    each re-verified against the frozen tree before editing; full-wave
+    revalidation clean (399 rows, 0 errors, uniform CRLF); fan-in +
+    corrections commit `a157e5cf9`. Package summaries
+    `PACKAGE_SUMMARIES/PKG-0{6,7,8}.md`.
+  - **Addendum-9 incident** (detail in RUN_BASIS, never here): four pilot
+    re-executions wrote git-ignored artifacts into the frozen tree (+1
+    pre-existing W2-era artifact); plain-porcelain checks were truthful but
+    blind to ignored paths; encodings/test results not invalidated;
+    disclosure amendments applied to all implicated evidence cells;
+    physical restoration escalated to the owner (orchestrator deletion
+    blocked by the permission layer; not worked around). W4+ mitigation
+    recorded in RUN_BASIS (--ignored=matching checks, copy-out cargo,
+    pytest -p no:cacheprovider, no in-tree py_compile).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "Pause
+    after W3 lands clean and do not set off on W4.  Instead, prepare for
+    handoff to another agent in a new session.  Update the
+    `init/piping-resume-one-time.md` file accordingly."
+  - Gate outcome: wave boundary executed under the standing Receipt-22
+    grant (commit/push/PR/self-merge), then PAUSED. W4 (PKG-09..12) is NOT
+    dispatched and requires new owner direction. Handoff prompt updated at
+    `init/piping-resume-one-time.md` (primary checkout, per explicit owner
+    direction). Hard STOP before R4/R5 unchanged; discovery read-only; no
+    lifecycle transition; no register change.

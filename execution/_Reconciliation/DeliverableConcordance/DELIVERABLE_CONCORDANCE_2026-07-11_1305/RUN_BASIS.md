@@ -300,6 +300,78 @@
   by the orchestrator; W3 proceeds without a per-PR stop. Receipt 23
   records the wave boundary.
 
+- **2026-07-12 — R2 wave W3 COMPLETE (PKG-06, PKG-07, PKG-08).** 19 ledgers,
+  399 rows post-correction (PKG-06: 99 across DEL-06-01..05; PKG-07: 168
+  across DEL-07-01..08; PKG-08: 132 across DEL-08-01..06), opus pilots per
+  the Receipt-17 steer, dispatched in five ≤4-concurrency batches (commits
+  `28a9c97a9`, `3ca576915`, `f898a6fb0`, `816add923`, `9ee1ef92f`; batch 4
+  was recovered and validated at session resume after the prior session
+  ended with its outputs uncommitted). Fan-in verification (fable, high
+  effort, one verifier per package): `WAVES/W3/W3_VERIFICATION_PKG-06.md`,
+  `..._PKG-07.md`, `..._PKG-08.md` — **19/19 SOUND**, 199 PASS / 49
+  QUALIFIED / 7 FAIL spot-checks, zero DEFECTIVE ledgers, zero re-runs; all
+  seven FAILs were string-correctable. The Part-C-style SECURITY spot-check
+  of DEL-08-05's convention-6 encoding split PASSED. Ten non-defect
+  corrections routed to owning pilots (never repaired centrally), each
+  re-verified against the frozen tree before editing: DEL-06-02-REQ-001
+  `VERIFIED_NOT_VALIDATED`→`ALIGNED` (convention-6 no-downgrade clause);
+  DEL-06-03 added `DECL-007` for its self-identifying crate README (16→17
+  rows); DEL-07-04 EXC-001/002 `UNGATED`→`NONE_RECORDED` (convention-5
+  default); DEL-07-03 and DEL-07-05 LF→CRLF normalization (content
+  byte-identical); DEL-08-06 bootstrap en-dash byte-exactness; addendum-9
+  disclosure amendments on DEL-08-01/04/05/06 (see incident entry below);
+  DEL-06-01 notes Confidence recount. Full-wave revalidation after
+  corrections: 399 rows, 0 errors, uniform CRLF. Package summaries:
+  `PACKAGE_SUMMARIES/PKG-06.md`, `PKG-07.md`, `PKG-08.md` (histograms
+  recomputed from post-correction CSVs). W2's top carried risk
+  (SourceReliability leg-keying) is CLOSED in W3 — uniform weakest-leg
+  UNVERIFIED across all 19 ledgers. Fan-in + corrections commit
+  `a157e5cf9`. Cross-ledger risks carried to W4 calibration and R3 are
+  itemized in the three package summaries.
+
+- **2026-07-12 — INCIDENT: addendum-9 ignored-artifact writes into the
+  frozen tree (disclosed; restoration owner-gated).** The PKG-08 fan-in
+  verifier found that four W3 pilot re-executions wrote git-ignored
+  artifacts into the frozen evidence worktree:
+  `core/reporting/report_generator/Cargo.lock` (DEL-08-01 cargo run on a
+  lockless crate), `core/reporting/result_export/Cargo.lock` (DEL-08-04),
+  `core/reporting/state_comparison_handoff_sections/__pycache__/` +
+  `tests/__pycache__/` (DEL-08-06 py_compile), and `.pytest_cache/`
+  (DEL-08-05 pytest rootdir cache); a fifth, pre-existing artifact
+  (`validation/benchmarks/nonlinear/target/`, a W2-era in-tree `--locked`
+  run) was found alongside. Plain `git status --porcelain` stays empty for
+  ignored files, so every pilot's recorded porcelain check was truthful but
+  incomplete; addendum 9 forbids frozen-tree writes even on git-ignored
+  paths. Test results and ledger encodings are NOT invalidated. Disclosure
+  amendments were applied by owning pilots to every implicated evidence
+  cell and notes file (each pilot independently re-verified exactly which
+  runs wrote artifacts; cells citing genuinely clean runs were left
+  verbatim). Physical restoration (deleting the six untracked ignored
+  artifact sets) is an owner act: the orchestrator's deletion attempt was
+  blocked by the permission layer as a write into a protected worktree, and
+  the orchestrator did not work around it. Until the owner restores the
+  tree (e.g. scoped `git clean -fdX` in the frozen worktree, or recreation
+  from the pinned SHA), the six paths are carried as known pre-existing
+  contamination. Mitigation binding on W4+: porcelain checks use
+  `--ignored=matching` with the six paths allow-listed; cargo re-execution
+  on lockless crates must copy the crate out of the tree; pytest runs use
+  `-p no:cacheprovider`; no in-tree `py_compile`.
+
+- **2026-07-12 — PAUSED at owner direction after W3; handoff prepared.**
+  Owner direction of record (in-session, verbatim): "Pause after W3 lands
+  clean and do not set off on W4.  Instead, prepare for handoff to another
+  agent in a new session.  Update the `init/piping-resume-one-time.md` file
+  accordingly." State at pause: W3 complete and fully accounted for (all
+  five batches, fan-in, corrections, revalidation, package summaries,
+  Receipt 24, wave-boundary PR self-merged under the standing Receipt-22
+  grant); no agents in flight; nothing partial. W4 (PKG-09..12, 20
+  deliverables, opus pilots per the Receipt-17 steer) is NOT dispatched.
+  Resume point: dispatch W4 under `R1_CONVENTIONS.md` + the W1–W3
+  calibration items (PKG-00..08 package summaries) + the addendum-9
+  mitigation above, on owner direction, in a new session per the updated
+  `init/piping-resume-one-time.md`. Receipt 24 records the wave boundary
+  and this pause.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
