@@ -220,6 +220,20 @@
   merge direction per the Receipt-17 protocol. W2 (PKG-04–05, all-fable
   pilots) dispatches only after the owner acts.
 
+- **2026-07-11 — PAUSED after W1 at owner direction.** Owner direction of
+  record (in-session, verbatim): "Once this wave fans-in and you have dealt
+  with everything so it's safe to pause, do so.  Do not launch another
+  wave." W1 was already complete at the direction's arrival (fan-in done,
+  all 8 defective ledgers re-run, revalidated, package summaries written,
+  PR #187 open); no agents in flight; nothing partial. Resume point:
+  dispatch R2 wave W2 (`PKG-04`–`PKG-05`, 11 deliverables, ALL-fable pilots
+  per the Receipt-17 steer) under `R1_CONVENTIONS.md` plus the W1
+  cross-ledger calibration notes in `PACKAGE_SUMMARIES/PKG-0{0..3}.md`
+  (rev-drift STALE-side encoding, SECURITY marker/routing harmonization,
+  overtaken-review-prose encoding, addendum-10 qualifier exclusion clause),
+  ledgers to `WAVES/W2/`, after the owner acts on PR #187. The frozen
+  evidence worktree remains reproducible from the pinned SHA.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`

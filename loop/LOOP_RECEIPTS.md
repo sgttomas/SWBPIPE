@@ -495,3 +495,16 @@
     direction or explicit per-PR self-merge grant required before W2
     (PKG-04–05, all-fable) dispatches. No lifecycle transition; no register
     change; discovery read-only.
+
+- **2026-07-11 — Receipt 19** (pause after W1; same session as Receipts
+  17–18).
+  - Owner direction of record (2026-07-11, in-session, verbatim): "Once this
+    wave fans-in and you have dealt with everything so it's safe to pause,
+    do so.  Do not launch another wave."
+  - State at pause: W1 fan-in, re-runs, revalidation, package summaries,
+    Receipt 18, and PR #187 were already complete when the direction
+    arrived; no agents in flight; no partial artifacts. Pause entry appended
+    to RUN_BASIS (resume point: W2 per the Receipt-17 steer + W1 calibration
+    notes, after the owner acts on PR #187).
+  - Gate outcome: paused at owner direction. W2 is NOT to be launched
+    without new owner direction; PR #187 merge remains the owner's act.
