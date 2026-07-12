@@ -508,3 +508,254 @@
     notes, after the owner acts on PR #187).
   - Gate outcome: paused at owner direction. W2 is NOT to be launched
     without new owner direction; PR #187 merge remains the owner's act.
+
+- **2026-07-11 — Receipt 20** (resume after W1 pause; R2 W2 dispatched).
+  - Owner directions of record (2026-07-11, in-session, verbatim): "merge
+    the PR and then wait for permission to proceed further." — executed:
+    PR #187 merged to main as `667a679594f271ec45b3daa05f0d98a6575236bd`;
+    then "This is your permission to resume."
+  - Pre-dispatch state: branch `claude/chirality-piping-d41-concordance-9811cb`
+    clean at `f99eb7f78`; frozen evidence worktree verified at
+    `551f84ef6be656f1603ce0acfa5e3935aa9683c7`, porcelain empty; no partial
+    W2 artifacts; `WAVES/W2/` created empty.
+  - Gate outcome: executing — R2 W2 (PKG-04–05, 11 deliverables, ALL-fable
+    discovery pilots per the Receipt-17 steer) dispatched under
+    `R1_CONVENTIONS.md` plus the W1 calibration notes
+    (`PACKAGE_SUMMARIES/PKG-0{0..3}.md`); ≤4 concurrent pilots; fable
+    high-effort fan-in after the wave; wave boundary =
+    validate/summarize/commit/push/PR/receipt, then STOP for owner merge
+    direction (no grant reuse).
+
+- **2026-07-11 — Receipt 21** (paused mid-W2 at owner direction; batch 2
+  complete).
+  - Owner direction of record (2026-07-11, in-session, verbatim): "Pause
+    again when Batch 2 is in and fully accounted for.  We will continue
+    with Batch 3 when I give you approval."
+  - State at pause: W2 batches 1–2 complete and accounted for — 8 of 11
+    ledgers written (DEL-04-01..06, DEL-05-01/02; 181 rows), each batch
+    structurally validated (0 errors) and committed (batch 1 `951e3a94b`,
+    batch 2 `4d1c96a04`); frozen worktree porcelain empty throughout; no
+    agents in flight; no partial artifacts. Fan-in has NOT run — it is a
+    whole-wave pass and waits for batch 3.
+  - Gate outcome: paused at owner direction. Resume point: dispatch W2
+    batch 3 (DEL-05-03/04/05, fable pilots) on owner approval, then the
+    wave fan-in and the standard wave-boundary protocol. Pause entry
+    appended to RUN_BASIS.
+
+- **2026-07-12 — Receipt 22** (resume: W2 batch 3 dispatched; standing
+  self-merge grant through R4 boundary).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "Proceed
+    now with the immediate next step of dispatch batch 3.  You may continue
+    through successive PRs in this matter by approving merger yourself, not
+    waiting for human ruling until you get to R4."
+  - Interpretation of record: standing authorization, scoped to this
+    concordance exercise, for the orchestrator to open and self-merge the
+    wave-boundary PRs and continue autonomously through W2–W5, R3, R6, and
+    RUN_SUMMARY. It supersedes — by explicit owner direction — the earlier
+    per-PR merge-grant pacing ("Never reuse an earlier grant") for merge
+    approvals only. Everything else stands: Receipt-17 model steer, ≤4
+    concurrent pilots, per-batch structural validation and commits, fan-in
+    scope, fences F-PIP-1..5, frozen-tree read-only discipline, and the
+    hard STOP before R4/R5 (no decision gates, repairs, lifecycle
+    transitions, or register/DAG changes without explicit owner ruling).
+  - Pre-dispatch state verified: branch clean at `cffc205c7`; frozen
+    worktree at pinned SHA `551f84ef6` with empty porcelain; W2 batches 1–2
+    validated and committed; scratchpad W2 brief intact.
+  - Action: dispatched W2 batch 3 — DEL-05-03, DEL-05-04, DEL-05-05, three
+    concurrent fable discovery pilots under W2_PILOT_BRIEF (R1_CONVENTIONS
+    + W1 calibration items). RUN_BASIS resume/grant entry appended.
+
+- **2026-07-12 — Receipt 23** (R2 wave W2 complete; PR self-merged under
+  standing grant).
+  - Batch 3 (DEL-05-03 19 rows / DEL-05-04 21 / DEL-05-05 21) returned
+    clean: 0 validation errors, no STOP-worthy contradictions, frozen
+    porcelain empty; commit `c3a1986a4`. Wave totals: 11 ledgers, 242
+    rows (PKG-04 133, PKG-05 109).
+  - Fan-in (fable, high effort, one verifier per package, owner-ruled
+    scope incl. all self-flagged and non-ALIGNED rows): 11/11 SOUND, 100
+    PASS / 25 QUALIFIED / 0 FAIL, zero re-runs. Reports
+    `WAVES/W2/W2_VERIFICATION_PKG-04.md`, `..._PKG-05.md`.
+  - Non-defect corrections routed to owning pilots (never repaired
+    centrally): ATTESTED record-not-present markers on DEL-04-03-REQ-004
+    and DEL-04-05-REQ-006; declaration-level evidence pointers with
+    explicit qualifier on DEL-05-04-REQ-014. Each pilot re-verified the
+    underlying facts against the frozen tree before editing; single-cell
+    diffs confirmed; all 11 ledgers revalidated (0 errors); commit
+    `528c8c7aa`.
+  - Package summaries written: `PACKAGE_SUMMARIES/PKG-04.md`, `PKG-05.md`
+    (histograms computed from ledgers; cross-ledger risks itemized for W3
+    calibration and R3).
+  - Wave boundary executed under the 2026-07-12 standing owner grant
+    (Receipt 22): PR opened and self-merged by the orchestrator; W3
+    (opus pilots per the Receipt-17 steer) proceeds without a per-PR
+    stop. Hard STOP before R4/R5 unchanged.
+
+- **2026-07-12 — Receipt 24** (R2 wave W3 complete; PR #198 opened, merge
+  left to owner; PAUSED at owner direction before W4; handoff prepared).
+  - W3 (PKG-06..08, 19 deliverables, opus pilots per the Receipt-17 steer)
+    executed in five ≤4-concurrency batches (commits `28a9c97a9`,
+    `3ca576915`, `f898a6fb0`, `816add923`, `9ee1ef92f`; batch 4 recovered
+    at session resume). Post-correction wave totals: 399 rows (PKG-06 99,
+    PKG-07 168, PKG-08 132).
+  - Fan-in (fable, high effort, one verifier per package): **19/19 SOUND**,
+    199 PASS / 49 QUALIFIED / 7 FAIL, zero DEFECTIVE, zero re-runs; all
+    FAILs string-correctable. Part-C-style SECURITY spot-check of
+    DEL-08-05's convention-6 split: PASS. Reports
+    `WAVES/W3/W3_VERIFICATION_PKG-0{6,7,8}.md`.
+  - Ten non-defect corrections routed to owning pilots (never centrally),
+    each re-verified against the frozen tree before editing; full-wave
+    revalidation clean (399 rows, 0 errors, uniform CRLF); fan-in +
+    corrections commit `a157e5cf9`. Package summaries
+    `PACKAGE_SUMMARIES/PKG-0{6,7,8}.md`.
+  - **Addendum-9 incident** (detail in RUN_BASIS, never here): four pilot
+    re-executions wrote git-ignored artifacts into the frozen tree (+1
+    pre-existing W2-era artifact); plain-porcelain checks were truthful but
+    blind to ignored paths; encodings/test results not invalidated;
+    disclosure amendments applied to all implicated evidence cells;
+    physical restoration escalated to the owner (orchestrator deletion
+    blocked by the permission layer; not worked around). W4+ mitigation
+    recorded in RUN_BASIS (--ignored=matching checks, copy-out cargo,
+    pytest -p no:cacheprovider, no in-tree py_compile).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "Pause
+    after W3 lands clean and do not set off on W4.  Instead, prepare for
+    handoff to another agent in a new session.  Update the
+    `init/piping-resume-one-time.md` file accordingly."
+  - Gate outcome: wave boundary executed through commit/push/PR — **PR #198
+    is OPEN, not merged**. The self-merge under the standing Receipt-22
+    grant was attempted and BLOCKED by the session permission layer (it
+    could not verify the prior-session grant against the concurrent pause
+    direction); the orchestrator did not work around the denial, so the
+    merge is the owner's act. Then PAUSED. W4 (PKG-09..12) is NOT
+    dispatched and requires new owner direction. Handoff prompt updated at
+    `init/piping-resume-one-time.md` (primary checkout, per explicit owner
+    direction). Hard STOP before R4/R5 unchanged; discovery read-only; no
+    lifecycle transition; no register change.
+  - Post-receipt addendum (same day): owner direction of record (in-session,
+    verbatim): "merge PR #198" — executed; PR #198 merged to main as
+    `0129780f38d6af7f3854fd51c344030b958ed751`. The pause otherwise stands;
+    W4 still awaits owner direction.
+
+- **2026-07-12 — Receipt 25** (model-agnostic conversion of task/loop
+  instructions; no phase work).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "**Direction:
+    make all task and loop instructions model-agnostic (owner direction
+    2026-07-12).** The `fable` and `opus` model conventions are no longer
+    valid; I will be using OpenAI models. Instructions must not name models
+    or assign model types to task types. Where an instruction strongly
+    encoded a model preference, convert it so that I provide the model in my
+    session-time or dispatch-time instructions. 1. Work only within your
+    existing worktree and write scope for the D41 concordance run. Do not
+    touch chirality-app-dev, the primary checkout, or other worktrees. The
+    app-dev side is already done — use `main` commits `280de8213` (Receipt
+    34, LOOP_INIT rewording) and `5b3b68f14` (Receipt 35, agents/tools
+    surfaces) as the wording precedent, and note the repo-root shared
+    surfaces (`agents/AGENT_*.md`, `tools/REGISTRY.md`,
+    `_DomainEngines/bridge/LOOP_INIT.md`) are ALREADY converted — do not
+    re-edit them. 2. Edit `projects/chirality-piping/loop/LOOP_INIT.md` §7:
+    replace the named-model subagent assignments (`opus` for
+    discovery/checks/breadth verification; `fable` at high effort for
+    planning/adversarial verification/governed execution) with
+    model-agnostic language: the owner names the model(s) in session- or
+    dispatch-time instructions; absent that, assign by capability tier
+    (standard capability for discovery, research, summaries, deterministic
+    checks, breadth verification; highest available capability for planning,
+    adversarial verification of anything recorded as fact, and execution
+    touching governed artifacts, fences, or rulings; reduced effort only for
+    mechanical fully-specified changes). Add the obligation to record in
+    each receipt which model actually performed each dispatched role, and
+    never to silently substitute models mid-task. 3. Sweep the rest of your
+    project's LIVE instruction surfaces for named-model directives
+    (`grep -rniE '\bfable\b|\bopus\b|\bsonnet\b|\bhaiku\b|claude-'
+    projects/chirality-piping/ --include='*.md'` and filter): convert live
+    instructions the same way. Do NOT edit historical records — receipts,
+    decision registers/rulings, run records, `_run_records/**`, completed
+    plans, and any file with a superseded/historical banner stay frozen as
+    evidence. When in doubt whether a file is live instruction or historical
+    record, list it for me instead of editing. 4. Also update the handoff
+    prompt `init/piping-resume-one-time.md` in the primary checkout root
+    (this specific file only; I authorize that single write outside your
+    worktree): make its model-verification step provider-neutral (verify
+    account/organization and metering context; record which model performs
+    each role; never silently substitute) and remove any named-model steer,
+    pointing instead at LOOP_INIT §7. 5. Record a receipt in your loop's
+    `LOOP_RECEIPTS.md` quoting this direction verbatim, noting that prior
+    named-model steers in your run's receipts are rescinded going forward
+    but stand as immutable historical record of how past waves were actually
+    executed. 6. Commit and push on your work branch and open a PR; do not
+    merge it without my direction. No phase work, no lifecycle transitions,
+    and no change to your run's evidence artifacts under this direction.
+    Also, check whether any of your run's ledger or register rows hash-pin
+    the repo-root `agents/AGENT_*.md` files — six of them changed content in
+    `5b3b68f14`, so hash-pinned references now mismatch the live files
+    (evidence stays valid at its bound SHA; it's forward-looking drift to
+    note, not repair silently). And if your run pinned a plan revision by
+    SHA, the pin is unaffected — these changes touched no `plans/PLAN_*`
+    content in piping."
+  - Rescission of record: the named-model steers in this run's receipts —
+    the Receipt-17 steer (opus/fable role assignments for W1–W5, fan-in,
+    R3/R6) and the 2026-07-05 LOOP_INIT §7 convention — are **rescinded
+    going forward**. They stand as immutable historical record of how waves
+    W1–W3 were actually executed. Going forward the owner names models in
+    session- or dispatch-time instructions; LOOP_INIT §7 (as revised) holds
+    the capability-tier fallback and the receipt-attribution obligation.
+  - Edits made (live instruction surfaces only): `loop/LOOP_INIT.md` §7
+    rewritten model-agnostic on the `280de8213` app-dev precedent, adding
+    owner-names-models-at-dispatch-time, per-receipt model attribution, and
+    the no-silent-substitution rule; root handoff prompt
+    `init/piping-resume-one-time.md` (primary checkout; single authorized
+    out-of-worktree write) made provider-neutral, named-model steer removed,
+    now pointing at LOOP_INIT §7 with the PKG-12 risk shape retained
+    model-agnostically. Repo-root shared surfaces not re-edited per the
+    direction.
+  - Sweep classification (grep per the direction): all other hits are
+    historical/evidence and stay frozen — LOOP_RECEIPTS.md, RUN_BASIS.md,
+    R0/R0b/R1 notes, W1–W3 NOTES_* and W*_VERIFICATION_*, PACKAGE_SUMMARIES,
+    AUTHORITY_AND_SOURCE_RELIABILITY_MAP.md (path-level references only),
+    `_run_records/**`, and `plans/INIT_2026-06-18_...` (completed; its sole
+    hit is a factual SDK package name). WORKPLAN files: no hits.
+  - Listed for owner (doubt/defect items NOT edited under this direction):
+    (a) RUN_BASIS.md forward-looking resume lines name the rescinded steer
+    ("W4 ... opus pilots per the Receipt-17 steer" in the W3 pause entry) —
+    run record, left frozen; superseded by LOOP_INIT §7 via this receipt.
+    (b) FACTUAL DEFECT in evidence artifacts: `PACKAGE_SUMMARIES/PKG-06.md`,
+    `PKG-07.md`, `PKG-08.md` each state "All pilots fable per the Receipt-17
+    steer" — W3 discovery pilots were opus per that steer (the summary
+    writers copied the W2 exemplar phrasing); the fan-in verifier statements
+    ("fable, high effort") are correct. Flagged for owner ruling; not
+    repaired silently.
+  - Hash-pin check (per the direction's addendum): no ledger CSV or register
+    row references `agents/AGENT_*.md` at all; the only references are
+    path-level (no SHA/hash pin) in the AUTHORITY map's scoping list and a
+    descriptive pointer in `docs/DIRECTIVE.md`. All run evidence binds to
+    the frozen worktree at pinned SHA `551f84ef6...`, which predates
+    `5b3b68f14` — no mismatch, no forward-looking drift note owed beyond
+    this check. The plan-revision pin (`551f84ef6...`) is unaffected, as the
+    owner stated.
+  - Model attribution for this direction's work (per the new obligation):
+    all edits, the sweep, and this receipt were performed by the
+    orchestrator (`claude-fable-5`); no subagents dispatched.
+  - Gate outcome: committed and pushed on
+    `claude/chirality-piping-d41-concordance-9811cb`; PR opened and left
+    OPEN for owner merge direction. No phase work; no lifecycle transition;
+    no evidence artifact changed; run remains PAUSED before W4 (Receipt 24).
+
+- **2026-07-12 — Receipt 26** (R2 wave W4 complete; paused before W5 at
+  owner direction).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "pause
+    after W4 is complete, before setting out for W5."
+  - W4 artifacts: 20 corrected ledgers + notes under `WAVES/W4/`; fan-in
+    reports `W4_VERIFICATION_PKG-09.md` through `...PKG-12.md`; package
+    summaries `PACKAGE_SUMMARIES/PKG-09.md` through `PKG-12.md`; detailed
+    counts, correction record, and pause state in `RUN_BASIS.md`.
+  - Checks: full-wave structure/enums/ClaimIDs/CRLF/convention-marker and
+    gate-selectability validation pass (0 errors); package matrices recount;
+    frozen ignored-aware porcelain remains exactly the six addendum-9
+    allow-listed paths; closeout self-check exit 0; practitioner-harness
+    pytest pass.
+  - Model attribution: GPT-5 discovery pilots; highest-available-capability
+    GPT-5 for PKG-12 discovery; highest-available-capability GPT-5 at high
+    effort for all four package fan-ins (PKG-12 by the orchestrator); no
+    silent substitution.
+  - Wave boundary: commits pushed; PR #207 opened and left OPEN. Gate outcome:
+    PAUSED before W5; `PKG-13`–`PKG-17` not dispatched, no W5 artifacts or
+    agents in flight. No lifecycle/register/DAG/product/R4/R5 change.

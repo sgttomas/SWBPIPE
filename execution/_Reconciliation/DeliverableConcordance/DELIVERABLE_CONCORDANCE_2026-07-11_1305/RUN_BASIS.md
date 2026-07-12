@@ -234,6 +234,193 @@
   ledgers to `WAVES/W2/`, after the owner acts on PR #187. The frozen
   evidence worktree remains reproducible from the pinned SHA.
 
+- **2026-07-11 — Resumed; R2 W2 dispatched (PKG-04–PKG-05).** Owner
+  permission of record (in-session, verbatim): "This is your permission to
+  resume." (following "merge the PR and then wait for permission to proceed
+  further."; PR #187 merged to main as `667a679594f`). W2 = 11 deliverables
+  (DEL-04-01..06, DEL-05-01..05), ALL-fable discovery pilots per the
+  Receipt-17 steer (solver-mechanics engineering-adjudication risk), ≤4
+  concurrent, ledgers to `WAVES/W2/`, under `R1_CONVENTIONS.md` plus the W1
+  calibration items (rev-drift STALE-side encoding with owner-calibration
+  caveat; SECURITY em-dash marker + OWNER routing; overtaken-review-prose
+  STALE encoding with Gate record as DecisionBasis; addendum-10
+  docs-exclusion discipline; byte-exact bootstrap transcription). Fable
+  high-effort fan-in after wave completion; defective ledgers re-run by
+  fable pilots; wave boundary = validate/summarize/commit/push/PR/receipt,
+  then STOP for owner direction. Receipt 20 records the resume.
+
+- **2026-07-11 — PAUSED mid-W2 at owner direction (batches 1–2 complete).**
+  Owner direction of record (in-session, verbatim): "Pause again when Batch
+  2 is in and fully accounted for.  We will continue with Batch 3 when I
+  give you approval." State at pause: 8 of 11 W2 ledgers written and
+  structurally validated clean (batch 1 DEL-04-01..04, 92 rows, commit
+  `951e3a94b`; batch 2 DEL-04-05/06 + DEL-05-01/02, 89 rows, commit
+  `4d1c96a04`); frozen worktree porcelain empty throughout; no agents in
+  flight; nothing partial. The wave fan-in has not run (whole-wave pass;
+  runs after batch 3). Resume point: dispatch W2 batch 3 (DEL-05-03,
+  DEL-05-04, DEL-05-05; fable pilots per the Receipt-17 steer) on owner
+  approval, then the fable high-effort fan-in over all 11 ledgers and the
+  wave-boundary protocol. Receipt 21 records the pause.
+
+- **2026-07-12 — Resumed; W2 batch 3 dispatched; standing self-merge grant
+  recorded.** Owner direction of record (in-session, verbatim): "Proceed now
+  with the immediate next step of dispatch batch 3.  You may continue
+  through successive PRs in this matter by approving merger yourself, not
+  waiting for human ruling until you get to R4." Effect: (a) W2 batch 3
+  (DEL-05-03, DEL-05-04, DEL-05-05; fable pilots per the Receipt-17 steer)
+  dispatched; (b) the owner has granted a standing authorization — scoped to
+  this concordance exercise — for the orchestrator to open AND self-merge
+  the wave-boundary PRs and continue through waves W2–W5, R3, and R6
+  without stopping for per-PR merge direction. This supersedes, by explicit
+  owner direction, the earlier per-PR "never reuse an earlier grant" pacing
+  for merge approvals only; all other fences, batch validation gates, and
+  the Receipt-17 steer remain unchanged. The run still STOPs before R4/R5:
+  no decision gates, repairs, or lifecycle transitions without explicit
+  owner ruling. Receipt 22 records the resume and grant.
+
+- **2026-07-12 — R2 wave W2 COMPLETE (PKG-04, PKG-05).** 11 ledgers, 242
+  rows (PKG-04: 133 across DEL-04-01..06; PKG-05: 109 across
+  DEL-05-01..05), all fable pilots per the Receipt-17 steer, dispatched in
+  three ≤4-concurrency batches (commits `951e3a94b`, `4d1c96a04`,
+  `c3a1986a4`). Fan-in verification (fable, high effort, owner-ruled
+  scope): `WAVES/W2/W2_VERIFICATION_PKG-04.md` and `..._PKG-05.md` —
+  **11/11 SOUND**, 100 PASS / 25 QUALIFIED / 0 FAIL spot-checks, zero
+  DEFECTIVE ledgers, zero re-runs. Three non-defect owning-pilot
+  corrections applied post-fan-in (convention-7 ATTESTED markers on
+  DEL-04-03-REQ-004 / DEL-04-05-REQ-006; evidence-pointer amendment on
+  DEL-05-04-REQ-014), all revalidated (242 rows, 0 errors), histograms
+  unaffected (commit `528c8c7aa`). Package summaries:
+  `PACKAGE_SUMMARIES/PKG-04.md`, `PKG-05.md`. Frozen worktree porcelain
+  empty before and after every pilot, verifier, and correction operation.
+  Cross-ledger risks carried to W3 calibration and R3 are itemized in the
+  package summaries (notably: SourceReliability leg-keying,
+  undated-MEMORY-head rule, README enumeration grain, byte-identical-copy
+  re-execution pattern, AuthorityNeeded TBD/gate-token semantics). Under
+  the 2026-07-12 standing owner grant, the W2 PR is opened and self-merged
+  by the orchestrator; W3 proceeds without a per-PR stop. Receipt 23
+  records the wave boundary.
+
+- **2026-07-12 — R2 wave W3 COMPLETE (PKG-06, PKG-07, PKG-08).** 19 ledgers,
+  399 rows post-correction (PKG-06: 99 across DEL-06-01..05; PKG-07: 168
+  across DEL-07-01..08; PKG-08: 132 across DEL-08-01..06), opus pilots per
+  the Receipt-17 steer, dispatched in five ≤4-concurrency batches (commits
+  `28a9c97a9`, `3ca576915`, `f898a6fb0`, `816add923`, `9ee1ef92f`; batch 4
+  was recovered and validated at session resume after the prior session
+  ended with its outputs uncommitted). Fan-in verification (fable, high
+  effort, one verifier per package): `WAVES/W3/W3_VERIFICATION_PKG-06.md`,
+  `..._PKG-07.md`, `..._PKG-08.md` — **19/19 SOUND**, 199 PASS / 49
+  QUALIFIED / 7 FAIL spot-checks, zero DEFECTIVE ledgers, zero re-runs; all
+  seven FAILs were string-correctable. The Part-C-style SECURITY spot-check
+  of DEL-08-05's convention-6 encoding split PASSED. Ten non-defect
+  corrections routed to owning pilots (never repaired centrally), each
+  re-verified against the frozen tree before editing: DEL-06-02-REQ-001
+  `VERIFIED_NOT_VALIDATED`→`ALIGNED` (convention-6 no-downgrade clause);
+  DEL-06-03 added `DECL-007` for its self-identifying crate README (16→17
+  rows); DEL-07-04 EXC-001/002 `UNGATED`→`NONE_RECORDED` (convention-5
+  default); DEL-07-03 and DEL-07-05 LF→CRLF normalization (content
+  byte-identical); DEL-08-06 bootstrap en-dash byte-exactness; addendum-9
+  disclosure amendments on DEL-08-01/04/05/06 (see incident entry below);
+  DEL-06-01 notes Confidence recount. Full-wave revalidation after
+  corrections: 399 rows, 0 errors, uniform CRLF. Package summaries:
+  `PACKAGE_SUMMARIES/PKG-06.md`, `PKG-07.md`, `PKG-08.md` (histograms
+  recomputed from post-correction CSVs). W2's top carried risk
+  (SourceReliability leg-keying) is CLOSED in W3 — uniform weakest-leg
+  UNVERIFIED across all 19 ledgers. Fan-in + corrections commit
+  `a157e5cf9`. Cross-ledger risks carried to W4 calibration and R3 are
+  itemized in the three package summaries.
+
+- **2026-07-12 — INCIDENT: addendum-9 ignored-artifact writes into the
+  frozen tree (disclosed; restoration owner-gated).** The PKG-08 fan-in
+  verifier found that four W3 pilot re-executions wrote git-ignored
+  artifacts into the frozen evidence worktree:
+  `core/reporting/report_generator/Cargo.lock` (DEL-08-01 cargo run on a
+  lockless crate), `core/reporting/result_export/Cargo.lock` (DEL-08-04),
+  `core/reporting/state_comparison_handoff_sections/__pycache__/` +
+  `tests/__pycache__/` (DEL-08-06 py_compile), and `.pytest_cache/`
+  (DEL-08-05 pytest rootdir cache); a fifth, pre-existing artifact
+  (`validation/benchmarks/nonlinear/target/`, a W2-era in-tree `--locked`
+  run) was found alongside. Plain `git status --porcelain` stays empty for
+  ignored files, so every pilot's recorded porcelain check was truthful but
+  incomplete; addendum 9 forbids frozen-tree writes even on git-ignored
+  paths. Test results and ledger encodings are NOT invalidated. Disclosure
+  amendments were applied by owning pilots to every implicated evidence
+  cell and notes file (each pilot independently re-verified exactly which
+  runs wrote artifacts; cells citing genuinely clean runs were left
+  verbatim). Physical restoration (deleting the six untracked ignored
+  artifact sets) is an owner act: the orchestrator's deletion attempt was
+  blocked by the permission layer as a write into a protected worktree, and
+  the orchestrator did not work around it. Until the owner restores the
+  tree (e.g. scoped `git clean -fdX` in the frozen worktree, or recreation
+  from the pinned SHA), the six paths are carried as known pre-existing
+  contamination. Mitigation binding on W4+: porcelain checks use
+  `--ignored=matching` with the six paths allow-listed; cargo re-execution
+  on lockless crates must copy the crate out of the tree; pytest runs use
+  `-p no:cacheprovider`; no in-tree `py_compile`.
+
+- **2026-07-12 — PAUSED at owner direction after W3; handoff prepared.**
+  Owner direction of record (in-session, verbatim): "Pause after W3 lands
+  clean and do not set off on W4.  Instead, prepare for handoff to another
+  agent in a new session.  Update the `init/piping-resume-one-time.md` file
+  accordingly." State at pause: W3 complete and fully accounted for (all
+  five batches, fan-in, corrections, revalidation, package summaries,
+  Receipt 24, wave-boundary PR #198 opened — its self-merge under the
+  standing Receipt-22 grant was blocked by the session permission layer
+  and not worked around, so **PR #198 is open and its merge is the owner's
+  act**); no agents in flight; nothing partial. W4 (PKG-09..12, 20
+  deliverables, opus pilots per the Receipt-17 steer) is NOT dispatched.
+  Resume point: dispatch W4 under `R1_CONVENTIONS.md` + the W1–W3
+  calibration items (PKG-00..08 package summaries) + the addendum-9
+  mitigation above, on owner direction, in a new session per the updated
+  `init/piping-resume-one-time.md`. Receipt 24 records the wave boundary
+  and this pause.
+
+- **2026-07-12 — R2 wave W4 COMPLETE (PKG-09, PKG-10, PKG-11, PKG-12).**
+  20 deliverable-grained ledgers, 491 rows after owning-pilot corrections
+  (PKG-09: 120 across DEL-09-01..05; PKG-10: 125 across DEL-10-01..05;
+  PKG-11: 115 across DEL-11-01..05; PKG-12: 131 across DEL-12-01..05).
+  Discovery ran in seven batches with at most three concurrent GPT-5 pilots;
+  PKG-12 pilots used the highest-available-capability posture because the
+  package is SECURITY/privacy and F-PIP-1 fence-adjacent. Batch commits:
+  `2fd52012a`, `9c40d02c3`, `677effa7c`, `e4f9e5b04`, `21252aad6`,
+  `b22ced693`, `c52823cf6`; the DEL-12-03 enum correction is `13d85560b`.
+  Addendum-9 mitigation was binding throughout: ignored-aware porcelain,
+  the six incident paths allow-listed, copy-out cargo where needed, pytest
+  `-p no:cacheprovider`, and no in-tree `py_compile`. The frozen worktree
+  remained at the pinned SHA and showed exactly the six known ignored paths,
+  with no seventh path.
+
+- **2026-07-12 — W4 fan-in and correction pass COMPLETE.** Four independent
+  highest-capability GPT-5 high-effort verifiers (one per package; PKG-12 by
+  the orchestrator) checked all self-flagged rows, all non-ALIGNED rows, and
+  at least two ALIGNED rows per ledger. Reports:
+  `WAVES/W4/W4_VERIFICATION_PKG-09.md` through `..._PKG-12.md`. Initial
+  verdicts were 12 SOUND / 8 DEFECTIVE; every failure was a bounded
+  owning-pilot correction and no discovery rerun was required. Corrections
+  covered evidence/source-reliability strings, UTF-8 normalization,
+  gate/selectability defaults, convention-6 marker scope, declaration-grain
+  adjudication, and one added currentness-mismatch row; commit `76aa949b5`.
+  Full-wave post-correction validation: 20 exact-header RFC-4180 CRLF ledgers,
+  491 rows, controlled enums, contiguous type-matched ClaimIDs, DECL
+  reliability, bootstrap placement, SECURITY marker exactness, and
+  gate/selectability invariants — 0 errors. Final corpus counts: ClaimType
+  REQUIREMENT 210 / ACCEPTANCE 70 / EXCLUSION 55 / DECLARED_STATE 124 /
+  REMAINING_WORK 32; dispositions ALIGNED 353 /
+  PARTIALLY_IMPLEMENTED 44 / STALE_SETUP_SPECIFICATION 65 /
+  ACCEPTED_DIVERGENCE 9 / REMAINING_STATE_MISMATCH 15 /
+  IMPLEMENTED_DIFFERENTLY 2 / STALE_REVIEW_OR_EVIDENCE 1 /
+  DOCUMENTED_UNIMPLEMENTED 2. Package summaries:
+  `PACKAGE_SUMMARIES/PKG-09.md` through `PKG-12.md`.
+
+- **2026-07-12 — PAUSED at owner direction after W4.** Owner direction of
+  record (in-session, verbatim): "pause after W4 is complete, before setting
+  out for W5." W4 is complete through discovery, fan-in, owning-pilot
+  corrections, full-wave revalidation, package summaries, and wave-boundary
+  handoff. W5 (`PKG-13`–`PKG-17`, 26 deliverables) has NOT been dispatched;
+  no agents are in flight on W5 and no W5 artifacts exist. Resume point:
+  W5 under `R1_CONVENTIONS.md`, the binding W1–W4 package-summary calibration,
+  and the addendum-9 containment controls, only on new owner direction.
+  The hard STOP before R4/R5 remains unchanged.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
