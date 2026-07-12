@@ -115,13 +115,14 @@ current execution graph. At each turn:
    unavailable, defer the multi-agent stage; a receipt may preserve the
    blocker but may not represent brief-only work as an executing child run.
 
-The in-flight `DELIVERABLE_CONCORDANCE_2026-07-11_1305` run resumes under its
+The active `DELIVERABLE_CONCORDANCE_2026-07-11_1305` proto-run continues under its
 pinned method revision, recorded owner steers, existing authorized write
 surfaces, and platform-native TASK/subagent execution. It is not required to
 retrofit app-harness control-plane records. New runs use the current contract.
-Before its next wave, compare the pinned source-state basis with the merged
-PR #188 tree and record `CURRENT` or `STALE_INPUT` plus the exact delta; do not
-silently carry pre-refactor source observations into a new wave.
+At terminal handoff, record the accepted source-state basis, closure state,
+unresolved blockers, and lessons relevant to the final RECONCILIATION
+contract. Its accepted changes integrate before PR #188 is rebased and fully
+revalidated; do not retrofit the unmerged paradigm into the active run.
 
 Agent 1 siblings do not delegate or message directly. Agent 2 reports to its
 WORKING_ITEMS parent; WORKING_ITEMS reports cross-package notices to
