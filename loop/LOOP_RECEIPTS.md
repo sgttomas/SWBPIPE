@@ -776,3 +776,20 @@
     concurrency cap; old hits are historical evidence.
   - Gate outcome: instruction/handoff update only; W5 remains PAUSED and
     undispatched. No lifecycle/register/DAG/product/R4/R5 change.
+
+- **2026-07-12 — Receipt 28** (W5 PKG-13 checkpoint; runtime-capacity pause).
+  - PKG-13 artifacts: four corrected ledgers + notes and
+    `W5_VERIFICATION_PKG-13.md` under the D-41 run's `WAVES/W5/`; summary
+    `PACKAGE_SUMMARIES/PKG-13.md`; detailed counts and checkpoint state in
+    `RUN_BASIS.md`; commit `37ebbeae5`.
+  - Checks: package structural/enums/ClaimIDs/CRLF validation pass; fan-in
+    corrections revalidated; frozen ignored-aware porcelain remains exactly
+    the six addendum-9 allow-listed paths.
+  - Model attribution: GPT-5 deliverable pilots (three delegated; DEL-13-04 by
+    orchestrator); independent highest-capability GPT-5 high-effort fan-in; no
+    silent substitution.
+  - Gate outcome: PAUSED before PKG-14. Its five simultaneous pilots exceed the
+    session's four total active-agent slots (orchestrator included); no PKG-14
+    dispatch/artifact. Owner capacity/concurrency ruling required; W5 remains
+    partial and R3/R6 are not started. No lifecycle/register/DAG/product/R4/R5
+    change.

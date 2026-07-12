@@ -434,6 +434,23 @@
   full-wave validation, fences, model attribution, and the hard STOP before
   R4/R5 are unchanged. W5 remains paused and undispatched until resume.
 
+- **2026-07-12 — R2 W5 PKG-13 checkpoint COMPLETE; PAUSED before PKG-14 on
+  runtime-capacity conflict.** PKG-13's four deliverable-grained pilots ran
+  concurrently (three delegated GPT-5 pilots plus the GPT-5 orchestrator),
+  producing four ledgers and notes under `WAVES/W5/` (97 corrected rows).
+  Independent highest-capability GPT-5 high-effort fan-in checked 37 scoped
+  rows: 2 SOUND / 2 DEFECTIVE, 33 PASS / 0 QUALIFIED / 4 FAIL. All four FAILs
+  were bounded owning-pilot convention corrections; post-correction structure,
+  enums, ClaimIDs, CRLF, histograms, and addendum-9 containment pass. Summary:
+  `PACKAGE_SUMMARIES/PKG-13.md`; checkpoint commit `37ebbeae5`. PKG-14 has five
+  deliverables, but this session exposes only four total concurrent agent slots
+  including the orchestrator, so the recorded requirement to run all five
+  one-per-deliverable pilots concurrently cannot be satisfied. No PKG-14 pilot
+  was dispatched and no PKG-14 artifact exists. Resume requires either at least
+  five simultaneous active-agent slots or owner authorization for a queued /
+  capacity-bounded concurrency interpretation. PKG-15..17, W5 full-wave
+  validation/closeout, R3, R6, and `RUN_SUMMARY.md` remain outstanding.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
