@@ -736,8 +736,8 @@
     orchestrator (`claude-fable-5`); no subagents dispatched.
   - Gate outcome: committed and pushed on
     `claude/chirality-piping-d41-concordance-9811cb`; PR opened and left
-  OPEN for owner merge direction. No phase work; no lifecycle transition;
-  no evidence artifact changed; run remains PAUSED before W4 (Receipt 24).
+    OPEN for owner merge direction. No phase work; no lifecycle transition;
+    no evidence artifact changed; run remains PAUSED before W4 (Receipt 24).
 
 - **2026-07-12 — Receipt 26** (R2 wave W4 complete; paused before W5 at
   owner direction).
@@ -750,7 +750,8 @@
   - Checks: full-wave structure/enums/ClaimIDs/CRLF/convention-marker and
     gate-selectability validation pass (0 errors); package matrices recount;
     frozen ignored-aware porcelain remains exactly the six addendum-9
-    allow-listed paths; self-check exit 0 at session start.
+    allow-listed paths; closeout self-check exit 0; practitioner-harness
+    pytest pass.
   - Model attribution: GPT-5 discovery pilots; highest-available-capability
     GPT-5 for PKG-12 discovery; highest-available-capability GPT-5 at high
     effort for all four package fan-ins (PKG-12 by the orchestrator); no
