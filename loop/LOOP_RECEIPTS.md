@@ -759,3 +759,20 @@
   - Wave boundary: commits pushed; PR #207 opened and left OPEN. Gate outcome:
     PAUSED before W5; `PKG-13`–`PKG-17` not dispatched, no W5 artifacts or
     agents in flight. No lifecycle/register/DAG/product/R4/R5 change.
+
+- **2026-07-12 — Receipt 27** (remaining-wave concurrency direction; no phase
+  work).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "One other
+    change, I want you to now increase your waves to one deliverable-grained
+    pilot per deliverable in the package, and run all deliverables for that
+    package concurrently, for all remaining waves. Update the resume prompt
+    (and any other references) accordingly."
+  - Effect: W5 uses one pilot per deliverable and all pilots for the active
+    package run concurrently; the earlier ≤4 cap is superseded going forward.
+    Package boundaries remain dispatch/fan-in checkpoints; historical W1–W4
+    records are immutable and unchanged.
+  - Updated: `init/piping-resume-one-time.md` and the append-only W5 handoff in
+    the D-41 run's `RUN_BASIS.md`. No other live instruction carries a
+    concurrency cap; old hits are historical evidence.
+  - Gate outcome: instruction/handoff update only; W5 remains PAUSED and
+    undispatched. No lifecycle/register/DAG/product/R4/R5 change.

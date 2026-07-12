@@ -421,6 +421,19 @@
   and the addendum-9 containment controls, only on new owner direction.
   The hard STOP before R4/R5 remains unchanged.
 
+- **2026-07-12 — Remaining-wave concurrency direction recorded.** Owner
+  direction of record (in-session, verbatim): "One other change, I want you
+  to now increase your waves to one deliverable-grained pilot per deliverable
+  in the package, and run all deliverables for that package concurrently,
+  for all remaining waves. Update the resume prompt (and any other references)
+  accordingly." Effect for the only remaining R2 wave, W5: each PKG-13..17
+  package is a dispatch/fan-in unit; within a package, dispatch exactly one
+  pilot per deliverable and run all of that package's pilots concurrently.
+  The former ≤4-pilot cap is superseded going forward only; historical W1–W4
+  execution records remain unchanged. Package fan-in, owning-pilot correction,
+  full-wave validation, fences, model attribution, and the hard STOP before
+  R4/R5 are unchanged. W5 remains paused and undispatched until resume.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
