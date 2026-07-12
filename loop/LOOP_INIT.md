@@ -115,11 +115,22 @@ current execution graph. At each turn:
    unavailable, defer the multi-agent stage; a receipt may preserve the
    blocker but may not represent brief-only work as an executing child run.
 
+The in-flight `DELIVERABLE_CONCORDANCE_2026-07-11_1305` run resumes under its
+pinned method revision, recorded owner steers, existing authorized write
+surfaces, and platform-native TASK/subagent execution. It is not required to
+retrofit app-harness control-plane records. New runs use the current contract.
+Before its next wave, compare the pinned source-state basis with the merged
+PR #188 tree and record `CURRENT` or `STALE_INPUT` plus the exact delta; do not
+silently carry pre-refactor source observations into a new wave.
+
 Agent 1 siblings do not delegate or message directly. Agent 2 reports to its
 WORKING_ITEMS parent; WORKING_ITEMS reports cross-package notices to
 HELP_HUMAN or, in direct mode, to the human.
 
-## 8. Session conventions, constraints, and any per-run steer
+## 8. Session conventions, constraints, and any per-run steer (formerly §7)
+
+Immutable receipts that say a steer overrides “LOOP_INIT §7 defaults” refer to
+this conventions section as numbered when those steers were recorded.
 
 Standing constraints and the loop protocol live in the plan — follow them as
 written. The session conventions are:
