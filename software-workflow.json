@@ -1,0 +1,19 @@
+{
+  "schema": "chirality-software-workflow/v1",
+  "project_root": ".",
+  "workspace_root": "../..",
+  "checks": {
+    "desktop-build": {"cwd": ".", "command": ["npm", "run", "build:desktop"]},
+    "desktop-test": {"cwd": ".", "command": ["npm", "run", "test:desktop"]},
+    "evidence-sweep": {"cwd": ".", "command": ["python3", "tools/release/run_evidence_sweep.py", "--execute"]},
+    "piping-pytest": {"cwd": ".", "command": ["python3", "-m", "pytest", "-q", "tests"]},
+    "harness-pytest": {"cwd": "../..", "command": ["python3", "-m", "pytest", "-q", "tools/practitioner_harness"]},
+    "harness-self-check": {"cwd": "../..", "command": ["python3", "tools/practitioner_harness/harness.py", "self-check"]}
+  },
+  "always_checks": ["harness-self-check"],
+  "path_rules": [
+    {"paths": ["apps/desktop/**"], "checks": ["desktop-test", "desktop-build"]},
+    {"paths": ["core/**", "validation/**", "tests/**"], "checks": ["piping-pytest", "evidence-sweep"]},
+    {"paths": ["execution/**", "docs/**", "AGENTS.md", "loop/**"], "checks": ["harness-pytest"]}
+  ]
+}

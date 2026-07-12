@@ -78,6 +78,11 @@ accepted predecessor or assigned to one integration owner. Agent 1 and Agent 2
 siblings do not message or delegate directly; coordination flows through the
 parent and preserves claim status and evidence.
 
+Software package activations use `software-workflow.json` under the root
+`../../docs/SOFTWARE_WORKFLOW_PROFILE.md` contract. WORKING_ITEMS selects the
+appropriate `software-*` TASK skill and registered checks; the profile does not
+expand project authority or replace the evidence and owner gates below.
+
 Dependency-register work is governed by the canonical v3.1 type system. New or
 refreshed dependency rows must emit only canonical core enum values; legacy
 labels from historical DAGs are read-only migration inputs and must be preserved
