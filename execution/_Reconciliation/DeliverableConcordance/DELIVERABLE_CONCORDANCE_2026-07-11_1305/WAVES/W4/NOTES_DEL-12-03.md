@@ -3,7 +3,7 @@
 - Pilot: highest-capability GPT-5 discovery pilot, with adversarial SECURITY/privacy review for the F-PIP-1 fence-adjacent PKG-12 scope.
 - Frozen evidence: `551f84ef6be656f1603ce0acfa5e3935aa9683c7` in the read-only frozen evidence worktree.
 - Scope: `PKG-12/DEL-12-03` only. No lifecycle, dependency, product, or frozen-evidence writes were made.
-- Census: 20 rows = 10 REQUIREMENT + 2 EXCLUSION + 6 DECLARED_STATE + 2 REMAINING_ITEM.
+- Census: 20 rows = 10 REQUIREMENT + 2 EXCLUSION + 6 DECLARED_STATE + 2 REMAINING_WORK.
 - Dispositions: 10 ALIGNED, 5 PARTIALLY_IMPLEMENTED, 2 DOCUMENTED_UNIMPLEMENTED, 1 STALE_SETUP_SPECIFICATION, 2 REMAINING_STATE_MISMATCH.
 - Confidence: 13 HIGH, 7 MEDIUM, 0 LOW.
 - Authority: 7 OWNER, 5 ENGINEERING, 8 NO.
