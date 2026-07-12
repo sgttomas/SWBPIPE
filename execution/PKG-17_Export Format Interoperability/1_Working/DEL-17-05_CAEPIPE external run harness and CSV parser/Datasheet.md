@@ -64,3 +64,6 @@
 | CAEPIPE-EXPORT-MBF | `https://www.sstusa.com/docs/users_manual/export_mbf.htm` | Public evidence inherited through DEL-17-01/DEL-17-04 source basis for CAEPIPE MBF export from model data; this source is not listed as a direct DEL-17-05 package reference in `_REFERENCES.md`. |
 | CONTRACT | `docs/CONTRACT.md` | Project invariants for IP, authority boundary, unit-aware exports, agent TBD handling, and professional claims. |
 | IP-DATA | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and protected-content boundaries. |
+## D-41 R5 T3 PDU-016 Evidence State
+
+Selected seam: CAEPIPE external-run/parser evidence. Default: private user-controlled, local-only, telemetry false. Scope excludes whole-product security assurance.

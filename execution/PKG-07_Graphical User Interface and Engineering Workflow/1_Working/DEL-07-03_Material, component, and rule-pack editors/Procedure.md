@@ -98,3 +98,10 @@ Records produced by this setup run:
 - `_DEPENDENCIES.md`
 - `_STATUS.md`
 - `_run_records/*.md`
+
+## D-41 R5 T3 PDU-049 hold check
+
+1. Confirm the cited private-by-default evidence remains project-owned verification.
+2. Confirm no independent usability/security validation basis has been authorized or recorded.
+3. Preserve PDU-049 and `DEL-07-03-R-011` as `VERIFIED_NOT_VALIDATED`.
+4. Record the residual requirement in `_STATUS.md ## Remaining`; do not perform a lifecycle transition or infer security-review closure.

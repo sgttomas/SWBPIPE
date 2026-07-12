@@ -136,3 +136,6 @@ Future implementation records:
 - manifest/ID-map/loss-report references;
 - fixture provenance review;
 - skipped-test evidence when the executable is absent.
+## D-41 R5 T3 PDU-016 Check
+
+Verify default and partial-override packages remain `private_user_controlled`, local-only, and telemetry-disabled; embedded private/protected/commercial payload remains blocking.

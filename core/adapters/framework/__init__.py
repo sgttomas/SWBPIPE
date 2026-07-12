@@ -8,14 +8,18 @@ determinations.
 
 from .adapter_framework import (
     AdapterFinding,
+    AdapterRuntimeGateResult,
     AdapterValidationResult,
     build_result,
+    gate_adapter_runtime_dispatch,
     validate_adapter_declaration,
 )
 
 __all__ = [
     "AdapterFinding",
+    "AdapterRuntimeGateResult",
     "AdapterValidationResult",
     "build_result",
+    "gate_adapter_runtime_dispatch",
     "validate_adapter_declaration",
 ]

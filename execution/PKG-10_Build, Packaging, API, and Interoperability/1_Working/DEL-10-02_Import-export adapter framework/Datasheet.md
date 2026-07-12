@@ -12,19 +12,20 @@
 | Scope item | SOW-030 |
 | Objective | OBJ-009 |
 | Context envelope | L |
-| Current production mode | Setup documentation only |
+| Current production mode | Format-neutral declaration validation plus a deny-only declaration-to-runtime gate; no loader or execution model |
 
 ## Attributes
 
 | Attribute | Value |
 |---|---|
-| Deliverable purpose | Define the framework obligations for future import/export adapters. |
+| Deliverable purpose | Define and enforce the current format-neutral adapter admission boundary without selecting concrete formats or runtime execution. |
 | Anticipated artifacts | Adapter interfaces; sample invented adapter. |
-| Setup-run artifact boundary | This session produces setup documents and registers only; adapter source, tests, sample adapters, manifests, and repo-level artifacts are out of write scope. |
+| Runtime seam | `gate_adapter_runtime_dispatch` validates the declaration, rejects/quarantines bypass attempts, and never dispatches; accepted declarations remain blocked pending a separately selected runtime. |
 | Architecture baseline | Schema-first command/query/job result envelopes; JSON Schema 2020-12 contracts; canonical JSON/JCS-compatible hashing where JSON payloads are hashed. |
 | Adapter boundary | Adapters may translate external data but cannot bypass units, provenance, redistribution, diagnostics, private/public data controls, validation, sandboxing, envelopes, or report controls. |
 | External format list | TBD; concrete protected or proprietary external formats are not bundled defaults in this deliverable. |
 | Public API transport | TBD; public transport protocol remains a later human/product decision. |
+| Security evidence boundary | Selected-seam negative evidence only; no whole-product security/privacy/legal sufficiency claim. |
 
 ## Conditions
 

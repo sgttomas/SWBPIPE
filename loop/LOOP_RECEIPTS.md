@@ -997,3 +997,29 @@
     highest-available-capability GPT-5 performed fan-in. No silent
     substitution.
   - Gate outcome: T2 complete; T3 may proceed under O7 before E5.
+
+- **2026-07-12 — Receipt 37** (D-41 R5 T3 privacy/redaction/security-reach
+  checkpoint).
+  - Applied: PDU-016/PDU-017/PDU-018/PDU-026/PDU-027/PDU-028 bounded
+    private-default and no-bypass evidence at CAEPIPE, target mapping, adapter
+    admission, telemetry, and threat-model seams; PDU-019 strict-schema
+    negatives.
+  - Held: PDU-019 formal review; PDU-043 runtime-consumer absence; PDU-049
+    independent validation; PDU-034 exact taxonomy; PDU-044 schema absence.
+  - Evidence: `R5_T3_CLOSEOUT.md`, SHA-256
+    `16bbb02b04a61a438b11a10086d8e8dedf0f7f5d8d764b22ddd543c7111fb5fb`;
+    project pytest 488/488; desktop Vitest 475/475; production build PASS with
+    existing warning.
+  - Fan-in: initial integrated FAIL found one CAEPIPE privacy-default bypass;
+    owning-pilot correction and negative tests landed; final independent
+    read-only fan-in PASS with 27/27 fresh focused tests.
+  - Boundaries: 14 touched states remain IN_PROGRESS with D-41 bootstrap;
+    no whole-product assurance, lifecycle/review/dependency/DAG/register/
+    decomposition/ISSUED-baseline or release/professional claim. D-42 remains
+    AWAITING_RULING.
+  - Containment: active ignored-aware porcelain is exactly three pre-existing
+    paths; frozen evidence remains exactly six addendum-9 allow-listed paths.
+  - Model attribution: GPT-5 owning pilots executed bounded partitions;
+    cross-pilot GPT-5 fan-in and post-correction re-review passed; GPT-5
+    orchestrator integrated closeout. No silent substitution.
+  - Gate outcome: T3 complete; T4 may proceed.

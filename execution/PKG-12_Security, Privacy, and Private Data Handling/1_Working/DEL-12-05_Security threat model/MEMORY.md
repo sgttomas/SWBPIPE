@@ -1,5 +1,11 @@
 # Memory: DEL-12-05 Security threat model
 
+## 2026-07-12 - D-41 R5 T3 PDU-027 bounded control reach
+
+- The desktop threat-model packet now binds one real DEL-12-03 pre-payload guard seam and the established provenance/assumption/IP/privacy warning-class vocabulary.
+- It records `plugin_adapter_report_export_interception_implemented=false` and a reference-only result-envelope posture, preventing bounded evidence from becoming a no-bypass or security-closure claim.
+- No threat rating, review disposition, lifecycle, dependency/DAG/register/decomposition, security validation, release, or professional boundary changed.
+
 ## Current Session
 
 2026-05-02 - Implemented from sealed dispatch brief

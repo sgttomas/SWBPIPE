@@ -25,7 +25,7 @@ Use this procedure to produce or review a telemetry design for OpenPipeStress wi
 4. If no human/security approval exists for telemetry collection, keep event names, endpoint details, vendor selections, payload fields, and transport behavior as `TBD` or no-op.
 5. Verify configuration behavior so absent, unset, empty, unknown, unsupported, malformed, or incomplete telemetry metadata resolves to disabled.
 6. Verify payload rules so private project, code, rule-pack, material, component, report, path, hash, secret, protected standards content, and professional/code-compliance claim fields cannot be collected or transmitted.
-7. Verify tests that prove metadata-only default-off behavior, no payload/network initialization flags, event allowlist enforcement, and forbidden-field rejection. Runtime startup, plugin/adapter/report/private-library route tests remain future scope until those surfaces call the helper.
+7. Verify Python and desktop tests that prove metadata-only default-off behavior, no payload/network/persistence initialization, fail-closed capability requests without affirmative opt-in, and payload/runtime/forbidden-field rejection. Runtime startup and plugin/adapter/import-export/report/private-library interception remain PDU-043 documented absence until separately authorized.
 8. Record any unresolved approval, config, endpoint, or payload decision as `TBD` for human/security ruling.
 9. Do not write product code or repo-level product artifacts unless a later sealed brief explicitly authorizes that scope.
 

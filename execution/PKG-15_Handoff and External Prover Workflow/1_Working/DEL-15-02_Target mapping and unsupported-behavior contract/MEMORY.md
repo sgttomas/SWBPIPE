@@ -87,3 +87,8 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T3 PDU-017 target-mapping privacy enforcement
+
+- The builder now blocks privacy contexts that do not affirm redaction or that report embedded private, protected, or commercial-tool payload.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU017.md`.
+- No broader adapter/CLI/report security reach or lifecycle outcome is claimed.

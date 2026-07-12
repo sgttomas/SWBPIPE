@@ -69,3 +69,6 @@ the authorized data boundary.
 - `_DEPENDENCIES.md`
 - `_run_records/TASK_RUN_*.md`
 - `_run_records/TASK_RUN_2026-06-05_DEL-03-04_evidence-reconciliation.md`
+## D-41 R5 T3 PDU-019 Check
+
+Run strict ComponentRecord schema negatives for privacy classification and unknown payload keys. Route evidence to REVIEW without changing its outcome.

@@ -69,3 +69,6 @@ own authorized review process.
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
 | None identified | No conflict was detected between the current branch schema/fixture/test evidence and the local review/memory evidence. | `schemas/component.schema.yaml`; fixture; test | `MEMORY.md`; `_REVIEW.md`; `Review_Findings.csv` | N/A | Treat implementation evidence as current while preserving policy, dependency, human-disposition, and lifecycle gates. | TBD |
+## D-41 R5 T3 PDU-019 Boundary
+
+Schema rejection evidence is not a formal review outcome and must not be represented as one.

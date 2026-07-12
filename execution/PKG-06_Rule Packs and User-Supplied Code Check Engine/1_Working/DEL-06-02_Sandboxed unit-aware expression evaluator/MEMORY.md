@@ -328,6 +328,12 @@ Durable context preserved after PKG-02 grounded finding resolution:
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
 
+## 2026-07-12 - D-41 R5 T3 PDU-028 supporting evidence
+
+- The DEL-10-02 adapter framework rejects or quarantines declarations that disable the selected unit, provenance, privacy, protected-content, sandbox, persistence-hash, report, or private-transmission controls; rejected declarations never dispatch.
+- A declaration satisfying those controls is still blocked as `BLOCKED_RUNTIME_NOT_SELECTED`. This is negative evidence at declaration admission, not an evaluator loader, evaluator invocation binding, plugin sandbox, or whole-product security result.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001 supporting evaluator evidence
 
 - Added supporting evidence for the DEL-07-03 rule-pack expression authoring

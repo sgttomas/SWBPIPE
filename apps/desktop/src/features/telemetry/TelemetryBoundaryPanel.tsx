@@ -1,19 +1,11 @@
 import { Download, ShieldCheck } from "lucide-react";
 import type { LocalStorageCapability, PreviewModel } from "../../types";
-
-type TelemetryAttempt = {
-  event_name: string;
-  event_version: string;
-  source_surface: string;
-  field_names: string[];
-  field_classes: Record<string, string>;
-  decision: {
-    action: "drop_disabled" | "reject_forbidden_surface";
-    reason_code: string;
-    payload_constructed: false;
-    network_behavior_initialized: false;
-  };
-};
+import {
+  desktopTelemetryRuntimeEvidence,
+  guardDesktopTelemetryAttempt,
+  resolveDesktopTelemetryPolicy,
+  type DesktopTelemetryAttempt
+} from "../../services/telemetryPolicyService";
 
 export function TelemetryBoundaryPanel({
   model,
@@ -102,7 +94,9 @@ function buildTelemetryBoundaryPacket({
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
 }) {
-  const eventAttempts = telemetryEventAttempts();
+  const requestedEnabled = Boolean(storageCapability?.telemetry_enabled);
+  const telemetryPolicy = resolveDesktopTelemetryPolicy(requestedEnabled);
+  const eventAttempts = telemetryEventAttempts(requestedEnabled);
   return {
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.telemetry_boundary_review",
@@ -118,12 +112,13 @@ function buildTelemetryBoundaryPacket({
       guard_tests: "tests/security/test_telemetry_policy.py",
       app_surfaces: [
         "apps/desktop/src/services/projectService.ts",
+        "apps/desktop/src/services/telemetryPolicyService.ts",
         "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx"
       ]
     },
     summary: {
-      telemetry_enabled: Boolean(storageCapability?.telemetry_enabled),
-      config_resolution: "absent_or_preview_config_resolves_disabled",
+      telemetry_enabled: telemetryPolicy.telemetry_enabled,
+      config_resolution: telemetryPolicy.reason_code,
       attempted_event_count: eventAttempts.length,
       allowed_event_count: 0,
       blocked_event_count: eventAttempts.length,
@@ -134,37 +129,29 @@ function buildTelemetryBoundaryPacket({
       release_or_professional_claim: false
     },
     config_resolution: {
-      requested_enabled: false,
-      explicit_opt_in: false,
-      consent_surface: "TBD",
+      requested_enabled: telemetryPolicy.requested_enabled,
+      explicit_opt_in: telemetryPolicy.explicit_opt_in,
+      consent_surface: telemetryPolicy.consent_surface,
       approved_consent_surfaces: [],
-      allowlist_approved: false,
+      allowlist_approved: telemetryPolicy.allowlist_approved,
       allowlist_approval_record: "TBD",
       product_config_schema: "TBD",
       product_config_storage: "TBD",
-      reason_code: "telemetry_disabled_by_default",
+      reason_code: telemetryPolicy.reason_code,
       config_source: storageCapability ? "desktop_local_storage_capability" : "storage_capability_pending"
     },
     metadata_only_guard: {
       guard_present: true,
-      guard_module_ref: "core/security/telemetry_policy",
+      guard_module_ref: "apps/desktop/src/services/telemetryPolicyService.ts",
+      reference_guard_module_ref: "core/security/telemetry_policy",
       decision_stage: "before_payload_construction",
       metadata_only: true,
       product_config_schema: "TBD",
-      runtime_integration_status: "desktop_preview_policy_surface_only",
+      runtime_integration_status: "desktop_preview_fail_closed_attempt_guard",
       helper_authorizes_runtime_telemetry: false
     },
     event_attempts: eventAttempts,
-    runtime_initialization: {
-      network_transport_initialized: false,
-      endpoint_initialized: false,
-      vendor_initialized: false,
-      upload_queue_initialized: false,
-      upload_job_initialized: false,
-      telemetry_persistence_initialized: false,
-      external_service_client_initialized: false,
-      background_job_initialized: false
-    },
+    runtime_initialization: desktopTelemetryRuntimeEvidence(),
     no_bypass_surfaces: [
       "plugins",
       "adapters",
@@ -174,6 +161,8 @@ function buildTelemetryBoundaryPacket({
       "cli_runner",
       "diagnostics"
     ],
+    no_bypass_enforcement_status:
+      "telemetry_panel_attempts_guarded_other_runtime_surfaces_not_wired",
     forbidden_payload_classes: [
       "private_project_models",
       "code_specific_rule_data",
@@ -211,12 +200,12 @@ function buildTelemetryBoundaryPacket({
   };
 }
 
-function telemetryEventAttempts(): TelemetryAttempt[] {
+function telemetryEventAttempts(requestedEnabled: boolean): DesktopTelemetryAttempt[] {
   return [
-    disabledAttempt("app_started", "apps/desktop/src/App.tsx", ["app_version", "os_family"]),
-    disabledAttempt("project_opened", "apps/desktop/src/services/projectService.ts", ["storage_mode", "operation"]),
-    disabledAttempt("solve_requested", "apps/desktop/src/features/solve/SolvePanel.tsx", ["command", "job_state"]),
-    {
+    metadataAttempt("app_started", "apps/desktop/src/App.tsx", ["app_version", "os_family"], requestedEnabled),
+    metadataAttempt("project_opened", "apps/desktop/src/services/projectService.ts", ["storage_mode", "operation"], requestedEnabled),
+    metadataAttempt("solve_requested", "apps/desktop/src/features/solve/SolvePanel.tsx", ["command", "job_state"], requestedEnabled),
+    guardDesktopTelemetryAttempt({
       event_name: "report_export_attempted",
       event_version: "TBD",
       source_surface: "apps/desktop/src/features/report/ReportPanel.tsx",
@@ -224,34 +213,22 @@ function telemetryEventAttempts(): TelemetryAttempt[] {
       field_classes: {
         report_packet: "generated_report",
         result_hash: "hash_data"
-      },
-      decision: {
-        action: "reject_forbidden_surface",
-        reason_code: "telemetry_forbidden_field_class",
-        payload_constructed: false,
-        network_behavior_initialized: false
       }
-    }
+    }, requestedEnabled)
   ];
 }
 
-function disabledAttempt(eventName: string, sourceSurface: string, fieldNames: string[]): TelemetryAttempt {
-  return {
+function metadataAttempt(eventName: string, sourceSurface: string, fieldNames: string[], requestedEnabled: boolean): DesktopTelemetryAttempt {
+  return guardDesktopTelemetryAttempt({
     event_name: eventName,
     event_version: "TBD",
     source_surface: sourceSurface,
     field_names: fieldNames,
-    field_classes: Object.fromEntries(fieldNames.map((fieldName) => [fieldName, "operational_metadata"])),
-    decision: {
-      action: "drop_disabled",
-      reason_code: "telemetry_disabled_no_opt_in_or_allowlist",
-      payload_constructed: false,
-      network_behavior_initialized: false
-    }
-  };
+    field_classes: Object.fromEntries(fieldNames.map((fieldName) => [fieldName, "operational_metadata"]))
+  }, requestedEnabled);
 }
 
-function reasonSummary(eventAttempts: TelemetryAttempt[]): string {
+function reasonSummary(eventAttempts: DesktopTelemetryAttempt[]): string {
   return Array.from(new Set(eventAttempts.map((attempt) => attempt.decision.reason_code))).join(",");
 }
 

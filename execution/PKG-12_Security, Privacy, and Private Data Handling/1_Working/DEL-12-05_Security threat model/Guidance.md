@@ -1,5 +1,9 @@
 # Guidance: DEL-12-05 Security threat model
 
+## PDU-027 Guidance
+
+Treat the DEL-12-03 desktop guard as one bounded control witness, not proof that all named trust boundaries are intercepted. Keep warning-class references distinct from a runtime result envelope and retain the packet's explicit false plugin/adapter/report/export-interception flag. Do not infer security validation or formal review closure.
+
 ## Purpose
 
 This guidance explains how to interpret and maintain the OpenPipeStress security threat model setup content for private data handling. The deliverable exists to make privacy, protected-content, report-sharing, plugin/import, and supply-chain risks visible before implementation details harden.
@@ -88,4 +92,3 @@ These examples are invented setup scenarios and contain no real project data, re
 ## Pass 3 Semantic-Lensing Notes
 
 The lensing pass emphasized three conservative enrichments that are now represented in the documents: update triggers, explicit supply-chain treatment, and explicit plugin/import no-bypass boundaries. Source rereads used `docs/PRD.md` sections 17-18, `docs/SPEC.md` sections 1 and 6-8, `docs/IP_AND_DATA_BOUNDARY.md` sections 4-7, and `_CONTEXT.md` Architecture Basis Injection.
-

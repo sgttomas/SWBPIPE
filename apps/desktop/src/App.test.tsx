@@ -3331,6 +3331,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       telemetryPacket.metadata_only_guard.helper_authorizes_runtime_telemetry,
     ).toBe(false);
+    expect(telemetryPacket.metadata_only_guard.runtime_integration_status).toBe(
+      "desktop_preview_fail_closed_attempt_guard",
+    );
     expect(
       telemetryPacket.event_attempts.map(
         (item: { event_name: string }) => item.event_name,
@@ -3361,6 +3364,9 @@ describe("OpenPipeStress desktop preview", () => {
       telemetryPacket.runtime_initialization.telemetry_persistence_initialized,
     ).toBe(false);
     expect(telemetryPacket.no_bypass_surfaces).toContain("reports");
+    expect(telemetryPacket.no_bypass_enforcement_status).toBe(
+      "telemetry_panel_attempts_guarded_other_runtime_surfaces_not_wired",
+    );
     expect(telemetryPacket.forbidden_payload_classes).toContain(
       "protected_standards_content",
     );
@@ -3572,6 +3578,22 @@ describe("OpenPipeStress desktop preview", () => {
       threatModelPacket.no_bypass_controls
         .plugin_manifest_grants_runtime_access,
     ).toBe(false);
+    expect(
+      threatModelPacket.runtime_control_evidence
+        .telemetry_attempt_guarded_before_payload,
+    ).toBe(true);
+    expect(
+      threatModelPacket.runtime_control_evidence
+        .plugin_adapter_report_export_interception_implemented,
+    ).toBe(false);
+    expect(
+      threatModelPacket.runtime_control_evidence.diagnostic_classes_referenced,
+    ).toEqual([
+      "PROVENANCE_WARNING",
+      "ASSUMPTION_WARNING",
+      "IP_BOUNDARY_WARNING",
+      "PRIVACY_WARNING",
+    ]);
     expect(threatModelPacket.unit_policy_evidence.evidence_id).toBe(
       "unit-policy-evidence:security-threat-model-no-bypass",
     );

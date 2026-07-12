@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define how a future implementation agent should produce the import/export adapter framework while preserving the sealed scope and governance boundaries recorded for `DEL-10-02`.
+Define how to maintain the current format-neutral validation and deny-only runtime gate while preserving the sealed scope and governance boundaries recorded for `DEL-10-02`.
 
 ## Prerequisites
 
@@ -23,6 +23,8 @@ Define how a future implementation agent should produce the import/export adapte
 8. Add report/export hooks that preserve warnings, assumptions, limitations, provenance, and professional-responsibility notices.
 9. Keep specific external formats, commercial tool behavior, public API transport, and package/container details as `TBD` unless a human ruling is cited.
 10. Use invented data only for public sample adapters or fixtures.
+11. Route every current declaration-to-runtime request through `gate_adapter_runtime_dispatch`; do not add an executor/callback or treat declaration acceptance as dispatch authority.
+12. Preserve `adapter_execution_model`, `plugin_runtime`, permission grants, concrete formats, and redaction workflow as `TBD` until separately selected.
 
 ## Verification
 
@@ -32,6 +34,7 @@ Define how a future implementation agent should produce the import/export adapte
 - Verify private-boundary checks run before shared exports.
 - Verify result envelopes do not claim certification, approval, sealing, or automatic code compliance.
 - Verify tests and examples use invented or otherwise redistributable data with provenance.
+- Verify each selected no-bypass control fails closed before dispatch, protected-suspected content quarantines, and a valid declaration remains blocked with `ADAPTER_RUNTIME_NOT_SELECTED`.
 
 ## Records
 

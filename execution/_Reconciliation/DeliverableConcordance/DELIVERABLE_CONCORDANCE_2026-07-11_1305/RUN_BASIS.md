@@ -750,3 +750,29 @@ dispositions are never represented as owner or engineering rulings.
   schema/mechanics/version/export repairs; the GPT-5 orchestrator handled
   cross-owner holds and integration; an independent highest-available-
   capability GPT-5 pilot performed final fan-in. No silent substitution.
+
+- **2026-07-12 — R5 T3 privacy, redaction, and security-reach checkpoint
+  COMPLETE.** `R5_T3_CLOSEOUT.md` (SHA-256
+  `16bbb02b04a61a438b11a10086d8e8dedf0f7f5d8d764b22ddd543c7111fb5fb`)
+  records bounded O7-before-E5 enforcement at selected CAEPIPE,
+  target-mapping, adapter-admission, desktop-telemetry, and strict-schema
+  seams. The adapter gate is deny-only and has no executor/callback; telemetry
+  remains disabled and fail-closed before payload/network/persistence work.
+
+  Independent fan-in initially found a PDU-016 caller override of CAEPIPE's
+  protected privacy defaults. The owning pilot blocked classification,
+  local-only, and telemetry override attempts with schema-valid blocking
+  diagnostics. Final fan-in returned PASS. Integrated project pytest passed
+  488/488; copy-out desktop Vitest passed 475/475; the production build passed
+  with only the existing chunk warning.
+
+  PDU-019 formal review remains held, PDU-043 remains documented absence,
+  PDU-049 remains VERIFIED_NOT_VALIDATED, and PDU-034/PDU-044 dispositions
+  remain unchanged. All 14 touched states remain IN_PROGRESS with D-41
+  bootstrap preserved. No whole-product assurance, lifecycle, review,
+  dependency/DAG/register/decomposition, ISSUED-baseline, release, or
+  professional claim was made. Model attribution: GPT-5 owning pilots handled
+  the three bounded work partitions; an independent cross-pilot GPT-5 fan-in
+  found the bypass and a second GPT-5 pilot performed the post-correction
+  read-only PASS; the GPT-5 orchestrator integrated validation and closeout.
+  No silent substitution. T4 may proceed.

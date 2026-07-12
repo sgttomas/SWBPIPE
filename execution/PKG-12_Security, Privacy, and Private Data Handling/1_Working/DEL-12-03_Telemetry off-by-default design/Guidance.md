@@ -4,7 +4,7 @@
 
 This guidance explains how to interpret the telemetry boundary for OpenPipeStress. The product is local-first, public-repository content must avoid protected standards data, and private project/rule/component/material data stays user controlled. Telemetry is therefore not a default feature; it is either absent/no-op or explicitly approved, opt-in, and payload-limited.
 
-DEL-12-03 has repo policy documentation, a metadata-only guard helper, focused tests, and a desktop default-off policy-review panel. DEC-074 O3 attributes the panel to this deliverable as implementation evidence. The helper evaluates configuration metadata and event-attempt metadata before payload construction; the panel renders and locally exports that boundary state for review. Neither is runtime telemetry, neither constructs a telemetry payload or initializes network behavior, and neither chooses product config storage, consent UI/CLI, endpoint, vendor, transport, retention, support-bundle workflow, allowlist, or approval records.
+DEL-12-03 has repo policy documentation, a Python metadata-only guard, focused tests, and a desktop fail-closed event-attempt seam used by the default-off policy-review panel. Under DEC-074 O7-before-E5, this seam is the selected private-by-default enforcement grain: it can only drop or reject attempts before payload construction and cannot initialize network or persistence. It is not consent UI, transport, or whole-runtime interception; PDU-043 remains absent outside the telemetry panel.
 
 ## Principles
 

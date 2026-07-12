@@ -162,6 +162,21 @@ function buildSecurityThreatModelPacket({
       telemetry_bypass_allowed: false,
       plugin_manifest_grants_runtime_access: false
     },
+    runtime_control_evidence: {
+      telemetry_guard_seam:
+        "apps/desktop/src/services/telemetryPolicyService.ts",
+      telemetry_attempt_guarded_before_payload: true,
+      telemetry_network_or_persistence_implemented: false,
+      plugin_adapter_report_export_interception_implemented: false,
+      diagnostic_classes_referenced: [
+        "PROVENANCE_WARNING",
+        "ASSUMPTION_WARNING",
+        "IP_BOUNDARY_WARNING",
+        "PRIVACY_WARNING"
+      ],
+      result_envelope_binding:
+        "threat_model_reference_only_not_runtime_security_closure"
+    },
     unit_policy_evidence: unitPolicyEvidence,
     open_decisions: openDecisions(),
     storage_capability_ref: storageCapability

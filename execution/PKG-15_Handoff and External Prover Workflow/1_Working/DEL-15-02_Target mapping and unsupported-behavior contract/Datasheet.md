@@ -62,3 +62,6 @@
 - `docs/SPEC.md` - adapter/export and boundary specification slices.
 - `docs/TYPES.md` - canonical object and boundary vocabulary.
 - `docs/IP_AND_DATA_BOUNDARY.md` - private-data and public-surface boundary policy.
+## D-41 R5 T3 PDU-017 Evidence State
+
+Selected seam: target-mapping builder. Unsafe privacy context produces blocking diagnostics; broader runtime redaction reach remains separately owned.

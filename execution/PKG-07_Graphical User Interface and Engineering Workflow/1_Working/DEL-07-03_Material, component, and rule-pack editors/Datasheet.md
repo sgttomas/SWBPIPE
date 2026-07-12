@@ -75,3 +75,9 @@ Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `exe
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` - Type 2 execution and deliverable document kit.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis.
 - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, `ContextBudgetQA.csv` - machine-readable deliverable, scope, and context records.
+
+## D-41 R5 T3 evidence state
+
+| PDU | Requirement | Current evidence state |
+|---|---|---|
+| PDU-049 | `DEL-07-03-R-011` | `VERIFIED_NOT_VALIDATED`: project-owned private-by-default behavior exists, but no independent usability/security validation basis was authorized or produced. |

@@ -76,3 +76,6 @@ Reviewers should reject later DEL-17-05 work if it:
 - commits private/user CAEPIPE outputs without provenance and redistribution review;
 - hides target version, invocation, parser-section, unit, coordinate, or ID-map uncertainty;
 - expands into schema/code implementation outside an approved implementation tranche.
+## D-41 R5 T3 PDU-016 Boundary
+
+Invented public fixtures remain rights-safe test inputs, but user-provided CSV/runtime evidence must not inherit their public classification by default.

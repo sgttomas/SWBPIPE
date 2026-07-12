@@ -4,6 +4,7 @@
 **Last Updated:** 2026-07-12
 
 ## Remaining
+- Preserve PDU-043 as documented absence until separately authorized: plugin, adapter, import/export, report, and private-library runtime paths do not yet route telemetry attempts through the selected DEL-12-03 guard seam; adapter approval/allowlist remains unselected, and the DEL-10-02 deny-only declaration-admission gate does not close this runtime binding; do not infer whole-runtime no-bypass or security closure (source: DEC-074 O7-before-E5; PDU-043, 2026-07-12)
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
@@ -17,3 +18,4 @@
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T1 / PDU-077 recorded DEC-074 O3's scope clarification: `apps/desktop/src/features/telemetry` is DEL-12-03 implementation evidence for a default-off policy-review panel, not consent UI or runtime telemetry; genuine Remaining items and the D-41 bootstrap are preserved, with no lifecycle change.
+- 2026-07-12 - D-41 R5 T3/PDU-026 bound the telemetry panel's modeled attempts to a fail-closed desktop pre-payload guard with negative/no-network/no-persistence evidence; PDU-043 consumer interception remains explicitly absent, lifecycle remains IN_PROGRESS, and no security-review closure is claimed.

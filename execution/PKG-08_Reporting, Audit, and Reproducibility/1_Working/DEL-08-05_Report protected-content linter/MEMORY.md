@@ -844,3 +844,9 @@ code-compliance decisions.
   certification, sealing, authentication, code-compliance claim, protected
   standards content, private data, lifecycle transition, or new external
   dependency.
+
+## 2026-07-12 - D-41 R5 T3 PDU-028 supporting evidence
+
+- DEL-10-02's deny-only declaration gate rejects adapters that disable report controls and never dispatches even a conforming declaration while the runtime is unselected.
+- This is bounded negative admission evidence only. It does not wire this linter into a runtime, CI, or release candidate, dispose findings, or provide owner sign-off/security assurance.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.

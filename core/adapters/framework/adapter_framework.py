@@ -112,6 +112,46 @@ class AdapterValidationResult:
         return self.outcome == "ACCEPTED_FORMAT_NEUTRAL_DECLARATION"
 
 
+@dataclass(frozen=True)
+class AdapterRuntimeGateResult:
+    outcome: str
+    declaration_accepted: bool
+    runtime_dispatched: bool
+    findings: tuple[AdapterFinding, ...]
+
+
+def gate_adapter_runtime_dispatch(payload: dict[str, Any]) -> AdapterRuntimeGateResult:
+    """Gate the selected declaration-to-runtime seam without creating a loader.
+
+    Invalid or quarantined declarations stop at their existing validation
+    outcome. A valid declaration also stops because adapter execution and the
+    plugin runtime remain owner-held TBDs. There is intentionally no executor
+    argument or callback that could bypass this gate.
+    """
+
+    validation = validate_adapter_declaration(payload)
+    if not validation.accepted:
+        return AdapterRuntimeGateResult(
+            outcome=validation.outcome,
+            declaration_accepted=False,
+            runtime_dispatched=False,
+            findings=validation.findings,
+        )
+    runtime_finding = AdapterFinding(
+        "ADAPTER_RUNTIME_NOT_SELECTED",
+        "blocking",
+        "framework_status.adapter_execution_model",
+        "The format-neutral declaration passed validation, but no adapter execution model or plugin runtime is selected.",
+        "Keep runtime dispatch blocked until a separately governed runtime and capability design is accepted.",
+    )
+    return AdapterRuntimeGateResult(
+        outcome="BLOCKED_RUNTIME_NOT_SELECTED",
+        declaration_accepted=True,
+        runtime_dispatched=False,
+        findings=(runtime_finding,),
+    )
+
+
 def validate_adapter_declaration(payload: dict[str, Any]) -> AdapterValidationResult:
     """Validate a format-neutral adapter declaration payload."""
 

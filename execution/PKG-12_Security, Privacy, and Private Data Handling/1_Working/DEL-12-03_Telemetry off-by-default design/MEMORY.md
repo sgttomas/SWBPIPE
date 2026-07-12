@@ -1,5 +1,12 @@
 # Memory: DEL-12-03 Telemetry off-by-default design
 
+## 2026-07-12 - D-41 R5 T3 PDU-026/PDU-043 O7-before-E5 seam
+
+- Added `telemetryPolicyService.ts` as the bounded desktop pre-payload seam used by the DEL-12-03 panel. Missing/false configuration and even a capability request remain disabled because no affirmative opt-in or approved allowlist surface exists.
+- Negative tests cover payload-shaped attempts, forbidden report fields, persistence keys, capability requests without consent, and invariant false network/endpoint/vendor/queue/upload/persistence/client/background-job evidence.
+- PDU-043 remains documented unimplemented outside telemetry-panel attempts: plugins, adapters, import/export, reports, and private-library runtime paths are not claimed to be intercepted. Adapter approval/allowlist remains unselected, and the DEL-10-02 deny-only declaration-admission gate does not close telemetry runtime binding.
+- This is verified software behavior only, not security validation, privacy/legal sufficiency, formal review closure, lifecycle transition, or authorization of telemetry transport.
+
 ## 2026-07-12 - D-41 R5 T1 PDU-077 telemetry-panel attribution
 
 - DEC-074 O3 attributes `apps/desktop/src/features/telemetry` to DEL-12-03 as

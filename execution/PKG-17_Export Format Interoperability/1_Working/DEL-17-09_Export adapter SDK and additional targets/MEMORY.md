@@ -73,3 +73,9 @@
 
 - The current nine checklist categories remain verified admission metadata only.
 - PDU-034's exact additional readiness taxonomy is unselected; no syntactic/schema, redistribution, mechanics, rule-check, target-support, or validation outcome was inferred.
+
+## 2026-07-12 - D-41 R5 T3 PDU-018 supporting evidence
+
+- DEL-10-02's deny-only declaration gate rejects disabled provenance/privacy controls and never dispatches rejected, quarantined, or currently conforming declarations while runtime remains unselected.
+- The SDK admission package is still not a runtime loader, and PDU-018 provenance-detail grains remain incomplete. PDU-034's exact readiness-category taxonomy remains held and unchanged.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.

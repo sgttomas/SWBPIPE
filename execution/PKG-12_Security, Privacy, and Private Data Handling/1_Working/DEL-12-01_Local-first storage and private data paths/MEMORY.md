@@ -188,3 +188,9 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-07-12 - D-41 R5 T3 PDU-028 supporting evidence
+
+- DEL-10-02's deny-only declaration gate rejects an adapter declaration that permits private transmission by default and prevents dispatch for every rejected, quarantined, or currently conforming declaration.
+- This does not bind actual storage, result, report, plugin, or transport consumers and is not whole-product privacy/security assurance.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.

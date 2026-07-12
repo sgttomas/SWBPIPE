@@ -155,3 +155,9 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-07-12 - D-41 R5 T3 PDU-018 supporting evidence
+
+- DEL-10-02 now supplies bounded negative evidence that selected privacy/protected-content controls cannot be disabled at adapter declaration admission and that no declaration dispatches while runtime remains unselected.
+- DEL-14-01 does not yet bind external-reference ingestion or consumption to that gate. The Phase G program, external-reference screening, and consumer integration therefore remain open; no whole-product privacy/security claim follows.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.

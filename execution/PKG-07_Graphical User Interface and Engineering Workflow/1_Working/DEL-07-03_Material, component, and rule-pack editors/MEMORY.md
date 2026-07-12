@@ -1,5 +1,12 @@
 # DEL-07-03 Memory
 
+## 2026-07-12 - D-41 R5 T3 PDU-049 disposition hold
+
+- Preserved `DEL-07-03-R-011` and PDU-049 as `VERIFIED_NOT_VALIDATED`.
+- Existing private-by-default editor behavior and project-authored tests remain verification evidence only; this tranche produced no separately authorized independent usability/security validation basis.
+- Recorded the unresolved basis in `_STATUS.md ## Remaining` and the owning four-document kit without changing editor behavior or lifecycle state.
+- Boundary preserved: no independent-validation claim, security-review closure, product repair, dependency/DAG/register/decomposition change, `ISSUED` artifact, or lifecycle transition.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-07-03: Report Content Lint now inventories the

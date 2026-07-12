@@ -58,7 +58,7 @@ PROFESSIONAL_BOUNDARY = {
 }
 
 DEFAULT_PRIVACY = {
-    "classification": "invented_public_example",
+    "classification": "private_user_controlled",
     "local_only": True,
     "telemetry_allowed": False,
     "private_payload_embedded": False,
@@ -195,6 +195,7 @@ def build_caepipe_external_run_package(
     }
     normalized["diagnostics"] = _stable(
         [deepcopy(dict(item)) for item in diagnostics or []]
+        + _privacy_override_diagnostics(privacy, package_ref, provenance_record)
         + diagnostics_for_caepipe_external_run_package(normalized)
     )
     normalized["checksums"] = _checksums(run_id, normalized)
@@ -603,9 +604,40 @@ def _text_checksum(value: str, payload_ref: Mapping[str, Any], payload_scope: st
 
 def _privacy(value: Mapping[str, Any] | None) -> dict[str, Any]:
     privacy = deepcopy(DEFAULT_PRIVACY)
-    privacy.update(dict(value or {}))
+    privacy.update(
+        {
+            key: item
+            for key, item in dict(value or {}).items()
+            if key not in {"classification", "local_only", "telemetry_allowed"}
+        }
+    )
     privacy["redaction_refs"] = deepcopy(_list(privacy.get("redaction_refs")))
     return privacy
+
+
+def _privacy_override_diagnostics(
+    supplied: Mapping[str, Any] | None,
+    package_ref: Mapping[str, Any],
+    provenance: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    record = supplied or {}
+    attempted = [
+        field
+        for field in ("classification", "local_only", "telemetry_allowed")
+        if field in record and record.get(field) != DEFAULT_PRIVACY[field]
+    ]
+    return [
+        _diagnostic(
+            "CAEPIPE-RUN-PRIVACY-DEFAULT-OVERRIDE-BLOCKED",
+            "blocking",
+            "IP_BOUNDARY_WARNING",
+            f"Caller attempted to override private-by-default CAEPIPE evidence field {field}.",
+            "Keep user-provided CAEPIPE evidence private, local-only, and telemetry-disabled; no public-rights override path is defined.",
+            [package_ref],
+            provenance,
+        )
+        for field in attempted
+    ]
 
 
 def _privacy_diagnostics(

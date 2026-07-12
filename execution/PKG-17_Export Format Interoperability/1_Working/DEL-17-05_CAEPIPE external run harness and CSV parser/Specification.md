@@ -98,3 +98,6 @@ Future implementation documentation shall include:
 - skip-without-executable test behavior;
 - fixture provenance notes;
 - evidence and limitation notes for reports or handoff records.
+## D-41 R5 T3 PDU-016 O7/E5 Requirement (2026-07-12)
+
+User-provided CAEPIPE output evidence defaults to private/user-controlled, local-only, telemetry-disabled handling. Public classification requires an explicit later rights/provenance path; this seam does not assert global privacy sufficiency.

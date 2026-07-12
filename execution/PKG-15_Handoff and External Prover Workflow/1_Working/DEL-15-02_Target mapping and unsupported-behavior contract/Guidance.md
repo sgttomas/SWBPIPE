@@ -57,3 +57,6 @@ This deliverable prevents silent loss of critical handoff assumptions or unsuppo
 - `docs/SPEC.md`
 - `docs/TYPES.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
+## D-41 R5 T3 PDU-017 Boundary
+
+Preserving privacy metadata is insufficient when it says unsafe payload is embedded. The selected builder seam blocks that state without claiming downstream security sufficiency.

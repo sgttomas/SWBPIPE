@@ -77,3 +77,7 @@ Required deliverable-local setup artifacts:
 - `_run_records/TASK_RUN_2026-04-30_1044_dependency-extract.md`
 
 Future implementation artifacts named by the register remain anticipated, not implemented here: editor panels and validation UI tests.
+
+## D-41 R5 T3 PDU-049 disposition hold
+
+The existing private-by-default editor behavior remains project-owned verification evidence for `DEL-07-03-R-011`. No separately authorized independent usability or security validation basis was produced in this tranche. Accordingly, PDU-049 remains `VERIFIED_NOT_VALIDATED`; the evidence must not be promoted into an independent validation, security-review closure, release-readiness, or lifecycle claim.

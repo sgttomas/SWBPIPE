@@ -85,3 +85,6 @@ Define and check the target mapping and unsupported-behavior contract for handof
 - `core/handoff/target_mapping/contract.py`
 - `tests/test_target_mapping_contract.py`
 - final workflow report from this setup run
+## D-41 R5 T3 PDU-017 Check
+
+Exercise the builder with unsafe privacy flags and require blocking `PRIVACY_WARNING` diagnostics; never silently normalize unsafe input into a safe claim.

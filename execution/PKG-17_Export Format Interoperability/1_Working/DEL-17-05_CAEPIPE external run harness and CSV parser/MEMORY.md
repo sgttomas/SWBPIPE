@@ -68,3 +68,8 @@
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+## 2026-07-12 - D-41 R5 T3 PDU-016 private default
+
+- CAEPIPE user-output evidence now defaults to `private_user_controlled`, local-only, telemetry-disabled handling; partial caller overrides cannot erase those defaults.
+- Focused negative/no-bypass evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU016.md`.
+- This is one selected seam only, not a whole-product security/privacy claim; lifecycle remains `IN_PROGRESS`.
