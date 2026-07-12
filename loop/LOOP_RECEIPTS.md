@@ -793,3 +793,18 @@
     dispatch/artifact. Owner capacity/concurrency ruling required; W5 remains
     partial and R3/R6 are not started. No lifecycle/register/DAG/product/R4/R5
     change.
+
+- **2026-07-12 — Receipt 29** (temporary runtime-concurrency exception;
+  resume authorized).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "Interesting.
+    Then proceed under these limitations. If you want to make note of this in
+    the instructions somewhere appropriate before setting out you may do so. I
+    don't know if all instructions need to be updated as this is only a
+    temporary session runtime limitation, I suspect."
+  - Effect: resume PKG-14..17 using exactly one owning pilot per deliverable in
+    capacity-bounded concurrent batches at the runtime maximum; package fan-in,
+    owning-pilot correction, validation, checkpoint, model-attribution, and
+    STOP-before-R4/R5 requirements remain unchanged.
+  - This exception is recorded only in the active D-41 run basis and this
+    receipt; standing instructions remain unchanged because the limitation is
+    session-scoped. No lifecycle/register/DAG/product/R4/R5 change.

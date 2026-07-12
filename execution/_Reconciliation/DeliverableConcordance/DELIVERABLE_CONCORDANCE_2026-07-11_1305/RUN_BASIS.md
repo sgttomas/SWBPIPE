@@ -451,6 +451,34 @@
   capacity-bounded concurrency interpretation. PKG-15..17, W5 full-wave
   validation/closeout, R3, R6, and `RUN_SUMMARY.md` remain outstanding.
 
+- **2026-07-12 — PKG-14 resume authorized under a temporary runtime-capacity
+  exception.** Owner direction permits proceeding under the session's four
+  total active-agent slots. PKG-14..17 retain exactly one owning,
+  deliverable-grained pilot per deliverable, executed in capacity-bounded
+  concurrent batches at the maximum available concurrency. Each package still
+  terminates in an independent highest-capability high-effort fan-in, all
+  corrections route through the owning pilot, and full package validation
+  precedes its checkpoint. This is a session-scoped execution exception only;
+  the standing preference for package-wide simultaneous dispatch is not
+  rewritten. Actual batch composition and model/capability attribution will be
+  appended at each package checkpoint.
+
+- **2026-07-12 — R2 W5 PKG-14 checkpoint COMPLETE.** Five distinct
+  deliverable-grained GPT-5 pilot assignments ran in two capacity-bounded
+  batches (DEL-14-01/02/03, then DEL-14-04/05), producing five ledgers and
+  notes with 141 corrected rows. An independent highest-capability GPT-5
+  high-effort fan-in checked every self-flagged and non-ALIGNED row plus at
+  least two ALIGNED rows per ledger: pre-correction 4 SOUND / 1 DEFECTIVE and
+  77 PASS / 0 QUALIFIED / 2 FAIL across 79 scoped rows. The DEL-14-04 owning
+  pilot corrected REQ-001/ACC-002 evidence text to distinguish deterministic
+  caller-supplied mapping consumption from absent automatic stable-ID
+  derivation; dispositions and histograms did not change. Independent
+  post-correction backcheck closed at 5 SOUND and 79 PASS / 0 QUALIFIED / 0
+  FAIL. Package structure, enums, contiguous type-matched ClaimIDs, RFC-4180
+  CRLF, histograms, bootstrap/selectability rules, and addendum-9 containment
+  pass. Summary: `PACKAGE_SUMMARIES/PKG-14.md`. PKG-15..17, full-W5
+  closeout, R3, R6, and `RUN_SUMMARY.md` remain outstanding.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
