@@ -249,6 +249,19 @@
   fable pilots; wave boundary = validate/summarize/commit/push/PR/receipt,
   then STOP for owner direction. Receipt 20 records the resume.
 
+- **2026-07-11 — PAUSED mid-W2 at owner direction (batches 1–2 complete).**
+  Owner direction of record (in-session, verbatim): "Pause again when Batch
+  2 is in and fully accounted for.  We will continue with Batch 3 when I
+  give you approval." State at pause: 8 of 11 W2 ledgers written and
+  structurally validated clean (batch 1 DEL-04-01..04, 92 rows, commit
+  `951e3a94b`; batch 2 DEL-04-05/06 + DEL-05-01/02, 89 rows, commit
+  `4d1c96a04`); frozen worktree porcelain empty throughout; no agents in
+  flight; nothing partial. The wave fan-in has not run (whole-wave pass;
+  runs after batch 3). Resume point: dispatch W2 batch 3 (DEL-05-03,
+  DEL-05-04, DEL-05-05; fable pilots per the Receipt-17 steer) on owner
+  approval, then the fable high-effort fan-in over all 11 ledgers and the
+  wave-boundary protocol. Receipt 21 records the pause.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`

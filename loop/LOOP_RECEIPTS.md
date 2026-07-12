@@ -525,3 +525,19 @@
     high-effort fan-in after the wave; wave boundary =
     validate/summarize/commit/push/PR/receipt, then STOP for owner merge
     direction (no grant reuse).
+
+- **2026-07-11 — Receipt 21** (paused mid-W2 at owner direction; batch 2
+  complete).
+  - Owner direction of record (2026-07-11, in-session, verbatim): "Pause
+    again when Batch 2 is in and fully accounted for.  We will continue
+    with Batch 3 when I give you approval."
+  - State at pause: W2 batches 1–2 complete and accounted for — 8 of 11
+    ledgers written (DEL-04-01..06, DEL-05-01/02; 181 rows), each batch
+    structurally validated (0 errors) and committed (batch 1 `951e3a94b`,
+    batch 2 `4d1c96a04`); frozen worktree porcelain empty throughout; no
+    agents in flight; no partial artifacts. Fan-in has NOT run — it is a
+    whole-wave pass and waits for batch 3.
+  - Gate outcome: paused at owner direction. Resume point: dispatch W2
+    batch 3 (DEL-05-03/04/05, fable pilots) on owner approval, then the
+    wave fan-in and the standard wave-boundary protocol. Pause entry
+    appended to RUN_BASIS.
