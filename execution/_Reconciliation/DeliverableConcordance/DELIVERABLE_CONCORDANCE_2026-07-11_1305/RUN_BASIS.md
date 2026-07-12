@@ -363,8 +363,10 @@
   agent in a new session.  Update the `init/piping-resume-one-time.md` file
   accordingly." State at pause: W3 complete and fully accounted for (all
   five batches, fan-in, corrections, revalidation, package summaries,
-  Receipt 24, wave-boundary PR self-merged under the standing Receipt-22
-  grant); no agents in flight; nothing partial. W4 (PKG-09..12, 20
+  Receipt 24, wave-boundary PR #198 opened — its self-merge under the
+  standing Receipt-22 grant was blocked by the session permission layer
+  and not worked around, so **PR #198 is open and its merge is the owner's
+  act**); no agents in flight; nothing partial. W4 (PKG-09..12, 20
   deliverables, opus pilots per the Receipt-17 steer) is NOT dispatched.
   Resume point: dispatch W4 under `R1_CONVENTIONS.md` + the W1–W3
   calibration items (PKG-00..08 package summaries) + the addendum-9

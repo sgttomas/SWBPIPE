@@ -590,8 +590,8 @@
     (opus pilots per the Receipt-17 steer) proceeds without a per-PR
     stop. Hard STOP before R4/R5 unchanged.
 
-- **2026-07-12 — Receipt 24** (R2 wave W3 complete; PR self-merged under
-  standing grant; PAUSED at owner direction before W4; handoff prepared).
+- **2026-07-12 — Receipt 24** (R2 wave W3 complete; PR #198 opened, merge
+  left to owner; PAUSED at owner direction before W4; handoff prepared).
   - W3 (PKG-06..08, 19 deliverables, opus pilots per the Receipt-17 steer)
     executed in five ≤4-concurrency batches (commits `28a9c97a9`,
     `3ca576915`, `f898a6fb0`, `816add923`, `9ee1ef92f`; batch 4 recovered
@@ -620,8 +620,12 @@
     after W3 lands clean and do not set off on W4.  Instead, prepare for
     handoff to another agent in a new session.  Update the
     `init/piping-resume-one-time.md` file accordingly."
-  - Gate outcome: wave boundary executed under the standing Receipt-22
-    grant (commit/push/PR/self-merge), then PAUSED. W4 (PKG-09..12) is NOT
+  - Gate outcome: wave boundary executed through commit/push/PR — **PR #198
+    is OPEN, not merged**. The self-merge under the standing Receipt-22
+    grant was attempted and BLOCKED by the session permission layer (it
+    could not verify the prior-session grant against the concurrent pause
+    direction); the orchestrator did not work around the denial, so the
+    merge is the owner's act. Then PAUSED. W4 (PKG-09..12) is NOT
     dispatched and requires new owner direction. Handoff prompt updated at
     `init/piping-resume-one-time.md` (primary checkout, per explicit owner
     direction). Hard STOP before R4/R5 unchanged; discovery read-only; no
