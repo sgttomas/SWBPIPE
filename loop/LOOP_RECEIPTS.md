@@ -736,5 +736,25 @@
     orchestrator (`claude-fable-5`); no subagents dispatched.
   - Gate outcome: committed and pushed on
     `claude/chirality-piping-d41-concordance-9811cb`; PR opened and left
-    OPEN for owner merge direction. No phase work; no lifecycle transition;
-    no evidence artifact changed; run remains PAUSED before W4 (Receipt 24).
+  OPEN for owner merge direction. No phase work; no lifecycle transition;
+  no evidence artifact changed; run remains PAUSED before W4 (Receipt 24).
+
+- **2026-07-12 — Receipt 26** (R2 wave W4 complete; paused before W5 at
+  owner direction).
+  - Owner direction of record (2026-07-12, in-session, verbatim): "pause
+    after W4 is complete, before setting out for W5."
+  - W4 artifacts: 20 corrected ledgers + notes under `WAVES/W4/`; fan-in
+    reports `W4_VERIFICATION_PKG-09.md` through `...PKG-12.md`; package
+    summaries `PACKAGE_SUMMARIES/PKG-09.md` through `PKG-12.md`; detailed
+    counts, correction record, and pause state in `RUN_BASIS.md`.
+  - Checks: full-wave structure/enums/ClaimIDs/CRLF/convention-marker and
+    gate-selectability validation pass (0 errors); package matrices recount;
+    frozen ignored-aware porcelain remains exactly the six addendum-9
+    allow-listed paths; self-check exit 0 at session start.
+  - Model attribution: GPT-5 discovery pilots; highest-available-capability
+    GPT-5 for PKG-12 discovery; highest-available-capability GPT-5 at high
+    effort for all four package fan-ins (PKG-12 by the orchestrator); no
+    silent substitution.
+  - Wave boundary: commits pushed; PR #207 opened and left OPEN. Gate outcome:
+    PAUSED before W5; `PKG-13`–`PKG-17` not dispatched, no W5 artifacts or
+    agents in flight. No lifecycle/register/DAG/product/R4/R5 change.
