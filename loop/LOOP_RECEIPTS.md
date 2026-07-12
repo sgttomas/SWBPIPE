@@ -564,3 +564,28 @@
   - Action: dispatched W2 batch 3 — DEL-05-03, DEL-05-04, DEL-05-05, three
     concurrent fable discovery pilots under W2_PILOT_BRIEF (R1_CONVENTIONS
     + W1 calibration items). RUN_BASIS resume/grant entry appended.
+
+- **2026-07-12 — Receipt 23** (R2 wave W2 complete; PR self-merged under
+  standing grant).
+  - Batch 3 (DEL-05-03 19 rows / DEL-05-04 21 / DEL-05-05 21) returned
+    clean: 0 validation errors, no STOP-worthy contradictions, frozen
+    porcelain empty; commit `c3a1986a4`. Wave totals: 11 ledgers, 242
+    rows (PKG-04 133, PKG-05 109).
+  - Fan-in (fable, high effort, one verifier per package, owner-ruled
+    scope incl. all self-flagged and non-ALIGNED rows): 11/11 SOUND, 100
+    PASS / 25 QUALIFIED / 0 FAIL, zero re-runs. Reports
+    `WAVES/W2/W2_VERIFICATION_PKG-04.md`, `..._PKG-05.md`.
+  - Non-defect corrections routed to owning pilots (never repaired
+    centrally): ATTESTED record-not-present markers on DEL-04-03-REQ-004
+    and DEL-04-05-REQ-006; declaration-level evidence pointers with
+    explicit qualifier on DEL-05-04-REQ-014. Each pilot re-verified the
+    underlying facts against the frozen tree before editing; single-cell
+    diffs confirmed; all 11 ledgers revalidated (0 errors); commit
+    `528c8c7aa`.
+  - Package summaries written: `PACKAGE_SUMMARIES/PKG-04.md`, `PKG-05.md`
+    (histograms computed from ledgers; cross-ledger risks itemized for W3
+    calibration and R3).
+  - Wave boundary executed under the 2026-07-12 standing owner grant
+    (Receipt 22): PR opened and self-merged by the orchestrator; W3
+    (opus pilots per the Receipt-17 steer) proceeds without a per-PR
+    stop. Hard STOP before R4/R5 unchanged.

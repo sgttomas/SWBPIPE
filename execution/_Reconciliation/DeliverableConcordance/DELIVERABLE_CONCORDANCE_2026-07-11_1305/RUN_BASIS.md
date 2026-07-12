@@ -278,6 +278,28 @@
   no decision gates, repairs, or lifecycle transitions without explicit
   owner ruling. Receipt 22 records the resume and grant.
 
+- **2026-07-12 — R2 wave W2 COMPLETE (PKG-04, PKG-05).** 11 ledgers, 242
+  rows (PKG-04: 133 across DEL-04-01..06; PKG-05: 109 across
+  DEL-05-01..05), all fable pilots per the Receipt-17 steer, dispatched in
+  three ≤4-concurrency batches (commits `951e3a94b`, `4d1c96a04`,
+  `c3a1986a4`). Fan-in verification (fable, high effort, owner-ruled
+  scope): `WAVES/W2/W2_VERIFICATION_PKG-04.md` and `..._PKG-05.md` —
+  **11/11 SOUND**, 100 PASS / 25 QUALIFIED / 0 FAIL spot-checks, zero
+  DEFECTIVE ledgers, zero re-runs. Three non-defect owning-pilot
+  corrections applied post-fan-in (convention-7 ATTESTED markers on
+  DEL-04-03-REQ-004 / DEL-04-05-REQ-006; evidence-pointer amendment on
+  DEL-05-04-REQ-014), all revalidated (242 rows, 0 errors), histograms
+  unaffected (commit `528c8c7aa`). Package summaries:
+  `PACKAGE_SUMMARIES/PKG-04.md`, `PKG-05.md`. Frozen worktree porcelain
+  empty before and after every pilot, verifier, and correction operation.
+  Cross-ledger risks carried to W3 calibration and R3 are itemized in the
+  package summaries (notably: SourceReliability leg-keying,
+  undated-MEMORY-head rule, README enumeration grain, byte-identical-copy
+  re-execution pattern, AuthorityNeeded TBD/gate-token semantics). Under
+  the 2026-07-12 standing owner grant, the W2 PR is opened and self-merged
+  by the orchestrator; W3 proceeds without a per-PR stop. Receipt 23
+  records the wave boundary.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
