@@ -863,3 +863,31 @@
     work occurred. **HARD STOP before R4/R5.** Final change set is carried by
     the commit containing this receipt and is to be pushed to the existing
     exact-branch PR #211; the PR is not merged by this task.
+
+- **2026-07-12 — Receipt 32** (D-41 R4 ruling recorded; R5 execution
+  authorized).
+  - Owner direction of record is transcribed verbatim at
+    `execution/_Coordination/_DECISIONS/D-41_R4_RULING_2026-07-12.md` and
+    bound by canonical ruling-text SHA-256
+    `13a15c3344157fb3397b9d6638efe3ddccacc3e7797b2150c84000289dd308d1`.
+    Ryan Tufts adopted O1–O13 option A, confirmed C18–C19 as current-only
+    reconciliation confirmations, and explicitly acted as engineering
+    authority to adopt E1–E8 as evidence requirements without asserting a
+    validation outcome.
+  - Recording: D-41 register row extended with the R4 ruling pointer;
+    `SOFTWARE_DECOMP.md` §12 codification `DEC-074`; active run `RUN_BASIS.md`
+    appended. Reviewed source remains frozen
+    `551f84ef6be656f1603ce0acfa5e3935aa9683c7`.
+  - O3 condition: four receiving-deliverable scope clarifications must return
+    as `AUTHORITY_CONFLICT` if accepted-scope inspection contradicts them;
+    `core/product_preview` and the three named tooling surfaces are shared
+    governed infrastructure.
+  - Gate outcome: R4 authority gate satisfied for this slate; bounded R5
+    planning and execution authorized directly. E5 follows O7. No scope
+    expansion, lifecycle transition, ISSUED-baseline edit outside its change
+    path, release/professional claim, or silent DAG/dependency/register change
+    is authorized.
+  - Model attribution: GPT-5 orchestrator transcribed and SHA-bound the
+    ruling; independent highest-available-capability GPT-5 agents audit the
+    decision-record mechanism, O3 scope compatibility, and R5 tranche
+    partition before execution; no silent substitution.

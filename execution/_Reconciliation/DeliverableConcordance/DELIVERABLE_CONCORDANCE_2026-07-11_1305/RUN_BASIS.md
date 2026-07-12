@@ -637,3 +637,19 @@ dispositions are never represented as owner or engineering rulings.
   product repair, dependency/DAG/register/decomposition change, decision
   ruling, R4, or R5 work occurred. The run terminates here at the required
   **HARD STOP before R4/R5**.
+
+- **2026-07-12 — R4 owner and engineering ruling RECORDED; R5 AUTHORIZED.**
+  Ryan Tufts adopted O1–O13 option A, confirmed C18–C19 as current
+  reconciliation confirmations, and explicitly acted as engineering authority
+  to adopt E1–E8 as evidence requirements without asserting any validation
+  outcome. The verbatim ruling is recorded at
+  `execution/_Coordination/_DECISIONS/D-41_R4_RULING_2026-07-12.md`, canonical
+  ruling-text SHA-256
+  `13a15c3344157fb3397b9d6638efe3ddccacc3e7797b2150c84000289dd308d1`,
+  and codified as `DEC-074`; the D-41 register row points to both activation
+  and R4 ruling records. O3 assigns four conditional scope clarifications and
+  classifies `core/product_preview` plus three tooling surfaces as shared
+  governed infrastructure. Any receiving-scope contradiction returns as
+  `AUTHORITY_CONFLICT`. R5 may proceed directly in bounded tranches, with E5
+  sequenced after O7 and all lifecycle, scope-expansion, ISSUED-baseline,
+  release/professional, and silent DAG/dependency/register fences preserved.
