@@ -72,9 +72,12 @@ authority permits — stopping at every owner gate.
    incl. `Remaining`, `MEMORY.md`, `_CONTEXT.md`, `_REFERENCES.md`, dependency files,
    the four-document kit, recent `_run_records/**`) and active DAG-discovered
    dependencies only — do not trawl governance deliverable folders for project-wide
-   policy. *Bounded workers:* dispatch per `AGENTS.md` (one `DeliverableID`, its parent
-   `PackageID`, acceptance criteria from `_CONTEXT.md` or the sealed brief, explicit
-   write scope); fan in worker results and check for scope drift before validation.
+   policy. *Multi-agent execution:* derive the current work graph under
+   `LOOP_INIT.md` §7. HELP_HUMAN may activate one WORKING_ITEMS instance per package;
+   a directly invoked WORKING_ITEMS instance remains within one package. Each Agent 2
+   brief names its deliverable scope, parent package, acceptance basis, evidence plan,
+   and read/write bounds. Use terminal or supervised many-to-many coordination as the
+   graph requires; validate staged and terminal fan-in before downstream use.
    *Discipline:* branch-first + PR unless the owner directs otherwise; never
    self-merge; write scopes stay inside `projects/chirality-piping/**` unless the
    owner grants wider scope. *Validation:* the selected work type's evidence

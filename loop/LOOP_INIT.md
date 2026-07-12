@@ -86,7 +86,39 @@ work-type checks, and append a minimal receipt to `LOOP_RECEIPTS.md` beside
 this file (per its local rules: verbatim owner directions, pointers to
 artifacts, gate outcomes, check pass/fail) so the next iteration starts clean.
 
-## 7. Session conventions, constraints, and any per-run steer
+## 7. Multi-agent orchestration
+
+Root `AGENTS.md` and D-GOV-12 govern multi-agent work. The standing workplan
+records owner intent, constraints, authorities, and gates; it is not the
+current execution graph. At each turn:
+
+1. HELP_HUMAN, when invoked, derives or applies the human-prescribed
+   cross-package graph and launches one WORKING_ITEMS instance per activated
+   package. A directly invoked WORKING_ITEMS instance derives only its one
+   package graph.
+2. Record selection authority (`HUMAN | AGENT_0 | AGENT_1`), posture
+   (`TERMINAL_FAN_OUT_IN | SUPERVISED_MANY_TO_MANY | MIXED`), nodes,
+   dependencies, concurrency, read/write ownership, expected returns, fan-in
+   gates, and human decision points before dispatch.
+3. Use terminal fan-out/fan-in when terminal child returns are sufficient.
+   Use supervised parent-mediated notices when active findings may affect
+   siblings. Arbitrary dependency-valid mixed stages need no additional name.
+4. Preserve claim status and minimum sufficient evidence in every relay.
+   Version objective, basis, scope, ownership, risk, or acceptance changes;
+   consequential amendments return to the owner.
+5. Shared reads are allowed. Concurrent writes must be disjoint. Serialize
+   overlaps or assign one integration owner. Hold only declared dependants
+   when a node fails.
+6. Persist the actual graph and amendments under
+   `execution/_Coordination/AgentRuns/<RunID>/` when the managed runtime is
+   active. Until then, use the existing scoped run-record/receipt surfaces and
+   cite the RunID and plan version in `LOOP_RECEIPTS.md`.
+
+Agent 1 siblings do not delegate or message directly. Agent 2 reports to its
+WORKING_ITEMS parent; WORKING_ITEMS reports cross-package notices to
+HELP_HUMAN or, in direct mode, to the human.
+
+## 8. Session conventions, constraints, and any per-run steer
 
 Standing constraints and the loop protocol live in the plan — follow them as
 written. The session conventions are:
