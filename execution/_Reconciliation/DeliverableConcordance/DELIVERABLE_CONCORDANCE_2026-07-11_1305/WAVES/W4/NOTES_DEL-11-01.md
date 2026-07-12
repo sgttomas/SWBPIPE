@@ -16,10 +16,12 @@ RFC-4180 CRLF. Discovery role/model: **GPT-5 discovery pilot**, no substitution.
 
 | Disposition | Count |
 |---|---:|
-| ALIGNED | 12 |
-| STALE_SETUP_SPECIFICATION | 5 |
+| ALIGNED | 13 |
+| STALE_SETUP_SPECIFICATION | 4 |
 | PARTIALLY_IMPLEMENTED | 1 |
 | REMAINING_STATE_MISMATCH | 1 |
+
+AuthorityNeeded recount: **NO 13 / OWNER 6**.
 
 ## Census and decisions
 
@@ -36,8 +38,12 @@ RFC-4180 CRLF. Discovery role/model: **GPT-5 discovery pilot**, no substitution.
 - REQ-004/009 SourceReliability is REVIEWED only because the named 2026-06-07 human
   disposition covers the exact external hash-bound status wording. Other technical/document
   rows remain weakest-leg UNVERIFIED.
-- SECURITY REQ-008 applies the convention-6 marker only to protected/private-content
-  sufficiency and routes OWNER; deterministic document facts are not downgraded.
+- SECURITY REQ-008 is a bounded guide-content/prohibitive-boundary check with explicit
+  `NOT_APPLICABLE` reasoning and NO routing; it does not claim legal clearance or
+  protected-content sufficiency.
+- Guidance DECL-003 is ALIGNED because its advisory and conditional principles remain
+  current. Procedure DECL-004 remains STALE because its two named validation helpers are
+  absent and its setup-state workflow no longer matches the IN_PROGRESS status.
 
 ## Checks and containment
 

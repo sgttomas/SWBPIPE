@@ -20,6 +20,8 @@ RFC-4180 CRLF. Discovery role/model: **GPT-5 discovery pilot**, no substitution.
 | STALE_SETUP_SPECIFICATION | 5 |
 | REMAINING_STATE_MISMATCH | 1 |
 
+AuthorityNeeded recount: **NO 8 / OWNER 8**.
+
 No acceptance rows were minted: the setup Verification list restates the requirements and
 session gates rather than defining a distinct acceptance section. DECL census is four kit
 docs + `_STATUS` + MEMORY; no owned README exists.
@@ -34,7 +36,9 @@ docs + `_STATUS` + MEMORY; no owned README exists.
   at MEDIUM and routes OWNER.
 - REM-001 records those two pending dispositions as omitted from `_STATUS`; it does not
   perform or infer the human act.
-- SECURITY REQ-001 and EXC-002 scope the convention-6 marker to content-review sufficiency.
+- REQ-001 and EXC-002 are bounded fixture/document-content checks with explicit
+  `NOT_APPLICABLE` reasons and NO routing; neither uses the convention-6 marker or claims
+  engineering suitability, legal clearance, or real-project reliance.
 - Five stale DECLs are the four future/setup kit docs and MEMORY's undated head. Later dated
   MEMORY entries correct schema/checksum facts, but the undated current-shaped text itself
   remains false, so the corrected-in-file distinction does not make it ALIGNED.

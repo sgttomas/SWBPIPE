@@ -1,4 +1,4 @@
-# NOTES â DEL-09-02 Stress recovery benchmark suite (R2 wave W4)
+# NOTES — DEL-09-02 Stress recovery benchmark suite (R2 wave W4)
 
 Deliverable: **DEL-09-02** (PKG-09 Verification, Validation, and Quality Oracles),
 status IN_PROGRESS. Frozen source tree pinned SHA
@@ -110,9 +110,9 @@ tracked), so no copy-out was required. Re-executed with all build output externa
 
 - `CARGO_TARGET_DIR=/tmp/chirality-d41-del-09-02-target CARGO_NET_OFFLINE=true cargo test
   --locked --manifest-path projects/chirality-piping/validation/benchmarks/stress/Cargo.toml`
-  â **22/22 unit tests PASS**, 0 doctests.
+  → **22/22 unit tests PASS**, 0 doctests.
 - `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider
-  projects/chirality-piping/tests/test_calculation_witness.py` â **9/9 PASS**.
+  projects/chirality-piping/tests/test_calculation_witness.py` → **9/9 PASS**.
 
 No `py_compile` was run. The after-check with `--ignored=matching` reproduced exactly the
 same six allow-listed sets and no seventh path; tracked porcelain remained empty. The

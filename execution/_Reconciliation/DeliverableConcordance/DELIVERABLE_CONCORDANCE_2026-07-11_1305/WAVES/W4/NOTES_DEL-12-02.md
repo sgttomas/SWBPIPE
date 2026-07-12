@@ -11,7 +11,8 @@ This is an ordinary W4 re-encoding; R0 is calibration only. Ledger: 33 rows,
 ClaimType: REQUIREMENT 15; ACCEPTANCE 8; EXCLUSION 3; DECLARED_STATE 6;
 REMAINING_WORK 1. Disposition: ALIGNED 17; PARTIALLY_IMPLEMENTED 12;
 STALE_SETUP_SPECIFICATION 3; IMPLEMENTED_DIFFERENTLY 1. AuthorityNeeded:
-NO 28 / OWNER 5. Selectability: YES 2 / NO 31 (DECL-005 and REM-001).
+NO 28 / OWNER 5. Selectability: YES 13 / NO 20 (the 11 rows touching the
+ungated breadth residual, plus DECL-005 and REM-001).
 
 Native REXC requirements and verification rows become contiguous REQ-001..015
 and ACC-001..008. Three durable exclusions preserve invented-only discovery,

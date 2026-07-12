@@ -8,7 +8,7 @@
 - Confidence: 13 HIGH, 7 MEDIUM, 0 LOW.
 - Authority: 7 OWNER, 5 ENGINEERING, 8 NO.
 - Verification: `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider projects/chirality-piping/tests/security/test_telemetry_policy.py` returned 15/15 PASS at the frozen SHA.
-- SECURITY marker discipline: the exact `NONE_FOUND — SECURITY/privacy sufficiency review deferred, owner-gated` marker is confined to sufficiency-deferral rows REQ-004, EXC-002, and REM-002. Other SECURITY rows record bounded technical evidence without implying security certification.
+- SECURITY marker discipline: the exact `NONE_FOUND — sufficiency review deferred, owner-gated` marker is confined to sufficiency-deferral rows REQ-004, EXC-002, and REM-002. Other SECURITY rows record bounded technical evidence without implying security certification.
 - Key judgment: the metadata-only helper provides real fail-closed and pre-payload guard evidence, but it cannot establish runtime reachability, route integration, affirmative consent, approval records, or product-config persistence. Those claims are partial or documented-unimplemented rather than vacuously aligned.
 - Calibration carry-forward: `Datasheet.md` is stale only because its authority pointer still names SOFTWARE_DECOMP revision 0.7; the other current four-document declarations accurately describe the frozen implemented slice. Pending RF-001/RF-002 human dispositions and the substantive RF-002 deferrals are separately ledgered because `_STATUS.md` contains only the D-41 bootstrap item.
 - Addendum-9 check: before and after re-execution, frozen ignored porcelain remained limited to the six run-allow-listed paths; no additional tracked, untracked, or ignored path was introduced.

@@ -10,8 +10,8 @@ calibration only. Ledger: 20 rows, 20 columns, RFC-4180 CRLF.
 ClaimType: REQUIREMENT 9; ACCEPTANCE 1; EXCLUSION 1; DECLARED_STATE 6;
 REMAINING_WORK 3. Disposition: ALIGNED 12; PARTIALLY_IMPLEMENTED 2;
 STALE_SETUP_SPECIFICATION 3; ACCEPTED_DIVERGENCE 2;
-STALE_REVIEW_OR_EVIDENCE 1. Selectability: YES 4 / NO 16 (DECL-005 and the
-three ungated residuals).
+STALE_REVIEW_OR_EVIDENCE 1. Selectability: YES 7 / NO 13 (REQ-002, REQ-004,
+ACC-001, DECL-005, and the three ungated residual rows).
 
 The nine native R-01..09 requirements become contiguous REQ-001..009. One
 distinct TP-RUNNER-015 Verification bullet-set claim becomes ACC-001; the
@@ -46,9 +46,10 @@ NOT_APPLICABLE.
 
 No test, cargo command, pytest, generator, or compilation was re-executed.
 Ledger cells preserve recorded-pass citations and explicitly say not
-re-executed by the W4 pilot. SECURITY REQ-007/008 use deterministic
-provenance/local-private boundaries without the convention-6 sufficiency marker;
-no security-sufficiency conclusion is made.
+re-executed by the W4 pilot. SECURITY REQ-007 uses the convention-6 marker and
+OWNER routing because fixture provenance/protected-content review sufficiency is
+deferred; REQ-008 is the deterministic local/no-transmission row and does not
+use the marker. No security-sufficiency conclusion is made.
 
 Fan-in self-flags: the one-row ACC census intentionally treats the TP-RUNNER-015
 bullet set as one distinct acceptance basis; REQ-001/004 bounded-slice grain;
@@ -64,4 +65,3 @@ bytecode mitigations were not invoked. Writes were limited to this CSV and
 notes. No lifecycle, DAG, register, decision, product, R4, or R5 surface
 changed. Dispositions are agent judgments, never human rulings. No material
 authority conflict was found.
-
