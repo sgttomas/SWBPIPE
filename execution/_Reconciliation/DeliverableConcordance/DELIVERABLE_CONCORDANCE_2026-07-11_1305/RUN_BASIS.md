@@ -234,6 +234,21 @@
   ledgers to `WAVES/W2/`, after the owner acts on PR #187. The frozen
   evidence worktree remains reproducible from the pinned SHA.
 
+- **2026-07-11 — Resumed; R2 W2 dispatched (PKG-04–PKG-05).** Owner
+  permission of record (in-session, verbatim): "This is your permission to
+  resume." (following "merge the PR and then wait for permission to proceed
+  further."; PR #187 merged to main as `667a679594f`). W2 = 11 deliverables
+  (DEL-04-01..06, DEL-05-01..05), ALL-fable discovery pilots per the
+  Receipt-17 steer (solver-mechanics engineering-adjudication risk), ≤4
+  concurrent, ledgers to `WAVES/W2/`, under `R1_CONVENTIONS.md` plus the W1
+  calibration items (rev-drift STALE-side encoding with owner-calibration
+  caveat; SECURITY em-dash marker + OWNER routing; overtaken-review-prose
+  STALE encoding with Gate record as DecisionBasis; addendum-10
+  docs-exclusion discipline; byte-exact bootstrap transcription). Fable
+  high-effort fan-in after wave completion; defective ledgers re-run by
+  fable pilots; wave boundary = validate/summarize/commit/push/PR/receipt,
+  then STOP for owner direction. Receipt 20 records the resume.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`

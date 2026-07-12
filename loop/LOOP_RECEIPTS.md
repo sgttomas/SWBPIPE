@@ -508,3 +508,20 @@
     notes, after the owner acts on PR #187).
   - Gate outcome: paused at owner direction. W2 is NOT to be launched
     without new owner direction; PR #187 merge remains the owner's act.
+
+- **2026-07-11 — Receipt 20** (resume after W1 pause; R2 W2 dispatched).
+  - Owner directions of record (2026-07-11, in-session, verbatim): "merge
+    the PR and then wait for permission to proceed further." — executed:
+    PR #187 merged to main as `667a679594f271ec45b3daa05f0d98a6575236bd`;
+    then "This is your permission to resume."
+  - Pre-dispatch state: branch `claude/chirality-piping-d41-concordance-9811cb`
+    clean at `f99eb7f78`; frozen evidence worktree verified at
+    `551f84ef6be656f1603ce0acfa5e3935aa9683c7`, porcelain empty; no partial
+    W2 artifacts; `WAVES/W2/` created empty.
+  - Gate outcome: executing — R2 W2 (PKG-04–05, 11 deliverables, ALL-fable
+    discovery pilots per the Receipt-17 steer) dispatched under
+    `R1_CONVENTIONS.md` plus the W1 calibration notes
+    (`PACKAGE_SUMMARIES/PKG-0{0..3}.md`); ≤4 concurrent pilots; fable
+    high-effort fan-in after the wave; wave boundary =
+    validate/summarize/commit/push/PR/receipt, then STOP for owner merge
+    direction (no grant reuse).
