@@ -17,7 +17,7 @@
 GUI state, editing, selection, undo/redo, viewport integration, and workflow architecture before GUI slices proceed.
 
 ## Scope Boundary
-This deliverable defines GUI interaction architecture only; it does not implement screens, components, styling, viewport rendering, or user interface code.
+This deliverable defines cross-cutting GUI state and interaction architecture only; it does not implement screens, components, styling, viewport rendering, or user interface code. Model-tree and property-inspector behavior is owned by `DEL-07-02` under the accepted D-41 `DEC-074` O2 delegation and consumes this deliverable as architecture-basis context.
 
 ## Architecture Roles
 - Project state model
@@ -26,6 +26,7 @@ This deliverable defines GUI interaction architecture only; it does not implemen
 - edit transaction model
 - undo/redo contract
 - viewport integration contract
+- delegated feature-behavior boundary: `DEL-07-02` owns model-tree and property-inspector behavior while `DEL-00-05` retains the architecture basis
 
 ## Required Source Basis
 - `INIT.md` for project bootstrap and data-boundary constraints.
@@ -49,5 +50,6 @@ This deliverable defines GUI interaction architecture only; it does not implemen
 
 ## Boundary Confirmation
 - No product implementation code is authorized by this deliverable.
+- The `DEL-07-02` delegation records accepted ownership; it does not move implementation into this deliverable or expand behavior.
 - No protected standards text, standards tables, code-derived formulas, proprietary values, or vendor-private data are introduced.
 - Architecture outputs remain draft/proposal material until accepted by the human project authority.

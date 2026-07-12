@@ -4,7 +4,7 @@
 
 This deliverable specifies the privacy and configuration design for telemetry in OpenPipeStress. It covers policy, default configuration behavior, and tests needed to prove that telemetry is disabled by default and cannot transmit private engineering, code, rule-pack, component, material, report, secret, path, or protected standards data.
 
-Current June 7 evidence includes the repo policy in `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, and focused tests in `tests/security/test_telemetry_policy.py`. This evidence does not define a telemetry vendor, create cloud service behavior, choose an endpoint, add transport/upload/persistence behavior, select a consent UI or CLI, approve telemetry collection, or change lifecycle state. Any runtime telemetry implementation remains blocked on explicit human/security approval.
+Current evidence includes the repo policy in `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, focused tests in `tests/security/test_telemetry_policy.py`, and the default-off policy-review panel in `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. DEC-074 O3 attributes that panel to DEL-12-03 as implementation evidence. The panel constructs a local telemetry-boundary review artifact, not a telemetry payload: it records `payload_constructed=false`, initializes no network behavior, and leaves product configuration, consent surface, and allowlist approval `TBD`. This evidence does not define a telemetry vendor, create cloud service behavior, choose an endpoint, add transport/upload/persistence behavior, select or authorize a consent UI or CLI, approve telemetry collection, or change lifecycle state. Any runtime telemetry implementation remains blocked on explicit human/security approval.
 
 ## Requirements
 
@@ -54,6 +54,7 @@ Current metadata-guard evidence plus minimum test coverage for any later impleme
 | Worker B run record | `_run_records/TASK_RUN_2026-06-07_0141.md` records successful metadata-only helper implementation, 15 focused telemetry tests passing, and `git diff --check` passing for the worker write set. |
 | Package fan-in | `WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md` records 44 passing PKG-12 privacy-guard tests and no runtime telemetry endpoint, vendor, transport, upload queue/job, persistence, schema, or approval artifact introduced. |
 | Policy document | `docs/security/telemetry_policy.md` documents default-off semantics, forbidden payload classes, the metadata-only helper boundary, and open decisions. |
+| Desktop policy-review panel | `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx` presents and locally exports default-off boundary state for review. It is DEL-12-03 implementation evidence under DEC-074 O3, but constructs no telemetry payload, initializes no network/runtime behavior, and keeps config/consent/allowlist decisions `TBD`. |
 
 ## Documentation
 
@@ -69,4 +70,4 @@ The deliverable-local artifact set remains:
 - `_DEPENDENCIES.md`
 - `_run_records/*`
 
-Current external evidence artifacts are `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, and `tests/security/test_telemetry_policy.py`. Future runtime telemetry, product config schema/storage, consent UI/CLI, endpoint/vendor/transport, retention, event allowlist/schema, and support-bundle implementation artifacts remain `TBD` and shall remain outside this setup folder unless dispatched by a separate sealed brief.
+Current external evidence artifacts are `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, `tests/security/test_telemetry_policy.py`, and `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. Future runtime telemetry, product config schema/storage, consent UI/CLI, endpoint/vendor/transport, retention, event allowlist/schema, and support-bundle implementation artifacts remain `TBD` and shall remain outside this setup folder unless dispatched by a separate sealed brief.

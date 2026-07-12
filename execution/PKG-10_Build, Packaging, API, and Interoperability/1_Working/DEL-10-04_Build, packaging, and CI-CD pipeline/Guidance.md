@@ -19,6 +19,12 @@ DEL-10-04 is a large context envelope item. Future implementation may need to sp
 
 The accepted baseline names Cargo, Vitest, Playwright, validation, and protected-content/provenance gates. It does not finalize the CI host, coverage thresholds, performance thresholds, installer formats, signing identities, release publishing destinations, dependency versions, or exact platform/architecture matrix.
 
+The root `projects/chirality-piping/package.json` is current DEL-10-04
+implementation/build evidence under D-41 `DEC-074` O3. Interpret its desktop
+workspace scripts and preview-mechanics fixture-generator command as existing
+build entrypoints, not as hosted-CI activation, release readiness, or authority
+to change the governed shared product-preview boundary.
+
 ## Trade-offs
 
 - A minimal CI skeleton can provide early feedback, but final release gating needs human decisions about provider, supported platforms, and thresholds.
@@ -42,4 +48,3 @@ TBD. This setup run does not create example workflow files, packaging scripts, r
 ## Conflict Table (for human ruling)
 
 No source conflicts were identified during this setup pass. The unresolved items above are authority gaps, not conflicts.
-

@@ -11,6 +11,30 @@ revision: 0.5
 
 # MEMORY - DEL-10-04 Build, Packaging, And CI/CD Pipeline
 
+## 2026-07-12 - D-41 R5 T1 root workspace-manifest attribution (PDU-077)
+
+- Owner ruling `DEC-074` option O3 attributes the existing root
+  `projects/chirality-piping/package.json` to DEL-10-04 as
+  implementation/build evidence. The independent receiving-scope audit found
+  no contradiction with DEL-10-04's accepted build/package/CI scope.
+- Read-only inspection records the `apps/desktop` workspace and the existing
+  `dev:desktop`, `build:desktop`, `build:wasm:desktop`, `test:desktop`,
+  `test:e2e:desktop`, and `test:e2e:dist:desktop` entrypoints, plus
+  `generate:product-preview-mechanics`, which invokes the existing Rust
+  example and writes the invented product-preview mechanics fixture.
+- The manifest was not edited. This clarification does not activate CI,
+  change build behavior, move shared `core/product_preview` governance,
+  broaden fixture generation, or resolve provider/release/signing policy.
+- The D-42 build-readiness panel attribution conflict is separate and remains
+  unresolved and untouched.
+- All genuine `_STATUS.md ## Remaining` items, including the exact D-41
+  program item, are preserved pending other applicable R5 currentness
+  backchecks. Lifecycle remains `IN_PROGRESS`.
+- Evidence: `execution/_Coordination/_DECISIONS/D-41_R4_RULING_2026-07-12.md`
+  (`DEC-074` O3); D-41 PDU-077; root manifest SHA-256
+  `7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656`;
+  `_run_records/TASK_RUN_2026-07-12_D41-R5-T1-PDU-077-root-package-json.md`.
+
 ## 2026-07-10 - TP-E5-EXPORTPIPE-001 DEC-059 sanitized-export pipeline build
 
 - Built the DEC-059/D-05b prerequisite export pipeline

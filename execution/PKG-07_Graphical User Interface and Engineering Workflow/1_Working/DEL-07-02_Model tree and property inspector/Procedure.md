@@ -2,11 +2,12 @@
 
 ## Purpose
 
-Define the bounded procedure for a future implementation task to produce and verify the model tree and property inspector without expanding scope during this setup pass.
+Define the bounded procedure for maintaining and extending model-tree/property-inspector behavior within the GUI state/interaction architecture owned by `DEL-00-05`, without transferring architecture authority or expanding functionality.
 
 ## Prerequisites
 
 - Confirm the sealed brief names `DEL-07-02` and the approved implementation write scope before any GUI source or test file is edited.
+- Confirm the accepted `DEC-074` O2 delegation: `DEL-00-05` owns GUI state/interaction architecture and `DEL-07-02` owns model-tree/property-inspector behavior implementation within it.
 - Confirm upstream architecture basis constraints from `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
 - Confirm accepted domain/schema contracts for entity identity, unit-bearing values, provenance, diagnostics, rule-pack references, and private-library references.
 - Confirm accepted application-service command/query contracts for inspector edits and tree/selection reads.
@@ -15,13 +16,13 @@ Define the bounded procedure for a future implementation task to produce and ver
 ## Steps
 
 1. Re-read `_CONTEXT.md`, `Specification.md`, `_DEPENDENCIES.md`, and any accepted upstream schema/service contracts.
-2. Identify the entity types and field groups that DEL-07-02 owns for tree navigation and selected-entity inspection.
+2. Identify the entity types and field groups that `DEL-07-02` owns for tree navigation and selected-entity inspection without redefining `DEL-00-05` state/interaction architecture.
 3. Define tree-to-viewport-to-inspector selection behavior using transient GUI state and stable model identities.
 4. Define property inspector read-only/editable states and command-backed mutation paths.
 5. Preserve unit display/edit hooks, dimensional validation, provenance, private/public status, and rule-pack checksum/source status in the inspector where relevant.
 6. Add visible findings for missing solve-required inputs, missing rule-check inputs, provenance warnings, assumptions, and IP-boundary warnings without creating defaults.
-7. Implement the UI slice only after a separate implementation brief authorizes GUI source and test edits.
-8. Add UI tests for tree navigation, selection synchronization, inspector field groups, missing-data visibility, provenance/private status, and command/query boundary behavior.
+7. Require a bounded implementation brief for any new behavior. Preserve the open residuals for model-level `modulus_basis_records` entry, broader unit entry/pickers, test/factoring hardening, and broader canvas/tree/editor UX until separately executed.
+8. Maintain UI tests for tree navigation, selection synchronization, inspector field groups, missing-data visibility, provenance/private status, and command/query boundary behavior.
 
 ## Verification
 
@@ -43,3 +44,4 @@ Define the bounded procedure for a future implementation task to produce and ver
 - Protected-content review evidence where applicable.
 - Missing-data, provenance, and private-status UI evidence.
 - Any human rulings for `TBD` items.
+- `DEC-074` O2 ownership-delegation evidence and the corresponding deliverable-local R5 run record.

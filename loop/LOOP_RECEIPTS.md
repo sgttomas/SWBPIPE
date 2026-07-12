@@ -916,3 +916,27 @@
     produced the exact partition; independent GPT-5 scope auditor performed
     O3 accepted-scope inspection; GPT-5 orchestrator recorded the derivative
     plan/decision packet and owns execution fan-in. No silent substitution.
+
+- **2026-07-12 — Receipt 34** (D-41 R5 T1 non-conflicted checkpoint).
+  - Applied: PDU-009/O2 architecture-versus-behavior delegation across
+    DEL-00-05 and DEL-07-02; PDU-061/O1 rotational-visualization ownership and
+    sole Remaining home at DEL-07-05; PDU-077/O3 PASS attributions telemetry →
+    DEL-12-03 and root `package.json` → DEL-10-04; DEC-074 shared-
+    infrastructure classifications preserved.
+  - Held: D-42 SURF-011/SURF-021 authority conflicts remain untouched and
+    `AWAITING_RULING`; no target scope was broadened.
+  - Evidence: `R5_T1_CLOSEOUT.md`, SHA-256
+    `bd76a1241134645f69ee59db7670ed306d4b0eaa2258490e00837b5d26000ab6`;
+    five deliverable-local run records; independent fan-in over all 38
+    changed deliverable-local files.
+  - Checks: five lifecycle states remain IN_PROGRESS; exact D-41 bootstrap
+    retained 5/5 pending T7 PDU-054/PDU-055; all genuine residuals retained;
+    rotational residual unique-home count one; source assertions and
+    four-document checks pass; CRLF-aware diff check clean; no code/schema/
+    fixture/test/manifest/dependency/DAG/register/review-disposition change.
+  - Model attribution: GPT-5 owning deliverable pilots performed each bounded
+    repair; independent highest-available-capability GPT-5 fan-in reviewed
+    every changed file; GPT-5 orchestrator performed cross-tranche status,
+    scope, and evidence backcheck. No silent substitution.
+  - Gate outcome: T1 complete for all non-conflicted scope; T2 may proceed.
+    D-42 and other named R5 holds remain owner/review/change-path gated.

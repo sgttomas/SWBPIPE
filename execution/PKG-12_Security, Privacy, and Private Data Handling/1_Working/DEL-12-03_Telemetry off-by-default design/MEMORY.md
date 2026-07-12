@@ -1,5 +1,23 @@
 # Memory: DEL-12-03 Telemetry off-by-default design
 
+## 2026-07-12 - D-41 R5 T1 PDU-077 telemetry-panel attribution
+
+- DEC-074 O3 attributes `apps/desktop/src/features/telemetry` to DEL-12-03 as
+  implementation evidence. The independent receiving-scope audit found no
+  conflict with this deliverable's accepted default-off policy scope.
+- `TelemetryBoundaryPanel.tsx` constructs a local policy-review artifact, not
+  a telemetry payload. It records `payload_constructed=false`, initializes no
+  network/runtime behavior, blocks the modeled attempts, and leaves product
+  configuration, consent surface, and allowlist approval `TBD`.
+- The panel is not consent UI and does not authorize collection, payload
+  construction, endpoint/vendor selection, persistence, upload, transport, or
+  runtime telemetry. Existing policy/helper tests and deferred runtime choices
+  retain their prior authority and status.
+- The four-document kit now cites the panel as bounded DEL-12-03 evidence.
+  Genuine Remaining items and the D-41 bootstrap are preserved. No code,
+  lifecycle, scope, release, professional-approval, certification, sealing,
+  authentication, or code-compliance state changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 supporting export-review classification
 
 - Supporting role for Export Safety Review matrix cleanup: the

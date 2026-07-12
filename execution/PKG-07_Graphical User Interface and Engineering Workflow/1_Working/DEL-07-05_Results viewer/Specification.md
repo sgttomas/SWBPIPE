@@ -2,9 +2,9 @@
 
 ## Scope
 
-This deliverable specifies the setup basis for a GUI results viewer that presents reviewable analysis outputs for displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and user-rule ratios. It is a UX/UI slice under PKG-07 and supports OBJ-006 and OBJ-007.
+This deliverable owns the GUI results-viewer slice that presents reviewable analysis outputs for displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and user-rule ratios. The current implemented slice includes tabular result review and a translational deformed-shape overlay. Emitted `rx`/`ry`/`rz` rows are available in the result surface, but rotational deformation is not graphically visualized and remains explicit DEL-07-05 residual work under DEC-074 O1 / PDU-061. It is a UX/UI slice under PKG-07 and supports OBJ-006 and OBJ-007.
 
-This setup does not implement GUI source code, tests, schemas, exporter code, solver logic, stress recovery, rule-pack evaluation, report generation, or protected engineering data.
+The results viewer does not run solver logic, recover stresses, evaluate rule packs, define protected engineering criteria, or grant professional approval. This R5 repair records the current slice and residual only; it does not implement rotational visualization or change GUI source, tests, schemas, or result data.
 
 ## Requirements
 
@@ -34,7 +34,7 @@ Any future rule-check wording, stress ratio threshold, allowable, code category,
 | VER-07-05-002 | Boundary review | No protected code data, proprietary thresholds, or certification claims appear in setup artifacts. |
 | VER-07-05-003 | Dependency-register validation | `Dependencies.csv` validates against v3.1 schema. |
 | VER-07-05-004 | Semantic setup review | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist with complete matrix/lens coverage. |
-| VER-07-05-005 | Future implementation test | UI test coverage for result categories, units, diagnostics, ratio blocking, status separation, and export handoff remains TBD until source implementation exists. |
+| VER-07-05-005 | Current implementation and residual review | Existing UI evidence covers result categories, units, diagnostics, status separation, and the translational overlay. Confirm that emitted `rx`/`ry`/`rz` rows remain unvisualized and that rotational deformation stays recorded in `_STATUS.md` until separately implemented and verified. |
 
 ## Documentation
 

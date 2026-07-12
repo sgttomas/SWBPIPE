@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This procedure records how the DEL-07-05 setup artifacts are produced and what a future implementation brief must verify before building a results viewer.
+This procedure records how DEL-07-05 artifacts are maintained against the implemented results-viewer slice and what a future bounded implementation brief must verify before extending that slice.
 
 ## Prerequisites
 
@@ -47,3 +47,5 @@ The setup run must leave these records in the deliverable folder:
 ## Future Implementation Procedure Notes
 
 A future implementation brief must not begin from these setup documents alone. It must receive source-code write scope, schema/result-envelope contracts, test requirements, and any human decisions needed for result category layout, unit handling, ratio terminology, equipment-load semantics, and report/export integration.
+
+For rotational deformation specifically, the brief must consume DEC-074 O1 / PDU-061 and the emitted `rx`/`ry`/`rz` evidence, preserve the current translational-overlay behavior unless deliberately changed, define the intended rotational visual semantics, and add focused UI/browser evidence. Until that work lands and is backchecked, `_STATUS.md` remains the sole work-discovery home for the residual; documenting the residual does not claim implementation.

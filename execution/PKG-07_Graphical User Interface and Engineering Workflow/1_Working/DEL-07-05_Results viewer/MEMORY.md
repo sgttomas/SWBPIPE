@@ -1,5 +1,21 @@
 # DEL-07-05 Memory
 
+## 2026-07-12 - D-41 R5 T1 PDU-061 rotational-deformation residual home
+
+- DEC-074 O1 resolves the prior DEL-07-05-REM-002 UNKNOWN: rotational-
+  deformation visualization belongs to DEL-07-05 and remains explicit
+  residual work.
+- Current evidence is unchanged: result emission supplies `rx`/`ry`/`rz`
+  rows, while the graphical deformation overlay consumes translational
+  `ux`/`uy`/`uz` only. This tranche records that boundary; it does not
+  implement rotational visualization.
+- `_STATUS.md ## Remaining` is the sole work-discovery home for the residual.
+  Its source is DEC-074 O1 / PDU-061 and it is ungated under the current loop.
+- The four-document kit now distinguishes emitted/tabular rotational rows
+  from graphical rotational visualization. No code, schema, test, lifecycle,
+  release, professional-approval, certification, sealing, authentication, or
+  code-compliance state changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RESULTVIEWLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

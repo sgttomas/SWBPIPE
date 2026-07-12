@@ -14,6 +14,14 @@ Implement reproducible builds, tests, packaging skeleton, and release artifacts 
 - packaging scripts
 - release notes template
 
+## Accepted implementation/build evidence
+- D-41 R4 ruling `DEC-074` option O3 attributes the existing root
+  `projects/chirality-piping/package.json` workspace manifest to DEL-10-04.
+- The manifest is build evidence for the desktop workspace dev/build/test
+  scripts and the `generate:product-preview-mechanics` fixture-generator
+  command. This clarification does not move implementation, select a CI
+  provider, or expand DEL-10-04 scope.
+
 ## Scope Coverage
 - SOW-032
 

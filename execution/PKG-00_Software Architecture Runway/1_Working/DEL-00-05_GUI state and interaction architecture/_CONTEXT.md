@@ -9,6 +9,13 @@
 ## Description
 Define GUI state, editing, selection, undo/redo, viewport integration, and workflow architecture for coherent GUI feature slices.
 
+## Ownership and Delegation
+- `DEL-00-05` owns the cross-cutting GUI state and interaction architecture.
+- Under D-41 R4 ruling `DEC-074` option O2, `DEL-07-02` is the accepted
+  delegated owner of model-tree and property-inspector behavior. The
+  delegation preserves this architecture-basis role and does not move
+  implementation or expand either deliverable's accepted scope.
+
 ## Anticipated Artifacts
 - docs/architecture/gui_state_model.md
 - interaction architecture notes

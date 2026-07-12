@@ -1,5 +1,25 @@
 # DEL-07-02 Memory
 
+## 2026-07-12 - D-41 R5 T1 DEC-074 O2 ownership delegation
+
+- Accepted delegation: `DEL-00-05` owns GUI state/interaction architecture;
+  `DEL-07-02` owns model-tree/property-inspector behavior implementation
+  within that architecture.
+- `Specification.md`, `Datasheet.md`, `Guidance.md`, and `Procedure.md` now
+  record that boundary and the bounded current implementation evidence,
+  resolving `PDU-009` and its corresponding ownership clarification under
+  `DEC-074` O2.
+- Four genuine product/hardening residuals remain: model-level
+  `modulus_basis_records` entry, broader unit entry/pickers, test/factoring
+  hardening, and broader canvas/tree/editor UX. O2 is landed, but the D-41
+  program bootstrap remains in `_STATUS.md` Remaining until applicable
+  `PDU-054`/`PDU-055` declaration-currentness updates are backchecked.
+- Lifecycle remains `IN_PROGRESS`. No product code, other-deliverable file,
+  dependency, DAG, register, review disposition, protected/private content,
+  release claim, professional ruling, certification, sealing, or
+  code-compliance claim changed.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T1-DEC074-O2.md`.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-07-02: Report Content Lint now inventories the

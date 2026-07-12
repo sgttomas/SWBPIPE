@@ -672,3 +672,20 @@ dispositions are never represented as owner or engineering rulings.
   Exact unselected policy values, formal review sufficiency, live CAEPIPE
   profile gates, SCOPE_CHANGE, and the ISSUED baseline remain held as listed
   in the tranche plan.
+
+- **2026-07-12 — R5 T1 ownership/attribution checkpoint COMPLETE for
+  non-conflicted scope.** `R5_T1_CLOSEOUT.md` (SHA-256
+  `bd76a1241134645f69ee59db7670ed306d4b0eaa2258490e00837b5d26000ab6`)
+  records 38 changed deliverable-local files: 33 existing documentation/state
+  surfaces and five new run records. O2 now agrees across DEL-00-05 and
+  DEL-07-02; O1 makes DEL-07-05 the unique home for the unimplemented
+  rotational-visualization residual; non-conflicted O3 attributions record
+  telemetry → DEL-12-03 and root `package.json` → DEL-10-04; four surfaces
+  remain explicitly shared governed infrastructure. SURF-011 and SURF-021
+  remain untouched and held at D-42. All five lifecycle states remain
+  IN_PROGRESS, genuine Remaining items and exact D-41 bootstrap lines are
+  preserved, and no code/schema/fixture/test/manifest/dependency/DAG/register
+  or review-disposition surface changed. Independent GPT-5 fan-in and the
+  GPT-5 orchestrator backcheck passed changed-file, source-evidence,
+  unique-home, status, scope, and whitespace checks. T2 may proceed; T7 still
+  owns declaration-currentness backcheck before bootstrap removal.

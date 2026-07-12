@@ -16,13 +16,14 @@ The results viewer should make analysis outputs reviewable without hiding the co
 
 ## Considerations
 
-The result surface is broad enough to require filtering, grouping, and cross-highlighting in a future implementation brief, but this setup does not choose the exact interaction design. Future implementation should decide how to organize the following without changing the boundaries in this document:
+The current result surface already provides bounded filtering, grouping, tabular review, and a translational deformation overlay. Surviving implementation work should extend that slice without changing the boundaries in this document, including decisions about:
 
 - result category navigation;
 - load case and combination selection;
 - envelope/range selection;
 - node, element, support, and equipment-load targeting;
 - tabular values versus graphical overlays;
+- rotational-deformation visualization for emitted `rx`/`ry`/`rz` rows, which is owned by DEL-07-05 but not implemented in the current overlay;
 - unit display and conversion controls;
 - diagnostic badges, warning panels, and blocked states;
 - report/export readiness indicators.
@@ -56,6 +57,6 @@ The following are structural examples only and include no engineering values:
 | Issue | Status |
 |---|---|
 | Exact result-envelope schema fields consumed by the viewer | TBD |
-| Exact UI layout, component library, state library, and overlay behavior | TBD |
+| Exact UI layout, component library, state library, and broader overlay behavior | TBD; rotational-deformation visualization is a named DEL-07-05 residual under DEC-074 O1 / PDU-061 |
 | Exact rule-ratio terminology when private rule packs differ by user design basis | TBD |
 | Exact equipment-load aggregation/display semantics | TBD |

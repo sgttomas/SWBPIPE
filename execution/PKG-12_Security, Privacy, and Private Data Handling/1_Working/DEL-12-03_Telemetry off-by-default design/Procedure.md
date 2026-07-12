@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Use this procedure to produce or review a telemetry design for OpenPipeStress without breaching the local-first privacy boundary. The current evidence set includes design documents, `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, and focused tests in `tests/security/test_telemetry_policy.py`. It does not implement runtime telemetry transport, endpoint, vendor, upload queue/job, telemetry persistence, product config schema/storage, consent UI/CLI, retention, support-bundle workflow, or approval records.
+Use this procedure to produce or review a telemetry design for OpenPipeStress without breaching the local-first privacy boundary. The current evidence set includes design documents, `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, focused tests in `tests/security/test_telemetry_policy.py`, and the DEL-12-03 desktop policy-review panel in `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. The panel constructs only a local review artifact and does not implement runtime telemetry transport, telemetry payload construction, endpoint, vendor, upload queue/job, telemetry persistence, product config schema/storage, consent UI/CLI, retention, support-bundle workflow, allowlist approval, or approval records.
 
 ## Prerequisites
 
@@ -13,6 +13,7 @@ Use this procedure to produce or review a telemetry design for OpenPipeStress wi
 | Applicable invariants OPS-K-IP, OPS-K-DATA, OPS-K-AUTH, OPS-K-PRIV, OPS-K-AGENT | Present in `docs/CONTRACT.md`. |
 | Telemetry policy documentation | Present in `docs/security/telemetry_policy.md`. |
 | Metadata-only guard helper and focused tests | Present in `core/security/telemetry_policy/` and `tests/security/test_telemetry_policy.py`. |
+| Default-off desktop policy-review panel | Present in `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`; attributed to DEL-12-03 by DEC-074 O3 and non-authorizing by construction. |
 | Explicit human/security approval for runtime telemetry collection | TBD; absent for runtime telemetry implementation. |
 | Product configuration surface and schema | TBD; not selected by this deliverable. |
 
@@ -40,8 +41,9 @@ Use this procedure to produce or review a telemetry design for OpenPipeStress wi
 | No private data transmission | Specification forbids private project/code/rule/material/component/report/path/hash/secret/protected content in telemetry payloads. |
 | No cloud assumption | Documents do not define cloud operation, endpoint, vendor, or upload behavior without human approval. |
 | Current tests | `tests/security/test_telemetry_policy.py` covers metadata-only default-off, no-payload/no-network flags, allowlist gating, and forbidden-field rejection. |
+| Desktop policy-review boundary | Panel evidence records `payload_constructed=false`, network/runtime initialization false, and consent/config/allowlist decisions as `TBD`; it is not treated as consent UI or runtime telemetry. |
 | Future test expectations | Specification and Procedure keep runtime no-network-before-opt-in, product config, and no-bypass tests explicit for later integration surfaces. |
-| Lifecycle | `_STATUS.md` remains outside this run's write scope; current local state is `IN_PROGRESS`, and this evidence alignment is not lifecycle promotion or acceptance. |
+| Lifecycle | `_STATUS.md` remains `IN_PROGRESS`; this tranche changes only its attribution history while preserving all `## Remaining` content, including the D-41 bootstrap. It is not lifecycle promotion or acceptance. |
 
 ## Records
 
@@ -57,4 +59,4 @@ Deliverable-local records:
 - `_DEPENDENCIES.md`
 - `_run_records/*`
 
-Current external evidence records include `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, `tests/security/test_telemetry_policy.py`, `_run_records/TASK_RUN_2026-06-07_0141.md`, and the PKG-12 package fan-in run record. Future implementation records, if authorized, should include human approval evidence, config schema/default fixtures, payload allowlist, transport-disabled runtime tests, opt-in tests, payload privacy tests, and plugin/adapter bypass tests.
+Current external evidence records include `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, `tests/security/test_telemetry_policy.py`, `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`, `_run_records/TASK_RUN_2026-06-07_0141.md`, and the PKG-12 package fan-in run record. Future implementation records, if authorized, should include human approval evidence, config schema/default fixtures, payload allowlist, transport-disabled runtime tests, opt-in tests, payload privacy tests, and plugin/adapter bypass tests.

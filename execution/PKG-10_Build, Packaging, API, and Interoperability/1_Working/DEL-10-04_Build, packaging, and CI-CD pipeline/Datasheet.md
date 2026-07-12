@@ -23,6 +23,7 @@
 | Test gate baseline | Cargo tests; Vitest; Playwright; validation gates; protected-content/provenance gates. |
 | Desktop packaging baseline | Tauri-supported macOS, Windows, and Linux targets. |
 | Release-quality boundary | Development/release automation evidence only; no engineering certification or code-compliance claim. |
+| Root workspace manifest evidence | `projects/chirality-piping/package.json`: `apps/desktop` workspace; desktop dev/build/wasm/test/e2e scripts; `generate:product-preview-mechanics` invented-fixture generator. Attributed to DEL-10-04 by D-41 `DEC-074` O3. |
 
 ## Conditions
 
@@ -59,6 +60,7 @@ The build and packaging pipeline must preserve the OpenPipeStress boundaries:
 - `docs/_Registers/Deliverables.csv` - row DEL-10-04.
 - `docs/_Registers/ScopeLedger.csv` - row SOW-032.
 - `docs/_Registers/ContextBudgetQA.csv` - row DEL-10-04.
+- `projects/chirality-piping/package.json` - existing root npm workspace/build evidence attributed by D-41 `DEC-074` O3; read-only in this tranche.
 
 ## TBD and Human-Ruling Slots
 
@@ -67,4 +69,3 @@ The build and packaging pipeline must preserve the OpenPipeStress boundaries:
 - TBD: coverage and performance thresholds.
 - TBD: release signing/notarization/publishing policy.
 - TBD: exact packaging artifact names and distribution channels.
-
