@@ -494,6 +494,21 @@
   PKG-16..17, full-W5 closeout, R3, R6, and `RUN_SUMMARY.md` remain
   outstanding.
 
+- **2026-07-12 — R2 W5 PKG-16 checkpoint COMPLETE.** Four distinct
+  deliverable-grained GPT-5 pilot assignments ran in two capacity-bounded
+  batches (DEL-16-01/02/03, then DEL-16-04), producing four ledgers and notes
+  with 118 corrected rows. Independent highest-capability GPT-5 high-effort
+  fan-in checked every self-flagged and non-ALIGNED row plus at least two
+  ALIGNED rows per ledger: pre-correction 2 SOUND / 2 DEFECTIVE and 33 PASS /
+  0 QUALIFIED / 9 FAIL across 42 scoped rows. Owning pilots corrected
+  DEL-16-03 EXC-003 to controlled ClaimClass WORKFLOW and repaired DEL-16-04's
+  formal remaining metadata (seven pseudo-residuals cleared; REQ-009 exact
+  Phase I item/source/gates restored). No disposition histogram changed.
+  Package structure, enums, contiguous type-matched ClaimIDs, RFC-4180 CRLF,
+  histograms, bootstrap/selectability rules, and addendum-9 containment pass.
+  Summary: `PACKAGE_SUMMARIES/PKG-16.md`. PKG-17, full-W5 closeout, R3, R6,
+  and `RUN_SUMMARY.md` remain outstanding.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
