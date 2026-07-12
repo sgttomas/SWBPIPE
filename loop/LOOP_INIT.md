@@ -109,10 +109,11 @@ current execution graph. At each turn:
 5. Shared reads are allowed. Concurrent writes must be disjoint. Serialize
    overlaps or assign one integration owner. Hold only declared dependants
    when a node fails.
-6. Persist the actual graph and amendments under
-   `execution/_Coordination/AgentRuns/<RunID>/` when the managed runtime is
-   active. Until then, use the existing scoped run-record/receipt surfaces and
-   cite the RunID and plan version in `LOOP_RECEIPTS.md`.
+6. Persist the actual graph, child sessions, notices, amendments,
+   acknowledgments, returns, and handoff under
+   `execution/_Coordination/AgentRuns/<RunID>/`. If managed delegation is
+   unavailable, defer the multi-agent stage; a receipt may preserve the
+   blocker but may not represent brief-only work as an executing child run.
 
 Agent 1 siblings do not delegate or message directly. Agent 2 reports to its
 WORKING_ITEMS parent; WORKING_ITEMS reports cross-package notices to
