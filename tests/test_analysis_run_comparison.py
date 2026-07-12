@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Focused tests for DEL-14-04 analysis-run comparison."""
 
+import json
 import sys
 from copy import deepcopy
 from pathlib import Path
@@ -10,7 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from core.comparison.analysis_run.engine import compare_analysis_runs, comparison_dict
+from core.comparison.analysis_run.engine import (
+    compare_analysis_runs,
+    comparison_dict,
+    derive_exact_result_id_mappings,
+)
+from schema_validation import validate_instance
 
 
 FORBIDDEN_CLAIMS = {
@@ -23,6 +29,7 @@ FORBIDDEN_CLAIMS = {
     "professional " + "approval",
     "engineering " + "acceptance",
 }
+MAPPING_SCHEMA_PATH = ROOT / "schemas" / "comparison_mapping.schema.json"
 
 
 def ref(object_type, value):
@@ -208,6 +215,84 @@ def test_comparison_is_deterministic_and_preserves_context():
     assert first["run_context"]["right"]["model_state_ref"] == ref("ModelState", "MS-right")
     assert first["run_context"]["left"]["hashes"][0]["value"] == "hash-RUN-left"
     assert first["run_context"]["right"]["solver_version"]["solver_id"] == "invented-solver"
+
+
+def test_exact_stable_result_id_mapping_is_produced_and_round_trips():
+    inputs = fixture_inputs()
+    stable_id = "result:stress:E1"
+    inputs["left_results"]["result_envelope"]["result_sets"][0][
+        "quantity_results"
+    ][0]["result_id"] = stable_id
+    inputs["right_results"]["result_envelope"]["result_sets"][0][
+        "quantity_results"
+    ][0]["result_id"] = stable_id
+    inputs["left_results"]["result_envelope"]["result_sets"][0][
+        "quantity_results"
+    ][0].update({"magnitude": 1_000_000.0, "unit": "Pa"})
+
+    produced = derive_exact_result_id_mappings(
+        inputs["left_results"], inputs["right_results"]
+    )
+    round_tripped = json.loads(json.dumps(produced, sort_keys=True))
+
+    assert len(round_tripped) == 1
+    automatic = round_tripped[0]
+    assert automatic["mapping_status"] == "automatic_match"
+    assert automatic["left_ref"] == ref("Result", stable_id)
+    assert automatic["right_ref"] == ref("Result", stable_id)
+    assert automatic["mapping_evidence"]["evidence_kind"] == "stable_id_alignment"
+    assert automatic["mapping_evidence"]["stable_id_preservation"] == (
+        "left_and_right_refs_preserved"
+    )
+    assert automatic["mapping_evidence"]["manual_review_state"] == "not_manual"
+    assert automatic["mapping_evidence"]["source_refs"] == automatic["affected_refs"]
+    assert automatic["confidence"]["confidence_level"] == "exact_stable_id"
+    assert automatic["review"]["review_status"] == "pending"
+    assert automatic["review"]["reviewed_at"] == "TBD"
+    mapping_schema = json.loads(MAPPING_SCHEMA_PATH.read_text(encoding="utf-8"))
+    assert validate_instance(
+        {
+            "$schema": mapping_schema["$schema"],
+            "$defs": mapping_schema["$defs"],
+            "$ref": "#/$defs/MappingRecord",
+        },
+        automatic,
+        schema_label="DEL-14-05 MappingRecord projection",
+        instance_label="DEL-14-04 exact stable-ID mapping",
+    )
+
+    inputs["mappings"] = round_tripped
+    output = comparison_dict(compare_analysis_runs(**inputs))
+    assert len(output["result_deltas"]) == 1
+    assert output["result_deltas"][0]["mapping_id"] == f"AUTO-{stable_id}"
+    assert output["result_deltas"][0]["left_result_id"] == stable_id
+    assert output["result_deltas"][0]["right_result_id"] == stable_id
+
+
+def test_nonidentical_or_ambiguous_result_ids_require_manual_mapping():
+    inputs = fixture_inputs()
+
+    assert derive_exact_result_id_mappings(
+        inputs["left_results"], inputs["right_results"]
+    ) == ()
+
+    manual = json.loads(json.dumps(inputs["mappings"], sort_keys=True))
+    inputs["mappings"] = manual
+    output = comparison_dict(compare_analysis_runs(**inputs))
+    assert output["result_deltas"][0]["mapping_id"] == "MAP-stress-E1"
+    assert output["result_deltas"][0]["left_result_id"] == "left:stress:E1"
+    assert output["result_deltas"][0]["right_result_id"] == "right:stress:E1"
+
+    duplicate_left = deepcopy(inputs["left_results"])
+    quantities = duplicate_left["result_envelope"]["result_sets"][0][
+        "quantity_results"
+    ]
+    quantities.append(deepcopy(quantities[0]))
+    right = deepcopy(inputs["right_results"])
+    right["result_envelope"]["result_sets"][0]["quantity_results"][0][
+        "result_id"
+    ] = "left:stress:E1"
+    assert derive_exact_result_id_mappings(duplicate_left, right) == ()
 
 
 def test_unit_normalized_delta_and_classification_keep_raw_evidence_separate():
@@ -423,6 +508,8 @@ def test_output_does_not_emit_prohibited_professional_claims():
 
 if __name__ == "__main__":
     test_comparison_is_deterministic_and_preserves_context()
+    test_exact_stable_result_id_mapping_is_produced_and_round_trips()
+    test_nonidentical_or_ambiguous_result_ids_require_manual_mapping()
     test_unit_normalized_delta_and_classification_keep_raw_evidence_separate()
     test_dec026_mixed_unit_relative_absolute_tolerance_corpus()
     test_incompatible_or_missing_unit_metadata_produces_diagnostics_not_deltas()

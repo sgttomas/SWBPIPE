@@ -13,6 +13,7 @@ import type {
   SelectedReviewTarget
 } from "../../types";
 import { buildUnitDisplaySummary, DEC018_UNIT_SYSTEM_REF } from "./renderableReportInput";
+import { modelDocumentVersionCheckStatus } from "../../services/projectService";
 
 export function ReportPanel({
   model,
@@ -794,8 +795,7 @@ function reportPersistenceEvidence({
   const mechanicsExportsReady = Boolean(result && run);
   const storageMode = projectSummary?.storage_mode ?? "not_persisted_this_session";
   const validationStatus = projectSummary ? "preview_current" : "preview_not_persisted";
-  const versionCheckStatus =
-    model.schema_version === "0.1.0" ? "supported_current_schema" : "unsupported_schema_review_required";
+  const versionCheckStatus = modelDocumentVersionCheckStatus(model);
   const readinessByExportId = {
     project_storage_audit: "available",
     project_validation_preflight: "available",

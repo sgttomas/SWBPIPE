@@ -1,5 +1,9 @@
 # Guidance: DEL-06-02 Sandboxed unit-aware expression evaluator
 
+## PDU-024 Guidance
+
+Treat project model-document compatibility as downstream DEL-02-05 authority. Evaluator-facing UI evidence must not duplicate a current schema-version literal or normalize away stale, unsupported, newer, or failed project-version diagnostics. Keep binding, sandbox, unit, and missing-data behavior unchanged.
+
 ## Purpose
 
 This deliverable exists to make user-defined rule-pack checks evaluable without turning rule packs into arbitrary executable code. The evaluator boundary should let users apply their own design bases to solver results while preserving unit safety, explicit missing-data findings, protected-data boundaries, and professional-responsibility limits.

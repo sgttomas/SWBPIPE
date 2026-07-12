@@ -1,5 +1,11 @@
 # Datasheet: DEL-06-02 Sandboxed unit-aware expression evaluator
 
+## PDU-024 Version Integration
+
+- Project-carried evaluator inputs consume DEL-02-05 model-document version handling; accepted current family is `0.2.0`.
+- Version-check diagnostics remain the established current/stale/unsupported/newer/failed vocabulary.
+- No expression grammar, binding namespace, evaluator library, rule-pack fixture, or migration tooling is added.
+
 ## Identification
 
 | Field | Value | Source |

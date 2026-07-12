@@ -75,3 +75,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-07-12 - D-41 R5 T2C PDU-023 held runtime envelope link
+
+- The accepted result schema now constrains optional field-scalar paths as a required pair on existing `ResultTraceLink` records, with positive/negative schema tests.
+- DEL-13-03 still has only `ValidationResult.to_dict()` diagnostics and no accepted runtime result-envelope producer/home. No application service was invented; that continuation remains held.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2C-PDU023.md`. Lifecycle remains `IN_PROGRESS`.

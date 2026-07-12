@@ -90,3 +90,8 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T2B PDU-032 unit boundary
+
+- Explicitly bounded DEL-14-03 as structural comparison with no built-in conversion.
+- Added positive/negative evidence for metadata, dimension, unit, and no-bare-delta behavior.
+- This is software verification only; no numeric suitability or engineering validation outcome is asserted.

@@ -44,3 +44,7 @@ Describe how a future TASK worker should produce or use the mechanics benchmark 
 - Solver version and benchmark runner settings.
 - Unit-check and result-envelope comparison records.
 - Review notes for tolerance policy, fixture approval, and human rulings.
+
+## D-41 R5 T2B PDU-013 Check
+
+Record fixture-local unit identifiers and canonical dimensions exactly. Do not describe those checks as project-unit-system acceptance until the upstream catalog and conversions are accepted and the cases are rerun through that basis. Keep comparison tolerances and pass/fail authority unchanged.

@@ -65,3 +65,9 @@ The future mechanics benchmark suite must stay aligned with the architecture-bas
 | What numerical comparison tolerance policy is acceptable for each benchmark family? | Solver lead / validation owner / human project authority |
 | What fixture schema, runner interface, and result-envelope fields should executable benchmarks use? | Architecture / solver / validation owners |
 | Which benchmark cases gate release and which are advisory regression checks? | QA/release owner / human project authority |
+
+## D-41 R5 T2B PDU-013 Evidence State
+
+| Basis | Evidence | Limit |
+|---|---|---|
+| Fixture-local units | Explicit N-m-rad-K identifiers and dimensional checks in the mechanics benchmark crate. | Does not establish the still-TBD accepted project catalog/conversion basis. |

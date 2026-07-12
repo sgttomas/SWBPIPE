@@ -29,3 +29,6 @@ This deliverable defines API and adapter contracts only; it does not implement A
 - TBD: Approve public API surface candidates.
 - TBD: Choose import/export format priorities.
 - TBD: Approve plugin trust and permission policy.
+## D-41 R5 T2B handoff guidance (2026-07-12)
+
+Apply REQ-07-05 as a no-bypass checklist at each owning boundary. Preserve metadata and diagnostics; do not infer a concrete format, target compatibility, runtime grant, validation outcome, or professional decision from this architecture map.

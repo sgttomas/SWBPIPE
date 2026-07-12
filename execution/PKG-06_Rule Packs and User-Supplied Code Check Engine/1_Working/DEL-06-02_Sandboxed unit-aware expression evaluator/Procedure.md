@@ -1,5 +1,11 @@
 # Procedure: DEL-06-02 Sandboxed unit-aware expression evaluator
 
+## PDU-024 Integration Check
+
+1. Validate evaluator inputs under the existing binding, unit, sandbox, and diagnostic contract.
+2. For inputs carried in a project model, consume DEL-02-05 version-check/migration evidence rather than a local current-version literal.
+3. Preserve stale/unsupported/newer/failed project-version diagnostics; do not alter evaluator grammar, binding namespaces, or fixtures in response to model-document version handling.
+
 ## Purpose
 
 Describe the setup-to-implementation procedure for a future sandboxed, unit-aware, declarative rule-pack expression evaluator. This procedure is operational guidance only; it does not implement the evaluator in this setup run.

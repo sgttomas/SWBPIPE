@@ -63,3 +63,6 @@ Source: `Dependencies.csv` approved DAG-002 mirror rows `DAG-002-E0792`, `DAG-00
 - `docs/CONTRACT.md` - invariants for IDs, units, professional authority, data, and agent behavior.
 - `docs/SPEC.md` - unit, persistence, analysis-boundary, reporting/result-envelope, and validation mechanics.
 - `docs/TYPES.md` - reference, traceability, checksum, diagnostic, result, and report boundary definitions.
+## D-41 R5 T2B unit evidence (2026-07-12)
+
+Focused positive/negative tests cover missing metadata, incompatible dimensions, different units without normalization, and same-unit/same-dimension structured changes. No numeric conversion or engineering validation is claimed.

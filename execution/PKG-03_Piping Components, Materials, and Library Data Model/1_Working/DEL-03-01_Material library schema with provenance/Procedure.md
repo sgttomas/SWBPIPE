@@ -1,5 +1,11 @@
 # Procedure: DEL-03-01 Material library schema with provenance
 
+## PDU-024 Integration Check
+
+1. Validate material records against the DEL-03-01 schema and provenance rules.
+2. When material records are carried by a project model, consume DEL-02-05 version-check and migration evidence rather than a local version literal.
+3. Preserve explicit stale/unsupported/newer/failed project-version diagnostics and do not rewrite the material fixture as part of model-document compatibility handling.
+
 ## Purpose
 
 Describe the maintenance and review procedure for the DEL-03-01 material-library schema, invented fixture, and validation evidence while preserving protected-content, provenance, unit, privacy, and agent-output boundaries.

@@ -52,3 +52,10 @@ The implemented model evidence preserves the architecture basis stated in the se
 - `docs/_Registers/ScopeLedger.csv` row SOW-009.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-05.
 - `docs/CONTRACT.md` invariants OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-AGENT-1..4.
+
+## D-41 R5 T2B PDU-013 Evidence State
+
+| Surface | Current evidence | Disposition |
+|---|---|---|
+| COG mechanics convention | Value slot exists; coordinate convention and reference frame are unset. | Held pending authorized selection; no mechanics value accepted. |
+| Component geometry scalar trace | Paired field paths on valid copied quantities. | Bounded transform evidence; runtime result-envelope continuation held. |

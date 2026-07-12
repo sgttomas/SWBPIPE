@@ -55,3 +55,6 @@ Concrete fixture entities, fields, values, units, tolerances, and mapping record
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | C-14-03-001 | Dependency-extract v3.1 write-form enums would normalize/reclassify several approved DAG-006 mirror values, but the project task rule says to preserve approved DAG-006 rows as ACTIVE without reclassification. | `skills/dependency-extract/SKILL.md` "Canonical enums"; `Dependencies.csv` approved mirror rows | User task instruction for `DEL-14-03` dependency handling | Dependency register handling; final report | Preserve the approved mirror unchanged and record the conflict. | TBD |
+## D-41 R5 T2B unit guidance (2026-07-12)
+
+Do not compare changed unit-bearing fields as bare numbers. Normalize only through a separately governed contract; otherwise preserve the structured quantities and emit a blocking unit/dimension diagnostic.

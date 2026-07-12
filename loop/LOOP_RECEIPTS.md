@@ -966,5 +966,34 @@
   - Model attribution: GPT-5 owning pilots handled DEL-14-02, DEL-15-01, and
     DEL-17-03 work; the GPT-5 orchestrator handled the remaining bounded
     owning surfaces; an independent highest-available-capability GPT-5
-    reviewer performed fan-in. No silent substitution.
+  reviewer performed fan-in. No silent substitution.
   - Gate outcome: T2A complete; remaining T2 subtranches may proceed.
+
+- **2026-07-12 — Receipt 36** (D-41 R5 T2 canonical-schema, units, and
+  mechanics checkpoint).
+  - Applied: bounded production/schema/evidence repairs for PDU-011,
+    PDU-013, PDU-014, PDU-023, PDU-024, PDU-029, PDU-030, PDU-032, and
+    PDU-047, following the completed PDU-002/PDU-003 T2A work.
+  - Held/disposed: exact unselected policy or formal-review values remain
+    held for PDU-015, PDU-025, PDU-031, PDU-033, PDU-034, PDU-035, and
+    PDU-048; PDU-044 is a documented absence. No missing dimension or
+    independent numeric witness was inferred.
+  - Evidence: `R5_T2_CLOSEOUT.md`, SHA-256
+    `ebee055d34ba4612ba8de81f5fdba242884eadb68e30b2d9394b41d1b3014b30`;
+    project pytest 481/481; desktop Vitest 472/472; production build PASS
+    with existing warning; practitioner self-check exit 0 and harness pytest
+    263 passed / 1 skipped.
+  - Fan-in: independent highest-available-capability GPT-5 review found two
+    grouped deficiencies; owning surfaces corrected both. A later production
+    type defect was corrected by the PDU-024 owning pilot. Final fan-in PASS.
+  - Boundaries: lifecycle remains IN_PROGRESS; D-41 bootstrap remains for T7;
+    no dependency/DAG/register/decomposition/review/ISSUED-baseline or false
+    validation/security/readiness claim. D-42 remains AWAITING_RULING.
+  - Containment: active ignored-aware porcelain is exactly its three
+    pre-existing paths; the frozen evidence worktree remains exactly the six
+    addendum-9 allow-listed paths.
+  - Model attribution: GPT-5 owning pilots performed bounded repairs; the
+    GPT-5 orchestrator integrated cross-owner holds and closeout; independent
+    highest-available-capability GPT-5 performed fan-in. No silent
+    substitution.
+  - Gate outcome: T2 complete; T3 may proceed under O7 before E5.

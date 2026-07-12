@@ -100,3 +100,11 @@ Anticipated implementation artifacts from `_CONTEXT.md` and `docs/_Registers/Del
 - transform warning tests
 
 Current implementation artifact paths and focused test fixture names are no longer `TBD`; they are listed above. Remaining `TBD` items are transform-loss taxonomy, release thresholds, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, human acceptance, and professional/code-compliance boundaries.
+
+## D-41 R5 T2B PDU-047 Evidence Disposition (2026-07-12)
+
+The TP-PHYS-015 production section-property binding is relevant downstream evidence, but it does not independently validate REQ-007's full 3D centerline/frame target suitability. That broader mechanics-validation basis remains held. This tranche changes neither the transform contract nor its output.
+
+## D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
+
+REQ-004 now has a minimal field-scalar link for valid copied component geometry quantities. Each link pairs source and target scalar paths on the existing object references. Incomplete quantity metadata is diagnosed and emits no scalar link. Runtime result-envelope continuation remains held.

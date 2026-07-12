@@ -69,3 +69,7 @@
 - Narrowed producer, schema, and governed fixture labels to `deterministic_sorted_compact_json_payload_hash`; existing serialization and hashes are unchanged.
 - Added exact-byte/fixed-hash, ordering, mutation, and no-JCS checks.
 - Lifecycle remains `IN_PROGRESS`; no target admission, compatibility, or release claim was created.
+## 2026-07-12 - D-41 R5 T2 PDU-034 hold
+
+- The current nine checklist categories remain verified admission metadata only.
+- PDU-034's exact additional readiness taxonomy is unselected; no syntactic/schema, redistribution, mechanics, rule-check, target-support, or validation outcome was inferred.

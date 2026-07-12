@@ -4,9 +4,14 @@
 **Last Updated:** 2026-07-12
 
 ## Remaining
+- Complete B2/B3 unit-authority wiring beyond the schema-derived DEL-16-02 validation-preview consumer (PDU-011/PDU-014; D-41 R5 T2B bounded repair completed for the named mirror only).
+- Select the exact unit identifier/alias namespace and ambiguous-parser policy before PDU-015 implementation; no option in the R4 slate selected these values.
+- Select the exact unit diagnostic code/category namespace before PDU-025 implementation; no option in the R4 slate selected these values.
+- Obtain an independent numeric normalization/conversion suitability witness before any PDU-048 validation upgrade; current behavior remains verified, not validated.
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T2B removed the DEL-16-02 parallel dimension vocabulary and surfaced the remaining system-wiring, policy-selection, and validation-basis holds; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T2A narrowed project persistence hash/truth labels to the implemented sorted-compact Python JSON byte contract and added executable evidence; state remains IN_PROGRESS.
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set to OPEN (PREPARATION)

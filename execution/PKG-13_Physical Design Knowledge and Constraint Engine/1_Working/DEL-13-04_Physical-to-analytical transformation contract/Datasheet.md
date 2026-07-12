@@ -111,3 +111,10 @@ The deliverable has materialized as a provider-neutral Python transform contract
 - `tests/test_physical_to_analytical_transform.py` - focused transform tests.
 - `tests/test_analytical_solver_boundary_adapter.py` - focused adapter tests.
 - Current DEL-13-02 and DEL-13-03 four-document kits, `MEMORY.md` files, and 2026-06-07 TASK run records - upstream evidence refresh context.
+
+## D-41 R5 T2B PDU-047 Evidence State
+
+| Surface | Available evidence | Held residual |
+|---|---|---|
+| 3D centerline/frame target | Deterministic transform and section-property preservation tests; bounded TP-PHYS-015 section-property oracle binding. | Independent validation of broader mechanics suitability. |
+| Component field scalar | Paired paths on valid geometry quantity copy-through. | Runtime result-envelope continuation has no accepted producer/home. |

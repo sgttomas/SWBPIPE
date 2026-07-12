@@ -1,5 +1,9 @@
 # Guidance - DEL-02-05 Project Persistence and Round-Trip Serialization
 
+## PDU-024 Version Handling Guidance
+
+Do not compare UI model-document versions against duplicated literals. Use `evaluateModelDocumentLocal` and `modelDocumentVersionCheckStatus`, mirroring the backend DEC-019/DEC-033 evaluator. Treat `0.2.0` as current; treat a migratable `0.1.0` source as stale at version-check grain while retaining `migrated` in migration evidence. Unsupported, newer, and failed versions must remain explicit and must not be coerced.
+
 ## Purpose
 
 DEL-02-05 exists to make project files auditable, deterministic, and reusable across the OpenPipeStress workflow. The persistence layer is the handoff surface between domain schemas, unit-aware modeling, rule-pack references, solver inputs, reports, automation, and future adapters. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-050 and OBJ-012.

@@ -108,3 +108,7 @@ Maintain these records when this procedure is executed by later implementation t
 ## D-41 R5 T2A persistence hash check (2026-07-12)
 
 Run exact-byte and fixed-SHA vectors, equivalent-order stability, mutation sensitivity, schema/fixture validation, SQLite round-trip tests, and a no-JCS assertion for the project persistence byte contract.
+
+## D-41 R5 T2B unit-authority check (2026-07-12)
+
+Load `DimensionId` through the PKG-02 schema-vocabulary adapter, compare it to the schema enum, and scan the consuming Python engine for a reintroduced literal mirror. Continue to surface unbound system boundaries and unselected namespace/diagnostic policies as held residuals.

@@ -717,3 +717,36 @@ dispositions are never represented as owner or engineering rulings.
   were removed, revalidation used copy-out, and the frozen evidence worktree
   remains exactly the six allow-listed ignored paths. D-42 remains
   AWAITING_RULING. T2 continues with its remaining subtranches.
+
+- **2026-07-12 — R5 T2 canonical-schema, units, and mechanics checkpoint
+  COMPLETE.** `R5_T2_CLOSEOUT.md` (SHA-256
+  `ebee055d34ba4612ba8de81f5fdba242884eadb68e30b2d9394b41d1b3014b30`)
+  closes the nineteen-PDU tranche by bounded repair or explicit governed
+  hold. Production-path evidence now covers the schema-derived dimension
+  vocabulary, pipe-section oracle, paired scalar trace paths, version-family
+  diagnostics, JSON glTF stable-ID round trip, exact compatible result-ID
+  mapping, and model-state numeric-unit boundaries. Unselected alias/parser,
+  diagnostic, timestamp/generator, security-readiness, review, dimension,
+  normalization/tolerance, and independent numeric-witness questions remain
+  explicit holds; PDU-044 is a documented absence. PDU-033 security rows
+  move to T3's O7/E5 lane without being treated as unit-conversion work.
+
+  Independent GPT-5 fan-in first found collapsed PDU-024 diagnostics and
+  missing durable PDU-034/PDU-035/PDU-044 holds. Both were corrected through
+  owning surfaces. Final read-only fan-in returned PASS. The integrated build
+  then exposed a TypeScript union-widening defect; the PDU-024 owning pilot
+  corrected it and passed 65 focused tests plus a disposable production
+  build. Integrated validation passed project pytest 481/481, desktop Vitest
+  472/472, production build with only the existing chunk warning, practitioner
+  self-check with no D-41 BLOCK, and practitioner pytest 263 with one skip.
+
+  All touched states remain IN_PROGRESS; D-41 bootstrap items remain for T7.
+  No lifecycle, scope-expansion, dependency/DAG/register/decomposition,
+  review-disposition, ISSUED-baseline, validation-outcome, release, or
+  professional-reliance claim was made. Active ignored-aware porcelain is
+  back to its three pre-existing paths and the frozen evidence worktree
+  remains exactly the six addendum-9 allow-listed paths. D-42 remains
+  AWAITING_RULING. Model attribution: GPT-5 owning pilots implemented bounded
+  schema/mechanics/version/export repairs; the GPT-5 orchestrator handled
+  cross-owner holds and integration; an independent highest-available-
+  capability GPT-5 pilot performed final fan-in. No silent substitution.

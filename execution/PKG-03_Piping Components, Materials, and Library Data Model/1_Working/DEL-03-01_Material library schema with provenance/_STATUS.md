@@ -1,7 +1,7 @@
 # Status: DEL-03-01 Material library schema with provenance
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
@@ -18,3 +18,4 @@
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-05 - State moved to CHECKING by explicit human instruction after accepted PKG-03 review disposition gates; local review findings `PKG03-DEL-03-01-PKG02-001` and `PKG03-DEL-03-01-PKG02-002` are `ACCEPT_AS_IS` / `RESOLVED`.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
+- 2026-07-12 - DEC-074 R5 T2B/PDU-024 recorded DEL-02-05 `0.2.0` runtime version handling as downstream integration evidence for project-carried material data; no material serializer/fixture/lifecycle change, and the claim-level concordance bootstrap remains.

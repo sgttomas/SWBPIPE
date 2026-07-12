@@ -110,3 +110,7 @@ Required deliverable documentation artifacts:
 ## D-41 R5 T2A persistence hash requirement (2026-07-12)
 
 Project persistence SHALL label existing sorted-key compact ASCII-escaped Python JSON hashes `SORTED_COMPACT_JSON` and canonical payload truth `sorted_compact_json_payload`. Those labels SHALL NOT imply RFC 8785/JCS conformance.
+
+## D-41 R5 T2B unit-authority boundary (2026-07-12)
+
+Python adapter/application validation SHALL derive the canonical `DimensionId` vocabulary from `schemas/units.schema.yaml` through the PKG-02 schema-vocabulary adapter rather than maintaining a parallel literal set. This removes the identified DEL-16-02 mirror but does not assert system-wide B2/B3 completion or independent numeric validation.

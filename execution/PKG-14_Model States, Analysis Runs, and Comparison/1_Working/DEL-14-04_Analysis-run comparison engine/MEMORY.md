@@ -1,5 +1,23 @@
 # DEL-14-04 Memory
 
+## 2026-07-12 - D-41 R5 T2C PDU-030 stable/manual mapping round trip
+
+- Added `derive_exact_result_id_mappings` to produce deterministic DEL-14-05
+  `MappingRecord` shapes only for result IDs that are unique on both sides and
+  have matching family, object ref, basis ref, and dimension.
+- Different, duplicate, ambiguous, or semantically inconsistent IDs are not
+  automatically mapped; the existing explicit caller-supplied manual path is
+  retained without adding heuristic matching or workflow policy.
+- Focused evidence validates the automatic record against the existing
+  DEL-14-05 mapping contract and JSON-round-trips both automatic and manual
+  records into deltas preserving mapping ID and left/right result IDs.
+- Validation passed `12` focused comparison/mapping-contract tests. No
+  comparison-output schema, threshold, normalization policy, validation
+  outcome, review/lifecycle state, dependency, DAG, or register changed.
+- Existing PDU-011 and PDU-047 holds and the D-41 bootstrap remain.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2C-PDU030.md`.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-COMPARISONLINTUNITS-001 supporting comparison evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report
@@ -177,3 +195,10 @@ Durable context preserved after reconciliation review:
   protected standards content, private payload, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-07-12 - D-41 R5 T2B PDU-011/PDU-047 evidence backcheck
+
+- Confirmed no accepted schema currently governs `AnalysisRunComparison.to_dict()` output; mapping and tolerance schemas are input contracts. PDU-011 is held rather than closed with a test-authored contract.
+- Confirmed the TP-PHYS-015 section-property oracle cannot validate unit-normalized comparison mechanics and `section_property` is outside the current supported result-family set. PDU-047 remains held at the engineering-suitability grain.
+- Evidence is in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU011-PDU047.md`.
+- No schema, comparison behavior, threshold, validation outcome, review disposition, lifecycle, dependency, DAG/register state, or engineering-validation claim changed.

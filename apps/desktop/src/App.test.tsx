@@ -2976,7 +2976,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-summary")
         .textContent,
-    ).toContain("version=supported_current_schema");
+    ).toContain("version=stale");
     expect(
       within(projectValidation).getByTestId("project-validation-summary")
         .textContent,
@@ -3068,7 +3068,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-operations")
         .textContent,
-    ).toContain("version_check=supported_current_schema");
+    ).toContain("version_check=stale");
     expect(
       within(projectValidation).getByTestId("project-validation-boundary")
         .textContent,
@@ -3091,8 +3091,18 @@ describe("OpenPipeStress desktop preview", () => {
       "preview_not_persisted",
     );
     expect(validationPacket.summary.version_check_status).toBe(
-      "supported_current_schema",
+      "stale",
     );
+    expect(
+      validationPacket.diagnostics.map(
+        (item: { code: string }) => item.code,
+      ),
+    ).toContain("PROJECT-VALIDATION-STALE-SCHEMA");
+    expect(
+      validationPacket.diagnostics.map(
+        (item: { code: string }) => item.code,
+      ),
+    ).not.toContain("PROJECT-VALIDATION-UNSUPPORTED-SCHEMA");
     expect(validationPacket.summary.migration_status).toBe(
       "not_persisted_this_session",
     );
@@ -3148,7 +3158,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual(
       [],
     );
-    expect(validationPacket.model_document_migration.status).toBe("current");
+    expect(validationPacket.model_document_migration.status).toBe("migrated");
     expect(validationPacket.model_document_migration.evidence_source).toBe(
       "session_document_local_evaluation",
     );
@@ -3171,7 +3181,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBe("not_run_no_local_snapshot_this_session");
     expect(
       validationPacket.validation_profile.model_document_migration_status,
-    ).toBe("current");
+    ).toBe("migrated");
     expect(validationPacket.summary.round_trip_status).toBe(
       "semantic_categories_declared",
     );
@@ -8112,7 +8122,7 @@ describe("OpenPipeStress desktop preview", () => {
         (operation: { operation: string }) =>
           operation.operation === "version_check",
       ).operation_status,
-    ).toBe("supported_current_schema");
+    ).toBe("stale");
     expect(
       validationPacket.service_operations.find(
         (operation: { operation: string }) => operation.operation === "migrate",

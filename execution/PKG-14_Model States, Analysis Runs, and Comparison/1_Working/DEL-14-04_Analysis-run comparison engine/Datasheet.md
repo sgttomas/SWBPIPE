@@ -44,7 +44,7 @@
 | Construct | Description | Status |
 |---|---|---|
 | Input run references | References to two analysis runs and their exact model-state/run basis. | Required by SOW-072/SOW-073; concrete schema field names `TBD`. |
-| Mapping source | Manual mappings where stable IDs do not directly align. | Required by SOW-073; owned contract dependency DEL-14-05 remains upstream. |
+| Mapping source | Automatic mappings for unique identical result IDs with matching family/object/basis/dimension; explicit caller-supplied manual mappings for all other comparable relationships. | Implemented as a bounded DEL-14-05 `MappingRecord` consumer/producer projection; no heuristic workflow selected. |
 | Unit normalization | Same-dimension comparison of result values using accepted unit metadata and conversion contracts. | Required by SOW-073 and unit contract; accepted unit catalog/tolerance details `TBD`. |
 | Delta categories | Result, diagnostic, and settings deltas for mapped entities/locations. | Required by DEL-14-04 description; exact enum/API shape `TBD`. |
 | Tolerance profiles | Profile-driven thresholding for comparison outcomes. | Required by SOW-073; defaults/workflows `TBD` under OI-014. |
@@ -61,3 +61,17 @@
 - `docs/SPEC.md` - unit contract, analysis boundary, persistence/hash, result export, runner output, and validation mechanics.
 - `docs/TYPES.md` - stable reference, diagnostic, checksum, result, result-export, and analysis-boundary vocabulary.
 - `docs/IP_AND_DATA_BOUNDARY.md` - protected-content and private-data boundary.
+
+## D-41 R5 T2B PDU-011/PDU-047 Evidence State
+
+| Gap | Current boundary | Disposition |
+|---|---|---|
+| Comparison output schema | No accepted schema for `AnalysisRunComparison.to_dict()`; mapping/tolerance schemas are input contracts. | Held; no schema or conformance test invented. |
+| Comparison mechanics validation | Explicit caller-supplied conversions and tolerance rules are verified for supported result families. | Independent engineering-validation/suitability basis remains held. |
+
+## D-41 R5 T2C PDU-030 Evidence State
+
+| Mapping path | Current boundary | Evidence |
+|---|---|---|
+| Automatic stable ID | Unique identical `result_id` plus matching family, object ref, basis ref, and dimension only. | Produced mapping validates against the DEL-14-05 `MappingRecord` definition and round trips into a delta with preserved mapping/left/right IDs. |
+| Manual | Required for different, duplicate, ambiguous, or semantically inconsistent IDs. | Caller-supplied manual mapping round trips into a delta with both result IDs preserved. |

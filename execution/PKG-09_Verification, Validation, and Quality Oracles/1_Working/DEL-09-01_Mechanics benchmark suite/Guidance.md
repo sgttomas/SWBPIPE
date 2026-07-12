@@ -47,3 +47,7 @@ Concrete benchmark geometries, material values, loads, boundary conditions, expe
 | Approved numerical tolerance/comparison policy | TBD |
 | Approved fixture schema and result-envelope comparison format | TBD |
 | Release-gating vs advisory benchmark classification | TBD |
+
+## D-41 R5 T2B PDU-013 Boundary
+
+Fixture-local dimensional rigor is useful evidence, but it must not be promoted into a claim about an accepted project-wide unit catalog. The remaining catalog/conversion decision is upstream and is recorded as held rather than filled with new constants.

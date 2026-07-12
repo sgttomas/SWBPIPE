@@ -44,3 +44,9 @@ Define the reconciliation procedure for keeping DEL-03-05 documentation aligned 
 - `Dependencies.csv`
 - `_DEPENDENCIES.md`
 - `_run_records/TASK_RUN_*.md`
+
+## D-41 R5 T2B PDU-013 Check
+
+Before any COG value is accepted for mechanics use, verify that an authorized record defines both its coordinate convention and reference frame. Until then, preserve the slot as non-operative metadata and record the gap; do not infer axes, origins, signs, or component-local/global transforms.
+
+For PDU-023, validate paired scalar paths on copied component geometry quantities and reject incomplete quantity metadata; do not infer a runtime envelope producer.

@@ -68,3 +68,9 @@ Mass-property tests use invented synthetic values in `tests/test_section_propert
 | What downstream result-envelope mapping is required before solver, persistence, GUI, or report integration? | PKG-02 / PKG-08 / human architecture ruling |
 | What public source catalog and fixture-value policy is acceptable for section and mass-property tests? | Validation/QA owner |
 | When may the technically addressed review findings move beyond human-gated `TBD` disposition? | Human project authority |
+
+## D-41 R5 T2B PDU-047 Evidence State
+
+| Path | Inputs | Bound outputs |
+|---|---|---|
+| Production `calculate_pipe_section_properties` → TP-PHYS-015 formal oracle → governed result envelope | Invented OD 2.0 m; wall 0.25 m | Area `m^2`/`area`; section modulus `m^3`/`section_modulus`; torsional constant `m^4`/`second_moment_area`, checked with existing witness tolerances. |

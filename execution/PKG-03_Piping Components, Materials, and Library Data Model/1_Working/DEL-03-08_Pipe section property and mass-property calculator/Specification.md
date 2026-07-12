@@ -50,3 +50,7 @@ Accepted schema ownership, dependency satisfaction, downstream result-envelope m
 | PKG03-DEL-03-08-PKG02-001 | Dimension vocabulary compatibility finding has technical evidence in calculator/tests but awaits human disposition. | `Review_Findings.csv`; `tests/test_section_properties.py` | `TBD` |
 | PKG03-DEL-03-08-PKG02-002 | Input provenance finding has technical evidence in calculator/tests but awaits human disposition. | `Review_Findings.csv`; `tests/test_section_properties.py` | `TBD` |
 | PKG03-DEL-03-08-PKG02-003 | Diagnostic envelope field finding has technical evidence in calculator/tests but awaits human disposition. | `Review_Findings.csv`; `tests/test_section_properties.py` | `TBD` |
+
+## D-41 R5 T2B PDU-047 Evidence Binding (2026-07-12)
+
+`tests/test_calculation_witness.py` now executes `calculate_pipe_section_properties` with the existing rights-safe TP-PHYS-015 outside diameter and wall thickness, then compares the produced area, section modulus, and torsional constant to both the formal oracle and `tp_phys_015_section_property_stress_evidence_envelope.json` using the witness's existing tolerances. It also asserts the emitted units and dimensions. This is bounded validation evidence, not an engineering-validation or lifecycle disposition.

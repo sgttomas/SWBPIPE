@@ -262,3 +262,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Residuals unchanged otherwise: anti-chatter oscillation still reaches the
   visible cap (now always loud), sliding-force magnitude is not a residual
   axis, arc interior stations remain open under DEC-070.
+## 2026-07-12 - D-41 R5 T2 PDU-035 hold
+
+- Unit metadata binding remains technically addressed at metadata grain.
+- The PKG-02 review finding still requires its owning human disposition, and dimensional/conversion suitability is not independently validated; PDU-035 remains held.

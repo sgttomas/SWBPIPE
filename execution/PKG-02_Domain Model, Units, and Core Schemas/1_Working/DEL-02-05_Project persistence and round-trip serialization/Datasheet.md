@@ -1,5 +1,12 @@
 # Datasheet - DEL-02-05 Project Persistence and Round-Trip Serialization
 
+## PDU-024 Runtime Version Evidence
+
+- Current authored model-document schema: `0.2.0`.
+- Governed legacy path: `0.1.0 -> 0.2.0`, reported as `stale` by version check and `migrated` by migration evidence.
+- Refusal/diagnostic states: `unsupported_schema`, `newer_than_supported`, and `failed`.
+- UI evidence consumers: Project Validation, Export Review, and Report persistence context; all use the shared browser-preview mirror of the DEC-019/DEC-033 evaluator.
+
 ## Identification
 
 | Field | Value |

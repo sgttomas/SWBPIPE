@@ -238,6 +238,77 @@ def test_sidecar_id_map_and_manifest_preserve_canonical_identity():
     assert artifact["embedded_buffer"] is True
 
 
+def test_written_json_gltf_and_sidecar_round_trip_stable_identity(tmp_path):
+    package = build_from_source()
+    write_review_geometry_export_package(tmp_path, package)
+
+    gltf = load_json(tmp_path / "model.gltf")
+    sidecar = load_json(tmp_path / "id_map.json")
+    sidecar_by_ref = {
+        item["canonical_ref"]["ref"]: item["gltf_ref"] for item in sidecar
+    }
+
+    assert len(sidecar_by_ref) == len(gltf["nodes"]) == len(gltf["meshes"])
+    for node_index, node in enumerate(gltf["nodes"]):
+        node_meta = node["extras"]["openpipestress"]
+        canonical_ref = node_meta["canonical_ref"]
+        assert node_meta["target_ref"] == ref("GltfNode", str(node_index))
+        assert sidecar_by_ref[canonical_ref["ref"]] == node_meta["target_ref"]
+
+        mesh_index = node["mesh"]
+        primitive_meta = gltf["meshes"][mesh_index]["primitives"][0]["extras"][
+            "openpipestress"
+        ]
+        assert primitive_meta["canonical_ref"] == canonical_ref
+        assert primitive_meta["target_ref"] == ref(
+            "GltfPrimitive", f"mesh:{mesh_index}:primitive:0"
+        )
+
+
+def test_mismatched_stable_id_sidecar_blocks_current_json_gltf_profile():
+    payload = source_payload()
+    stable_id_map = deepcopy(payload["stable_id_map"])
+    stable_id_map[0]["gltf_ref"] = ref("GltfNode", "1")
+
+    package = build_review_geometry_export_package(
+        **{**payload, "stable_id_map": stable_id_map}
+    )
+
+    assert "RG-STABLE-ID-ROUNDTRIP-MISMATCH" in {
+        item["code"] for item in package["diagnostics"]
+    }
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
+def test_current_json_gltf_metadata_is_fixed_and_timestamp_free_without_policy_selection():
+    first = build_from_source()
+    second = build_from_source()
+
+    assert canonical_json(first) == canonical_json(second)
+    assert first["gltf"]["asset"]["generator"] == (
+        "OpenPipeStress DEL-17-08 review geometry exporter 0.1.0"
+    )
+    assert "generator_policy" not in first["export_profile"]
+    assert "timestamp_policy" not in first["export_profile"]
+    forbidden_timestamp_keys = {
+        "timestamp",
+        "created_at",
+        "generated_at",
+        "updated_at",
+    }
+
+    def keys(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                yield key
+                yield from keys(item)
+        elif isinstance(value, list):
+            for item in value:
+                yield from keys(item)
+
+    assert forbidden_timestamp_keys.isdisjoint(keys(first))
+
+
 def test_bad_geometry_and_missing_sidecars_are_blocking():
     payload = source_payload()
     geometry_payload = deepcopy(payload["geometry_payload"])

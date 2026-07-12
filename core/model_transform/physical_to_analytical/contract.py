@@ -377,6 +377,15 @@ def _classify_components(
             continue
         components_by_id[component_id] = deepcopy(record)
         links.append(_trace_link("Component", component_id))
+        links.extend(
+            _field_scalar_trace_links(
+                "Component",
+                component_id,
+                collection_name="components",
+                container_name="geometry",
+                fields=record.get("geometry"),
+            )
+        )
     return components_by_id, diagnostics, links
 
 
@@ -511,8 +520,13 @@ def _copy_load_cases(records: Any, node_ids: set[str], element_ids: set[str]) ->
 
 def _quantity_gaps(value: Any, affected_ref: Mapping[str, str], code: str) -> list[dict[str, Any]]:
     diagnostics: list[dict[str, Any]] = []
-    if isinstance(value, Mapping) and UNIT_FIELDS <= set(value):
-        if value.get("unit") in (None, "", "TBD") or value.get("dimension") in (None, "", "TBD"):
+    quantity_shaped = (
+        isinstance(value, Mapping)
+        and "value" in value
+        and bool({"unit", "dimension", "provenance"} & set(value))
+    )
+    if quantity_shaped:
+        if not UNIT_FIELDS <= set(value) or value.get("unit") in (None, "", "TBD") or value.get("dimension") in (None, "", "TBD"):
             diagnostics.append(_unit_diagnostic(code, affected_ref))
         elif value.get("dimension") not in CANONICAL_DIMENSIONS:
             diagnostics.append(
@@ -674,6 +688,39 @@ def _trace_link(
         "diagnostics": [],
         "provenance": _transform_provenance(source_id),
     }
+
+
+def _field_scalar_trace_links(
+    source_type: str,
+    source_id: str,
+    *,
+    collection_name: str,
+    container_name: str,
+    fields: Any,
+) -> list[dict[str, Any]]:
+    if not isinstance(fields, Mapping):
+        return []
+    links: list[dict[str, Any]] = []
+    for field_name, quantity in sorted(fields.items(), key=lambda item: str(item[0])):
+        if not isinstance(quantity, Mapping) or not {
+            "value",
+            "unit",
+            "dimension",
+            "provenance",
+        } <= set(quantity):
+            continue
+        scalar_path = (
+            f"{collection_name}[id={source_id}].{container_name}.{field_name}.value"
+        )
+        link = _trace_link(source_type, source_id)
+        link["id"] = (
+            f"TRACE-PTA-FIELD-{source_type}-{source_id}-{container_name}-{field_name}"
+            .replace("_", "-")
+        )
+        link["source_field_path"] = scalar_path
+        link["target_field_path"] = scalar_path
+        links.append(link)
+    return links
 
 
 def _stable_diagnostics(items: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:

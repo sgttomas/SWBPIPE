@@ -70,3 +70,9 @@ Executable invented examples are available in `fixtures/domain/invented_physical
 | PRD v0.2 Section8.3 / FR-MOD-007 not locally available through `_REFERENCES.md` | Cannot derive PRD-specific transform clauses beyond SOW-066 wording. | Keep PRD-specific particulars `TBD`. |
 | Broader upstream integration beyond current DEL-13-02/DEL-13-03 refresh evidence | Cannot claim full runtime constraint-validation consumption, GUI presentation, public API behavior, or persisted handoff readiness. | Keep those integration surfaces `TBD` until bounded implementation evidence exists. |
 | OI-012 unresolved architecture detail for loss classes | Transform-loss taxonomy cannot be finalized here. | Record `TBD`; require later architecture/detail task. |
+
+## D-41 R5 T2B PDU-047 Boundary
+
+A correct circular-section calculation is not a validation basis for the overall physical-to-analytical 3D mechanics boundary. Keep the existing deterministic verification and the new bounded oracle binding distinct from the unresolved suitability judgment.
+
+PDU-023 field paths prove scalar identity through the current copy boundary only; they do not claim downstream solver or runtime result-envelope production.

@@ -211,6 +211,79 @@ def comparison_dict(result: AnalysisRunComparison) -> dict[str, Any]:
     return result.to_dict()
 
 
+def derive_exact_result_id_mappings(
+    left_results: Mapping[str, Any],
+    right_results: Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    """Produce deterministic automatic mappings for unambiguous exact result IDs.
+
+    This is deliberately narrower than heuristic entity matching. Different,
+    duplicate, or semantically inconsistent result IDs require an explicit
+    caller-supplied manual mapping under the existing DEL-14-05 contract.
+    """
+
+    left_records = _quantity_records(left_results)
+    right_records = _quantity_records(right_results)
+    left_by_id = _unique_quantity_records(left_records)
+    right_by_id = _unique_quantity_records(right_records)
+    mappings: list[dict[str, Any]] = []
+    for result_id in sorted(set(left_by_id) & set(right_by_id)):
+        left = left_by_id[result_id]
+        right = right_by_id[result_id]
+        if _stable_result_identity(left) != _stable_result_identity(right):
+            continue
+        left_ref = _ref("Result", result_id)
+        right_ref = _ref("Result", result_id)
+        affected_refs = [
+            {"affected_ref": left_ref, "affected_role": "left_result"},
+            {"affected_ref": right_ref, "affected_role": "right_result"},
+        ]
+        provenance = {
+            "source_name": "DEL-14-04 exact result-ID mapping producer",
+            "source_location": "core/comparison/analysis_run/engine.py",
+            "source_license": "project-governed",
+            "contributor": "OpenPipeStress comparison engine",
+            "contributor_certification": "implementation-only-no-professional-claim",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending",
+            "privacy_classification": "public_metadata",
+        }
+        mappings.append(
+            {
+                "mapping_id": f"AUTO-{result_id}",
+                "mapping_kind": "result",
+                "mapping_status": "automatic_match",
+                "left_ref": left_ref,
+                "right_ref": right_ref,
+                "affected_refs": affected_refs,
+                "mapping_evidence": {
+                    "evidence_id": f"EVIDENCE-{result_id}",
+                    "evidence_kind": "stable_id_alignment",
+                    "source_refs": affected_refs,
+                    "stable_id_preservation": "left_and_right_refs_preserved",
+                    "manual_review_state": "not_manual",
+                    "hash_refs": [],
+                    "provenance": provenance,
+                },
+                "confidence": {
+                    "confidence_level": "exact_stable_id",
+                    "basis": "unique identical result_id with matching family, object_ref, basis_ref, and dimension",
+                    "requires_review": False,
+                },
+                "review": {
+                    "review_status": "pending",
+                    "reviewer_ref": _ref(
+                        "ExternalReference", "automatic-exact-stable-id-no-human-review"
+                    ),
+                    "reviewed_at": "TBD",
+                    "review_note": "Automatic exact stable-ID mapping; no manual review claimed.",
+                },
+                "provenance": provenance,
+            }
+        )
+    return tuple(mappings)
+
+
 def _compare_mapping(
     mapping: Mapping[str, Any],
     left_index: Mapping[str, Mapping[str, Any]],
@@ -381,12 +454,21 @@ def _run_context(run: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _quantity_index(result_envelope: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
+    return {
+        str(quantity["result_id"]): quantity
+        for quantity in _quantity_records(result_envelope)
+    }
+
+
+def _quantity_records(
+    result_envelope: Mapping[str, Any],
+) -> list[Mapping[str, Any]]:
     envelope = result_envelope.get("result_envelope")
     root = envelope if isinstance(envelope, Mapping) else result_envelope
     result_sets = root.get("result_sets", [])
-    index: dict[str, Mapping[str, Any]] = {}
+    records: list[Mapping[str, Any]] = []
     if not isinstance(result_sets, list):
-        return index
+        return records
     for result_set in result_sets:
         if not isinstance(result_set, Mapping):
             continue
@@ -395,8 +477,31 @@ def _quantity_index(result_envelope: Mapping[str, Any]) -> dict[str, Mapping[str
             continue
         for quantity in quantities:
             if isinstance(quantity, Mapping) and quantity.get("result_id"):
-                index[str(quantity["result_id"])] = quantity
-    return index
+                records.append(quantity)
+    return records
+
+
+def _unique_quantity_records(
+    records: Iterable[Mapping[str, Any]],
+) -> dict[str, Mapping[str, Any]]:
+    grouped: dict[str, list[Mapping[str, Any]]] = {}
+    for record in records:
+        grouped.setdefault(str(record.get("result_id", "")), []).append(record)
+    return {
+        result_id: matches[0]
+        for result_id, matches in grouped.items()
+        if result_id and len(matches) == 1
+    }
+
+
+def _stable_result_identity(result: Mapping[str, Any]) -> tuple[Any, ...]:
+    return (
+        str(result.get("result_id", "")),
+        str(result.get("family", "")),
+        _freeze_to_plain(result.get("object_ref")),
+        _freeze_to_plain(result.get("basis_ref")),
+        str(result.get("dimension", "")),
+    )
 
 
 def _tolerance_rules(

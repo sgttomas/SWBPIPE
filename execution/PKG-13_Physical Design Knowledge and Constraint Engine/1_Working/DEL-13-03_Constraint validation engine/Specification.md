@@ -64,5 +64,9 @@ Required records and remaining deferrals:
 - Validation diagnostics test inventory: `tests/test_constraint_validation.py`.
 - Public-safe validation fixtures: executable invented fixtures exist in `tests/test_constraint_validation.py`; publication-grade examples and owner/project examples remain `TBD` pending provenance review and human acceptance.
 - Assumptions and unsupported inputs: must be recorded as `TBD` or explicit findings rather than inferred defaults.
+
+## D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
+
+Existing `ResultTraceLink` records may carry paired nonempty source/target scalar paths; schema tests reject unpaired paths. DEL-13-03 has no accepted runtime result-envelope producer/home, so R6 integration remains held and `ValidationResult.to_dict()` is not relabeled as an envelope.
 - Dependency evidence handling: preserve current ACTIVE local dependency rows during this evidence-refresh workflow.
 - Legitimate remaining `TBD` items include localization/message cataloging, full geometric conflict solving, owner criteria/rules, GUI presentation, physical-to-analytical transformation, runtime integration, release readiness, and human acceptance.

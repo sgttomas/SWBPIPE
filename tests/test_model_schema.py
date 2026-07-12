@@ -688,6 +688,33 @@ def test_typed_load_records_and_straight_pipe_orientation_contract():
     check_typed_load_records_and_orientation_validation()
 
 
+def test_traceability_link_field_scalar_paths_are_paired():
+    schema = load_schema()
+    definition = schema["$defs"]["TraceabilityLink"]
+    assert {"source_field_path", "target_field_path"} <= set(
+        definition["properties"]
+    )
+    assert definition["dependentRequired"] == {
+        "source_field_path": ["target_field_path"],
+        "target_field_path": ["source_field_path"],
+    }
+
+    link = deepcopy(load_json(PHYSICAL_MODEL_FIXTURE)["model"]["traceability_links"][0])
+    link["source_field_path"] = "components[id=COMP-1].geometry.face_to_face.value"
+    link["target_field_path"] = "components[id=COMP-1].geometry.face_to_face.value"
+    link_schema = schema_for_definition(schema, "TraceabilityLink")
+    assert validate_instance(link_schema, link)
+
+    unpaired = deepcopy(link)
+    del unpaired["target_field_path"]
+    try:
+        validate_instance(link_schema, unpaired)
+    except AssertionError as exc:
+        assert "target_field_path" in str(exc)
+    else:
+        raise AssertionError("unpaired field-scalar trace path must be rejected")
+
+
 def main():
     check_schema_contract()
     check_domain_fixtures()

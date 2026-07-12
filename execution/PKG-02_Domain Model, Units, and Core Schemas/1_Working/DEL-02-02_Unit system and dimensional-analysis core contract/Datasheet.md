@@ -78,3 +78,7 @@ The DEL-02-02 implementation surface should be constructed as a domain-core unit
 ## D-41 R5 T2A persistence hash evidence (2026-07-12)
 
 Project persistence emits `SORTED_COMPACT_JSON` checksum metadata and `sorted_compact_json_payload` canonical-truth metadata for sorted-key compact ASCII-escaped Python JSON. These labels describe the implemented deterministic byte contract and do not claim RFC 8785/JCS.
+
+## D-41 R5 T2B unit-authority evidence (2026-07-12)
+
+`core/units/schema_vocabulary.py` reads the accepted `DimensionId` enum from `schemas/units.schema.yaml`; DEL-16-02 validation-preview code now consumes that adapter instead of owning a parallel 30-ID set. Focused tests prove exact vocabulary identity and absence of the former literal mirror.

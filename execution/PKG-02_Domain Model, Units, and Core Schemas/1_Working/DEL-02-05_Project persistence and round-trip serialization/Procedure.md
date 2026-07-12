@@ -1,5 +1,12 @@
 # Procedure - DEL-02-05 Project Persistence and Round-Trip Serialization
 
+## PDU-024 Version Contract Check
+
+1. Evaluate the in-document semantic version through the established migration evaluator.
+2. Emit `current` only for the accepted `0.2.0` family; map a successful older-version migration path to `stale` at version-check grain and retain `migrated` in the migration record.
+3. Emit structured `unsupported_schema`, `newer_than_supported`, or `failed` diagnostics without coercion.
+4. Exercise current, stale, unsupported, newer, and failed classifications in focused contract tests and verify the Project Validation, Export Review, and Report consumers do not contain stale current-version comparisons.
+
 ## Purpose
 
 This procedure describes how to produce and check the DEL-02-05 artifacts: project file schema, round-trip tests, and persistence service contract. It is operational guidance for implementation and review; it does not itself implement the schema or service.

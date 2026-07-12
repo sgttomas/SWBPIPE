@@ -56,3 +56,11 @@ Expected documentation artifacts retained for implementation handoff include:
 - Rigid/semi-rigid component model notes.
 - Reducer/flange/valve fixture provenance notes.
 - Explicit `TBD` list for coordinate conventions, exact stiffness solver treatment, fixture values, source catalogs, import formats, review disposition, dependency satisfaction, lifecycle closure, and reusable public-data acceptance criteria.
+
+## D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
+
+R10 remains held. Existing COG schema slots do not define an axis convention or reference frame and therefore are not mechanics-acceptance evidence. E2/E4/E8 are evidence requirements only; this tranche selected no convention and introduced no COG value or outcome.
+
+## D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
+
+REQ-008 has bounded schema/transform evidence for valid component geometry quantities: paired `source_field_path` and `target_field_path` values identify the copied scalar leaf, while incomplete unit/dimension/provenance metadata blocks scalar-link emission. This does not establish runtime result-envelope integration.

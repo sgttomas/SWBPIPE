@@ -55,3 +55,6 @@ Produce or use the model-state comparison engine in a way that remains determini
 - State diff test artifact path: `TBD`.
 - Fixture provenance notes: `TBD`.
 - Dependency notes: preserve the existing DAG-002 mirror rows as ACTIVE unless a future approved coordination workflow changes the mirror.
+## D-41 R5 T2B unit check (2026-07-12)
+
+For every changed field listed in `unit_bearing_fields`, require unit and dimension on both sides; block missing metadata, dimension mismatch, and unnormalized unit mismatch; confirm accepted same-unit changes retain full left/right records and contain no derived bare-number delta.

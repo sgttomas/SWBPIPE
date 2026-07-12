@@ -6,6 +6,10 @@ This setup specification bounds the future backend evaluator for user-defined ru
 
 It does not implement an evaluator module, create evaluator tests, choose an expression grammar or library as final, invent numerical tolerances, include protected formulas, ship code-specific rule content, or claim professional code compliance.
 
+## PDU-024 Persistence Integration Boundary
+
+When user-supplied design-basis inputs or rule-check references are carried in a project model, downstream DEL-02-05 persistence uses the accepted model-document `0.2.0` family and established current/stale/unsupported/newer/failed version checks. This does not change the evaluator's binding contract, grammar, sandbox, or result-field scope.
+
 ## Requirements
 
 | ReqID | Requirement | Source |

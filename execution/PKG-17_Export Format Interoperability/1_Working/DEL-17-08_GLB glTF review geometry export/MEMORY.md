@@ -1,5 +1,24 @@
 # MEMORY: DEL-17-08
 
+## 2026-07-12 - D-41 R5 T2B PDU-029/PDU-031
+
+- `DEC-074` O11/E7 preserves the current bounded JSON `.gltf` profile:
+  embedded buffer, line-mode centerline segments, direct identity `extras`,
+  and authoritative `id_map.json`. Binary GLB, broad geometry, viewer
+  compatibility, and engineering validation remain outside scope.
+- PDU-029 is bounded to this profile. Package diagnostics now block when an
+  emitted glTF node/primitive identity and the authoritative sidecar do not
+  round trip one-to-one. Focused write/read evidence correlates both invented
+  centerline IDs across `model.gltf` and `id_map.json`.
+- Current metadata behavior is deterministic: the generator is the fixed
+  versioned string `OpenPipeStress DEL-17-08 review geometry exporter 0.1.0`
+  and timestamp fields are absent. PDU-031's exact normative policy remains
+  owner-unselected, so no profile policy field was invented.
+- Focused validation passed `13` tests. Lifecycle remains `IN_PROGRESS`; the
+  PDU-031 policy hold and D-41 program bootstrap remain in `_STATUS.md`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU029-PDU031.md`.
+
 ## 2026-05-18 - SCA-004 PREPARATION scaffold
 - Created minimum viable fileset from SOFTWARE_DECOMP revision 0.7.
 - Populated local context, dependencies placeholder, references, semantic placeholder, and status.

@@ -131,3 +131,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T2 PDU-044 documented absence
+
+- DEL-06-04 owns private rule-pack lifecycle/checksum handling and performs no numeric expression evaluation.
+- Numeric rule-pack unit metadata remains homed to DEL-02-02 plus DEL-06-02/DEL-06-03. PDU-044 is preserved as documented unimplemented here rather than duplicating schema/evaluator scope.

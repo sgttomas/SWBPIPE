@@ -69,3 +69,6 @@ Current product-code evidence exists and is limited to a stdlib-only Python vali
 - `core/constraints/validation/engine.py` - implemented validation engine.
 - `core/constraints/validation/__init__.py` - implemented package export surface.
 - `tests/test_constraint_validation.py` - focused validation diagnostics tests and invented fixtures.
+## D-41 R5 T2C PDU-023 Evidence State
+
+Paired result-trace scalar paths are schema-valid and unpaired paths are rejected. Runtime envelope production remains `TBD` because this validator has no accepted producer/home.

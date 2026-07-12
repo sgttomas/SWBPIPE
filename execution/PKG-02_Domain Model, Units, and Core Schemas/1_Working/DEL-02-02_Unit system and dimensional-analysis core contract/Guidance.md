@@ -83,3 +83,7 @@ TBD. The accessible sources do not provide source-backed numeric unit-conversion
 ## D-41 R5 T2A persistence hash guidance (2026-07-12)
 
 Keep project persistence, model-state consumers, headless-runner consumers, schemas, and fixtures aligned to the narrow sorted-compact labels. Do not call this serializer JCS without a governed RFC 8785 implementation and conformance suite.
+
+## D-41 R5 T2B unit-authority guidance (2026-07-12)
+
+Use the schema-vocabulary adapter for Python dimension membership checks. A matching copied set is not an authority binding. Rust mechanics, imports/exports, rule packs, reports, and remaining adapters still require their own accepted boundary wiring and evidence; do not infer system-wide closure from this one corrected consumer.

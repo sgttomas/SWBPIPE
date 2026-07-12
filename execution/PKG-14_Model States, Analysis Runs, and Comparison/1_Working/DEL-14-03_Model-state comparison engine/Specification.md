@@ -55,3 +55,6 @@ Required local evidence for this deliverable:
 - notes identifying dependency on `DEL-14-01`, `DEL-14-05`, and `DEL-02-02`;
 - comparison result-envelope shape or service contract, `TBD` until implementation;
 - protected-content/provenance status for fixtures and examples.
+## D-41 R5 T2B unit-comparison boundary (2026-07-12)
+
+DEL-14-03 performs structural state comparison, not unit conversion. A changed field declared unit-bearing must carry explicit unit and dimension metadata on both sides. Missing metadata, incompatible dimensions, or different units without a governed normalization contract block classification as a normal change. Same-unit/same-dimension values are preserved as structured left/right evidence; the engine does not emit a bare numeric delta.

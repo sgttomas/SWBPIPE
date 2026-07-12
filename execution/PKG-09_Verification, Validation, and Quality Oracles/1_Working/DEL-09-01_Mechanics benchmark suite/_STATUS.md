@@ -1,9 +1,10 @@
 # Status: DEL-09-01 Mechanics benchmark suite
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
+- Hold PDU-013 project-grain unit-system acceptance until the upstream canonical unit catalog and conversion constants are accepted; current benchmark evidence remains explicit and dimensionally checked only against its fixture-local unit basis (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
 - Complete the PRD §16.2 benchmark evidence system named residual by the conditional R4 gate (see also DEL-09-04 for §16.5) (source: PRD plan §3 D9 exit-refresh row / DEC-054)
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
@@ -19,3 +20,4 @@
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 12); no state change.
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
+- 2026-07-12 - D-41 R5 T2B recorded the PDU-013 project-unit-system gap as a held residual. Existing rights-safe fixture-local evidence was not promoted to project-grain acceptance; no threshold, outcome, disposition, or lifecycle state changed.

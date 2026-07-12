@@ -192,6 +192,16 @@
         "target_ref": {
           "$ref": "#/$defs/Reference"
         },
+        "source_field_path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional field-scalar path within source_ref. When present, target_field_path is also required."
+        },
+        "target_field_path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional field-scalar path within target_ref. When present, source_field_path is also required."
+        },
         "provenance": {
           "$ref": "#/$defs/Provenance"
         },
@@ -201,6 +211,14 @@
             "$ref": "#/$defs/Diagnostic"
           }
         }
+      },
+      "dependentRequired": {
+        "source_field_path": [
+          "target_field_path"
+        ],
+        "target_field_path": [
+          "source_field_path"
+        ]
       }
     },
     "UnitPreservationQuantity": {

@@ -1,5 +1,11 @@
 # MEMORY - DEL-06-02 Sandboxed Unit-Aware Expression Evaluator
 
+## 2026-07-12 - D41-R5-T2B-PDU024 downstream version integration
+
+- Recorded the bounded downstream integration for PDU-024: project-carried evaluator inputs consume DEL-02-05's accepted `0.2.0` model-document family and explicit current/stale/unsupported/newer/failed version-check behavior.
+- No expression grammar, variable/result binding contract, evaluator library, sandbox behavior, rule-pack fixture, lifecycle state, dependency/DAG/register, protected content, private data, or professional claim changed.
+- Shared focused desktop evidence passed 65/65 tests; this deliverable claims supporting integration evidence only.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-06-02: Report Content Lint now inventories the

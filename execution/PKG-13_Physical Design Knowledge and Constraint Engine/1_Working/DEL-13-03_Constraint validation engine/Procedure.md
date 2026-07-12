@@ -78,3 +78,6 @@ This procedure describes how to verify the current DEL-13-03 validation artifact
 - Test fixture provenance/review records: required before public examples are relied on outside executable test evidence.
 - `TBD` list for localization, full geometric conflict solving, owner criteria/rules, GUI presentation, physical-to-analytical transformation, runtime integration, release readiness, and human acceptance.
 - Local dependency validation result from `tools/validation/validate_dependencies_schema.py` when `Dependencies.csv` exists.
+## D-41 R5 T2C PDU-023 Check
+
+Validate paired field paths at the existing result-trace schema boundary. Do not emit a runtime envelope from the constraint validator until an accepted producer/home exists.

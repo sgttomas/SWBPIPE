@@ -26,6 +26,7 @@ from core.model_operations.validation_preview import (  # noqa: E402
 from core.model_operations.validation_preview.engine import (  # noqa: E402
     CANONICAL_DIMENSIONS,
 )
+from core.units.schema_vocabulary import canonical_dimension_ids  # noqa: E402
 
 
 OPERATION_FIXTURE = ROOT / "fixtures" / "model_operations" / "invented_operation_set_valid.json"
@@ -122,6 +123,15 @@ def test_canonical_dimensions_match_accepted_pkg02_vocabulary():
     assert CANONICAL_DIMENSIONS == set(accepted)
     assert CONSTRAINT_CANONICAL_DIMENSIONS == set(accepted)
     assert list(GUI_CANONICAL_DIMENSIONS) == accepted
+    assert canonical_dimension_ids() == frozenset(accepted)
+
+
+def test_validation_preview_has_no_parallel_dimension_literal_authority():
+    source = (ROOT / "core" / "model_operations" / "validation_preview" / "engine.py").read_text(
+        encoding="utf-8"
+    )
+    assert "CANONICAL_DIMENSIONS = canonical_dimension_ids()" in source
+    assert '"force_per_length",' not in source
 
 
 def test_unresolved_target_and_constraint_findings_are_blocking():

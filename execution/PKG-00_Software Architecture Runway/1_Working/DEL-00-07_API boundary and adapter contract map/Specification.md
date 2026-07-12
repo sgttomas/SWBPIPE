@@ -12,6 +12,16 @@ This specification governs only `DEL-00-07` inside `PKG-00 - Software Architectu
 | REQ-07-04 | Record import/export format choices as TBD unless a human ruling is cited. | Acceptance review |
 | REQ-07-05 | Define handoff obligations for storage, reports, private libraries, local FEA export, and external automation without implementing them. | Human review |
 
+### REQ-07-05 handoff obligations
+
+- **Storage:** adapters use the owning application-service/persistence contract, preserve schema version, hashes, provenance, diagnostics, and unit metadata, and do not treat direct SQL or sidecars as a public domain contract.
+- **Reports:** adapters consume governed result/report envelopes and preserve affected-object references, assumptions, warnings, privacy classification, and professional-boundary flags; they do not create approval or code-compliance states.
+- **Private libraries:** references remain local/private by default, carry redistribution and provenance metadata, and require explicit grants before filesystem, network, or publication access.
+- **Local FEA:** the boundary is a governed handoff package with stable IDs, units/dimensions, coordinate basis, source hashes, diagnostics, and a loss report; it is not a solver-compatibility or validation claim.
+- **External automation:** automation uses schema-first command/query/job-result envelopes, cannot mutate domain state directly, preserves idempotency/correlation and diagnostics, and requires explicit runtime grants for filesystem, network, process, or private-data access.
+
+These are architecture obligations only. Concrete target formats and runtime integrations remain with their owning deliverables.
+
 ## Acceptance Criteria
 - Datasheet.md, Specification.md, Guidance.md, and Procedure.md exist and cite the deliverable identity.
 - All scope statements remain limited to PKG-00 architecture-runway work.

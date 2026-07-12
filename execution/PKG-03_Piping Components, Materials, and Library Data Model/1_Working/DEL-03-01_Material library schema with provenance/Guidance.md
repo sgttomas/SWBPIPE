@@ -1,5 +1,9 @@
 # Guidance: DEL-03-01 Material library schema with provenance
 
+## PDU-024 Guidance
+
+Treat model-document compatibility as downstream DEL-02-05 authority. Material consumers must not duplicate a current model-version literal or reinterpret migration statuses. Preserve the material schema/provenance contract and surface downstream stale, unsupported, newer, or failed project-version diagnostics without coercing material records.
+
 ## Purpose
 
 This deliverable exists so OpenPipeStress can support piping-specific private material libraries without shipping protected material tables, proprietary commercial data, or unreviewed public data. The schema should make provenance, rights, units, and completeness visible enough for later validation, diagnostics, and review gates.

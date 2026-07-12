@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from decimal import Decimal
 import json
 from pathlib import Path
 import sys
@@ -14,6 +15,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from core.section_properties.calculator import (  # noqa: E402
+    PipeSectionInput,
+    Quantity,
+    calculate_pipe_section_properties,
+)
 from validation.witness.tools.witness_validator import (  # noqa: E402
     WitnessError,
     assert_generated_artifacts_current,
@@ -55,6 +61,50 @@ def test_tp_phys_015_witness_validates_and_compares_to_result_export():
     assert by_formula["bending_normal_stress_z"].result_id == (
         "result:stress:element-E-1:midspan:bending-normal-z"
     )
+
+
+def test_tp_phys_015_oracle_and_result_envelope_bind_to_production_section_calculator():
+    witness = load_witness()
+    evaluation = evaluate_witness(witness)
+    inputs = {item["id"]: item for item in witness["inputs"]}
+    provenance = witness["provenance"]
+
+    def calculator_quantity(input_id):
+        quantity = inputs[input_id]["quantity"]
+        return Quantity(
+            magnitude=float(quantity["decimal"]),
+            unit=quantity["unit"],
+            dimension=quantity["dimension"],
+            provenance=provenance,
+        )
+
+    result = calculate_pipe_section_properties(
+        PipeSectionInput(
+            outside_diameter=calculator_quantity("outside_diameter"),
+            wall_thickness=calculator_quantity("wall_thickness"),
+        )
+    )
+
+    assert result.accepted
+    by_formula = {item.formula_id: item for item in evaluation.comparisons}
+    bindings = {
+        "section_area": ("metal_area", "m^2", "area"),
+        "section_modulus_y": ("section_modulus", "m^3", "section_modulus"),
+        "section_modulus_z": ("section_modulus", "m^3", "section_modulus"),
+        "torsion_constant": (
+            "torsional_constant",
+            "m^4",
+            "second_moment_area",
+        ),
+    }
+    for formula_id, (property_id, unit, dimension) in bindings.items():
+        produced = result.properties[property_id]
+        oracle = by_formula[formula_id]
+        produced_decimal = Decimal(str(produced.magnitude))
+        assert produced.unit == unit
+        assert produced.dimension == dimension
+        assert abs(produced_decimal - oracle.witness_value) <= oracle.tolerance
+        assert abs(produced_decimal - oracle.ops_value) <= oracle.tolerance
 
 
 def test_generated_markdown_and_mathml_are_current():
@@ -122,6 +172,7 @@ def test_rendered_markdown_changes_when_witness_changes():
 
 def main():
     test_tp_phys_015_witness_validates_and_compares_to_result_export()
+    test_tp_phys_015_oracle_and_result_envelope_bind_to_production_section_calculator()
     test_generated_markdown_and_mathml_are_current()
     test_rejects_unsupported_openmath_symbol()
     test_rejects_dimension_mismatch()

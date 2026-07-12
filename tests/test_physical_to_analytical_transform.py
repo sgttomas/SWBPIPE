@@ -344,6 +344,54 @@ def test_supported_component_metadata_passes_through_when_referenced_by_valid_el
     }
     assert trace_targets[("Component", "COMP-VALVE-1")] == ref("Component", "COMP-VALVE-1")
     assert trace_targets[("Element", "E-1")] == ref("Element", "E-1")
+    scalar_links = [
+        link
+        for link in analytical["traceability_links"]
+        if link.get("source_field_path")
+    ]
+    assert scalar_links == [
+        {
+            "id": "TRACE-PTA-FIELD-Component-COMP-VALVE-1-geometry-face-to-face",
+            "trace_type": "physical_to_analytical",
+            "source_ref": ref("Component", "COMP-VALVE-1"),
+            "target_ref": ref("Component", "COMP-VALVE-1"),
+            "source_field_path": (
+                "components[id=COMP-VALVE-1].geometry.face_to_face.value"
+            ),
+            "target_field_path": (
+                "components[id=COMP-VALVE-1].geometry.face_to_face.value"
+            ),
+            "diagnostics": [],
+            "provenance": scalar_links[0]["provenance"],
+        }
+    ]
+
+
+def test_component_scalar_trace_is_not_emitted_for_invalid_quantity_metadata():
+    source = physical_model()
+    source["components"] = [
+        {
+            "id": "COMP-VALVE-1",
+            "component_type": "valve",
+            "name": "Invented metadata valve",
+            "geometry": {
+                "face_to_face": quantity(1.0, "m", "length"),
+            },
+            "mechanics_modifiers": [],
+            "provenance": provenance("component metadata source"),
+        }
+    ]
+    del source["components"][0]["geometry"]["face_to_face"]["dimension"]
+    source["elements"][0]["component_ref"] = ref("Component", "COMP-VALVE-1")
+
+    result = transform_physical_to_analytical(source)
+
+    assert "PTA-COMPONENT-GEOMETRY-UNIT" in codes(result)
+    assert not [
+        link
+        for link in result.traceability_links
+        if link.get("source_field_path")
+    ]
 
 
 def test_unsupported_component_reference_blocks_element_without_analytical_approximation():

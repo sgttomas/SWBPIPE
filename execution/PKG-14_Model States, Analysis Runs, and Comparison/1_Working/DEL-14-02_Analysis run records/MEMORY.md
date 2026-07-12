@@ -234,3 +234,7 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T2B PDU-033 hold
+
+- The analysis-run record binds `unit_system_ref` and hashes referenced result records, but the current preview result source supplies units without explicit dimensions.
+- DEL-14-02 will not infer dimension metadata or claim per-result unit validation. Closure requires a governed result-envelope change at its owning boundary; this remains a named hold.

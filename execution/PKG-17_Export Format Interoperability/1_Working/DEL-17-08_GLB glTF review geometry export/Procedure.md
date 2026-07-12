@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This procedure defines how to develop and review the GLB/glTF review-geometry export contract without crossing into implementation, solver-fidelity, target-compatibility, release, code-compliance, or professional-acceptance claims.
+This procedure defines how to maintain and review the bounded JSON glTF centerline export without crossing into binary GLB, broader geometry, viewer compatibility, engineering validation, solver-fidelity, release, code-compliance, or professional-acceptance claims.
 
 ## Prerequisites
 
@@ -47,11 +47,11 @@ Declared upstream dependencies for this deliverable are `DEL-17-02`, `DEL-02-01`
 
 ### Future export-package review procedure
 
-1. Confirm every emitted review entity has a canonical ID or an explicit unmapped/omitted record.
+1. Confirm every emitted centerline entity has the same canonical ID in node `extras`, primitive `extras`, and exactly one authoritative sidecar row after deterministic write/read round trip; block mismatches.
 2. Confirm every target artifact is listed in the manifest.
 3. Confirm geometry limitations appear in the loss report.
 4. Confirm GLB/glTF target facts are limited to GLTF-2.0 source evidence and selected profile behavior.
-5. For D-001, confirm timestamp or generator metadata policy is declared as deterministic, normalized, omitted, or intentionally runtime-dependent before package acceptance.
+5. Confirm current output retains its fixed versioned generator and omits timestamps. Do not declare a normative timestamp/generator policy until the owner selects the exact PDU-031 policy.
 6. For E-003, confirm binary GLB and other non-JSON package members have hashes or an explicit, manifest-recorded reason why a hash is unavailable.
 7. Confirm no statement implies solver readiness, analysis fidelity, target compatibility, formal validation, code compliance, release readiness, or professional acceptance.
 

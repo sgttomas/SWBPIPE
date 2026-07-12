@@ -4,6 +4,8 @@ import {
   buildBlankLocalModelDocument,
   createLocalProject,
   evaluateModelDocumentLocal,
+  modelDocumentVersionCheckDiagnostic,
+  modelDocumentVersionCheckStatus,
   openLocalProject,
   saveLocalProject,
   SUPPORTED_MODEL_SCHEMA_VERSION
@@ -73,6 +75,34 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     const older = evaluateModelDocumentLocal(sampleModel("0.0.1"));
     expect(older.status).toBe("unsupported_schema");
     expect(older.detail).toContain("No migration path");
+  });
+
+  it("classifies current, stale, unsupported, newer, and failed version checks with governed statuses", () => {
+    expect(modelDocumentVersionCheckStatus(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION))).toBe("current");
+    expect(modelDocumentVersionCheckStatus(sampleModel("0.1.0"))).toBe("stale");
+    expect(modelDocumentVersionCheckStatus(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), "stale")).toBe("stale");
+    expect(modelDocumentVersionCheckStatus(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), "migration_needed")).toBe("stale");
+    expect(modelDocumentVersionCheckStatus(sampleModel("0.0.1"))).toBe("unsupported_schema");
+    expect(modelDocumentVersionCheckStatus(sampleModel("0.3.0"))).toBe("newer_than_supported");
+    expect(modelDocumentVersionCheckStatus(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION), "failed")).toBe("failed");
+
+    expect(modelDocumentVersionCheckDiagnostic("current")).toBeNull();
+    expect(modelDocumentVersionCheckDiagnostic("stale")).toMatchObject({
+      code: "PROJECT-VALIDATION-STALE-SCHEMA",
+      severity: "warning"
+    });
+    expect(modelDocumentVersionCheckDiagnostic("failed")).toMatchObject({
+      code: "PROJECT-VALIDATION-SCHEMA-MIGRATION-FAILED",
+      severity: "blocking"
+    });
+    expect(modelDocumentVersionCheckDiagnostic("newer_than_supported")).toMatchObject({
+      code: "PROJECT-VALIDATION-NEWER-THAN-SUPPORTED-SCHEMA",
+      severity: "blocking"
+    });
+    expect(modelDocumentVersionCheckDiagnostic("unsupported_schema")).toMatchObject({
+      code: "PROJECT-VALIDATION-UNSUPPORTED-SCHEMA",
+      severity: "blocking"
+    });
   });
 
   it("round-trips create, save, and open with current migration evidence and an empty ledger", async () => {

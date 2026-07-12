@@ -28,9 +28,9 @@ Describe the conservative production procedure for creating and verifying the DE
    - Concrete schema/API field names are `TBD`.
 
 2. Resolve comparison mapping.
-   - Prefer stable-ID alignment where safe.
-   - Use manual mappings where required by SOW-073.
-   - Do not invent mapping workflow semantics; consume the DEL-14-05 contract when available.
+   - Produce `automatic_match` only when a result ID is unique on each side and the ID, family, object ref, basis ref, and dimension all match.
+   - Use explicit caller-supplied `manual_match` records for different or ambiguous IDs as required by SOW-073.
+   - Validate the produced automatic record against the DEL-14-05 mapping contract; do not add heuristic matching or manual-review workflow semantics.
 
 3. Validate unit comparability before computing deltas.
    - Compare only same-dimension unit-bearing values after accepted normalization.
@@ -58,7 +58,7 @@ Describe the conservative production procedure for creating and verifying the DE
 |---|---|
 | Inputs preserve exact run basis | Test or contract assertion that run metadata is available to comparison logic. |
 | Determinism | Repeated comparison of identical input pair yields identical ordered output. |
-| Mapping behavior | Stable-ID and manual-mapping cases both exercised. |
+| Mapping behavior | DEL-14-05-shaped exact stable-ID mapping and caller-supplied manual mapping both survive JSON round trip with mapping/left/right result IDs preserved; ambiguous IDs do not auto-map. |
 | Unit normalization | Same-dimension conversion path and missing/incompatible-unit diagnostic path both exercised. |
 | Scope coverage | Mapped result locations, diagnostics, and settings are represented where upstream records expose them. |
 | Tolerance behavior | Raw deltas remain available while tolerance classification changes with profile. |
@@ -73,3 +73,14 @@ Describe the conservative production procedure for creating and verifying the DE
 - Diagnostics/status assertions.
 - Mapping/tolerance contract references.
 - Any unresolved implementation decisions carried forward as `TBD`.
+
+## D-41 R5 T2B PDU-011/PDU-047 Check
+
+Do not claim comparison-output schema conformance until an accepted output schema exists; input mapping/tolerance schema validation is not a substitute. Do not route section-property evidence through the comparison engine or choose conversion/tolerance behavior in this evidence-only tranche. Preserve both gaps explicitly.
+
+## D-41 R5 T2C PDU-030 Check
+
+Run the focused exact-ID and manual-mapping round-trip tests. Treat the
+automatic producer as a bounded DEL-14-05 mapping-record path, not as authority
+to infer entities, create heuristic matches, select mapping workflow policy,
+or claim output-schema conformance.

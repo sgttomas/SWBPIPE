@@ -190,3 +190,10 @@ Residual non-claims:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-07-12 - D-41 R5 T2B PDU-047 production-path oracle binding
+
+- Added a focused test that runs existing rights-safe TP-PHYS-015 geometry through `calculate_pipe_section_properties` and compares area, section modulus, and torsional constant to both the formal witness and its governed result envelope.
+- The test asserts units and canonical dimensions and uses only existing witness tolerances; it selects no new threshold.
+- Evidence is in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU047.md`.
+- This is bounded evidence only. Lifecycle remains `IN_PROGRESS`; review dispositions, dependencies, DAG/register state, validation outcomes, and engineering-validation claims are unchanged.

@@ -52,3 +52,7 @@ The exact module paths, fixture schema, runner command, result export format, nu
 | Conflict ID | Issue | Contenders | Human ruling |
 |---|---|---|---|
 | None | No source conflict identified in setup evidence. | N/A | N/A |
+
+## D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
+
+The existing mechanics benchmarks remain explicit and dimensionally checked under `PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K`. That fixture-local basis does not satisfy RQ-004 or Unit safety at the accepted-project-unit-system grain while the canonical catalog and conversion constants remain unresolved. No threshold or validation outcome is selected here.
