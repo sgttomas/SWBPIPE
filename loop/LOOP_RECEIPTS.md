@@ -630,3 +630,7 @@
     `init/piping-resume-one-time.md` (primary checkout, per explicit owner
     direction). Hard STOP before R4/R5 unchanged; discovery read-only; no
     lifecycle transition; no register change.
+  - Post-receipt addendum (same day): owner direction of record (in-session,
+    verbatim): "merge PR #198" — executed; PR #198 merged to main as
+    `0129780f38d6af7f3854fd51c344030b958ed751`. The pause otherwise stands;
+    W4 still awaits owner direction.
