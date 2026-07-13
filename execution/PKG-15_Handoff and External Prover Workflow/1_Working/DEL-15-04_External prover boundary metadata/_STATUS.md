@@ -1,12 +1,14 @@
 # Status: DEL-15-04 External prover boundary metadata
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
+- Obtain the owning human-review disposition for open `RF-001`; `HumanDisposition` remains `TBD`, and corrected Guidance/schema evidence does not formally close the finding (PDU-060).
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001 for human disposition without duplicating resolved PKG-02 work or changing lifecycle.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-03 - State set to INITIALIZED (TASK+four-documents)
 - 2026-05-03 - State set to SEMANTIC_READY (TASK+semantic-matrix-build)

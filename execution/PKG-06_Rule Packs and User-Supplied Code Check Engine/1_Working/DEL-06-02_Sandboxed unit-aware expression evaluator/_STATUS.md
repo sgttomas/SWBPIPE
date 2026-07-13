@@ -4,11 +4,13 @@
 **Last Updated:** 2026-07-12
 
 ## Remaining
+- Keep PDU-037 downstream plugin/adapter bypass-attempt and public-example protected-content test families open; the refreshed 31-test plus 69-case evaluator corpus is verification only.
 - Bind evaluator findings and final diagnostic taxonomy into a governed result envelope before report consumption; the T4 persisted-record reader does not execute or integrate the evaluator.
 - Bind any future adapter/plugin invocation to a governed runtime dispatch path; the DEC-074 O7/E5 declaration gate is deny-only and does not load or execute evaluator inputs.
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T6 PDU-037 refreshed bounded fixture/harness evidence and preserved all validation, policy, review, and lifecycle holds.
 - 2026-07-12 - D-41 R5 T4 PDU-021 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T3 PDU-028 recorded bounded adapter-declaration no-bypass evidence; evaluator runtime binding remains unselected and no execution or lifecycle claim was made.
 - 2026-04-30 - State set to OPEN (PREPARATION)

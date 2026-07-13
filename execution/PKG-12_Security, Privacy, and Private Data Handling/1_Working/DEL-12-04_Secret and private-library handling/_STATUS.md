@@ -5,9 +5,11 @@
 
 ## Remaining
 - Select the exact protected-content quarantine/readiness taxonomy and destructive-workflow policy before PDU-034 closure; DEC-074 did not invent those values. T3 may add bounded no-bypass evidence at O7-selected seams without claiming this policy is settled.
+- Obtain owning human-review dispositions for open `RF-001` and `RF-002`; both retain `HumanDisposition=TBD`. Corrected wording and bounded security evidence do not close provider/storage/grant/runtime/legal/security deferrals or formal review (PDU-060).
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001/RF-002 human dispositions while preserving the PDU-034 policy hold and formal TBD state.
 - 2026-07-12 - D-41 R5 T2 recorded the PDU-034 exact quarantine/readiness-policy hold; no security sufficiency or lifecycle outcome was inferred.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 — State set to INITIALIZED (TASK+four-documents)

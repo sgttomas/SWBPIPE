@@ -65,3 +65,10 @@ not independent usability validation. Desktop runtime evaluation is not
 performed, no accessibility conformance claim is emitted, and
 contrast/readability findings remain warnings while the measurable target is
 `TBD_by_human_project_authority`.
+
+## D-41 R5 T6 PDU-046 measurable-target hold
+
+`DEL-07-06-RQ-004` remains `VERIFIED_NOT_VALIDATED`. The qualitative
+contrast/readability review is project-owned verification only; no independent
+usability basis or human-selected measurable target was supplied. PDU-046
+cannot be upgraded by the existing warning evidence.

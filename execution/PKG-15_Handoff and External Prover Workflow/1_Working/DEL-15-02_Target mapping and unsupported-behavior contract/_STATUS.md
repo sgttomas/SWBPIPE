@@ -4,9 +4,11 @@
 **Last Updated:** 2026-07-12
 
 ## Remaining
+- Obtain owning human dispositions for `DEL-15-02-PKG02-001`, `RF-001`, and `RF-002`; all remain technically addressed/open with `HumanDisposition=TBD`, and current mapping/privacy/currentness evidence does not create approval or formal closure (PDU-060).
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed all three target-mapping finding dispositions without changing tests, review rows, or lifecycle.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-03 - State set to INITIALIZED (TASK+four-documents)
 - 2026-05-03 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

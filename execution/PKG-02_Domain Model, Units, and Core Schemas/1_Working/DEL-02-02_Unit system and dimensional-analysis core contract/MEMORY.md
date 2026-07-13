@@ -2348,3 +2348,7 @@ Boundary note:
 - Replaced DEL-16-02's copied canonical-dimension set with a read-only adapter over the PKG-02 schema enum; focused vocabulary/no-mirror tests pass.
 - Preserved system-wide B2/B3 integration as a residual. Exact alias/namespace policy (PDU-015), diagnostic namespace/category policy (PDU-025), and independent numeric validation basis (PDU-048) remain unselected or unavailable and were not invented.
 - Lifecycle remains `IN_PROGRESS`; no engineering validation outcome is asserted.
+## 2026-07-12 - D-41 R5 T6 PDU-037 verification refresh
+
+- Unit crate/schema verification refreshed (13 Rust tests; shared Python evidence included in 19/19). Serialization, import/export, rule-pack, and JSON-hash matrix strands remain cross-deliverable; no validation promotion.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

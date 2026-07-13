@@ -1,5 +1,14 @@
 # DEL-07-06 Memory
 
+## 2026-07-12 - D-41 R5 T6 PDU-046 hold
+
+- `DEL-07-06-RQ-004` remains `VERIFIED_NOT_VALIDATED`; deterministic
+  contrast/readability warnings are project-owned verification only.
+- No independent usability basis or human-selected measurable target was
+  added. The target remains `TBD_by_human_project_authority`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU046-HOLD.md`.
+
 ## 2026-07-12 - D-41 R5 T5 PDU-045 hold
 
 - Focused evidence confirms the baseline remains deterministic project-owned

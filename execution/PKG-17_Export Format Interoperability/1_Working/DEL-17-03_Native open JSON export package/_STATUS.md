@@ -4,9 +4,11 @@
 **Last Updated:** 2026-07-12
 
 ## Remaining
+- Obtain the owning human-review disposition for open `RF-002` and refresh its canonical DAG artifact-presence flags only through the governed DAG workflow; local artifacts do not close the finding, and `HumanDisposition` remains `TBD` (PDU-060).
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-002 without changing DAG/register state, formal review, or lifecycle.
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)
 - 2026-05-18 - State set to INITIALIZED (TASK+four-documents P1_P2 / TP-EXPORT-003)
 - 2026-05-18 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build, lens-register, four-documents P3_ONLY / TP-EXPORT-003)

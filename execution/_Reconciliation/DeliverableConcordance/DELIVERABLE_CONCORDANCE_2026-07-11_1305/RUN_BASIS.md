@@ -816,3 +816,19 @@ dispositions are never represented as owner or engineering rulings.
   decomposition/ISSUED or validation promotion. GPT-5 owning pilots,
   cross-pilot fan-in, and GPT-5 orchestrator closeout; no silent substitution.
   T6 may proceed.
+
+- **2026-07-12 — R5 T6 evidence/review-hold/Remaining-home checkpoint
+  COMPLETE.** `R5_T6_CLOSEOUT.md` (SHA-256
+  `1eb15ed3dab067cce5e42ebd6e5ce131addbf43888d7ff9418dc7d39bf111716`)
+  records evidence-only PDU-037 refreshes, exact PDU-007/PDU-046/PDU-050
+  holds, and the PDU-060 34-claim/22-deliverable home audit. Thirty-two REM
+  claims gained explicit sole status homes and two use valid current deduped
+  homes; zero findings/dispositions changed.
+
+  Fan-in found one PDU-050 hold-label wording defect; the PDU-060 owner
+  corrected it to validation hold while preserving RF-001/RF-002 review
+  homes. Final cardinality/scope checks PASS. Evidence passed Python 19/19,
+  unit 13/13, expression 31/31 + 69 corpus, mechanics 33/33, and hold-focused
+  13/13. All states/bootstrap and governance fences remain intact. GPT-5
+  owning pilots, cross-pilot fan-in, GPT-5 orchestrator; no substitution. T7
+  may proceed.

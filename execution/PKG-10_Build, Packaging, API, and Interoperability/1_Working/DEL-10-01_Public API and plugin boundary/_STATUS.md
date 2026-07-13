@@ -5,9 +5,11 @@
 
 ## Remaining
 - Register any selected model-creation/load-case or persisted-report public API families and explicit invalid-input encoding separately; the T4 backend workflow grain is not a new public API family.
+- Obtain the owning human disposition for `PKG10-DEL1001-PKG02-W001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` despite the implemented dependency-traceability evidence (PDU-060).
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed `PKG10-DEL1001-PKG02-W001` for human disposition without editing dependency authority or formal finding state.
 - 2026-07-12 - D-41 R5 T4 PDU-012/PDU-022 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents RUN_PASSES=P1_P2)

@@ -1,5 +1,16 @@
 # MEMORY: DEL-17-05
 
+## 2026-07-12 - D-41 R5 T6 PDU-050 hold
+
+- Cache-disabled tests verify schema, parser, skipped-without-executable,
+  privacy/boundary diagnostics, user-responsibility gates, metadata, and
+  invented fixtures only.
+- No user-owned executable or selected target/MBF/invocation profile was
+  available. Optional live CAEPIPE execution remains O10 profile-gated, so
+  `DEL-17-05-ACC-006` stays `VERIFIED_NOT_VALIDATED`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU050-HOLD.md`.
+
 ## 2026-05-18 - SCA-004 PREPARATION scaffold
 - Created minimum viable fileset from SOFTWARE_DECOMP revision 0.7.
 - Populated local context, dependencies placeholder, references, semantic placeholder, and status.

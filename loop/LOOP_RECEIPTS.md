@@ -1059,3 +1059,18 @@
     register/decomposition/ISSUED or validation promotion. D-42 open.
   - Attribution: GPT-5 owning pilots, independent cross-pilot fan-in, GPT-5
     orchestrator. No silent substitution. T6 may proceed.
+
+- **2026-07-12 — Receipt 40** (D-41 R5 T6 evidence/Remaining checkpoint).
+  - Applied: PDU-037 evidence refresh; PDU-060 exact 34-claim/22-deliverable
+    audit with 32 explicit homes and two valid dedupes.
+  - Held: PDU-007 formal review, PDU-046 independent usability/target, PDU-050
+    optional-live CAEPIPE validation all remain open.
+  - Evidence: `R5_T6_CLOSEOUT.md`, SHA-256
+    `1eb15ed3dab067cce5e42ebd6e5ce131addbf43888d7ff9418dc7d39bf111716`;
+    Python/Rust/corpus focused surfaces all pass as recorded.
+  - Fan-in: one validation-vs-formal-review wording defect corrected; final
+    counts and scope PASS.
+  - Boundaries: zero findings/dispositions/lifecycle/governance changes; all
+    bootstrap items preserved; D-42 open.
+  - Attribution: GPT-5 owning pilots, cross-pilot fan-in, orchestrator. T7 may
+    proceed.

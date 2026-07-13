@@ -359,3 +359,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
   writable expression text syntax, backend validation/persistence behavior,
   protected content, private data, release-readiness claim, or professional/
   code-compliance claim changed.
+## 2026-07-12 - D-41 R5 T6 PDU-037 verification refresh
+
+- Evaluator verification refreshed: 31 unit tests plus the 69-case conformance-corpus harness passed. Plugin/adapter bypass and public protected-content examples remain downstream.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

@@ -101,3 +101,12 @@ Future implementation documentation shall include:
 ## D-41 R5 T3 PDU-016 O7/E5 Requirement (2026-07-12)
 
 User-provided CAEPIPE output evidence defaults to private/user-controlled, local-only, telemetry-disabled handling. Public classification requires an explicit later rights/provenance path; this seam does not assert global privacy sufficiency.
+
+## D-41 R5 T6 PDU-050 validation hold
+
+`DEL-17-05-ACC-006` remains `VERIFIED_NOT_VALIDATED`. Parser, skipped-run,
+metadata, boundary, and invented-fixture tests verify the bounded software
+contract only. Optional live execution remains an O10 user-owned path gated by
+an executable, acknowledged responsibilities, and a selected target/MBF/
+invocation profile; those inputs are unavailable and no live validation was
+performed.

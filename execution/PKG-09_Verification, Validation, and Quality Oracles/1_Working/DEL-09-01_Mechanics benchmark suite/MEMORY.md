@@ -743,3 +743,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Held project-grain unit-system acceptance because the upstream canonical catalog and conversion constants remain unresolved; no constants or thresholds were selected.
 - Evidence is in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU013.md`.
 - Lifecycle remains `IN_PROGRESS`; no validation outcome, review disposition, dependency, DAG, register, release, or engineering-validation claim changed.
+## 2026-07-12 - D-41 R5 T6 PDU-037 verification refresh
+
+- Mechanics benchmark verification refreshed: 33 Rust tests passed and the existing inventory still covers 21 project-original fixture/hand-calc families. Dedicated provenance index, runner/release integration, and validation disposition remain open.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

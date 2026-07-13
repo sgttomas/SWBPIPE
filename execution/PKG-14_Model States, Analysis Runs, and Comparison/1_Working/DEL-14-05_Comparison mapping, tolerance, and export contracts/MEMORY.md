@@ -116,3 +116,7 @@ Durable context preserved after reconciliation review:
   tolerance, external validation decision, comparison pass/fail claim,
   release threshold, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+## 2026-07-12 - D-41 R5 T6 PDU-037 verification refresh
+
+- DEL-14-04 deterministic comparison and DEL-14-05 mapping/schema backcheck refreshed within the 19/19 Python set. Engine logic remains with DEL-14-04; tolerance suitability and independent validation remain absent.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
