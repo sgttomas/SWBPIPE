@@ -1083,3 +1083,10 @@
     runner 830/zero diagnostics; five validators PASS, review TBD.
   - Fan-in/currentness/containment PASS; no controlled-governance or product
     code change. T8/T9 remain.
+- **2026-07-12 — Receipt 42** (D-41 R5 final closeout).
+  - T8: 2 rows / 4 claims held; T9: 15 rows / 24 claims deferred.
+  - Total: 77/77 rows, 532/532 claims; lifecycle/bootstrap/D-42 preserved.
+  - Summary SHA-256:
+    `5141cfd625c5b095030fe7b05643b346f5bbec5af2a81b027c0b12fa1200eadf`.
+  - QA: Python 496/496; desktop 476/476 + build; harness 263/1 skip;
+    containment 3 active / 6 frozen. PR #211 remains owner-controlled.

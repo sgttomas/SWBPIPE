@@ -251,3 +251,11 @@ mutation, decomposition change, owner/engineering/review disposition, release
 decision, compatibility claim, certification, sealing, authentication,
 professional-approval claim, or code-compliance ruling. Any later R4 decision
 gate or R5 repair requires separate explicit authority and a new bounded task.
+## Post-R4/R5 addendum — 2026-07-12
+
+The owner subsequently ruled O1–O13 option A, confirmed C18–C19 for the
+current reconciliation, and adopted E1–E8 as evidence requirements under
+DEC-074. R5 then completed all 77 proposed-update rows / 532 affected claims
+through T1–T9. The authoritative post-ruling closeout is
+`R5_RUN_SUMMARY.md`; D-42, T8 holds, and all named surviving policy, review,
+validation, runtime, format, release, and professional residuals remain open.

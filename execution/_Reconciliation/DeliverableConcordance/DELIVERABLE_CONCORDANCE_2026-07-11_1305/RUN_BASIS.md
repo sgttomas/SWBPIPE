@@ -843,3 +843,13 @@ dispositions are never represented as owner or engineering rulings.
   Independent fan-in PASS after count/status-only corrections. Primary
   containment restored. No code/governance-controlled changes. GPT-5 owning
   pilots, independent fan-in, orchestrator; no substitution. T8/T9 remain.
+- **2026-07-12 — R5 FINAL CLOSEOUT.** T8 hold audit and T9 deferral
+  backcheck PASS; final `R5_RUN_SUMMARY.md` SHA-256
+  `5141cfd625c5b095030fe7b05643b346f5bbec5af2a81b027c0b12fa1200eadf`.
+  Exact total 77/77 rows and 532/532 claims. Final QA: project 496/496,
+  desktop 476/476 + build PASS, harness 263 passed/1 skipped and self-check
+  exit 0. Final backcheck restored one accidentally edited dependency row and
+  removed one test-created target; active ignored set 3, frozen set 6.
+  Lifecycle 100 IN_PROGRESS + DEL-01-01 ISSUED; bootstrap zero; D-42 remains
+  AWAITING_RULING. PR #211 remains owner-controlled. R5 stops with governed
+  residuals open, not repair-closed.
