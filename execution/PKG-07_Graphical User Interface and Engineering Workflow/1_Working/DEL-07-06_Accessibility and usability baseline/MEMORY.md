@@ -1,5 +1,16 @@
 # DEL-07-06 Memory
 
+## 2026-07-12 - D-41 R5 T5 PDU-045 hold
+
+- Focused evidence confirms the baseline remains deterministic project-owned
+  contract review with desktop runtime evaluation not performed and no
+  accessibility conformance claim.
+- Contrast/readability findings remain warnings; the measurable target is
+  `TBD_by_human_project_authority`. No independent usability basis was added,
+  so PDU-045 stays `VERIFIED_NOT_VALIDATED`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T5-PDU045.md`.
+
 Current C5 status: C5 is closed by the 2026-06-20 replacement-criterion human
 ruling (`DEC-047`) and the R3 exit-chain packet is assembled as
 `TP-R3VERIFY-001` / SMOKE TP-MAC-190. Older entries below that say F-4/A3

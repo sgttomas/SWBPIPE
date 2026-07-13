@@ -798,3 +798,21 @@ dispositions are never represented as owner or engineering rulings.
   pilots executed three bounded partitions; cross-pilot GPT-5 fan-in found
   and revalidated the correction; GPT-5 orchestrator integrated closeout. No
   silent substitution. T5 may proceed.
+
+- **2026-07-12 — R5 T5 GUI behavior/validation-boundary checkpoint
+  COMPLETE.** `R5_T5_CLOSEOUT.md` (SHA-256
+  `3f119d9dd9b2d921dfe97f027dd3f3c179fbd4288f36947d03bfb41d0266bdec`)
+  records bounded nonlinear-warning, explicit governing-ratio, diagnostic-
+  metadata, and fail-closed telemetry-request interaction work. PDU-041 stays
+  documented unimplemented; PDU-045 stays VERIFIED_NOT_VALIDATED; measurable
+  contrast and rotational visualization remain open.
+
+  Fan-in found two PDU-008 inference defects (iteration misclassified as
+  ratio; nonlinear status synthesized as solved). Owning-pilot corrections
+  added explicit-token and producer-status/result/blocking semantics. Final
+  read-only fan-in PASS. Project pytest 496/496; desktop Vitest 476/476;
+  production build PASS with existing warning. Seven states remain
+  IN_PROGRESS/bootstrap-preserved; no scope/review/dependency/DAG/register/
+  decomposition/ISSUED or validation promotion. GPT-5 owning pilots,
+  cross-pilot fan-in, and GPT-5 orchestrator closeout; no silent substitution.
+  T6 may proceed.

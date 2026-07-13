@@ -136,6 +136,7 @@ function DiagnosticDetail({ interpretation }: { interpretation: DiagnosticInterp
       <dl>
         <DetailLine label="Diagnostic" value={interpretation.diagnostic_id} testId="selected-diagnostic-id" />
         <DetailLine label="Code" value={interpretation.code} testId="selected-diagnostic-code" />
+        <DetailLine label="Class" value={interpretation.diagnostic_class} testId="selected-diagnostic-class" />
         <DetailLine label="Severity" value={interpretation.severity} />
         <DetailLine label="Source" value={interpretation.source} />
         <DetailLine
@@ -168,6 +169,8 @@ function DiagnosticDetail({ interpretation }: { interpretation: DiagnosticInterp
           }
         />
         <DetailLine label="Explanation" value={interpretation.review_explanation} testId="selected-diagnostic-explanation" />
+        <DetailLine label="Remediation" value={interpretation.remediation} testId="selected-diagnostic-remediation" />
+        <DetailLine label="Provenance" value={interpretation.provenance} testId="selected-diagnostic-provenance" />
         <DetailLine label="Boundary" value={interpretation.professional_boundary} />
       </dl>
     </section>
@@ -212,8 +215,11 @@ function filterDiagnostics(diagnostics: Diagnostic[], filterText: string): Diagn
       item.id,
       item.code,
       item.severity,
+      item.diagnostic_class,
+      item.class,
       item.source,
       item.message,
+      item.remediation,
       ...(item.affected_refs ?? [])
     ]
       .filter((value): value is string => Boolean(value))

@@ -26,6 +26,7 @@ Use this procedure to produce or review a telemetry design for OpenPipeStress wi
 5. Verify configuration behavior so absent, unset, empty, unknown, unsupported, malformed, or incomplete telemetry metadata resolves to disabled.
 6. Verify payload rules so private project, code, rule-pack, material, component, report, path, hash, secret, protected standards content, and professional/code-compliance claim fields cannot be collected or transmitted.
 7. Verify Python and desktop tests that prove metadata-only default-off behavior, no payload/network/persistence initialization, fail-closed capability requests without affirmative opt-in, and payload/runtime/forbidden-field rejection. Runtime startup and plugin/adapter/import-export/report/private-library interception remain PDU-043 documented absence until separately authorized.
+8. For PDU-042, render the existing panel and verify `requested=false` before interaction. Click only `Request telemetry enablement review`; verify the action is distinct from terms/install/open/solve, records the request, disables itself, and leaves telemetry, opt-in, consent, allowlist, config mutation, payload construction, persistence, and network initialization false.
 8. Record any unresolved approval, config, endpoint, or payload decision as `TBD` for human/security ruling.
 9. Do not write product code or repo-level product artifacts unless a later sealed brief explicitly authorizes that scope.
 
@@ -60,3 +61,5 @@ Deliverable-local records:
 - `_run_records/*`
 
 Current external evidence records include `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, `tests/security/test_telemetry_policy.py`, `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`, `_run_records/TASK_RUN_2026-06-07_0141.md`, and the PKG-12 package fan-in run record. Future implementation records, if authorized, should include human approval evidence, config schema/default fixtures, payload allowlist, transport-disabled runtime tests, opt-in tests, payload privacy tests, and plugin/adapter bypass tests.
+
+The PDU-042 request interaction is not one of those future consent/opt-in implementations. Treat it as bounded GUI evidence that an affirmative request can be distinct while the O7 guard remains authoritative and fail-closed.

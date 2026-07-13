@@ -83,5 +83,33 @@ def test_gui_editors_contract_main():
     main()
 
 
+def test_load_case_and_support_editors_remain_documented_del_07_03_absences():
+    for editor_kind in ("load_case", "support"):
+        record = build_editor_contract(
+            editor_set_id=f"unsupported-{editor_kind}-editor",
+            editors=[
+                {
+                    "editor_id": f"{editor_kind}-editor",
+                    "editor_kind": editor_kind,
+                    "fields": [
+                        {
+                            "field_id": "invented-field",
+                            "label": "Invented field",
+                            "value": "TBD",
+                        }
+                    ],
+                }
+            ],
+        )
+
+        assert record["deliverable_id"] == "DEL-07-03"
+        assert any(
+            item["code"] == "EDITOR_KIND_UNSUPPORTED"
+            and item["severity"] == "blocking"
+            for item in record["diagnostics"]
+        )
+        assert record["editors"][0]["save_intent"]["mutates_persistent_project"] is False
+
+
 if __name__ == "__main__":
     main()

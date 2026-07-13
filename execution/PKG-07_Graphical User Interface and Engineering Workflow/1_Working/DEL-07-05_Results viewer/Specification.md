@@ -54,3 +54,6 @@ Required setup records for this deliverable are:
 ## Acceptance Notes
 
 This setup can be marked `SEMANTIC_READY` only after the four-document pass, semantic matrix build, lens register, Pass 3 consistency sweep, dependency extraction, and local validation gates complete. `SEMANTIC_READY` is a development lifecycle state only; it is not product implementation, code compliance, professional approval, or an issued deliverable.
+## D-41 R5 T5 PDU-008 current GUI boundary
+
+The viewer presents an explicit governing-ratio state: supplied ratio rows are available and filterable; no ratio rows yields an unavailable state without inferred criteria. Rotational deformation visualization remains unimplemented.

@@ -91,3 +91,10 @@ Pass 3 applied the semantic lensing register as a worklist. Source rereads used 
 ## D-41 R5 T3 PDU-049 guidance
 
 Keep project-authored tests and private-by-default implementation evidence classified as verification. Do not upgrade PDU-049 or `DEL-07-03-R-011` beyond `VERIFIED_NOT_VALIDATED` without a separately authorized, independent usability/security validation basis. This hold is not a product-repair request and does not authorize editor, storage, lifecycle, review, dependency, DAG, register, decomposition, or `ISSUED` changes.
+
+## D-41 R5 T5 PDU-041 guidance
+
+Do not treat adjacent load-case or support authoring surfaces as DEL-07-03
+implementation without an accepted ownership binding. Preserve the local
+unsupported-kind behavior and documented GUI absence; no new editor kind,
+feature attribution, or scope is selected here.

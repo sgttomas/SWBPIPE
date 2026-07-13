@@ -54,3 +54,10 @@ The semantic lensing items were treated as candidate improvements only. Enrichme
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | DEL-07-06-CF-001 | Baseline accessibility is in scope, but the detailed WCAG target is unresolved. | `docs/_Registers/ScopeLedger.csv` SOW-036 | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-002 and DEL-07-06 note | Specification Standards and Verification; Guidance Principles | Keep conformance target as `TBD`; allow only qualitative setup requirements until human ruling. | TBD |
+
+## D-41 R5 T5 PDU-045 guidance
+
+Keep project-authored accessibility/usability checks classified as
+verification. Do not upgrade them to usability validation or measurable
+contrast/readability conformance without a separately authorized independent
+basis and a selected target.

@@ -1,4 +1,5 @@
 import { Download, ShieldCheck } from "lucide-react";
+import { useState } from "react";
 import type { LocalStorageCapability, PreviewModel } from "../../types";
 import {
   desktopTelemetryRuntimeEvidence,
@@ -14,7 +15,12 @@ export function TelemetryBoundaryPanel({
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
 }) {
-  const packet = buildTelemetryBoundaryPacket({ model, storageCapability });
+  const [affirmativeRequestRecorded, setAffirmativeRequestRecorded] = useState(false);
+  const packet = buildTelemetryBoundaryPacket({
+    model,
+    storageCapability,
+    affirmativeRequestRecorded
+  });
 
   return (
     <section
@@ -27,6 +33,17 @@ export function TelemetryBoundaryPanel({
         Telemetry Boundary
       </div>
       <div className="report-actions">
+        <button
+          type="button"
+          className="secondary-action"
+          data-testid="telemetry-affirmative-request"
+          disabled={affirmativeRequestRecorded}
+          onClick={() => setAffirmativeRequestRecorded(true)}
+        >
+          {affirmativeRequestRecorded
+            ? "Telemetry review requested — remains off"
+            : "Request telemetry enablement review"}
+        </button>
         <a
           className="report-export-link"
           data-testid="telemetry-boundary-export-link"
@@ -47,6 +64,11 @@ export function TelemetryBoundaryPanel({
           label="Config"
           value={`requested=${String(packet.config_resolution.requested_enabled)}; opt_in=${String(packet.config_resolution.explicit_opt_in)}; consent=${packet.config_resolution.consent_surface}; allowlist=${String(packet.config_resolution.allowlist_approved)}`}
           testId="telemetry-boundary-config"
+        />
+        <TelemetryLine
+          label="Affirmative request"
+          value={`recorded=${String(packet.affirmative_request.request_recorded)}; action=${packet.affirmative_request.action_id}; effect=${packet.affirmative_request.effect}; enabled=${String(packet.affirmative_request.telemetry_enabled)}`}
+          testId="telemetry-boundary-affirmative-request"
         />
         <TelemetryLine
           label="Guard"
@@ -89,12 +111,14 @@ function TelemetryLine({ label, value, testId }: { label: string; value: string;
 
 function buildTelemetryBoundaryPacket({
   model,
-  storageCapability
+  storageCapability,
+  affirmativeRequestRecorded
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
+  affirmativeRequestRecorded: boolean;
 }) {
-  const requestedEnabled = Boolean(storageCapability?.telemetry_enabled);
+  const requestedEnabled = affirmativeRequestRecorded;
   const telemetryPolicy = resolveDesktopTelemetryPolicy(requestedEnabled);
   const eventAttempts = telemetryEventAttempts(requestedEnabled);
   return {
@@ -119,6 +143,7 @@ function buildTelemetryBoundaryPacket({
     summary: {
       telemetry_enabled: telemetryPolicy.telemetry_enabled,
       config_resolution: telemetryPolicy.reason_code,
+      affirmative_request_recorded: affirmativeRequestRecorded,
       attempted_event_count: eventAttempts.length,
       allowed_event_count: 0,
       blocked_event_count: eventAttempts.length,
@@ -138,7 +163,31 @@ function buildTelemetryBoundaryPacket({
       product_config_schema: "TBD",
       product_config_storage: "TBD",
       reason_code: telemetryPolicy.reason_code,
-      config_source: storageCapability ? "desktop_local_storage_capability" : "storage_capability_pending"
+      config_source: affirmativeRequestRecorded
+        ? "desktop_telemetry_boundary_affirmative_request"
+        : "no_affirmative_telemetry_request"
+    },
+    affirmative_request: {
+      request_recorded: affirmativeRequestRecorded,
+      action_id: "request_telemetry_enablement_review",
+      action_label: "Request telemetry enablement review",
+      distinct_from_actions: [
+        "terms_acceptance",
+        "installation",
+        "application_open",
+        "project_open",
+        "solve_request"
+      ],
+      effect: affirmativeRequestRecorded
+        ? "request_recorded_fail_closed_pending_consent_and_allowlist"
+        : "no_request_recorded",
+      product_config_mutated: false,
+      explicit_opt_in_granted: false,
+      consent_granted: false,
+      allowlist_approved: false,
+      telemetry_enabled: false,
+      payload_constructed: false,
+      network_behavior_initialized: false
     },
     metadata_only_guard: {
       guard_present: true,

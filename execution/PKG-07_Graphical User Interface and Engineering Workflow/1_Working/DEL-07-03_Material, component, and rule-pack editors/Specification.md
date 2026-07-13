@@ -81,3 +81,14 @@ Future implementation artifacts named by the register remain anticipated, not im
 ## D-41 R5 T3 PDU-049 disposition hold
 
 The existing private-by-default editor behavior remains project-owned verification evidence for `DEL-07-03-R-011`. No separately authorized independent usability or security validation basis was produced in this tranche. Accordingly, PDU-049 remains `VERIFIED_NOT_VALIDATED`; the evidence must not be promoted into an independent validation, security-review closure, release-readiness, or lifecycle claim.
+
+## D-41 R5 T5 PDU-041 documented absence
+
+The DEL-07-03 implementation still accepts only material, component, and
+rule-pack-reference editor kinds. Load-case and support editor requests remain
+blocking unsupported kinds in this owner. Adjacent desktop authoring under
+other GUI ownership is not reattributed here and does not close
+`DEL-07-03-R-005` or `DEL-07-03-R-006`.
+## D-41 R5 T5 PDU-008 current GUI boundary
+
+Current application surfaces expose all named concepts across the GUI, but PDU-041 preserves load-case and support editor ownership as absent from DEL-07-03 itself. Cross-surface visibility is not silent ownership transfer or complete R-002 closure.

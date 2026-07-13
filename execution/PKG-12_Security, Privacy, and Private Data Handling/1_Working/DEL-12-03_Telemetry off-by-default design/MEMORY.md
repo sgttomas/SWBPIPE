@@ -1,5 +1,13 @@
 # Memory: DEL-12-03 Telemetry off-by-default design
 
+## 2026-07-12 - D-41 R5 T5 PDU-042 distinct affirmative request
+
+- Added `Request telemetry enablement review` to the existing DEL-12-03 panel; no new GUI surface was created.
+- Initial render records no request. The dedicated click records a one-shot local request explicitly distinct from terms, install, application/project open, and solve actions.
+- O7 remains authoritative: the request resolves disabled because consent and allowlist approval are absent. It mutates no product config, grants no opt-in/consent, constructs no payload, persists nothing, and initializes no network behavior.
+- Focused telemetry service Vitest passed 3/3; focused App interaction Vitest passed 1/1 selected; disposable copy-out production build passed with the existing large-chunk warning.
+- No runtime telemetry, validation promotion, GUI scope expansion, lifecycle, review, dependency/DAG/register/decomposition, or `ISSUED` change.
+
 ## 2026-07-12 - D-41 R5 T3 PDU-026/PDU-043 O7-before-E5 seam
 
 - Added `telemetryPolicyService.ts` as the bounded desktop pre-payload seam used by the DEL-12-03 panel. Missing/false configuration and even a capability request remain disabled because no affirmative opt-in or approved allowlist surface exists.

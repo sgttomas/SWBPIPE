@@ -57,3 +57,11 @@ Exact checklist format, target accessibility standard, automated a11y tooling, c
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | DEL-07-06-CF-001 | SOW-036 requires baseline accessibility/usability, but the detailed WCAG target is explicitly TBD. | `ScopeLedger.csv` SOW-036 notes | `Specification.md#Standards` | Requirements, Standards, Verification | Keep baseline requirements qualitative and defer measurable conformance target to human ruling. | TBD |
+
+## D-41 R5 T5 PDU-045 evidence boundary
+
+The current deterministic contract review remains project-owned verification,
+not independent usability validation. Desktop runtime evaluation is not
+performed, no accessibility conformance claim is emitted, and
+contrast/readability findings remain warnings while the measurable target is
+`TBD_by_human_project_authority`.

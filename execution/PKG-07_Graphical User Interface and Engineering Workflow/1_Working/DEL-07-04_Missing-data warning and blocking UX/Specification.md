@@ -73,3 +73,6 @@ Implementation artifacts listed in the register (`warning system UI`, `UX tests`
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | None | No source conflict identified during P1/P2 setup. | N/A | N/A | N/A | N/A | TBD |
+## D-41 R5 T5 PDU-008 current GUI boundary
+
+Supplied diagnostics whose codes begin `NONLINEAR_` are displayed as `NONLINEAR_WARNING` records with severity, message, source, affected refs, and any supplied class/remediation. The GUI does not create nonlinear outcomes or replace producer evidence.

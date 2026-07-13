@@ -1,5 +1,11 @@
 # MEMORY - DEL-07-01 3D Viewport and Centerline Editor
 
+## 2026-07-12 - D-41 R5 T5 PDU-008 bounded viewport behavior
+
+- Existing interaction evidence covers structured node and straight-pipe authoring, support handoff, component reference insertion, selection, and inspection through current application seams.
+- Dedicated bend authoring and full component-symbol geometry authoring remain absent. No rotational result visualization is claimed here.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T5-PDU008.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
 ## Session 2026-05-02
 
 Human project authority approved a small coordination cleanup followed by

@@ -1044,3 +1044,18 @@
     cross-pilot GPT-5 fan-in and GPT-5 orchestrator closeout. No silent
     substitution.
   - Gate outcome: T4 complete; T5 may proceed.
+
+- **2026-07-12 — Receipt 39** (D-41 R5 T5 GUI behavior checkpoint).
+  - Applied: bounded PDU-008 nonlinear/ratio/diagnostic interactions and
+    PDU-042 distinct fail-closed telemetry-review request.
+  - Held: PDU-041 DOCUMENTED_UNIMPLEMENTED; PDU-045 VERIFIED_NOT_VALIDATED;
+    contrast target, reduced producer metadata, bend/full-component authoring,
+    and rotational visualization remain open.
+  - Evidence: `R5_T5_CLOSEOUT.md`, SHA-256
+    `3f119d9dd9b2d921dfe97f027dd3f3c179fbd4288f36947d03bfb41d0266bdec`;
+    project pytest 496/496; desktop 476/476; build PASS.
+  - Fan-in: two PDU-008 inference bugs corrected through owner; final PASS.
+  - Boundaries: seven IN_PROGRESS/bootstrap; no scope/review/dependency/DAG/
+    register/decomposition/ISSUED or validation promotion. D-42 open.
+  - Attribution: GPT-5 owning pilots, independent cross-pilot fan-in, GPT-5
+    orchestrator. No silent substitution. T6 may proceed.

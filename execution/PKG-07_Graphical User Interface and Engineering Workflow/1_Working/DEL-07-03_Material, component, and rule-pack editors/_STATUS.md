@@ -4,10 +4,13 @@
 **Last Updated:** 2026-07-12
 
 ## Remaining
+- Preserve PDU-041 / `DEL-07-03-R-005` and `R-006` as documented GUI absences until an accepted ownership/scope binding authorizes load-case and support/restraint editors in this deliverable; adjacent DEL-07-02/other GUI authoring does not silently close them.
 - Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 - Obtain a separately authorized independent usability/security validation basis before upgrading PDU-049 / `DEL-07-03-R-011` beyond `VERIFIED_NOT_VALIDATED`; project-owned verification does not supply that basis (source: DEC-074 O7-before-E5; PDU-049, 2026-07-12)
 
 ## History
+- 2026-07-12 - D-41 R5 T5 PDU-008 recorded current cross-surface GUI interaction evidence while preserving PDU-041's DEL-07-03 load-case/support editor ownership absences; no silent closure or lifecycle change.
+- 2026-07-12 - D-41 R5 T5/PDU-041 added focused blocking evidence for unsupported DEL-07-03 load-case/support editor kinds and preserved the absence without scope creation; lifecycle remains IN_PROGRESS.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

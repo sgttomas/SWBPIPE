@@ -81,3 +81,10 @@ Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `exe
 | PDU | Requirement | Current evidence state |
 |---|---|---|
 | PDU-049 | `DEL-07-03-R-011` | `VERIFIED_NOT_VALIDATED`: project-owned private-by-default behavior exists, but no independent usability/security validation basis was authorized or produced. |
+
+## D-41 R5 T5 PDU-041 evidence state
+
+| Requirement | DEL-07-03 current state |
+|---|---|
+| `DEL-07-03-R-005` | Load-case editor remains documented unimplemented in this owner; adjacent authoring is not an ownership binding. |
+| `DEL-07-03-R-006` | Support/restraint editor remains documented unimplemented in this owner; unsupported-kind evidence blocks mutation. |

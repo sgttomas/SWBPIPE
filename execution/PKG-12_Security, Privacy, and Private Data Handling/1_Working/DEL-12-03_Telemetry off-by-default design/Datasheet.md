@@ -51,7 +51,9 @@ This deliverable began as a design-boundary setup kit. Current evidence also inc
 | `core/security/telemetry_policy/` | Provides metadata-only `TelemetryConfig`, `TelemetryEventAttempt`, diagnostics, decision/result records, config resolution, and event guard behavior before payload construction. |
 | `tests/security/test_telemetry_policy.py` | Tests default-off config handling, opt-in/allowlist gates, rejected unknown events/fields, rejected private/protected/secret/path/hash/report/professional-claim field classes, and no payload or network initialization flags. |
 | `docs/security/telemetry_policy.md` | Documents the policy and helper non-authority boundary while preserving open `TBD` decisions. |
-| `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx` | Presents and locally exports the default-off policy/guard boundary with `payload_constructed=false` and network/runtime initialization false; consent, config, and allowlist approval remain `TBD`. |
+| `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx` | Presents and locally exports the default-off policy/guard boundary with `payload_constructed=false` and network/runtime initialization false. PDU-042 adds an ephemeral distinct affirmative review request that remains disabled pending consent/allowlist; consent, config, persistence, and allowlist approval remain `TBD`. |
+
+PDU-042 evidence distinguishes the panel request from terms/install/open/solve actions and records that it mutates no product configuration, grants no opt-in/consent, constructs no payload, and initializes no network behavior.
 | `_run_records/TASK_RUN_2026-06-07_0141.md` and package fan-in | Record successful focused tests, `git diff --check`, and boundary scan evidence. |
 
 ## References

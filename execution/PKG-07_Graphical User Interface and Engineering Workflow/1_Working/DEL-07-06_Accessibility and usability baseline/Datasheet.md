@@ -58,3 +58,14 @@ Future implementation should translate the checklist into GUI and report tests o
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07, DEL-07-06, AB-00-03, AB-00-05, AB-00-06, AB-00-08, OI-002 |
 | `docs/_Registers/Deliverables.csv` | DEL-07-06 register row |
 | `docs/_Registers/ScopeLedger.csv` | SOW-036 row |
+
+## D-41 R5 T5 PDU-045 current state
+
+| Item | State |
+|---|---|
+| Evidence classification | `VERIFIED_NOT_VALIDATED` |
+| Review grain | Deterministic project-owned contract records |
+| Independent usability basis | Not present |
+| Desktop runtime evaluation | Not performed |
+| Contrast/readability target | `TBD_by_human_project_authority` |
+| Conformance claim | False |

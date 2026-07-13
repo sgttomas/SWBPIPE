@@ -22,6 +22,7 @@ DEL-12-03 has repo policy documentation, a Python metadata-only guard, focused t
 - A no-op runtime telemetry path is acceptable for MVP if tests prove that no default outbound behavior exists.
 - The current `core/security/telemetry_policy/` helper is an acceptable metadata-only guardrail for default-off behavior. It should stay pre-payload and local unless a later sealed brief authorizes runtime integration.
 - The current `TelemetryBoundaryPanel` is a policy-review surface, not a consent control. Its display/export of disabled-state evidence does not enable telemetry, approve an allowlist, or authorize collection or transport.
+- PDU-042's `Request telemetry enablement review` button is a distinct affirmative request demonstration inside that existing surface. It records request intent only, once per mounted panel, and then disables itself while telemetry remains off. Do not label it consent, opt-in, enablement, or configuration persistence.
 - A future opt-in design needs a human-approved allowlist before implementation. Without that approval, event names, endpoint details, vendor choices, and payload fields remain `TBD`.
 - Configuration defaults should fail closed: missing, unset, unknown, or malformed values disable telemetry.
 - Product diagnostics may report that telemetry is disabled or misconfigured, but diagnostic text should not echo private payload content.
@@ -47,6 +48,8 @@ Concrete product config syntax and runtime event schemas are `TBD` because the i
 - allowlisted low-sensitivity metadata can be evaluated by the helper only after explicit opt-in, approved consent surface metadata, and human-approved allowlist evidence are present;
 - unknown events, unknown fields, private/protected/secret/path/hash/report/professional-claim field classes, and payload-shaped attempts are rejected before payload construction;
 - any future telemetry payload is approved by allowlist and excludes private/protected engineering data.
+
+Focused interaction evidence must prove both sides of the boundary: ordinary render/open state records no request, while clicking the dedicated request action records only the fail-closed request and leaves opt-in, consent, allowlist, configuration mutation, payload, persistence, and network behavior false.
 
 ## Conflict Table (for human ruling)
 

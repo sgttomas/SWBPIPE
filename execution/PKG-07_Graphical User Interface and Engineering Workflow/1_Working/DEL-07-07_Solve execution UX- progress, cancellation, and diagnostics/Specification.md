@@ -58,3 +58,6 @@ Required setup records for this deliverable are:
 ## Acceptance Notes
 
 `SEMANTIC_READY` means the setup artifacts are prepared for review. It does not mean product implementation is complete, UI behavior is tested, solver behavior is verified, protected data is authorized, code compliance is established, or professional approval has occurred.
+## D-41 R5 T5 PDU-008 current GUI boundary
+
+The desktop diagnostic type/detail/filter path preserves class, remediation, and provenance when supplied and labels their absence as producer-unsupplied. Producer-side reduced shapes remain open; the GUI does not fabricate missing metadata.

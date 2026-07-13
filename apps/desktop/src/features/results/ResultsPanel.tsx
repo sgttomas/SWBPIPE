@@ -107,6 +107,7 @@ export function ResultsPanel({
             onNextPage={() => setPageIndex((current) => Math.min(page.pageCount - 1, current + 1))}
           />
           <ResultDetail interpretation={interpretation} />
+          <GoverningRatioState ratioCount={familyCounts.ratio} />
           <div className="result-groups">
             {groups.length > 0 ? (
               groups.map((group) => (
@@ -169,6 +170,23 @@ export function ResultsPanel({
       ) : (
         <p className="muted">Run the bounded preview mechanics path to populate result summaries.</p>
       )}
+    </section>
+  );
+}
+
+function GoverningRatioState({ ratioCount }: { ratioCount: number }) {
+  const available = ratioCount > 0;
+  return (
+    <section aria-label="Governing ratio state" className="result-detail-panel" data-testid="governing-ratio-state">
+      <h3>Governing Ratio</h3>
+      <p data-testid="governing-ratio-status">
+        {available
+          ? `available; ${ratioCount} user-rule ratio row${ratioCount === 1 ? "" : "s"}; human review required`
+          : "unavailable; no user-rule ratio rows are present in this result envelope; mechanics results remain reviewable but no governing rule-check ratio is inferred"}
+      </p>
+      <small>
+        This view reports supplied ratio rows only. It does not synthesize allowables, code criteria, compliance, or professional approval.
+      </small>
     </section>
   );
 }
@@ -551,6 +569,10 @@ function resultFamilyKey(result: MechanicsResult["results"][number]): ResultFami
   if (kind.includes("force") || id.includes("force")) return "force";
   if (kind.includes("moment") || id.includes("moment")) return "moment";
   if (kind.includes("stress") || id.includes("stress")) return "stress";
-  if (kind.includes("ratio") || id.includes("ratio")) return "ratio";
+  if (hasResultSemanticToken(kind, "ratio") || hasResultSemanticToken(id, "ratio")) return "ratio";
   return "other";
+}
+
+function hasResultSemanticToken(value: string, expected: string): boolean {
+  return value.split(/[^a-z0-9]+/).includes(expected);
 }

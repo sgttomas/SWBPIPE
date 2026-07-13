@@ -1,5 +1,13 @@
 # DEL-07-05 Memory
 
+## 2026-07-12 - D-41 R5 T5 PDU-008 governing-ratio state
+
+- Results now display an explicit governing-ratio state: supplied user-rule ratio rows are counted and filterable; absence produces an unavailable message that does not infer rule criteria.
+- Ratio classification requires an explicit `ratio` semantic token; nonlinear
+  `iteration_count` rows are negative-tested and do not create a ratio view.
+- No allowable, protected criterion, compliance result, or professional approval is synthesized. Rotational `rx`/`ry`/`rz` deformation visualization remains the DEL-07-05 T1 residual and was not implemented.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T5-PDU008.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
 ## 2026-07-12 - D-41 R5 T1 PDU-061 rotational-deformation residual home
 
 - DEC-074 O1 resolves the prior DEL-07-05-REM-002 UNKNOWN: rotational-

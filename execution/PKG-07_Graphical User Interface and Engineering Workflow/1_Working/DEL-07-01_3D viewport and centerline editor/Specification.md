@@ -74,3 +74,6 @@ Required setup artifacts for this deliverable are:
 - `_STATUS.md`
 
 Future implementation artifacts such as GUI source and interaction tests remain outside this session's write scope.
+## D-41 R5 T5 PDU-008 current GUI boundary
+
+Current PDU-008 evidence covers structured node and straight-pipe authoring, support handoff, and reference-only component insertion. Dedicated bend authoring and full component-symbol geometry authoring remain absent; this is not full REQ-01 closure.

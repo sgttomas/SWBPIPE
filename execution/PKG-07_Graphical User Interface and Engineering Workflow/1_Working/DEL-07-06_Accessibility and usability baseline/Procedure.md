@@ -51,3 +51,15 @@ Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items X-001 and X-002 were
 - `_DEPENDENCIES.md`
 - `_run_records/*`
 - `_STATUS.md`
+
+## D-41 R5 T5 PDU-045 hold check
+
+1. Build the deterministic accessibility/usability baseline from invented GUI
+   contract records.
+2. Confirm desktop runtime evaluation is `not_performed`.
+3. Confirm the accessibility target remains
+   `TBD_by_human_project_authority`.
+4. Confirm contrast/readability findings remain warnings and no accessibility
+   conformance claim is emitted.
+5. Preserve `VERIFIED_NOT_VALIDATED`; do not infer independent usability
+   validation.

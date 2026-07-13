@@ -134,7 +134,7 @@ export function countMissingDataBlockers(args: { model: PreviewModel; result: Me
   return buildMissingDataBlockingPacket(args).summary.blocking_warning_count;
 }
 
-function buildMissingDataBlockingPacket({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
+export function buildMissingDataBlockingPacket({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
   const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])];
   const statusInputs = {
     mechanics: result?.status.mechanics ?? model.analysis_status.mechanics,
@@ -258,6 +258,28 @@ function buildWarnings({
   };
 }): MissingDataWarning[] {
   const warnings: MissingDataWarning[] = [];
+  for (const diagnostic of diagnostics.filter((item) => item.code.startsWith("NONLINEAR_"))) {
+    const blocksMechanics = diagnostic.severity === "blocking" || diagnostic.severity === "error";
+    const mechanicsIncomplete = statusInputs.mechanics.toLowerCase().includes("incomplete");
+    warnings.push(
+      warning({
+        warning_id: `nonlinear:${diagnostic.id ?? diagnostic.code}`,
+        warning_class: "NONLINEAR_WARNING",
+        local_contract_class: diagnostic.diagnostic_class ?? diagnostic.class ?? "nonlinear_solver_diagnostic",
+        severity: diagnostic.severity,
+        analysis_status: [...new Set([statusInputs.mechanics, "HUMAN_REVIEW_REQUIRED"])],
+        affected_refs: diagnostic.affected_refs ?? [model.project.id],
+        source_refs: [diagnostic.source ?? diagnostic.id ?? diagnostic.code],
+        message: diagnostic.message,
+        remediation: diagnostic.remediation ?? "Review nonlinear active-state and convergence evidence before relying on the displayed result state.",
+        blocks_mechanics_solve: blocksMechanics,
+        blocks_rule_check: false,
+        qualifies_mechanics_results: Boolean(result) && !mechanicsIncomplete && !blocksMechanics,
+        private_data_required: false,
+        source_status: "producer_diagnostic"
+      })
+    );
+  }
   const normalizedMechanics = statusInputs.mechanics.toLowerCase();
   if (normalizedMechanics.includes("incomplete") || diagnostics.some((item) => item.severity === "blocking")) {
     warnings.push(
