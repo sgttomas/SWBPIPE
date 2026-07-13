@@ -112,3 +112,7 @@ Run exact-byte and fixed-SHA vectors, equivalent-order stability, mutation sensi
 ## D-41 R5 T2B unit-authority check (2026-07-12)
 
 Load `DimensionId` through the PKG-02 schema-vocabulary adapter, compare it to the schema enum, and scan the consuming Python engine for a reintroduced literal mirror. Continue to surface unbound system boundaries and unselected namespace/diagnostic policies as held residuals.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. DEC-018 and the implemented core-units slice now provide the current dimensional basis. Alias/parser behavior, diagnostics, B2/B3 coverage, and validation matters survive only where explicitly recorded as residuals; this documentation refresh makes no lifecycle or validation ruling.

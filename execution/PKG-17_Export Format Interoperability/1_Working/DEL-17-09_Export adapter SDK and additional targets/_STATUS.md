@@ -7,9 +7,9 @@
 - Bind any future SDK admission package to a governed runtime loader with complete provenance-detail grains; the current declaration gate remains deny-only and does not admit a target runtime.
 - Select the exact adapter readiness-category taxonomy before PDU-034 closure; current admission evidence remains the implemented nine-category checklist and does not imply syntactic, redistribution, mechanics, or rule-check readiness.
 - Hold PDU-004's exact checklist-category, reviewer-role, signoff-format, and approval-artifact taxonomy for owner selection. Current evidence-backed checklist fields do not include those unselected grains; `human_review_required=true` and the existing `human_review` category are not a reviewer identity or signoff record.
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-004 recorded the exact checklist/reviewer/signoff taxonomy hold around the implemented admission fields; no category, reviewer, signoff, approval, validation, or readiness outcome was invented.
 - 2026-07-12 - D-41 R5 T4 PDU-038 preserved the deny-only/additional-target hold: no GLB, broader geometry, runtime target, readiness taxonomy, compatibility, or validation outcome was inferred from PKG-17 fixture evidence.
 - 2026-07-12 - D-41 R5 T3 PDU-018 recorded declaration-level provenance/privacy no-bypass evidence; runtime loading and provenance-detail grains remain open, and the PDU-034 taxonomy hold is unchanged.

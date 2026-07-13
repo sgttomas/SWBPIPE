@@ -58,11 +58,10 @@ formulas, or code examples.
 ## Review Posture
 
 Local review findings for unit-dependency satisfaction and component diagnostic
-envelope compatibility remain conceptually
-`TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`. Narrative
-evidence may cite the technical branch schema, fixture, and diagnostic updates,
-but the CSV disposition, dependency register, and lifecycle state require their
-own authorized review process.
+envelope compatibility are `ACCEPT_AS_IS` / `RESOLVED` in
+`Review_Findings.csv` under the recorded 2026-06-05 Gate C disposition.
+Narrative evidence may cite the technical branch schema, fixture, and diagnostic
+updates, while dependency and lifecycle state remain governed separately.
 
 ## Conflict Table (for human ruling)
 

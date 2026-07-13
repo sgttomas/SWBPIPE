@@ -30,8 +30,8 @@ Out of scope for this reconciliation:
 
 | FindingID | Existing local CSV state | Reconciled technical evidence | Human disposition |
 |---|---|---|---|
-| PKG03-DEL-03-05-PKG02-001 | `TECHNICALLY_ADDRESSED_PENDING_HUMAN` | `ComponentType` includes `specialty`, and `tests/test_component_section_schema.py` verifies the PKG-03 component enum equals the PKG-02 canonical model enum. | `TBD`; CSV not edited. |
-| PKG03-DEL-03-05-PKG02-002 | `TECHNICALLY_ADDRESSED_PENDING_HUMAN` | Generic `stiffness` is absent from `ComponentQuantityDimension`; implemented stiffness slots use `linear_stiffness` and `rotational_stiffness` with schema and strict fixture coverage. | `TBD`; CSV not edited. |
+| PKG03-DEL-03-05-PKG02-001 | `ACCEPT_AS_IS` / `RESOLVED` | `ComponentType` includes `specialty`, and `tests/test_component_section_schema.py` verifies the PKG-03 component enum equals the PKG-02 canonical model enum. | Recorded by Gate C on 2026-06-05; preserved here. |
+| PKG03-DEL-03-05-PKG02-002 | `ACCEPT_AS_IS` / `RESOLVED` | Generic `stiffness` is absent from `ComponentQuantityDimension`; implemented stiffness slots use `linear_stiffness` and `rotational_stiffness` with schema and strict fixture coverage. | Recorded by Gate C on 2026-06-05; preserved here. |
 
 ## Standards
 

@@ -8,9 +8,9 @@
 - Sign/notarize release artifacts or record the explicit PRD §22.6 deviation (gated: D-06b) (source: PRD plan §3 E5 row / register row D-06b / DEC-057)
 - Record the CI browser-provisioning policy for Playwright surfaces (source: seam plan §9.5 roll-forward)
 - Map provider CI workflows to the provider-neutral phases in docs/BUILD_AND_RELEASE.md §7 (RGAP-003) (source: PRD plan §3 E5 row remaining scope / TP-E5-PACKAGING-001)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

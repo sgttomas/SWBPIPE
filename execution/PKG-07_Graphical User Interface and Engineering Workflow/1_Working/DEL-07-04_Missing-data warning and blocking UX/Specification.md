@@ -76,3 +76,7 @@ Implementation artifacts listed in the register (`warning system UI`, `UX tests`
 ## D-41 R5 T5 PDU-008 current GUI boundary
 
 Supplied diagnostics whose codes begin `NONLINEAR_` are displayed as `NONLINEAR_WARNING` records with severity, message, source, affected refs, and any supplied class/remediation. The GUI does not create nonlinear outcomes or replace producer evidence.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The missing-data warning/blocking panel is implemented, including current nonlinear-visibility behavior. It presents existing diagnostics and does not synthesize engineering inputs, resolve warnings, or confer professional approval.

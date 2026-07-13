@@ -10,7 +10,7 @@ Current implementation evidence is `core/section_properties/calculator.py`, `cor
 
 | Req ID | Requirement | Source basis | Verification hook |
 |---|---|---|---|
-| DEL-03-08-RQ-001 | The calculator shall accept only explicit user-entered or lawfully imported private/project input values for dimensions, material density, contents, insulation, and corrosion basis. | SOW-051; OPS-K-DATA-1; OPS-K-IP-1 | `tests/test_section_properties.py` uses explicit invented inputs; public source catalog and fixture-value policy remain `TBD`. |
+| DEL-03-08-RQ-001 | The calculator shall accept only explicit user-entered or lawfully imported private/project input values for dimensions, material density, contents, insulation, corrosion basis, and dimensional mill tolerance. | SOW-051; OPS-K-DATA-1; OPS-K-IP-1 | `tests/test_section_properties.py` uses explicit invented inputs; public source catalog and fixture-value policy remain `TBD`. |
 | DEL-03-08-RQ-002 | The calculator shall reject or flag missing solve-required values instead of applying silent defaults. | OPS-K-DATA-2; SOW-051 | `tests/test_section_properties.py` covers missing wall, missing provenance, mixed units, and invalid geometry. Optional mass-contributor requiredness policy remains `TBD`. |
 | DEL-03-08-RQ-003 | All input quantities, intermediate calculations, and outputs shall be unit-aware and dimensionally checked. | SOW-051; OPS-K-UNIT-1; OBJ-012 | Tests assert canonical output dimensions and rejection of mixed units. Approved unit conversion constants and dependency satisfaction remain `TBD`. |
 | DEL-03-08-RQ-004 | Library-sourced inputs shall carry provenance and redistribution status through calculator schema hooks. | SOW-018; OPS-K-DATA-3 | `Quantity` and `quantity_from_mapping` require provenance. Accepted schema field placement and private-library record linkage remain `TBD`. |
@@ -40,6 +40,13 @@ Current implementation artifacts are:
 - `core/section_properties/README.md`;
 - `tests/test_section_properties.py`;
 - schema-like quantity mapping through `quantity_from_mapping`.
+
+The current input form includes optional dimensional `mill_tolerance`. When
+present, effective wall is `wall_thickness - corrosion_allowance -
+mill_tolerance`; absence means no reduction and is not a hidden zero default.
+Negative tolerance or a corrosion-plus-tolerance reduction that consumes the
+wall is blocking. Fractional/catalog conversion policy remains `TBD` and no
+catalog value or default is supplied.
 
 Accepted schema ownership, dependency satisfaction, downstream result-envelope mapping, lifecycle disposition, and human disposition for review findings remain `TBD`.
 

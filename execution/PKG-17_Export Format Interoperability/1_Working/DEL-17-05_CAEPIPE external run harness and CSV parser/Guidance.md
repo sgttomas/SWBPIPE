@@ -1,5 +1,14 @@
 # Guidance: DEL-17-05 CAEPIPE external run harness and CSV parser
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-05-DECL-003`.
+
 ## Purpose
 
 Use this deliverable to keep CAEPIPE external-run work useful without crossing the project boundary. The harness can help confirm that a user-owned CAEPIPE environment accepts a generated MBF and emits CSV output, and the parser can extract limited regression/handoff evidence from that CSV. Neither result is an engineering approval state.

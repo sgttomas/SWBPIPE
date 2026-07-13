@@ -5,9 +5,9 @@
 
 ## Remaining
 - Hold PDU-019 formal review sufficiency/disposition; bounded negative schema evidence does not authorize an owning REVIEW outcome (source: D-41 R5 T3 O7/E5, 2026-07-12)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-056 refreshed three cited review-disposition declarations to the recorded Gate C `ACCEPT_AS_IS`/`RESOLVED` state; formal review records were preserved, and the cited-claim backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 — State set to INITIALIZED (TASK+four-documents)
 - 2026-04-30 — State set to SEMANTIC_READY (TASK+semantic-matrix-build)

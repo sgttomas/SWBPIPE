@@ -82,3 +82,7 @@ Required records for this setup run:
 - Dependency artifacts: `Dependencies.csv`, `_DEPENDENCIES.md`.
 - Status artifact: `_STATUS.md` with `SEMANTIC_READY`.
 - Run records under `_run_records/` for P1/P2, semantic matrix, lens register, P3, and dependency extraction.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. `docs/security/threat_model.md` now exists as the current project-owned threat-model surface. It records threats, boundaries, and residual mitigations; it is not a penetration-test result, security certification, or assurance ruling.

@@ -7,9 +7,9 @@
 - Exercise every named result category and bind comparison outputs separately; the T4 persisted model-state/analysis-run reader does not consume comparison records and does not alter PDU-011/PDU-047 holds.
 - Hold PDU-011 comparison-output schema conformance until an authoritative analysis-run comparison-result/export schema is accepted; current mapping and tolerance schemas govern inputs only (source: D-41 R5 T2B bounded schema check, 2026-07-12)
 - Hold PDU-047 engineering-validation/suitability of unit-normalized comparison mechanics; the section-property witness is not an authorized tolerance or comparison-validation basis and section-property results are outside the engine's current supported result families (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-021 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-03 - State set to INITIALIZED (TASK+four-documents)

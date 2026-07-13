@@ -25,8 +25,8 @@
 | Private data classes | Project model values; private rule-pack values; material and allowable-like values; component/manufacturer values; owner/company design-basis fields; private report-template content |
 | Protected data classes | Standards text, tables, figures, copied formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data |
 | Diagnostic class | `IP_BOUNDARY_WARNING` where export/report content may expose private or protected data |
-| Redaction mode vocabulary | `WARN_ONLY`, `REDACT_VALUE`, `REDACT_FIELD`, `BLOCK_EXPORT`, `ALLOW_PRIVATE_EXPORT` |
-| Export context vocabulary | `LOCAL_PRIVATE`, `SHARED_REDACTED`, `PUBLIC_TEMPLATE`, `PUBLIC_EXAMPLE`, `DOWNSTREAM_TOOL` |
+| Redaction action vocabulary | `include`, `warning_only`, `redact_value`, `redact_field`, `omit_field`, `block_export` |
+| Export context vocabulary | `public_report`, `public_example`, `shared_model`, `downstream_tool`, `local_private` |
 | Config persistence | `schemas/redaction_export_controls.schema.yaml` now records the local-first control profile, field policies, decisions, and findings contract; durable project/profile storage location and storage roots remain `TBD` |
 | Export-test status | Focused invented-fixture tests now exist for schema vocabulary, metadata-only classification, public/shared redaction, local-private intent, source non-mutation, and storage/privacy marker hardening; runtime report/export integration tests remain `TBD` |
 | Implementation status | Metadata-only helper, schema, focused tests, and security documentation now exist as June 7 evidence; runtime report/export integration, destructive quarantine movement, legal review workflow, cloud exception workflow, storage roots, UI/CLI/public transport/export-format choices, and approval choices remain `TBD` |

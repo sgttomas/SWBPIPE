@@ -1,5 +1,14 @@
 # Guidance: DEL-06-01 Rule-pack schema
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-06-01-DECL-003`.
+
 ## Purpose
 
 The rule-pack schema exists to let users evaluate solver results against user-owned design bases without placing protected standards content or proprietary engineering values in the public project. The schema should describe the artifact envelope, metadata, provenance, units, required inputs, formula declarations, allowables, criteria, checksums, and statuses needed for later rule evaluation.
@@ -52,4 +61,3 @@ No source conflict was found during setup drafting. Open decisions remain `TBD` 
 | OI-006 | Exact rule-pack expression grammar/library | `TBD`; schema should remain declarative and sandbox-compatible. |
 | OI-010 | Private rule-pack encryption default | `TBD`; defer to security/privacy work and human ruling. |
 | OI-011 | Physical project package/container | `TBD`; checksum schema should not assume a container format. |
-

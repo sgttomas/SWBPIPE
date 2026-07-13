@@ -6,9 +6,9 @@
 ## Remaining
 - Keep PDU-037 engine determinism owned by DEL-14-04 and tolerance/independent-validation outcomes open; refreshed deterministic backcheck does not move engine logic or validate tolerance suitability.
 - Bind comparison export/report-section references through the reporting owner with explicit analysis-status and limitation preservation; the current T4 evidence covers persisted state/run records only and does not select layout or tolerance policy.
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6 PDU-037 refreshed bounded fixture/harness evidence and preserved all validation, policy, review, and lifecycle holds.
 - 2026-07-12 - D-41 R5 T4 PDU-022 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.

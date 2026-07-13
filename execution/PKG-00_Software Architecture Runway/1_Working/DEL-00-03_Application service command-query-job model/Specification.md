@@ -35,3 +35,7 @@ This specification governs only `DEL-00-03` inside `PKG-00 - Software Architectu
 
 ## Human Review Gate
 Human review must decide whether the architecture content is sufficient to support later PKG-01 through PKG-12 planning. `SEMANTIC_READY` means prepared for review; it does not mean accepted or issued.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The command-query-job contract and application-service seams are implemented and evidenced by their current schemas, modules, and tests. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; broader application integration remains bounded by the recorded residuals.

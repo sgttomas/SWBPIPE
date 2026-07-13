@@ -1,5 +1,14 @@
 # Specification: DEL-08-04 Result export format
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-08-04-DECL-001`.
+
 ## Scope
 
 This deliverable defines the setup specification for a machine-readable result export contract. The baseline is a schema-first JSON result envelope suitable for review, regression comparison, and downstream tooling.

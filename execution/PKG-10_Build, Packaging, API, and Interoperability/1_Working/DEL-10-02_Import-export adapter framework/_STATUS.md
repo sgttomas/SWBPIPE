@@ -7,9 +7,9 @@
 - Concrete rule/report adapter runtime hooks remain unselected; the T4 persisted-record reader is not adapter dispatch and does not close runtime or end-to-end interop.
 - Select and govern the adapter execution model, plugin runtime, and bounded capability grants before any runtime dispatch; the current DEC-074 O7/E5 seam is deny-only and proves no-bypass behavior only at declaration admission.
 - Close the FR-023 residual GUI import/export round-trip, dispositioned with the handoff work or D-12 (gated: D-12; stage-gated: v0.2 R6 handoff) (see also DEL-17-03..08) (source: PRD plan §4 FR-023 row)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-012/PDU-022 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)

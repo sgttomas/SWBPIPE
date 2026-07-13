@@ -7,9 +7,9 @@
 - Preserve PDU-043 as documented absence until separately authorized: plugin, adapter, import/export, report, and private-library runtime paths do not yet route telemetry attempts through the selected DEL-12-03 guard seam; adapter approval/allowlist remains unselected, and the DEL-10-02 deny-only declaration-admission gate does not close this runtime binding; do not infer whole-runtime no-bypass or security closure (source: DEC-074 O7-before-E5; PDU-043, 2026-07-12)
 - Preserve PDU-042's boundary after the distinct panel request: actual opt-in/consent UI or CLI, approved allowlist, product config schema/storage, and runtime enablement remain unimplemented and separately gated. The ephemeral review request must remain fail-closed and must not be treated as consent or telemetry activation.
 - Obtain owning human-review dispositions for open `RF-001` and `RF-002`; both retain `HumanDisposition=TBD`. The O7/T3/T5 technical evidence and existing runtime/config/consent/allowlist residual homes do not close the formal findings (PDU-060).
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001/RF-002 human dispositions without duplicating the current telemetry technical residuals or changing formal review/lifecycle state.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

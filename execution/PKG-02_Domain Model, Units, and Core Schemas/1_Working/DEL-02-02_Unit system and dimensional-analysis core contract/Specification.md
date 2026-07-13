@@ -114,3 +114,7 @@ Project persistence SHALL label existing sorted-key compact ASCII-escaped Python
 ## D-41 R5 T2B unit-authority boundary (2026-07-12)
 
 Python adapter/application validation SHALL derive the canonical `DimensionId` vocabulary from `schemas/units.schema.yaml` through the PKG-02 schema-vocabulary adapter rather than maintaining a parallel literal set. This removes the identified DEL-16-02 mirror but does not assert system-wide B2/B3 completion or independent numeric validation.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. DEC-018 and the implemented core-units slice now provide the current dimensional basis. Alias/parser behavior, diagnostics, B2/B3 coverage, and validation matters survive only where explicitly recorded as residuals; this documentation refresh makes no lifecycle or validation ruling.

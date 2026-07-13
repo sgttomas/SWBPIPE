@@ -59,3 +59,7 @@ This deliverable defines API and adapter contracts only; it does not implement A
 | Private libraries | Local/private default, provenance/redistribution metadata, explicit grants | Implicit filesystem/network/publication access |
 | Local FEA | Stable IDs, units/dimensions, coordinate basis, source hashes, diagnostics, loss report | Compatibility or solver-validation claim |
 | External automation | Schema-first command/query/job envelopes, correlation/idempotency, explicit runtime grants | Direct mutation or implicit process/network/private-data access |
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. API, plugin, and adapter boundary declarations and their gates now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; runtime adapter/plugin breadth is a separate implementation scope and is not implied by this architecture declaration.

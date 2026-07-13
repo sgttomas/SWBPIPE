@@ -92,3 +92,7 @@ other GUI ownership is not reattributed here and does not close
 ## D-41 R5 T5 PDU-008 current GUI boundary
 
 Current application surfaces expose all named concepts across the GUI, but PDU-041 preserves load-case and support editor ownership as absent from DEL-07-03 itself. Cross-surface visibility is not silent ownership transfer or complete R-002 closure.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Bounded material, component, and rule-pack editor surfaces are implemented. PDU-041 preserves the recorded load/support ownership absences; this declaration does not claim those absent editors or a complete GUI product.

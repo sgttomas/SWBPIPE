@@ -1,15 +1,15 @@
 # Status: DEL-09-04 Validation manual skeleton
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
 - Close E2 manual residuals (first assembly landed TP-E2-VALMANUAL-001, PR #154): runner benchmark/regression payload bindings still structured stubs (per-case reproduction runs through suite tests; see also DEL-10-05); MAINTAINER_REVIEWED case-page promotion, GUI-workflow validation evidence, and evidence-bundle storage policy open (source: TP-E2-VALMANUAL-001 residuals / Receipt 10)
 - Promote final public-benchmark release tolerances under the DEC-046 convention (gated: owner threshold promotion) (source: PRD plan §3 E2 row / RGAP-004)
 - Demonstrate external reproduction on a clean environment via the E1 runner (stage-gated: R5 exit evidence) (source: PRD plan §3 Phase E exit evidence / Receipt 1 parked items)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

@@ -39,3 +39,7 @@ This deliverable is ready for human architecture review when the document kit ex
 ## D-41 R5 T2B handoff review (2026-07-12)
 
 For storage, reports, private libraries, local FEA, and external automation, identify the owning application-service contract; verify schema/version, identity, unit, provenance, diagnostic, privacy, and grant metadata; reject direct domain/storage bypasses; and record unsupported target behavior without inventing implementation.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. API, plugin, and adapter boundary declarations and their gates now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; runtime adapter/plugin breadth is a separate implementation scope and is not implied by this architecture declaration.

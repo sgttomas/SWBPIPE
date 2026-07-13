@@ -57,3 +57,7 @@ This setup surface describes the future implementation contract without creating
 - docs/architecture/code_neutral_analysis_boundary.md - rule-pack reference and professional-boundary separation.
 - docs/architecture/extension_domain_contracts.md - no-bypass constraints for provenance, privacy, checksums, and protected-content controls.
 - execution/_Decomposition/SOFTWARE_DECOMP.md - DEL-06-04 scope and SCA-001 architecture basis.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Private rule-pack lifecycle schemas, fixtures, checksum handling, and tests now exist. Quarantine taxonomy, provider/storage breadth, encryption, and other controls remain residual only where explicitly recorded; this is not a security-assurance ruling.

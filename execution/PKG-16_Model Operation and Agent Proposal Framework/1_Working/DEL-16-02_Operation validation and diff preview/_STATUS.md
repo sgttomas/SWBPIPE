@@ -1,14 +1,14 @@
 # Status: DEL-16-02 Operation validation and diff preview
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
 - Obtain a design ruling for Component.geometry.center_of_gravity vector-payload application semantics before the path can be supported (gated: new D-XX if sought) (source: Receipt 10 named remainder / TP-APP-R5-FIELDRULES-001 residual)
 - Record a human review entry for contract-corpus cases 66–75, blessed from the Rust contract reference (prior acceptances DEC-030/DEC-032 do not carry) (gated: owner review) (source: Receipt 10 parked gates)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-03 - State set to INITIALIZED (TASK+four-documents)
 - 2026-05-03 - State set to SEMANTIC_READY (TASK+semantic-matrix-build)

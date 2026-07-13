@@ -36,3 +36,7 @@ Execute and review this deliverable-local architecture document kit without cros
 
 ## Completion Condition
 This deliverable is ready for human architecture review when the document kit exists, semantic artifacts exist, lifecycle state is `SEMANTIC_READY`, and all unresolved architecture decisions are visible rather than silently resolved.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The layered test strategy is now the current verification basis for implemented slices. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination. Passing verification evidence is not a validation ruling, release approval, or lifecycle transition.

@@ -1,5 +1,14 @@
 # Guidance: DEL-10-02 Import/export adapter framework
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-10-02-DECL-003`.
+
 ## Purpose
 
 This deliverable provides a format-neutral adapter declaration validator and a deny-only runtime admission gate so later implementation cannot treat declaration acceptance as runtime authority. The framework is an extension surface, not a route around domain validation, unit safety, provenance, rule-pack sandboxing, reporting controls, or professional-responsibility limits.

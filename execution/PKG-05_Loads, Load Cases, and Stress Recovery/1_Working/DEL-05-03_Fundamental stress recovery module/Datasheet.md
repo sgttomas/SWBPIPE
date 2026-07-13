@@ -74,3 +74,7 @@ This deliverable remains mechanics-only. It does not add design-code stress equa
 | What public report/rule-pack labels and sign conventions wrap the implemented mechanics component fields? | `TBD` |
 | Which deterministic hand-calc and benchmark cases are accepted for release evidence without protected standards content? | `TBD` |
 | What production tolerance policy and unit conversion catalog apply outside this mechanics-only crate? | `TBD` |
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The stress-recovery slice now includes the current station/sweep handling, end-resultant recovery, and modulus basis reflected by the implementation and tests. Earlier enumerations are historical where superseded by this current declaration.

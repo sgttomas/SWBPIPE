@@ -42,3 +42,7 @@ This procedure defines how a future TASK worker should proceed from the local se
 - Unit test and CI results.
 - Protected-content review result.
 - Result-envelope and diagnostics samples.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, DOF contract, dense solution path, and DEC-023 sparse evidence now exist in the implemented slice. Sparse-as-default policy and any broader performance/validation thresholds remain held where recorded; lifecycle remains `IN_PROGRESS`.

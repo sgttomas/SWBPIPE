@@ -82,3 +82,7 @@ Project persistence emits `SORTED_COMPACT_JSON` checksum metadata and `sorted_co
 ## D-41 R5 T2B unit-authority evidence (2026-07-12)
 
 `core/units/schema_vocabulary.py` reads the accepted `DimensionId` enum from `schemas/units.schema.yaml`; DEL-16-02 validation-preview code now consumes that adapter instead of owning a parallel 30-ID set. Focused tests prove exact vocabulary identity and absence of the former literal mirror.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. DEC-018 and the implemented core-units slice now provide the current dimensional basis. Alias/parser behavior, diagnostics, B2/B3 coverage, and validation matters survive only where explicitly recorded as residuals; this documentation refresh makes no lifecycle or validation ruling.

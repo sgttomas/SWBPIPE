@@ -63,3 +63,7 @@ Required setup outputs for this session are:
 - `_STATUS.md`
 
 Implementation outputs such as registry modules, schemas, tests, encryption/access policy defaults, private storage paths, and actual private rule-pack files are outside this setup session.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Private rule-pack lifecycle schemas, fixtures, checksum handling, and tests now exist. Quarantine taxonomy, provider/storage breadth, encryption, and other controls remain residual only where explicitly recorded; this is not a security-assurance ruling.

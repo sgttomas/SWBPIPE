@@ -61,6 +61,12 @@ Mass-property tests use invented synthetic values in `tests/test_section_propert
 
 ## Open Questions
 
+Current implementation-form note: `PipeSectionInput` accepts an optional
+dimensional `mill_tolerance`, and the calculator uses `wall_thickness -
+corrosion_allowance - mill_tolerance` as effective wall. The input is
+provenance-stamped and validated like the other dimensional slots; a fractional
+or catalog-derived tolerance policy remains `TBD`.
+
 | Question | Needed from |
 |---|---|
 | Which approved unit catalog and conversion constants, if any, may this calculator call? | DEL-02-02 / human architecture ruling |

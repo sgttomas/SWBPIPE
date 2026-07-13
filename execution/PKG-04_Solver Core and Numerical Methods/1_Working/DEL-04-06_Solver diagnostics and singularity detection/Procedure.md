@@ -58,3 +58,7 @@ Define the review and maintenance procedure for the implemented solver diagnosti
 - `_run_records/TASK_RUN_*.md`
 - `core/solver/diagnostics/README.md`
 - `core/solver/diagnostics/src/lib.rs`
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The solver-diagnostics and singularity-detection suite is live with current tests and evidence. Setup-era exact counts and checklists are historical rather than current authority; unresolved solver-policy matters remain only where explicitly recorded.

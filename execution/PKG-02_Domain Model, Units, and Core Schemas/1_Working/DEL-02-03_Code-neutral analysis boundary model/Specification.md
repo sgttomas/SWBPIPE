@@ -129,3 +129,7 @@ Required documentation outputs for this deliverable tranche:
 - `Procedure.md` giving operational steps for producing/updating the model.
 - Future integration target: a `docs/SPEC.md` state-model section. This run does not edit `docs/SPEC.md` because the sealed write scope is deliverable-local.
 - Future schema target: `analysis_status` enum/schema location TBD.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The code-neutral analysis-boundary schema is implemented and verified against its current contract. External hash-bound acceptance remains human-owned where recorded; implementation evidence does not itself confer acceptance or validation.

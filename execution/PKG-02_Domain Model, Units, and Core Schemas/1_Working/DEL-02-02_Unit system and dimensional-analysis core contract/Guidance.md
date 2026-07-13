@@ -87,3 +87,7 @@ Keep project persistence, model-state consumers, headless-runner consumers, sche
 ## D-41 R5 T2B unit-authority guidance (2026-07-12)
 
 Use the schema-vocabulary adapter for Python dimension membership checks. A matching copied set is not an authority binding. Rust mechanics, imports/exports, rule packs, reports, and remaining adapters still require their own accepted boundary wiring and evidence; do not infer system-wide closure from this one corrected consumer.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. DEC-018 and the implemented core-units slice now provide the current dimensional basis. Alias/parser behavior, diagnostics, B2/B3 coverage, and validation matters survive only where explicitly recorded as residuals; this documentation refresh makes no lifecycle or validation ruling.

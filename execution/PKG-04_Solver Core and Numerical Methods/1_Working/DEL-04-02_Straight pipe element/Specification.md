@@ -2,9 +2,9 @@
 
 ## Scope
 
-This deliverable specifies setup evidence for the future straight pipe element backend slice. It covers straight pipe local stiffness, section-property integration, weight hooks, and element force recovery within the global 3D centerline/frame solver architecture.
+This deliverable specifies the implemented straight pipe element backend slice. It covers straight pipe local stiffness, section-property integration, weight hooks, boundary metadata, end/station resultant recovery, spanned loads, and axial effects within the global 3D centerline/frame solver architecture.
 
-This setup pass does not implement solver code, edit repo-level modules, create test fixtures, introduce protected formulas or tables, or make certification/compliance claims.
+Current evidence lives in `core/solver/straight_pipe` with deterministic unit and witness-backed benchmark coverage. This documentation refresh does not edit solver code or fixtures, introduce protected formulas or tables, or make certification/compliance claims.
 
 ## Requirements
 
@@ -34,12 +34,14 @@ No protected standard text, protected formulas, protected dimensional tables, ma
 
 ## Documentation
 
-Expected future artifacts, when implementation is authorized, are:
+Current implementation artifacts are:
 
-- straight pipe element;
-- solver tests.
+- `core/solver/straight_pipe`;
+- its deterministic crate tests and rights-safe straight-pipe mechanics witnesses.
 
-The exact module paths, API names, solver numerical library, tolerances, and test filenames are `TBD` and must be resolved without changing repo-level artifacts during this setup pass.
+Module and test paths are now evidenced in-tree. Production numerical-library
+integration, final governed per-kind tolerances, and full solver-to-result-envelope
+binding remain `TBD` or separately recorded residual work.
 
 ## Conflict Table (for human ruling)
 

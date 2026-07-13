@@ -7,9 +7,9 @@
 - Hold PDU-023 continuation from analytical field-scalar trace paths into a runtime result envelope until an accepted producer/home binds those existing contracts (source: D-41 R5 T2C E6, 2026-07-12)
 - Hold PDU-047 broader 3D centerline/frame mechanics suitability validation; the bounded section-property oracle does not independently validate the transform target boundary (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
 - Preserve PDU-036 as verification-only evidence: the invented trace-gap fixture links one omitted unsupported component to its `ASSUMPTION_WARNING` diagnostic and emits no invalid scalar trace, but independent validation and broader field/runtime-result trace coverage remain open.
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 2 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-03 - State set to INITIALIZED (TASK+four-documents)
 - 2026-05-03 - State set to SEMANTIC_READY (TASK+semantic-matrix-build)

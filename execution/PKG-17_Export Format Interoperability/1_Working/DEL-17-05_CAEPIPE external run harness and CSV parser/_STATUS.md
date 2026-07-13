@@ -6,9 +6,9 @@
 ## Remaining
 - Preserve PDU-050 / `DEL-17-05-ACC-006` as `VERIFIED_NOT_VALIDATED`; optional live CAEPIPE execution remains O10 user-owned and gated by a configured executable, responsibility acknowledgements, and selected target/MBF/invocation profiles, so no live validation is available in this run.
 - Obtain owning human-review dispositions for open `DEL-17-05-RF-001` and `DEL-17-05-RF-002`; preserve historical/currentness wording and the user-owned live-profile/TBD gates without inferring target support, compatibility, or validation from fixture evidence (PDU-060).
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 6 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed both CAEPIPE finding dispositions while preserving the PDU-050 validation hold, O10 live-profile gates, and IN_PROGRESS state.
 - 2026-07-12 - D-41 R5 T6/PDU-050 recorded bounded parser/skipped-run verification and retained the user-owned/profile-gated live-execution validation hold; no external run or validation promotion occurred.
 - 2026-07-12 - D-41 R5 T4 PDU-010/PDU-038 added focused parser-boundary conformance evidence for supported section/unit/stable-ID preservation; external target behavior and compatibility remain unclaimed.

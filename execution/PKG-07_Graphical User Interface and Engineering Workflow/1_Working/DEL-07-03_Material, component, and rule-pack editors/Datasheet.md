@@ -88,3 +88,7 @@ Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `exe
 |---|---|
 | `DEL-07-03-R-005` | Load-case editor remains documented unimplemented in this owner; adjacent authoring is not an ownership binding. |
 | `DEL-07-03-R-006` | Support/restraint editor remains documented unimplemented in this owner; unsupported-kind evidence blocks mutation. |
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Bounded material, component, and rule-pack editor surfaces are implemented. PDU-041 preserves the recorded load/support ownership absences; this declaration does not claim those absent editors or a complete GUI product.

@@ -1,5 +1,14 @@
 # Procedure: DEL-17-02 Export package, profile, and stable ID map contracts
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-02-DECL-004`.
+
 ## Population Procedure
 
 1. Confirm DAG-006 is the approved active graph authority.
@@ -50,6 +59,15 @@ rg -n "certify|certified|approve|approved|issue|issued|code compliance|code-comp
 rg -n "TBD|tbd|location TBD" "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 git diff --check -- "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 ```
+
+### Current validator-path evidence (D-41 R5 T7 PDU-059)
+
+On 2026-07-12 all five repository-local validator commands above were re-run
+from the repository root and passed: four-document, minimum-fileset,
+dependency-schema (22 rows), semantic-matrix, and lens-register validation.
+`Review_Findings.csv` RF-001 is retained unchanged as a historical formal
+review record with `HumanDisposition=TBD`; this current evidence does not
+retroactively rewrite that review.
 
 If an unscoped worktree check reports findings outside this project's write scope, record the finding as external-scope noise and do not treat it as a blocker for DEL-17-02 closeout. Scoped deliverable checks remain the controlling diff-hygiene evidence for this deliverable.
 

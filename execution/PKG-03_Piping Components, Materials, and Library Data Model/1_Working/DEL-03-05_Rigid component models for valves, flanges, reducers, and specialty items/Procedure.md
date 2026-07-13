@@ -19,7 +19,7 @@ Define the reconciliation procedure for keeping DEL-03-05 documentation aligned 
 3. Confirm strict fixture behavior: public component values remain omitted, missing values are explicit, provenance/review metadata is present, and blocking diagnostics represent incomplete mechanics inputs.
 4. Preserve unresolved choices as `TBD`: accepted source catalogs, public fixture-value policy, coordinate convention, exact stiffness solver treatment, concrete import formats, per-family engineering profiles, dependency satisfaction, human disposition, and lifecycle closure.
 5. Apply public/private data controls: every reusable component datum needs provenance, license/redistribution status where applicable, and contributor/review disposition before public acceptance.
-6. Preserve review finding semantics: PKG03-DEL-03-05-PKG02-001 and PKG03-DEL-03-05-PKG02-002 remain conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; do not edit `Review_Findings.csv`.
+6. Preserve review finding semantics: `Review_Findings.csv` records PKG03-DEL-03-05-PKG02-001 and PKG03-DEL-03-05-PKG02-002 as `ACCEPT_AS_IS` / `RESOLVED` under Gate C on 2026-06-05; documentation maintenance must not rewrite that formal disposition.
 7. Preserve architecture constraints from AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 for any downstream implementation handoff.
 8. Surface gaps as diagnostics, `TBD` markers, or human-ruling items rather than resolving them silently.
 9. Run targeted validation when feasible: `python3 -m pytest tests/test_component_section_schema.py` and a stale-language `rg` scoped to `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.

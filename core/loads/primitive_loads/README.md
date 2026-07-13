@@ -79,3 +79,7 @@ diagnostic-record mapping, deterministic application behavior, boundary
 metadata validation, retired dimension alias rejection, equivalent-static input
 boundaries, lumped equivalent nodal conversion, deterministic solver load-vector
 assembly, and preservation of frame/support DOF assumptions.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The primitive-load slice now includes explicit loads and the DEC-068 equivalent-static wind, seismic, and occasional generators. Dynamic loading and code-prescribed generation are outside this bounded slice unless separately implemented and evidenced.

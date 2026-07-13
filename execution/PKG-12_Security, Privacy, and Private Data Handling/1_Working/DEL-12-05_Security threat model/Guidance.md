@@ -92,3 +92,7 @@ These examples are invented setup scenarios and contain no real project data, re
 ## Pass 3 Semantic-Lensing Notes
 
 The lensing pass emphasized three conservative enrichments that are now represented in the documents: update triggers, explicit supply-chain treatment, and explicit plugin/import no-bypass boundaries. Source rereads used `docs/PRD.md` sections 17-18, `docs/SPEC.md` sections 1 and 6-8, `docs/IP_AND_DATA_BOUNDARY.md` sections 4-7, and `_CONTEXT.md` Architecture Basis Injection.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. `docs/security/threat_model.md` now exists as the current project-owned threat-model surface. It records threats, boundaries, and residual mitigations; it is not a penetration-test result, security certification, or assurance ruling.

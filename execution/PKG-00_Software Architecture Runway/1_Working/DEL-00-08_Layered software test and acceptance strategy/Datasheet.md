@@ -51,3 +51,7 @@ This deliverable defines test architecture and acceptance gates only; it does no
 - No product implementation code is authorized by this deliverable.
 - No protected standards text, standards tables, code-derived formulas, proprietary values, or vendor-private data are introduced.
 - Architecture outputs remain draft/proposal material until accepted by the human project authority.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The layered test strategy is now the current verification basis for implemented slices. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination. Passing verification evidence is not a validation ruling, release approval, or lifecycle transition.

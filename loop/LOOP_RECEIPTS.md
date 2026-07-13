@@ -1074,3 +1074,12 @@
     bootstrap items preserved; D-42 open.
   - Attribution: GPT-5 owning pilots, cross-pilot fan-in, orchestrator. T7 may
     proceed.
+
+- **2026-07-12 — Receipt 41** (D-41 R5 T7 corpus currentness).
+  - Exact: PDU-054 70/70; PDU-055 221/221; other rows 20/20.
+  - Status: bootstrap 0/101; lifecycle preserved 100 IN_PROGRESS + one ISSUED.
+  - Evidence: `R5_T7_CLOSEOUT.md`, SHA-256
+    `4a75ad7b5ed209d6b14bdf11a294479387e64250760807da24415edc484438c9`;
+    runner 830/zero diagnostics; five validators PASS, review TBD.
+  - Fan-in/currentness/containment PASS; no controlled-governance or product
+    code change. T8/T9 remain.

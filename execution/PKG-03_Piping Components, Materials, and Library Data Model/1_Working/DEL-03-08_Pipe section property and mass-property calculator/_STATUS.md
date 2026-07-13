@@ -4,9 +4,9 @@
 **Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-056 bound the two cited declarations to the implemented dimensional mill-tolerance form and effective-wall equation while preserving fractional/catalog policy as TBD; cited-claim backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - four-documents P1/P2 setup kit drafted; state advanced to INITIALIZED.
 - 2026-04-30 - semantic-matrix-build completed; state advanced to SEMANTIC_READY.

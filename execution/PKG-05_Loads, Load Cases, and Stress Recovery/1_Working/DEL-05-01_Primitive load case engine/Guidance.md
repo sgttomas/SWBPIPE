@@ -55,3 +55,7 @@ No normative numeric load examples, code-specific combinations, coefficient exam
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | None | No source conflict detected between the deliverable-local truth set and current primitive-load crate evidence. | N/A | N/A | N/A | N/A | N/A |
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The primitive-load slice now includes explicit loads and the DEC-068 equivalent-static wind, seismic, and occasional generators. Dynamic loading and code-prescribed generation are outside this bounded slice unless separately implemented and evidenced.

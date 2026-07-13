@@ -1,5 +1,14 @@
 # Guidance: DEL-12-02 Private data redaction and export controls
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-12-02-DECL-003`.
+
 ## Purpose
 
 This deliverable keeps OpenPipeStress report and export workflows aligned with the product boundary: public mechanics and schemas are allowed, while private project values, user-supplied code data, rule-pack details, component/vendor data, material allowables, and protected standards content remain controlled.
@@ -33,7 +42,11 @@ Treat these as sensitive in export/report decisions unless documented redistribu
 
 ### Export Contexts
 
-`LOCAL_PRIVATE` can preserve private values for the user's own review, but it should still create an explicit warning/audit record. `SHARED_REDACTED`, `PUBLIC_TEMPLATE`, and `PUBLIC_EXAMPLE` should assume disclosure risk and prefer redaction or block behavior. `DOWNSTREAM_TOOL` may need values for technical continuity, but the adapter must still preserve privacy, provenance, unit, and diagnostic checks.
+`local_private` can preserve private values for the user's own review only with
+explicit intent and warning/audit evidence. `public_report`, `public_example`,
+and `shared_model` assume disclosure risk and prefer redaction or blocking.
+`downstream_tool` may need values for technical continuity, but the adapter must
+still preserve privacy, provenance, unit, and diagnostic checks.
 
 ### Report Boundary
 
@@ -67,7 +80,7 @@ The following are symbolic examples only:
 
 | Scenario | Acceptable Planning Expression | Avoid |
 |---|---|---|
-| Public report example | Invented model values plus redaction profile `PUBLIC_EXAMPLE` | Real user project values or protected standards examples |
+| Public report example | Invented model values plus export context `public_example` | Real user project values or protected standards examples |
 | Rule-pack summary | Rule-pack ID/version/checksum/source note with private formula details redacted | Copying protected formula text or code-derived tables into a public report |
 | Material library export | Provenance summary and redistribution status; private values redacted for shared output | Public material allowable table without documented rights |
 | Local private report | Unredacted values only after explicit local-private export selection and warning/audit record | Silent unredacted export to a shareable/public location |

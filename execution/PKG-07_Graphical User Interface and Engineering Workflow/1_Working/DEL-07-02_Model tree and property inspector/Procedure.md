@@ -45,3 +45,7 @@ Define the bounded procedure for maintaining and extending model-tree/property-i
 - Missing-data, provenance, and private-status UI evidence.
 - Any human rulings for `TBD` items.
 - `DEC-074` O2 ownership-delegation evidence and the corresponding deliverable-local R5 run record.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The model tree, property inspector, selection flow, and command-backed edits are implemented in the bounded GUI slice. Broader product integration and ownership gaps remain only where explicitly recorded; lifecycle remains `IN_PROGRESS`.

@@ -115,3 +115,7 @@ This setup document represents the planned content for `docs/security/threat_mod
 | `docs/PRD.md` | Security/privacy requirements, private-data handling, report prohibitions, and risk table. |
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, SOW-040, OBJ-010, and AB-00 architecture-basis constraints. |
 | `docs/_Registers/*.csv` | Machine-readable deliverable, scope, and context-budget rows. |
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. `docs/security/threat_model.md` now exists as the current project-owned threat-model surface. It records threats, boundaries, and residual mitigations; it is not a penetration-test result, security certification, or assurance ruling.

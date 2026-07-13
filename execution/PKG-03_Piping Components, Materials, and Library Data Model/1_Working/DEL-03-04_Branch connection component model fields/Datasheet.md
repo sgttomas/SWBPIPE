@@ -82,9 +82,10 @@ lifecycle files.
   formats, and GUI behavior remain `TBD`.
 - Dependency satisfaction and lifecycle state remain governed by their existing
   local files and human/reconciliation process.
-- Review findings remain conceptually
-  `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; the CSV was
-  not edited by this reconciliation.
+- Review findings `PKG03-DEL-03-04-PKG02-001` and `-002` are
+  `ACCEPT_AS_IS` / `RESOLVED` in `Review_Findings.csv` under the recorded
+  2026-06-05 Gate C disposition. This documentation refresh does not alter
+  that formal review record.
 
 ## References
 

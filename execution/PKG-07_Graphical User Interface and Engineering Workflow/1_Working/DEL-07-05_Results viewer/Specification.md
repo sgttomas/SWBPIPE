@@ -1,5 +1,14 @@
 # Specification: DEL-07-05 Results viewer
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-07-05-DECL-001`.
+
 ## Scope
 
 This deliverable owns the GUI results-viewer slice that presents reviewable analysis outputs for displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and user-rule ratios. The current implemented slice includes tabular result review and a translational deformed-shape overlay. Emitted `rx`/`ry`/`rz` rows are available in the result surface, but rotational deformation is not graphically visualized and remains explicit DEL-07-05 residual work under DEC-074 O1 / PDU-061. It is a UX/UI slice under PKG-07 and supports OBJ-006 and OBJ-007.

@@ -45,3 +45,7 @@ These are architecture obligations only. Concrete target formats and runtime int
 
 ## Human Review Gate
 Human review must decide whether the architecture content is sufficient to support later PKG-01 through PKG-12 planning. `SEMANTIC_READY` means prepared for review; it does not mean accepted or issued.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. API, plugin, and adapter boundary declarations and their gates now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; runtime adapter/plugin breadth is a separate implementation scope and is not implied by this architecture declaration.

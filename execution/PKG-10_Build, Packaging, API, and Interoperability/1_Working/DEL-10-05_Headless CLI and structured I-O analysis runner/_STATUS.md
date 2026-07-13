@@ -1,15 +1,14 @@
 # Status: DEL-10-05 Headless CLI and structured I/O analysis runner
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
 - Bind the openpipestress-runner export-results downstream payload (HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD) — also the report-package container's runner home (see also DEL-08-01) (source: Receipt 10 named remainder / TP-E3-CONTAINER-001)
 - Bind benchmark/regression runner payloads (E2 per-case reproduction currently runs through suite tests) (source: TP-E2-VALMANUAL-001 residuals)
-- Refresh the TP-RUNNER-015 witness — live runner solve emits 830 result_refs vs 822 in the witness (source: Receipt 9 delta)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-058 re-ran the TP-RUNNER-015 solve side-effect-free from a byte copy with an external target directory: COMPLETED, 830 result refs, zero request/result/runner diagnostics. Historical 822 witnesses remain preserved; the stale recount residual and D-41 bootstrap closed.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

@@ -78,3 +78,7 @@ DEL-05-05 user-load slice without crossing the deliverable boundary.
 - `core/loads/user_loads/README.md`
 - `core/loads/user_loads/src/lib.rs`
 - `_run_records/TASK_RUN_2026-04-30_1023_*.md`
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. User-load application now covers nodal and distributed inputs plus the straight-pipe equivalent-recovery, oriented, and axial bridge evidenced by current implementation and tests. Other geometry/load breadth remains residual where recorded.

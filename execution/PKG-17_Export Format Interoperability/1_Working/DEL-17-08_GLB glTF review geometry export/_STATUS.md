@@ -6,9 +6,9 @@
 ## Remaining
 - Obtain the owner-selected exact PDU-031 timestamp/generator metadata policy before declaring normative deterministic/normalized/omitted/runtime-dependent behavior; current JSON glTF output has a fixed versioned generator and no timestamp and this observation is test-enforced without inventing policy (source: DEC-074 O11/E7; R5 tranche plan unselected-policy hold)
 - Preserve the PDU-036/REQ-043 impossible-bend diagnostic as outside the selected O11 JSON line/centerline profile. Emitted line-entity mapping completeness is bounded by current focused evidence; do not infer broader bend geometry, GLB, viewer, or validation coverage.
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 7 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-036 bounded REQ-043 to current JSON line-profile mapping evidence and preserved impossible-bend diagnostics as unimplemented outside O11 scope; no GLB, broader geometry, or validation promotion.
 - 2026-07-12 - D-41 R5 T4 PDU-010/PDU-020/PDU-038 added manifest-level source-basis passthrough and bounded content/conformance evidence for the existing JSON glTF line profile; GLB and broader geometry remain held.
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)

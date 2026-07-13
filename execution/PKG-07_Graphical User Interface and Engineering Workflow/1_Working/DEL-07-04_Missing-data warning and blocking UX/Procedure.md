@@ -44,3 +44,7 @@ Maintain these local setup records:
 - dependency artifacts: `Dependencies.csv`, `_DEPENDENCIES.md`;
 - run records under `_run_records/`;
 - lifecycle record in `_STATUS.md`.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The missing-data warning/blocking panel is implemented, including current nonlinear-visibility behavior. It presents existing diagnostics and does not synthesize engineering inputs, resolve warnings, or confer professional approval.

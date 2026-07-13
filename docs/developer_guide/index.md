@@ -49,8 +49,8 @@ Read these project artifacts before changing solver or rule-pack behavior:
 
 Unresolved implementation choices remain `TBD` unless a human-approved
 architecture or implementation deliverable records the decision. Current `TBD`
-items include the production sparse solver library, rule expression grammar and
-implementation library, dependency versions, CI thresholds, external transport,
+items include the production sparse solver integration, rule-expression
+implementation-library integration, dependency versions, CI thresholds, external transport,
 plugin loading/isolation details, operating-system storage roots, product/DB
 migration rollback semantics, redaction workflow, cloud exception workflow, and
 portable project export/copy workflow. SCA-003 has resolved the MVP storage
@@ -206,9 +206,13 @@ contributor-facing change should preserve these categories:
 
 Rule-pack evaluation is declarative, sandboxed, deterministic, and unit-aware.
 It cannot execute arbitrary host-language code, access the filesystem or
-network, spawn processes, or bypass unit/provenance/privacy checks. The exact
-expression grammar and evaluator implementation library remain `TBD` until a
-sealed implementation deliverable and human-approved decision settle them.
+network, spawn processes, or bypass unit/provenance/privacy checks. DEC-022
+fixes the canonical grammar as `open_pipe_stress_declared_expression`: a
+checksum-bound, versioned typed AST with no text parser and the governed
+boolean, conditional, aggregate, interpolation, lookup, and dimensional-product
+operations. DEC-037 keeps writable text input deferred and permits only a
+display-only AST-to-text rendering. Remaining evaluator/library integration
+choices stay `TBD`; they do not reopen the canonical grammar.
 
 Existing implementation surfaces include:
 

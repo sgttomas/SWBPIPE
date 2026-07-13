@@ -80,3 +80,7 @@ Minimum boundary interfaces:
 - `docs/PRD.md` sections 6.1, 6.2, 12, 17.3, and 17.4.
 - `docs/INTENT.md` "Rule-pack intent" and mechanics/rule-pack boundary notes.
 - `docs/IP_AND_DATA_BOUNDARY.md` sections 2-7.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The code-neutral analysis-boundary schema is implemented and verified against its current contract. External hash-bound acceptance remains human-owned where recorded; implementation evidence does not itself confer acceptance or validation.

@@ -42,3 +42,7 @@ The architecture review gate is defined, but the owning formal REVIEW
 disposition/evidence-sufficiency act has not occurred for this claim. PDU-007
 therefore remains partially implemented at governance grain. No alignment,
 closure, readiness, acceptance, or issuance may be inferred.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The repository/module boundary kit and its executable gate now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination. PDU-007 retains the formal review hold on evidence sufficiency and module-boundary acceptance; this declaration does not convert that hold into approval.

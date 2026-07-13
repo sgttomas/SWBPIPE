@@ -1,5 +1,14 @@
 # Guidance: DEL-08-05 Report protected-content linter
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-08-05-DECL-003`.
+
 ## Purpose
 
 The protected-content linter exists to reduce the risk that public report templates or examples accidentally carry content the OpenPipeStress public repository must not redistribute. It supports the IP/data boundary and reproducible professional review, but it remains a heuristic guard plus review workflow, not a legal opinion or engineering acceptance decision.
@@ -71,4 +80,3 @@ No source conflicts were identified in the local reference set for this setup ru
 | OQ-08-05-003 | Exact severity policy for fail, warn, quarantine, and review-required outcomes. | TBD; must be confirmed before CI guard implementation. |
 | OQ-08-05-004 | Exact diagnostic schema fields for linter output. | TBD; align with AB-00-06 result-envelope/diagnostic basis. |
 | OQ-08-05-005 | Human/legal review ownership for protected-content findings. | TBD; governance process must record disposition authority. |
-

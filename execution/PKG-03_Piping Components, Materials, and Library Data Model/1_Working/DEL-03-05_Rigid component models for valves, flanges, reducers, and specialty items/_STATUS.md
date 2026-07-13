@@ -5,9 +5,9 @@
 
 ## Remaining
 - Hold PDU-013 COG mechanics acceptance until an authorized coordinate convention and reference frame are selected; the existing value slot is not mechanics-ready evidence (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-056 refreshed four cited review-disposition declarations to the recorded Gate C `ACCEPT_AS_IS`/`RESOLVED` state; formal review records were preserved, and the cited-claim backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

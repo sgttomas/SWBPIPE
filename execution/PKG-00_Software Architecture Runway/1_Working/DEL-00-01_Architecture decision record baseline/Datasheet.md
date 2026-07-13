@@ -49,3 +49,7 @@ This deliverable records decision structure and required evidence; it does not c
 - No product implementation code is authorized by this deliverable.
 - No protected standards text, standards tables, code-derived formulas, proprietary values, or vendor-private data are introduced.
 - Architecture outputs remain draft/proposal material until accepted by the human project authority.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The ADR index, template, and accepted baseline now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; lifecycle remains `IN_PROGRESS`, and later architecture decisions remain governed through the ADR process.

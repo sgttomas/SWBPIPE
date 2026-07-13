@@ -1,5 +1,14 @@
 # Guidance: DEL-08-06 State, comparison, and handoff report sections
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-08-06-DECL-003`.
+
 ## Purpose
 
 This deliverable exists to make state/run records, deterministic comparisons, and handoff manifests visible in auditable calculation reports while preserving the project boundary that software output is decision support, not professional validation. The source basis is `_CONTEXT.md`, SOW-024, OBJ-007, OBJ-016, OBJ-017, OBJ-018, `docs/SPEC.md` section 9, and the local approved DAG-002 dependency mirror.
