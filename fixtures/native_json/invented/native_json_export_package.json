@@ -52,7 +52,7 @@
     },
     "source_model_hash": {
       "algorithm": "sha256",
-      "canonicalization": "JCS_compatible_json_payload_hash",
+      "canonicalization": "deterministic_sorted_compact_json_payload_hash",
       "payload_ref": {
         "object_type": "Model",
         "ref": "model:invented-native-json"
@@ -76,7 +76,7 @@
         },
         "hash": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "NativeJsonMember",
             "ref": "native-json:invented-del-17-03:manifest"
@@ -96,7 +96,7 @@
         },
         "hash": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "NativeJsonMember",
             "ref": "native-json:invented-del-17-03:model_payload"
@@ -116,7 +116,7 @@
         },
         "hash": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "NativeJsonMember",
             "ref": "native-json:invented-del-17-03:stable_id_map"
@@ -136,7 +136,7 @@
         },
         "hash": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "NativeJsonMember",
             "ref": "native-json:invented-del-17-03:loss_report"
@@ -156,7 +156,7 @@
         },
         "hash": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "NativeJsonMember",
             "ref": "native-json:invented-del-17-03:validation_report"
@@ -176,7 +176,7 @@
         },
         "hash": {
           "algorithm": "sha256",
-          "canonicalization": "JCS_compatible_json_payload_hash",
+          "canonicalization": "deterministic_sorted_compact_json_payload_hash",
           "payload_ref": {
             "object_type": "NativeJsonMember",
             "ref": "native-json:invented-del-17-03:diagnostics"
@@ -189,7 +189,7 @@
     "checksums": [
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "NativeJsonMember",
           "ref": "native-json:invented-del-17-03:manifest"
@@ -199,7 +199,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "NativeJsonMember",
           "ref": "native-json:invented-del-17-03:model_payload"
@@ -209,7 +209,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "NativeJsonMember",
           "ref": "native-json:invented-del-17-03:stable_id_map"
@@ -219,7 +219,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "NativeJsonMember",
           "ref": "native-json:invented-del-17-03:loss_report"
@@ -229,7 +229,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "NativeJsonMember",
           "ref": "native-json:invented-del-17-03:validation_report"
@@ -239,7 +239,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "NativeJsonMember",
           "ref": "native-json:invented-del-17-03:diagnostics"
@@ -249,7 +249,7 @@
       },
       {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": {
           "object_type": "Model",
           "ref": "model:invented-native-json"

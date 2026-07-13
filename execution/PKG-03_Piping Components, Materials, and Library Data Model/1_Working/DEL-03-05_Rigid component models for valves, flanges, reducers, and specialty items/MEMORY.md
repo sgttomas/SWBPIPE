@@ -149,3 +149,16 @@ Durable context preserved after PKG-02 grounded finding resolution:
   or code-compliance claim changed.
 - Durable evidence:
   `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D3-RIGIDVIS-001.md`.
+
+## 2026-07-12 - D-41 R5 T2B PDU-013 evidence backcheck
+
+- Confirmed the existing COG value slot has no accepted coordinate convention or reference frame and therefore cannot support mechanics acceptance.
+- Recorded the precise held residual in the kit and `_STATUS.md`; no COG behavior or values were invented.
+- Evidence is in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU013.md`.
+- Lifecycle remains `IN_PROGRESS`; no review disposition, dependency, DAG, register, validation outcome, threshold, or engineering-validation claim changed.
+
+## 2026-07-12 - D-41 R5 T2C PDU-023 field-scalar trace
+
+- Extended the accepted model trace-link schema with paired optional source/target scalar paths.
+- The physical-to-analytical transform now emits a deterministic scalar link for each valid copied component geometry quantity; incomplete quantity metadata blocks the component and emits no scalar link.
+- Runtime result-envelope production remains held at DEL-13-03/DEL-13-04. Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2C-PDU023.md`.

@@ -1,12 +1,14 @@
 # Status: DEL-07-01 3D viewport and centerline editor
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Add dedicated bend authoring and any separately selected full component-symbol authoring; current PDU-008 evidence covers structured node/straight-pipe authoring and reference-only component insertion, not those absent behaviors.
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T5 PDU-008 recorded focused current interaction evidence and explicitly bounded absent bend/full-component authoring; no GUI scope or lifecycle expansion.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

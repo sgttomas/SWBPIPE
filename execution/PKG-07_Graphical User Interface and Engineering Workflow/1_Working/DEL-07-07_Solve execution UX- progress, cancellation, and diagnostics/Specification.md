@@ -1,5 +1,14 @@
 # Specification: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-07-07-DECL-001`.
+
 ## Scope
 
 This deliverable specifies the setup basis for a GUI solve-execution workflow that keeps background solve execution, progress display, cancellation, diagnostic logs, solver warnings, and result-envelope status reviewable.
@@ -58,3 +67,6 @@ Required setup records for this deliverable are:
 ## Acceptance Notes
 
 `SEMANTIC_READY` means the setup artifacts are prepared for review. It does not mean product implementation is complete, UI behavior is tested, solver behavior is verified, protected data is authorized, code compliance is established, or professional approval has occurred.
+## D-41 R5 T5 PDU-008 current GUI boundary
+
+The desktop diagnostic type/detail/filter path preserves class, remediation, and provenance when supplied and labels their absence as producer-unsupplied. Producer-side reduced shapes remain open; the GUI does not fabricate missing metadata.

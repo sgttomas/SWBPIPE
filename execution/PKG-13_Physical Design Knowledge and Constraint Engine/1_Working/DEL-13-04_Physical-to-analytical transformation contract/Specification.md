@@ -1,5 +1,14 @@
 # Specification: DEL-13-04 Physical-to-analytical transformation contract
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-13-04-DECL-001`.
+
 **Generated:** 2026-05-03
 **Status:** Evidence refresh applied 2026-06-07
 **Source posture:** Requirements below are limited to accessible local sources; unresolved particulars remain `TBD`.
@@ -100,3 +109,15 @@ Anticipated implementation artifacts from `_CONTEXT.md` and `docs/_Registers/Del
 - transform warning tests
 
 Current implementation artifact paths and focused test fixture names are no longer `TBD`; they are listed above. Remaining `TBD` items are transform-loss taxonomy, release thresholds, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, human acceptance, and professional/code-compliance boundaries.
+
+## D-41 R5 T2B PDU-047 Evidence Disposition (2026-07-12)
+
+The TP-PHYS-015 production section-property binding is relevant downstream evidence, but it does not independently validate REQ-007's full 3D centerline/frame target suitability. That broader mechanics-validation basis remains held. This tranche changes neither the transform contract nor its output.
+
+## D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
+
+REQ-004 now has a minimal field-scalar link for valid copied component geometry quantities. Each link pairs source and target scalar paths on the existing object references. Incomplete quantity metadata is diagnosed and emits no scalar link. Runtime result-envelope continuation remains held.
+
+## D-41 R5 T4 PDU-036 fixture evidence
+
+`fixtures/domain/invented_physical_to_analytical_trace_gap.json` provides one verification-only unsupported-component witness. The transform omits the component, emits `PTA-COMPONENT-TYPE-UNSUPPORTED` as `ASSUMPTION_WARNING`, attaches that warning to the component-to-diagnostic trace link, and emits no scalar link for the omitted quantity. This bounded witness does not promote independent validation or close broader trace coverage.

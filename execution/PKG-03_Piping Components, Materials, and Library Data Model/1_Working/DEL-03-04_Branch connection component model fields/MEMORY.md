@@ -172,3 +172,8 @@ Durable context preserved after bounded TASK reconciliation:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T3 PDU-019 bounded no-bypass evidence
+
+- Added negative tests proving invalid privacy classification and unknown embedded-payload fields cannot pass the strict ComponentRecord schema.
+- Formal REVIEW sufficiency/disposition remains held and is recorded in `_STATUS.md`; technical evidence is in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU019.md`.
+- No review finding, lifecycle, dependency, DAG, or register state changed.

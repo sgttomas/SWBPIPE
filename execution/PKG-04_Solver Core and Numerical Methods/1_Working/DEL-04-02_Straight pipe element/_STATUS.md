@@ -1,12 +1,14 @@
 # Status: DEL-04-02 Straight pipe element
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Bind straight-pipe element diagnostics/results into the governed analysis-run/result-envelope producer path; the T4 persisted-record report reader does not create that solver-to-envelope integration.
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-056 refreshed the three cited setup-era declarations to the implemented straight-pipe slice while preserving final integration/tolerance residuals; cited-claim backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T4 PDU-040 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)
 - 2026-04-30 - Four-documents P3 applied; setup kit remains draft and not ISSUED.

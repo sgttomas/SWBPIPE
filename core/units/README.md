@@ -28,7 +28,9 @@ Every physical quantity that crosses a schema, solver, import/export, report, or
 - provenance for values that can affect engineering reliance;
 - a missing-unit behavior.
 
-Persisted project data should preserve the entered unit representation when available for audit and round-trip behavior. DEC-018 fixes the crate-side SI-canonical calculation basis and conversion semantics for B1; B2 must still bind that basis through schemas, application input/display fields, solver-boundary normalization, and reports. JSON payloads that are hashed must use the project canonical JSON/JCS-compatible basis where applicable.
+Persisted project data should preserve the entered unit representation when available for audit and round-trip behavior. DEC-018 fixes the crate-side SI-canonical calculation basis and conversion semantics for B1; B2 must still bind that basis through schemas, application input/display fields, solver-boundary normalization, and reports. JSON payloads that are hashed must declare and test their actual byte basis; the current Python persistence boundary uses sorted-key compact ASCII-escaped JSON and does not claim RFC 8785/JCS.
+
+Python consumers that need the canonical dimension vocabulary must read it through `core/units/schema_vocabulary.py`, which derives the set from `schemas/units.schema.yaml`. They must not maintain a parallel dimension-ID literal list.
 
 Dimensionless values are not a fallback for missing units. A value may be unitless only when its field is explicitly classified as dimensionless, ratio, percentage, or coefficient. Otherwise missing unit metadata is a diagnostic.
 

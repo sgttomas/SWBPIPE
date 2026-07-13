@@ -181,6 +181,7 @@ def build_review_geometry_export_package(
         "source_model_ref": source_ref,
         "source_model_hash": source_hash,
         "export_profile_ref": _ref("ExportProfile", profile["profile_id"]),
+        "source_basis_refs": deepcopy(profile["source_basis_refs"]),
         "gltf_artifact": artifact,
         "boundary_notes": notes,
         "member_hashes": checksums,
@@ -196,6 +197,7 @@ def build_review_geometry_export_package(
         "source_model_ref": source_ref,
         "source_model_hash": source_hash,
         "export_profile_ref": _ref("ExportProfile", profile["profile_id"]),
+        "source_basis_refs": deepcopy(profile["source_basis_refs"]),
         "gltf_artifact": artifact,
         "package_members": _package_members(export_id, checksums),
         "checksums": _stable(list(checksums.values()) + [source_hash]),
@@ -460,6 +462,19 @@ def diagnostics_for_review_geometry_export_package(
                 [package_ref],
             )
         )
+    mapping_errors = _stable_id_round_trip_errors(gltf, stable_id_map)
+    if mapping_errors:
+        diagnostics.append(
+            _diagnostic(
+                "RG-STABLE-ID-ROUNDTRIP-MISMATCH",
+                "blocking",
+                "TARGET_MAPPING_WARNING",
+                "Review geometry glTF identity metadata and the authoritative sidecar ID map do not round trip one-to-one within the selected centerline JSON glTF profile: "
+                + "; ".join(mapping_errors),
+                "Regenerate the sidecar so every emitted centerline node maps once to the same canonical ref carried by its node and primitive extras.",
+                [package_ref],
+            )
+        )
     for entry in loss_report:
         if entry.get("category") not in LOSS_CATEGORIES:
             diagnostics.append(
@@ -700,6 +715,67 @@ def _identity_metadata(
         "review_boundary": "visual_review_only",
         "sidecar_authoritative": True,
     }
+
+
+def _stable_id_round_trip_errors(
+    gltf: Mapping[str, Any],
+    stable_id_map: list[Mapping[str, Any]],
+) -> list[str]:
+    """Check the selected JSON glTF centerline identity path, not broader geometry."""
+
+    sidecar_by_canonical: dict[tuple[str, str], list[Mapping[str, Any]]] = {}
+    for entry in stable_id_map:
+        canonical_ref = entry.get("canonical_ref", {})
+        key = (
+            str(canonical_ref.get("object_type", "")),
+            str(canonical_ref.get("ref", "")),
+        )
+        sidecar_by_canonical.setdefault(key, []).append(entry)
+
+    emitted_keys: set[tuple[str, str]] = set()
+    errors: list[str] = []
+    meshes = _list(gltf.get("meshes"))
+    for node_index, node in enumerate(_list(gltf.get("nodes"))):
+        node_meta = node.get("extras", {}).get("openpipestress", {})
+        canonical_ref = node_meta.get("canonical_ref", {})
+        key = (
+            str(canonical_ref.get("object_type", "")),
+            str(canonical_ref.get("ref", "")),
+        )
+        emitted_keys.add(key)
+        expected_node_ref = _ref("GltfNode", str(node_index))
+        matches = sidecar_by_canonical.get(key, [])
+        if len(matches) != 1 or matches[0].get("gltf_ref") != expected_node_ref:
+            errors.append(f"node {node_index} sidecar mapping")
+        if node_meta.get("target_ref") != expected_node_ref:
+            errors.append(f"node {node_index} direct target ref")
+
+        mesh_index = node.get("mesh")
+        if not isinstance(mesh_index, int) or not (0 <= mesh_index < len(meshes)):
+            errors.append(f"node {node_index} mesh ref")
+            continue
+        primitives = _list(meshes[mesh_index].get("primitives"))
+        if len(primitives) != 1:
+            errors.append(f"mesh {mesh_index} primitive count")
+            continue
+        primitive_meta = primitives[0].get("extras", {}).get("openpipestress", {})
+        if primitive_meta.get("canonical_ref") != canonical_ref:
+            errors.append(f"mesh {mesh_index} primitive canonical ref")
+        if primitive_meta.get("target_ref") != _ref(
+            "GltfPrimitive", f"mesh:{mesh_index}:primitive:0"
+        ):
+            errors.append(f"mesh {mesh_index} primitive target ref")
+
+    for key, matches in sidecar_by_canonical.items():
+        if len(matches) != 1:
+            errors.append(f"duplicate sidecar canonical ref {key[1]}")
+        if key not in emitted_keys and any(
+            entry.get("mapping_status") == "mapped"
+            and entry.get("loss_category") == "exported"
+            for entry in matches
+        ):
+            errors.append(f"sidecar-only exported ref {key[1]}")
+    return sorted(set(errors))
 
 
 def _source_model_hash(source_model_hash: Mapping[str, Any] | str, source_ref: Mapping[str, Any]) -> dict[str, Any]:

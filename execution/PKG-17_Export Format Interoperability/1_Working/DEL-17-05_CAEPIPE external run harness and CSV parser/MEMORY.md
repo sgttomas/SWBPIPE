@@ -1,5 +1,16 @@
 # MEMORY: DEL-17-05
 
+## 2026-07-12 - D-41 R5 T6 PDU-050 hold
+
+- Cache-disabled tests verify schema, parser, skipped-without-executable,
+  privacy/boundary diagnostics, user-responsibility gates, metadata, and
+  invented fixtures only.
+- No user-owned executable or selected target/MBF/invocation profile was
+  available. Optional live CAEPIPE execution remains O10 profile-gated, so
+  `DEL-17-05-ACC-006` stays `VERIFIED_NOT_VALIDATED`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU050-HOLD.md`.
+
 ## 2026-05-18 - SCA-004 PREPARATION scaffold
 - Created minimum viable fileset from SOFTWARE_DECOMP revision 0.7.
 - Populated local context, dependencies placeholder, references, semantic placeholder, and status.
@@ -68,3 +79,20 @@
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+## 2026-07-12 - D-41 R5 T3 PDU-016 private default
+
+- CAEPIPE user-output evidence now defaults to `private_user_controlled`, local-only, telemetry-disabled handling; partial caller overrides cannot erase those defaults.
+- Focused negative/no-bypass evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU016.md`.
+- This is one selected seam only, not a whole-product security/privacy claim; lifecycle remains `IN_PROGRESS`.
+
+## 2026-07-12 - D-41 R5 T4 PDU-010/PDU-038 conformance evidence
+
+- Added an executable parser-boundary witness covering the current invented
+  `NODE_DISPLACEMENTS`/metres and `ELEMENT_FORCES`/newtons rows, target IDs,
+  stable IDs, source CSV reference, and parser-only/no-execution status.
+- This is fixture-level parser verification. Invocation layout, live output
+  discovery, broader section coverage, comparison semantics, target
+  compatibility, and external validation remain unresolved and unclaimed.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU010-PDU038.md`.
+  Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

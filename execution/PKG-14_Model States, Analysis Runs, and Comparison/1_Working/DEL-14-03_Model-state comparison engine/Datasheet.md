@@ -1,5 +1,14 @@
 # Datasheet: DEL-14-03 Model-state comparison engine
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-14-03-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -63,3 +72,6 @@ Source: `Dependencies.csv` approved DAG-002 mirror rows `DAG-002-E0792`, `DAG-00
 - `docs/CONTRACT.md` - invariants for IDs, units, professional authority, data, and agent behavior.
 - `docs/SPEC.md` - unit, persistence, analysis-boundary, reporting/result-envelope, and validation mechanics.
 - `docs/TYPES.md` - reference, traceability, checksum, diagnostic, result, and report boundary definitions.
+## D-41 R5 T2B unit evidence (2026-07-12)
+
+Focused positive/negative tests cover missing metadata, incompatible dimensions, different units without normalization, and same-unit/same-dimension structured changes. No numeric conversion or engineering validation is claimed.

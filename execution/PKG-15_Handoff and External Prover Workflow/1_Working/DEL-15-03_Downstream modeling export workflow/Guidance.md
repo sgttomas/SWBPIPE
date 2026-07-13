@@ -50,3 +50,6 @@ Do not derive future example values from protected standards, commercial softwar
 ## Conflict Table (for human ruling)
 
 No source conflicts were identified during the setup pass. TBDs above are missing-detail boundaries, not resolved conflicts.
+## D-41 R5 T2A checksum-boundary guidance (2026-07-12)
+
+Treat incoming checksum records as carried evidence. Do not describe them as JCS unless the owning producer supplies governed RFC 8785 conformance evidence; preserve the precise producer label and surface validation elsewhere.

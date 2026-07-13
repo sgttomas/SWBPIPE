@@ -472,3 +472,9 @@ Durable context preserved after reconciliation review:
   content, release threshold, release authorization, protected content,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-07-12 - D-41 R5 T3 PDU-018/PDU-028 supporting evidence
+
+- DEL-10-02's deny-only adapter-declaration gate rejects disabled privacy classification, protected-content screening, report controls, or private-transmission defaults; rejected/quarantined declarations never dispatch, and a conforming declaration remains blocked while runtime is unselected.
+- This narrows the adapter admission residual only. It does not provide the still-open evaluator, plugin, CLI, report preview/export, or bug-report runtime bindings and is not whole-product redaction/security assurance.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.

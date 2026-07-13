@@ -345,6 +345,57 @@ def test_unit_bearing_changes_require_unit_and_dimension_metadata():
     assert diagnostic["severity"] == "blocking"
 
 
+def test_unit_bearing_changes_block_incompatible_dimensions_and_units():
+    left = state(
+        "state:left",
+        [entity("entity:pipe", nominal_size={"value": 10, "unit": "mm", "dimension": "length"})],
+    )
+    wrong_dimension = state(
+        "state:right",
+        [entity("entity:pipe", nominal_size={"value": 12, "unit": "mm", "dimension": "force"})],
+    )
+    different_unit = state(
+        "state:right",
+        [entity("entity:pipe", nominal_size={"value": 0.5, "unit": "in", "dimension": "length"})],
+    )
+
+    dimension_result = compare_model_states(
+        left, wrong_dimension, settings={"unit_bearing_fields": ["nominal_size"]}
+    )
+    unit_result = compare_model_states(
+        left, different_unit, settings={"unit_bearing_fields": ["nominal_size"]}
+    )
+
+    assert dimension_result["summary"]["unresolved"] == 1
+    assert "INCOMPATIBLE_DIMENSION" in {
+        item["code"] for item in dimension_result["diagnostics"]
+    }
+    assert unit_result["summary"]["unresolved"] == 1
+    assert "INCOMPATIBLE_UNIT" in {item["code"] for item in unit_result["diagnostics"]}
+
+
+def test_same_unit_dimension_change_is_structural_not_a_bare_numeric_delta():
+    left_value = {"value": 10, "unit": "mm", "dimension": "length"}
+    right_value = {"value": 12, "unit": "mm", "dimension": "length"}
+    result = compare_model_states(
+        state("state:left", [entity("entity:pipe", nominal_size=left_value)]),
+        state("state:right", [entity("entity:pipe", nominal_size=right_value)]),
+        settings={"unit_bearing_fields": ["nominal_size"]},
+    )
+
+    row = by_ref(result)[("entity:pipe", "entity:pipe")]
+    change = next(item for item in row["changes"] if item["field"] == "nominal_size")
+    assert row["classification"] == "changed"
+    assert change["left"] == left_value
+    assert change["right"] == right_value
+    assert "delta" not in change
+    assert not {
+        item["code"]
+        for item in result["diagnostics"]
+        if item["code"] in {"MISSING_UNIT_METADATA", "INCOMPATIBLE_DIMENSION", "INCOMPATIBLE_UNIT"}
+    }
+
+
 def test_state_warnings_are_preserved_as_review_evidence():
     warning = {
         "code": "STATE-WARNING-INVENTED",

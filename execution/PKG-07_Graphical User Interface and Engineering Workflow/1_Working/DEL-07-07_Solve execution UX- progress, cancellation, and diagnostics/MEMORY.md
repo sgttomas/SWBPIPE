@@ -1,5 +1,11 @@
 # DEL-07-07 Memory
 
+## 2026-07-12 - D-41 R5 T5 PDU-008 rich diagnostic display
+
+- Desktop diagnostic records may now carry class, remediation, and provenance; the diagnostic detail and filter surfaces display/use those fields when supplied, in addition to code, severity, source, affected refs, and message.
+- Current reduced producers remain explicit: the GUI reports `not supplied by producer` and never invents missing class, remediation, or provenance.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T5-PDU008.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-07-07: Report Content Lint now inventories the

@@ -39,3 +39,7 @@ Use this procedure to verify DEL-04-03 review-readiness evidence for the impleme
 - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` historical semantic artifacts.
 - `Dependencies.csv` v3.1 and `_DEPENDENCIES.md`.
 - `_run_records/TASK_RUN_*.md` entries for four-documents P1/P2, semantic matrix, lens register, four-documents P3, dependency extraction, implementation evidence, support boundary hardening, and this review-readiness alignment.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The linear-support slice implements the recorded support/restraint families and DEC-049 hanger user data. Its current evidence and residuals are those named by the implemented crate and tests; no review, validation, or lifecycle ruling is made here.

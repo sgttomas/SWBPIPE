@@ -389,7 +389,7 @@
           "ref": "review-geometry:invented-del-17-08:manifest"
         },
         "payload_scope": "review_geometry_manifest",
-        "value": "sha256:a2e0ae4f5f25e3c709245c23109005512b63c71856c822e85f01670d7eb9061f"
+        "value": "sha256:2e356fb825903359f8cad526ea04f74c43d9633f50709af51f08c08f0edaa4ad"
       },
       {
         "algorithm": "sha256",
@@ -480,7 +480,7 @@
             "ref": "review-geometry:invented-del-17-08:manifest"
           },
           "payload_scope": "review_geometry_manifest",
-          "value": "sha256:a2e0ae4f5f25e3c709245c23109005512b63c71856c822e85f01670d7eb9061f"
+          "value": "sha256:2e356fb825903359f8cad526ea04f74c43d9633f50709af51f08c08f0edaa4ad"
         },
         "member_id": "review-geometry:invented-del-17-08:manifest",
         "member_role": "manifest",
@@ -530,6 +530,20 @@
         "member_id": "review-geometry:invented-del-17-08:validation_report",
         "member_role": "validation_report",
         "path": "validation_report.json"
+      }
+    ],
+    "source_basis_refs": [
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-01"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      {
+        "object_type": "Document",
+        "ref": "GLTF-2.0"
       }
     ],
     "source_model_hash": {

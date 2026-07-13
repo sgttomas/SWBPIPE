@@ -1,5 +1,14 @@
 # Specification: DEL-09-02 Stress recovery benchmark suite
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-09-02-DECL-001`.
+
 ## Scope
 
 This deliverable specifies setup evidence for a future stress recovery benchmark suite. It covers benchmark planning for axial, bending, torsion, pressure, and stress range behavior under the public/open-mechanics verification boundary.
@@ -16,7 +25,7 @@ This setup pass does not implement tests, create benchmark source files, edit re
 | DEL-09-02-RQ-004 | Benchmarks shall verify mechanics stress recovery behavior only and shall not decide code compliance, fatigue acceptability, certification, sealing, or professional approval. | OPS-K-AUTH-1; OPS-K-AGENT-4; package exclusion | Report/review wording check and result-envelope review. |
 | DEL-09-02-RQ-005 | Benchmark inputs, expected outputs, comparisons, and diagnostics shall be unit-aware and dimensionally checked. | OPS-K-UNIT-1; AB-00-08 | Unit mismatch and dimensional review tests when implementation is authorized. |
 | DEL-09-02-RQ-006 | Missing source, unit, sign convention, load-pair convention, result-envelope, or tolerance information shall be explicit `TBD` or diagnostic evidence, never a silent default. | OPS-K-DATA-2; OPS-K-AGENT-1; AB-00-06 | Negative checks for incomplete benchmark metadata. |
-| DEL-09-02-RQ-007 | Final numerical tolerances shall remain `TBD` until accepted by the human project authority or an authorized verification owner. | Acceptance note; OI-005 | Review gate confirms tolerance placeholders are not final thresholds. |
+| DEL-09-02-RQ-007 | Numerical verification tolerances follow DEC-026 reference-result classes with governed relative+absolute per-quantity-kind pairs; the analytic class is seeded at `1e-9` relative where measured suites pass, while unmeasured per-kind values remain `TBD` and fixture-local overrides may only tighten. | DEC-026; OI-005 | Review confirms the analytic seed is not generalized into unmeasured absolute floors or other class/kind values. |
 | DEL-09-02-RQ-008 | Benchmark outputs shall preserve diagnostics/result-envelope boundaries where relevant and shall not bypass governed solver/stress recovery interfaces. | AB-00-02; AB-00-06; AB-00-08 | Result-envelope conformance review after interface selection. |
 
 ## Standards
@@ -31,7 +40,7 @@ No protected standard text, protected code formulas, protected examples, protect
 | Source provenance | Each future benchmark case has source, license/redistribution status, contributor certification, and review disposition. |
 | Unit safety | Future fixtures include unit metadata and dimensional checking for inputs, expected outputs, and comparisons. |
 | Protected-content boundary | Future fixtures and notes are screened for protected standards content, code formulas, proprietary values, and protected examples. |
-| Tolerance authority | Final tolerances are not set by this setup pass and remain `TBD` until authorized. |
+| Tolerance authority | DEC-026 governs class-tiered relative+absolute pairs and the measured analytic `1e-9` relative seed; unmeasured per-kind pairs remain `TBD`. |
 | Result-envelope boundary | Future checks inspect mechanics results and diagnostics without making compliance or approval claims. |
 
 ## Documentation
@@ -50,3 +59,7 @@ The exact benchmark file names, expected numeric values, sign conventions, stres
 | Conflict ID | Issue | Contenders | Human ruling |
 |---|---|---|---|
 | None | No source conflict identified in setup evidence. | N/A | N/A |
+
+## D-41 R5 T4 PDU-039 governed-envelope evidence
+
+`governed_complete_stress_result_envelope()` routes the existing complete rights-safe stress-recovery output through the DEL-08-04 governed result-export types and validator. Six stress components carry explicit Pa/stress metadata, recovery-to-result trace links, deterministic fixture hashes, an evidence-only diagnostic, `MECHANICS_SOLVED`, `HUMAN_REVIEW_REQUIRED`, and the default no-authority professional boundary. Passing this conformance check is verification, not engineering validation or release readiness.

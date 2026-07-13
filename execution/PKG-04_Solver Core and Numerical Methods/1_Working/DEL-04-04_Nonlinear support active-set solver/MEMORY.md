@@ -1,5 +1,10 @@
 # MEMORY - DEL-04-04 Nonlinear Support Active-Set Solver
 
+## 2026-07-12 - D-41 R5 T4 PDU-021 supporting evidence
+
+- The downstream report reader preserves solver context, warnings, assumptions, limitations, and provenance when present in canonical run records. Direct nonlinear-solver producer binding and existing PDU-035/threshold holds remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-05-01 bounded implementation
 
 Human project authority authorized one deliberately scoped `DEL-04-04` item after
@@ -262,3 +267,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Residuals unchanged otherwise: anti-chatter oscillation still reaches the
   visible cap (now always loud), sliding-force magnitude is not a residual
   axis, arc interior stations remain open under DEC-070.
+## 2026-07-12 - D-41 R5 T2 PDU-035 hold
+
+- Unit metadata binding remains technically addressed at metadata grain.
+- The PKG-02 review finding still requires its owning human disposition, and dimensional/conversion suitability is not independently validated; PDU-035 remains held.

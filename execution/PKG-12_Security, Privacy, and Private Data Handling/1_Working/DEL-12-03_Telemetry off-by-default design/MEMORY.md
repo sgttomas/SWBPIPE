@@ -1,5 +1,38 @@
 # Memory: DEL-12-03 Telemetry off-by-default design
 
+## 2026-07-12 - D-41 R5 T5 PDU-042 distinct affirmative request
+
+- Added `Request telemetry enablement review` to the existing DEL-12-03 panel; no new GUI surface was created.
+- Initial render records no request. The dedicated click records a one-shot local request explicitly distinct from terms, install, application/project open, and solve actions.
+- O7 remains authoritative: the request resolves disabled because consent and allowlist approval are absent. It mutates no product config, grants no opt-in/consent, constructs no payload, persists nothing, and initializes no network behavior.
+- Focused telemetry service Vitest passed 3/3; focused App interaction Vitest passed 1/1 selected; disposable copy-out production build passed with the existing large-chunk warning.
+- No runtime telemetry, validation promotion, GUI scope expansion, lifecycle, review, dependency/DAG/register/decomposition, or `ISSUED` change.
+
+## 2026-07-12 - D-41 R5 T3 PDU-026/PDU-043 O7-before-E5 seam
+
+- Added `telemetryPolicyService.ts` as the bounded desktop pre-payload seam used by the DEL-12-03 panel. Missing/false configuration and even a capability request remain disabled because no affirmative opt-in or approved allowlist surface exists.
+- Negative tests cover payload-shaped attempts, forbidden report fields, persistence keys, capability requests without consent, and invariant false network/endpoint/vendor/queue/upload/persistence/client/background-job evidence.
+- PDU-043 remains documented unimplemented outside telemetry-panel attempts: plugins, adapters, import/export, reports, and private-library runtime paths are not claimed to be intercepted. Adapter approval/allowlist remains unselected, and the DEL-10-02 deny-only declaration-admission gate does not close telemetry runtime binding.
+- This is verified software behavior only, not security validation, privacy/legal sufficiency, formal review closure, lifecycle transition, or authorization of telemetry transport.
+
+## 2026-07-12 - D-41 R5 T1 PDU-077 telemetry-panel attribution
+
+- DEC-074 O3 attributes `apps/desktop/src/features/telemetry` to DEL-12-03 as
+  implementation evidence. The independent receiving-scope audit found no
+  conflict with this deliverable's accepted default-off policy scope.
+- `TelemetryBoundaryPanel.tsx` constructs a local policy-review artifact, not
+  a telemetry payload. It records `payload_constructed=false`, initializes no
+  network/runtime behavior, blocks the modeled attempts, and leaves product
+  configuration, consent surface, and allowlist approval `TBD`.
+- The panel is not consent UI and does not authorize collection, payload
+  construction, endpoint/vendor selection, persistence, upload, transport, or
+  runtime telemetry. Existing policy/helper tests and deferred runtime choices
+  retain their prior authority and status.
+- The four-document kit now cites the panel as bounded DEL-12-03 evidence.
+  Genuine Remaining items and the D-41 bootstrap are preserved. No code,
+  lifecycle, scope, release, professional-approval, certification, sealing,
+  authentication, or code-compliance state changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 supporting export-review classification
 
 - Supporting role for Export Safety Review matrix cleanup: the

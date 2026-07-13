@@ -36,3 +36,7 @@ Execute and review this deliverable-local architecture document kit without cros
 
 ## Completion Condition
 This deliverable is ready for human architecture review when the document kit exists, semantic artifacts exist, lifecycle state is `SEMANTIC_READY`, and all unresolved architecture decisions are visible rather than silently resolved.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The repository/module boundary kit and its executable gate now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination. PDU-007 retains the formal review hold on evidence sufficiency and module-boundary acceptance; this declaration does not convert that hold into approval.

@@ -1,5 +1,14 @@
 # Specification: DEL-13-03 Constraint validation engine
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-13-03-DECL-001`.
+
 ## Scope
 
 DEL-13-03 covers a backend feature slice for deterministic validation messages over available physical-design constraints and missing required data. The in-scope validation categories are connectivity, route conflicts, clearance conflicts, support-zone conflicts, slope/drain/vent conflicts, and missing required data. Sources: `_CONTEXT.md` Scope Detail; `execution/_Decomposition/SOFTWARE_DECOMP.md` rows SOW-068 and DEL-13-03.
@@ -64,5 +73,9 @@ Required records and remaining deferrals:
 - Validation diagnostics test inventory: `tests/test_constraint_validation.py`.
 - Public-safe validation fixtures: executable invented fixtures exist in `tests/test_constraint_validation.py`; publication-grade examples and owner/project examples remain `TBD` pending provenance review and human acceptance.
 - Assumptions and unsupported inputs: must be recorded as `TBD` or explicit findings rather than inferred defaults.
+
+## D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
+
+Existing `ResultTraceLink` records may carry paired nonempty source/target scalar paths; schema tests reject unpaired paths. DEL-13-03 has no accepted runtime result-envelope producer/home, so R6 integration remains held and `ValidationResult.to_dict()` is not relabeled as an envelope.
 - Dependency evidence handling: preserve current ACTIVE local dependency rows during this evidence-refresh workflow.
 - Legitimate remaining `TBD` items include localization/message cataloging, full geometric conflict solving, owner criteria/rules, GUI presentation, physical-to-analytical transformation, runtime integration, release readiness, and human acceptance.

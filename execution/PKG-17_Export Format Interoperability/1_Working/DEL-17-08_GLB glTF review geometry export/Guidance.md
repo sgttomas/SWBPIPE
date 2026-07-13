@@ -1,8 +1,17 @@
 # Guidance: DEL-17-08 GLB/glTF review geometry export
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-08-DECL-003`.
+
 ## Purpose
 
-Use DEL-17-08 to define a narrow visual-review export surface. The useful outcome is a GLB/glTF artifact that lets a user inspect model shape and correlate visible objects back to OpenPipeStress canonical IDs. The export is not a solver model, not an analysis result, not a compatibility claim, and not professional acceptance evidence.
+Use DEL-17-08 as a narrow JSON glTF visual-review export surface. The selected profile lets a user inspect centerline shape and correlate emitted objects back to OpenPipeStress canonical IDs through direct `extras` plus an authoritative sidecar. It is not binary GLB, a solver model, an analysis result, a compatibility claim, engineering validation, or professional acceptance evidence.
 
 ## Principles
 
@@ -16,7 +25,7 @@ When the exporter emits simplified geometry, describe it as review geometry. If 
 
 The review artifact is only useful to OpenPipeStress workflows if visible objects can be traced back to the canonical model. Prefer stable canonical IDs over display-order assumptions. Use direct metadata only where the profile says it is reliable enough; otherwise pair the geometry artifact with a sidecar ID map and reference it from the manifest.
 
-For E-002, "reliable enough" means the future profile has source-grounded consumer-risk criteria for the selected metadata location, including whether the receiving workflow may ignore, alter, or strip the metadata. Until that profile threshold exists, direct metadata remains a candidate and sidecar mapping remains the auditable fallback.
+For the selected centerline profile, direct node/primitive `extras` are paired with an always-authoritative sidecar; package acceptance blocks when those representations do not correlate one-to-one after deterministic write/read round trip. This establishes package identity integrity only, not receiving-viewer retention or compatibility.
 
 Do not rely on glTF indices or generated names as the only identity layer unless the loss report records the limitation and the profile accepts it for the selected use.
 
@@ -41,6 +50,7 @@ GLB/glTF metadata and sidecars can accidentally expose private project names, ow
 | Hashing | GLB is binary. The manifest should hash the emitted binary when deterministic or record why a hash cannot be stable. |
 | Fixtures | Public fixtures must be invented or rights-cleared and should avoid real project/client/tag data. |
 | Viewer behavior | Viewer-specific rendering, selection, metadata display, and stripping behavior remain `TBD`; do not claim viewer compatibility in Phase A. |
+| Timestamp/generator | Current JSON output uses a fixed versioned generator and omits timestamp fields. Treat this as tested implementation behavior, not the normative policy PDU-031 leaves owner-unselected. |
 
 For E-001, viewer-specific behavior should be treated as evidence-dependent wording. A later profile may name viewer behavior only after source-grounded or test-recorded evidence exists; until then, guidance stays limited to review intent and metadata-risk caution.
 
@@ -48,10 +58,10 @@ For E-001, viewer-specific behavior should be treated as evidence-dependent word
 
 | Option | Benefit | Cost or risk | Phase A position |
 |---|---|---|---|
-| Centerline-only line primitives | Simple, compact, easy to correlate with line/element IDs | May be mistaken for incomplete physical geometry or omit component volume | `TBD`; acceptable candidate only with clear loss report |
+| Centerline-only line primitives | Simple, compact, easy to correlate with line/element IDs | May be mistaken for incomplete physical geometry or omit component volume | Selected bounded JSON glTF profile with explicit loss reporting |
 | Simplified tube/surface primitives | More inspectable visually | Requires more geometry generation and may imply false dimensional fidelity | `TBD`; must be labeled review geometry |
-| Direct `extras` metadata | Keeps identity near the visible object | Some tools may ignore or strip metadata; schema remains target-specific | Candidate, not final policy |
-| Sidecar ID map | Stronger audit trail and stable identity contract | Requires consumers to keep files together | Required fallback and likely package member |
+| Direct `extras` metadata | Keeps identity near the visible object | Some tools may ignore or strip metadata; schema remains target-specific | Selected only with authoritative sidecar; no viewer-retention claim |
+| Sidecar ID map | Stronger audit trail and stable identity contract | Requires consumers to keep files together | Required and blocking-correlated for emitted centerlines |
 | Required custom extension | Can structure metadata explicitly | Reduces viewer portability and requires extension governance | Defer unless later profile justifies it |
 
 ### Geometry Detail Rationale
@@ -74,3 +84,5 @@ Acceptable future examples shall be invented or rights-cleared and shall demonst
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | None | No source conflict identified in Phase A. Remaining open items are `TBD`, not conflicts. | N/A | N/A | N/A | N/A | N/A |
+
+For PDU-036, do not manufacture impossible-bend geometry merely to satisfy a diagnostic species. Preserve the O11 profile and record the absent bend-specific evidence honestly.

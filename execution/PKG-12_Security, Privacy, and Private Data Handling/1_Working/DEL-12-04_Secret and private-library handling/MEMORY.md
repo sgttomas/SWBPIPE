@@ -152,3 +152,7 @@ Durable context preserved after reconciliation review:
   cloud or network behavior, direct SQL access, storage-bypass behavior,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+## 2026-07-12 - D-41 R5 T2 PDU-034 hold
+
+- PDU-034 remains held on the exact protected-content quarantine/readiness taxonomy and destructive workflow policy; DEC-074 did not select those values.
+- O7/E5 runtime-seam work remains sequenced in T3 and may not be treated as whole-product security or legal sufficiency.

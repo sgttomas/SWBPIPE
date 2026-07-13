@@ -1,5 +1,11 @@
 # MEMORY - DEL-13-04 Physical-to-analytical transformation contract
 
+## 2026-07-12 - D-41 R5 T4 PDU-036 trace-gap fixture
+
+- Added `fixtures/domain/invented_physical_to_analytical_trace_gap.json` and a focused transform test.
+- The witness proves an unsupported component is omitted, carries an `ASSUMPTION_WARNING`, remains linked to its diagnostic, and receives no field-scalar trace.
+- Evidence is project-owned verification only; broader trace coverage, independent validation, and runtime result-envelope continuation remain open.
+
 ## Implementation Notes
 
 - Added a provider-neutral Python transform contract at `core/model_transform/physical_to_analytical/contract.py`.
@@ -500,3 +506,16 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-07-12 - D-41 R5 T2B PDU-047 evidence backcheck
+
+- Reviewed the bounded TP-PHYS-015 section-property oracle binding against REQ-007.
+- Held broader 3D centerline/frame mechanics suitability because a circular-section numeric witness does not independently validate the full transform target boundary.
+- Evidence is in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU047.md`.
+- No transform behavior, validation outcome, review disposition, lifecycle, dependency, DAG/register state, or engineering-validation claim changed.
+
+## 2026-07-12 - D-41 R5 T2C PDU-023 field-scalar transform link
+
+- Added deterministic paired source/target field paths for valid component geometry quantity scalars copied through the current transform.
+- Tightened quantity-shape validation so incomplete scalar metadata is diagnosed and cannot emit a trace link.
+- Full runtime result-envelope continuation remains held because no accepted producer/home binds it. Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2C-PDU023.md`.

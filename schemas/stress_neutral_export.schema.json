@@ -52,6 +52,8 @@
     "source_run_ref": {"$ref": "#/$defs/Reference"},
     "source_model_ref": {"$ref": "#/$defs/Reference"},
     "source_hashes": {"type": "array", "items": {"$ref": "#/$defs/Checksum"}},
+    "unresolved_assumption_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}},
+    "reproducibility_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}},
     "export_profile": {"$ref": "#/$defs/ExportProfile"},
     "unit_system_disclosure": {"$ref": "#/$defs/UnitSystemDisclosure"},
     "manifest": {"$ref": "#/$defs/Manifest"},
@@ -117,7 +119,8 @@
       "properties": {
         "algorithm": {"const": "sha256"},
         "canonicalization": {
-          "enum": ["JCS_compatible_json_payload_hash", "normalized_ascii_lf_text"]
+          "description": "JSON members use deterministic_sorted_compact_json_payload_hash for sorted-key compact Python JSON; this does not claim RFC 8785/JCS conformance. CSV members use normalized_ascii_lf_text.",
+          "enum": ["deterministic_sorted_compact_json_payload_hash", "normalized_ascii_lf_text"]
         },
         "payload_ref": {"$ref": "#/$defs/Reference"},
         "payload_scope": {"type": "string", "minLength": 1},
@@ -174,6 +177,8 @@
         "source_run_ref": {"$ref": "#/$defs/Reference"},
         "source_model_ref": {"$ref": "#/$defs/Reference"},
         "source_hashes": {"type": "array", "items": {"$ref": "#/$defs/Checksum"}},
+        "unresolved_assumption_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}},
+        "reproducibility_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}},
         "export_profile_ref": {"$ref": "#/$defs/Reference"},
         "package_members": {"type": "array", "items": {"$ref": "#/$defs/PackageMember"}},
         "checksums": {"type": "array", "items": {"$ref": "#/$defs/Checksum"}},

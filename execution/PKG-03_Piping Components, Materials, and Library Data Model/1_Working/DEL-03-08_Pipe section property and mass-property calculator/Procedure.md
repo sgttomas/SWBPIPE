@@ -45,3 +45,7 @@ Define the procedure for reconciling and maintaining implementation evidence for
 - `Dependencies.csv` v3.1 and `_DEPENDENCIES.md`.
 - `_run_records/TASK_RUN_*.md` records for each TASK sequence step.
 - Current evidence reconciliation run record: `_run_records/TASK_RUN_2026-06-05_DEL-03-08_evidence-reconciliation.md`.
+
+## D-41 R5 T2B PDU-047 Check
+
+Run `pytest -p no:cacheprovider tests/test_section_properties.py tests/test_calculation_witness.py`. Acceptance of this bounded witness requires the production calculator values, units, and dimensions to agree with the existing formal oracle and governed result envelope within the already-recorded witness tolerances. Do not substitute a re-derived test-only formula or select a new tolerance.

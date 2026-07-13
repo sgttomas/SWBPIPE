@@ -162,6 +162,34 @@ def test_behavior_label_authority_wording_is_blocking_boundary_diagnostic():
     validate_contract(contract)
 
 
+def test_unsafe_privacy_context_is_blocked_at_builder_seam():
+    context = source_context()
+    context["privacy_context"] = {
+        "private_payload_redacted": False,
+        "private_payload_embedded": True,
+        "protected_payload_embedded": True,
+    }
+    contract = build_target_mapping_contract(
+        mapping_contract_id="tm:unsafe-privacy",
+        target_system_kind="generic_downstream_modeling",
+        target_ref=ref("ExternalReference", "target:generic"),
+        source_context=context,
+        mapping_records=[mapping_record()],
+    )
+
+    codes = {item["code"] for item in contract["diagnostics"]}
+    assert {
+        "TM-PRIVATE-PAYLOAD-NOT-REDACTED",
+        "TM-PRIVACY-BOUNDARY-VIOLATION",
+    } <= codes
+    assert all(
+        item["severity"] == "blocking"
+        for item in contract["diagnostics"]
+        if item["code"] in codes
+    )
+    validate_contract(contract)
+
+
 def test_output_boundary_language_does_not_make_prohibited_claims():
     contract = build_target_mapping_contract(
         mapping_contract_id="tm:boundary",

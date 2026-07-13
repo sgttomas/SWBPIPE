@@ -1,5 +1,14 @@
 # Specification: DEL-09-01 Mechanics benchmark suite
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-09-01-DECL-001`.
+
 ## Scope
 
 This deliverable specifies setup evidence for a future mechanics benchmark suite covering cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms.
@@ -52,3 +61,7 @@ The exact module paths, fixture schema, runner command, result export format, nu
 | Conflict ID | Issue | Contenders | Human ruling |
 |---|---|---|---|
 | None | No source conflict identified in setup evidence. | N/A | N/A |
+
+## D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
+
+The existing mechanics benchmarks remain explicit and dimensionally checked under `PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K`. That fixture-local basis does not satisfy RQ-004 or Unit safety at the accepted-project-unit-system grain while the canonical catalog and conversion constants remain unresolved. No threshold or validation outcome is selected here.

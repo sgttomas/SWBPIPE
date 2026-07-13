@@ -1,5 +1,14 @@
 # Guidance: DEL-10-04 Build, packaging, and CI/CD pipeline
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-10-04-DECL-003`.
+
 ## Purpose
 
 This guidance explains how to interpret the DEL-10-04 setup artifacts. The deliverable exists to prepare a bounded future implementation path for reproducible builds, packaging, and CI/CD while keeping release engineering, interoperability, data-boundary, and professional-responsibility constraints visible.
@@ -18,6 +27,12 @@ This guidance explains how to interpret the DEL-10-04 setup artifacts. The deliv
 DEL-10-04 is a large context envelope item. Future implementation may need to split into smaller tasks if it expands beyond one bounded change. Natural split points include CI workflow skeleton, desktop packaging skeleton, release-note template, signing/publishing policy, protected-content/provenance gates, and release-checklist automation.
 
 The accepted baseline names Cargo, Vitest, Playwright, validation, and protected-content/provenance gates. It does not finalize the CI host, coverage thresholds, performance thresholds, installer formats, signing identities, release publishing destinations, dependency versions, or exact platform/architecture matrix.
+
+The root `projects/chirality-piping/package.json` is current DEL-10-04
+implementation/build evidence under D-41 `DEC-074` O3. Interpret its desktop
+workspace scripts and preview-mechanics fixture-generator command as existing
+build entrypoints, not as hosted-CI activation, release readiness, or authority
+to change the governed shared product-preview boundary.
 
 ## Trade-offs
 
@@ -42,4 +57,3 @@ TBD. This setup run does not create example workflow files, packaging scripts, r
 ## Conflict Table (for human ruling)
 
 No source conflicts were identified during this setup pass. The unresolved items above are authority gaps, not conflicts.
-

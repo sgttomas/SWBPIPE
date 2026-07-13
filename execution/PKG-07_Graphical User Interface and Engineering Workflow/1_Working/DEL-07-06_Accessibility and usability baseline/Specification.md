@@ -1,5 +1,14 @@
 # Specification: DEL-07-06 Accessibility and usability baseline
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-07-06-DECL-001`.
+
 ## Scope
 
 This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the OpenPipeStress GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.
@@ -57,3 +66,18 @@ Exact checklist format, target accessibility standard, automated a11y tooling, c
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | DEL-07-06-CF-001 | SOW-036 requires baseline accessibility/usability, but the detailed WCAG target is explicitly TBD. | `ScopeLedger.csv` SOW-036 notes | `Specification.md#Standards` | Requirements, Standards, Verification | Keep baseline requirements qualitative and defer measurable conformance target to human ruling. | TBD |
+
+## D-41 R5 T5 PDU-045 evidence boundary
+
+The current deterministic contract review remains project-owned verification,
+not independent usability validation. Desktop runtime evaluation is not
+performed, no accessibility conformance claim is emitted, and
+contrast/readability findings remain warnings while the measurable target is
+`TBD_by_human_project_authority`.
+
+## D-41 R5 T6 PDU-046 measurable-target hold
+
+`DEL-07-06-RQ-004` remains `VERIFIED_NOT_VALIDATED`. The qualitative
+contrast/readability review is project-owned verification only; no independent
+usability basis or human-selected measurable target was supplied. PDU-046
+cannot be upgraded by the existing warning evidence.

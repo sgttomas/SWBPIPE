@@ -1,5 +1,14 @@
 # Datasheet: DEL-15-02 Target mapping and unsupported-behavior contract
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-15-02-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -62,3 +71,6 @@
 - `docs/SPEC.md` - adapter/export and boundary specification slices.
 - `docs/TYPES.md` - canonical object and boundary vocabulary.
 - `docs/IP_AND_DATA_BOUNDARY.md` - private-data and public-surface boundary policy.
+## D-41 R5 T3 PDU-017 Evidence State
+
+Selected seam: target-mapping builder. Unsafe privacy context produces blocking diagnostics; broader runtime redaction reach remains separately owned.

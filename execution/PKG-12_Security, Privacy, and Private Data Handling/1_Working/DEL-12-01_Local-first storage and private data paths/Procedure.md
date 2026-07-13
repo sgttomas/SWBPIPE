@@ -73,3 +73,5 @@ The 2026-06-07 readiness evidence also cites product-level artifacts outside thi
 - `tests/security/test_local_first_storage_policy.py`.
 
 Do not move any artifact to `ISSUED` during setup or readiness-evidence alignment. Do not use this procedure to approve runtime storage, cloud behavior, encryption/key management, real secret storage, professional reliance, code compliance, security certification, or release readiness.
+
+For PDU-036, classify the transform trace-gap fixture as adjacent verification evidence only. Re-run LFSP-REQ-011 only when the actual runtime path, package/migration, and report/export owners supply their bounded implementations and fixtures.

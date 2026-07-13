@@ -47,3 +47,7 @@ Current numerical examples live in `tests/test_section_properties.py` and use in
 ## P3 Enrichment Notes
 
 Semantic lensing identified that diagnostic taxonomy, schema hook names, and optional mass contributors needed explicit treatment. The calculator now emits blocking diagnostics with diagnostic class, source, affected object, and provenance, and tests cover optional mass contributors when explicit densities are supplied. Accepted schema hook names, optional contributor requiredness policy, source catalog, fixture-value policy, dependency satisfaction, lifecycle disposition, human disposition, and downstream integration remain `TBD`.
+
+## D-41 R5 T2B PDU-047 Boundary
+
+The TP-PHYS-015 binding is deliberately narrow: it demonstrates that selected existing rights-safe section-property oracle values traverse the actual Python calculator and an existing governed result envelope. It does not approve catalogs, conversions, thresholds, broader mechanics suitability, or professional reliance.

@@ -265,5 +265,26 @@ def test_accessibility_usability_baseline_main():
     main()
 
 
+def test_gui_baseline_remains_verified_not_validated_with_contrast_target_held():
+    baseline = build_accessibility_usability_baseline(
+        baseline_id="invented-accessibility-validation-boundary",
+        gui_contract_records=invented_contract_records(),
+    )
+    contrast_findings = [
+        item for item in baseline["findings"] if item["category"] == "contrast_readability"
+    ]
+
+    assert baseline["review_mode"] == "deterministic_contract_records_no_live_desktop_runtime"
+    assert baseline["desktop_runtime_evaluation"] == "not_performed"
+    assert baseline["accessibility_target_status"] == "TBD_by_human_project_authority"
+    assert baseline["review_policy"]["software_makes_accessibility_conformance_claim"] is False
+    assert contrast_findings
+    assert all(item["outcome"] == "warning" for item in contrast_findings)
+    assert any(
+        item["affected_control"] == "human_selected_accessibility_target"
+        for item in contrast_findings
+    )
+
+
 if __name__ == "__main__":
     main()

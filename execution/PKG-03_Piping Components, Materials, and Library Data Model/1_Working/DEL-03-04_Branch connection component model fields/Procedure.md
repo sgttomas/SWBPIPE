@@ -36,8 +36,9 @@ the authorized data boundary.
 5. Preserve unresolved `TBD`s for public branch source catalogs, fixture-value
    policy, standard-specific interpretation, concrete import formats,
    dependency satisfaction, human review dispositions, and lifecycle state.
-6. Do not edit `Review_Findings.csv`; keep its findings conceptually
-   `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+6. Preserve the formal Gate C record: `Review_Findings.csv` records
+   `PKG03-DEL-03-04-PKG02-001` and `-002` as `ACCEPT_AS_IS` / `RESOLVED`.
+   Documentation maintenance must not rewrite that review disposition.
 7. Run relevant validation when feasible: `python3 -m pytest
    tests/test_component_section_schema.py` and a stale-language search scoped to
    `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
@@ -69,3 +70,6 @@ the authorized data boundary.
 - `_DEPENDENCIES.md`
 - `_run_records/TASK_RUN_*.md`
 - `_run_records/TASK_RUN_2026-06-05_DEL-03-04_evidence-reconciliation.md`
+## D-41 R5 T3 PDU-019 Check
+
+Run strict ComponentRecord schema negatives for privacy classification and unknown payload keys. Route evidence to REVIEW without changing its outcome.

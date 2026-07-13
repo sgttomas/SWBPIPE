@@ -1,5 +1,13 @@
 # MEMORY: DEL-17-03
 
+## 2026-07-12 - D41-R5-T2A-E1-PDU002 canonicalization-label narrowing
+
+- Applied the DEC-074-authorized E1 repair for PDU-002 and claim `DEL-17-03-REQ-006`: hashes computed by the native JSON emitter and represented by the owning schema/fixture now use the implemented label `deterministic_sorted_compact_json_payload_hash`.
+- Fan-in correction preserves validated caller-supplied source checksum algorithm/canonicalization/digest metadata verbatim instead of relabelling a digest that DEL-17-03 did not recompute; malformed or unsupported source checksum mappings are rejected.
+- The implementation remains deterministic `json.dumps` output with sorted keys, compact separators, ASCII escaping, SHA-256 member digests, and no runtime timestamp field in emitted hash inputs. The narrowed project-local label does not assert RFC 8785 conformance.
+- Focused tests now pin the exact computed-hash label, differently labelled governed source-checksum pass-through, repeatable serialized bytes/digests, mutation-sensitive model-payload hashes, timestamp-free output, and absence of an RFC 8785 claim in current emitter/schema/fixture surfaces.
+- Preserved boundaries: no public integration, target compatibility, lifecycle transition, release claim, professional approval, certification, sealing, authentication, code-compliance claim, dependency/DAG/register change, or shared handoff-schema ownership change.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001 primary native package unit inventory coverage
 
 - Primary role for Phase B-tail Native JSON Package unit-inventory slice: the

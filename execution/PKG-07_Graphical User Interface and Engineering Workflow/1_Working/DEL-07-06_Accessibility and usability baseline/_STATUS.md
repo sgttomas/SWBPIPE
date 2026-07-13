@@ -1,13 +1,17 @@
 # Status: DEL-07-06 Accessibility and usability baseline
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
+- Preserve PDU-046 / `DEL-07-06-RQ-004` as `VERIFIED_NOT_VALIDATED` until a separately authorized independent usability basis and human-selected measurable contrast/readability target exist; the target remains `TBD_by_human_project_authority`.
+- Obtain a separately authorized independent usability basis before upgrading PDU-045 beyond `VERIFIED_NOT_VALIDATED`; select the measurable contrast/readability target separately, which remains `TBD_by_human_project_authority`.
 - Run a packaged-Tauri smoke over a saved project with edited load data (source: PRD plan §4 FR-007 A4 residual / seam plan §9.5)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T6/PDU-046 recorded the measurable-target and independent-usability hold; no validation promotion or target selection occurred.
+- 2026-07-12 - D-41 R5 T5/PDU-045 added focused evidence that the deterministic baseline remains project-owned verification, desktop runtime evaluation is not performed, and the measurable contrast/readability target is held; lifecycle remains IN_PROGRESS.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents, RUN_PASSES=P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

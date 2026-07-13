@@ -1,5 +1,11 @@
 # Procedure: DEL-12-05 Security threat model
 
+## PDU-027 Check
+
+1. Verify the packet identifies the actual bounded telemetry guard seam.
+2. Verify provenance, assumption, IP-boundary, and privacy warning classes remain explicit.
+3. Verify plugin/adapter/report/export interception is false and no result-envelope or security-review closure is claimed.
+
 ## Purpose
 
 This procedure defines how a bounded TASK worker drafts, refreshes, and checks the DEL-12-05 security threat model setup content. It is intended for deliverable-local setup work only and does not publish `docs/security/threat_model.md`.
@@ -90,4 +96,3 @@ Required records for this run:
 - `_run_records/PHASE_2_4_lens_register_2026-04-30.md`
 - `_run_records/PHASE_2_5_four_documents_P3_2026-04-30.md`
 - `_run_records/PHASE_2_6_dependency_extract_2026-04-30.md`
-

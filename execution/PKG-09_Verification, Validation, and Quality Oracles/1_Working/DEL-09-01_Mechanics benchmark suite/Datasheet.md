@@ -1,5 +1,14 @@
 # Datasheet: DEL-09-01 Mechanics benchmark suite
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-09-01-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -65,3 +74,9 @@ The future mechanics benchmark suite must stay aligned with the architecture-bas
 | What numerical comparison tolerance policy is acceptable for each benchmark family? | Solver lead / validation owner / human project authority |
 | What fixture schema, runner interface, and result-envelope fields should executable benchmarks use? | Architecture / solver / validation owners |
 | Which benchmark cases gate release and which are advisory regression checks? | QA/release owner / human project authority |
+
+## D-41 R5 T2B PDU-013 Evidence State
+
+| Basis | Evidence | Limit |
+|---|---|---|
+| Fixture-local units | Explicit N-m-rad-K identifiers and dimensional checks in the mechanics benchmark crate. | Does not establish the still-TBD accepted project catalog/conversion basis. |

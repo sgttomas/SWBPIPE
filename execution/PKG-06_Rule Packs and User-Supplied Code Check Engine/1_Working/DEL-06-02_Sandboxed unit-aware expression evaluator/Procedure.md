@@ -1,5 +1,20 @@
 # Procedure: DEL-06-02 Sandboxed unit-aware expression evaluator
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-06-02-DECL-004`.
+
+## PDU-024 Integration Check
+
+1. Validate evaluator inputs under the existing binding, unit, sandbox, and diagnostic contract.
+2. For inputs carried in a project model, consume DEL-02-05 version-check/migration evidence rather than a local current-version literal.
+3. Preserve stale/unsupported/newer/failed project-version diagnostics; do not alter evaluator grammar, binding namespaces, or fixtures in response to model-document version handling.
+
 ## Purpose
 
 Describe the setup-to-implementation procedure for a future sandboxed, unit-aware, declarative rule-pack expression evaluator. This procedure is operational guidance only; it does not implement the evaluator in this setup run.

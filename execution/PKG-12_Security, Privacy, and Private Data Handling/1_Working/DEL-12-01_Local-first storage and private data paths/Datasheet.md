@@ -82,3 +82,5 @@ The June 7 guard helper classifies explicit storage metadata only. It does not c
 | `docs/_Registers/Deliverables.csv` | Deliverable identity, anticipated artifacts, context/risk notes. |
 | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-029. |
 | `TASK_RUN_2026-06-07_0140.md` and package fan-in run `WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md` | June 7 implementation and fan-in evidence; no lifecycle, approval, storage-schema, runtime-storage, cloud, encryption, or certification claim. |
+
+PDU-036 does not change the storage evidence inventory: the trace-gap fixture is cross-deliverable verification evidence, not a storage runtime, migration, round-trip, or report/export fixture.

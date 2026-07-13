@@ -60,3 +60,7 @@ Future implementation should maintain:
 - Unit test records for frame assembly, coordinate transforms, boundary conditions, unit handling, missing-value diagnostics, and sparse solve interface behavior.
 - Result-envelope and diagnostics examples that disclose assumptions, warnings, model/solver versions, and provenance without certification claims.
 - TBD register entries for unresolved formulation, tolerance, solver-library, and performance-target decisions.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, DOF contract, dense solution path, and DEC-023 sparse evidence now exist in the implemented slice. Sparse-as-default policy and any broader performance/validation thresholds remain held where recorded; lifecycle remains `IN_PROGRESS`.

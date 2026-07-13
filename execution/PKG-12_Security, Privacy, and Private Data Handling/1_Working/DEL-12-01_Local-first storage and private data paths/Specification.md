@@ -70,3 +70,7 @@ Implementation artifacts and decisions still deferred:
 - cloud exception workflow;
 - encryption, secret storage, and key management;
 - lifecycle acceptance, release approval, or professional/security/code-compliance approval.
+
+## D-41 R5 T4 PDU-036 evidence boundary
+
+The invented DEL-13-04 trace-gap fixture is adjacent evidence for linked omissions/warnings/assumptions only. It does not implement or validate LFSP-REQ-011 runtime private-path resolution, storage package round-trip, migration handling, or report/export boundary integration; those test families remain explicit gaps.

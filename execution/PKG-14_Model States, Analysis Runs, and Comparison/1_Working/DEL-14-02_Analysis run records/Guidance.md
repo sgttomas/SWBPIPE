@@ -1,5 +1,14 @@
 # Guidance: DEL-14-02 Analysis run records
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-14-02-DECL-003`.
+
 ## Purpose
 
 Analysis run records exist so solver outputs can be reviewed as reproducible records bound to the exact model state, execution context, diagnostics, references, and hashes that produced them. The record is a traceability surface for design iteration and review; it is not an automatic professional approval or external validation state.
@@ -11,7 +20,7 @@ Analysis run records exist so solver outputs can be reviewed as reproducible rec
 | Bind results to their run basis | Treat the run record as the durable home for result evidence, not as a transient view of the current model. | SOW-072; `_CONTEXT.md` envelope notes |
 | Preserve exact upstream references | Model state, solver version, settings, units, load-case basis, diagnostics, rule packs, libraries, and result hashes are binding categories, not optional narrative notes. | SOW-072 |
 | Keep units explicit | Unit-bearing physical values need unit metadata; missing or ambiguous units become diagnostics rather than inferred defaults. | `docs/SPEC.md` section 4 |
-| Make hashes scoped and reproducible | Hash records should say what was hashed and what canonicalization basis was used. JSON payloads use the accepted JCS-compatible basis where applicable. | `docs/SPEC.md` section 4.4 |
+| Make hashes scoped and reproducible | Hash records say what was hashed and label the actual DEL-14-02 serializer as `SORTED_COMPACT_JSON`: Python sorted keys, compact separators, and ASCII escaping. Do not infer RFC 8785/JCS conformance from deterministic output alone. | `docs/SPEC.md` section 4.4; `DEC-074` E1 / PDU-003 |
 | Keep authority domains separate | Solver results and diagnostics are software outputs. User-rule checks use user-supplied rule-pack data. Human acceptance, if used, is external and hash-bound. | `docs/SPEC.md` analysis boundary section |
 | Protect private/protected payloads | Rule-pack and library references may carry identity, version, checksum, provenance, privacy, and review metadata, but public artifacts must not copy private/protected content. | `docs/IP_AND_DATA_BOUNDARY.md`; `docs/SPEC.md` result export section |
 

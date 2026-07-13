@@ -14,7 +14,7 @@ This deliverable exists to isolate the straight pipe element as one bounded solv
 
 ## Considerations
 
-The element will likely depend on upstream contracts for section properties, units, domain objects, application-service result envelopes, primitive load cases, and solver kernel assembly. Those contracts are not resolved in this setup pass.
+The implemented element consumes explicit section properties and mechanics inputs through the frame-kernel boundary, carries unit/boundary metadata, and supports deterministic force/resultant recovery and spanned-load behavior. Full application-service result-envelope production remains separate residual work.
 
 Verification should use open, synthetic, or cleared test cases. Any hand-check examples must avoid copying protected standard examples, tables, or protected formula presentations.
 
@@ -29,7 +29,10 @@ Verification should use open, synthetic, or cleared test cases. Any hand-check e
 
 ## Examples
 
-Concrete numerical examples are `TBD`. Future examples must use synthetic or cleared data and must not reproduce protected standards content.
+Rights-safe deterministic examples exist in the straight-pipe mechanics witness
+and benchmark families. They are software verification evidence, not design
+examples or professional acceptance, and must not be replaced with protected
+standards content.
 
 ## Conflict Table (for human ruling)
 

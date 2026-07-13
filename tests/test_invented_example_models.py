@@ -301,7 +301,7 @@ def test_invented_examples_persist_and_round_trip_with_schema_validation():
         assert project_hash_manifest(envelope) == envelope["hash"]["hash_manifest"]
 
         round_trip = round_trip_project_envelope(envelope)
-        assert round_trip["serialization"] == "canonical_json_jcs"
+        assert round_trip["serialization"] == "sorted_compact_json"
         assert round_trip["semantic_equal"] is True
         assert round_trip["diagnostics"] == []
         assert round_trip["source_hash"]["value"] == round_trip["round_trip_hash"]["value"]

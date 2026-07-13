@@ -40,3 +40,6 @@ Executable invented fixtures exist in `tests/test_constraint_validation.py` for 
 ## Conflict Table (for human ruling)
 
 No cross-source conflicts were identified in this evidence refresh. Remaining `TBD` items are bounded deferrals: localization, full geometric conflict solving, owner criteria/rules, GUI presentation, physical-to-analytical transformation, runtime integration, release readiness, and human acceptance.
+## D-41 R5 T2C PDU-023 Boundary
+
+Schema capability is not runtime integration. Preserve the absent application-service/result-envelope home as a held residual.

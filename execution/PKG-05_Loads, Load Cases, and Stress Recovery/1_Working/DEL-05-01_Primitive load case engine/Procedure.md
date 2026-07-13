@@ -51,3 +51,7 @@ Describe bounded steps for maintaining and verifying the primitive load case eng
 - Implementation evidence: `core/loads/primitive_loads/README.md`, `core/loads/primitive_loads/src/lib.rs`
 - Run evidence: `_run_records/`
 - Lifecycle evidence: `_STATUS.md`
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The primitive-load slice now includes explicit loads and the DEC-068 equivalent-static wind, seismic, and occasional generators. Dynamic loading and code-prescribed generation are outside this bounded slice unless separately implemented and evidenced.

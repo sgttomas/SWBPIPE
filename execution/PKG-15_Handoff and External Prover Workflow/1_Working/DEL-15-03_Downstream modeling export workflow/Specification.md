@@ -29,7 +29,7 @@ Excluded work:
 | DEL-15-03-REQ-005 | The workflow shall preserve diagnostics, warnings, unresolved assumptions, provenance, and hashes rather than hiding missing data or boundary risks. | `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-REPORT-1; `docs/TYPES.md` Diagnostic, Assumption, Checksum, ResultExportEnvelope | Export validation tests and review of generated diagnostics/warnings. |
 | DEL-15-03-REQ-006 | The workflow shall not claim certification, sealing, approval, authentication, professional acceptance, or engineering code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-AGENT-4; `SOFTWARE_DECOMP.md` OBJ-017 and DEC-015 | Protected/professional-boundary wording review and tests where applicable. |
 | DEL-15-03-REQ-007 | Public fixtures and examples shall use invented or otherwise cleared data and shall not copy protected standards content, commercial software examples, or proprietary data. | `docs/IP_AND_DATA_BOUNDARY.md`; `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3 | Protected-content review, fixture provenance review, and validation gate. |
-| DEL-15-03-REQ-008 | The workflow shall respect the approved architecture basis applicable to this backend slice: Rust core/application services, schema-first contracts, JSON Schema 2020-12, and canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. | `_CONTEXT.md#Architecture Basis Injection`; `SOFTWARE_DECOMP.md` DEC-009 through DEC-012 | Implementation review and schema/hash tests. |
+| DEL-15-03-REQ-008 | The workflow shall respect schema-first contracts and JSON Schema 2020-12 and shall preserve the producer-declared checksum byte-basis label. DEL-15-03 carries supplied hashes without recomputing or relabeling them and therefore makes no independent JCS claim. | `_CONTEXT.md#Architecture Basis Injection`; `SOFTWARE_DECOMP.md` DEC-009 through DEC-012; D-41 R5 T2A | Implementation review verifies checksum metadata is carried unchanged and no unproved JCS assertion is introduced. |
 | DEL-15-03-REQ-009 | The workflow shall consume upstream handoff/mapping/security/model-transformation context only through explicit contracts or approved dependency evidence. | Local `Dependencies.csv`; `_DEPENDENCIES.md` | Dependency review; no sibling deliverable source copying without an approved input contract. |
 | DEL-15-03-REQ-010 | Missing target behavior, missing mapping support, or unsupported features shall be explicit findings or unsupported-target flags, not silent defaults. | SOW-074; `docs/CONTRACT.md` OPS-K-DATA-2; OI-015 | Validation tests using the invented target fixture. |
 
@@ -38,7 +38,7 @@ Excluded work:
 | Standard or governing source | Applicability | Status |
 |---|---|---|
 | JSON Schema 2020-12 | Contract basis for schema-backed handoff/package validation. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; current upstream schemas are `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
-| Canonical JSON/JCS-compatible hash basis | Hash basis where JSON payloads are hashed. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; exact payload boundaries TBD. |
+| Producer-declared JSON hash basis | Carry supplied checksum algorithm, payload scope, digest, and canonicalization label unchanged; no recomputation or conformance ruling by this workflow. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; exact producer payload boundaries remain external to DEL-15-03. |
 | OpenPipeStress invariant catalog | Governs data, unit, professional-boundary, IP, privacy, and agent-output constraints. | Applicable from `docs/CONTRACT.md`. |
 | IP and Data Boundary Policy | Governs protected-content, private-data, fixture, and provenance handling. | Applicable from `docs/IP_AND_DATA_BOUNDARY.md`. |
 | Commercial stress tool formats | Target-specific parsers and commercial examples are out of scope. | Deferred; concrete mappings, target field coverage, and target-specific implementation remain gated by OI-015, DEL-17-01, and DEL-17-02. |
@@ -63,3 +63,6 @@ Required records for this deliverable are:
 - invented target fixture provenance and protected-content review status;
 - any unresolved target mapping, package container, hash boundary, or dependency-version TBDs;
 - dependency closure evidence for required upstream contracts before this workflow is treated as implementation-ready.
+## D-41 R5 T2A checksum-boundary requirement (2026-07-12)
+
+DEL-15-03 SHALL preserve supplied checksum metadata without relabeling it as JCS and SHALL NOT imply that carrying a checksum constitutes recomputation, validation, or RFC 8785 conformance.

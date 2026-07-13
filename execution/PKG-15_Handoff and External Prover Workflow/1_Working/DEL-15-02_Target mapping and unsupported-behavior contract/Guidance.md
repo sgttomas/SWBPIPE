@@ -1,5 +1,14 @@
 # Guidance: DEL-15-02 Target mapping and unsupported-behavior contract
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-15-02-DECL-003`.
+
 ## Purpose
 
 This deliverable prevents silent loss of critical handoff assumptions or unsupported target behavior. It supplies the contract surface for explaining how internal OpenPipeStress entities map into a handoff target and where a target cannot carry the source semantics exactly.
@@ -57,3 +66,6 @@ This deliverable prevents silent loss of critical handoff assumptions or unsuppo
 - `docs/SPEC.md`
 - `docs/TYPES.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
+## D-41 R5 T3 PDU-017 Boundary
+
+Preserving privacy metadata is insufficient when it says unsafe payload is embedded. The selected builder seam blocks that state without claiming downstream security sufficiency.

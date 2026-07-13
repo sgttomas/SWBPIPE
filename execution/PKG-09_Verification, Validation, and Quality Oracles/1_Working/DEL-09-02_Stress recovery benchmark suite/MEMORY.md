@@ -1,5 +1,11 @@
 # MEMORY - DEL-09-02 Stress Recovery Benchmark Suite
 
+## 2026-07-12 - D-41 R5 T4 PDU-039 governed envelope witness
+
+- Added a direct dependency from the stress benchmark crate to the governed DEL-08-04 result-export crate.
+- `governed_complete_stress_result_envelope()` routes six recovered stress components through a schema-vocabulary result set with trace links, deterministic hashes, an explicit verification-only diagnostic, `HUMAN_REVIEW_REQUIRED`, and no approval claim.
+- Release thresholds, final tolerance policy, CI gate, publication scope, canonical conversion policy, engineering validation, and professional reliance remain `TBD` or unclaimed.
+
 ## 2026-05-02 Implementation
 
 Human project authority authorized implementation from

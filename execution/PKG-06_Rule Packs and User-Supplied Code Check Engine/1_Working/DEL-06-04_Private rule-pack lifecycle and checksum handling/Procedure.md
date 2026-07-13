@@ -67,3 +67,7 @@ This setup session records:
 - dependency extraction results in `Dependencies.csv` and `_DEPENDENCIES.md`;
 - run records in `_run_records/`;
 - final lifecycle state in `_STATUS.md`.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Private rule-pack lifecycle schemas, fixtures, checksum handling, and tests now exist. Quarantine taxonomy, provider/storage breadth, encryption, and other controls remain residual only where explicitly recorded; this is not a security-assurance ruling.

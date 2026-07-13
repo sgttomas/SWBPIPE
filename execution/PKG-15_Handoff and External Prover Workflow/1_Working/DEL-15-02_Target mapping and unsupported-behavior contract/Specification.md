@@ -56,3 +56,6 @@ Required deliverable documentation artifacts:
 - `core/handoff/target_mapping/contract.py`
 - `tests/test_target_mapping_contract.py`
 - validation evidence for schema, protected-content boundary, and professional-boundary wording
+## D-41 R5 T3 PDU-017 O7/E5 Requirement (2026-07-12)
+
+The builder SHALL emit blocking privacy diagnostics when redaction is not affirmed or embedded private/protected/commercial payload is reported. Metadata shape alone is not enforcement.

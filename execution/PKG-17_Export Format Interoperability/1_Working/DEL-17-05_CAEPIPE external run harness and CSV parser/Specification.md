@@ -1,5 +1,14 @@
 # Specification: DEL-17-05 CAEPIPE external run harness and CSV parser
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-05-DECL-001`, `DEL-17-05-EXC-001`, `DEL-17-05-EXC-002`.
+
 ## Scope
 
 DEL-17-05 shall define the Phase A contract for an optional CAEPIPE external run harness and CAEPIPE CSV parser used as regression and handoff evidence.
@@ -98,3 +107,15 @@ Future implementation documentation shall include:
 - skip-without-executable test behavior;
 - fixture provenance notes;
 - evidence and limitation notes for reports or handoff records.
+## D-41 R5 T3 PDU-016 O7/E5 Requirement (2026-07-12)
+
+User-provided CAEPIPE output evidence defaults to private/user-controlled, local-only, telemetry-disabled handling. Public classification requires an explicit later rights/provenance path; this seam does not assert global privacy sufficiency.
+
+## D-41 R5 T6 PDU-050 validation hold
+
+`DEL-17-05-ACC-006` remains `VERIFIED_NOT_VALIDATED`. Parser, skipped-run,
+metadata, boundary, and invented-fixture tests verify the bounded software
+contract only. Optional live execution remains an O10 user-owned path gated by
+an executable, acknowledged responsibilities, and a selected target/MBF/
+invocation profile; those inputs are unavailable and no live validation was
+performed.

@@ -1,12 +1,12 @@
 # Status: DEL-03-08 Pipe section property and mass-property calculator
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-056 bound the two cited declarations to the implemented dimensional mill-tolerance form and effective-wall equation while preserving fractional/catalog policy as TBD; cited-claim backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - four-documents P1/P2 setup kit drafted; state advanced to INITIALIZED.
 - 2026-04-30 - semantic-matrix-build completed; state advanced to SEMANTIC_READY.
@@ -17,3 +17,4 @@
 - 2026-06-05 - State moved to CHECKING by explicit human instruction after accepted PKG-03 review disposition gates; local review findings `PKG03-DEL-03-08-PKG02-001` through `PKG03-DEL-03-08-PKG02-003` are `ACCEPT_AS_IS` / `RESOLVED`.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
+- 2026-07-12 - D-41 R5 T2B added a bounded PDU-047 production-path witness linking the existing rights-safe TP-PHYS-015 oracle and governed result envelope to `calculate_pipe_section_properties`, including numeric and dimensional assertions. This is evidence only; no validation disposition or lifecycle state changed.

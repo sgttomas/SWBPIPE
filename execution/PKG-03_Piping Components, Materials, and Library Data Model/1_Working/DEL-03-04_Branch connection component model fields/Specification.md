@@ -88,3 +88,6 @@ Current implementation evidence:
 This deliverable-local kit records evidence reconciliation only. It is not a
 lifecycle promotion, release claim, professional/code-compliance claim, or human
 acceptance decision.
+## D-41 R5 T3 PDU-019 O7/E5 Evidence (2026-07-12)
+
+Negative schema tests prove invalid privacy classes and unknown embedded payload fields are rejected. This bounded technical evidence does not determine formal REVIEW sufficiency or disposition.

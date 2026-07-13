@@ -69,6 +69,57 @@ export function evaluateModelDocumentLocal(model: PreviewModel): ModelDocumentMi
   return migrateModelDocumentLocal(model).status;
 }
 
+// Version-check classification uses only status names already governed by the
+// persistence contract. A document that can migrate is still stale at the
+// version-check boundary; its separate migration evidence remains `migrated`.
+export function modelDocumentVersionCheckStatus(
+  model: PreviewModel,
+  evaluatedStatus?: ModelDocumentMigrationStatus["status"]
+): "current" | "stale" | "unsupported_schema" | "newer_than_supported" | "failed" {
+  const status = evaluatedStatus ?? evaluateModelDocumentLocal(model).status;
+  if (status === "current") return "current";
+  if (status === "migrated" || status === "stale" || status === "migration_needed") return "stale";
+  if (status === "newer_than_supported") return "newer_than_supported";
+  if (status === "failed") return "failed";
+  return "unsupported_schema";
+}
+
+export function modelDocumentVersionCheckDiagnostic(
+  status: ReturnType<typeof modelDocumentVersionCheckStatus>
+): { code: string; severity: "warning" | "blocking"; message: string } | null {
+  if (status === "current") return null;
+  if (status === "stale") {
+    return {
+      code: "PROJECT-VALIDATION-STALE-SCHEMA",
+      severity: "warning",
+      message:
+        "Project schema version is stale relative to current authoring schema_version 0.2.0; use the governed in-memory migration path before treating it as current."
+    };
+  }
+  if (status === "failed") {
+    return {
+      code: "PROJECT-VALIDATION-SCHEMA-MIGRATION-FAILED",
+      severity: "blocking",
+      message:
+        "Project schema migration failed; the document is refused until the reported migration failure is resolved."
+    };
+  }
+  if (status === "newer_than_supported") {
+    return {
+      code: "PROJECT-VALIDATION-NEWER-THAN-SUPPORTED-SCHEMA",
+      severity: "blocking",
+      message:
+        "Project schema version is newer than supported authoring schema_version 0.2.0; the document is refused because no down-migration is allowed."
+    };
+  }
+  return {
+    code: "PROJECT-VALIDATION-UNSUPPORTED-SCHEMA",
+    severity: "blocking",
+    message:
+      "Project schema version is unsupported by the current 0.2.0 authoring family and no governed migration path is available."
+  };
+}
+
 function migrateModelDocumentLocal(model: PreviewModel): {
   model: PreviewModel;
   status: ModelDocumentMigrationStatus;

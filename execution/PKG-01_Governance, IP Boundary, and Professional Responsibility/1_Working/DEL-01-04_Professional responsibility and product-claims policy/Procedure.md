@@ -44,3 +44,7 @@ Define the local procedure for producing and checking professional-boundary poli
 - `Dependencies.csv` and `_DEPENDENCIES.md` dependency extraction outputs.
 - `_run_records/TASK_RUN_*.md` evidence record.
 - `_run_records/WORKING_ITEMS_RUN_*.md` current-basis refresh record.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The professional-responsibility and product-claims policy is current under SOFTWARE_DECOMP revision 0.8 and DAG-007 coordination. It preserves the distinction between computational evidence, professional judgment, validation, and approval; no engineering ruling is created here.

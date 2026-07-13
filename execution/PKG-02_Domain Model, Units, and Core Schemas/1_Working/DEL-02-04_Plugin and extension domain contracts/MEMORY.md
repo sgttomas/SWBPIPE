@@ -135,3 +135,7 @@ Boundaries preserved:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T6 PDU-037 verification refresh
+
+- Plugin schema/no-bypass fixture verification refreshed within the 19/19 Python set. Unit-safety, provenance, diagnostic, protected-content, and runtime adapter/plugin regression layers remain downstream.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

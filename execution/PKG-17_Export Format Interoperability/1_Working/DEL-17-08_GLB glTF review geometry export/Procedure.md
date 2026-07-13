@@ -1,8 +1,17 @@
 # Procedure: DEL-17-08 GLB/glTF review geometry export
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-08-DECL-004`.
+
 ## Purpose
 
-This procedure defines how to develop and review the GLB/glTF review-geometry export contract without crossing into implementation, solver-fidelity, target-compatibility, release, code-compliance, or professional-acceptance claims.
+This procedure defines how to maintain and review the bounded JSON glTF centerline export without crossing into binary GLB, broader geometry, viewer compatibility, engineering validation, solver-fidelity, release, code-compliance, or professional-acceptance claims.
 
 ## Prerequisites
 
@@ -47,11 +56,11 @@ Declared upstream dependencies for this deliverable are `DEL-17-02`, `DEL-02-01`
 
 ### Future export-package review procedure
 
-1. Confirm every emitted review entity has a canonical ID or an explicit unmapped/omitted record.
+1. Confirm every emitted centerline entity has the same canonical ID in node `extras`, primitive `extras`, and exactly one authoritative sidecar row after deterministic write/read round trip; block mismatches.
 2. Confirm every target artifact is listed in the manifest.
 3. Confirm geometry limitations appear in the loss report.
 4. Confirm GLB/glTF target facts are limited to GLTF-2.0 source evidence and selected profile behavior.
-5. For D-001, confirm timestamp or generator metadata policy is declared as deterministic, normalized, omitted, or intentionally runtime-dependent before package acceptance.
+5. Confirm current output retains its fixed versioned generator and omits timestamps. Do not declare a normative timestamp/generator policy until the owner selects the exact PDU-031 policy.
 6. For E-003, confirm binary GLB and other non-JSON package members have hashes or an explicit, manifest-recorded reason why a hash is unavailable.
 7. Confirm no statement implies solver readiness, analysis fidelity, target compatibility, formal validation, code compliance, release readiness, or professional acceptance.
 
@@ -85,3 +94,5 @@ Phase A records are:
 - `_run_records/TASK_RUN_2026-05-18_1156.md`
 
 Future records remain `TBD` and may include a profile artifact, manifest, ID map, loss report, diagnostics, generated GLB/glTF artifact, and invented fixtures only when a later task explicitly authorizes those writes.
+
+PDU-036 check: verify every emitted line primitive has current authoritative ID-map correlation. Record impossible-bend diagnostic coverage as absent/outside the selected profile; do not add GLB, viewer, or broader bend geometry.

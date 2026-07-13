@@ -13,6 +13,11 @@ import type {
   ProjectEnvelopeHashEvidence,
   ProjectEnvelopeHashIntegrityEvidence
 } from "../../types";
+import {
+  evaluateModelDocumentLocal,
+  modelDocumentVersionCheckDiagnostic,
+  modelDocumentVersionCheckStatus
+} from "../../services/projectService";
 
 type RoundTripCategory = {
   category: string;
@@ -251,8 +256,10 @@ function buildProjectValidationPacket({
     projectSummary,
     storageCapability
   });
-  const versionCheckStatus =
-    model.schema_version === "0.1.0" ? "supported_current_schema" : "unsupported_schema_review_required";
+  const versionCheckStatus = modelDocumentVersionCheckStatus(
+    model,
+    modelDocumentMigration?.status
+  );
   const validationStatus = projectSummary ? "preview_current" : "preview_not_persisted";
   const proposalCount = proposal ? 1 : 0;
   const pendingOperationCount = editorIntents.length + proposalCount;
@@ -573,16 +580,17 @@ function modelDocumentMigrationEvidence(
   status: ModelDocumentMigrationStatus | null,
   ledger: ModelMigrationLedgerRecord[]
 ) {
+  const evaluated = status ?? evaluateModelDocumentLocal(model);
   return {
     decision_basis: "DEC-019_model_document_schema_migration_policy",
     version_authority: "in_document_schema_version_semver",
     evidence_source: status ? "persistence_operation_envelope" : "session_document_local_evaluation",
-    status: status?.status ?? (model.schema_version === "0.1.0" ? "current" : "unsupported_schema_review_required"),
-    source_schema_version: status?.source_schema_version ?? model.schema_version,
-    target_schema_version: status?.target_schema_version ?? "0.1.0",
-    migration_framework: status?.migration_framework ?? "application_service_separate_db_and_product_schema",
-    persistence_state: status?.persistence_state ?? "no_persistence_operation_this_session",
-    applied_migration_ids: status?.applied_migration_ids ?? [],
+    status: evaluated.status,
+    source_schema_version: evaluated.source_schema_version,
+    target_schema_version: evaluated.target_schema_version,
+    migration_framework: evaluated.migration_framework,
+    persistence_state: status?.persistence_state ?? evaluated.persistence_state,
+    applied_migration_ids: evaluated.applied_migration_ids,
     ledger_record_count: ledger.length,
     ledger_records: ledger,
     destructive_rewrite: false,
@@ -766,7 +774,7 @@ function validationDiagnostics({
 }: {
   storageCapability: LocalStorageCapability | null;
   projectSummary: LocalProjectSummary | null;
-  versionCheckStatus: string;
+  versionCheckStatus: ReturnType<typeof modelDocumentVersionCheckStatus>;
   modelHash: ModelHashEvidence | null;
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
@@ -803,14 +811,17 @@ function validationDiagnostics({
       )
     );
   }
-  if (versionCheckStatus !== "supported_current_schema") {
-    diagnostics.push(
-      diagnostic(
-        "PROJECT-VALIDATION-UNSUPPORTED-SCHEMA",
-        "blocking",
-        "Project schema version is not supported by this technical-preview preflight."
-      )
-    );
+  if (versionCheckStatus !== "current") {
+    const versionDiagnostic = modelDocumentVersionCheckDiagnostic(versionCheckStatus);
+    if (versionDiagnostic) {
+      diagnostics.push(
+        diagnostic(
+          versionDiagnostic.code,
+          versionDiagnostic.severity,
+          versionDiagnostic.message
+        )
+      );
+    }
   }
   return diagnostics;
 }

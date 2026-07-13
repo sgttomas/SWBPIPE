@@ -1,5 +1,16 @@
 # MEMORY - DEL-06-02 Sandboxed Unit-Aware Expression Evaluator
 
+## 2026-07-12 - D-41 R5 T4 PDU-021 supporting evidence
+
+- The downstream report reader preserves governed run records only. Evaluator execution, final diagnostic taxonomy, and result-envelope producer integration remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
+## 2026-07-12 - D41-R5-T2B-PDU024 downstream version integration
+
+- Recorded the bounded downstream integration for PDU-024: project-carried evaluator inputs consume DEL-02-05's accepted `0.2.0` model-document family and explicit current/stale/unsupported/newer/failed version-check behavior.
+- No expression grammar, variable/result binding contract, evaluator library, sandbox behavior, rule-pack fixture, lifecycle state, dependency/DAG/register, protected content, private data, or professional claim changed.
+- Shared focused desktop evidence passed 65/65 tests; this deliverable claims supporting integration evidence only.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-06-02: Report Content Lint now inventories the
@@ -322,6 +333,12 @@ Durable context preserved after PKG-02 grounded finding resolution:
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
 
+## 2026-07-12 - D-41 R5 T3 PDU-028 supporting evidence
+
+- The DEL-10-02 adapter framework rejects or quarantines declarations that disable the selected unit, provenance, privacy, protected-content, sandbox, persistence-hash, report, or private-transmission controls; rejected declarations never dispatch.
+- A declaration satisfying those controls is still blocked as `BLOCKED_RUNTIME_NOT_SELECTED`. This is negative evidence at declaration admission, not an evaluator loader, evaluator invocation binding, plugin sandbox, or whole-product security result.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001 supporting evaluator evidence
 
 - Added supporting evidence for the DEL-07-03 rule-pack expression authoring
@@ -342,3 +359,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
   writable expression text syntax, backend validation/persistence behavior,
   protected content, private data, release-readiness claim, or professional/
   code-compliance claim changed.
+## 2026-07-12 - D-41 R5 T6 PDU-037 verification refresh
+
+- Evaluator verification refreshed: 31 unit tests plus the 69-case conformance-corpus harness passed. Plugin/adapter bypass and public protected-content examples remain downstream.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

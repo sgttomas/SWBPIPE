@@ -1,5 +1,29 @@
 # DEL-07-05 Memory
 
+## 2026-07-12 - D-41 R5 T5 PDU-008 governing-ratio state
+
+- Results now display an explicit governing-ratio state: supplied user-rule ratio rows are counted and filterable; absence produces an unavailable message that does not infer rule criteria.
+- Ratio classification requires an explicit `ratio` semantic token; nonlinear
+  `iteration_count` rows are negative-tested and do not create a ratio view.
+- No allowable, protected criterion, compliance result, or professional approval is synthesized. Rotational `rx`/`ry`/`rz` deformation visualization remains the DEL-07-05 T1 residual and was not implemented.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T5-PDU008.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
+## 2026-07-12 - D-41 R5 T1 PDU-061 rotational-deformation residual home
+
+- DEC-074 O1 resolves the prior DEL-07-05-REM-002 UNKNOWN: rotational-
+  deformation visualization belongs to DEL-07-05 and remains explicit
+  residual work.
+- Current evidence is unchanged: result emission supplies `rx`/`ry`/`rz`
+  rows, while the graphical deformation overlay consumes translational
+  `ux`/`uy`/`uz` only. This tranche records that boundary; it does not
+  implement rotational visualization.
+- `_STATUS.md ## Remaining` is the sole work-discovery home for the residual.
+  Its source is DEC-074 O1 / PDU-061 and it is ungated under the current loop.
+- The four-document kit now distinguishes emitted/tabular rotational rows
+  from graphical rotational visualization. No code, schema, test, lifecycle,
+  release, professional-approval, certification, sealing, authentication, or
+  code-compliance state changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RESULTVIEWLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

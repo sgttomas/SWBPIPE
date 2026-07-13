@@ -50,3 +50,16 @@ This deliverable defines API and adapter contracts only; it does not implement A
 - No product implementation code is authorized by this deliverable.
 - No protected standards text, standards tables, code-derived formulas, proprietary values, or vendor-private data are introduced.
 - Architecture outputs remain draft/proposal material until accepted by the human project authority.
+## D-41 R5 T2B handoff boundary map (2026-07-12)
+
+| Handoff | Required preserved contract | Prohibited bypass |
+|---|---|---|
+| Storage | Schema version, canonical payload/hash metadata, provenance, diagnostics, units | Direct SQL/domain mutation; authoritative sidecars |
+| Reports | Governed result/report refs, assumptions, warnings, privacy and professional boundaries | Approval, compliance, or reliance states |
+| Private libraries | Local/private default, provenance/redistribution metadata, explicit grants | Implicit filesystem/network/publication access |
+| Local FEA | Stable IDs, units/dimensions, coordinate basis, source hashes, diagnostics, loss report | Compatibility or solver-validation claim |
+| External automation | Schema-first command/query/job envelopes, correlation/idempotency, explicit runtime grants | Direct mutation or implicit process/network/private-data access |
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. API, plugin, and adapter boundary declarations and their gates now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; runtime adapter/plugin breadth is a separate implementation scope and is not implied by this architecture declaration.

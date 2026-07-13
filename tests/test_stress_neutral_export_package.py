@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -18,6 +19,7 @@ if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
 from core.handoff.stress_neutral import (  # noqa: E402
+    CANONICALIZATION_LABEL,
     build_stress_neutral_export_package,
     canonical_json,
     render_stress_neutral_csv,
@@ -69,7 +71,7 @@ def source_payload() -> dict[str, object]:
         "source_hashes": [
             {
                 "algorithm": "sha256",
-                "canonicalization": "JCS_compatible_json_payload_hash",
+                "canonicalization": "deterministic_sorted_compact_json_payload_hash",
                 "payload_ref": ref("ResultEnvelope", "result-envelope:invented-del-17-06"),
                 "payload_scope": "source_result_envelope",
                 "value": "sha256:" + "2" * 64,
@@ -131,6 +133,13 @@ def source_payload() -> dict[str, object]:
                 "downstream_implication": "Does not define comparison pass/fail or professional reliance semantics.",
             }
         ],
+        "unresolved_assumption_refs": [
+            ref("Assumption", "assumption:invented-result-review"),
+        ],
+        "reproducibility_refs": [
+            ref("AnalysisRun", "run:invented-del-17-06"),
+            ref("AuditManifest", "audit-manifest:invented-del-17-06"),
+        ],
     }
 
 
@@ -147,6 +156,16 @@ def walk_strings(value):
     elif isinstance(value, list):
         for item in value:
             yield from walk_strings(item)
+
+
+def walk_mappings(value):
+    if isinstance(value, dict):
+        yield value
+        for item in value.values():
+            yield from walk_mappings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from walk_mappings(item)
 
 
 def check_jsonschema_validation():
@@ -206,6 +225,35 @@ def test_builder_is_deterministic_and_preserves_members():
     assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
 
 
+def test_json_hash_contract_is_exact_deterministic_and_not_jcs():
+    sample = {"z": "café", "a": [1, {"b": True}]}
+    expected = b'{"a":[1,{"b":true}],"z":"caf\\u00e9"}'
+    assert canonical_json(sample).encode("ascii") == expected
+    assert hashlib.sha256(expected).hexdigest() == (
+        "9fe3dcafeafda5780fb9062a482c657fdd139cb98c1d4e4356e7123b64665753"
+    )
+
+    package = build_from_source()
+    json_checksums = [
+        item
+        for item in walk_mappings(package)
+        if item.get("algorithm") == "sha256"
+        and item.get("canonicalization") != "normalized_ascii_lf_text"
+    ]
+    assert json_checksums
+    assert {item["canonicalization"] for item in json_checksums} == {
+        CANONICALIZATION_LABEL
+    }
+    assert "JCS" not in canonical_json(package)
+
+    mutated = source_payload()
+    mutated["result_rows"][0]["value"] = 13.5
+    changed = build_stress_neutral_export_package(**mutated)
+    original_hashes = {item["value"] for item in package["manifest"]["checksums"]}
+    changed_hashes = {item["value"] for item in changed["manifest"]["checksums"]}
+    assert changed_hashes != original_hashes
+
+
 def test_csv_and_json_rows_are_synchronized_and_ascii_safe():
     package = build_from_source()
     text = package["csv_text"]
@@ -218,6 +266,21 @@ def test_csv_and_json_rows_are_synchronized_and_ascii_safe():
     assert "result:invented:stress:P001:sustained" in text
     assert {row["unit"] for row in package["result_rows"]} == {"N", "Pa"}
     assert {row["dimension"] for row in package["result_rows"]} == {"force", "stress"}
+
+
+def test_assumption_and_reproducibility_refs_pass_through_to_package_and_manifest():
+    payload = source_payload()
+    package = build_stress_neutral_export_package(**payload)
+
+    for key in ("unresolved_assumption_refs", "reproducibility_refs"):
+        assert package[key] == payload[key]
+        assert package["manifest"][key] == payload[key]
+
+    payload["unresolved_assumption_refs"][0]["ref"] = "mutated-after-build"
+    assert package["unresolved_assumption_refs"][0]["ref"] == (
+        "assumption:invented-result-review"
+    )
+    assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
 
 
 def test_missing_units_stable_ids_and_loss_report_are_blocking():

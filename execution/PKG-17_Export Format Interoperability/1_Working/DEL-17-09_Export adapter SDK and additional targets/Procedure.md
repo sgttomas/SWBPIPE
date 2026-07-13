@@ -1,5 +1,14 @@
 # Procedure: DEL-17-09 Export adapter SDK and additional targets
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-09-DECL-004`.
+
 ## Purpose
 
 This procedure defines how future work should use the DEL-17-09 adapter SDK and target-admission contract. It is an operational contract for source intake, target admission, adapter review, validation planning, and closeout. It does not implement adapters, schemas, code, tests, public API endpoints, runtime loaders, or target-specific writers.
@@ -103,3 +112,10 @@ This Phase A run should leave:
 - `_run_records/TASK_RUN_*.md`
 
 Future target-admission runs should add records only under their own sealed write scope. Expected decision artifacts remain `TBD` unless a later brief names them; candidates include a target registry record, source-basis admission record, validation checklist record, and run record. `MEMORY.md` is intentionally not updated in this phase.
+## D-41 R5 T2A canonicalization check (2026-07-12)
+
+Before accepting adapter package hashes, execute the exact-byte/fixed-hash vector, stable-order test, mutation test, schema/fixture validation, and explicit no-JCS assertion.
+
+## D-41 R5 T4 PDU-004 hold check
+
+Inventory only fields and categories emitted by the current builder. Record distinct mechanics/rule-check categories and reviewer/signoff/approval fields as absent and owner-unselected. Do not add placeholder schema fields or normalize existing evidence into a readiness or acceptance record.

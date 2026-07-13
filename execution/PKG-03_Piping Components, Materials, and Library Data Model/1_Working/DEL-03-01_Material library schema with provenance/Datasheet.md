@@ -1,5 +1,11 @@
 # Datasheet: DEL-03-01 Material library schema with provenance
 
+## PDU-024 Version Integration
+
+- Owning material schema remains `schemas/material.schema.yaml`.
+- Project-carried material data consumes DEL-02-05 model-document version handling, whose accepted current family is `0.2.0`.
+- No material fixture migration, material serializer, or new migration status is added by this tranche.
+
 ## Identification
 
 | Field | Value |

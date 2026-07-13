@@ -159,6 +159,8 @@ def diagnostics_for_target_mapping_contract(contract: Mapping[str, Any]) -> list
                     )
                 )
 
+        diagnostics.extend(_privacy_diagnostics(context.get("privacy_context")))
+
     for record in _list(contract.get("mapping_records")):
         diagnostics.extend(_mapping_diagnostics(record))
 
@@ -169,6 +171,40 @@ def diagnostics_for_target_mapping_contract(contract: Mapping[str, Any]) -> list
         diagnostics.extend(_behavior_diagnostics(flag))
 
     return _stable(diagnostics)
+
+
+def _privacy_diagnostics(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, Mapping):
+        return []
+    diagnostics: list[dict[str, Any]] = []
+    if value.get("private_payload_redacted") is not True:
+        diagnostics.append(
+            _diagnostic(
+                "TM-PRIVATE-PAYLOAD-NOT-REDACTED",
+                "blocking",
+                "PRIVACY_WARNING",
+                "Target mapping source context does not affirm private-payload redaction.",
+                "Redact private payload values and carry governed metadata references only.",
+                [_affected("source_context", "privacy_context")],
+            )
+        )
+    for field in (
+        "private_payload_embedded",
+        "protected_payload_embedded",
+        "commercial_tool_payload_embedded",
+    ):
+        if value.get(field) is True:
+            diagnostics.append(
+                _diagnostic(
+                    "TM-PRIVACY-BOUNDARY-VIOLATION",
+                    "blocking",
+                    "PRIVACY_WARNING",
+                    f"Target mapping privacy context reports unsafe embedded payload via {field}.",
+                    "Remove embedded payload and retain reference/redaction metadata only.",
+                    [_affected("source_context", field)],
+                )
+            )
+    return diagnostics
 
 
 def canonical_json(value: Any) -> str:

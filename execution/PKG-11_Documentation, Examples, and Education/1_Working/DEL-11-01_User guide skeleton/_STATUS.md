@@ -1,12 +1,14 @@
 # Status: DEL-11-01 User guide skeleton
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Refresh the active user-guide source-state/currentness against accepted current authority in the later authorized documentation tranche; do not overstate product maturity or rewrite historical records (PDU-060 / `DEL-11-01-REM-001`).
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-005 refreshed current repository surfaces and rule-grammar wording while preserving genuine packaging, integration, and policy TBDs; cited-claim backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed the surviving user-guide currentness refresh for later authorized documentation work; no content or lifecycle transition was performed.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

@@ -41,3 +41,7 @@ Describe how a future TASK worker should produce or use the sparse-solver perfor
 - Solver version and settings record.
 - Conditioning diagnostic summary.
 - Review notes for threshold changes and human rulings.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The sparse-solver performance harness now exists. Threshold selection, CI/release gating, platform policy, and validation remain held where recorded; existence of the harness does not establish a production-performance ruling.

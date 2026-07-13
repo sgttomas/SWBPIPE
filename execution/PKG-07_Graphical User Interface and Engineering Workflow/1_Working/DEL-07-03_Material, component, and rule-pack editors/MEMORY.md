@@ -1,5 +1,29 @@
 # DEL-07-03 Memory
 
+## 2026-07-12 - D-41 R5 T5 PDU-008 bounded editor evidence
+
+- Current application interaction evidence exposes material, section, component, load-case, support, rule-pack, and private-library concepts across existing GUI surfaces.
+- PDU-041 remains controlling for DEL-07-03 ownership: adjacent load-case and support authoring surfaces do not silently become DEL-07-03-owned editor implementations. Independent usability/security validation also remains open.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T5-PDU008.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
+## 2026-07-12 - D-41 R5 T5 PDU-041 documented absence
+
+- DEL-07-03 still accepts material, component, and rule-pack-reference editor
+  kinds only. Invented `load_case` and `support` kinds emit blocking
+  `EDITOR_KIND_UNSUPPORTED` and cannot mutate persistent project state.
+- Adjacent desktop load-case/support authoring is not reattributed to this
+  deliverable. `R-005` and `R-006` remain documented unimplemented pending
+  an accepted ownership/scope binding.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T5-PDU041.md`.
+
+## 2026-07-12 - D-41 R5 T3 PDU-049 disposition hold
+
+- Preserved `DEL-07-03-R-011` and PDU-049 as `VERIFIED_NOT_VALIDATED`.
+- Existing private-by-default editor behavior and project-authored tests remain verification evidence only; this tranche produced no separately authorized independent usability/security validation basis.
+- Recorded the unresolved basis in `_STATUS.md ## Remaining` and the owning four-document kit without changing editor behavior or lifecycle state.
+- Boundary preserved: no independent-validation claim, security-review closure, product repair, dependency/DAG/register/decomposition change, `ISSUED` artifact, or lifecycle transition.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-07-03: Report Content Lint now inventories the

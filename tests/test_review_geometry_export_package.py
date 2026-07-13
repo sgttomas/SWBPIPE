@@ -180,6 +180,22 @@ def test_fixture_and_builder_validate_against_schema():
     check_jsonschema_validation()
 
 
+def test_manifest_source_basis_refs_are_schema_required():
+    import pytest
+
+    schema = load_json(SCHEMA_PATH)
+    package = build_from_source()
+    del package["manifest"]["source_basis_refs"]
+
+    with pytest.raises(AssertionError, match="source_basis_refs.*required"):
+        validate_instance(
+            schema,
+            package,
+            schema_label=str(SCHEMA_PATH),
+            instance_label="review geometry package without manifest source basis",
+        )
+
+
 def test_builder_is_deterministic_and_preserves_package_members():
     first = build_from_source()
     second = build_from_source()
@@ -236,6 +252,105 @@ def test_sidecar_id_map_and_manifest_preserve_canonical_identity():
     assert artifact["node_count"] == 2
     assert artifact["mesh_count"] == 2
     assert artifact["embedded_buffer"] is True
+
+
+def test_manifest_records_profile_basis_members_and_bounded_loss_content():
+    package = build_from_source()
+    manifest = package["manifest"]
+
+    assert manifest["source_model_ref"] == package["source_model_ref"]
+    assert manifest["export_profile_ref"] == ref(
+        "ExportProfile", package["export_profile"]["profile_id"]
+    )
+    assert manifest["source_basis_refs"] == package["export_profile"]["source_basis_refs"]
+    assert {item["member_role"] for item in manifest["package_members"]} == {
+        "manifest",
+        "model_gltf",
+        "stable_id_map",
+        "loss_report",
+        "validation_report",
+        "diagnostics",
+    }
+    assert {item["category"] for item in package["loss_report"]} == {
+        "exported",
+        "omitted",
+    }
+    assert package["geometry_payload"]["omitted_entities"] == [
+        ref("Support", "support:invented:A")
+    ]
+    assert package["export_profile"]["artifact_format"] == "gltf_json_embedded_buffer"
+    assert package["professional_boundary"]["software_makes_target_compatibility_claim"] is False
+
+
+def test_written_json_gltf_and_sidecar_round_trip_stable_identity(tmp_path):
+    package = build_from_source()
+    write_review_geometry_export_package(tmp_path, package)
+
+    gltf = load_json(tmp_path / "model.gltf")
+    sidecar = load_json(tmp_path / "id_map.json")
+    sidecar_by_ref = {
+        item["canonical_ref"]["ref"]: item["gltf_ref"] for item in sidecar
+    }
+
+    assert len(sidecar_by_ref) == len(gltf["nodes"]) == len(gltf["meshes"])
+    for node_index, node in enumerate(gltf["nodes"]):
+        node_meta = node["extras"]["openpipestress"]
+        canonical_ref = node_meta["canonical_ref"]
+        assert node_meta["target_ref"] == ref("GltfNode", str(node_index))
+        assert sidecar_by_ref[canonical_ref["ref"]] == node_meta["target_ref"]
+
+        mesh_index = node["mesh"]
+        primitive_meta = gltf["meshes"][mesh_index]["primitives"][0]["extras"][
+            "openpipestress"
+        ]
+        assert primitive_meta["canonical_ref"] == canonical_ref
+        assert primitive_meta["target_ref"] == ref(
+            "GltfPrimitive", f"mesh:{mesh_index}:primitive:0"
+        )
+
+
+def test_mismatched_stable_id_sidecar_blocks_current_json_gltf_profile():
+    payload = source_payload()
+    stable_id_map = deepcopy(payload["stable_id_map"])
+    stable_id_map[0]["gltf_ref"] = ref("GltfNode", "1")
+
+    package = build_review_geometry_export_package(
+        **{**payload, "stable_id_map": stable_id_map}
+    )
+
+    assert "RG-STABLE-ID-ROUNDTRIP-MISMATCH" in {
+        item["code"] for item in package["diagnostics"]
+    }
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
+def test_current_json_gltf_metadata_is_fixed_and_timestamp_free_without_policy_selection():
+    first = build_from_source()
+    second = build_from_source()
+
+    assert canonical_json(first) == canonical_json(second)
+    assert first["gltf"]["asset"]["generator"] == (
+        "OpenPipeStress DEL-17-08 review geometry exporter 0.1.0"
+    )
+    assert "generator_policy" not in first["export_profile"]
+    assert "timestamp_policy" not in first["export_profile"]
+    forbidden_timestamp_keys = {
+        "timestamp",
+        "created_at",
+        "generated_at",
+        "updated_at",
+    }
+
+    def keys(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                yield key
+                yield from keys(item)
+        elif isinstance(value, list):
+            for item in value:
+                yield from keys(item)
+
+    assert forbidden_timestamp_keys.isdisjoint(keys(first))
 
 
 def test_bad_geometry_and_missing_sidecars_are_blocking():

@@ -107,6 +107,8 @@ def build_stress_neutral_export_package(
     result_rows: list[Mapping[str, Any]],
     stable_id_map: list[Mapping[str, Any]],
     loss_report: list[Mapping[str, Any]],
+    unresolved_assumption_refs: list[Mapping[str, Any]] | None = None,
+    reproducibility_refs: list[Mapping[str, Any]] | None = None,
     unit_system_disclosure: Mapping[str, Any] | None = None,
     export_profile: Mapping[str, Any] | None = None,
     validation_checks: list[Mapping[str, Any]] | None = None,
@@ -121,6 +123,8 @@ def build_stress_neutral_export_package(
     provenance_record = deepcopy(dict(provenance or ENGINE_PROVENANCE))
     privacy_record = _privacy(privacy)
     notes = list(boundary_notes or DEFAULT_BOUNDARY_NOTES)
+    assumption_refs = deepcopy(list(unresolved_assumption_refs or []))
+    reproduction_refs = deepcopy(list(reproducibility_refs or []))
     profile = _export_profile(export_profile, notes)
     rows = _result_rows(result_rows, provenance_record)
     unit_record = _unit_system_disclosure(
@@ -197,6 +201,8 @@ def build_stress_neutral_export_package(
         "source_run_ref": deepcopy(dict(source_run_ref)),
         "source_model_ref": deepcopy(dict(source_model_ref)),
         "source_hashes": deepcopy(list(source_hashes)),
+        "unresolved_assumption_refs": deepcopy(assumption_refs),
+        "reproducibility_refs": deepcopy(reproduction_refs),
         "export_profile_ref": _ref("ExportProfile", profile["profile_id"]),
         "boundary_notes": notes,
         "member_hashes": checksums,
@@ -213,6 +219,8 @@ def build_stress_neutral_export_package(
         "source_run_ref": deepcopy(dict(source_run_ref)),
         "source_model_ref": deepcopy(dict(source_model_ref)),
         "source_hashes": deepcopy(list(source_hashes)),
+        "unresolved_assumption_refs": deepcopy(assumption_refs),
+        "reproducibility_refs": deepcopy(reproduction_refs),
         "export_profile_ref": _ref("ExportProfile", profile["profile_id"]),
         "package_members": _package_members(export_id, checksums),
         "checksums": _stable(list(checksums.values()) + deepcopy(list(source_hashes))),
@@ -231,6 +239,8 @@ def build_stress_neutral_export_package(
         "source_run_ref": deepcopy(dict(source_run_ref)),
         "source_model_ref": deepcopy(dict(source_model_ref)),
         "source_hashes": deepcopy(list(source_hashes)),
+        "unresolved_assumption_refs": deepcopy(assumption_refs),
+        "reproducibility_refs": deepcopy(reproduction_refs),
         "export_profile": profile,
         "manifest": manifest,
         "unit_system_disclosure": unit_record,
@@ -396,8 +406,11 @@ def diagnostics_for_stress_neutral_export_package(
     return _stable(diagnostics)
 
 
+CANONICALIZATION_LABEL = "deterministic_sorted_compact_json_payload_hash"
+
+
 def canonical_json(value: Any) -> str:
-    """Serialize package values with deterministic JSON key ordering."""
+    """Serialize with sorted compact Python JSON; this is not RFC 8785/JCS."""
 
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
@@ -612,7 +625,7 @@ def _unit_system_disclosure(
 def _checksum(value: Any, payload_ref: Mapping[str, Any], payload_scope: str) -> dict[str, Any]:
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": CANONICALIZATION_LABEL,
         "payload_ref": deepcopy(dict(payload_ref)),
         "payload_scope": payload_scope,
         "value": "sha256:" + hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest(),

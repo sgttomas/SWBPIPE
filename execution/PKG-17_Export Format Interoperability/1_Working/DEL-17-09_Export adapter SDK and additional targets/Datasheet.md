@@ -1,5 +1,14 @@
 # Datasheet: DEL-17-09 Export adapter SDK and additional targets
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-09-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -65,3 +74,10 @@ Expected descriptive fields for later registry, profile, and checklist records:
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-17, DEL-17-09, SOW, objective, architecture-basis, and open-issue context. |
 | `DEL-17-01` four-document kit plus `Source_Basis_Register.md` and `CAEPIPE_Question_Dossier.md` | Source-admission and target-claim boundary. |
 | `DEL-17-02` four-document kit | Common export package/profile/stable-ID/manifest/loss-report contract consumed by DEL-17-09. |
+## D-41 R5 T2A canonicalization evidence (2026-07-12)
+
+Adapter SDK package checksums use `deterministic_sorted_compact_json_payload_hash`: sorted-key compact ASCII-escaped Python JSON. The label records the implemented deterministic bytes and makes no RFC 8785/JCS claim.
+
+## D-41 R5 T4 PDU-004 evidence state
+
+The implemented nine-category checklist is admission metadata only. Distinct mechanics-readiness and rule-check-readiness categories are absent, and reviewer role, signoff format, and approval artifact remain `TBD` pending owner selection. No current field supplies a validation or readiness outcome.

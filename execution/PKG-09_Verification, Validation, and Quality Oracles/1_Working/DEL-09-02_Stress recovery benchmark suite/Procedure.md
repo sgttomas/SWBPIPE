@@ -1,5 +1,14 @@
 # Procedure: DEL-09-02 Stress recovery benchmark suite
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-09-02-DECL-004`.
+
 ## Purpose
 
 Define the operating procedure for producing the future stress recovery benchmark suite after implementation work is authorized. This procedure is setup-level only and does not create benchmark files, implement tests, or set final numerical tolerances.
@@ -42,3 +51,5 @@ Define the operating procedure for producing the future stress recovery benchmar
 - `Dependencies.csv` and `_DEPENDENCIES.md`.
 - `_run_records/*` setup run records.
 - `_STATUS.md` showing `SEMANTIC_READY` only after setup gates pass.
+
+For PDU-039, execute the stress benchmark crate with an external `CARGO_TARGET_DIR`; require the governed-envelope test to preserve the six recovered values, trace links, evidence diagnostic, deterministic hashes, `HUMAN_REVIEW_REQUIRED`, and no approval claim. Record the run as verification only.

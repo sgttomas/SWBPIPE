@@ -1,5 +1,14 @@
 # Procedure: DEL-07-06 Accessibility and usability baseline
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-07-06-DECL-004`.
+
 ## Purpose
 
 Define the setup procedure for producing and later using the accessibility and usability baseline for engineering-review GUI and report-facing workflows.
@@ -51,3 +60,15 @@ Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items X-001 and X-002 were
 - `_DEPENDENCIES.md`
 - `_run_records/*`
 - `_STATUS.md`
+
+## D-41 R5 T5 PDU-045 hold check
+
+1. Build the deterministic accessibility/usability baseline from invented GUI
+   contract records.
+2. Confirm desktop runtime evaluation is `not_performed`.
+3. Confirm the accessibility target remains
+   `TBD_by_human_project_authority`.
+4. Confirm contrast/readability findings remain warnings and no accessibility
+   conformance claim is emitted.
+5. Preserve `VERIFIED_NOT_VALIDATED`; do not infer independent usability
+   validation.

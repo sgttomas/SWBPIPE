@@ -1,12 +1,15 @@
 # Status: DEL-14-03 Model-state comparison engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Obtain owning human-review dispositions for open `RF-001` (dependency-closure visibility) and `RF-002` (documentation currentness). Preserve prerequisite authority and defer any document refresh to its authorized tranche; do not infer closure from current defensive consumers or fixtures (PDU-060).
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001/RF-002 without editing dependency authority, documentation, formal findings, or lifecycle.
+- 2026-07-12 - D-41 R5 T2B bounded unit-bearing state comparison to explicit metadata and governed-normalization behavior with focused positive/negative tests; state remains IN_PROGRESS.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-04 - State set to INITIALIZED (TASK+four-documents; RUN_PASSES=P1_P2; DECOMP_VARIANT=SOFTWARE).
 - 2026-05-04 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build).

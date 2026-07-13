@@ -185,6 +185,50 @@ def test_skipped_without_executable_is_nonblocking_and_deterministic():
     assert all(SHA256_PATTERN.match(item["value"]) for item in first["checksums"])
     assert first["professional_boundary"]["software_bundles_caepipe"] is False
     assert first["professional_boundary"]["software_invokes_caepipe_without_user_configuration"] is False
+    assert first["privacy"]["classification"] == "private_user_controlled"
+    assert first["privacy"]["local_only"] is True
+    assert first["privacy"]["telemetry_allowed"] is False
+
+
+def test_user_csv_privacy_cannot_be_bypassed_by_partial_override():
+    package = build_skipped_caepipe_external_run_package(
+        run_id="caepipe-run:private-default-override",
+        mbf_package_ref=mbf_package_ref(),
+        privacy={"redaction_refs": []},
+    )
+
+    assert package["privacy"]["classification"] == "private_user_controlled"
+    assert package["privacy"]["local_only"] is True
+    assert package["privacy"]["telemetry_allowed"] is False
+
+
+def test_private_defaults_reject_unsafe_caller_overrides_without_reclassification():
+    schema = load_json(SCHEMA_PATH)
+    attempts = (
+        {"classification": "invented_public_example"},
+        {"local_only": False},
+        {"telemetry_allowed": True},
+    )
+    for index, privacy in enumerate(attempts):
+        package = build_skipped_caepipe_external_run_package(
+            run_id=f"caepipe-run:unsafe-privacy-override:{index}",
+            mbf_package_ref=mbf_package_ref(),
+            privacy=privacy,
+        )
+
+        assert package["privacy"]["classification"] == "private_user_controlled"
+        assert package["privacy"]["local_only"] is True
+        assert package["privacy"]["telemetry_allowed"] is False
+        assert "CAEPIPE-RUN-PRIVACY-DEFAULT-OVERRIDE-BLOCKED" in {
+            item["code"] for item in package["diagnostics"]
+        }
+        assert any(item["severity"] == "blocking" for item in package["diagnostics"])
+        assert validate_instance(
+            schema,
+            package,
+            schema_label=str(SCHEMA_PATH),
+            instance_label=f"unsafe privacy override {index}",
+        )
 
 
 def test_parser_only_package_binds_rows_to_sidecar_stable_ids():
@@ -200,6 +244,27 @@ def test_parser_only_package_binds_rows_to_sidecar_stable_ids():
     assert not [item for item in package["diagnostics"] if item["severity"] == "blocking"]
     assert package["professional_boundary"]["software_makes_caepipe_compatibility_claim"] is False
     assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
+
+
+def test_parser_boundary_preserves_supported_mapping_units_and_diagnostics():
+    package = parser_only_package()
+    parsed = package["parsed_csv"]
+
+    assert parsed["source_csv_ref"] == ref(
+        "CsvArtifact", "csv:invented-caepipe-results"
+    )
+    assert {(row["target_id"], row["stable_id"]) for row in parsed["rows"]} == {
+        ("N001", "node:invented:A"),
+        ("N002", "node:invented:B"),
+        ("P001", "pipe:invented:001"),
+    }
+    assert {(row["section"], row["unit"]) for row in parsed["rows"]} == {
+        ("NODE_DISPLACEMENTS", "m"),
+        ("ELEMENT_FORCES", "N"),
+    }
+    assert parsed["parser_status"] == "parsed_parser_only_fixture"
+    assert package["execution_result"]["attempted"] is False
+    assert package["professional_boundary"]["software_makes_caepipe_compatibility_claim"] is False
 
 
 def test_parser_records_unknown_sections_and_unmapped_rows_as_warnings():

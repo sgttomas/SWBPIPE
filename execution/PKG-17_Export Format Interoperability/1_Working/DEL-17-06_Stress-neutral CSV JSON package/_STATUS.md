@@ -1,12 +1,14 @@
 # Status: DEL-17-06
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T4 PDU-001/PDU-038 added conditional unresolved-assumption and reproducibility-reference passthrough with schema and preservation evidence; comparison tolerances remain outside this package.
+- 2026-07-12 - D-41 R5 T2A narrowed the emitted JSON checksum label to the implemented sorted-compact Python JSON byte contract and added executable evidence; no lifecycle transition or JCS claim.
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)
 - 2026-05-18 — State set to INITIALIZED (TASK+four-documents)
 - 2026-05-18 — State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

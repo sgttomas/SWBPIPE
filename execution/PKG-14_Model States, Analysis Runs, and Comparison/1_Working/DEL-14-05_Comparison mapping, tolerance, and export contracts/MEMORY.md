@@ -1,5 +1,10 @@
 # DEL-14-05 Implementation Memory
 
+## 2026-07-12 - D-41 R5 T4 PDU-022 supporting evidence
+
+- The selected T4 evidence does not consume comparison export contracts. Report-section references, analysis-status/limitation preservation for comparison outputs, layout, and policy choices remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 Worker: DEL-14-05
 Revision: OpenPipeStress DEV-001 revision 0.5 Tranche F
 Date: 2026-05-04
@@ -111,3 +116,7 @@ Durable context preserved after reconciliation review:
   tolerance, external validation decision, comparison pass/fail claim,
   release threshold, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+## 2026-07-12 - D-41 R5 T6 PDU-037 verification refresh
+
+- DEL-14-04 deterministic comparison and DEL-14-05 mapping/schema backcheck refreshed within the 19/19 Python set. Engine logic remains with DEL-14-04; tolerance suitability and independent validation remain absent.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.

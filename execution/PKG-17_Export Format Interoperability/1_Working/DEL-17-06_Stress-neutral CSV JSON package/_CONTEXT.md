@@ -47,7 +47,7 @@ Define and implement stress-neutral CSV/JSON exports for review, regression comp
 ## Architecture Basis Injection
 - **Scope Changes:** SCA-001 architecture basis as amended by SCA-003 and SCA-004.
 - **Applicable Basis IDs:** AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08.
-- **Resolved Baseline:** Rust core/application services where implementation-facing; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis for JSON payloads; no-bypass adapter/plugin boundaries; protected-content validation gates as applicable.
+- **Resolved Baseline:** Rust core/application services where implementation-facing; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; explicit deterministic JSON hash byte-basis metadata (`deterministic_sorted_compact_json_payload_hash` for the current Python producer, explicitly non-JCS, per D-41 R5 T2A); no-bypass adapter/plugin boundaries; protected-content validation gates as applicable.
 - **Dispatch Rule:** Future TASK execution must apply only applicable architecture-basis constraints and must not copy full PKG-00 prose into deliverable artifacts.
 
 ## SCA-004 Control-Surface Note

@@ -1,5 +1,14 @@
 # Datasheet: DEL-08-06 State, comparison, and handoff report sections
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-08-06-DECL-002`.
+
 ## Identification
 
 | Field | Value | Source |
@@ -62,3 +71,13 @@
 - `docs/DIRECTIVE.md` - founding intent, non-negotiable product principles, scope, and stop rules.
 - `docs/IP_AND_DATA_BOUNDARY.md` - public/private data and report boundary policy.
 - `docs/TYPES.md` - schema/object registry entries for report, report section, result export, audit manifest, checksum, states/runs, comparisons, and handoff-related references.
+
+## D-41 R5 T4 current implementation
+
+| Item | Current bounded state |
+|---|---|
+| Application-service input | Canonical `project.run_history.model_state_records` and `analysis_run_records` |
+| Preserved report context | Warnings, assumptions, limitations, solver context, hashes/references, analysis status, and provenance |
+| Mutations/execution | None; project mutation and solver execution are recorded false |
+| Authority boundary | No human approval, code-compliance, validation, release, or professional-reliance inference |
+| Held scope | External/non-JSON payload partitioning, rendered layout, concrete adapter/runtime hooks, and broader workflow integration |

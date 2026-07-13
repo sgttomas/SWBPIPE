@@ -1,5 +1,14 @@
 # Specification: DEL-14-04 Analysis-run comparison engine
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-14-04-DECL-001`.
+
 **Generated:** 2026-05-03
 **Document Role:** Normative draft
 **Source Basis:** `_CONTEXT.md`, `_REFERENCES.md`, `Dependencies.csv`, `execution/_Decomposition/SOFTWARE_DECOMP.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md`
@@ -14,7 +23,7 @@ DEL-14-04 excludes comprehensive commercial-prover result ingestion, external va
 
 | ReqID | Requirement | Source | Verification |
 |---|---|---|---|
-| R-14-04-001 | The engine shall compare analysis runs deterministically using stable IDs and manual mappings where required. | SOW-073 in `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` | Deterministic comparison tests with repeated identical inputs; concrete fixture set `TBD`. |
+| R-14-04-001 | The engine shall compare analysis runs deterministically using stable IDs and manual mappings where required. Automatic matching is bounded to unique identical result IDs whose family, object ref, basis ref, and dimension also match; all different, duplicate, ambiguous, or semantically inconsistent IDs require explicit caller-supplied mapping. | SOW-073 in `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; DEL-14-05 mapping contract; PDU-030 | Focused tests validate the produced `MappingRecord`, JSON-round-trip automatic and manual mappings, deterministic deltas, and the no-heuristic boundary. |
 | R-14-04-002 | The engine shall treat analysis-run records as bound to exact model states, solver versions, settings, units, load cases, diagnostics, results, rule-pack references, library references, and result hashes. | SOW-072 in `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` | Tests assert comparison input metadata is preserved or surfaced; schema/API field names `TBD`. |
 | R-14-04-003 | The engine shall compute unit-normalized result deltas only where unit and dimension metadata allow valid comparison. | SOW-073; `docs/SPEC.md` unit contract | Unit-normalization tests; missing/ambiguous unit metadata produces diagnostics rather than silent defaults. |
 | R-14-04-004 | The engine shall include mapped nodes, elements, supports, terminals, stress/result locations, diagnostics, and settings within the comparison scope where the upstream result records expose them. | DEL-14-04 decomposition row | Coverage tests by result/entity category; exact category enum `TBD`. |
@@ -41,7 +50,7 @@ Project-governing references for this draft are:
 | Verification Item | Required Evidence | Current Status |
 |---|---|---|
 | Determinism | Same input pair produces identical ordered comparison output. | `TBD` fixture/API shape. |
-| Stable-ID/mapping behavior | Stable-ID match path and manual-mapping path are both exercised. | `TBD`; depends on DEL-14-05 mapping contract. |
+| Stable-ID/mapping behavior | Exact stable-ID production and manual-mapping paths are both exercised through JSON round trip. | Implemented for unique exact result IDs using the DEL-14-05 `MappingRecord`; non-identical/ambiguous IDs remain manual-only. |
 | Unit-normalized deltas | Same-dimension values compare after accepted unit normalization; incompatible/missing units emit diagnostics. | `TBD`; depends on DEL-02-02 unit contract maturity. |
 | Diagnostics/settings deltas | Diagnostic and settings differences are surfaced without compliance claims. | `TBD`; depends on result/run record schema. |
 | Tolerance profiles | Tolerance profile affects classification without changing raw delta evidence. | `TBD`; OI-014 open. |
@@ -59,3 +68,18 @@ The implementation brief or later production work should document:
 - deterministic ordering/hash basis;
 - result delta test fixture provenance;
 - limitations and professional-boundary notice.
+
+## D-41 R5 T2B PDU-011/PDU-047 Evidence Disposition (2026-07-12)
+
+- PDU-011 remains held because no canonical analysis-run comparison-result/export schema exists in the current accepted schema set. `comparison_mapping.schema.json` and `comparison_tolerance.schema.json` govern inputs, not `AnalysisRunComparison.to_dict()` output. A positive/negative output-conformance test would therefore invent a contract.
+- PDU-047 remains held at the engineering-validation/suitability grain. The existing section-property oracle is not a validation basis for unit-normalized comparison mechanics, and `section_property` is not among the engine's current supported result families. No result family, conversion, tolerance, or outcome is added here.
+
+## D-41 R5 T2C PDU-030 Mapping Boundary (2026-07-12)
+
+PDU-030 is completed at the current comparison grain: the engine now produces
+automatic DEL-14-05-shaped mappings only for unambiguous exact result IDs with
+matching identity metadata, while explicit manual mappings remain the only
+path for different or ambiguous IDs. Round-trip tests preserve mapping ID and
+left/right result identity into comparison deltas. This does not select
+heuristics, manual-review workflow policy, normalization thresholds,
+engineering outcomes, or a comparison-output schema.

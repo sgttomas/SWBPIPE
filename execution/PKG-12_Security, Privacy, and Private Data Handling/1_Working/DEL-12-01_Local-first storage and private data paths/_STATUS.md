@@ -1,12 +1,27 @@
 # Status: DEL-12-01 Local-first storage and private data paths
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-12-01-DECL-005`.
+
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Bind all applicable adapter/plugin and result/report runtime surfaces to governed local-first/private-data enforcement; the selected deny-only declaration gate does not create those runtime bindings.
+- Complete LFSP-REQ-011's runtime path-resolution, storage round-trip/migration, and report/export integration test families only when their owning implementations exist. PDU-036's transform trace-gap fixture is adjacent verification evidence and does not validate or substitute for these absent storage families.
+- Obtain owner/human-review dispositions for open `RF-001` and `RF-002`; current status wording and T3/T4 runtime/storage residual homes do not close either finding, and `HumanDisposition` remains `TBD` (PDU-060).
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001/RF-002 human dispositions while retaining the deduplicated T3/T4 technical residuals and IN_PROGRESS state.
+- 2026-07-12 - D-41 R5 T4 PDU-036 recorded the bounded adjacent trace-gap fixture while preserving LFSP-REQ-011's absent runtime storage/package/migration/report-export test families; no validation promotion.
+- 2026-07-12 - D-41 R5 T3 PDU-028 recorded private-transmission no-bypass evidence at adapter declaration admission; broader storage/result/report runtime enforcement remains open.
 
 - 2026-04-30 - State set to OPEN (PREPARATION).
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents, RUN_PASSES=P1_P2) after recreating `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.

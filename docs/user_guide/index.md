@@ -56,7 +56,7 @@ The guide should refer to these current surfaces when explaining behavior:
 | Loads and stress recovery | `core/loads/primitive_loads`, `core/loads/user_loads`, `core/loads/load_case_algebra`, `core/loads/stress_recovery` | Loads and stress recovery use explicit unit-aware inputs. Code-specific combinations and acceptability checks are user/rule-pack data. |
 | Libraries and provenance | `schemas/material.schema.yaml`, `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `core/library_import/provenance_checker.py`, `core/section_properties/calculator.py` | Materials, sections, and components carry provenance and review status. Public defaults do not include protected tables or proprietary catalog values. |
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
-| GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer` | These are current contract/support surfaces. A finished Tauri/React/Vite application shell, package manifest, runtime navigation, and screenshots remain `TBD`. |
+| GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite desktop shell, package manifest, and bounded runtime navigation now exist alongside the contract/support surfaces. Final packaging, complete journey integration, release screenshots, and release acceptance remain `TBD`. |
 | Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. Final styling/layout, preview/export runtime, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
 | Export interoperability | `schemas/native_json_export.schema.json`, `schemas/caepipe_mbf_export.schema.json`, `schemas/caepipe_external_run.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, CAEPIPE MBF package foundations, optional user-owned CAEPIPE run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package/evidence surfaces, not release, compatibility, solver-validation, code-compliance, or professional-acceptance claims. |
@@ -302,9 +302,11 @@ interpretation, rule-check readiness, privacy, or review.
 The following remain explicit limitations or open decisions:
 
 - end-user install/package steps and release channels;
-- exact dependency versions and final GUI application scaffold;
+- exact dependency versions and final GUI journey integration/packaging;
 - production sparse numerical library, tolerance policy, and release thresholds;
-- final rule expression grammar/library and private rule-pack storage workflow;
+- canonical DEC-022 typed-AST rule grammar is fixed; a writable text syntax is
+  deferred by DEC-037, while final evaluator/library integration and the
+  private rule-pack storage workflow remain `TBD`;
 - operating-system storage roots, product/DB migration tooling, and portable
   project export/copy workflow;
 - public API transport, endpoint syntax, adapter formats, and plugin loader;

@@ -4,7 +4,7 @@
 
 This guidance explains how to interpret the telemetry boundary for OpenPipeStress. The product is local-first, public-repository content must avoid protected standards data, and private project/rule/component/material data stays user controlled. Telemetry is therefore not a default feature; it is either absent/no-op or explicitly approved, opt-in, and payload-limited.
 
-As of the June 7 readiness evidence alignment, DEL-12-03 has repo policy documentation, a metadata-only guard helper, and focused tests. That helper evaluates configuration metadata and event-attempt metadata before payload construction. It is not runtime telemetry and does not choose product config storage, consent UI/CLI, endpoint, vendor, transport, retention, support-bundle workflow, or approval records.
+DEL-12-03 has repo policy documentation, a Python metadata-only guard, focused tests, and a desktop fail-closed event-attempt seam used by the default-off policy-review panel. Under DEC-074 O7-before-E5, this seam is the selected private-by-default enforcement grain: it can only drop or reject attempts before payload construction and cannot initialize network or persistence. It is not consent UI, transport, or whole-runtime interception; PDU-043 remains absent outside the telemetry panel.
 
 ## Principles
 
@@ -21,6 +21,8 @@ As of the June 7 readiness evidence alignment, DEL-12-03 has repo policy documen
 
 - A no-op runtime telemetry path is acceptable for MVP if tests prove that no default outbound behavior exists.
 - The current `core/security/telemetry_policy/` helper is an acceptable metadata-only guardrail for default-off behavior. It should stay pre-payload and local unless a later sealed brief authorizes runtime integration.
+- The current `TelemetryBoundaryPanel` is a policy-review surface, not a consent control. Its display/export of disabled-state evidence does not enable telemetry, approve an allowlist, or authorize collection or transport.
+- PDU-042's `Request telemetry enablement review` button is a distinct affirmative request demonstration inside that existing surface. It records request intent only, once per mounted panel, and then disables itself while telemetry remains off. Do not label it consent, opt-in, enablement, or configuration persistence.
 - A future opt-in design needs a human-approved allowlist before implementation. Without that approval, event names, endpoint details, vendor choices, and payload fields remain `TBD`.
 - Configuration defaults should fail closed: missing, unset, unknown, or malformed values disable telemetry.
 - Product diagnostics may report that telemetry is disabled or misconfigured, but diagnostic text should not echo private payload content.
@@ -46,6 +48,8 @@ Concrete product config syntax and runtime event schemas are `TBD` because the i
 - allowlisted low-sensitivity metadata can be evaluated by the helper only after explicit opt-in, approved consent surface metadata, and human-approved allowlist evidence are present;
 - unknown events, unknown fields, private/protected/secret/path/hash/report/professional-claim field classes, and payload-shaped attempts are rejected before payload construction;
 - any future telemetry payload is approved by allowlist and excludes private/protected engineering data.
+
+Focused interaction evidence must prove both sides of the boundary: ordinary render/open state records no request, while clicking the dedicated request action records only the fail-closed request and leaves opt-in, consent, allowlist, configuration mutation, payload, persistence, and network behavior false.
 
 ## Conflict Table (for human ruling)
 

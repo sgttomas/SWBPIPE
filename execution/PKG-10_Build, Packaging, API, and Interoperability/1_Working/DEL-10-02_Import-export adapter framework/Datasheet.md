@@ -1,5 +1,14 @@
 # Datasheet: DEL-10-02 Import/export adapter framework
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-10-02-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -12,19 +21,20 @@
 | Scope item | SOW-030 |
 | Objective | OBJ-009 |
 | Context envelope | L |
-| Current production mode | Setup documentation only |
+| Current production mode | Format-neutral declaration validation plus a deny-only declaration-to-runtime gate; no loader or execution model |
 
 ## Attributes
 
 | Attribute | Value |
 |---|---|
-| Deliverable purpose | Define the framework obligations for future import/export adapters. |
+| Deliverable purpose | Define and enforce the current format-neutral adapter admission boundary without selecting concrete formats or runtime execution. |
 | Anticipated artifacts | Adapter interfaces; sample invented adapter. |
-| Setup-run artifact boundary | This session produces setup documents and registers only; adapter source, tests, sample adapters, manifests, and repo-level artifacts are out of write scope. |
+| Runtime seam | `gate_adapter_runtime_dispatch` validates the declaration, rejects/quarantines bypass attempts, and never dispatches; accepted declarations remain blocked pending a separately selected runtime. |
 | Architecture baseline | Schema-first command/query/job result envelopes; JSON Schema 2020-12 contracts; canonical JSON/JCS-compatible hashing where JSON payloads are hashed. |
 | Adapter boundary | Adapters may translate external data but cannot bypass units, provenance, redistribution, diagnostics, private/public data controls, validation, sandboxing, envelopes, or report controls. |
 | External format list | TBD; concrete protected or proprietary external formats are not bundled defaults in this deliverable. |
 | Public API transport | TBD; public transport protocol remains a later human/product decision. |
+| Security evidence boundary | Selected-seam negative evidence only; no whole-product security/privacy/legal sufficiency claim. |
 
 ## Conditions
 

@@ -1,12 +1,14 @@
 # Status: DEL-09-02 Stress recovery benchmark suite
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Keep final tolerance, release-threshold, CI-gate, publication, canonical conversion, and professional-reliance choices `TBD`; PDU-039's governed result-envelope witness is verification evidence only.
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-052 reconciled RQ-007 to DEC-026's analytic `1e-9` relative seed and class-tiered relative+absolute policy while retaining unmeasured per-kind values as TBD; cited-claim backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T4 PDU-039 routed one rights-safe complete stress-recovery benchmark output through the governed DEL-08-04 result-envelope validator with diagnostic, trace, deterministic-hash, and human-review boundaries; no validation or release promotion.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

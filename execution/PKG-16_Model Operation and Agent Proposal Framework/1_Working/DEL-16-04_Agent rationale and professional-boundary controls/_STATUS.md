@@ -1,13 +1,17 @@
 # Status: DEL-16-04 Agent rationale and professional-boundary controls
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
+- Preserve the v0.2 R7/F3 live-binding gate: the T4 persisted-report workflow does not bind agent rationale into downstream runtime integrations or infer human/professional approval.
 - Phase I program: agent rationale + FR-AGENT-005 professional-boundary hard gate over the existing operation seam, plus route/support candidate generation (generator currently has no owning deliverable — ownership needs a decomposition act) (stage-gated: v0.2 R7; gated: app-dev F3 live-binding per DEC-063 remaining gate set) (see also DEL-16-01, DEL-16-02, DEL-16-03) (source: PRD plan §3 Forward Horizon row I / DEC-056/DEC-063)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Obtain the owning human disposition for `PKG16-DEL1604-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` despite the implemented copied-context scanner coverage (PDU-060).
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed the rationale-scanner finding disposition without altering the R7/F3 gate, formal review, or lifecycle.
+- 2026-07-12 - D-41 R5 T4 PDU-012 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-04 - State set to INITIALIZED (TASK+four-documents, RUN_PASSES=P1_P2).
 - 2026-05-04 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build).

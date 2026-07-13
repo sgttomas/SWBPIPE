@@ -18,7 +18,14 @@
 - docs/_Registers/ContextBudgetQA.csv - Context budget row for DEL-10-04.
 
 ## Package-Specific References
-- Package context is broad at PREPARATION time and limited to the accepted decomposition/register entries.
+- `projects/chirality-piping/package.json` - existing root npm workspace
+  manifest and build-script evidence attributed to DEL-10-04 under D-41
+  `DEC-074` O3; SHA-256 at the R5 T1 read-only inspection:
+  `7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656`.
+- Package context remains limited to accepted decomposition/register scope;
+  the manifest attribution does not expand it.
 
 ## Notes
-- No source material beyond the governing documents and registers is introduced by PREPARATION.
+- Historical PREPARATION used only the governing documents and registers.
+- D-41 R5 T1 adds the ruled root-manifest evidence pointer without editing the
+  manifest or resolving the separate D-42 build-readiness panel conflict.

@@ -59,3 +59,7 @@ When maintaining or extending implementation evidence, select tests that demonst
 - `_DEPENDENCIES.md`
 - `_REVIEW.md`
 - `Review_Findings.csv`
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Analysis-status semantics are implemented as a code-neutral status vocabulary with current verification evidence. External acceptance remains human-owned, and stale-hash negative behavior remains held where explicitly recorded.

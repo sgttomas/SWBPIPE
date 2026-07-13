@@ -43,3 +43,7 @@ distributed load behavior, invalid/missing input findings, dimension checks,
 deterministic contribution ordering, unit-bearing model-load boundary records,
 result-recovery hook schema binding, and preservation of the
 no-default/no-compliance boundary.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. User-load application now covers nodal and distributed inputs plus the straight-pipe equivalent-recovery, oriented, and axial bridge evidenced by current implementation and tests. Other geometry/load breadth remains residual where recorded.

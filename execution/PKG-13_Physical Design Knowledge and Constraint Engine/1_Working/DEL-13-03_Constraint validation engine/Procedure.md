@@ -1,5 +1,14 @@
 # Procedure: DEL-13-03 Constraint validation engine
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-13-03-DECL-004`.
+
 ## Purpose
 
 This procedure describes how to verify the current DEL-13-03 validation artifact set and how later bounded changes should proceed without exceeding the grounded scope. It is not authority for engineering values, protected standards content, release readiness, or professional acceptance claims.
@@ -78,3 +87,6 @@ This procedure describes how to verify the current DEL-13-03 validation artifact
 - Test fixture provenance/review records: required before public examples are relied on outside executable test evidence.
 - `TBD` list for localization, full geometric conflict solving, owner criteria/rules, GUI presentation, physical-to-analytical transformation, runtime integration, release readiness, and human acceptance.
 - Local dependency validation result from `tools/validation/validate_dependencies_schema.py` when `Dependencies.csv` exists.
+## D-41 R5 T2C PDU-023 Check
+
+Validate paired field paths at the existing result-trace schema boundary. Do not emit a runtime envelope from the constraint validator until an accepted producer/home exists.

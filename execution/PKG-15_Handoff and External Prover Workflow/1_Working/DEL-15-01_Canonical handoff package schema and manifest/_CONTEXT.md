@@ -55,6 +55,15 @@ Define handoff package schema and manifest with hashes, units, entity IDs, libra
 - **Still TBD:** Exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, import/export format list, CI provider/coverage thresholds, physical project package/container, and package-specific implementation choices remain decision-gated unless this deliverable later resolves one under human approval.
 - **Dispatch Rule:** Future TASK execution must apply only the applicable architecture-basis constraints and must not copy full PKG-00 prose into deliverable artifacts.
 
+## D-41 E1 canonicalization vocabulary boundary
+- `deterministic_sorted_compact_json_payload_hash` identifies the existing
+  Python `json.dumps(..., sort_keys=True, separators=(",", ":"))`-class
+  payload-hash basis precisely. It is deterministic sorted-key compact JSON,
+  not RFC 8785 JCS.
+- `JCS_compatible_json_payload_hash` remains schema-valid for backward
+  compatibility with producers not repaired in this prerequisite task. No
+  producer output changes are authorized here.
+
 ## SCA-002 Control-Surface Refresh Note
 - This control surface was created by PREPARATION on 2026-05-03 from the accepted revision 0.7 decomposition and companion registers.
 - This pass did not dispatch Type 2 work, produce implementation artifacts, promote candidate edges, refresh the blocker queue, materialize local `Dependencies.csv`, or promote the quarantined Chirality corpus.

@@ -100,15 +100,24 @@ export function buildDiagnosticInterpretation({
   return {
     diagnostic_id: diagnostic.id ?? diagnostic.code,
     code: diagnostic.code,
+    diagnostic_class: diagnostic.diagnostic_class ?? diagnostic.class ?? "not supplied by producer",
     severity: diagnostic.severity,
     source: diagnostic.source ?? "local_preview_context",
     message: diagnostic.message,
+    remediation: diagnostic.remediation ?? "not supplied by producer",
+    provenance: formatDiagnosticProvenance(diagnostic.provenance),
     affected_refs: affectedRefs,
     linked_results: linkedResults,
     linked_knowledge: linkedKnowledge,
     review_explanation: diagnosticExplanation(diagnostic, affectedRefs, linkedResults.length),
     professional_boundary: "review-only diagnostic explanation; no compliance or professional approval claim"
   };
+}
+
+function formatDiagnosticProvenance(value: Diagnostic["provenance"]): string {
+  if (!value) return "not supplied by producer";
+  if (typeof value === "string") return value;
+  return JSON.stringify(value);
 }
 
 export function resolveEntitySelection(model: PreviewModel, entityRef: string): EntityRef | null {

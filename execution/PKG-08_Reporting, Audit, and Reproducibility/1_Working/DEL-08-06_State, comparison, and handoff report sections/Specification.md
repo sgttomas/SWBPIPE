@@ -1,5 +1,14 @@
 # Specification: DEL-08-06 State, comparison, and handoff report sections
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-08-06-DECL-001`.
+
 ## Scope
 
 This deliverable covers backend report sections for state/run records, deterministic comparison records, and handoff manifest records. The sections must support auditable calculation reports and preserve professional, IP, privacy, provenance, checksum, unit, and missing-data boundaries.
@@ -60,3 +69,14 @@ Expected deliverable-local records and downstream artifacts:
 - Tests or review notes proving boundary wording, SOW-024 coverage, deterministic assembly, provenance/checksum preservation, and protected-content avoidance.
 - Source notes that identify upstream record contracts consumed by the sections.
 - Any unresolved implementation/API/schema decisions recorded as TBD rather than inferred.
+
+## D-41 R5 T4 persisted-run reporting seam
+
+The bounded `project.run_history` application-service handoff may assemble
+existing model-state and analysis-run records into backend report sections.
+It shall preserve warnings, unresolved assumptions, explicit limitations,
+solver context, provenance, and only the governed software analysis-status
+vocabulary. It shall not mutate the project, execute a solver, infer
+`HUMAN_APPROVED_FOR_PROJECT` or `CODE_COMPLIANT`, redefine external/non-JSON
+payload partitioning, or imply rendered-report, runtime-adapter, or whole-
+workflow closure.

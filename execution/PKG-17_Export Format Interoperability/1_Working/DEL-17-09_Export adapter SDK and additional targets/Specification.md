@@ -1,5 +1,14 @@
 # Specification: DEL-17-09 Export adapter SDK and additional targets
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-09-DECL-001`.
+
 ## Scope
 
 DEL-17-09 defines a contract-level export adapter SDK and target-admission model for future community or additional export targets. It covers adapter obligations, target registry admission states, source-basis requirements, boundary contracts, and validation checklist expectations.
@@ -88,3 +97,10 @@ Required downstream artifacts remain future work and `TBD`:
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | None | No source conflict detected in Phase A sources. | NA | NA | NA | NA | TBD |
+## D-41 R5 T2A canonicalization requirement (2026-07-12)
+
+All DEL-17-09-produced JSON checksum records SHALL use `deterministic_sorted_compact_json_payload_hash` for the existing sorted-key compact ASCII-escaped Python JSON serializer and SHALL NOT claim RFC 8785/JCS conformance.
+
+## D-41 R5 T4 PDU-004 held taxonomy
+
+The current admission record fields are `check_id`, `category`, `description`, `status`, `required_before_target_admission`, `evidence_refs`, `affected_refs`, `human_review_required`, and `provenance`. The exact additional category taxonomy and the reviewer-role, signoff-format, and approval-artifact fields remain owner-unselected. `human_review_required=true` is only a boundary flag; it is not reviewer identity, signoff, acceptance, or approval.

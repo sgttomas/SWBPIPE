@@ -1,5 +1,14 @@
 # Specification: DEL-14-02 Analysis run records
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-14-02-DECL-001`.
+
 ## Scope
 
 DEL-14-02 defines the analysis-run record data model and the supporting reproducibility test surface for saving analysis runs as immutable, traceable product records.
@@ -28,7 +37,7 @@ Out of scope:
 | DEL-14-02-R004 | Results shall attach to immutable analysis-run records rather than only to mutable current model state. | `docs/_Registers/ScopeLedger.csv` row SOW-072; `_CONTEXT.md` envelope notes | Mutation/round-trip test demonstrates stored run evidence remains associated with the original run basis. |
 | DEL-14-02-R005 | Unit-bearing physical values included or referenced by run records shall carry explicit unit metadata unless explicitly classified as dimensionless, ratio, percentage, or coefficient. | `docs/SPEC.md` section 4; `docs/CONTRACT.md` OPS-K-UNIT-1 | Schema validation and negative tests reject or diagnose missing unit metadata where required. |
 | DEL-14-02-R006 | Missing solve-required or rule-check-required values shall be explicit findings with diagnostics and provenance, not silent defaults. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-DATA-2 | Tests confirm missing required values produce structured diagnostics. |
-| DEL-14-02-R007 | Hash records shall identify payload scope and use the accepted JSON/JCS-compatible canonical JSON basis where JSON payloads are hashed. | `_CONTEXT.md` architecture basis; `docs/SPEC.md` section 4.4 | Reproducibility tests compare canonical hash outputs for stable JSON payloads. |
+| DEL-14-02-R007 | Hash records shall identify payload scope and label the implemented JSON serialization precisely. DEL-14-02 uses deterministic sorted-key compact JSON with ASCII escaping; it does not claim RFC 8785/JCS conformance. | `_CONTEXT.md` architecture basis; `docs/SPEC.md` section 4.4; `DEC-074` E1 / PDU-003 | Reproducibility tests prove the exact emitted label and bytes, stable hashes, payload-mutation sensitivity, and absence of an emitted JCS claim. |
 | DEL-14-02-R008 | The record shall preserve the software authority boundary: solver results and diagnostics are software outputs; human acceptance is external and hash-bound. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2 | Schema/status tests ensure automatic approval, certification, sealing, authentication, or code-compliance labels are not emitted. |
 | DEL-14-02-R009 | Rule-pack and library references shall expose identity/provenance/checksum-style metadata where source-supported, without embedding protected standards text, protected tables, proprietary values, private formulas, or private payloads in public artifacts. | SOW-072; `docs/SPEC.md` result export section; `docs/IP_AND_DATA_BOUNDARY.md` | Protected-content/private-data tests inspect examples and fixtures before acceptance. |
 | DEL-14-02-R010 | Run reproducibility tests shall be part of the deliverable output surface. | `_CONTEXT.md` anticipated artifacts | Test files exist and exercise stable run-record/hash behavior once implementation occurs. |
@@ -39,7 +48,7 @@ Out of scope:
 | Standard or governing basis | Status in this folder | Notes |
 |---|---|---|
 | JSON Schema 2020-12 contracts | Applicable architecture basis | `_CONTEXT.md` identifies JSON Schema 2020-12 contracts. Exact `$schema`, `$id`, and schema-module placement remain implementation TBD. |
-| Canonical JSON / JCS-compatible hash basis | Applicable where JSON payloads are hashed | `_CONTEXT.md` and `docs/SPEC.md` support the basis. Exact library/dependency choice remains TBD. |
+| Deterministic sorted compact JSON hash basis | Implemented for DEL-14-02 JSON payload hashes | Python `json.dumps` uses sorted keys, compact separators, and ASCII escaping. This preserves existing deterministic hash bytes but is not a demonstrated RFC 8785/JCS implementation. A broader JCS basis remains outside this bounded owner repair. |
 | PRD v0.2 sections 8.7 and 15.2 / FR-CMP-002 | Referenced but not locally accessible as primary source text | Decomposition and registers cite these references. Do not derive clause-level requirements beyond the accessible SOW-072 wording. |
 | Protected-content and private-data governance | Applicable | `docs/CONTRACT.md` and `docs/IP_AND_DATA_BOUNDARY.md` govern public/private data handling. |
 | Professional responsibility boundary | Applicable | `docs/CONTRACT.md` and `docs/SPEC.md` prohibit software-generated professional approval/compliance claims. |
@@ -51,7 +60,7 @@ Out of scope:
 | Schema artifact | JSON Schema validation and repository schema gate | `schemas/analysis_run.schema.json` parses and satisfies local schema conventions once implemented. |
 | Required binding categories | Schema review plus tests | Model state, solver version/settings, units, load-case basis, diagnostics, results, rule-pack/library references, and result hashes are represented or explicitly referenced. |
 | Immutability of run evidence | Round-trip/persistence test | A saved run remains bound to the original model-state/run basis after unrelated model changes. |
-| Hash reproducibility | Deterministic canonicalization test | Equivalent canonical JSON payloads produce stable hashes; payload scope is recorded. |
+| Hash reproducibility | Deterministic serialization and mutation tests | Equivalent supported JSON payloads produce exact stable sorted-compact bytes and hashes; changed values change hashes; payload scope and `SORTED_COMPACT_JSON` are recorded; no JCS claim is emitted. |
 | Unit safety | Negative and positive unit tests | Unit-bearing values include unit metadata or produce blocking diagnostics. |
 | Professional boundary | Status/label tests | No automatic human approval, certification, sealing, authentication, or code-compliance label is emitted. |
 | Protected/private data boundary | Protected-content and fixture review | Public examples do not embed private/protected rule, library, standards, or proprietary payload content. |

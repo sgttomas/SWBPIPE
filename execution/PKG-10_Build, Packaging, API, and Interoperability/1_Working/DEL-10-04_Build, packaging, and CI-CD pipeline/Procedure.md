@@ -21,6 +21,7 @@ Run and verify the deliverable-local setup workflow for DEL-10-04 without creati
 5. Execute `four-documents` with `RUN_PASSES=P3_ONLY` by checking the lensing register for warranted enrichment items, applying only source-supported setup-document changes, and recording unresolved items as `TBD`.
 6. Execute `dependency-extract` by writing `Dependencies.csv` v3.1 and refreshing `_DEPENDENCIES.md`.
 7. Run local validation checks for document presence, dependency schema, semantic/lensing structure, status, and write-scope compliance.
+8. For build-evidence review, inspect the root `projects/chirality-piping/package.json` read-only and confirm its desktop workspace scripts plus `generate:product-preview-mechanics` command remain attributed to DEL-10-04 under D-41 `DEC-074` O3.
 
 ## Verification
 
@@ -32,6 +33,7 @@ Run and verify the deliverable-local setup workflow for DEL-10-04 without creati
 - `_STATUS.md` current state is `SEMANTIC_READY`.
 - No files outside the deliverable folder were edited.
 - No CI workflow, packaging script, manifest, release file, source code, or repo-level artifact was created or modified.
+- Root `projects/chirality-piping/package.json` evidence is read-only and its recorded script inventory matches the manifest; this check does not resolve the separate D-42 build-readiness panel conflict.
 
 ## Records
 

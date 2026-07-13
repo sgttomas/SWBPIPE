@@ -1,5 +1,14 @@
 # Datasheet: DEL-15-03 Downstream modeling export workflow
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-15-03-DECL-002`.
+
 ## Identification
 
 | Field | Value | Source |
@@ -22,7 +31,7 @@
 | Workflow purpose | Implement the generic handoff export path before target-specific commercial-tool parsers are in scope. | `_CONTEXT.md`; `SOFTWARE_DECOMP.md#PKG-15` |
 | Required handoff package content | Model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, and unsupported-target flags. | `_CONTEXT.md#Scope Detail`; `SOFTWARE_DECOMP.md#SOW-074` |
 | Handoff object meaning | Schema-compliant export for downstream modeling and professional validation workflows. | `SOFTWARE_DECOMP.md#Vocabulary and semantic commitments` |
-| Architecture baseline | Rust core/application services; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed; Cargo/Vitest/Playwright/validation/protected-content test gates as applicable. | `_CONTEXT.md#Architecture Basis Injection` |
+| Architecture baseline | Rust core/application services; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; producer-declared JSON hash byte-basis labels carried unchanged; Cargo/Vitest/Playwright/validation/protected-content test gates as applicable. | `_CONTEXT.md#Architecture Basis Injection`; D-41 R5 T2A |
 | Backend artifact boundary | Generic export workflow only; target-specific commercial parser behavior remains deferred. | `_CONTEXT.md#Context Envelope`; `SOFTWARE_DECOMP.md#Open issues` |
 | Professional boundary | Handoff and external-prover metadata support must not create automatic professional approval states. | `SOFTWARE_DECOMP.md#OBJ-017`; `docs/CONTRACT.md#Invariant catalog` |
 | Data boundary | Public artifacts must not bundle protected standards text, protected tables, proprietary commercial data, private rule packs, owner standards, or code-specific acceptance criteria. | `docs/IP_AND_DATA_BOUNDARY.md#Public repository must not contain`; `docs/CONTRACT.md#Invariant catalog` |
@@ -46,7 +55,7 @@
 | Primary output | Generic handoff exporter at `core/handoff/exporter/workflow.py` capable of producing a schema-compliant handoff package and provider-neutral target mapping record. |
 | Validation evidence | `tests/test_handoff_export_workflow.py` validates exported handoff/mapping inputs against schema contracts and checks `fixtures/invented_target_fixture.json` provenance. |
 | Unsupported target behavior | Must surface unsupported-target flags and warnings; taxonomy and target mapping records are provided by upstream contract work. |
-| Hash handling | Package/model hash behavior aligns with the JCS-compatible hash basis through schema-validated checksum/reference fields; package container and target-specific hash packaging remain TBD. |
+| Hash handling | Package/model checksum/reference fields preserve the producer-declared byte-basis label. DEL-15-03 does not recompute, relabel, or assert JCS conformance; package container and target-specific hash packaging remain TBD. |
 | Fixture data | Invented target fixture only; no protected commercial-tool examples or proprietary data. |
 
 ## References
@@ -60,3 +69,6 @@
 - `docs/TYPES.md` - canonical object and boundary vocabulary.
 - `docs/IP_AND_DATA_BOUNDARY.md` - public/private and protected-content boundary.
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` - deliverable execution and review rules.
+## D-41 R5 T2A supplied-checksum evidence (2026-07-12)
+
+The downstream workflow carries supplied checksum records without recomputing them. Its governed invented records now use `deterministic_sorted_compact_json_payload_hash`; this is a narrow byte-basis label, not a JCS assertion by DEL-15-03.

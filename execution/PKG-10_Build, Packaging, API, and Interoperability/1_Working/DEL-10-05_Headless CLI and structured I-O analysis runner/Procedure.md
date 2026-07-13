@@ -1,5 +1,14 @@
 # Procedure: DEL-10-05 Headless CLI and structured I/O analysis runner
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-10-05-DECL-004`.
+
 ## Purpose
 
 Define the setup and future execution procedure for a governed headless runner deliverable without implementing the runner in this session.
@@ -51,4 +60,3 @@ Required records:
 - `_run_records/TASK_RUN_2026-04-30_1105_lens-register.md`
 - `_run_records/TASK_RUN_2026-04-30_1105_four-documents-p3.md`
 - `_run_records/TASK_RUN_2026-04-30_1105_dependency-extract.md`
-

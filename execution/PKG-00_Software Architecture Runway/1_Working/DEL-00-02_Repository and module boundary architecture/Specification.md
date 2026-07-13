@@ -35,3 +35,14 @@ This specification governs only `DEL-00-02` inside `PKG-00 - Software Architectu
 
 ## Human Review Gate
 Human review must decide whether the architecture content is sufficient to support later PKG-01 through PKG-12 planning. `SEMANTIC_READY` means prepared for review; it does not mean accepted or issued.
+
+## D-41 R5 T6 PDU-007 formal-review hold
+
+The architecture review gate is defined, but the owning formal REVIEW
+disposition/evidence-sufficiency act has not occurred for this claim. PDU-007
+therefore remains partially implemented at governance grain. No alignment,
+closure, readiness, acceptance, or issuance may be inferred.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The repository/module boundary kit and its executable gate now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination. PDU-007 retains the formal review hold on evidence sufficiency and module-boundary acceptance; this declaration does not convert that hold into approval.

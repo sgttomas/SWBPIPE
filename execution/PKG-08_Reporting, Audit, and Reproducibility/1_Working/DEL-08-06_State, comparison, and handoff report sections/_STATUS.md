@@ -1,12 +1,14 @@
 # Status: DEL-08-06 State, comparison, and handoff report sections
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Bind remaining solver, rule-check, comparison, adapter, rendered-report, and export producers separately; the current T4 seam reads canonical persisted run history only. Exact external/non-JSON payload partitioning remains held.
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T4 PDU-012/PDU-021/PDU-022/PDU-040 bound canonical persisted model-state/analysis-run records to backend report sections with warning/assumption/limitation/provenance/status preservation; no lifecycle or authority outcome changed.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.
 - 2026-05-04 - State set to INITIALIZED (TASK+four-documents, RUN_PASSES=P1_P2).
 - 2026-05-04 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build).

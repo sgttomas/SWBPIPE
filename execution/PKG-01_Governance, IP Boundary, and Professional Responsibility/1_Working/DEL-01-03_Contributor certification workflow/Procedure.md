@@ -76,3 +76,7 @@ Define a repeatable local procedure for contributor certification intake, proven
 - Reviewer disposition record.
 - Human/legal ruling reference when provided.
 - `CONTRIBUTING.md` and contributor certification template draft pointers.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; contributor disposition remains subject to the recorded governance workflow.

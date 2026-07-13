@@ -2,6 +2,7 @@
 """Stdlib checks for the result export schema."""
 
 import json
+from copy import deepcopy
 from pathlib import Path
 import sys
 
@@ -13,6 +14,7 @@ if str(TESTS_DIR) not in sys.path:
 
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
+    schema_for_definition,
     validate_instance,
     validate_schema_document,
 )
@@ -639,6 +641,40 @@ def test_results_schema_contract():
 
 def test_results_schema_jsonschema_validation_helper():
     check_jsonschema_validation()
+
+
+def test_result_trace_link_field_scalar_paths_are_paired():
+    schema = load_schema()
+    definition = schema["$defs"]["ResultTraceLink"]
+    assert {"source_field_path", "target_field_path"} <= set(
+        definition["properties"]
+    )
+    assert definition["dependentRequired"] == {
+        "source_field_path": ["target_field_path"],
+        "target_field_path": ["source_field_path"],
+    }
+
+    envelope = load_tp_phys_015_section_evidence_envelope()["result_envelope"]
+    link = deepcopy(envelope["result_sets"][1]["values"][0]["trace_chain"][0])
+    link["source_field_path"] = (
+        "result_sets[set_type=section_property_evidence].values"
+        "[result_id=result:section-property:tp-stress-016:section-modulus-z].magnitude"
+    )
+    link["target_field_path"] = (
+        "result_sets[set_type=stress_recovery].values"
+        "[result_id=result:stress:element-E-1:midspan:bending-normal-z].magnitude"
+    )
+    link_schema = schema_for_definition(schema, "ResultTraceLink")
+    assert validate_instance(link_schema, link)
+
+    unpaired = deepcopy(link)
+    del unpaired["target_field_path"]
+    try:
+        validate_instance(link_schema, unpaired)
+    except AssertionError as exc:
+        assert "target_field_path" in str(exc)
+    else:
+        raise AssertionError("unpaired result field-scalar trace path must be rejected")
 
 
 if __name__ == "__main__":

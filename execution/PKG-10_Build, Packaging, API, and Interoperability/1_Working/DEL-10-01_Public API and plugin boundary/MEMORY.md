@@ -1,5 +1,10 @@
 # MEMORY - DEL-10-01 Public API and Plugin Boundary
 
+## 2026-07-12 - D-41 R5 T4 PDU-012/PDU-022 supporting evidence
+
+- The persisted-run-to-report helper is a bounded backend workflow grain, not a registered public API family. Model-creation/load-case families and explicit invalid-input encoding remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## Implementation Ledger
 
 ### 2026-05-02 - Sealed implementation

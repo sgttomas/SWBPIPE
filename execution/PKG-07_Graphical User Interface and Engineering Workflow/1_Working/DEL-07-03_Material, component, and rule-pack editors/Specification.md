@@ -77,3 +77,22 @@ Required deliverable-local setup artifacts:
 - `_run_records/TASK_RUN_2026-04-30_1044_dependency-extract.md`
 
 Future implementation artifacts named by the register remain anticipated, not implemented here: editor panels and validation UI tests.
+
+## D-41 R5 T3 PDU-049 disposition hold
+
+The existing private-by-default editor behavior remains project-owned verification evidence for `DEL-07-03-R-011`. No separately authorized independent usability or security validation basis was produced in this tranche. Accordingly, PDU-049 remains `VERIFIED_NOT_VALIDATED`; the evidence must not be promoted into an independent validation, security-review closure, release-readiness, or lifecycle claim.
+
+## D-41 R5 T5 PDU-041 documented absence
+
+The DEL-07-03 implementation still accepts only material, component, and
+rule-pack-reference editor kinds. Load-case and support editor requests remain
+blocking unsupported kinds in this owner. Adjacent desktop authoring under
+other GUI ownership is not reattributed here and does not close
+`DEL-07-03-R-005` or `DEL-07-03-R-006`.
+## D-41 R5 T5 PDU-008 current GUI boundary
+
+Current application surfaces expose all named concepts across the GUI, but PDU-041 preserves load-case and support editor ownership as absent from DEL-07-03 itself. Cross-surface visibility is not silent ownership transfer or complete R-002 closure.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Bounded material, component, and rule-pack editor surfaces are implemented. PDU-041 preserves the recorded load/support ownership absences; this declaration does not claim those absent editors or a complete GUI product.

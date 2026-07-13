@@ -1,5 +1,14 @@
 # Datasheet: DEL-12-03 Telemetry off-by-default design
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-12-03-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -22,7 +31,7 @@
 | User consent posture | Any telemetry, if later implemented, is opt-in only and requires explicit human approval before design activation. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-008; `docs/CONTRACT.md` OPS-K-PRIV-2 |
 | Forbidden telemetry content | Private project data, code-specific data, private rule-pack data, private material/component data, secrets, paths, report content, and protected standards content. | `docs/CONTRACT.md` OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-PRIV-1/2 |
 | Local-first boundary | No cloud operation is included unless separately authorized. | `_CONTEXT.md`; `docs/DIRECTIVE.md` Section 4.2 |
-| Current evidence artifacts | Telemetry policy, metadata-only telemetry guard helper, and focused policy/helper tests now exist. Runtime telemetry, product config schema/storage, consent surface, endpoint/vendor/transport, event schema/allowlist, retention, and support-bundle workflow remain deferred. | `_CONTEXT.md`; `docs/security/telemetry_policy.md`; `core/security/telemetry_policy/`; `tests/security/test_telemetry_policy.py`; `_run_records/TASK_RUN_2026-06-07_0141.md` |
+| Current evidence artifacts | Telemetry policy, Python metadata guard, and desktop fail-closed attempt guard/policy-review panel exist. The desktop seam always remains disabled without an authorized affirmative-action/allowlist path and exposes no payload/network/persistence operation. Other consumer interception remains PDU-043 documented absence. | `_CONTEXT.md`; `docs/security/telemetry_policy.md`; `core/security/telemetry_policy/`; `tests/security/test_telemetry_policy.py`; `apps/desktop/src/services/telemetryPolicyService.ts`; `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx` |
 
 ## Conditions
 
@@ -36,7 +45,7 @@
 
 ## Construction
 
-This deliverable began as a design-boundary setup kit. Current June 7 evidence also includes a metadata-only guard helper and focused tests that harden the default-off policy before any payload construction. The helper is not a runtime telemetry system and does not authorize endpoint, vendor, transport, queue, upload job, persistence, retention, consent UI/CLI, support-bundle workflow, or professional/code-compliance authority.
+This deliverable began as a design-boundary setup kit. Current evidence also includes a metadata-only guard helper, focused tests, and a desktop policy-review panel that harden and expose the default-off boundary before any telemetry payload construction. The panel's local JSON is a review artifact, not a telemetry payload. Neither the helper nor the panel is a runtime telemetry system or authorization for endpoint, vendor, transport, queue, upload job, persistence, retention, consent UI/CLI, support-bundle workflow, or professional/code-compliance authority.
 
 | Artifact | Construction intent | Current evidence result |
 |---|---|---|
@@ -51,6 +60,9 @@ This deliverable began as a design-boundary setup kit. Current June 7 evidence a
 | `core/security/telemetry_policy/` | Provides metadata-only `TelemetryConfig`, `TelemetryEventAttempt`, diagnostics, decision/result records, config resolution, and event guard behavior before payload construction. |
 | `tests/security/test_telemetry_policy.py` | Tests default-off config handling, opt-in/allowlist gates, rejected unknown events/fields, rejected private/protected/secret/path/hash/report/professional-claim field classes, and no payload or network initialization flags. |
 | `docs/security/telemetry_policy.md` | Documents the policy and helper non-authority boundary while preserving open `TBD` decisions. |
+| `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx` | Presents and locally exports the default-off policy/guard boundary with `payload_constructed=false` and network/runtime initialization false. PDU-042 adds an ephemeral distinct affirmative review request that remains disabled pending consent/allowlist; consent, config, persistence, and allowlist approval remain `TBD`. |
+
+PDU-042 evidence distinguishes the panel request from terms/install/open/solve actions and records that it mutates no product configuration, grants no opt-in/consent, constructs no payload, and initializes no network behavior.
 | `_run_records/TASK_RUN_2026-06-07_0141.md` and package fan-in | Record successful focused tests, `git diff --check`, and boundary scan evidence. |
 
 ## References
@@ -64,6 +76,7 @@ This deliverable began as a design-boundary setup kit. Current June 7 evidence a
 - `docs/security/telemetry_policy.md` for the implemented policy and metadata-only guard boundary.
 - `core/security/telemetry_policy/` for metadata-only helper evidence.
 - `tests/security/test_telemetry_policy.py` for focused default-off/helper tests.
+- `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx` for the DEL-12-03 default-off policy-review surface attributed by DEC-074 O3.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for PKG-12, DEL-12-03, SOW-037, OBJ-010, OI-008, and AB-00-01/02/03/04/06/07/08.
 - `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/_run_records/TASK_RUN_2026-06-07_0141.md`.
 - `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/_run_records/WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md`.

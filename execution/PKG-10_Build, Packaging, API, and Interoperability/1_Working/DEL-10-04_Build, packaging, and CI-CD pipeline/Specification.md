@@ -1,5 +1,14 @@
 # Specification: DEL-10-04 Build, packaging, and CI/CD pipeline
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-10-04-DECL-001`.
+
 ## Scope
 
 This specification governs the setup basis for `DEL-10-04` only. It describes requirements and verification expectations for a future build, packaging, and CI/CD implementation pass, but this setup session does not modify CI workflows, packaging scripts, manifests, release files, source code, or repository-level artifacts.
@@ -31,6 +40,22 @@ Out of scope for this setup run:
 | REQ-10-04-07 | Release artifacts and pipeline status must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance. | OPS-K-AUTH-1; professional responsibility boundary | Product-claims and release-note review. |
 | REQ-10-04-08 | Packaging and CI outputs must support reproducibility evidence such as commit/build identifiers, test results, validation status, and known limitations. | PRD 22; VALIDATION_STRATEGY release gate; SPEC reporting/audit principles | Future release checklist and reproducibility review. |
 
+## Current implementation/build evidence
+
+Under D-41 R4 ruling `DEC-074` option O3, the existing root
+`projects/chirality-piping/package.json` is attributed to DEL-10-04 as
+implementation/build evidence. Its workspace configuration binds
+`apps/desktop`, and its scripts provide the existing desktop development,
+build, wasm-build, Vitest, Playwright source-mode, and Playwright dist-mode
+entrypoints. The same manifest exposes
+`generate:product-preview-mechanics`, which runs the existing Rust example to
+write the invented product-preview mechanics fixture.
+
+This is an evidence attribution, not a manifest edit or new requirement. It
+does not activate hosted CI, resolve provider/release/signing decisions, move
+the governed shared `core/product_preview` boundary, or broaden fixture
+generation beyond the existing command.
+
 ## Standards
 
 No external engineering code or standards-body text is incorporated by this deliverable. Governing project standards for this setup pass are internal OpenPipeStress governance artifacts: `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
@@ -48,6 +73,7 @@ The term "Tauri-supported targets" is used only as an architecture-baseline labe
 | TBD preservation | Text review | CI provider, release matrix, and thresholds remain visible as `TBD`. |
 | Protected-data boundary | Text review | No protected standards content, proprietary values, or private data are introduced. |
 | Authority boundary | Text review | No certification, sealing, approval, endorsement, or compliance claim is made. |
+| Root workspace manifest attribution | Read-only inspection of `projects/chirality-piping/package.json` | Existing desktop workspace scripts and preview-mechanics fixture-generator command are recorded as DEL-10-04 implementation/build evidence under `DEC-074` O3. |
 
 ## Documentation
 
@@ -69,4 +95,3 @@ Anticipated implementation artifacts remain future work:
 - CI workflows
 - packaging scripts
 - release notes template
-

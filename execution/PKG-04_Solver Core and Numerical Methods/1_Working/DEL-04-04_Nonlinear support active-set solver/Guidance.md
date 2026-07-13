@@ -36,3 +36,7 @@ Example cases are intentionally not specified in this setup pass. Future example
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | None | No source conflict detected in setup pass. | N/A | N/A | N/A | N/A | N/A |
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The nonlinear support slice and DEC-067 Coulomb-friction basis (`±mu*N`) are implemented and evidenced. Broader nonlinear policies and validation thresholds survive only where explicitly recorded; this currentness declaration is not an engineering acceptance.

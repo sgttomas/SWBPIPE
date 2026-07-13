@@ -48,3 +48,7 @@ This deliverable defines architecture contracts only; it does not create modules
 - No product implementation code is authorized by this deliverable.
 - No protected standards text, standards tables, code-derived formulas, proprietary values, or vendor-private data are introduced.
 - Architecture outputs remain draft/proposal material until accepted by the human project authority.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The repository/module boundary kit and its executable gate now exist. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination. PDU-007 retains the formal review hold on evidence sufficiency and module-boundary acceptance; this declaration does not convert that hold into approval.

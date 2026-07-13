@@ -439,7 +439,7 @@
           "const": "local_store_index_projection"
         },
         "canonical_truth": {
-          "const": "canonical_json_jcs_payload"
+          "const": "sorted_compact_json_payload"
         },
         "sql_public_contract": {
           "const": false

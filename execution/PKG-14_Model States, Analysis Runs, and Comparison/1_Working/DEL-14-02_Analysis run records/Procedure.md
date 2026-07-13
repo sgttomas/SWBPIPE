@@ -1,5 +1,14 @@
 # Procedure: DEL-14-02 Analysis run records
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-14-02-DECL-004`.
+
 ## Purpose
 
 This procedure describes how later Type 2 implementation work should produce and verify the DEL-14-02 analysis-run record artifacts from the current setup-stage sources. It is a production workflow guide, not evidence that implementation has already occurred.
@@ -23,7 +32,7 @@ This procedure describes how later Type 2 implementation work should produce and
 4. Represent the SOW-072 binding categories: exact model state, solver version, solver/settings basis, units, load-case basis, diagnostics, results, rule-pack references, library references, and result hashes.
 5. Mark unsupported field-level choices as TBD until a source, accepted architecture decision, or human ruling supports them.
 6. Ensure unit-bearing values are unit-aware or produce explicit diagnostics for missing/ambiguous units.
-7. Ensure hash records identify payload scope and canonicalization basis. Use the accepted JSON/JCS-compatible basis where JSON payloads are hashed.
+7. Ensure hash records identify payload scope and the implemented serialization basis. For DEL-14-02, emit `SORTED_COMPACT_JSON` for Python sorted-key compact JSON with ASCII escaping; preserve deterministic hash bytes and do not claim RFC 8785/JCS conformance without conformance-vector evidence.
 8. Preserve professional-boundary constraints: do not generate approval, certification, sealing, authentication, or code-compliance labels as software statuses.
 9. Preserve protected/private-data constraints: do not embed private formulas, protected standards text, protected tables, proprietary values, or private rule-pack/library payloads in public fixtures or examples.
 10. Add run reproducibility tests covering stable serialization/hash behavior, binding to model-state/run basis, unit diagnostics, and professional-boundary status behavior.
@@ -36,7 +45,7 @@ This procedure describes how later Type 2 implementation work should produce and
 | Source traceability | Requirements and tests cite accessible sources or mark unsupported details as TBD/ASSUMPTION. |
 | Schema parse | `schemas/analysis_run.schema.json` parses and satisfies repository schema validation once implemented. |
 | Binding coverage | Tests or schema review confirm all SOW-072 categories are present or explicitly referenced. |
-| Reproducibility | Stable run-record payloads produce stable hashes under the selected canonicalization basis. |
+| Reproducibility | Equivalent supported run-record payloads produce exact stable sorted-compact bytes/hashes, mutations change hashes, and emitted metadata contains `SORTED_COMPACT_JSON` with no JCS claim. |
 | Unit handling | Missing unit metadata for unit-bearing values produces diagnostics rather than silent defaults. |
 | Boundary controls | Statuses and examples avoid automatic professional approval/compliance claims and protected/private data leakage. |
 | Dependency preservation | Existing DAG-002 mirror rows remain ACTIVE unless later CHANGE/RECONCILIATION authority changes them. |

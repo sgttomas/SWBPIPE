@@ -6,6 +6,16 @@
 //! criteria, or professional approval claims are encoded here.
 
 use open_pipe_stress_frame_kernel::{FrameNode, DOF_PER_NODE, ELEMENT_DOF, RX, RZ, UX, UY};
+#[cfg(test)]
+use open_pipe_stress_result_export::sorted_result_values;
+use open_pipe_stress_result_export::{
+    validate_result_envelope, AnalysisStatus as ExportAnalysisStatus, ChecksumRef,
+    Diagnostic as ExportDiagnostic, DiagnosticClass as ExportDiagnosticClass,
+    DiagnosticSeverity as ExportDiagnosticSeverity, DimensionId as ExportDimensionId,
+    ProfessionalBoundary, Provenance as ExportProvenance, QuantityResult,
+    RedistributionStatus as ExportRedistributionStatus, Reference, ReproducibilityRefs,
+    ResultEnvelope, ResultFamily as ExportResultFamily, ResultSet, ResultSetType, ResultTraceLink,
+};
 use open_pipe_stress_straight_pipe::{
     LocalLoadDirection, PipeEnd, PipeEndResultants, PointLocalForce, SpannedUniformLocalLoad,
     StationResultants, StraightPipeAxialEffect, StraightPipeElement, StraightPipeSectionProperties,
@@ -18,6 +28,7 @@ use open_pipe_stress_stress_recovery::{
     StressRangeModulusBasisRecord, StressRangeResult, StressRecoveryInput, StressRecoveryResult,
     StressSectionProperties,
 };
+use sha2::{Digest, Sha256};
 
 #[cfg(test)]
 const INTERNAL_ASSERTION_EPSILON: f64 = 1.0e-9;
@@ -212,6 +223,19 @@ impl StressBenchmarkReadinessBoundary {
     pub fn remains_tbd(&self) -> bool {
         self.unresolved_items().iter().all(|item| *item == "TBD")
     }
+
+    pub fn release_authority_remains_tbd(&self) -> bool {
+        [
+            self.final_tolerance_policy,
+            self.release_thresholds,
+            self.ci_gate_policy,
+            self.benchmark_publication_scope,
+            self.canonical_unit_conversion_policy,
+            self.professional_reliance,
+        ]
+        .iter()
+        .all(|item| *item == "TBD")
+    }
 }
 
 pub const STRESS_BENCHMARK_READINESS_BOUNDARY: StressBenchmarkReadinessBoundary =
@@ -219,11 +243,114 @@ pub const STRESS_BENCHMARK_READINESS_BOUNDARY: StressBenchmarkReadinessBoundary 
         final_tolerance_policy: "TBD",
         release_thresholds: "TBD",
         ci_gate_policy: "TBD",
-        result_envelope_export_integration: "TBD",
+        result_envelope_export_integration:
+            "bounded_governed_result_envelope_witness_verification_only",
         benchmark_publication_scope: "TBD",
         canonical_unit_conversion_policy: "TBD",
         professional_reliance: "TBD",
     };
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct GovernedStressBenchmarkEnvelopeEvidence {
+    pub envelope: ResultEnvelope,
+    pub quantity_result_count: usize,
+    pub export_validation_diagnostic_count: usize,
+}
+
+/// Route one rights-safe stress benchmark result through the governed
+/// diagnostics/result-envelope seam. This remains verification-local evidence;
+/// it does not select release thresholds or assert engineering validation.
+pub fn governed_complete_stress_result_envelope() -> GovernedStressBenchmarkEnvelopeEvidence {
+    let recovered = recover_complete_fixture();
+    let provenance = governed_stress_result_provenance();
+    let basis_ref = Reference::new("load_case", "LC-STRESS-COMPLETE-INVENTED");
+    let result_source_ref = Reference::new(
+        "stress_recovery_result",
+        "STRESS-COMPLETE-INVENTED-GOVERNED-RECOVERY",
+    );
+    let components = [
+        ("axial-normal", recovered.components.axial_normal),
+        ("bending-normal-y", recovered.components.bending_normal_y),
+        ("bending-normal-z", recovered.components.bending_normal_z),
+        ("torsional-shear", recovered.components.torsional_shear),
+        ("pressure-hoop", recovered.components.pressure_hoop),
+        (
+            "pressure-longitudinal",
+            recovered.components.pressure_longitudinal,
+        ),
+    ];
+    let values = components
+        .into_iter()
+        .filter_map(|(component, magnitude)| {
+            magnitude.map(|magnitude| {
+                governed_stress_quantity(
+                    component,
+                    magnitude,
+                    &basis_ref,
+                    &result_source_ref,
+                    &provenance,
+                )
+            })
+        })
+        .collect::<Vec<_>>();
+    let quantity_result_count = values.len();
+    let envelope_id = "STRESS-BENCHMARK-COMPLETE-GOVERNED-RESULT-ENVELOPE";
+    let envelope = ResultEnvelope {
+        envelope_id: envelope_id.to_string(),
+        schema_version: "0.1.0".to_string(),
+        model_ref: Reference::new("analytical_solver_model", "STRESS-COMPLETE-INVENTED-MODEL"),
+        run_ref: Reference::new("analysis_run", "RUN-STRESS-COMPLETE-INVENTED"),
+        solver_name: "open_pipe_stress_stress_recovery".to_string(),
+        solver_version: "0.1.0".to_string(),
+        solver_build_ref: "validation-local-cargo-test".to_string(),
+        unit_system_ref: Reference::new("unit_system", PKG09_STRESS_FIXTURE_UNIT_SYSTEM_REF),
+        load_basis_refs: vec![basis_ref.clone()],
+        result_sets: vec![ResultSet {
+            set_id: "result-set:stress-complete-invented".to_string(),
+            set_type: ResultSetType::StressRecovery.as_str().to_string(),
+            basis_ref,
+            values,
+        }],
+        diagnostics: vec![ExportDiagnostic {
+            code: "STRESS_BENCHMARK_RESULT_ENVELOPE_BOUNDARY".to_string(),
+            class: ExportDiagnosticClass::AssumptionWarning,
+            severity: ExportDiagnosticSeverity::Info,
+            source: Reference::new("stress_benchmark", "DEL-09-02"),
+            affected_object: Reference::new("result_envelope", envelope_id),
+            message: "Rights-safe benchmark output is bound to the governed result-envelope vocabulary for verification only.".to_string(),
+            remediation: "Do not infer release readiness, engineering validation, or a selected tolerance policy from this bounded witness.".to_string(),
+            provenance: provenance.clone(),
+        }],
+        provenance,
+        reproducibility: ReproducibilityRefs {
+            model_hash: governed_stress_checksum(
+                "analytical_solver_model:STRESS-COMPLETE-INVENTED-MODEL",
+                format!("{:?}", complete_stress_input()).as_bytes(),
+            ),
+            run_hashes: vec![governed_stress_checksum(
+                "analysis_run:RUN-STRESS-COMPLETE-INVENTED",
+                format!("{recovered:?}").as_bytes(),
+            )],
+            audit_manifest_ref: Reference::new(
+                "task_run_record",
+                "WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU039",
+            ),
+            deterministic_ordering: true,
+        },
+        analysis_status: vec![
+            ExportAnalysisStatus::MechanicsSolved,
+            ExportAnalysisStatus::HumanReviewRequired,
+        ],
+        rule_pack_refs: Vec::new(),
+        professional_boundary: ProfessionalBoundary::project_default(),
+    };
+    let validation = validate_result_envelope(&envelope);
+    GovernedStressBenchmarkEnvelopeEvidence {
+        envelope,
+        quantity_result_count,
+        export_validation_diagnostic_count: validation.diagnostics.len(),
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IntegratedStraightPipeStressResult {
@@ -1710,6 +1837,60 @@ pub fn tp_pmm_p3_modulusbasis_range_stress_fixture() -> StressBenchmark {
     }
 }
 
+fn governed_stress_result_provenance() -> ExportProvenance {
+    ExportProvenance {
+        source_name: "OpenPipeStress original stress recovery benchmark".to_string(),
+        source_location: "validation/benchmarks/stress/src/lib.rs".to_string(),
+        source_license: "project-original-public-content".to_string(),
+        contributor: "OpenPipeStress agentic development workflow".to_string(),
+        contributor_certification: "Generated from elementary open mechanics; not copied from protected standards, commercial software examples, or proprietary data.".to_string(),
+        redistribution_status: ExportRedistributionStatus::InventedNonEngineeringExample,
+        review_status: "verification_only".to_string(),
+    }
+}
+
+fn governed_stress_quantity(
+    component: &str,
+    magnitude: f64,
+    basis_ref: &Reference,
+    source_ref: &Reference,
+    provenance: &ExportProvenance,
+) -> QuantityResult {
+    let result_id = format!("result:stress:element-E-STRESS-COMPLETE:{component}");
+    QuantityResult {
+        result_id: result_id.clone(),
+        family: ExportResultFamily::Stress,
+        object_ref: Reference::new("element", "E-STRESS-COMPLETE"),
+        basis_ref: basis_ref.clone(),
+        station_ref: None,
+        magnitude,
+        unit: "Pa".to_string(),
+        dimension: ExportDimensionId::Stress,
+        metadata: None,
+        diagnostics: Vec::new(),
+        trace_chain: vec![ResultTraceLink {
+            trace_id: format!("trace:stress-complete:{component}:recovery-to-envelope"),
+            trace_type: "governed_stress_recovery_to_result_envelope".to_string(),
+            source_ref: source_ref.clone(),
+            target_ref: Reference::new("result_value", result_id),
+            provenance: provenance.clone(),
+            diagnostics: Vec::new(),
+        }],
+        provenance: provenance.clone(),
+    }
+}
+
+fn governed_stress_checksum(payload_id: &str, payload: &[u8]) -> ChecksumRef {
+    let mut hasher = Sha256::new();
+    hasher.update(payload);
+    ChecksumRef {
+        algorithm: "sha256".to_string(),
+        canonicalization: "deterministic_rust_debug_fixture_bytes".to_string(),
+        payload_ref: Reference::new("verification_payload", payload_id),
+        value: format!("{:x}", hasher.finalize()),
+    }
+}
+
 #[cfg(test)]
 fn assert_close(actual: f64, expected: f64) {
     assert!(
@@ -1761,7 +1942,12 @@ mod tests {
 
     #[test]
     fn readiness_boundary_keeps_release_authority_unresolved() {
-        assert!(STRESS_BENCHMARK_READINESS_BOUNDARY.remains_tbd());
+        assert!(!STRESS_BENCHMARK_READINESS_BOUNDARY.remains_tbd());
+        assert!(STRESS_BENCHMARK_READINESS_BOUNDARY.release_authority_remains_tbd());
+        assert_eq!(
+            STRESS_BENCHMARK_READINESS_BOUNDARY.result_envelope_export_integration,
+            "bounded_governed_result_envelope_witness_verification_only"
+        );
     }
 
     #[test]
@@ -2388,5 +2574,32 @@ mod tests {
             .statuses
             .contains(&AnalysisStatus::HumanApprovedForProject));
         assert!(result.summary.is_some());
+    }
+
+    #[test]
+    fn complete_benchmark_output_uses_governed_diagnostics_and_result_envelope() {
+        let evidence = governed_complete_stress_result_envelope();
+        let envelope = &evidence.envelope;
+
+        assert_eq!(evidence.quantity_result_count, 6);
+        assert_eq!(evidence.export_validation_diagnostic_count, 0);
+        assert_eq!(envelope.result_sets[0].set_type, "stress_recovery");
+        assert_eq!(envelope.diagnostics.len(), 1);
+        assert_eq!(
+            envelope.diagnostics[0].code,
+            "STRESS_BENCHMARK_RESULT_ENVELOPE_BOUNDARY"
+        );
+        assert!(envelope
+            .analysis_status
+            .contains(&ExportAnalysisStatus::HumanReviewRequired));
+        assert!(!envelope
+            .analysis_status
+            .contains(&ExportAnalysisStatus::UserRuleChecked));
+        assert!(sorted_result_values(envelope).iter().all(|value| {
+            value.trace_chain.len() == 1
+                && value.trace_chain[0].trace_type == "governed_stress_recovery_to_result_envelope"
+        }));
+        assert!(envelope.professional_boundary.human_review_required);
+        assert!(!envelope.professional_boundary.software_makes_approval_claim);
     }
 }

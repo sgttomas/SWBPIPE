@@ -1,5 +1,14 @@
 # Datasheet: DEL-10-04 Build, packaging, and CI/CD pipeline
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-10-04-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -23,6 +32,7 @@
 | Test gate baseline | Cargo tests; Vitest; Playwright; validation gates; protected-content/provenance gates. |
 | Desktop packaging baseline | Tauri-supported macOS, Windows, and Linux targets. |
 | Release-quality boundary | Development/release automation evidence only; no engineering certification or code-compliance claim. |
+| Root workspace manifest evidence | `projects/chirality-piping/package.json`: `apps/desktop` workspace; desktop dev/build/wasm/test/e2e scripts; `generate:product-preview-mechanics` invented-fixture generator. Attributed to DEL-10-04 by D-41 `DEC-074` O3. |
 
 ## Conditions
 
@@ -59,6 +69,7 @@ The build and packaging pipeline must preserve the OpenPipeStress boundaries:
 - `docs/_Registers/Deliverables.csv` - row DEL-10-04.
 - `docs/_Registers/ScopeLedger.csv` - row SOW-032.
 - `docs/_Registers/ContextBudgetQA.csv` - row DEL-10-04.
+- `projects/chirality-piping/package.json` - existing root npm workspace/build evidence attributed by D-41 `DEC-074` O3; read-only in this tranche.
 
 ## TBD and Human-Ruling Slots
 
@@ -67,4 +78,3 @@ The build and packaging pipeline must preserve the OpenPipeStress boundaries:
 - TBD: coverage and performance thresholds.
 - TBD: release signing/notarization/publishing policy.
 - TBD: exact packaging artifact names and distribution channels.
-

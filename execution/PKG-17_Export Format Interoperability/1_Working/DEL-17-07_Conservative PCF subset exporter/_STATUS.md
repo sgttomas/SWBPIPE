@@ -1,12 +1,14 @@
 # Status: DEL-17-07
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Obtain the owning human-review disposition for open `RF-001`; preserve `HumanDisposition=TBD` and home any later active-content refresh without rewriting historical evidence or inferring publication readiness (PDU-060).
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001 for human disposition/later currentness refresh without changing formal review, publication, or lifecycle state.
 - 2026-05-18 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)
 - 2026-05-18 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)

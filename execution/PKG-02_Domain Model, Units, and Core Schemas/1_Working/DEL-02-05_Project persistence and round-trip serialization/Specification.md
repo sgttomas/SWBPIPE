@@ -1,5 +1,14 @@
 # Specification - DEL-02-05 Project Persistence and Round-Trip Serialization
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-02-05-DECL-001`.
+
 ## Scope
 
 This specification defines the bounded requirements for DEL-02-05: create/open/save/versioned project persistence and deterministic round-trip serialization for project models, unit metadata, loads, rule-pack references, and provenance metadata.
@@ -19,6 +28,10 @@ Out of scope:
 
 Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-02 and DEL-02-05 rows; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2.
 
+## PDU-024 Version Contract Integration
+
+The accepted runtime authoring family is model-document schema `0.2.0`. UI version checks consume the established DEC-019/DEC-033 migration evaluator: `current` identifies `0.2.0`, `stale` identifies an older document with a governed migration path, and `unsupported_schema`, `newer_than_supported`, or `failed` remain explicit refusal/diagnostic states. Separate migration evidence continues to report `migrated` when the `0.1.0 -> 0.2.0` in-memory path is applied. No new status names or migration framework is introduced.
+
 ## Requirements
 
 | ID | Requirement | Source |
@@ -28,7 +41,7 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-02 and
 | REQ-02-05-003 | The project file schema shall align with the machine-readable schema scope for project, model, material, component, load, result, and report schemas where this persistence deliverable references those objects. | SOW-041; `docs/SPEC.md` section 3 |
 | REQ-02-05-004 | Public schemas/interchange for this deliverable shall use JSON Schema 2020-12 as the baseline. Exact schema file layout and code-generation tooling are TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-041 and section 8.2 |
 | REQ-02-05-005 | JSON persistence payloads shall be deterministic and hash-ready using canonical JSON with JCS-compatible canonicalization. Exact canonicalization library/tooling is TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and section 8.2 |
-| REQ-02-05-006 | The schema shall include explicit schema/version metadata and migration status sufficient to detect unsupported, stale, or failed migrations. The migration framework is TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
+| REQ-02-05-006 | The schema shall include explicit schema/version metadata and migration status sufficient to detect unsupported, stale, or failed migrations. The current DEC-019/DEC-033 runtime contract implements this classification for the accepted `0.2.0` family; additional migration tooling remains TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
 | REQ-02-05-007 | Persisted numerical and engineering-relevant fields shall carry explicit units or references to a declared unit system sufficient for downstream unit checks. Silent unit defaults are not permitted. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/PRD.md` section 10 FR-002; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 | REQ-02-05-008 | Provenance metadata shall be preserved for materials, components, SIF/flexibility values, allowables, rule-pack values, and other engineering-reliance data when those records are present in a project. Missing provenance shall be representable as a warning/finding, not silently accepted as complete. | `docs/CONTRACT.md` OPS-K-DATA-3 and OPS-K-DATA-2; `docs/DIRECTIVE.md` section 3; `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
 | REQ-02-05-009 | Rule-pack data shall be represented as user/private rule-pack references with version/checksum/source-note capability; the public project schema/tests shall not embed protected rule formulas, allowables, or code-specific values. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` OPS-K-RULE-3 and OPS-K-IP-1; `docs/PRD.md` section 12.4 |
@@ -43,7 +56,7 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-02 and
 | REQ-02-05-018 | Round-trip acceptance criteria shall compare semantic equality for model content, unit metadata, loads, rule-pack references, provenance metadata, and reproducibility metadata after parse -> validate/normalize -> serialize -> parse. | SOW-050; `docs/PRD.md` section 10 FR-001; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 | REQ-02-05-019 | Unit round-trip criteria shall distinguish explicit units, declared unit-system references, missing units, and incompatible unit metadata; missing or incompatible units shall produce findings instead of silent defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/PRD.md` section 10 FR-002; `docs/DIRECTIVE.md` sections 2.2 and 3 |
 | REQ-02-05-020 | Hash and reproducibility criteria shall identify the compared JSON payload, any input manifest, and any referenced non-JSON or binary manifest; exact payload partitioning remains TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2; `docs/SPEC.md` section 8; `docs/PRD.md` section 15.3 |
-| REQ-02-05-021 | Migration handling shall define status semantics and diagnostics for unsupported, stale, and failed migrations; additional status names and the migration framework/tooling remain TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
+| REQ-02-05-021 | Migration handling shall define status semantics and diagnostics for unsupported, stale, and failed migrations. The bounded runtime uses the established schema vocabulary and DEC-019/DEC-033 evaluator; additional migration tooling and the compatibility-window size remain TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
 | REQ-02-05-022 | The persistence service contract shall define create, open, save, validate, version-check, and migrate-operation behavior in schema-first command/query/result-envelope terms; exact language/API signatures remain TBD. | SOW-050; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 and section 8.2; `docs/SPEC.md` section 1 |
 | REQ-02-05-023 | Diagnostics emitted by persistence operations shall define deterministic class coverage for schema, migration, unit metadata, provenance, rule-pack reference, IP/data-boundary, private-data, and professional-boundary failures or warnings. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` section 7; `docs/CONTRACT.md` invariant index |
 | REQ-02-05-024 | Rule-pack references persisted in projects shall carry enough metadata to identify private/public status, version/checksum, source note, redistribution status, and missing/private-reference diagnostics without exposing protected rule content in public artifacts. | `docs/SPEC.md` section 6; `docs/PRD.md` sections 12.2 and 12.4; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
@@ -82,11 +95,11 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-02 and
 
 | Status / case | Required handling | Open detail |
 |---|---|---|
-| Supported/current schema | Validate and round-trip without migration diagnostics. | Exact status label TBD. |
-| Unsupported schema | Return a structured diagnostic and avoid silent coercion. | Source supports unsupported migration detection; exact code TBD. |
-| Stale schema | Report migration-needed status or diagnostic before accepting as current. | Migration tool behavior TBD. |
-| Failed migration | Return a structured failure diagnostic with affected object/source where available. | Rollback/transaction behavior TBD. |
-| Newer-than-supported schema | TBD; likely a structured unsupported-version diagnostic, but this is not explicitly settled by the current sources. | Human/architecture ruling needed. |
+| Supported/current schema | Validate and round-trip without migration diagnostics. | Runtime version-check status `current`; accepted authoring family `0.2.0`. |
+| Unsupported schema | Return a structured diagnostic and avoid silent coercion. | Runtime status `unsupported_schema`. |
+| Stale schema | Report migration-needed status or diagnostic before accepting as current. | Version-check status `stale`; separate migration evidence reports `migrated` when the governed path succeeds. |
+| Failed migration | Return a structured failure diagnostic with affected object/source where available. | Runtime status `failed`; rollback/transaction details remain bounded by the existing persistence operation. |
+| Newer-than-supported schema | Refuse down-migration and emit a structured diagnostic. | Runtime status `newer_than_supported`. |
 
 #### Persistence Service Operations
 
@@ -96,7 +109,7 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-02 and
 | Open project | Project artifact reference and caller context. | Parsed project envelope, validation result, migration status, diagnostics. | Must not bypass schema, unit, provenance, or data-boundary checks. |
 | Save project | Validated project envelope, target artifact reference, canonicalization/hash options. | Saved artifact reference, version metadata, hash/manifest evidence, diagnostics. | Physical container remains TBD. |
 | Validate project | Project envelope or artifact reference. | Schema, unit, provenance, rule-pack-reference, private-data, and protected-content diagnostics. | Diagnostics use structured result-envelope fields. |
-| Version check | Project schema/version metadata. | Current/stale/unsupported/failed status or diagnostic. | Exact status labels TBD. |
+| Version check | Project schema/version metadata. | `current`, `stale`, `unsupported_schema`, `failed`, or `newer_than_supported` status and diagnostics. | Implemented for the bounded DEC-019/DEC-033 runtime; no additional names introduced. |
 | Migrate project | Source project, target schema version, migration policy. | Migrated project or failed migration diagnostics. | Migration framework/tooling TBD. |
 
 #### Diagnostic Class Coverage

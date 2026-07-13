@@ -1,5 +1,14 @@
 # DEL-07-04 Memory
 
+## 2026-07-12 - D-41 R5 T5 PDU-008 nonlinear warning surfacing
+
+- The missing-data panel now converts supplied `NONLINEAR_*` diagnostics into visible `NONLINEAR_WARNING` entries, preserving severity, message, affected refs, source, and supplied remediation/class metadata.
+- Warning analysis status is derived from the producer mechanics status.
+  Mechanics-result qualification requires an actual result, a non-incomplete
+  mechanics state, and a non-blocking diagnostic.
+- The GUI does not synthesize nonlinear convergence, active-state outcomes, or producer diagnostics. Missing producer evidence remains missing.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T5-PDU008.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001 unit-input policy visibility
 
 - WORKING_ITEMS added explicit unit-input policy evidence to the desktop

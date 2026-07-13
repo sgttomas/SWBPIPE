@@ -100,3 +100,8 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T2A checksum-boundary repair
+
+- Narrowed the governed invented checksum label and added a test that DEL-15-03 carries it unchanged without a JCS claim.
+- DEL-15-03 remains a transport/workflow consumer of supplied checksum evidence; it does not recompute or validate the producer's hash contract.
+- Lifecycle remains `IN_PROGRESS`; the D-41 corpus-currentness bootstrap remains pending T7.

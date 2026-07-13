@@ -54,3 +54,18 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-07-12 - D-41 R5 T4 persisted-run reporting seam
+
+- Added `build_persisted_project_report_sections` as a bounded read-side
+  application-service handoff from canonical `project.run_history` records to
+  the existing DEL-08-06 assembler.
+- Source warnings, unresolved assumptions, explicit limitations, solver
+  context, governed analysis statuses, and provenance are preserved. The
+  output records project mutation, solver execution, human-approval inference,
+  and code-compliance inference as false.
+- Exact external/non-JSON payload partitioning, rendered layout, and concrete
+  solver/rule/adapter producer bindings remain open. Lifecycle stays
+  `IN_PROGRESS`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`.

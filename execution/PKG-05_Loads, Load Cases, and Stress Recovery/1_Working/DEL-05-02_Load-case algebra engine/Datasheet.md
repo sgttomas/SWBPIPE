@@ -49,3 +49,7 @@
 - `docs/_Registers/ScopeLedger.csv` row SOW-014
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-02
 - `docs/CONTRACT.md`
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The load-case algebra basis is implemented and current under SOFTWARE_DECOMP revision 0.8. Remaining breadth, validation, or integration work is limited to the explicit current residuals; no lifecycle transition is made.

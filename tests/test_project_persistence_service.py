@@ -79,7 +79,7 @@ def invented_public_provenance(source_name):
 def state_checksum(payload_ref, payload_scope, value):
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS",
+        "canonicalization": "SORTED_COMPACT_JSON",
         "payload_ref": payload_ref,
         "payload_scope": payload_scope,
         "value": value,
@@ -113,12 +113,12 @@ def invented_model_state_record(model_payload, *, note_statement=None):
         "state_contract_status": {
             "record_contract": "schema_first_model_state_records",
             "persistence_binding": "schemas/project_persistence.schema.yaml",
-            "canonicalization": "JCS_compatible_json_payload_hashes",
+            "canonicalization": "sorted_compact_json_payload_hashes",
             "physical_project_container": {
                 "profile": "sqlite_local_project_store",
                 "decision_ref": "SCA-003",
                 "storage_role": "local_store_index_projection",
-                "canonical_truth": "canonical_json_jcs_payload",
+                "canonical_truth": "sorted_compact_json_payload",
                 "sql_public_contract": False,
                 "direct_sql_access_allowed": False,
                 "hosted_db_allowed": False,
@@ -301,7 +301,7 @@ def transformed_physical_source_payload():
             "hashes": [
                 {
                     "algorithm": "sha256",
-                    "canonicalization": "JCS",
+                    "canonicalization": "SORTED_COMPACT_JSON",
                     "payload_ref": {
                         "object_type": "Project",
                         "id": "project:tp-phys-012-derived",
@@ -398,10 +398,27 @@ def test_canonical_hashes_are_stable_and_cover_project_payloads():
     assert {"project_payload", "model_payload", "project_envelope"} <= scopes
 
 
+def test_sorted_compact_json_has_exact_bytes_hash_and_no_jcs_label():
+    expected = b'{"a":[1,{"b":true}],"z":"caf\\u00e9"}'
+    assert canonical_json({"z": "café", "a": [1, {"b": True}]}).encode("ascii") == expected
+    assert sha256(expected).hexdigest() == (
+        "9fe3dcafeafda5780fb9062a482c657fdd139cb98c1d4e4356e7123b64665753"
+    )
+    envelope = persisted_project()
+    assert envelope["hash"]["canonicalization"] == "SORTED_COMPACT_JSON"
+    assert {
+        item["canonicalization"] for item in envelope["hash"]["hash_manifest"]
+    } == {"SORTED_COMPACT_JSON"}
+    assert envelope["physical_container"]["canonical_truth"] == (
+        "sorted_compact_json_payload"
+    )
+    assert "JCS" not in canonical_json(envelope)
+
+
 def test_round_trip_keeps_semantic_equality_and_hashes():
     round_trip = round_trip_project_envelope(persisted_project())
 
-    assert round_trip["serialization"] == "canonical_json_jcs"
+    assert round_trip["serialization"] == "sorted_compact_json"
     assert round_trip["semantic_equal"] is True
     assert round_trip["diagnostics"] == []
     assert round_trip["source_hash"]["value"] == round_trip["round_trip_hash"]["value"]

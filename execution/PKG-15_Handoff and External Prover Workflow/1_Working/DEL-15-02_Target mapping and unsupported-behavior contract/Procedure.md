@@ -1,5 +1,14 @@
 # Procedure: DEL-15-02 Target mapping and unsupported-behavior contract
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-15-02-DECL-004`.
+
 ## Purpose
 
 Define and check the target mapping and unsupported-behavior contract for handoff exports without inventing target-specific behavior, copying private/protected data, or implying professional approval.
@@ -85,3 +94,6 @@ Define and check the target mapping and unsupported-behavior contract for handof
 - `core/handoff/target_mapping/contract.py`
 - `tests/test_target_mapping_contract.py`
 - final workflow report from this setup run
+## D-41 R5 T3 PDU-017 Check
+
+Exercise the builder with unsafe privacy flags and require blocking `PRIVACY_WARNING` diagnostics; never silently normalize unsafe input into a safe claim.

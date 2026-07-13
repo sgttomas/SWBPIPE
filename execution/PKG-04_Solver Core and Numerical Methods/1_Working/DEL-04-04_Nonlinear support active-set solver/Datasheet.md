@@ -56,3 +56,7 @@ assembled nonlinear loop is owned by the PKG-04 integration tranche under
 - docs/_Registers/ContextBudgetQA.csv row DEL-04-04.
 - execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for PKG-04, DEL-04-04, SOW-012, OBJ-003, and AB-00-01/02/03/06/08.
 - docs/CONTRACT.md invariants OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-SOLVER-1, OPS-K-SOLVER-2, OPS-K-DATA-2, OPS-K-REPORT-1, and OPS-K-AGENT-1 through OPS-K-AGENT-4.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The nonlinear support slice and DEC-067 Coulomb-friction basis (`±mu*N`) are implemented and evidenced. Broader nonlinear policies and validation thresholds survive only where explicitly recorded; this currentness declaration is not an engineering acceptance.

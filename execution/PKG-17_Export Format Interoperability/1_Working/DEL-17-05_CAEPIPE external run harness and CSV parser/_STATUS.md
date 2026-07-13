@@ -1,12 +1,17 @@
 # Status: DEL-17-05
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Preserve PDU-050 / `DEL-17-05-ACC-006` as `VERIFIED_NOT_VALIDATED`; optional live CAEPIPE execution remains O10 user-owned and gated by a configured executable, responsibility acknowledgements, and selected target/MBF/invocation profiles, so no live validation is available in this run.
+- Obtain owning human-review dispositions for open `DEL-17-05-RF-001` and `DEL-17-05-RF-002`; preserve historical/currentness wording and the user-owned live-profile/TBD gates without inferring target support, compatibility, or validation from fixture evidence (PDU-060).
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 6 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed both CAEPIPE finding dispositions while preserving the PDU-050 validation hold, O10 live-profile gates, and IN_PROGRESS state.
+- 2026-07-12 - D-41 R5 T6/PDU-050 recorded bounded parser/skipped-run verification and retained the user-owned/profile-gated live-execution validation hold; no external run or validation promotion occurred.
+- 2026-07-12 - D-41 R5 T4 PDU-010/PDU-038 added focused parser-boundary conformance evidence for supported section/unit/stable-ID preservation; external target behavior and compatibility remain unclaimed.
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)
 - 2026-05-18 - State set to INITIALIZED (TASK+four-documents)
 - 2026-05-18 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)
@@ -14,3 +19,4 @@
 - 2026-06-04 - TP-PKG17-CHECKING-TRANSITION-001 set state to CHECKING by explicit human approval after formal review fan-in found no blockers. This is a review lifecycle transition only; no release, compatibility, code-compliance, professional-acceptance, or external-validation claim was made.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
+- 2026-07-12 - D-41 R5 T3 PDU-016 applied the O7 private/user-controlled default to CAEPIPE user-output evidence and added partial-override no-bypass tests; no whole-product privacy claim or lifecycle change.

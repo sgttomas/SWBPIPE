@@ -1,5 +1,10 @@
 # MEMORY - DEL-10-02 Import/export adapter framework
 
+## 2026-07-12 - D-41 R5 T4 PDU-012/PDU-022 supporting evidence
+
+- The persisted-run report path does not dispatch an adapter. Concrete rule/report hooks, adapter runtime, capability grants, and end-to-end interop remain unselected.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report
@@ -217,3 +222,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-07-12 - D-41 R5 T3 PDU-018/PDU-028 adapter runtime gate
+
+- Under `DEC-074` O7-before-E5, the current authoritative seam is the
+  format-neutral adapter declaration validator followed by
+  `gate_adapter_runtime_dispatch`.
+- The gate has no executor or callback. It rejects declarations that disable
+  unit, provenance, privacy, protected-content, rule-pack sandbox, checksum,
+  report, or private-transmission controls; suspected protected content is
+  quarantined; a valid declaration still returns
+  `BLOCKED_RUNTIME_NOT_SELECTED` with `runtime_dispatched=false`.
+- Focused validation passed 17 tests; the adjacent API-boundary and
+  library-provenance backcheck passed 24 tests total, both with
+  `pytest -p no:cacheprovider` and `PYTHONDONTWRITEBYTECODE=1`.
+- Evidence is limited to this selected seam. Adapter execution/plugin models,
+  capability grants, other runtime surfaces, whole-product security/privacy
+  sufficiency, and non-JSON/binary partitioning remain unresolved.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`.

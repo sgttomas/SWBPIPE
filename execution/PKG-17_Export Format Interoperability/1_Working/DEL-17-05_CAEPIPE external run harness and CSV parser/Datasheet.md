@@ -1,5 +1,14 @@
 # Datasheet: DEL-17-05 CAEPIPE external run harness and CSV parser
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-05-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -64,3 +73,6 @@
 | CAEPIPE-EXPORT-MBF | `https://www.sstusa.com/docs/users_manual/export_mbf.htm` | Public evidence inherited through DEL-17-01/DEL-17-04 source basis for CAEPIPE MBF export from model data; this source is not listed as a direct DEL-17-05 package reference in `_REFERENCES.md`. |
 | CONTRACT | `docs/CONTRACT.md` | Project invariants for IP, authority boundary, unit-aware exports, agent TBD handling, and professional claims. |
 | IP-DATA | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and protected-content boundaries. |
+## D-41 R5 T3 PDU-016 Evidence State
+
+Selected seam: CAEPIPE external-run/parser evidence. Default: private user-controlled, local-only, telemetry false. Scope excludes whole-product security assurance.

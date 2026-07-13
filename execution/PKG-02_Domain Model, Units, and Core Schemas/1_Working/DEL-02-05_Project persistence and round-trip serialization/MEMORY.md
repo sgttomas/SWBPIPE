@@ -1,5 +1,17 @@
 # MEMORY - DEL-02-05 Project Persistence and Round-Trip Serialization
 
+## 2026-07-12 - D-41 R5 T4 PDU-021/PDU-040 supporting evidence
+
+- Canonical persisted run-history records now have a bounded read-side route to backend report sections. FR-001 migrate/container work, compatibility semantics, and exact external/non-JSON partitioning remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
+## 2026-07-12 - D41-R5-T2B-PDU024 model-version UI contract
+
+- Closed the bounded stale-literal candidate under O8: Project Validation, Export Review, and Report version checks now consume the DEC-019/DEC-033 browser evaluator rather than treating `0.1.0` as current.
+- Current `0.2.0` documents report `current`; migratable `0.1.0` documents report `stale` at version-check grain and retain `migrated` migration evidence; unsupported, newer, and failed inputs retain established diagnostic/refusal states.
+- Focused Vitest coverage passed 65/65 across `projectService.test.ts` and `App.test.tsx`, including positive current and negative stale/unsupported/newer/failed classification.
+- No new status names, migration tooling, compatibility-window ruling, explicit migrate operation, container change, lifecycle transition, dependency/DAG/register change, or professional/release claim was introduced.
+
 ## Session 2026-05-01
 
 Human project authority authorized one bounded DAG item of ORCHESTRATOR's

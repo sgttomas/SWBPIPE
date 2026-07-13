@@ -63,3 +63,7 @@
 - docs/_Registers/ContextBudgetQA.csv
 - docs/PROFESSIONAL_BOUNDARY.md
 - docs/report_notice_template.md
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The professional-responsibility and product-claims policy is current under SOFTWARE_DECOMP revision 0.8 and DAG-007 coordination. It preserves the distinction between computational evidence, professional judgment, validation, and approval; no engineering ruling is created here.

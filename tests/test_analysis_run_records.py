@@ -4,6 +4,7 @@
 import json
 import sys
 from copy import deepcopy
+from hashlib import sha256
 from pathlib import Path
 
 
@@ -67,6 +68,32 @@ def test_preview_result_builds_deterministic_immutable_run_record():
     assert "MECHANICS_SOLVED" in run["analysis_status"]
     assert "RULE_INPUTS_INCOMPLETE" in run["analysis_status"]
     assert validate_analysis_run_envelope(first) == []
+
+
+def test_sorted_compact_json_has_exact_bytes_and_stable_hash_without_jcs_claim():
+    first = {"z": "café", "a": [1, {"b": True}]}
+    equivalent = {"a": [1, {"b": True}], "z": "café"}
+    expected = b'{"a":[1,{"b":true}],"z":"caf\\u00e9"}'
+
+    first_bytes = canonical_json(first).encode("utf-8")
+    equivalent_bytes = canonical_json(equivalent).encode("utf-8")
+
+    assert first_bytes == expected
+    assert equivalent_bytes == expected
+    assert sha256(first_bytes).hexdigest() == (
+        "9fe3dcafeafda5780fb9062a482c657fdd139cb98c1d4e4356e7123b64665753"
+    )
+
+    envelope = build_preview_analysis_run_envelope(preview_result())
+    checksums = envelope["analysis_run"]["hashes"] + [
+        checksum
+        for result_ref in envelope["analysis_run"]["result_refs"]
+        for checksum in result_ref["hash_refs"]
+    ]
+    assert {item["canonicalization"] for item in checksums} == {
+        "SORTED_COMPACT_JSON"
+    }
+    assert "JCS" not in canonical_json(envelope)
 
 
 def test_generated_analysis_run_envelope_validates_against_schema():
@@ -142,7 +169,7 @@ def test_run_contract_status_uses_sca_003_local_project_store():
     assert physical["profile"] == "sqlite_local_project_store"
     assert physical["decision_ref"] == "SCA-003"
     assert physical["storage_role"] == "local_store_index_projection"
-    assert physical["canonical_truth"] == "canonical_json_jcs_payload"
+    assert physical["canonical_truth"] == "sorted_compact_json_payload"
     assert physical["sql_public_contract"] is False
     assert physical["direct_sql_access_allowed"] is False
     assert physical["hosted_db_allowed"] is False
@@ -162,7 +189,8 @@ def test_analysis_run_schema_binds_physical_container_to_sca_003_profile():
     )
     assert physical["profile"]["const"] == "sqlite_local_project_store"
     assert physical["decision_ref"]["const"] == "SCA-003"
-    assert physical["canonical_truth"]["const"] == "canonical_json_jcs_payload"
+    assert "sorted_compact_json_payload" in physical["canonical_truth"]["enum"]
+    assert "backward compatibility" in physical["canonical_truth"]["description"]
     assert physical["sql_public_contract"]["const"] is False
     assert physical["direct_sql_access_allowed"]["const"] is False
 

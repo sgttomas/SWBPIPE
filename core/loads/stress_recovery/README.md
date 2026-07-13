@@ -58,3 +58,7 @@ resultant input construction, missing inputs, invalid numeric values, unit
 metadata validation including force-per-length rejection for force resultants,
 result boundary records, non-finite recovered values, and analysis-status
 propagation without human approval or code-compliance claims.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The stress-recovery slice now includes current station/sweep handling, end-resultant recovery, and the implemented modulus basis. Earlier bounded-slice enumerations are historical where superseded by this declaration; broader validation remains separately governed.

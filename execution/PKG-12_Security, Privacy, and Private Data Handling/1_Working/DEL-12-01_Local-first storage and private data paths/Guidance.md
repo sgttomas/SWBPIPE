@@ -85,3 +85,5 @@ The following are symbolic examples only:
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
 | LFSP-CON-001 | The deliverable title implies storage path decisions, while accepted authority only supports a local SQLite-backed MVP storage profile plus metadata-only guard evidence; package mechanics, roots, and runtime behavior remain TBD. | `docs/_Registers/Deliverables.csv` row DEL-12-01; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | `docs/security/local_first_storage_policy.md`; `TASK_RUN_2026-06-07_0140.md`; package fan-in `WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md` | Specification Requirements; Procedure Steps; Open Issues | Preserve symbolic path classes and metadata-only guard evidence; defer physical root/container mechanics and runtime storage decisions. | TBD |
+
+PDU-036 guidance: do not count another deliverable's invented trace-gap fixture as LFSP-REQ-011 runtime-storage validation. Preserve missing owning implementations and test families as explicit gaps.

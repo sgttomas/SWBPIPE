@@ -75,3 +75,20 @@ Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `exe
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` - Type 2 execution and deliverable document kit.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis.
 - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, `ContextBudgetQA.csv` - machine-readable deliverable, scope, and context records.
+
+## D-41 R5 T3 evidence state
+
+| PDU | Requirement | Current evidence state |
+|---|---|---|
+| PDU-049 | `DEL-07-03-R-011` | `VERIFIED_NOT_VALIDATED`: project-owned private-by-default behavior exists, but no independent usability/security validation basis was authorized or produced. |
+
+## D-41 R5 T5 PDU-041 evidence state
+
+| Requirement | DEL-07-03 current state |
+|---|---|
+| `DEL-07-03-R-005` | Load-case editor remains documented unimplemented in this owner; adjacent authoring is not an ownership binding. |
+| `DEL-07-03-R-006` | Support/restraint editor remains documented unimplemented in this owner; unsupported-kind evidence blocks mutation. |
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Bounded material, component, and rule-pack editor surfaces are implemented. PDU-041 preserves the recorded load/support ownership absences; this declaration does not claim those absent editors or a complete GUI product.

@@ -1,5 +1,14 @@
 # Datasheet: DEL-17-08 GLB/glTF review geometry export
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-08-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -22,8 +31,8 @@
 | Primary output intent | Lightweight 3D visual inspection and review context | PLAN-EXPORT-INTEROP Geometry Exchange |
 | Non-authority boundary | Geometry-only review aid; not solver geometry, analysis proof, formal validation, code compliance, release readiness, or professional acceptance | DEL-17-01 F-17-01-005; DEL-17-02 Boundary Requirements; CONTRACT OPS-K-AUTH-1 |
 | Format basis | Khronos glTF 2.0 public specification | GLTF-2.0, sections 2.4, 3.4, 4.2-4.4, and 5.24-5.25 |
-| Binary container | `.glb` as Binary glTF when a single review artifact is preferred | GLTF-2.0 section 4 |
-| JSON-plus-assets option | `.gltf` with external or embedded resources remains a possible profile option | GLTF-2.0 sections 2.4 and 4.1 |
+| Binary container | Binary `.glb` remains outside the selected bounded profile. | `DEC-074` O11/E7 |
+| Selected JSON profile | `model.gltf` with embedded buffer data, line-mode centerline segments, direct identity `extras`, and authoritative `id_map.json`. | Current implementation; `DEC-074` O11/E7 |
 | Coordinate and unit basis | glTF is right-handed, +Y-up, and uses meters for linear distances | GLTF-2.0 section 3.4 |
 | Stable identity basis | Canonical OpenPipeStress IDs must be preserved directly through target metadata where supported or through a manifest-referenced sidecar | DEL-17-02 stable ID map requirements |
 | Loss reporting | Required even for successful review-geometry exports | DEL-17-02 loss report requirements |
@@ -33,11 +42,12 @@
 | Condition | Phase A disposition |
 |---|---|
 | Input source model | Canonical model surface from `schemas/model.schema.yaml`; exact export service boundary remains `TBD`. |
-| Export profile | A GLB/glTF profile is required before implementation; target profile fields follow DEL-17-02. |
-| Geometry coverage | Centerline, pipe segment, component, support marker, equipment interface, annotation, and load-case visual coverage remain `TBD` by entity family. |
+| Export profile | `gltf_json_embedded_buffer`, `LINES`, and `centerline_segments_only` are selected; GLB and broader profiles remain unselected. |
+| Geometry coverage | Centerline segments are emitted; broader components, supports, equipment, annotations, overlays, and surface/tube geometry remain outside the selected profile. |
 | Visual fidelity | Review geometry may be simplified. It shall not be described as solver-fidelity, analysis-fidelity, or CAD/manufacturing fidelity. |
-| Identity metadata | glTF `name`, `extras`, or extensions may be candidates for direct identity metadata; final direct-versus-sidecar policy remains `TBD`. |
-| Sidecar identity map | Required when direct glTF metadata is insufficient, stripped by consuming tools, or not appropriate for a canonical ID family. |
+| Identity metadata | Selected centerline entities carry canonical refs in node and primitive `extras`; no extension or viewer behavior is claimed. |
+| Sidecar identity map | Always authoritative in the selected profile; one-to-one correlation with emitted node/primitive identity is blocking-validated and round-trip tested. |
+| Timestamp/generator behavior | Current output has a fixed versioned generator and omits timestamps. PDU-031 exact normative policy remains owner-unselected. |
 | Coordinate conversion | Source-to-glTF axis/origin/scale conversion rules remain `TBD` until the profile declares the source coordinate policy and target transform. |
 | Units | Linear geometry emitted to glTF must resolve to meters or carry explicit conversion diagnostics. |
 | Private/protected data | Exported metadata and sidecars must not contain private project data, protected standards content, proprietary catalog values, owner criteria, or copied commercial examples unless separately rights-cleared. |
@@ -48,10 +58,10 @@ The DEL-17-08 export package concept should include, at contract level:
 
 | Package member | Role | Phase A status |
 |---|---|---|
-| `model.glb` or `model.gltf` | Visual review geometry target artifact | `TBD` exact filename and profile default |
-| `review_geometry_profile.json` | Declares target family, glTF version basis, coordinate/unit policy, visual entity coverage, identity policy, and boundary notes | `TBD` schema/location; no schema edit in this phase |
-| `id_map.json` | Maps canonical IDs to glTF nodes, meshes, primitives, metadata fields, or omitted entries | Required by DEL-17-02; exact fields `TBD` |
-| `export_manifest.json` | Lists package members, source model reference/hash basis, profile, diagnostics, and boundary notes | Required by DEL-17-02; exact fields `TBD` |
+| `model.gltf` | Selected JSON glTF visual review geometry artifact | Implemented; binary `model.glb` remains unselected |
+| Embedded export profile | Declares JSON glTF 2.0, line-mode centerlines, coordinate/unit policy, identity policy, and boundary notes | Implemented in the package record |
+| `id_map.json` | Maps canonical centerline IDs to glTF node indices and remains authoritative | Implemented and round-trip validated |
+| `manifest.json` | Lists package members, source model reference/hash basis, profile, diagnostics, and boundary notes | Implemented |
 | `loss_report.json` and/or `loss_report.md` | Records exported, omitted, approximated, delegated, unsupported, and `TBD` review-geometry behavior | Required by DEL-17-02; exact rendering `TBD` |
 | Geometry fixtures | Invented or public-permissive fixtures for deterministic checks | `TBD`; no fixtures created in Phase A |
 
@@ -77,3 +87,5 @@ These slots remain descriptive records, not implementation authority. They are k
 | IP-DATA | `docs/IP_AND_DATA_BOUNDARY.md` |
 | SPEC / TYPES | `docs/SPEC.md`, `docs/TYPES.md` |
 | MODEL-SCHEMA | `schemas/model.schema.yaml` |
+
+PDU-036 evidence state: emitted-entity mapping completeness is checked only for current JSON line geometry; impossible-bend, GLB, viewer, and broader geometry diagnostics remain outside O11 scope and unvalidated.

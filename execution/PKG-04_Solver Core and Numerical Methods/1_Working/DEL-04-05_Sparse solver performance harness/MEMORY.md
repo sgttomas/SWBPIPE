@@ -343,3 +343,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
   hardware-normalized methodology, true condition-number thresholds,
   release/external thresholds, and professional/code-compliance acceptance
   remain outside this policy.
+## 2026-07-12 - D-41 R5 T2 PDU-035 hold
+
+- Fixture unit metadata remains a reproducibility basis only and supplies no conversion catalog or dimensional-suitability validation.
+- The PKG-02 review finding still requires its owning human disposition; PDU-035 remains held without a release or engineering-validation inference.

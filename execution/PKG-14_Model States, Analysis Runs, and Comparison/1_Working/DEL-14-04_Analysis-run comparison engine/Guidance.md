@@ -1,5 +1,14 @@
 # Guidance: DEL-14-04 Analysis-run comparison engine
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-14-04-DECL-003`.
+
 **Generated:** 2026-05-03
 **Document Role:** Directional draft
 **Source Basis:** `_CONTEXT.md`, `_REFERENCES.md`, `Dependencies.csv`, `execution/_Decomposition/SOFTWARE_DECOMP.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md`
@@ -11,7 +20,7 @@ DEL-14-04 exists to make analysis-run comparisons deterministic, unit-aware, tra
 ## Principles
 
 - Keep comparison evidence tied to exact run/model-state basis, solver version, settings, units, load cases, diagnostics, result hashes, and relevant rule/library references.
-- Prefer stable IDs; use explicit manual mappings when stable IDs do not establish a safe comparison relationship.
+- Produce automatic mappings only for unique identical result IDs whose family, object ref, basis ref, and dimension also match; use explicit manual mappings for every different or ambiguous identity relationship.
 - Treat unit-bearing values as comparable only when unit and dimension metadata support the comparison. Missing or ambiguous unit metadata is a diagnostic.
 - Preserve raw delta evidence separately from tolerance-based classification. `ASSUMPTION`: this separation is needed so tolerance profiles can change without rewriting source evidence; the exact output structure is `TBD`.
 - Keep diagnostics and settings in scope because the decomposition names them explicitly for DEL-14-04.
@@ -21,7 +30,7 @@ DEL-14-04 exists to make analysis-run comparisons deterministic, unit-aware, tra
 
 | Topic | Guidance |
 |---|---|
-| Mapping | DEL-14-05 owns mapping/tolerance/export contracts. DEL-14-04 should consume those contracts rather than inventing mapping semantics. |
+| Mapping | DEL-14-05 owns mapping/tolerance/export contracts. DEL-14-04 produces the existing `automatic_match`/`stable_id_alignment` record shape only for exact unambiguous IDs and consumes explicit `manual_match` records otherwise; it does not invent heuristics. |
 | Tolerances | OI-014 records comparison tolerance defaults and mapping workflows as `TBD`; do not hard-code defaults without human/product approval. |
 | Units | Unit normalization depends on accepted unit metadata and conversion governance. Unsupported conversion semantics should remain `TBD` or become diagnostics. |
 | Result scope | Result export envelopes are the intended review/regression/report-consumption surface. Avoid ad hoc result shapes once the schema contract is available. |
@@ -52,3 +61,15 @@ Concrete examples are `TBD`. Future examples should use invented or otherwise pe
 ## Conflict Table (for human ruling)
 
 No source conflicts were identified in the accessible source set. Open questions above are missing-decision gaps, not contradictions.
+
+## D-41 R5 T2B PDU-011/PDU-047 Boundary
+
+Schema conformance requires an accepted output contract, not a test-authored shape. Likewise, a section-property oracle cannot validate comparison normalization or tolerance suitability. Keep current deterministic behavior, input-contract tests, and diagnostic boundaries separate from those unresolved validation claims.
+
+## D-41 R5 T2C PDU-030 Boundary
+
+Stable-ID production is deliberately exact, not fuzzy: equality of a unique
+result ID plus matching family/object/basis/dimension is required. JSON
+round-trip evidence covers both that automatic record and caller-supplied
+manual mappings. No automatic entity inference, heuristic candidate,
+normalization policy, or acceptance judgment follows from this mapping step.

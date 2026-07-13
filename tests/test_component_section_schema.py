@@ -2,6 +2,7 @@
 """Stdlib checks for the section and component library schemas."""
 
 import json
+from copy import deepcopy
 from pathlib import Path
 import sys
 
@@ -453,6 +454,35 @@ def test_component_section_schema_contract():
 
 def test_component_section_jsonschema_validation_helper():
     check_jsonschema_validation()
+
+
+def test_branch_component_privacy_and_unknown_fields_cannot_bypass_schema():
+    schema = load_json(COMPONENT_SCHEMA_PATH)
+    fixture = load_json(COMPONENT_FIXTURE_PATH)
+    branch = next(
+        item for item in fixture["component_records"] if item["component_type"] == "branch"
+    )
+
+    unsafe_privacy = deepcopy(branch)
+    unsafe_privacy["privacy_class"] = "public_unreviewed_payload"
+    unknown_payload = deepcopy(branch)
+    unknown_payload["embedded_private_payload"] = {"value": "not allowed"}
+
+    record_schema = {
+        "$schema": schema["$schema"],
+        "$defs": schema["$defs"],
+        "$ref": "#/$defs/ComponentRecord",
+    }
+    for label, record in (
+        ("unsafe privacy class", unsafe_privacy),
+        ("unknown embedded payload", unknown_payload),
+    ):
+        try:
+            validate_instance(record_schema, record, instance_label=label)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError(f"{label} must not bypass ComponentRecord schema")
 
 
 if __name__ == "__main__":

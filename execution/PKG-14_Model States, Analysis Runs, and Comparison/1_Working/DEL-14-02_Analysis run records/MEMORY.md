@@ -1,5 +1,33 @@
 # MEMORY - DEL-14-02 Analysis Run Records
 
+## 2026-07-12 - D-41 R5 T4 PDU-040 supporting evidence
+
+- Canonical analysis-run records can now traverse persistence into backend report sections without dropping governed context. Producer diagnostic breadth and PDU-033 unit/dimension binding remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
+## 2026-07-12 - D-41 R5 T2A canonicalization-label fidelity
+
+- Under `DEC-074` E1 and PDU-003, DEL-14-02 now emits
+  `SORTED_COMPACT_JSON` checksum metadata and
+  `sorted_compact_json_payload` canonical-truth metadata for its actual
+  Python sorted-key compact JSON serializer with ASCII escaping.
+- The serializer implementation and hash inputs are unchanged. The
+  compatibility name `canonical_json` remains, but its documentation now
+  explicitly states that it is not an RFC 8785/JCS implementation.
+- Focused evidence proves exact serialized bytes and SHA-256, equivalent-map
+  stability, existing result-value mutation sensitivity, exact emitted labels,
+  schema alignment, and absence of a JCS claim in generated analysis-run
+  envelopes: `10 passed`.
+- The analysis-run schema continues to accept legacy `JCS` checksum metadata
+  and `canonical_json_jcs_payload` truth metadata for backward compatibility;
+  DEL-14-02 does not emit those labels.
+- Fan-in confirmed that the PDU-003 DEL-02-02 declaration-currentness repair
+  is present in the same diff. The temporary cross-owner `_STATUS.md`
+  residual is therefore closed; the D-41 program bootstrap and lifecycle
+  `IN_PROGRESS` remain preserved.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2A-PDU003.md`.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RUNAUDITLINTUNITS-001 supporting analysis-run evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report
@@ -211,3 +239,7 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T2B PDU-033 hold
+
+- The analysis-run record binds `unit_system_ref` and hashes referenced result records, but the current preview result source supplies units without explicit dimensions.
+- DEL-14-02 will not infer dimension metadata or claim per-result unit validation. Closure requires a governed result-envelope change at its owning boundary; this remains a named hold.

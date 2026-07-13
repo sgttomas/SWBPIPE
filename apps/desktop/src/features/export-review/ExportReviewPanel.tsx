@@ -12,6 +12,7 @@ import type {
   PreviewModel,
   SelectedReviewTarget
 } from "../../types";
+import { modelDocumentVersionCheckStatus } from "../../services/projectService";
 
 const HEADLESS_FINAL_CLI =
   "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>]";
@@ -266,7 +267,7 @@ function buildExportReviewManifest({
       persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
       persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
       validation_status: projectSummary ? "preview_current" : "preview_not_persisted",
-      version_check_status: model.schema_version === "0.1.0" ? "supported_current_schema" : "unsupported_schema_review_required",
+      version_check_status: modelDocumentVersionCheckStatus(model),
       migration_status: projectSummary?.migration_status ?? "not_persisted_this_session",
       round_trip_status: "semantic_categories_declared",
       redaction_action: "classify_and_warn_no_private_payload",

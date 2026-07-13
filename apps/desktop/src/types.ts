@@ -227,10 +227,14 @@ export type PreviewModel = {
 export type Diagnostic = {
   id?: string;
   code: string;
+  diagnostic_class?: string;
+  class?: string;
   severity: "info" | "warning" | "error" | "blocking";
   message: string;
+  remediation?: string;
   source?: string;
   affected_refs?: string[];
+  provenance?: string | Record<string, unknown>;
 };
 
 export type KnowledgeRecord = {
@@ -343,9 +347,12 @@ export type ResultInterpretation = {
 export type DiagnosticInterpretation = {
   diagnostic_id: string;
   code: string;
+  diagnostic_class: string;
   severity: Diagnostic["severity"];
   source: string;
   message: string;
+  remediation: string;
+  provenance: string;
   affected_refs: string[];
   linked_results: Array<{
     id: string;

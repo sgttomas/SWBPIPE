@@ -3,6 +3,7 @@
 from .engine import (
     PROFESSIONAL_BOUNDARY,
     REPORT_SECTION_VERSION,
+    build_persisted_project_report_sections,
     build_state_comparison_handoff_report_sections,
     canonical_json,
     diagnostics_for_report_sections,
@@ -11,6 +12,7 @@ from .engine import (
 __all__ = [
     "PROFESSIONAL_BOUNDARY",
     "REPORT_SECTION_VERSION",
+    "build_persisted_project_report_sections",
     "build_state_comparison_handoff_report_sections",
     "canonical_json",
     "diagnostics_for_report_sections",

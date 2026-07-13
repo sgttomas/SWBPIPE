@@ -1,5 +1,11 @@
 # Datasheet: DEL-12-05 Security threat model
 
+## PDU-027 Evidence Slice
+
+- Selected control seam: `apps/desktop/src/services/telemetryPolicyService.ts` at telemetry-panel attempt grain.
+- Referenced warning classes: provenance, assumption, IP boundary, and privacy.
+- Explicit absence: no plugin/adapter/report/export interception and no runtime security result-envelope closure.
+
 ## Identification
 
 | Field | Value |
@@ -110,3 +116,6 @@ This setup document represents the planned content for `docs/security/threat_mod
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, SOW-040, OBJ-010, and AB-00 architecture-basis constraints. |
 | `docs/_Registers/*.csv` | Machine-readable deliverable, scope, and context-budget rows. |
 
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. `docs/security/threat_model.md` now exists as the current project-owned threat-model surface. It records threats, boundaries, and residual mitigations; it is not a penetration-test result, security certification, or assurance ruling.

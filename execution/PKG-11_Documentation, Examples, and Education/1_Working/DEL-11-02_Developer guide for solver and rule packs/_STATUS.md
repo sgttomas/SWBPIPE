@@ -1,12 +1,14 @@
 # Status: DEL-11-02 Developer guide for solver and rule packs
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
+- Select and record the contributor legal mechanism; the project license selection does not settle contributor attestations or agreement workflow (source: PDU-060 remaining-home audit, 2026-07-12).
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-006 refreshed the guide to DEC-022's canonical typed-AST grammar and DEC-037's deferred writable syntax while preserving genuine integration/legal-mechanism TBDs; cited-claim backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T6/PDU-060 homed the developer-guide authority/grammar/license currentness work without selecting the contributor mechanism or editing guide content.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

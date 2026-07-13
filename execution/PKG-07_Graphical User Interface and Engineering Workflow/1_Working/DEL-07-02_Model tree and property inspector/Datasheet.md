@@ -1,5 +1,14 @@
 # Datasheet: DEL-07-02 Model tree and property inspector
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-07-02-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -12,6 +21,7 @@
 | Objective | OBJ-006 |
 | Context envelope | M |
 | Anticipated artifacts | model tree; property inspector; UI tests |
+| Accepted delegation | `DEL-00-05` owns GUI state/interaction architecture; `DEL-07-02` owns model-tree/property-inspector behavior implementation within it (`DEC-074` O2). |
 
 ## Attributes
 
@@ -28,17 +38,24 @@
 
 | Condition | Status |
 |---|---|
-| Tree hierarchy and grouping rules | `TBD`; must be derived from accepted domain/schema contracts, not invented in this setup pass. |
-| Property editor field inventory | `TBD`; must preserve unit-bearing fields, provenance, private/public status, and missing-data findings. |
-| Selection synchronization contract | `TBD`; must align model tree, property inspector, and 3D viewport selection without storing transient state as durable model state. |
-| Command/query contract | `TBD`; edits must route through application-service commands and reads through governed queries or result envelopes. |
-| UI tests | `TBD`; future tests should cover tree navigation, selection, editable/read-only property state, missing-data visibility, and protected/private data boundaries. |
+| Tree hierarchy and grouping rules | Bounded implementation exists from accepted model identities; broader canvas gestures and full model-tree UX remain residual. |
+| Property editor field inventory | Bounded implementation preserves governed unit-bearing fields and metadata; model-level `modulus_basis_records` entry and broader editor coverage remain residual. |
+| Selection synchronization contract | Bounded tree/viewport/inspector selection is implemented within the `DEL-00-05` state/interaction architecture; transient state is not durable model truth. |
+| Command/query contract | Current structured mutations route through the application-service operation seam; broader contract coverage remains governed residual work. |
+| UI tests | Focused evidence covers bounded tree, selection, and inspector behavior; backfill and factoring for `PropertyInspector` and adjacent surfaces remain residual. |
 
 ## Construction
 
-This setup kit describes the future UI slice boundary only. It does not implement product UI, edit GUI source files, choose unresolved UI libraries, create tests, introduce engineering default values, or move any artifact to `ISSUED`.
+This kit records the bounded UI behavior already implemented and the remaining delivery boundary. `DEC-074` O2 assigns model-tree/property-inspector behavior implementation to `DEL-07-02` within the GUI state/interaction architecture owned by `DEL-00-05`; it does not transfer architecture authority, broaden functionality, choose unresolved UI libraries, introduce engineering default values, or move any artifact to `ISSUED`.
 
-The future model tree and property inspector are expected to consume accepted schema/service contracts for object identity, unit-bearing fields, provenance, diagnostics, rule-pack/private-library status, and command/query/result-envelope behavior. Missing or unresolved engineering data remains visible as `TBD` or diagnostic state.
+The model tree and property inspector consume accepted schema/service contracts for object identity, unit-bearing fields, provenance, diagnostics, rule-pack/private-library status, and command/query/result-envelope behavior to the extent supported by current bounded evidence. Missing or unresolved engineering data remains visible as `TBD` or diagnostic state.
+
+## Ownership Boundary
+
+- Architecture owner: `DEL-00-05` for GUI state/interaction architecture.
+- Behavior owner: `DEL-07-02` for bounded model-tree/property-inspector implementation within that architecture.
+- Adjacent scopes unchanged: `DEL-07-03` owns specialized material/component/rule-pack editors; `DEL-07-04` owns missing-data warning/blocking UX.
+- Ruling basis: `DEC-074` option O2, resolving `PDU-009` without scope expansion.
 
 ## Setup Slot Checklist
 
@@ -60,6 +77,7 @@ The future model tree and property inspector are expected to consume accepted sc
 - `docs/CONTRACT.md` invariants `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-UNIT-1`, `OPS-K-RULE-1`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`, `OPS-K-PRIV-2`, `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, and `OPS-K-AGENT-1..4`.
 - `docs/SPEC.md` sections 1, 3, 6, 7, 10, and 11.
 - `docs/TYPES.md` sections 3, 4, 5, 6, 7, 8, and 9.
+- `execution/_Coordination/_DECISIONS/D-41_R4_RULING_2026-07-12.md`, `DEC-074` option O2.
 
 ## Open Setup Questions
 

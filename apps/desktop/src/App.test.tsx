@@ -8,6 +8,9 @@ import {
 import { describe, expect, it } from "vitest";
 import { App } from "./App";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
+import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
+import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
+import { ResultsPanel } from "./features/results/ResultsPanel";
 import {
   buildDeformationOverlay,
   PipeViewport,
@@ -77,6 +80,86 @@ function displacementComponentRows(
 }
 
 describe("OpenPipeStress desktop preview", () => {
+  it("surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states", async () => {
+    const model = await loadPreviewModel();
+    const result = await runPreviewMechanics(model);
+    const nonlinearDiagnostic = {
+      id: "diagnostic:nonlinear:invented-review",
+      code: "NONLINEAR_SUPPORT_NONCONVERGENCE",
+      diagnostic_class: "NONLINEAR_WARNING",
+      severity: "warning" as const,
+      message: "Invented nonlinear active-state review warning.",
+      remediation: "Inspect the active-state history.",
+      source: "invented-pdu-008-fixture",
+      affected_refs: ["support:NL-130"],
+      provenance: { source_name: "invented PDU-008 GUI fixture" }
+    };
+    const resultWithDiagnostic: MechanicsResult = {
+      ...result,
+      diagnostics: [...result.diagnostics, nonlinearDiagnostic]
+    };
+    const { unmount } = render(<MissingDataBlockingPanel model={model} result={resultWithDiagnostic} />);
+    expect(screen.getByTestId("missing-data-summary").textContent).toContain("active=");
+    expect(screen.getByTestId("missing-data-class-coverage").textContent).toContain("NONLINEAR_WARNING:active");
+    expect(screen.getByText(/Invented nonlinear active-state review warning/)).toBeInTheDocument();
+    unmount();
+
+    render(
+      <DiagnosticsPanel
+        knowledge={null}
+        model={model}
+        onSelectDiagnostic={() => undefined}
+        result={resultWithDiagnostic}
+        selectedDiagnosticId={nonlinearDiagnostic.id}
+      />
+    );
+    expect(screen.getByTestId("selected-diagnostic-class")).toHaveTextContent("NONLINEAR_WARNING");
+    expect(screen.getByTestId("selected-diagnostic-remediation")).toHaveTextContent("Inspect the active-state history");
+    expect(screen.getByTestId("selected-diagnostic-provenance")).toHaveTextContent("invented PDU-008 GUI fixture");
+    unmount();
+
+    const { rerender } = render(
+      <ResultsPanel analysisRun={null} knowledge={null} onSelectResult={() => undefined} result={result} selectedResultId={null} />
+    );
+    expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("unavailable");
+    expect(screen.queryByTestId("result-family-ratio")).not.toBeInTheDocument();
+    expect(result.results.some((item) => item.kind === "nonlinear_support_active_set_iteration_count")).toBe(true);
+    const ratioResult: MechanicsResult = {
+      ...result,
+      results: [
+        ...result.results,
+        {
+          id: "result:ratio:invented-governing",
+          kind: "user_rule_governing_ratio",
+          value: 0.75,
+          unit: "1",
+          entity_ref: "pipe:P-120"
+        }
+      ]
+    };
+    rerender(
+      <ResultsPanel analysisRun={null} knowledge={null} onSelectResult={() => undefined} result={ratioResult} selectedResultId={null} />
+    );
+    expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("available; 1 user-rule ratio row");
+    fireEvent.click(screen.getByTestId("result-family-ratio"));
+    expect(screen.getByTestId("result-row-result:ratio:invented-governing")).toBeInTheDocument();
+
+    const incompleteModel = {
+      ...model,
+      analysis_status: { ...model.analysis_status, mechanics: "MODEL_INCOMPLETE" },
+      diagnostics: [
+        ...model.diagnostics,
+        { ...nonlinearDiagnostic, severity: "blocking" as const }
+      ]
+    };
+    const incompletePacket = buildMissingDataBlockingPacket({ model: incompleteModel, result: null });
+    const incompleteWarning = incompletePacket.warnings.find(
+      (item) => item.warning_class === "NONLINEAR_WARNING"
+    );
+    expect(incompleteWarning?.analysis_status).toEqual(["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]);
+    expect(incompleteWarning?.blocks_mechanics_solve).toBe(true);
+    expect(incompleteWarning?.qualifies_mechanics_results).toBe(false);
+  });
   it("records comparison workspace unit policy evidence without conversion", async () => {
     const model = await loadPreviewModel();
     const result = await runPreviewMechanics(model);
@@ -2976,7 +3059,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-summary")
         .textContent,
-    ).toContain("version=supported_current_schema");
+    ).toContain("version=stale");
     expect(
       within(projectValidation).getByTestId("project-validation-summary")
         .textContent,
@@ -3068,7 +3151,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-operations")
         .textContent,
-    ).toContain("version_check=supported_current_schema");
+    ).toContain("version_check=stale");
     expect(
       within(projectValidation).getByTestId("project-validation-boundary")
         .textContent,
@@ -3091,8 +3174,18 @@ describe("OpenPipeStress desktop preview", () => {
       "preview_not_persisted",
     );
     expect(validationPacket.summary.version_check_status).toBe(
-      "supported_current_schema",
+      "stale",
     );
+    expect(
+      validationPacket.diagnostics.map(
+        (item: { code: string }) => item.code,
+      ),
+    ).toContain("PROJECT-VALIDATION-STALE-SCHEMA");
+    expect(
+      validationPacket.diagnostics.map(
+        (item: { code: string }) => item.code,
+      ),
+    ).not.toContain("PROJECT-VALIDATION-UNSUPPORTED-SCHEMA");
     expect(validationPacket.summary.migration_status).toBe(
       "not_persisted_this_session",
     );
@@ -3148,7 +3241,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual(
       [],
     );
-    expect(validationPacket.model_document_migration.status).toBe("current");
+    expect(validationPacket.model_document_migration.status).toBe("migrated");
     expect(validationPacket.model_document_migration.evidence_source).toBe(
       "session_document_local_evaluation",
     );
@@ -3171,7 +3264,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBe("not_run_no_local_snapshot_this_session");
     expect(
       validationPacket.validation_profile.model_document_migration_status,
-    ).toBe("current");
+    ).toBe("migrated");
     expect(validationPacket.summary.round_trip_status).toBe(
       "semantic_categories_declared",
     );
@@ -3279,6 +3372,10 @@ describe("OpenPipeStress desktop preview", () => {
         .textContent,
     ).toContain("opt_in=false");
     expect(
+      within(telemetryBoundary).getByTestId("telemetry-boundary-config")
+        .textContent,
+    ).toContain("requested=false");
+    expect(
       within(telemetryBoundary).getByTestId("telemetry-boundary-guard")
         .textContent,
     ).toContain("metadata_only=true");
@@ -3294,6 +3391,27 @@ describe("OpenPipeStress desktop preview", () => {
       within(telemetryBoundary).getByTestId("telemetry-boundary-runtime")
         .textContent,
     ).toContain("endpoint=false");
+    const telemetryAffirmativeRequest = within(telemetryBoundary).getByTestId(
+      "telemetry-affirmative-request",
+    );
+    expect(telemetryAffirmativeRequest).toHaveTextContent(
+      "Request telemetry enablement review",
+    );
+    expect(telemetryAffirmativeRequest).not.toBeDisabled();
+    fireEvent.click(telemetryAffirmativeRequest);
+    expect(telemetryAffirmativeRequest).toBeDisabled();
+    expect(telemetryAffirmativeRequest).toHaveTextContent(
+      "Telemetry review requested — remains off",
+    );
+    expect(
+      within(telemetryBoundary).getByTestId("telemetry-boundary-config")
+        .textContent,
+    ).toContain("requested=true");
+    expect(
+      within(telemetryBoundary).getByTestId(
+        "telemetry-boundary-affirmative-request",
+      ).textContent,
+    ).toContain("request_recorded_fail_closed_pending_consent_and_allowlist");
     const telemetryHref =
       within(telemetryBoundary)
         .getByTestId("telemetry-boundary-export-link")
@@ -3309,6 +3427,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(telemetryPacket.scope_item).toBe("SOW-037");
     expect(telemetryPacket.objective).toBe("OBJ-010");
     expect(telemetryPacket.summary.telemetry_enabled).toBe(false);
+    expect(telemetryPacket.summary.affirmative_request_recorded).toBe(true);
     expect(telemetryPacket.summary.attempted_event_count).toBe(4);
     expect(telemetryPacket.summary.allowed_event_count).toBe(0);
     expect(telemetryPacket.summary.blocked_event_count).toBe(4);
@@ -3317,10 +3436,37 @@ describe("OpenPipeStress desktop preview", () => {
     expect(telemetryPacket.config_resolution.product_config_schema).toBe("TBD");
     expect(telemetryPacket.config_resolution.explicit_opt_in).toBe(false);
     expect(telemetryPacket.config_resolution.allowlist_approved).toBe(false);
+    expect(telemetryPacket.config_resolution.config_source).toBe(
+      "desktop_telemetry_boundary_affirmative_request",
+    );
+    expect(telemetryPacket.affirmative_request.request_recorded).toBe(true);
+    expect(telemetryPacket.affirmative_request.distinct_from_actions).toEqual([
+      "terms_acceptance",
+      "installation",
+      "application_open",
+      "project_open",
+      "solve_request",
+    ]);
+    expect(telemetryPacket.affirmative_request.product_config_mutated).toBe(
+      false,
+    );
+    expect(telemetryPacket.affirmative_request.explicit_opt_in_granted).toBe(
+      false,
+    );
+    expect(telemetryPacket.affirmative_request.consent_granted).toBe(false);
+    expect(telemetryPacket.affirmative_request.allowlist_approved).toBe(false);
+    expect(telemetryPacket.affirmative_request.telemetry_enabled).toBe(false);
+    expect(telemetryPacket.affirmative_request.payload_constructed).toBe(false);
+    expect(
+      telemetryPacket.affirmative_request.network_behavior_initialized,
+    ).toBe(false);
     expect(telemetryPacket.metadata_only_guard.guard_present).toBe(true);
     expect(
       telemetryPacket.metadata_only_guard.helper_authorizes_runtime_telemetry,
     ).toBe(false);
+    expect(telemetryPacket.metadata_only_guard.runtime_integration_status).toBe(
+      "desktop_preview_fail_closed_attempt_guard",
+    );
     expect(
       telemetryPacket.event_attempts.map(
         (item: { event_name: string }) => item.event_name,
@@ -3351,6 +3497,9 @@ describe("OpenPipeStress desktop preview", () => {
       telemetryPacket.runtime_initialization.telemetry_persistence_initialized,
     ).toBe(false);
     expect(telemetryPacket.no_bypass_surfaces).toContain("reports");
+    expect(telemetryPacket.no_bypass_enforcement_status).toBe(
+      "telemetry_panel_attempts_guarded_other_runtime_surfaces_not_wired",
+    );
     expect(telemetryPacket.forbidden_payload_classes).toContain(
       "protected_standards_content",
     );
@@ -3562,6 +3711,22 @@ describe("OpenPipeStress desktop preview", () => {
       threatModelPacket.no_bypass_controls
         .plugin_manifest_grants_runtime_access,
     ).toBe(false);
+    expect(
+      threatModelPacket.runtime_control_evidence
+        .telemetry_attempt_guarded_before_payload,
+    ).toBe(true);
+    expect(
+      threatModelPacket.runtime_control_evidence
+        .plugin_adapter_report_export_interception_implemented,
+    ).toBe(false);
+    expect(
+      threatModelPacket.runtime_control_evidence.diagnostic_classes_referenced,
+    ).toEqual([
+      "PROVENANCE_WARNING",
+      "ASSUMPTION_WARNING",
+      "IP_BOUNDARY_WARNING",
+      "PRIVACY_WARNING",
+    ]);
     expect(threatModelPacket.unit_policy_evidence.evidence_id).toBe(
       "unit-policy-evidence:security-threat-model-no-bypass",
     );
@@ -8112,7 +8277,7 @@ describe("OpenPipeStress desktop preview", () => {
         (operation: { operation: string }) =>
           operation.operation === "version_check",
       ).operation_status,
-    ).toBe("supported_current_schema");
+    ).toBe("stale");
     expect(
       validationPacket.service_operations.find(
         (operation: { operation: string }) => operation.operation === "migrate",
@@ -10856,7 +11021,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("182");
     expect(
       within(results).getByTestId("result-family-count-other").textContent,
-    ).toContain("30");
+    ).toContain("32");
     expect(
       within(results).getByTestId("result-row-result:disp:node-N-140:uz"),
     ).toBeInTheDocument();

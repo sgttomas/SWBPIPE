@@ -78,7 +78,7 @@ def provenance(source_name: str = "Invented DEL-15-03 fixture") -> dict[str, str
 def checksum(payload_ref: dict[str, str], scope: str, value: str) -> dict[str, object]:
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS_compatible_json_payload_hash",
+        "canonicalization": "deterministic_sorted_compact_json_payload_hash",
         "payload_ref": payload_ref,
         "payload_scope": scope,
         "value": value,
@@ -86,6 +86,21 @@ def checksum(payload_ref: dict[str, str], scope: str, value: str) -> dict[str, o
 
 
 MODEL_HASH = checksum(ref("Model", "model:invented-del-15-03"), "model_hash", "sha256:invented-model")
+
+
+def test_supplied_checksum_uses_narrow_label_and_is_carried_without_jcs_claim():
+    package = handoff_package()
+    workflow = build_handoff_export_workflow(
+        export_workflow_id="export:invented-del-15-03-label-check",
+        handoff_package=package,
+        target_fixture=target_fixture(),
+        target_mapping_contract=target_mapping(package),
+    )
+    assert MODEL_HASH["canonicalization"] == (
+        "deterministic_sorted_compact_json_payload_hash"
+    )
+    assert workflow["export_payload"]["model_hash"] == MODEL_HASH
+    assert "JCS" not in canonical_json(workflow)
 
 
 def handoff_package() -> dict[str, object]:

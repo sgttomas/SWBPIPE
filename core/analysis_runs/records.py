@@ -51,7 +51,7 @@ PHYSICAL_PROJECT_CONTAINER = {
     "profile": "sqlite_local_project_store",
     "decision_ref": "SCA-003",
     "storage_role": "local_store_index_projection",
-    "canonical_truth": "canonical_json_jcs_payload",
+    "canonical_truth": "sorted_compact_json_payload",
     "sql_public_contract": False,
     "direct_sql_access_allowed": False,
     "hosted_db_allowed": False,
@@ -189,6 +189,12 @@ def validate_analysis_run_envelope(envelope: Mapping[str, Any]) -> list[dict[str
 
 
 def canonical_json(value: Any) -> str:
+    """Return the historical hash bytes: sorted keys, compact JSON, ASCII escapes.
+
+    The public name is retained for compatibility. This serializer is not an
+    RFC 8785 / JCS implementation and must not be labeled as one.
+    """
+
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
@@ -286,7 +292,7 @@ def _result_id(result: Mapping[str, Any]) -> str:
 def _checksum(payload_ref: Mapping[str, str], payload_scope: str, payload: Any) -> dict[str, Any]:
     return {
         "algorithm": "sha256",
-        "canonicalization": "JCS",
+        "canonicalization": "SORTED_COMPACT_JSON",
         "payload_ref": dict(payload_ref),
         "payload_scope": payload_scope,
         "value": sha256(canonical_json(payload).encode("utf-8")).hexdigest(),

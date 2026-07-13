@@ -421,6 +421,153 @@
   and the addendum-9 containment controls, only on new owner direction.
   The hard STOP before R4/R5 remains unchanged.
 
+- **2026-07-12 — Remaining-wave concurrency direction recorded.** Owner
+  direction of record (in-session, verbatim): "One other change, I want you
+  to now increase your waves to one deliverable-grained pilot per deliverable
+  in the package, and run all deliverables for that package concurrently,
+  for all remaining waves. Update the resume prompt (and any other references)
+  accordingly." Effect for the only remaining R2 wave, W5: each PKG-13..17
+  package is a dispatch/fan-in unit; within a package, dispatch exactly one
+  pilot per deliverable and run all of that package's pilots concurrently.
+  The former ≤4-pilot cap is superseded going forward only; historical W1–W4
+  execution records remain unchanged. Package fan-in, owning-pilot correction,
+  full-wave validation, fences, model attribution, and the hard STOP before
+  R4/R5 are unchanged. W5 remains paused and undispatched until resume.
+
+- **2026-07-12 — R2 W5 PKG-13 checkpoint COMPLETE; PAUSED before PKG-14 on
+  runtime-capacity conflict.** PKG-13's four deliverable-grained pilots ran
+  concurrently (three delegated GPT-5 pilots plus the GPT-5 orchestrator),
+  producing four ledgers and notes under `WAVES/W5/` (97 corrected rows).
+  Independent highest-capability GPT-5 high-effort fan-in checked 37 scoped
+  rows: 2 SOUND / 2 DEFECTIVE, 33 PASS / 0 QUALIFIED / 4 FAIL. All four FAILs
+  were bounded owning-pilot convention corrections; post-correction structure,
+  enums, ClaimIDs, CRLF, histograms, and addendum-9 containment pass. Summary:
+  `PACKAGE_SUMMARIES/PKG-13.md`; checkpoint commit `37ebbeae5`. PKG-14 has five
+  deliverables, but this session exposes only four total concurrent agent slots
+  including the orchestrator, so the recorded requirement to run all five
+  one-per-deliverable pilots concurrently cannot be satisfied. No PKG-14 pilot
+  was dispatched and no PKG-14 artifact exists. Resume requires either at least
+  five simultaneous active-agent slots or owner authorization for a queued /
+  capacity-bounded concurrency interpretation. PKG-15..17, W5 full-wave
+  validation/closeout, R3, R6, and `RUN_SUMMARY.md` remain outstanding.
+
+- **2026-07-12 — PKG-14 resume authorized under a temporary runtime-capacity
+  exception.** Owner direction permits proceeding under the session's four
+  total active-agent slots. PKG-14..17 retain exactly one owning,
+  deliverable-grained pilot per deliverable, executed in capacity-bounded
+  concurrent batches at the maximum available concurrency. Each package still
+  terminates in an independent highest-capability high-effort fan-in, all
+  corrections route through the owning pilot, and full package validation
+  precedes its checkpoint. This is a session-scoped execution exception only;
+  the standing preference for package-wide simultaneous dispatch is not
+  rewritten. Actual batch composition and model/capability attribution will be
+  appended at each package checkpoint.
+
+- **2026-07-12 — R2 W5 PKG-14 checkpoint COMPLETE.** Five distinct
+  deliverable-grained GPT-5 pilot assignments ran in two capacity-bounded
+  batches (DEL-14-01/02/03, then DEL-14-04/05), producing five ledgers and
+  notes with 141 corrected rows. An independent highest-capability GPT-5
+  high-effort fan-in checked every self-flagged and non-ALIGNED row plus at
+  least two ALIGNED rows per ledger: pre-correction 4 SOUND / 1 DEFECTIVE and
+  77 PASS / 0 QUALIFIED / 2 FAIL across 79 scoped rows. The DEL-14-04 owning
+  pilot corrected REQ-001/ACC-002 evidence text to distinguish deterministic
+  caller-supplied mapping consumption from absent automatic stable-ID
+  derivation; dispositions and histograms did not change. Independent
+  post-correction backcheck closed at 5 SOUND and 79 PASS / 0 QUALIFIED / 0
+  FAIL. Package structure, enums, contiguous type-matched ClaimIDs, RFC-4180
+  CRLF, histograms, bootstrap/selectability rules, and addendum-9 containment
+  pass. Summary: `PACKAGE_SUMMARIES/PKG-14.md`. PKG-15..17, full-W5
+  closeout, R3, R6, and `RUN_SUMMARY.md` remain outstanding.
+
+- **2026-07-12 — R2 W5 PKG-15 checkpoint COMPLETE.** Four distinct
+  deliverable-grained GPT-5 pilot assignments ran in two capacity-bounded
+  batches (DEL-15-01/02/03, then DEL-15-04), producing four ledgers and notes
+  with 117 corrected rows. Independent highest-capability GPT-5 high-effort
+  fan-in checked every self-flagged and non-ALIGNED row plus at least two
+  ALIGNED rows per ledger: pre-correction 3 SOUND / 1 DEFECTIVE and 49 PASS /
+  0 QUALIFIED / 3 FAIL across 52 scoped rows. The DEL-15-02 owning pilot
+  changed REM-001..003 Confidence HIGH→MEDIUM and the notes confidence
+  histogram to 22/9 under addendum 13; no type, disposition, authority, or
+  scope judgment changed. Package structure, enums, contiguous type-matched
+  ClaimIDs, RFC-4180 CRLF, histograms, bootstrap/selectability rules, and
+  addendum-9 containment pass. Summary: `PACKAGE_SUMMARIES/PKG-15.md`.
+  PKG-16..17, full-W5 closeout, R3, R6, and `RUN_SUMMARY.md` remain
+  outstanding.
+
+- **2026-07-12 — R2 W5 PKG-16 checkpoint COMPLETE.** Four distinct
+  deliverable-grained GPT-5 pilot assignments ran in two capacity-bounded
+  batches (DEL-16-01/02/03, then DEL-16-04), producing four ledgers and notes
+  with 118 corrected rows. Independent highest-capability GPT-5 high-effort
+  fan-in checked every self-flagged and non-ALIGNED row plus at least two
+  ALIGNED rows per ledger: pre-correction 2 SOUND / 2 DEFECTIVE and 33 PASS /
+  0 QUALIFIED / 9 FAIL across 42 scoped rows. Owning pilots corrected
+  DEL-16-03 EXC-003 to controlled ClaimClass WORKFLOW and repaired DEL-16-04's
+  formal remaining metadata (seven pseudo-residuals cleared; REQ-009 exact
+  Phase I item/source/gates restored). No disposition histogram changed.
+  Package structure, enums, contiguous type-matched ClaimIDs, RFC-4180 CRLF,
+  histograms, bootstrap/selectability rules, and addendum-9 containment pass.
+  Summary: `PACKAGE_SUMMARIES/PKG-16.md`. PKG-17, full-W5 closeout, R3, R6,
+  and `RUN_SUMMARY.md` remain outstanding.
+
+- **2026-07-12 — R2 W5 PKG-17 checkpoint COMPLETE.** Nine distinct
+  deliverable-grained GPT-5 pilot assignments ran in a rolling capacity-
+  bounded schedule at no more than three concurrent pilots, producing nine
+  ledgers and notes with 375 corrected rows. Independent highest-capability
+  GPT-5 high-effort fan-in checked every self-flagged and non-ALIGNED row plus
+  at least two ALIGNED rows per ledger: pre-correction 5 SOUND / 4 DEFECTIVE
+  and 153 PASS / 0 QUALIFIED / 8 FAIL across 161 scoped rows. Four owning-
+  pilot correction clusters repaired one Procedure currentness judgment,
+  bootstrap/unhomed-review metadata on three ledgers, and two controlled
+  ValidationEvidence prefixes. Independent post-correction backcheck closed
+  at 9 SOUND and 161 PASS / 0 QUALIFIED / 0 FAIL. Package structure, enums,
+  contiguous type-matched ClaimIDs, RFC-4180 CRLF, histograms,
+  bootstrap/selectability rules, 28 SECURITY rows with zero convention-6
+  markers, and addendum-9 containment pass. Summary:
+  `PACKAGE_SUMMARIES/PKG-17.md`. All W5 package discovery/fan-in checkpoints
+  are complete; full-W5 closeout, R3, R6, and `RUN_SUMMARY.md` remain
+  outstanding.
+
+- **2026-07-12 — R2 W5 full-wave closeout COMPLETE.** All 26 W5
+  deliverables (`PKG-13`–`PKG-17`) have corrected ledgers and notes, all five
+  package summaries exist, and every package has an independent fan-in plus
+  post-correction closure. Full-wave validation covers 26 exact-header
+  RFC-4180 CRLF ledgers and 848 rows with zero errors after applying the
+  binding multi-residual rule to DEL-14-01/DEL-15-01's permitted composite
+  `_STATUS.md` rows. Controlled enums, contiguous type-matched ClaimIDs,
+  declared-state reliability, bootstrap placement, all-NO selectability,
+  summary histograms, and addendum-9 containment pass. Final W5 ClaimType:
+  REQUIREMENT 339 / ACCEPTANCE 207 / EXCLUSION 104 / DECLARED_STATE 156 /
+  REMAINING_WORK 42. Final dispositions: ALIGNED 697 /
+  PARTIALLY_IMPLEMENTED 50 / STALE_SETUP_SPECIFICATION 70 /
+  ACCEPTED_DIVERGENCE 7 / REMAINING_STATE_MISMATCH 19 /
+  VERIFIED_NOT_VALIDATED 4 / STALE_REVIEW_OR_EVIDENCE 1. AuthorityNeeded:
+  NO 661 / OWNER 165 / ENGINEERING 22. All 69 SECURITY rows carry zero
+  convention-6 sufficiency markers. The temporary four-total-slot runtime
+  exception was honored through one owning pilot per deliverable in capacity-
+  bounded schedules; independent fan-in and owning-pilot correction were
+  preserved. Package checkpoint commits: `37ebbeae5`, `e596d31b5`,
+  `da12adc4f`, `dffa6d998`, `289114c26`. W5 is ready for wave-boundary
+  commit/push/PR reconciliation; R3, R6, and `RUN_SUMMARY.md` remain.
+
+- **2026-07-12 — R3 cross-package synthesis COMPLETE.** Deterministic corpus
+  assembly preserved the 2,484 corrected deliverable rows from 101 ordinary
+  W1–W5 ledgers byte-semantically and appended eight authoritative R1
+  attribution gaps as run-level `IMPLEMENTED_UNMAPPED` rows, yielding
+  `CLAIM_CONCORDANCE.csv` at 2,492 unique claims. The same eight rows populate
+  `UNMAPPED_IMPLEMENTATION.csv`. `CONFLICTS_AND_UNKNOWNS.csv` contains 20
+  deduplicated provenance-backed findings, preserves the sole UNKNOWN, and
+  records two no-conflict ownership checks. Evidence-only proposed engineering
+  and owner route artifacts contain no R4 packets/rulings. The 77-row
+  `PROPOSED_DELIVERABLE_UPDATES.csv` covers all 532 non-ALIGNED aggregate
+  ClaimIDs exactly once; zero `DEFERRED_AGENT_WORKFLOW` rows enter it.
+  `AGENT_WORKFLOW_OBSERVATIONS.md` records the evidence-backed zero result and
+  distinguishes project-local tool attribution from agent-workflow
+  dependency. Cross-artifact validation confirms source-prefix identity,
+  unique IDs, exact unmapped mirroring, contiguous R3 IDs, complete update
+  coverage, resolved citations, RFC-4180 CRLF, and non-operative fences. R6,
+  `COVERAGE_AND_QA.md`, `RUN_SUMMARY.md`, final push/PR update, and the hard
+  STOP before R4/R5 remain.
+
 ## Fences (restated)
 
 Discovery is read-only; no lifecycle transition (`LIFECYCLE_REASSESSMENT_REQUIRED`
@@ -429,3 +576,280 @@ agent-workflow redesign (`DEFERRED_AGENT_WORKFLOW` → observations artifact
 only); no release-readiness, issuance, certification, sealing,
 professional-approval, or code-compliance claim (F-PIP-1..5); agent
 dispositions are never represented as owner or engineering rulings.
+
+- **2026-07-12 — R6 backcheck and run closeout COMPLETE; HARD STOP before
+  R4/R5.** R6 independently re-extracted the 101 frozen `_STATUS.md`
+  Remaining surfaces by selecting the unique `DECLARED_STATE` row whose
+  `NormativeSource` resolves to `_STATUS.md`; it did not assume a fixed
+  ClaimID. The final source check reproduces all 101 bullet arrays verbatim
+  and in order: 100 bootstrap bullets plus 50 substantive bullets, with zero
+  bootstrap-derived source/gate metadata and selectability derived only from
+  substantive gates. The correction trail normalized 11 pre-existing
+  derivative ledgers from bare LF to RFC-4180 CRLF after proving parsed-row
+  identity; repaired 14 omitted/malformed bootstrap encodings and 13
+  bootstrap/composite metadata encodings; and restored four genuinely
+  incomplete exact status transcriptions (DEL-09-05, DEL-10-03, DEL-16-02,
+  DEL-16-04). Apparent issues on DEL-06-02, DEL-06-05, and DEL-08-02 were
+  rejected as false positives after source-based row selection; no correction
+  was made to those ledgers. Corrections remained derivative run evidence and
+  preserved claim/disposition/lifecycle histograms.
+
+  Final deterministic identity: 101 ordinary CRLF ledgers, 2,484 ordinary
+  rows, and eight unchanged authoritative unmapped rows produce 2,492 unique
+  aggregate ClaimIDs. The first 2,484 aggregate rows exactly reproduce the
+  ordered source rows and the final eight exactly reproduce
+  `UNMAPPED_IMPLEMENTATION.csv`. Ordinary-record prefix SHA-256:
+  `e5ad64a12e50cf975678ac9aa627f6dab08119cc240da0bb2568497c49c928c3`;
+  ordered-ledger digest-list SHA-256:
+  `a9bb036c2a6ae5f211a9c2b4b4fe0db9b5ce0c7be54b72cff575c1b7b273e8c3`;
+  aggregate SHA-256:
+  `32095986662b4932d9b1bf403e1756addb87dac3142b488f56acd926178361e0`;
+  unmapped SHA-256:
+  `9391174a59ede1ed18d1393c666ead464c1291060351bc1fcce0167df989b442`.
+  All 532 non-ALIGNED claims are covered exactly once by the 77 proposed
+  update groups. All 20 conflict/unknown rows retain an authority owner and
+  smallest next action; the sole UNKNOWN and eight unmapped surfaces remain
+  open. Eighteen package summaries and eighteen verification reports
+  reproduce the 2,484-row package corpus.
+
+  `COVERAGE_AND_QA.md` records the complete QA and correction trail (SHA-256
+  `169aafd8411aef535f4b615adc57ec9f2edbe1cfc793d1cb3db186ef82bbd6bf`).
+  `RUN_SUMMARY.md` completes the 16-family plan-§9 artifact inventory
+  (pre-closeout SHA-256
+  `c8bcd9386913cca9ac75520d392342084c344309981c170d7d9fc054d886c2d5`).
+  Practitioner-harness self-check exited 0 with no D-41 BLOCK; cache-disabled
+  pytest passed 263 with one skip. Frozen ignored-aware porcelain remained
+  exactly the six addendum-9 allow-listed paths, with no tracked change or
+  seventh ignored path.
+
+  Model/capability attribution: GPT-5 owning correction pilots performed the
+  bounded ledger/notes corrections; a GPT-5 QA pilot rebuilt the aggregate
+  and `COVERAGE_AND_QA.md`; an independent highest-available-capability GPT-5
+  high-effort auditor reproduced the final R6 checks and returned PASS; a
+  separate GPT-5 summary pilot wrote `RUN_SUMMARY.md`; and the GPT-5
+  orchestrator performed final cross-artifact, Git-scope, containment, and
+  closeout validation. The owner-authorized four-total-slot, at-most-three-
+  delegated-pilot runtime exception remained session-scoped; no silent model
+  substitution occurred.
+
+  Gate outcome: the ruled discovery/reconciliation run is complete through
+  R6 with open findings preserved, not repair-closed. No lifecycle transition,
+  product repair, dependency/DAG/register/decomposition change, decision
+  ruling, R4, or R5 work occurred. The run terminates here at the required
+  **HARD STOP before R4/R5**.
+
+- **2026-07-12 — R4 owner and engineering ruling RECORDED; R5 AUTHORIZED.**
+  Ryan Tufts adopted O1–O13 option A, confirmed C18–C19 as current
+  reconciliation confirmations, and explicitly acted as engineering authority
+  to adopt E1–E8 as evidence requirements without asserting any validation
+  outcome. The verbatim ruling is recorded at
+  `execution/_Coordination/_DECISIONS/D-41_R4_RULING_2026-07-12.md`, canonical
+  ruling-text SHA-256
+  `13a15c3344157fb3397b9d6638efe3ddccacc3e7797b2150c84000289dd308d1`,
+  and codified as `DEC-074`; the D-41 register row points to both activation
+  and R4 ruling records. O3 assigns four conditional scope clarifications and
+  classifies `core/product_preview` plus three tooling surfaces as shared
+  governed infrastructure. Any receiving-scope contradiction returns as
+  `AUTHORITY_CONFLICT`. R5 may proceed directly in bounded tranches, with E5
+  sequenced after O7 and all lifecycle, scope-expansion, ISSUED-baseline,
+  release/professional, and silent DAG/dependency/register fences preserved.
+
+- **2026-07-12 — R5 tranche plan RECORDED; two O3 items returned as
+  AUTHORITY_CONFLICT.** `R5_TRANCHE_PLAN.md` partitions all 77 proposed update
+  rows and all 532 affected claims exactly once across nine tranches
+  (SHA-256
+  `53f41acbf84264b29ac74d6d10225f0d9836da26839b34a3978166473ed24fa8`).
+  Independent accepted-scope inspection passed telemetry → DEL-12-03, root
+  `package.json` → DEL-10-04, and the four shared-infrastructure
+  classifications. It found two required conflicts: DEL-09-05 explicitly
+  excludes GUI implementation while the build-readiness panel self-identifies
+  as DEL-10-04; DEL-17-02 is contract-only while export-unit disclosure is an
+  executable shared desktop helper. Those two mappings are stopped under
+  PDU-077 and returned in `D-42_o3_attribution_authority_conflicts.md`
+  (SHA-256
+  `f8e55c4b000d7d7ad1f399da9aa2abab8c3a228438bab0165d01bda61897af6a`),
+  register row D-42 `AWAITING_RULING`. Non-conflicted T1 work may proceed.
+  Exact unselected policy values, formal review sufficiency, live CAEPIPE
+  profile gates, SCOPE_CHANGE, and the ISSUED baseline remain held as listed
+  in the tranche plan.
+
+- **2026-07-12 — R5 T1 ownership/attribution checkpoint COMPLETE for
+  non-conflicted scope.** `R5_T1_CLOSEOUT.md` (SHA-256
+  `bd76a1241134645f69ee59db7670ed306d4b0eaa2258490e00837b5d26000ab6`)
+  records 38 changed deliverable-local files: 33 existing documentation/state
+  surfaces and five new run records. O2 now agrees across DEL-00-05 and
+  DEL-07-02; O1 makes DEL-07-05 the unique home for the unimplemented
+  rotational-visualization residual; non-conflicted O3 attributions record
+  telemetry → DEL-12-03 and root `package.json` → DEL-10-04; four surfaces
+  remain explicitly shared governed infrastructure. SURF-011 and SURF-021
+  remain untouched and held at D-42. All five lifecycle states remain
+  IN_PROGRESS, genuine Remaining items and exact D-41 bootstrap lines are
+  preserved, and no code/schema/fixture/test/manifest/dependency/DAG/register
+  or review-disposition surface changed. Independent GPT-5 fan-in and the
+  GPT-5 orchestrator backcheck passed changed-file, source-evidence,
+  unique-home, status, scope, and whitespace checks. T2 may proceed; T7 still
+  owns declaration-currentness backcheck before bootstrap removal.
+
+- **2026-07-12 — R5 T2A canonicalization-label checkpoint COMPLETE.**
+  PDU-002 and PDU-003 are repaired across DEL-02-02, DEL-14-02, DEL-15-01,
+  DEL-15-03, DEL-17-03, DEL-17-06, and DEL-17-09. Existing Python
+  serializers are now labeled as their implemented sorted-key compact
+  ASCII-escaped JSON byte contracts, explicitly not RFC 8785/JCS. Supplied
+  checksum metadata is carried without false relabeling; locally computed
+  hashes retain producer-specific narrow labels. Active kits, schemas,
+  governed fixtures, and tests are aligned. `R5_T2A_CLOSEOUT.md` SHA-256:
+  `6b9dc9d906b5d9e87691dca025f48c33be0e13de799bfa4156d115675a9dd895`.
+
+  Independent GPT-5 fan-in initially returned FAIL on four defects: false
+  relabeling of a carried native source checksum, lost list recursion in a
+  protected/private-content scan, contradictory active JCS clauses in three
+  kits, and a stale DEL-14-02 cross-owner residual. Corrections were routed
+  through the owning producer/state pilot or owning deliverable surface, then
+  revalidated. All seven states remain IN_PROGRESS and exact D-41 bootstrap
+  items remain for T7.
+
+  Validation: focused post-correction fan-in 73/73; cache-disabled project
+  pytest 469/469; practitioner self-check exit 0 with no D-41 BLOCK and
+  harness pytest 264/264; copy-out 36-crate Cargo sweep PASS; copy-out desktop
+  Vitest 471/471, production build PASS with the existing chunk-size warning,
+  Playwright dev 18/18 and dist 1/1. An in-tree generic sweep was stopped when
+  it began violating addendum-9; only artifacts created by that invocation
+  were removed, revalidation used copy-out, and the frozen evidence worktree
+  remains exactly the six allow-listed ignored paths. D-42 remains
+  AWAITING_RULING. T2 continues with its remaining subtranches.
+
+- **2026-07-12 — R5 T2 canonical-schema, units, and mechanics checkpoint
+  COMPLETE.** `R5_T2_CLOSEOUT.md` (SHA-256
+  `ebee055d34ba4612ba8de81f5fdba242884eadb68e30b2d9394b41d1b3014b30`)
+  closes the nineteen-PDU tranche by bounded repair or explicit governed
+  hold. Production-path evidence now covers the schema-derived dimension
+  vocabulary, pipe-section oracle, paired scalar trace paths, version-family
+  diagnostics, JSON glTF stable-ID round trip, exact compatible result-ID
+  mapping, and model-state numeric-unit boundaries. Unselected alias/parser,
+  diagnostic, timestamp/generator, security-readiness, review, dimension,
+  normalization/tolerance, and independent numeric-witness questions remain
+  explicit holds; PDU-044 is a documented absence. PDU-033 security rows
+  move to T3's O7/E5 lane without being treated as unit-conversion work.
+
+  Independent GPT-5 fan-in first found collapsed PDU-024 diagnostics and
+  missing durable PDU-034/PDU-035/PDU-044 holds. Both were corrected through
+  owning surfaces. Final read-only fan-in returned PASS. The integrated build
+  then exposed a TypeScript union-widening defect; the PDU-024 owning pilot
+  corrected it and passed 65 focused tests plus a disposable production
+  build. Integrated validation passed project pytest 481/481, desktop Vitest
+  472/472, production build with only the existing chunk warning, practitioner
+  self-check with no D-41 BLOCK, and practitioner pytest 263 with one skip.
+
+  All touched states remain IN_PROGRESS; D-41 bootstrap items remain for T7.
+  No lifecycle, scope-expansion, dependency/DAG/register/decomposition,
+  review-disposition, ISSUED-baseline, validation-outcome, release, or
+  professional-reliance claim was made. Active ignored-aware porcelain is
+  back to its three pre-existing paths and the frozen evidence worktree
+  remains exactly the six addendum-9 allow-listed paths. D-42 remains
+  AWAITING_RULING. Model attribution: GPT-5 owning pilots implemented bounded
+  schema/mechanics/version/export repairs; the GPT-5 orchestrator handled
+  cross-owner holds and integration; an independent highest-available-
+  capability GPT-5 pilot performed final fan-in. No silent substitution.
+
+- **2026-07-12 — R5 T3 privacy, redaction, and security-reach checkpoint
+  COMPLETE.** `R5_T3_CLOSEOUT.md` (SHA-256
+  `16bbb02b04a61a438b11a10086d8e8dedf0f7f5d8d764b22ddd543c7111fb5fb`)
+  records bounded O7-before-E5 enforcement at selected CAEPIPE,
+  target-mapping, adapter-admission, desktop-telemetry, and strict-schema
+  seams. The adapter gate is deny-only and has no executor/callback; telemetry
+  remains disabled and fail-closed before payload/network/persistence work.
+
+  Independent fan-in initially found a PDU-016 caller override of CAEPIPE's
+  protected privacy defaults. The owning pilot blocked classification,
+  local-only, and telemetry override attempts with schema-valid blocking
+  diagnostics. Final fan-in returned PASS. Integrated project pytest passed
+  488/488; copy-out desktop Vitest passed 475/475; the production build passed
+  with only the existing chunk warning.
+
+  PDU-019 formal review remains held, PDU-043 remains documented absence,
+  PDU-049 remains VERIFIED_NOT_VALIDATED, and PDU-034/PDU-044 dispositions
+  remain unchanged. All 14 touched states remain IN_PROGRESS with D-41
+  bootstrap preserved. No whole-product assurance, lifecycle, review,
+  dependency/DAG/register/decomposition, ISSUED-baseline, release, or
+  professional claim was made. Model attribution: GPT-5 owning pilots handled
+  the three bounded work partitions; an independent cross-pilot GPT-5 fan-in
+  found the bypass and a second GPT-5 pilot performed the post-correction
+  read-only PASS; the GPT-5 orchestrator integrated validation and closeout.
+  No silent substitution. T4 may proceed.
+
+- **2026-07-12 — R5 T4 application/interoperability/report/export checkpoint
+  COMPLETE.** `R5_T4_CLOSEOUT.md` (SHA-256
+  `1ce30a24dac7d6967f8327055d004cc098292cafa1cfab8eb1b8c503176b999c`)
+  records bounded reference passthrough, JSON-glTF manifest content,
+  read-only persisted-run report sections, a verification-only governed
+  stress result envelope, and trace-gap/interop fixtures. PDU-004 exact
+  checklist/reviewer/signoff taxonomy remains held; GLB/broader geometry,
+  compatibility, tolerances, runtime/API binding, validation, and release or
+  professional conclusions remain open.
+
+  Independent fan-in found one PDU-020 schema/fixture gap for emitted
+  `source_basis_refs`; the DEL-17-08 owning pilot made the field required,
+  regenerated the checksum-consistent exact-builder fixture, and added an
+  omission-negative test. Final fan-in PASS. Integrated project pytest passed
+  494/494; the governed stress crate passed 23/23 plus doc tests with
+  `--locked` and an external target. All touched states remain IN_PROGRESS
+  with bootstrap preserved; no review/dependency-ledger/DAG/register/
+  decomposition/ISSUED change or validation promotion occurred. GPT-5 owning
+  pilots executed three bounded partitions; cross-pilot GPT-5 fan-in found
+  and revalidated the correction; GPT-5 orchestrator integrated closeout. No
+  silent substitution. T5 may proceed.
+
+- **2026-07-12 — R5 T5 GUI behavior/validation-boundary checkpoint
+  COMPLETE.** `R5_T5_CLOSEOUT.md` (SHA-256
+  `3f119d9dd9b2d921dfe97f027dd3f3c179fbd4288f36947d03bfb41d0266bdec`)
+  records bounded nonlinear-warning, explicit governing-ratio, diagnostic-
+  metadata, and fail-closed telemetry-request interaction work. PDU-041 stays
+  documented unimplemented; PDU-045 stays VERIFIED_NOT_VALIDATED; measurable
+  contrast and rotational visualization remain open.
+
+  Fan-in found two PDU-008 inference defects (iteration misclassified as
+  ratio; nonlinear status synthesized as solved). Owning-pilot corrections
+  added explicit-token and producer-status/result/blocking semantics. Final
+  read-only fan-in PASS. Project pytest 496/496; desktop Vitest 476/476;
+  production build PASS with existing warning. Seven states remain
+  IN_PROGRESS/bootstrap-preserved; no scope/review/dependency/DAG/register/
+  decomposition/ISSUED or validation promotion. GPT-5 owning pilots,
+  cross-pilot fan-in, and GPT-5 orchestrator closeout; no silent substitution.
+  T6 may proceed.
+
+- **2026-07-12 — R5 T6 evidence/review-hold/Remaining-home checkpoint
+  COMPLETE.** `R5_T6_CLOSEOUT.md` (SHA-256
+  `1eb15ed3dab067cce5e42ebd6e5ce131addbf43888d7ff9418dc7d39bf111716`)
+  records evidence-only PDU-037 refreshes, exact PDU-007/PDU-046/PDU-050
+  holds, and the PDU-060 34-claim/22-deliverable home audit. Thirty-two REM
+  claims gained explicit sole status homes and two use valid current deduped
+  homes; zero findings/dispositions changed.
+
+  Fan-in found one PDU-050 hold-label wording defect; the PDU-060 owner
+  corrected it to validation hold while preserving RF-001/RF-002 review
+  homes. Final cardinality/scope checks PASS. Evidence passed Python 19/19,
+  unit 13/13, expression 31/31 + 69 corpus, mechanics 33/33, and hold-focused
+  13/13. All states/bootstrap and governance fences remain intact. GPT-5
+  owning pilots, cross-pilot fan-in, GPT-5 orchestrator; no substitution. T7
+  may proceed.
+
+- **2026-07-12 — R5 T7 corpus-currentness checkpoint COMPLETE.**
+  `R5_T7_CLOSEOUT.md` SHA-256
+  `4a75ad7b5ed209d6b14bdf11a294479387e64250760807da24415edc484438c9`.
+  Exact censuses: PDU-054 70/70; PDU-055 221/221; other T7 rows corrected
+  to the live 20/20 total. All 101 statuses have zero D-41 bootstrap items;
+  lifecycle remains 100 IN_PROGRESS + DEL-01-01 ISSUED. Runner recount is
+  830/zero diagnostics; five DEL-17-02 validators PASS with review TBD.
+  Independent fan-in PASS after count/status-only corrections. Primary
+  containment restored. No code/governance-controlled changes. GPT-5 owning
+  pilots, independent fan-in, orchestrator; no substitution. T8/T9 remain.
+- **2026-07-12 — R5 FINAL CLOSEOUT.** T8 hold audit and T9 deferral
+  backcheck PASS; final `R5_RUN_SUMMARY.md` SHA-256
+  `5141cfd625c5b095030fe7b05643b346f5bbec5af2a81b027c0b12fa1200eadf`.
+  Exact total 77/77 rows and 532/532 claims. Final QA: project 496/496,
+  desktop 476/476 + build PASS, harness 263 passed/1 skipped and self-check
+  exit 0. Final backcheck restored one accidentally edited dependency row and
+  removed one test-created target; active ignored set 3, frozen set 6.
+  Lifecycle 100 IN_PROGRESS + DEL-01-01 ISSUED; bootstrap zero; D-42 remains
+  AWAITING_RULING. PR #211 remains owner-controlled. R5 stops with governed
+  residuals open, not repair-closed.

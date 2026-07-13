@@ -1,10 +1,19 @@
 # Specification: DEL-17-08 GLB/glTF review geometry export
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-17-08-ACC-005`, `DEL-17-08-DECL-001`, `DEL-17-08-EXC-001`, `DEL-17-08-EXC-002`.
+
 ## Scope
 
-DEL-17-08 defines the Phase A contract for exporting GLB/glTF review geometry from OpenPipeStress model data. The export is for lightweight visual inspection, review context, and stable identity correlation back to canonical model entities.
+DEL-17-08 defines and implements a bounded JSON `.gltf` review-geometry profile for lightweight visual inspection, review context, and stable identity correlation back to canonical model entities. Under `DEC-074` O11/E7, the selected profile remains JSON glTF with embedded buffer data, line-mode centerline segments, direct `extras`, and an authoritative sidecar ID map.
 
-This deliverable does not implement a writer, parser, schema, GUI view, fixture set, API endpoint, release path, compatibility profile, external-tool certification, solver geometry, stress analysis handoff, code-compliance process, or professional acceptance workflow.
+This bounded profile does not select or imply binary GLB, broad geometry coverage, viewer compatibility, engineering validation, an API endpoint, release path, external-tool certification, solver geometry, stress analysis handoff, code-compliance process, or professional acceptance workflow.
 
 ## Requirements
 
@@ -33,7 +42,7 @@ This deliverable does not implement a writer, parser, schema, GUI view, fixture 
 
 | Req ID | Requirement |
 |---|---|
-| DEL-17-08-REQ-020 | The exporter shall preserve stable canonical identity for every emitted or intentionally omitted review-geometry entity. |
+| DEL-17-08-REQ-020 | Within the selected centerline JSON glTF profile, every emitted entity shall round trip one-to-one between canonical identity in node/primitive `extras` and the authoritative sidecar ID map; intentionally omitted entities remain represented through the loss report. |
 | DEL-17-08-REQ-021 | Direct glTF metadata may use `name`, `extras`, or a declared extension only when the profile records the target location and stripping/consumer-risk policy. |
 | DEL-17-08-REQ-022 | A sidecar ID map shall be emitted when direct glTF metadata is unavailable, insufficient, not profile-approved, or not reliable for a receiving workflow. |
 | DEL-17-08-REQ-023 | The ID map shall distinguish canonical OpenPipeStress IDs from glTF node indices, mesh indices, primitive indices, generated display names, and sidecar row IDs. |
@@ -47,7 +56,7 @@ This deliverable does not implement a writer, parser, schema, GUI view, fixture 
 | DEL-17-08-REQ-031 | The manifest shall record source model identity, export profile identity, package member inventory, source-basis references, and boundary notes. |
 | DEL-17-08-REQ-032 | The loss report shall classify each material review-geometry limitation as exported, omitted, approximated, delegated, unsupported, or `TBD`. |
 | DEL-17-08-REQ-033 | Binary GLB or non-JSON package members shall record a hash or explain why a hash is unavailable. |
-| DEL-17-08-REQ-034 | Timestamp or generator metadata shall be declared as deterministic, normalized, omitted, or intentionally runtime-dependent. |
+| DEL-17-08-REQ-034 | The current bounded implementation uses a fixed versioned generator string and emits no timestamp. The exact normative timestamp/generator policy remains owner-unselected under PDU-031 and shall not be invented by implementation evidence. |
 | DEL-17-08-REQ-035 | The review-geometry profile shall carry DEL-17-01, DEL-17-02, and GLTF-2.0 source-basis references; missing references shall block package acceptance. |
 
 ### Review Geometry Coverage Requirements
@@ -69,17 +78,19 @@ This deliverable does not implement a writer, parser, schema, GUI view, fixture 
 
 ## Verification
 
-Phase A verification is document and boundary verification only:
+Current bounded verification covers the selected JSON glTF profile only:
 
 | Check | Expected result |
 |---|---|
 | Four-document kit exists | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` are present. |
 | Default section check | Each document retains its required default schema sections. |
 | Source grounding | Claims cite GLTF-2.0, DEL-17-01, DEL-17-02, PLAN-EXPORT-INTEROP, or governance/schema sources. |
-| TBD preservation | Unresolved identity metadata, geometry coverage, filename/profile/schema, coordinate transform, and fixture behavior remain `TBD`. |
-| Boundary check | No proprietary examples, protected standards data, implementation code, schema edits, compatibility claims, release claims, formal validation claims, code-compliance claims, or professional claims. |
+| Stable-ID round trip | Written `model.gltf` node/primitive identity metadata and `id_map.json` round trip to the same canonical centerline IDs; mismatches block package acceptance. |
+| Deterministic metadata observation | Repeated packages are byte-deterministic, `asset.generator` is a fixed versioned string, and timestamp keys are absent; no normative policy is inferred. |
+| TBD preservation | Binary GLB, broader geometry, viewer compatibility, engineering validation, and exact timestamp/generator policy remain unselected. |
+| Boundary check | No proprietary examples, protected standards data, compatibility claims, release claims, formal validation claims, code-compliance claims, or professional claims. |
 
-Future implementation verification remains `TBD` and shall not be inferred from this Phase A document kit. Candidate future checks include glTF asset-structure validation, GLB container checks, deterministic package-member hashing, geometry count checks, stable-ID round-trip correlation, and visual review fixture comparison using invented or rights-cleared fixtures.
+Existing implementation verification covers JSON glTF structure, deterministic package-member hashing, geometry counts, stable-ID round-trip correlation, and invented fixtures. GLB container checks and rendered visual/viewer validation remain outside the selected profile and shall not be inferred.
 
 ### Future Requirement-to-Check Map
 
@@ -92,11 +103,11 @@ This map records future acceptance slots only. It does not close the underlying 
 | C-002 | Export service boundary and trigger/interface. | Identify the application-service/API boundary that consumes the canonical model and invokes the writer. | `_CONTEXT.md` Architecture Basis Injection; SOFTWARE_DECOMP SOW-030 and SOW-062; current `Specification.md` `## Scope`. | Already excluded from Phase A; retained as `TBD` for a later interface contract. |
 | F-001 | Source-evidence gate for target profile facts. | Verify each GLB/glTF target fact traces to GLTF-2.0, DEL-17-01, DEL-17-02, or governance evidence. | DEL-17-01 Specification `## Source Authority Requirements`; DEL-17-02 Specification `## Source Authority Requirements`; GLTF-2.0 sections 2.4, 3.4, 4, 5.9, 5.16, 5.23-5.25. | Incorporated as future source-evidence check. |
 | X-001 | First review-geometry coverage declaration by canonical entity family. | Check each family is classified as emitted, omitted, approximated, delegated, unsupported, or `TBD`. | DEL-17-02 Datasheet `## Required Export-Profile Fields`, `## Loss Categories`; DEL-17-02 Specification `## Export Profile Requirements`; current `Specification.md` `### Review Geometry Coverage Requirements`. | Already required by REQ-040/REQ-041; disposition recorded here with `TBD` coverage. |
-| X-003 | Implementation verification for generated artifacts. | Define future checks for glTF asset structure, GLB container, deterministic hashing, geometry counts, stable-ID correlation, and invented fixture comparison. | GLTF-2.0 sections 3.2, 3.4, 4, 5.9, 5.23-5.25; DEL-17-02 Specification `## Export Package Requirements`; PLAN-EXPORT-INTEROP `Validation and Confidence Building`. | Incorporated as future implementation-verification slot; no pass thresholds are invented. |
+| X-003 | Implementation verification for generated artifacts. | Verify the selected JSON glTF structure, deterministic hashing, geometry counts, and stable-ID correlation; add GLB or rendered visual checks only after separately selected scope. | GLTF-2.0 sections 3.2, 3.4, 5.9, 5.23-5.25; DEL-17-02 Specification `## Export Package Requirements`; `DEC-074` O11/E7. | JSON glTF checks are implemented; GLB, viewer, broader geometry, and engineering validation remain outside the selected scope. |
 
 ## Documentation
 
-This deliverable produces only:
+Current bounded implementation records include:
 
 - `Datasheet.md`
 - `Specification.md`
@@ -104,5 +115,11 @@ This deliverable produces only:
 - `Procedure.md`
 - `_STATUS.md` safe lifecycle update when permitted
 - `_run_records/TASK_RUN_2026-05-18_1156.md`
+- `core/handoff/review_geometry/`, `schemas/review_geometry_export.schema.json`, invented fixtures, and focused tests;
+- `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU029-PDU031.md`.
 
-No code, schema, fixture, export profile file, manifest schema, ID-map schema, public API, GUI artifact, or release documentation is authorized in Phase A.
+No binary GLB, broad geometry, viewer-compatibility, engineering-validation, public-API, GUI, or release work is authorized by this repair.
+
+## D-41 R5 T4 PDU-036 O11 boundary
+
+REQ-043 evidence is bounded to the selected JSON glTF line/centerline profile. Current emitted line entities require authoritative ID-map correlation. Impossible-bend display geometry is not present in this profile, so its specific diagnostic remains an explicit out-of-scope gap rather than an invented bend representation or validation claim.

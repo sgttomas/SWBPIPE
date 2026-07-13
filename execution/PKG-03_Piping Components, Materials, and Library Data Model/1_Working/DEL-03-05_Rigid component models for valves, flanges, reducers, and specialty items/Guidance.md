@@ -46,5 +46,11 @@ Preferred vocabulary for downstream work:
 
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| PKG03-DEL-03-05-PKG02-001 | Earlier audit found `specialty` in PKG-03 but not in the PKG-02 canonical component enum. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-001 | `tests/test_component_section_schema.py` verifies `ComponentType` equals the PKG-02 canonical enum. | `Specification.md`; schema evidence interpretation | Treat as technically addressed pending human disposition. | TBD |
-| PKG03-DEL-03-05-PKG02-002 | Earlier audit found generic `stiffness` dimension ambiguous against PKG-02 units. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-002 | `ComponentQuantityDimension` uses `linear_stiffness` and `rotational_stiffness`; tests verify accepted dimensions and retired dimensions are absent. | `Specification.md`; schema evidence interpretation | Treat as technically addressed pending human disposition. | TBD |
+| PKG03-DEL-03-05-PKG02-001 | Earlier audit found `specialty` in PKG-03 but not in the PKG-02 canonical component enum. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-001 | `tests/test_component_section_schema.py` verifies `ComponentType` equals the PKG-02 canonical enum. | `Specification.md`; schema evidence interpretation | Preserve the recorded Gate C disposition. | `ACCEPT_AS_IS` / `RESOLVED` (2026-06-05) |
+| PKG03-DEL-03-05-PKG02-002 | Earlier audit found generic `stiffness` dimension ambiguous against PKG-02 units. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-002 | `ComponentQuantityDimension` uses `linear_stiffness` and `rotational_stiffness`; tests verify accepted dimensions and retired dimensions are absent. | `Specification.md`; schema evidence interpretation | Preserve the recorded Gate C disposition. | `ACCEPT_AS_IS` / `RESOLVED` (2026-06-05) |
+
+## D-41 R5 T2B PDU-013 Boundary
+
+An invented or rights-safe COG magnitude would not close R10 by itself. Without an accepted coordinate convention and reference frame, such a value is ambiguous at the mechanics boundary. Preserve that ambiguity as a held residual rather than inventing a convention.
+
+PDU-023 scalar paths document identity-preserving copy-through only. They do not turn component metadata into a solver result or runtime envelope.

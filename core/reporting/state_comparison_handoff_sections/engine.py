@@ -223,6 +223,51 @@ def build_state_comparison_handoff_report_sections(
     return _sort_record(record)
 
 
+def build_persisted_project_report_sections(
+    *,
+    section_set_id: str,
+    persistence_envelope: Mapping[str, Any],
+    source_notes: list[str] | None = None,
+    provenance: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build report sections from canonical project run-history records.
+
+    This bounded application-service handoff reads embedded model-state and
+    analysis-run records only. It performs no persistence or solver mutation,
+    infers no human approval or code compliance, and leaves external/non-JSON
+    payload partitioning under the source persistence contract.
+    """
+
+    project = persistence_envelope.get("project", {})
+    if not isinstance(project, Mapping):
+        project = {}
+    run_history = project.get("run_history", {})
+    if not isinstance(run_history, Mapping):
+        run_history = {}
+    notes = list(source_notes or [])
+    notes.append(
+        "Bounded application-service handoff from canonical project.run_history; external payload partitioning unchanged."
+    )
+    record = build_state_comparison_handoff_report_sections(
+        section_set_id=section_set_id,
+        model_states=_mapping_list(run_history.get("model_state_records")),
+        analysis_runs=_mapping_list(run_history.get("analysis_run_records")),
+        source_notes=notes,
+        provenance=provenance,
+    )
+    record["application_service_binding"] = {
+        "source": "project.run_history",
+        "workflow_grain": "persisted_run_history_to_report_sections",
+        "canonical_records_only": True,
+        "project_mutated": False,
+        "solver_executed": False,
+        "human_approval_inferred": False,
+        "code_compliance_inferred": False,
+        "external_payload_partitioning": "unchanged_source_contract",
+    }
+    return _sort_record(record)
+
+
 def diagnostics_for_report_sections(
     record: Mapping[str, Any], existing: list[dict[str, Any]] | None = None
 ) -> list[dict[str, Any]]:
@@ -882,6 +927,24 @@ def _review_state(record: Mapping[str, Any]) -> str:
 
 def _source_limitations(record: Mapping[str, Any], affected_ref: Mapping[str, str]) -> list[dict[str, Any]]:
     limitations = []
+    for index, item in enumerate(_list(record.get("limitations"))):
+        if isinstance(item, str) and item:
+            limitations.append(
+                {
+                    "limitation_id": f"source:{affected_ref['ref']}:{index}",
+                    "statement": _safe_public_context(item),
+                    "affected_ref": deepcopy(dict(affected_ref)),
+                    "human_review_required": True,
+                }
+            )
+        elif isinstance(item, Mapping) and item.get("statement"):
+            limitation = deepcopy(_safe_public_context(dict(item)))
+            limitation.setdefault(
+                "limitation_id", f"source:{affected_ref['ref']}:{index}"
+            )
+            limitation["affected_ref"] = deepcopy(dict(affected_ref))
+            limitation["human_review_required"] = True
+            limitations.append(limitation)
     if _privacy_classification(record) == "TBD":
         limitations.append(
             {
@@ -901,6 +964,10 @@ def _source_limitations(record: Mapping[str, Any], affected_ref: Mapping[str, st
             }
         )
     return sorted(limitations, key=canonical_json)
+
+
+def _mapping_list(value: Any) -> list[Mapping[str, Any]]:
+    return [item for item in _list(value) if isinstance(item, Mapping)]
 
 
 def _is_missing(value: Any) -> bool:

@@ -36,7 +36,7 @@ Out of scope:
 | U-005 | Addition, subtraction, comparison, conversion, and rule-pack checks shall reject incompatible dimensions. Multiplication/division and exponent operations shall produce explicit derived dimensions where supported. | Derived from dimensional-analysis purpose and OPS-K-UNIT-1; ASSUMPTION pending human approval of operation set |
 | U-006 | Unit conversion shall be deterministic and testable. Unknown units, missing units, ambiguous conversions, or incompatible conversions shall produce explicit diagnostics rather than fallback defaults. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` Section 3 |
 | U-007 | Conversion-factor records shall include source/provenance and redistribution status when stored as public data. Records suspected of protected or proprietary origin shall be quarantined and escalated. | `docs/IP_AND_DATA_BOUNDARY.md` Sections 3-5; `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3 |
-| U-008 | Persisted project/schema payloads shall be versioned, unit-aware, schema-governed, provenance-preserving, migration-aware, and round-trip testable. JSON payload hashes shall use the accepted canonical JSON/JCS-compatible basis where JSON payloads are hashed. | `SOFTWARE_DECOMP.md` Section 8.1 AB-00-04; `_CONTEXT.md` Architecture Basis Injection |
+| U-008 | Persisted project/schema payloads shall be versioned, unit-aware, schema-governed, provenance-preserving, migration-aware, and round-trip testable. The architecture objective is deterministic canonical JSON; the current Python persistence boundary uses the explicitly non-JCS `SORTED_COMPACT_JSON` byte contract unless a later governed RFC 8785 implementation is proven. | `SOFTWARE_DECOMP.md` Section 8.1 AB-00-04; `_CONTEXT.md` Architecture Basis Injection; D-41 R5 T2A |
 | U-009 | Public schemas/interchange definitions for quantities, units, dimensions, and unit-bearing fields shall use the JSON Schema 2020-12 baseline. Exact schema location and code-generation tooling are TBD. | `_CONTEXT.md` Architecture Basis Injection; `SOFTWARE_DECOMP.md` Section 8.2; `docs/_Registers/ScopeLedger.csv` row SOW-041 as related context |
 | U-010 | Unit-related diagnostics and result-envelope fields, where emitted, shall include enough machine-readable context to identify code, class, severity, source, affected object, message, remediation, and provenance. Exact unit diagnostic code names are TBD. | `_CONTEXT.md` applicable AB-00-06; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-06 |
 | U-011 | The unit contract shall preserve the boundary between mechanics solve, user-rule checks, and human approval. Unit checks must not be presented as code compliance, certification, approval, sealing, or authentication. | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-MECH-2; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-03 |
@@ -59,7 +59,7 @@ Out of scope:
 | Ratios, percentages, and unitless engineering coefficients | TBD | Human-approved design decision before related schemas or rule-pack variables rely on these as dimensionless. |
 | Angle and rotation dimensional treatment | ASSUMPTION: explicit semantics needed even if represented as dimensionless in some calculations. | Human ruling required. |
 | Canonical calculation unit basis | TBD | Human-approved design decision tied to solver and persistence behavior. |
-| Persisted quantity shape and hash canonicalization | TBD; current draft direction is proposal only. | Decide whether persistent payloads store entered units, canonical calculation representation, or both, and how this interacts with canonical JSON/JCS-compatible hashing where JSON payloads are hashed. |
+| Persisted quantity shape and hash canonicalization | Quantity-shape choice remains TBD; current persistence hash bytes are ruled evidence, not a quantity-shape ruling. | Decide whether persistent payloads store entered units, canonical calculation representation, or both. The current Python persistence hash boundary is sorted-compact and explicitly non-JCS; a later JCS change requires governed implementation and evidence. |
 | Schema file layout and tooling | TBD | Decide exact schema filenames, locations, and code-generation or validation tooling for JSON Schema 2020-12 quantity definitions. |
 | Unit diagnostic code namespace | TBD | Decide stable unit diagnostic code names and map them to result-envelope fields before downstream consumers depend on them. |
 | Conversion constants and tolerance policy | TBD | Executable deterministic conversion tests must wait for approved constants, representation, and tolerances; placeholders may be tracked before then. |
@@ -92,7 +92,7 @@ No protected engineering code or standards-body source text was available or use
 | U-010 | Diagnostic mapping tests proving unit error codes populate result-envelope fields consistently once the unit diagnostic namespace is approved. |
 | U-007, U-014 | Protected-content/provenance review for unit/conversion data and test fixtures. |
 | U-008, U-009 | JSON Schema validation and serialization round-trip tests for unit-bearing fields. |
-| U-008 | Canonical JSON/JCS-compatible hash stability tests where unit-bearing JSON payloads are hashed. |
+| U-008 | Exact-byte, fixed-hash, ordering, mutation, and round-trip tests for the declared serialization label; do not claim JCS without RFC 8785 conformance evidence. |
 | U-011 | Report/result-envelope review to confirm unit checks are not described as professional approval or code compliance. |
 | U-013 | Review checklist confirming all unknowns are represented as `TBD`, explicit assumptions, diagnostics, or open decisions. |
 
@@ -107,3 +107,14 @@ Required deliverable documentation artifacts:
 - Schema location/tooling decision record for JSON Schema 2020-12 quantity definitions before downstream schema consumers implement against them.
 - Diagnostic-code decision record for stable unit error names and result-envelope mapping before downstream consumers implement against them.
 - Open-decision list for unresolved `TBD` items.
+## D-41 R5 T2A persistence hash requirement (2026-07-12)
+
+Project persistence SHALL label existing sorted-key compact ASCII-escaped Python JSON hashes `SORTED_COMPACT_JSON` and canonical payload truth `sorted_compact_json_payload`. Those labels SHALL NOT imply RFC 8785/JCS conformance.
+
+## D-41 R5 T2B unit-authority boundary (2026-07-12)
+
+Python adapter/application validation SHALL derive the canonical `DimensionId` vocabulary from `schemas/units.schema.yaml` through the PKG-02 schema-vocabulary adapter rather than maintaining a parallel literal set. This removes the identified DEL-16-02 mirror but does not assert system-wide B2/B3 completion or independent numeric validation.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. DEC-018 and the implemented core-units slice now provide the current dimensional basis. Alias/parser behavior, diagnostics, B2/B3 coverage, and validation matters survive only where explicitly recorded as residuals; this documentation refresh makes no lifecycle or validation ruling.

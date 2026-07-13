@@ -1,5 +1,14 @@
 # Datasheet: DEL-13-03 Constraint validation engine
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-13-03-DECL-002`.
+
 ## Identification
 
 | Field | Value | Source |
@@ -69,3 +78,6 @@ Current product-code evidence exists and is limited to a stdlib-only Python vali
 - `core/constraints/validation/engine.py` - implemented validation engine.
 - `core/constraints/validation/__init__.py` - implemented package export surface.
 - `tests/test_constraint_validation.py` - focused validation diagnostics tests and invented fixtures.
+## D-41 R5 T2C PDU-023 Evidence State
+
+Paired result-trace scalar paths are schema-valid and unpaired paths are rejected. Runtime envelope production remains `TBD` because this validator has no accepted producer/home.

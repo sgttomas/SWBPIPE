@@ -1,5 +1,14 @@
 # Datasheet: DEL-00-05 GUI state and interaction architecture
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-00-05-DECL-002`.
+
 ## Identity
 | Field | Value |
 |---|---|
@@ -17,7 +26,7 @@
 GUI state, editing, selection, undo/redo, viewport integration, and workflow architecture before GUI slices proceed.
 
 ## Scope Boundary
-This deliverable defines GUI interaction architecture only; it does not implement screens, components, styling, viewport rendering, or user interface code.
+This deliverable defines cross-cutting GUI state and interaction architecture only; it does not implement screens, components, styling, viewport rendering, or user interface code. Model-tree and property-inspector behavior is owned by `DEL-07-02` under the accepted D-41 `DEC-074` O2 delegation and consumes this deliverable as architecture-basis context.
 
 ## Architecture Roles
 - Project state model
@@ -26,6 +35,7 @@ This deliverable defines GUI interaction architecture only; it does not implemen
 - edit transaction model
 - undo/redo contract
 - viewport integration contract
+- delegated feature-behavior boundary: `DEL-07-02` owns model-tree and property-inspector behavior while `DEL-00-05` retains the architecture basis
 
 ## Required Source Basis
 - `INIT.md` for project bootstrap and data-boundary constraints.
@@ -49,5 +59,6 @@ This deliverable defines GUI interaction architecture only; it does not implemen
 
 ## Boundary Confirmation
 - No product implementation code is authorized by this deliverable.
+- The `DEL-07-02` delegation records accepted ownership; it does not move implementation into this deliverable or expand behavior.
 - No protected standards text, standards tables, code-derived formulas, proprietary values, or vendor-private data are introduced.
 - Architecture outputs remain draft/proposal material until accepted by the human project authority.

@@ -1,5 +1,10 @@
 # MEMORY - DEL-06-04 Private rule-pack lifecycle and checksum handling
 
+## 2026-07-12 - D-41 R5 T4 PDU-040 supporting evidence
+
+- The downstream report reader does not expand the lifecycle crate or supply DEL-06-03 data-gap evaluation. Runtime binding and exact non-JSON/binary partitioning remain held.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## Current Implementation Notes
 
 - 2026-05-02: Implemented bounded Rust crate
@@ -131,3 +136,13 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+## 2026-07-12 - D-41 R5 T2 PDU-044 documented absence
+
+- DEL-06-04 owns private rule-pack lifecycle/checksum handling and performs no numeric expression evaluation.
+- Numeric rule-pack unit metadata remains homed to DEL-02-02 plus DEL-06-02/DEL-06-03. PDU-044 is preserved as documented unimplemented here rather than duplicating schema/evaluator scope.
+
+## 2026-07-12 - D-41 R5 T3 PDU-028 supporting evidence
+
+- DEL-10-02's deny-only adapter-declaration gate now provides bounded negative evidence that selected sandbox and persistence-hash controls cannot be disabled at admission and that no admitted declaration dispatches while runtime remains unselected.
+- This does not bind the rule-pack document/service/result path to a loader, prove plugin isolation, or select exact non-JSON/binary manifest-hash partitioning. That partition remains `TBD`; the PDU-044 ownership hold is unchanged.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.

@@ -62,3 +62,7 @@ The deliverable-local documentation set consists of:
 - No protected standards/code data, copied tables, proprietary values, or legal conclusions are introduced.
 - Unknown contributor-governance/legal-review decisions remain `TBD`.
 - Human rulings needed are visible.
+
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; contributor disposition remains subject to the recorded governance workflow.

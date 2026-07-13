@@ -1,6 +1,7 @@
 """Native open JSON export package foundation."""
 
 from .package import (
+    CANONICALIZATION_LABEL,
     NATIVE_JSON_EXPORT_VERSION,
     build_native_json_export_package,
     canonical_json,
@@ -9,6 +10,7 @@ from .package import (
 )
 
 __all__ = [
+    "CANONICALIZATION_LABEL",
     "NATIVE_JSON_EXPORT_VERSION",
     "build_native_json_export_package",
     "canonical_json",

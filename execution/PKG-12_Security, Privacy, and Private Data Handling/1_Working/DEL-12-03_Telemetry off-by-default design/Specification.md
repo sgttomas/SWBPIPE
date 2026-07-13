@@ -4,7 +4,7 @@
 
 This deliverable specifies the privacy and configuration design for telemetry in OpenPipeStress. It covers policy, default configuration behavior, and tests needed to prove that telemetry is disabled by default and cannot transmit private engineering, code, rule-pack, component, material, report, secret, path, or protected standards data.
 
-Current June 7 evidence includes the repo policy in `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, and focused tests in `tests/security/test_telemetry_policy.py`. This evidence does not define a telemetry vendor, create cloud service behavior, choose an endpoint, add transport/upload/persistence behavior, select a consent UI or CLI, approve telemetry collection, or change lifecycle state. Any runtime telemetry implementation remains blocked on explicit human/security approval.
+Current evidence includes the repo policy in `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, focused tests in `tests/security/test_telemetry_policy.py`, and the default-off policy-review panel in `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. Under DEC-074 O7-before-E5, the panel now routes its modeled desktop event attempts through `apps/desktop/src/services/telemetryPolicyService.ts`, a fail-closed pre-payload seam. The seam treats a capability request as insufficient without affirmative opt-in and allowlist evidence, constructs no payload, and exposes no endpoint, vendor, network, queue, upload, or persistence operation. Product configuration, consent surface, allowlist approval, and all transport remain unimplemented. Plugin/adapter/import/export/report/private-library interception remains a documented PDU-043 absence rather than a whole-runtime no-bypass claim.
 
 ## Requirements
 
@@ -15,11 +15,11 @@ Current June 7 evidence includes the repo policy in `docs/security/telemetry_pol
 | TEL-REQ-003 | Telemetry, if later implemented, shall require explicit human/security approval of the event allowlist before any event is collected. | Helper requires allowlist approval metadata before allowing a metadata event; actual approval records and event allowlist remain `TBD`. |
 | TEL-REQ-004 | Telemetry shall not collect or transmit private project models, code-specific rule data, private rule packs, private material or component libraries, generated reports, model hashes, local file paths, user secrets, credentials, or protected standards content. | Helper rejects forbidden field classes before payload construction; protected-content/privacy scan evidence is recorded in the June 7 package fan-in. |
 | TEL-REQ-005 | Opt-in state shall be represented as a local configuration value whose default is false. The exact storage location and schema are TBD until the implementation deliverable chooses the product config surface. | Metadata resolution tests cover fail-closed behavior; product config-default fixture remains `TBD` until schema exists. |
-| TEL-REQ-006 | Turning telemetry on shall require an affirmative user action distinct from accepting general terms, installing the software, opening a project, or running a solve. | UX/service acceptance test once UI or CLI surface exists. |
+| TEL-REQ-006 | Turning telemetry on shall require an affirmative user action distinct from accepting general terms, installing the software, opening a project, or running a solve. | PDU-042 adds a distinct `Request telemetry enablement review` action to the existing panel. The interaction only records a local request and remains fail-closed; it does not turn telemetry on, grant consent, approve an allowlist, mutate product config, or initialize payload/network behavior. Focused App interaction evidence covers this bounded behavior. |
 | TEL-REQ-007 | Telemetry settings and diagnostics shall preserve the distinction between mechanics solved, user-rule checked, and human-approved states; telemetry shall not create professional approval or compliance claims. | Report/diagnostic text scan; status vocabulary test. |
 | TEL-REQ-008 | Telemetry-related diagnostics, if emitted, shall use the project diagnostic envelope when available and shall not include private payload content in messages. | Diagnostic schema test; privacy snapshot test. |
-| TEL-REQ-009 | Plugins, adapters, import/export paths, reports, and private-library mechanisms shall not bypass telemetry opt-in or privacy filters. | Adapter/plugin boundary tests when those surfaces exist. |
-| TEL-REQ-010 | If telemetry remains unimplemented in MVP, product behavior shall remain a no-op with tests proving no outbound telemetry behavior is reachable by default. | No-op smoke test; network-denial or transport-mock test. |
+| TEL-REQ-009 | Plugins, adapters, import/export paths, reports, and private-library mechanisms shall not bypass telemetry opt-in or privacy filters. | PDU-043 documented absence: the current guard covers telemetry-panel event attempts only; consumer interception remains unimplemented until separately authorized. |
+| TEL-REQ-010 | If telemetry remains unimplemented in MVP, product behavior shall remain a no-op with tests proving no outbound telemetry behavior is reachable by default. | Focused desktop service/App tests prove the selected seam remains disabled with no payload/network/persistence initialization; this is not whole-product security validation. |
 
 ## Standards
 
@@ -54,6 +54,7 @@ Current metadata-guard evidence plus minimum test coverage for any later impleme
 | Worker B run record | `_run_records/TASK_RUN_2026-06-07_0141.md` records successful metadata-only helper implementation, 15 focused telemetry tests passing, and `git diff --check` passing for the worker write set. |
 | Package fan-in | `WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md` records 44 passing PKG-12 privacy-guard tests and no runtime telemetry endpoint, vendor, transport, upload queue/job, persistence, schema, or approval artifact introduced. |
 | Policy document | `docs/security/telemetry_policy.md` documents default-off semantics, forbidden payload classes, the metadata-only helper boundary, and open decisions. |
+| Desktop policy-review panel | `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx` presents and locally exports default-off boundary state for review. It is DEL-12-03 implementation evidence under DEC-074 O3, but constructs no telemetry payload, initializes no network/runtime behavior, and keeps config/consent/allowlist decisions `TBD`. |
 
 ## Documentation
 
@@ -69,4 +70,8 @@ The deliverable-local artifact set remains:
 - `_DEPENDENCIES.md`
 - `_run_records/*`
 
-Current external evidence artifacts are `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, and `tests/security/test_telemetry_policy.py`. Future runtime telemetry, product config schema/storage, consent UI/CLI, endpoint/vendor/transport, retention, event allowlist/schema, and support-bundle implementation artifacts remain `TBD` and shall remain outside this setup folder unless dispatched by a separate sealed brief.
+Current external evidence artifacts are `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, `tests/security/test_telemetry_policy.py`, and `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. Future runtime telemetry, product config schema/storage, consent UI/CLI, endpoint/vendor/transport, retention, event allowlist/schema, and support-bundle implementation artifacts remain `TBD` and shall remain outside this setup folder unless dispatched by a separate sealed brief.
+
+## D-41 R5 T5 PDU-042 affirmative-request boundary
+
+The existing panel now demonstrates one explicit action whose identity is distinct from terms acceptance, installation, application/project open, and solve. Before the action, no request is recorded. After the action, the panel records `request_telemetry_enablement_review` and immediately reports `request_recorded_fail_closed_pending_consent_and_allowlist`. The action is not an opt-in or consent surface and cannot enable telemetry.

@@ -12,6 +12,8 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
+from core.units.schema_vocabulary import canonical_dimension_ids
+
 
 VALIDATION_PREVIEW_VERSION = "0.1.0"
 
@@ -38,38 +40,7 @@ SUPPORTED_CHANGE_KINDS = {
     "attach_design_knowledge",
 }
 UNIT_VALUE_KINDS = {"quantity"}
-CANONICAL_DIMENSIONS = {
-    "dimensionless",
-    "length",
-    "mass",
-    "time",
-    "temperature",
-    "temperature_interval",
-    "angle",
-    "rotation",
-    "force",
-    "force_per_length",
-    "moment",
-    "pressure",
-    "stress",
-    "area",
-    "volume",
-    "density",
-    "linear_stiffness",
-    "rotational_stiffness",
-    "displacement",
-    "velocity",
-    "acceleration",
-    "thermal_conductivity",
-    "specific_heat",
-    "thermal_expansion_coefficient",
-    "second_moment_area",
-    "section_modulus",
-    "mass_per_length",
-    "volume_per_length",
-    "slope",
-    "TBD",
-}
+CANONICAL_DIMENSIONS = canonical_dimension_ids()
 
 PROFESSIONAL_BOUNDARY = {
     "human_review_required": True,

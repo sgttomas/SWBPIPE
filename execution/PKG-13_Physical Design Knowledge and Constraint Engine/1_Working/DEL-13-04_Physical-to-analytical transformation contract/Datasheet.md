@@ -1,5 +1,14 @@
 # Datasheet: DEL-13-04 Physical-to-analytical transformation contract
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-13-04-DECL-002`.
+
 **Generated:** 2026-05-03
 **Status:** Evidence refresh applied 2026-06-07
 **Source posture:** Current implementation evidence is cited where available; unsupported particulars remain marked `TBD` or `ASSUMPTION`.
@@ -111,3 +120,11 @@ The deliverable has materialized as a provider-neutral Python transform contract
 - `tests/test_physical_to_analytical_transform.py` - focused transform tests.
 - `tests/test_analytical_solver_boundary_adapter.py` - focused adapter tests.
 - Current DEL-13-02 and DEL-13-03 four-document kits, `MEMORY.md` files, and 2026-06-07 TASK run records - upstream evidence refresh context.
+
+## D-41 R5 T2B PDU-047 Evidence State
+
+| Surface | Available evidence | Held residual |
+|---|---|---|
+| 3D centerline/frame target | Deterministic transform and section-property preservation tests; bounded TP-PHYS-015 section-property oracle binding. | Independent validation of broader mechanics suitability. |
+| Component field scalar | Paired paths on valid geometry quantity copy-through. | Runtime result-envelope continuation has no accepted producer/home. |
+| PDU-036 trace-gap witness | Invented unsupported component is omitted with linked `ASSUMPTION_WARNING`; invalid/omitted scalar path is absent. | Project-owned verification only; broader field/runtime trace validation remains open. |

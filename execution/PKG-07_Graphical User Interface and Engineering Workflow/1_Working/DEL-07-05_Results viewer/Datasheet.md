@@ -1,5 +1,14 @@
 # Datasheet: DEL-07-05 Results viewer
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-07-05-DECL-002`.
+
 ## Identification
 
 | Field | Value |
@@ -20,6 +29,7 @@
 |---|---|---|
 | Intended GUI surface | Results viewer for tabular and graphical review | `_CONTEXT.md`; `docs/SPEC.md` section 7 |
 | Result categories in scope | Displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and ratios | SOW-023 in `docs/_Registers/ScopeLedger.csv`; `docs/SPEC.md` section 8 |
+| Rotational-deformation current slice | Result envelopes emit `rx`/`ry`/`rz` rows and the viewer exposes result rows, while the graphical deformation overlay consumes translational `ux`/`uy`/`uz` only; rotational visualization remains explicit residual work | DEC-074 O1; PDU-061; `MEMORY.md` 2026-06-12; `_run_records/TASK_RUN_2026-06-12_1110.md` |
 | Architectural route | GUI reads schema-first command/query/job result envelopes through application services | `_CONTEXT.md` Architecture Basis Injection |
 | Unit behavior | Result values must remain unit-aware and dimensionally checked | OPS-K-UNIT-1 in `docs/CONTRACT.md`; `docs/DIRECTIVE.md` section 3 |
 | Diagnostics behavior | Missing data, assumptions, provenance, nonlinear/convergence issues, and IP boundary warnings must remain visible | `docs/SPEC.md` section 7; OPS-K-DATA-2 and OPS-K-AUTH-1 in `docs/CONTRACT.md` |
@@ -31,7 +41,7 @@
 
 | Condition | Status |
 |---|---|
-| This setup produces GUI planning documents, not GUI source code | FACT |
+| Current evidence includes implemented GUI result review and a translational deformation overlay; this R5 repair changes documentation/status records only | FACT |
 | Exact UI component library, state library, and visual layout details | TBD |
 | Exact result-envelope schema fields for each displayed category | TBD, owned by schema/result-envelope implementation deliverables |
 | Exact stress-ratio formulas, thresholds, allowables, or code categories | Out of scope for public defaults; user/rule-pack supplied |
@@ -39,7 +49,7 @@
 
 ## Construction
 
-The results viewer deliverable should be framed as a review surface over already-produced mechanical, diagnostic, stress, reaction, equipment-load, and user-rule-check result envelopes. It should not compute solver mechanics, recover stresses, evaluate rule packs, define protected code criteria, or export final reports directly unless a later sealed implementation brief expands scope.
+The results viewer is a review surface over already-produced mechanical, diagnostic, stress, reaction, equipment-load, and user-rule-check result envelopes. Its current graphical deformation overlay uses translational components only. Rotational components are emitted and reviewable as result rows but are not visualized as rotational deformation; that surviving work is owned here and recorded in `_STATUS.md`. The viewer does not compute solver mechanics, recover stresses, evaluate rule packs, define protected code criteria, or export final reports directly unless a later sealed implementation brief expands scope.
 
 The viewer setup must preserve these visible boundaries:
 

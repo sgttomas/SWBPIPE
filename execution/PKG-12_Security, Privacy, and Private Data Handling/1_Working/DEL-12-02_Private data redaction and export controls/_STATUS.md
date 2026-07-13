@@ -1,13 +1,14 @@
 # Status: DEL-12-02 Private data redaction and export controls
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-12
 
 ## Remaining
 - Extend the redaction seam beyond the export-workflow surface (REXC-REQ-012 breadth: adapters, plugins, CLI exports, report preview/export, and the bug-report surface route through the same contract) — the E4 app binding landed via TP-E4-REDACTION-001, PR #167 (source: Receipt 11 named remainder / TP-E4-REDACTION-001 residuals)
-- Run claim-level concordance per the reconciliation method (source: plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §§6–8 at the D-41-pinned main revision 551f84ef6be656f1603ce0acfa5e3935aa9683c7) (ruled: D-41, 2026-07-11)
 
 ## History
+- 2026-07-12 - D-41 R5 T7 PDU-053 aligned the cited Datasheet action/context vocabulary to the accepted lowercase schema/core/app enums; cited-claim backcheck closed the D-41 bootstrap.
+- 2026-07-12 - D-41 R5 T3 PDU-018/PDU-028 added adapter-declaration privacy/redaction no-bypass evidence; evaluator, plugin, CLI, report, and bug-report runtime breadth remains open.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to SEMANTIC_READY (TASK setup gates passed)
 - 2026-04-30 - State verified as SEMANTIC_READY (TASK+semantic-matrix-build)

@@ -15,6 +15,7 @@ FIXTURE_PATH = ROOT / "fixtures" / "adapters" / "invented" / "invented_adapter_f
 
 from core.adapters.framework import (  # noqa: E402
     build_result,
+    gate_adapter_runtime_dispatch,
     validate_adapter_declaration,
 )
 
@@ -319,6 +320,58 @@ def test_no_bypass_controls_are_enforced():
 
     assert result.accepted is False
     assert "ADAPTER_NO_BYPASS_CONTROL_DISABLED" in codes(result)
+
+
+def test_selected_adapter_runtime_gate_has_no_dispatch_bypass():
+    guarded_controls = {
+        "must_use_unit_validation",
+        "must_preserve_provenance",
+        "must_preserve_privacy_classification",
+        "must_screen_protected_content",
+        "must_preserve_rule_pack_sandbox",
+        "must_preserve_persistence_hash_controls",
+        "must_preserve_report_controls",
+        "must_not_transmit_private_data_by_default",
+    }
+    for control in guarded_controls:
+        fixture = current_authority_fixture()
+        fixture["adapter_declaration"]["no_bypass_controls"][control] = False
+
+        gated = gate_adapter_runtime_dispatch(fixture)
+
+        assert gated.outcome == "REJECTED"
+        assert gated.declaration_accepted is False
+        assert gated.runtime_dispatched is False
+        assert "ADAPTER_NO_BYPASS_CONTROL_DISABLED" in {
+            finding.code for finding in gated.findings
+        }
+
+
+def test_selected_adapter_runtime_gate_quarantines_protected_suspected_content():
+    fixture = current_authority_fixture()
+    fixture["adapter_declaration"]["provenance"][
+        "redistribution_status"
+    ] = "protected_suspected"
+
+    gated = gate_adapter_runtime_dispatch(fixture)
+
+    assert gated.outcome == "QUARANTINE"
+    assert gated.declaration_accepted is False
+    assert gated.runtime_dispatched is False
+    assert "ADAPTER_PROTECTED_CONTENT_SUSPECTED" in {
+        finding.code for finding in gated.findings
+    }
+
+
+def test_valid_declaration_still_cannot_dispatch_without_selected_runtime():
+    gated = gate_adapter_runtime_dispatch(current_authority_fixture())
+
+    assert gated.outcome == "BLOCKED_RUNTIME_NOT_SELECTED"
+    assert gated.declaration_accepted is True
+    assert gated.runtime_dispatched is False
+    assert [finding.code for finding in gated.findings] == [
+        "ADAPTER_RUNTIME_NOT_SELECTED"
+    ]
 
 
 def test_application_service_persistence_no_bypass_controls_are_enforced():

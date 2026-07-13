@@ -1,5 +1,9 @@
 # Specification: DEL-12-05 Security threat model
 
+## D-41 R5 T3 PDU-027 Runtime-Control Evidence
+
+The desktop threat-model packet names the selected DEL-12-03 pre-payload telemetry guard seam and explicitly records that plugin/adapter/report/export interception is not implemented. It references the established `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `IP_BOUNDARY_WARNING`, and `PRIVACY_WARNING` classes without claiming a product result-envelope producer or security-review closure. This is bounded threat-model evidence only.
+
 ## Scope
 
 This specification defines the deliverable-local setup content for the planned OpenPipeStress security threat model. It covers private data handling threats for local-first workflows, report sharing, shared model/export paths, plugins, imports, rule packs, private libraries, and supply chain exposure.
@@ -79,3 +83,6 @@ Required records for this setup run:
 - Status artifact: `_STATUS.md` with `SEMANTIC_READY`.
 - Run records under `_run_records/` for P1/P2, semantic matrix, lens register, P3, and dependency extraction.
 
+## D-41 R5 T7 PDU-054 current declaration
+
+Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. `docs/security/threat_model.md` now exists as the current project-owned threat-model surface. It records threats, boundaries, and residual mitigations; it is not a penetration-test result, security certification, or assurance ruling.

@@ -1,5 +1,14 @@
 # Datasheet: DEL-14-02 Analysis run records
 
+<!-- D41-R5-T7-PDU055-CURRENTNESS -->
+## D-41 R5 T7 PDU-055 current declaration
+
+Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
+
+Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+PDU-055 cited claim(s): `DEL-14-02-DECL-002`.
+
 ## Identification
 
 | Field | Value | Source |
@@ -22,9 +31,9 @@
 | Record immutability intent | Results attach to immutable analysis runs rather than a mutable current model only. | `docs/_Registers/ScopeLedger.csv` row SOW-072; `_CONTEXT.md` envelope notes |
 | Package boundary | PKG-14 implements immutable model-state records, analysis-run records, deterministic state/run comparison, mappings, tolerances, and comparison exports. | `execution/_Decomposition/SOFTWARE_DECOMP.md` package table |
 | Package exclusion | PKG-14 does not ingest commercial prover outputs comprehensively or determine external validation. | `execution/_Decomposition/SOFTWARE_DECOMP.md` package table |
-| Architecture basis | Rust core/application services; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. | `_CONTEXT.md` Architecture Basis Injection |
+| Architecture basis | Rust core/application services; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes. The accepted architecture names a canonical JSON/JCS-compatible objective, while DEL-14-02 currently implements and precisely labels sorted-key compact JSON rather than claiming RFC 8785/JCS conformance. | `_CONTEXT.md` Architecture Basis Injection; `DEC-074` E1 |
 | Unit boundary | Unit-bearing physical values crossing schema, service, solver, import/export, report, or rule-evaluation boundaries must carry explicit unit metadata unless explicitly dimensionless or equivalent. | `docs/SPEC.md` section 4 |
-| Hash boundary | JSON payload hashes use the accepted JCS-compatible canonical JSON basis where the payload is JSON; non-JSON and binary partitioning remains TBD. | `docs/SPEC.md` section 4.4 |
+| Hash boundary | DEL-14-02 hashes UTF-8 bytes from Python sorted-key compact JSON with ASCII escaping and emits `SORTED_COMPACT_JSON`; full RFC 8785/JCS conformance and non-JSON/binary partitioning are not claimed. | `docs/SPEC.md` section 4.4; `DEC-074` E1 / PDU-003 |
 | Result-envelope relationship | Result export envelopes must identify result set, model/run basis, solver version, unit-system reference, load-case or combination basis, diagnostics, provenance, reproducibility hashes or audit-manifest reference, analysis statuses, rule-pack references where present, and professional-boundary notice. | `docs/SPEC.md` result export section |
 | Professional boundary | Software must not emit automatic human approval, certification, sealing, authentication, or code-compliance labels. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 | Protected/private data boundary | Public artifacts must not copy private formulas, protected standards text, protected tables, proprietary values, or private rule-pack payloads. | `docs/SPEC.md` result export section; `docs/IP_AND_DATA_BOUNDARY.md` |
@@ -41,7 +50,7 @@
 | Load-case or combination basis | Required as part of the saved run record; exact references and cardinality are TBD. | SOW-072; `docs/SPEC.md` result export section |
 | Diagnostics and analysis statuses | Required as part of the saved run record; must preserve the professional-boundary status model. | SOW-072; `docs/SPEC.md` analysis boundary section |
 | Rule-pack and library references | Required as references/checksum/provenance surfaces; private payloads and protected content are not public artifact content. | SOW-072; `docs/SPEC.md` rule-pack/result export sections |
-| Result hashes | Required; payload scope and canonicalization metadata must be explicit. | SOW-072; `docs/SPEC.md` section 4.4 |
+| Result hashes | Implemented with explicit payload scope and `SORTED_COMPACT_JSON` metadata; deterministic bytes/hash and mutation sensitivity are tested. No RFC 8785/JCS claim is emitted. | SOW-072; `docs/SPEC.md` section 4.4; PDU-003 |
 | Reproducibility tests | Required artifact class; exact test harness, fixtures, and assertions are TBD. | `_CONTEXT.md` anticipated artifacts |
 
 ## Construction
@@ -52,7 +61,7 @@ This deliverable is a data-model change. The conservative construction surface i
 2. Include fields or referenced sub-objects sufficient to bind each analysis run to the source-supported categories in SOW-072: model state, solver version, settings, units, load cases, diagnostics, results, rule-pack references, library references, and result hashes.
 3. Treat result attachment as immutable run-record evidence, not as mutable "current model" state.
 4. Preserve unit metadata and dimensional diagnostics across run records wherever unit-bearing values are included or referenced.
-5. Record reproducibility hash metadata using the accepted JSON/JCS-compatible basis for JSON payloads; mark non-JSON or binary partitioning as TBD until explicitly designed.
+5. Record reproducibility hash metadata using the precise `SORTED_COMPACT_JSON` label for the current Python sorted-key compact serializer. Do not label it JCS absent RFC 8785 conformance evidence; mark broader JCS and non-JSON/binary partitioning as unresolved outside this bounded repair.
 6. Preserve professional-boundary and protected/private-data controls in schema shape, diagnostics, tests, and examples.
 
 Implementation evidence, committed product code, and passing tests are not present in this folder at setup time.
