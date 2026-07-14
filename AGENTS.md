@@ -161,11 +161,25 @@ These are proposed profile labels for `TASK`; they may be implemented as skills 
 
 Every Type 2 execution must receive:
 
-- one `DeliverableID`;
+- one `DeliverableID`, except an authorized related representation-migration
+  batch may receive an ordered list of at most five `DeliverableID` values and
+  at most 2,053 frozen legacy source lines;
 - the parent `PackageID`;
 - scope items and objectives from `_Registers/Deliverables.csv`;
 - applicable invariants from `CONTRACT.md`;
 - acceptance criteria from `_CONTEXT.md` or the sealed brief;
 - explicit write scope.
+
+For that representation-migration exception, WORKING_ITEMS dispatches one
+package-wide author and, only after author fan-in, one fresh evidence-only
+package-wide verifier over 100% of the same members. Packages exceeding either
+observed bound are split into the minimum number of consecutive numeric
+sub-batches, while one WORKING_ITEMS instance retains package ownership.
+Per-member mappings, hashes, clean-finalization evidence, replacement/inverse
+rows, simulations, checks, telemetry, findings, and rerun triggers remain
+mandatory. The verifier does not repair author output. RECONCILIATION retains
+100% aggregate checks, fresh reproduction of every exception and the
+numerically final clean member, and expansion to the affected full package on
+any exception or aggregate/sample failure.
 
 If a requested task crosses package boundaries or requires protected data, stop and escalate to `SOFTWARE_DECOMP` or the human project authority.
