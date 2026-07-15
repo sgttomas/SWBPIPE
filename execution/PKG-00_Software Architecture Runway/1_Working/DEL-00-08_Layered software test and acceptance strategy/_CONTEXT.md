@@ -1,5 +1,12 @@
 # Context: DEL-00-08
 
+> **Preserved setup context — superseded for current consumption.** This
+> sealed scaffold records the revision-0.7 setup basis and is retained as
+> historical evidence. For current use, read `ArchitectureBasis.md`,
+> `_STATUS.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9,
+> and project decision D-43. The anticipated artifacts and PKG-01–12 gate
+> below describe the setup context, not the current architecture-basis state.
+
 **Deliverable ID:** DEL-00-08
 **Name:** Layered software test and acceptance strategy
 **Package ID:** PKG-00

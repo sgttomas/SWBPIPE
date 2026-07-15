@@ -8,16 +8,17 @@
 
 ## Upstream
 - No package-local upstream deliverable is required before using this PKG-00 architecture-basis deliverable as context.
-- Governing upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9, SCA-001/SCA-003/SCA-004 records, and approved `DAG-007`.
+- Governing upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9, the SCA-001 architecture basis as amended through SCA-006, and approved `DAG-007`.
 
 ## Downstream
 - Downstream consumers use AB-00-02 only through sealed briefs, accepted context injection, or governed review/dispatch surfaces.
 - Missing downstream implementation artifacts are not blockers for this PKG-00 architecture-basis record unless a later human gate changes the closure criteria.
 
-## Extracted Dependency Register
-- **Status:** SATISFIED_BY_DAG_006_AUTHORITY
+## Current Dependency Resolution
+- **Status:** SATISFIED_BY_DAG_007_AUTHORITY
 - **Dependencies.csv:** Not deliverable-local for PKG-00; use `execution/_DAG/DAG-007/DependencyEdges.csv` for approved relationship context.
-- **Summary:** PKG-00 remains `SEMANTIC_READY` architecture-basis context; DAG-006 does not dispatch work, change lifecycle state, or convert PKG-00 to implementation authority.
+- **Lifecycle:** `_STATUS.md` is authoritative and currently records `IN_PROGRESS`; dependency satisfaction does not change lifecycle or create implementation authority.
+- **History:** The former DAG-006/`SEMANTIC_READY` extraction remains recoverable from pre-D-43 Git history and is not current state.
 
 ## Consumer Handoff Notes
 - Inject the applicable AB-00-02 row and current resolved/TBD architecture baseline, not the full PKG-00 prose.

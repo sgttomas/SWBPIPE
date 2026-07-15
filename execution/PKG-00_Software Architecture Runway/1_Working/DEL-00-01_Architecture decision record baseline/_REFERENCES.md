@@ -1,5 +1,13 @@
 # References: DEL-00-01 Architecture decision record baseline
 
+## Current Reading Contract
+- `ArchitectureBasis.md` - canonical current member reference (`chirality-architecture-basis/v1`, AB-00-01).
+- `_STATUS.md` - sole deliverable-local lifecycle authority.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9 - current decomposition and architecture-basis authority.
+- `execution/_Coordination/_DECISIONS/D-43_pkg00_architecture_basis_consolidation.md` - consolidation ruling and boundaries.
+- `../../CONSOLIDATION_MANIFEST.md` - hash-bound predecessor/successor provenance and package reading contract.
+- `_CONTEXT.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `MEMORY.md`, and `_run_records/` are retained setup or derivative evidence; they do not override the current surfaces above.
+
 ## Governing References
 - INIT.md - Root bootstrap, reading order, and agent constraints.
 - AGENTS.md - OpenPipeStress agent index and dispatch rules.

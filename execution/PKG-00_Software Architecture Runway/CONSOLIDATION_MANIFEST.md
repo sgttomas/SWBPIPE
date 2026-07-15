@@ -5,10 +5,38 @@ Pre-consolidation basis commit: `b93764d27d0e369c1a6fe2a231b561dd71a746d2` (all 
 recoverable from this commit; no history is rewritten).
 
 Each member's four-document kit is consolidated into `ArchitectureBasis.md`
-(`chirality-architecture-basis/v1`). `_STATUS.md`, `MEMORY.md`, `_SEMANTIC*`,
-`_CONTEXT.md`, and `_run_records/` are byte-identical to the basis commit.
-`_DEPENDENCIES.md`/`_REFERENCES.md` change only their SOFTWARE_DECOMP
-revision pins (0.7 → 0.9 per SCA-006).
+(`chirality-architecture-basis/v1`). At the D-43 consolidation merge,
+`_STATUS.md`, `MEMORY.md`, `_SEMANTIC*`, `_CONTEXT.md`, and `_run_records/`
+were byte-identical to the basis commit, while `_DEPENDENCIES.md` and
+`_REFERENCES.md` changed only their SOFTWARE_DECOMP revision pins (0.7 → 0.9
+per SCA-006). The later alignment recorded below changes current navigation
+surfaces without rewriting the preserved semantic, memory, status, or run
+evidence.
+
+## Current reading contract
+
+For current use of a PKG-00 member, read these surfaces in order:
+
+1. `ArchitectureBasis.md` — current member reference and applicable
+   architecture requirements, decisions, artifacts, and open questions.
+2. `_STATUS.md` — sole deliverable-local lifecycle authority.
+3. `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9 — current
+   decomposition and AB-00-01..08 authority.
+4. `_DEPENDENCIES.md` and `_REFERENCES.md` — current relationship and source
+   navigation.
+
+`_CONTEXT.md` remains the sealed revision-0.7 setup context and carries a
+supersession notice. `MEMORY.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and
+`_run_records/` remain dated historical or derivative evidence; their
+references to the former kit do not override current state. The original
+byte-identical D-43 consolidation state remains bound at merge commit
+`291301291bdaa8ec6b64dbbf3cff98ecfeadeca7`.
+
+Validate this contract with:
+
+```text
+python3 tools/validation/validate_architecture_basis.py
+```
 
 ## Removed source files (SHA-256 at basis commit)
 
