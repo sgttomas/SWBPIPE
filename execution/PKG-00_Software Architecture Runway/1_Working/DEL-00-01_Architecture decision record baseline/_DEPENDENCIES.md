@@ -4,11 +4,11 @@
 - **Mode:** DAG-007_ACTIVE_GRAPH
 - **DAG Status:** APPROVED_ACTIVE_GRAPH_AUTHORITY
 - **Authority:** `execution/_DAG/DAG-007/` is approved relationship context. Deliverable-local `_STATUS.md` remains lifecycle authority.
-- **Architecture Basis:** AB-00-01 from `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 is accepted architecture-basis context for downstream sealed briefs without making PKG-00 `ISSUED`.
+- **Architecture Basis:** AB-00-01 from `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9 is accepted architecture-basis context for downstream sealed briefs without making PKG-00 `ISSUED`.
 
 ## Upstream
 - No package-local upstream deliverable is required before using this PKG-00 architecture-basis deliverable as context.
-- Governing upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, SCA-001/SCA-003/SCA-004 records, and approved `DAG-007`.
+- Governing upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9, SCA-001/SCA-003/SCA-004 records, and approved `DAG-007`.
 
 ## Downstream
 - Downstream consumers use AB-00-01 only through sealed briefs, accepted context injection, or governed review/dispatch surfaces.
