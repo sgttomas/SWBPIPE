@@ -71,6 +71,9 @@ with `AWAITING_RULING` status.
   exited 0. Its reported cross-project review/warning inventory predates and is
   outside this bounded tranche.
 - Rust formatting and `git diff --check` passed on the touched surfaces.
+- The DEC-025 five-surface sweep passed on clean implementation commit
+  `e2ed4d3471df38bca2371ed621ac53db19cb3fe6`; commit-bound summary:
+  `validation/evidence/sweeps/SWEEP_20260716T035057Z_e2ed4d3471df.json`.
 
 ## Governance And Boundaries
 

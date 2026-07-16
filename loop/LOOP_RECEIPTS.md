@@ -1144,3 +1144,21 @@
   - Checks: receipt validator, repo-wide self-check, and governance tests pass.
   - Gate-Outcome: `EXECUTED` — O-A implementation applied; validation and
     authorized PR closeout remain.
+
+- **2026-07-15 — Receipt 46** (DEC-076 attribution and DEC-077 interpolation).
+  - Receipt-ID: `Receipt-46`
+  - Examined-Through: `ea9b7b2887df45c5e2e8880a690bac91641b1e22`
+  - Parent-Receipt: `Receipt-45`
+  - Stale-Map-Delta: the standing plan's repo-root deliverable-status command
+    omits the live `projects/chirality-piping/` prefix; verify at
+    `projects/chirality-piping/tools/coordination/list_deliverable_status.py`.
+  - Pointers: `TP-PMM-P3-TEMPINTERP-001` DEL-05-02 run record; D-45 packet and
+    register row; `DEC076-PDU077-SURF011` DEL-10-04 run record;
+    `R7_DEC076_PDU077/`; `SWEEP_20260716T035057Z_e2ed4d3471df.json`.
+  - Checks: work-type suites, DEC-025 five-surface sweep, receipt validator,
+    repo-wide self-check, harness pytest, and deliverable-status summary pass.
+  - Model-Attribution: single highest-available session agent; no multi-agent
+    execution or AgentRuns record.
+  - Gate-Outcome: `EXECUTED` — DEC-076 SURF-011 attribution and DEC-077 E/alpha
+    interpolation completed within live authority; temperature-indexed G is
+    owner-shaped and remains `AWAITING_RULING` at D-45.
