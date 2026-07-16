@@ -1162,3 +1162,19 @@
   - Gate-Outcome: `EXECUTED` — DEC-076 SURF-011 attribution and DEC-077 E/alpha
     interpolation completed within live authority; temperature-indexed G is
     owner-shaped and remains `AWAITING_RULING` at D-45.
+
+- **2026-07-15 — Receipt 47** (R5 reproduction and CI-documentation gateway).
+  - Receipt-ID: `Receipt-47`
+  - Examined-Through: `34d8e1002ed85bf5acef4c72f10d45fb0b514ed5`
+  - Parent-Receipt: `Receipt-46`
+  - Pointers: D-46 packet/register row;
+    `CANDIDATE_BRIEF_2026-07-15_DEL-10-04_CI_BROWSER_MAPPING.md`.
+  - Checks: receipt validator/tests, repo-wide self-check, harness pytest,
+    dependency/status discovery, and `git diff --check` pass.
+  - Model-Attribution: single highest-available session agent; no multi-agent
+    execution or AgentRuns record.
+  - Gate-Outcome: `AWAITING_OWNER` — rule D-46 O-A/O-B/O-C and separately
+    adopt or reject the DEL-10-04 candidate brief; no external-reproduction
+    acceptance, case-page promotion, hosted CI activation, or deliverable
+    implementation occurred. DEL-10-05 and DEL-09-01 remain unselectable
+    because active DAG-007 execution-upstream rows are `TBD`.
