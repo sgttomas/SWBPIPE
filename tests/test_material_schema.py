@@ -169,15 +169,16 @@ def main():
         "TBD",
     } <= enum_at(schema, "MaterialPropertyKind")
 
-    # DEC-068 item 1: temperature-indexed slots carry exact-selection solve
-    # semantics; interpolation remains an open decision (drafted as D-38).
+    # DEC-068 exact selection remains available; DEC-077 rules bounded linear
+    # interpolation with provenance and no extrapolation.
     temperature_ref = defs["MaterialPropertyValue"]["properties"]["temperature_ref"]
     assert temperature_ref["$ref"] == "#/$defs/Reference"
     assert "exact" in temperature_ref["description"]
-    assert "no interpolation" in temperature_ref["description"]
+    assert "linear interpolation" in temperature_ref["description"]
+    assert "Extrapolation is never performed" in temperature_ref["description"]
     assert (
         "temperature_interpolation_policy"
-        in defs["OpenDecision"]["properties"]["topic"]["enum"]
+        not in defs["OpenDecision"]["properties"]["topic"]["enum"]
     )
     assert {
         "density",
@@ -240,7 +241,6 @@ def main():
         "public_material_fixture_policy",
         "accepted_material_source_catalog",
         "allowable_value_storage_policy",
-        "temperature_interpolation_policy",
     } <= set(open_decision["properties"]["topic"]["enum"])
 
     assert fixture["material_library"]["library_scope"] == "public_schema_fixture"

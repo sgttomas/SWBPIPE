@@ -405,7 +405,7 @@
           "$ref": "#/$defs/MaterialPropertyKind"
         },
         "temperature_ref": {
-          "description": "Temperature index for this user-entered property value. Solve semantics (DEC-068 item 1): a load case that names a modulus basis selects the stored value with the exactly matching temperature index; a basis reference matching no stored value is a blocking diagnostic, and no interpolation between stored temperature points is performed while the temperature_interpolation_policy open decision (drafted as D-38) remains unruled.",
+          "description": "Temperature index for this user-entered property value. Solve semantics: DEC-068 exact-id selection remains available; DEC-077 also permits declared linear interpolation of elastic modulus and thermal expansion coefficient between two adjacent user-entered points, with source-point provenance and blocking at or beyond stored range edges. Extrapolation is never performed.",
           "$ref": "#/$defs/Reference"
         },
         "value": {
@@ -556,7 +556,6 @@
             "accepted_material_source_catalog",
             "material_property_required_set",
             "allowable_value_storage_policy",
-            "temperature_interpolation_policy",
             "editor_fixture_content",
             "TBD"
           ]

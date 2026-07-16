@@ -1,11 +1,12 @@
-// TP-PMM-GUIEMIT-001 — GUI entry and emission of the four user-entered
-// schema slots adopted under DEC-068 / DEC-070 (SOFTWARE_DECOMP §12):
+// TP-PMM-GUIEMIT-001 — GUI entry and emission of user-entered schema slots
+// adopted under DEC-068 / DEC-070 and extended by DEC-077:
 //
 //   1. `geometry.bend_pipe_ref` on bend components (curved-bend span
 //      mapping; expected shape per `core/product_physics` blocking
 //      diagnostics),
 //   2. `section.mill_tolerance` on pipe spans,
-//   3. `modulus_basis_ref` on load cases,
+//   3. mutually exclusive `modulus_basis_ref` / `modulus_basis_temperature`
+//      on load cases,
 //   4. seismic/wind `equivalent_static` occasional-load-generation inputs
 //      on load cases.
 //
@@ -35,7 +36,13 @@ import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { selectedProperties } from "../model-workspace/modelView";
 import { PropertyInspector } from "./PropertyInspector";
 
-const SLOT_KEYS = ["bend_pipe_ref", "mill_tolerance", "modulus_basis_ref", "equivalent_static"] as const;
+const SLOT_KEYS = [
+  "bend_pipe_ref",
+  "mill_tolerance",
+  "modulus_basis_ref",
+  "modulus_basis_temperature",
+  "equivalent_static"
+] as const;
 
 const schemasDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -147,11 +154,11 @@ describe("TP-PMM-GUIEMIT-001 user-entered schema slot entry", () => {
     expect(JSON.parse(queued[0].change.after)).toEqual({ value: 0.0016, unit: "m" });
   });
 
-  it("enters and emits modulus_basis_ref and seismic/wind generation inputs on a load case", async () => {
+  it("enters and emits modulus basis plus seismic/wind generation inputs on a load case", async () => {
     const model = await loadPreviewModel();
     const queued = renderInspector(model, { type: "load", id: "load:L-100" });
 
-    queueFieldValue("modulus_basis_ref", "tpoint:invented-op-160C");
+    queueFieldValue("modulus_basis_temperature.value", "400");
     queueFieldValue("equivalent_static.seismic.gravity_acceleration.value", "9.7");
     queueFieldValue("equivalent_static.seismic.g_factor_x.value", "0.3");
     queueFieldValue("equivalent_static.wind.pressure.value", "480");
@@ -162,9 +169,9 @@ describe("TP-PMM-GUIEMIT-001 user-entered schema slot entry", () => {
     expect(queued).toHaveLength(7);
     const byPath = Object.fromEntries(queued.map((intent) => [intent.change.field_path, intent]));
 
-    expect(byPath["modulus_basis_ref"].change.change_kind).toBe("update_load");
-    expect(byPath["modulus_basis_ref"].change.after).toBe("tpoint:invented-op-160C");
-    expect(byPath["modulus_basis_ref"].change.before).toBe("TBD");
+    const solveTemperature = byPath["modulus_basis_temperature.value"];
+    expect(solveTemperature.change.dimension).toBe("temperature");
+    expect(JSON.parse(solveTemperature.change.after)).toEqual({ value: 400, unit: "K" });
 
     const gravity = byPath["equivalent_static.seismic.gravity_acceleration.value"];
     expect(gravity.change.dimension).toBe("acceleration");
@@ -200,6 +207,7 @@ describe("TP-PMM-GUIEMIT-001 review display and omission", () => {
     const loadRows = selectedProperties(base, { type: "load", id: "load:L-100" });
     for (const label of [
       "Modulus basis",
+      "Modulus basis solve temperature",
       "Seismic gravity",
       "Wind pressure",
       "Wind direction",
@@ -213,7 +221,7 @@ describe("TP-PMM-GUIEMIT-001 review display and omission", () => {
     entered.pipe_segments[2].section.mill_tolerance = { value: 0.0016, unit: "m" };
     const bend = entered.components.find((item) => item.id === "component:C-110")!;
     bend.geometry = { ...bend.geometry, bend_pipe_ref: "pipe:P-100" };
-    entered.load_cases[0].modulus_basis_ref = "tpoint:invented-op-160C";
+    entered.load_cases[0].modulus_basis_temperature = { value: 400, unit: "K" };
     entered.load_cases[0].equivalent_static = {
       seismic: {
         gravity_acceleration: { value: 9.7, unit: "m/s^2" },
@@ -236,7 +244,7 @@ describe("TP-PMM-GUIEMIT-001 review display and omission", () => {
     );
     expect(selectedProperties(entered, { type: "load", id: "load:L-100" })).toEqual(
       expect.arrayContaining([
-        ["Modulus basis", "tpoint:invented-op-160C"],
+        ["Modulus basis solve temperature", "400 K"],
         ["Seismic gravity", "9.7 m/s^2"],
         ["Seismic g-factor X", "0.3 none"],
         ["Seismic g-factor Y", "TBD"],
@@ -277,7 +285,7 @@ describe("TP-PMM-GUIEMIT-001 emitted model JSON", () => {
     const bend = entered.components.find((item) => item.id === "component:C-110")!;
     bend.geometry = { ...bend.geometry, bend_pipe_ref: "pipe:P-100" };
     entered.pipe_segments[2].section.mill_tolerance = { value: 0.0016, unit: "m" };
-    entered.load_cases[0].modulus_basis_ref = "tpoint:invented-op-160C";
+    entered.load_cases[0].modulus_basis_temperature = { value: 400, unit: "K" };
     entered.load_cases[0].equivalent_static = {
       seismic: {
         gravity_acceleration: { value: 9.7, unit: "m/s^2" },
@@ -298,7 +306,7 @@ describe("TP-PMM-GUIEMIT-001 emitted model JSON", () => {
     const emittedBend = emitted.components.find((item) => item.id === "component:C-110")!;
     expect(emittedBend.geometry?.bend_pipe_ref).toBe("pipe:P-100");
     expect(emitted.pipe_segments[2].section.mill_tolerance).toEqual({ value: 0.0016, unit: "m" });
-    expect(emitted.load_cases[0].modulus_basis_ref).toBe("tpoint:invented-op-160C");
+    expect(emitted.load_cases[0].modulus_basis_temperature).toEqual({ value: 400, unit: "K" });
     expect(emitted.load_cases[0].equivalent_static).toEqual({
       seismic: {
         gravity_acceleration: { value: 9.7, unit: "m/s^2" },
@@ -319,6 +327,7 @@ describe("TP-PMM-GUIEMIT-001 emitted model JSON", () => {
     expect(JSON.stringify(emitted.load_cases[0].equivalent_static)).not.toContain("g_factor_y");
     expect(JSON.stringify(emitted.pipe_segments[0])).not.toContain("mill_tolerance");
     expect(JSON.stringify(emitted.load_cases[1])).not.toContain("modulus_basis_ref");
+    expect(JSON.stringify(emitted.load_cases[1])).not.toContain("modulus_basis_temperature");
   });
 });
 
@@ -327,10 +336,14 @@ describe("TP-PMM-GUIEMIT-001 schema binding", () => {
     const modelSchema = readSchema("model.schema.yaml");
     const modelDefs = defs(modelSchema);
 
-    // The canonical LoadCase carries both DEC-068 slots.
+    // The canonical LoadCase carries DEC-068/DEC-077 basis slots.
     const loadCaseProps = (modelDefs.LoadCase as JsonRecord).properties as JsonRecord;
     expect(Object.keys(loadCaseProps)).toEqual(
-      expect.arrayContaining(["modulus_basis_ref", "equivalent_static_generation"])
+      expect.arrayContaining([
+        "modulus_basis_ref",
+        "modulus_basis_temperature",
+        "equivalent_static_generation"
+      ])
     );
 
     // The emitted basis id satisfies the schema's own Id pattern.
@@ -342,7 +355,7 @@ describe("TP-PMM-GUIEMIT-001 schema binding", () => {
     const dimensionEnum = (
       ((modelDefs.Quantity as JsonRecord).properties as JsonRecord).dimension as JsonRecord
     ).enum as string[];
-    for (const token of ["acceleration", "pressure", "length", "dimensionless"]) {
+    for (const token of ["acceleration", "pressure", "length", "temperature", "dimensionless"]) {
       expect(dimensionEnum).toContain(token);
     }
   });

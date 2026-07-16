@@ -752,6 +752,7 @@ function gridRows(model: PreviewModel, entityType: GridEntityType): GridRow[] {
         loadCase.kind,
         loadCase.status,
         loadCase.modulus_basis_ref ?? "",
+        String(loadCase.modulus_basis_temperature?.value ?? ""),
         loadCase.equivalent_static?.wind?.direction ?? "",
         (loadCase.equivalent_static?.wind?.exposed_pipe_refs ?? []).join(" "),
         loadCase.provenance
@@ -1042,7 +1043,16 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
         "Modulus basis",
         "modulus_basis_ref",
         "Load",
-        "user-assigned temperature-point basis id; exact selection, no interpolation",
+        "user-assigned temperature-point basis id; exact selection",
+        "update_load"
+      ),
+      quantityGridColumn(
+        "modulus-basis-temperature",
+        "Solve temperature",
+        "modulus_basis_temperature.value",
+        "Load",
+        "temperature",
+        "K",
         "update_load"
       ),
       quantityGridColumn(

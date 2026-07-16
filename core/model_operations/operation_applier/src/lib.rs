@@ -638,15 +638,22 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 field_path: "provenance",
                 kind: FieldKind::Text,
             },
-            // DEC-068 item 1: user-assigned temperature-point basis id (or
-            // the reserved label `material_base_values`). The applier
-            // enforces the schema Id shape only; exact-selection matching
-            // against stored temperature points is the solve-side contract
-            // (`core/product_physics`), which blocks a dangling reference —
-            // no interpolation anywhere (D-38 remains AWAITING_RULING).
+            // DEC-068 exact-id selection remains available under DEC-077.
+            // The applier enforces the schema Id shape; solve-side matching
+            // remains a blocking product-physics contract.
             FieldRule {
                 field_path: "modulus_basis_ref",
                 kind: FieldKind::OptionalId,
+            },
+            // DEC-077 explicit solve temperature for bounded linear E/alpha
+            // interpolation. Units are validated here; bracketing,
+            // provenance, and no-extrapolation are solve-side contracts.
+            FieldRule {
+                field_path: "modulus_basis_temperature.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::AnyFinite,
+                    dimension: "temperature",
+                },
             },
             // DEC-068 item 2: user-entered static-equivalent generation
             // inputs. Constraints mirror `core/loads/primitive_loads`
@@ -5227,8 +5234,9 @@ fn resolve_field(
             })
         }
         FieldKind::OptionalText => {
-            let replacement =
-                resolve_optional_text_common(entity, &segments, before, after, target_ref, field_path, checker)?;
+            let replacement = resolve_optional_text_common(
+                entity, &segments, before, after, target_ref, field_path, checker,
+            )?;
             Some(ResolvedField {
                 kind,
                 current_display: optional_text_current_display(entity, &segments),
@@ -5239,8 +5247,9 @@ fn resolve_field(
             })
         }
         FieldKind::OptionalId => {
-            let replacement =
-                resolve_optional_text_common(entity, &segments, before, after, target_ref, field_path, checker)?;
+            let replacement = resolve_optional_text_common(
+                entity, &segments, before, after, target_ref, field_path, checker,
+            )?;
             if !is_valid_schema_id(&replacement) {
                 checker.push(
                     "OP-ID-PATTERN-INVALID",
@@ -5263,8 +5272,9 @@ fn resolve_field(
             })
         }
         FieldKind::OptionalEnum { tokens } => {
-            let replacement =
-                resolve_optional_text_common(entity, &segments, before, after, target_ref, field_path, checker)?;
+            let replacement = resolve_optional_text_common(
+                entity, &segments, before, after, target_ref, field_path, checker,
+            )?;
             if !tokens.contains(&replacement.as_str()) {
                 checker.push(
                     "OP-ENUM-TOKEN-INVALID",
@@ -5290,8 +5300,9 @@ fn resolve_field(
         FieldKind::OptionalEntityRef {
             collection: ref_collection,
         } => {
-            let replacement =
-                resolve_optional_text_common(entity, &segments, before, after, target_ref, field_path, checker)?;
+            let replacement = resolve_optional_text_common(
+                entity, &segments, before, after, target_ref, field_path, checker,
+            )?;
             if find_entity(model, ref_collection, &replacement).is_none() {
                 checker.reference_state = "blocked";
                 checker.push(
@@ -5792,6 +5803,24 @@ fn apply_resolved_field(
             );
             return false;
         }
+    }
+    if object_type == "Load"
+        && entity
+            .get("modulus_basis_ref")
+            .is_some_and(|value| !value.is_null())
+        && entity
+            .get("modulus_basis_temperature")
+            .is_some_and(|value| !value.is_null())
+    {
+        checker.push(
+            "OP-MODULUS-BASIS-SELECTION-CONFLICT",
+            "blocking",
+            "A load case cannot carry both modulus_basis_ref and modulus_basis_temperature."
+                .to_string(),
+            "Clear the existing exact-id or solve-temperature basis before authoring the alternative DEC-077 selection.",
+            vec![target_ref.to_string()],
+        );
+        return false;
     }
     let _ = field.kind;
     true
@@ -10833,6 +10862,57 @@ mod tests {
         );
         assert!(codes(&malformed).contains(&"OP-ID-PATTERN-INVALID"));
         assert!(malformed.applied_model.is_none());
+    }
+
+    #[test]
+    fn modulus_basis_temperature_authors_an_explicit_temperature_quantity() {
+        let model = sample_model();
+        let accepted = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "modulus_basis_temperature.value",
+                "TBD",
+                "{\"value\":400.0,\"unit\":\"K\"}",
+                "K",
+                "temperature",
+            ),
+            None,
+        );
+        assert!(
+            accepted.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            accepted.diagnostics
+        );
+        assert_eq!(
+            accepted.applied_model.expect("applied model")["load_cases"][0]
+                ["modulus_basis_temperature"],
+            json!({ "value": 400.0, "unit": "K" })
+        );
+    }
+
+    #[test]
+    fn modulus_basis_temperature_blocks_when_exact_basis_is_present() {
+        let mut model = sample_model();
+        model["load_cases"][0]["modulus_basis_ref"] = json!("tpoint:200C");
+        let outcome = apply_operation(
+            &model,
+            &modify_intent(
+                "Load",
+                "load:L-1",
+                "update_load",
+                "modulus_basis_temperature.value",
+                "TBD",
+                "{\"value\":400.0,\"unit\":\"K\"}",
+                "K",
+                "temperature",
+            ),
+            None,
+        );
+        assert!(codes(&outcome).contains(&"OP-MODULUS-BASIS-SELECTION-CONFLICT"));
+        assert!(outcome.applied_model.is_none());
     }
 
     #[test]

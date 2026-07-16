@@ -1,0 +1,2 @@
+SurfaceID,Kind,Path,Name,PurposeOneLine,NamedInSPEC,DeliverableAttribution,AttributionEvidence
+SURF-011,DESKTOP_FEATURE,apps/desktop/src/features/build-readiness,build-readiness,Build/release readiness status panel,NO,DEL-10-04,"DEC-076 owner ruling; panel packet identity deliverable_id=DEL-10-04 package_id=PKG-10 scope_item=SOW-032; DEL-10-04 _CONTEXT.md and ScopeOfWork.md"

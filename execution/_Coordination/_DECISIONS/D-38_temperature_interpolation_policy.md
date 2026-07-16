@@ -1,6 +1,6 @@
 # D-38 - Temperature Interpolation Policy For Material Property Bases
 
-**Status:** PROPOSAL
+**Status:** RULED — Option O-B (2026-07-15)
 **Date prepared:** 2026-07-10
 **Decision ID:** D-38
 **Prepared by:** agent (TP-PMM-P3-MODULUSBASIS-001 tranche worker), at owner

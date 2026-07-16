@@ -1,13 +1,13 @@
 # Status: DEL-05-02 Load-case algebra engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-07-15
 
 ## Remaining
-- Implement declared temperature interpolation between user-entered property points, replacing the exact-selection conservative floor (gated: D-38) (source: Receipt 6 / TP-PMM-P3-MODULUSBASIS-001 §Boundaries / register row D-38)
-- Extend temperature indexing to shear modulus, currently base value under any basis (gated: D-38) (source: Receipt 6 residual / TP-PMM-P3-MODULUSBASIS-001 §Boundaries)
+- Decide whether and how to extend temperature indexing to shear modulus, which remains the user-entered base value under either exact-id or interpolated E/alpha bases (gated: D-45) (source: `DEC-077`; TP-PMM-P3-MODULUSBASIS-001 §Boundaries; D-45 packet)
 
 ## History
+- 2026-07-15 - DEC-077 implemented declared linear interpolation of user-entered E and alpha between strictly bracketing temperature points, with exact-id selection preserved, explicit two-point provenance, and blocking at/beyond stored range edges. Temperature-indexed shear modulus remains outside the ruling and is routed to D-45. State remains IN_PROGRESS; no lifecycle, release, or professional-reliance claim was made.
 - 2026-07-12 - D-41 R5 T7 PDU-056 refreshed the cited dependency-maturity declaration to the recorded SATISFIED dispositions while preserving the evaluator-interface TBD; cited-claim backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - Four-document setup kit drafted (TASK+four-documents P1_P2)

@@ -216,11 +216,16 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
       ["Categories", primitiveLoadCategories(primitiveLoads)],
       ["Targets", primitiveLoadTargets(primitiveLoads)]
     ];
-    // Optional user-entered modulus basis (DEC-068 item 1): absence means
-    // the case solves on the material base values, so the row appears only
-    // when the user assigned a basis id.
+    // Mutually exclusive user-entered modulus basis selectors (DEC-068 /
+    // DEC-077). Absence of both means material base values.
     if (loadCase.modulus_basis_ref) {
       rows.push(["Modulus basis", loadCase.modulus_basis_ref]);
+    }
+    if (loadCase.modulus_basis_temperature) {
+      rows.push([
+        "Modulus basis solve temperature",
+        quantityDisplay(loadCase.modulus_basis_temperature)
+      ]);
     }
     if (loadCase.equivalent_static?.seismic) {
       const seismic = loadCase.equivalent_static.seismic;

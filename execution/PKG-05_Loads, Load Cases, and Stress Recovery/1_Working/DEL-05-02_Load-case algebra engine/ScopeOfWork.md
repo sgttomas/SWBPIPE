@@ -92,6 +92,8 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
 > Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The load-case algebra basis is implemented and current under SOFTWARE_DECOMP revision 0.8. Remaining breadth, validation, or integration work is limited to the explicit current residuals; no lifecycle transition is made.
+>
+> Under `DEC-077`, a load case may preserve exact `modulus_basis_ref` selection or provide an explicit solve temperature. The product-physics path linearly interpolates user-entered elastic modulus and thermal-expansion coefficient values only between strictly bracketing adjacent temperature points, records both source point IDs and the method, and blocks at or beyond range edges rather than extrapolating. The structured operation and desktop authoring surfaces expose the solve-temperature quantity with explicit temperature units and reject simultaneous exact-id and solve-temperature selection. Shear modulus remains the user-entered base value pending D-45; this declaration does not supply a curve, catalog, code table, or default.
 
 ## Completion and Reliance Basis — Epistemology
 

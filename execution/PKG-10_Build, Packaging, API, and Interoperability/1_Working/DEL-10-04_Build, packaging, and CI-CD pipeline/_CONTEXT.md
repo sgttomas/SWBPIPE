@@ -21,6 +21,11 @@ Implement reproducible builds, tests, packaging skeleton, and release artifacts 
   scripts and the `generate:product-preview-mechanics` fixture-generator
   command. This clarification does not move implementation, select a CI
   provider, or expand DEL-10-04 scope.
+- D-42 ruling `DEC-076` attributes SURF-011,
+  `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx`, to
+  DEL-10-04. The panel's embedded packet identifies `DEL-10-04`, `PKG-10`,
+  and `SOW-032` and exposes local build/package preview evidence without
+  activating CI, packaging, signing, publication, or release authority.
 
 ## Scope Coverage
 - SOW-032

@@ -1744,6 +1744,13 @@ pub fn tp_pmm_p3_milltol_effective_wall_stress_fixture() -> StressBenchmark {
 
 const MODULUSBASIS_HOT_ELASTIC_MODULUS: f64 = 1.8e11;
 const MODULUSBASIS_HOT_EXPANSION_COEFFICIENT: f64 = 1.3e-5;
+const MODULUSBASIS_INTERPOLATION_LOWER_TEMPERATURE: f64 = 300.0;
+const MODULUSBASIS_INTERPOLATION_UPPER_TEMPERATURE: f64 = 500.0;
+const MODULUSBASIS_INTERPOLATION_SOLVE_TEMPERATURE: f64 = 400.0;
+const MODULUSBASIS_INTERPOLATION_LOWER_E: f64 = 2.0e11;
+const MODULUSBASIS_INTERPOLATION_UPPER_E: f64 = 1.8e11;
+const MODULUSBASIS_INTERPOLATION_LOWER_ALPHA: f64 = 1.2e-5;
+const MODULUSBASIS_INTERPOLATION_UPPER_ALPHA: f64 = 1.4e-5;
 const MODULUSBASIS_TEMPERATURE_CHANGE: f64 = 10.0;
 const MODULUSBASIS_METAL_AREA: f64 = 0.004;
 pub const MODULUSBASIS_HOT_BASIS_LABEL: &str = "temperature_point:hot";
@@ -1756,6 +1763,14 @@ pub fn modulusbasis_hot_axial_force() -> f64 {
         * MODULUSBASIS_METAL_AREA
         * MODULUSBASIS_HOT_EXPANSION_COEFFICIENT
         * MODULUSBASIS_TEMPERATURE_CHANGE
+}
+
+fn modulusbasis_linear_interpolation(lower: f64, upper: f64) -> f64 {
+    let fraction = (MODULUSBASIS_INTERPOLATION_SOLVE_TEMPERATURE
+        - MODULUSBASIS_INTERPOLATION_LOWER_TEMPERATURE)
+        / (MODULUSBASIS_INTERPOLATION_UPPER_TEMPERATURE
+            - MODULUSBASIS_INTERPOLATION_LOWER_TEMPERATURE);
+    lower + fraction * (upper - lower)
 }
 
 fn modulusbasis_section() -> StressSectionProperties {
@@ -1808,10 +1823,10 @@ pub fn tp_pmm_p3_modulusbasis_range_stress_fixture() -> StressBenchmark {
     StressBenchmark {
         fixture_id: "STRESS-TP-PMM-P3-MODULUSBASIS-RANGE-STRESS",
         family: StressBenchmarkFamily::ModulusBasisStressRange,
-        description: "Hot-solve/cold-eval stress range where the hot state solves with user-entered temperature-point E and alpha and the range records both modulus bases explicitly.",
+        description: "Hot-solve/cold-eval stress range plus DEC-077 hand-calculated midpoint interpolation of user-entered E and alpha; the range records both modulus bases explicitly.",
         assumptions: &[
             "All temperature-dependent property values are user-entered; no catalog, curve, or default is encoded.",
-            "Modulus basis selection is exact; no interpolation between stored temperature points is performed (interpolation policy is drafted as D-38, not ruled).",
+            "DEC-068 exact-id selection remains available; DEC-077 linear interpolation uses two adjacent user-entered points and never extrapolates.",
             "The range basis record is a verbatim declaration of the solved bases, not a selector.",
         ],
         provenance: BenchmarkProvenance::public_original(
@@ -1831,6 +1846,26 @@ pub fn tp_pmm_p3_modulusbasis_range_stress_fixture() -> StressBenchmark {
                 value: hot_axial_stress,
                 unit: "Pa",
                 dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "interpolated_elastic_modulus",
+                value: modulusbasis_linear_interpolation(
+                    MODULUSBASIS_INTERPOLATION_LOWER_E,
+                    MODULUSBASIS_INTERPOLATION_UPPER_E,
+                ),
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "interpolated_thermal_expansion_coefficient",
+                value: modulusbasis_linear_interpolation(
+                    MODULUSBASIS_INTERPOLATION_LOWER_ALPHA,
+                    MODULUSBASIS_INTERPOLATION_UPPER_ALPHA,
+                ),
+                unit: "1/K",
+                dimension: "thermal_expansion_coefficient",
                 tolerance_policy: None,
             },
         ],
@@ -2019,6 +2054,11 @@ mod tests {
         );
         assert!(unrecorded.modulus_basis.is_none());
         assert_eq!(unrecorded.ranges, range.ranges);
+        assert_close(expected("interpolated_elastic_modulus"), 1.9e11);
+        assert_close(
+            expected("interpolated_thermal_expansion_coefficient"),
+            1.3e-5,
+        );
     }
 
     #[test]

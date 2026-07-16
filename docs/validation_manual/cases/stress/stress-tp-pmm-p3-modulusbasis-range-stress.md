@@ -23,8 +23,8 @@ refs:
 
 ## Test Purpose And Problem Statement
 
-Invented stress benchmark for the per-load-case modulus basis (tranche
-`TP-PMM-P3-MODULUSBASIS-001`, ruling `DEC-068` item 1). It verifies that:
+Invented stress benchmark for the per-load-case modulus basis (rulings
+`DEC-068` item 1 and `DEC-077`). It verifies that:
 
 1. A hot mechanics state solved with a user-entered temperature-point
    elastic modulus and thermal expansion coefficient (`E_hot`,
@@ -34,9 +34,10 @@ Invented stress benchmark for the per-load-case modulus basis (tranche
 2. A stress range between the hot-solved state and the cold
    (base-values) state records the modulus basis of both states
    explicitly and verbatim (`recover_stress_range_with_modulus_basis`),
-   with no basis inference and no interpolation between stored
-   temperature points (exact selection; interpolation policy is drafted
-   as D-38 and remains unruled).
+   with no basis inference; and
+3. a solve temperature of 400 K linearly interpolates E and alpha between
+   adjacent user-entered points at 300 K and 500 K, with both source-point
+   ids and `linear_temperature_interpolation` recorded as provenance.
 
 All inputs are invented or user-entered fixture data; nothing is copied from
 protected standards, commercial software examples, or proprietary data.

@@ -1749,8 +1749,18 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "Load",
         "dimensionless",
         "none",
-        "user-assigned temperature-point basis id; exact selection, no interpolation, no default",
+        "user-assigned temperature-point basis id; exact selection; mutually exclusive with solve temperature",
         "update_load"
+      ),
+      quantityField(
+        "Modulus basis solve temperature",
+        "modulus_basis_temperature.value",
+        loadCase.modulus_basis_temperature?.value ?? "TBD",
+        "Load",
+        "temperature",
+        loadCase.modulus_basis_temperature?.unit ?? "K",
+        "update_load",
+        true
       ),
       quantityField(
         "Seismic gravity acceleration",

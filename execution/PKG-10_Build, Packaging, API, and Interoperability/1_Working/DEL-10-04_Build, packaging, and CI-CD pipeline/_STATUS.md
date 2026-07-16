@@ -4,13 +4,13 @@
 **Last Updated:** 2026-07-15
 
 ## Remaining
-- Record SURF-011 (build-readiness panel, `apps/desktop/src/features/build-readiness`) attribution documentation under this deliverable per the D-42 O-A ruling, as part of the PDU-077 bounded mapping/documentation update and implementation-surface + claim-concordance re-extraction (source: DEC-076 / D-42 packet ruling section / PDU-077 row in `execution/_Reconciliation/DeliverableConcordance/DELIVERABLE_CONCORDANCE_2026-07-11_1305/PROPOSED_DELIVERABLE_UPDATES.csv`)
 - Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, making the export self-verifying or trimming its test set, and owner review of the v1 include/exclude allowlist (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
 - Sign/notarize release artifacts or record the explicit PRD §22.6 deviation (gated: D-06b) (source: PRD plan §3 E5 row / register row D-06b / DEC-057)
 - Record the CI browser-provisioning policy for Playwright surfaces (source: seam plan §9.5 roll-forward)
 - Map provider CI workflows to the provider-neutral phases in docs/BUILD_AND_RELEASE.md §7 (RGAP-003) (source: PRD plan §3 E5 row remaining scope / TP-E5-PACKAGING-001)
 
 ## History
+- 2026-07-15 - D-42/DEC-076 PDU-077 bounded update recorded SURF-011 as DEL-10-04 implementation evidence and completed the authorized implementation-surface/claim-concordance re-extraction; panel behavior and lifecycle remain unchanged.
 - 2026-07-15 - D-42 ruled O-A (DEC-076): SURF-011 build-readiness panel attributed to this deliverable per its embedded packet identity; Remaining item seeded for the PDU-077 bounded documentation update and re-extraction; no state change.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)

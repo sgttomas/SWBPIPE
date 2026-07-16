@@ -453,3 +453,29 @@ Durable context preserved after PKG-02 grounded finding resolution:
   operation validation/application, unit conversion behavior, private data,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-07-15 - DEC-077 temperature interpolation implementation
+
+- Implemented the owner-ruled D-38 Option O-B as `DEC-077`: load cases may
+  retain exact `modulus_basis_ref` selection or provide an explicit
+  `modulus_basis_temperature` quantity, but may not provide both.
+- The product-physics solve linearly interpolates E and alpha only between
+  strictly bracketing adjacent user-entered temperature points. Exact point
+  temperatures, range edges, and temperatures outside the stored range do not
+  use the interpolation path; unresolved or insufficient inputs block without
+  extrapolation.
+- Every derived E/alpha basis record names both source point IDs and declares
+  `linear_temperature_interpolation`. Existing exact-id provenance remains
+  unchanged, including in combination basis records.
+- Structured operation and desktop authoring surfaces now expose the solve
+  temperature with explicit temperature units and reject simultaneous exact-id
+  and temperature selections. Independent midpoint hand-calculation and
+  benchmark evidence covers E, alpha, and the resulting fixed-fixed thermal
+  force.
+- `DEC-077` did not authorize temperature-indexed shear modulus. The existing
+  user-entered base G behavior is preserved and the owner-shaped method/data
+  fork is routed to D-45 rather than silently extended.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-07-15_TP-PMM-P3-TEMPINTERP-001.md`.
+  No material catalog, curve, code table, default, lifecycle transition,
+  release-readiness claim, or professional/code-compliance claim was added.

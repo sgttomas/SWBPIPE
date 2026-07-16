@@ -132,6 +132,31 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   expect(horizontalOverflow).toBe(false);
 });
 
+test("DEC-077 solve temperature queues an explicit unit-bearing operation", async ({ page }) => {
+  await page.goto("/");
+  await ensureTreeExpanded(page);
+  await ensureInspectorExpanded(page);
+  await page.getByTestId("tree-row-load:L-100").click();
+
+  const editorIntentPanel = page.getByTestId("editor-intent-panel");
+  await editorIntentPanel
+    .getByTestId("editor-intent-field")
+    .selectOption("modulus_basis_temperature.value");
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("K");
+  await editorIntentPanel.getByTestId("editor-intent-value").fill("400");
+  await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
+    "model_metadata_unit_dimension_declared"
+  );
+  await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
+  await editorIntentPanel.getByTestId("queue-editor-intent").evaluate((button: HTMLButtonElement) => button.click());
+  await expect(editorIntentPanel.getByTestId("editor-intent-queue")).toContainText(
+    "modulus_basis_temperature.value"
+  );
+  await expect(editorIntentPanel.getByTestId("editor-intent-queue")).toContainText(
+    '{"value":400,"unit":"K"}'
+  );
+});
+
 test("R2 desktop preview smoke covers solve, results, report, and viewport overlay", async ({ page }) => {
   await page.goto("/");
 

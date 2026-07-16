@@ -413,11 +413,22 @@ def check_schema_contract():
     assert defs["ElementUniformDistributedForceLoadRecord"]["properties"][
         "load_record_type"
     ]["const"] == "element_uniform_distributed_force"
-    # DEC-068 item 1: per-load-case modulus basis with exact selection.
+    # DEC-068 item 1 + DEC-077: exact selection remains available and an
+    # explicit solve temperature enables bounded linear interpolation.
     assert "modulus_basis_ref" in defs["LoadCase"]["properties"]
     modulus_basis_ref = defs["LoadCase"]["properties"]["modulus_basis_ref"]
     assert "exact" in modulus_basis_ref["description"]
-    assert "no interpolation" in modulus_basis_ref["description"]
+    assert "mutually exclusive" in modulus_basis_ref["description"]
+    modulus_basis_temperature = defs["LoadCase"]["properties"][
+        "modulus_basis_temperature"
+    ]
+    assert modulus_basis_temperature["$ref"] == "#/$defs/QuantityValue"
+    assert "linear interpolation" in modulus_basis_temperature["description"]
+    assert "extrapolation" in modulus_basis_temperature["description"]
+    assert {
+        "modulus_basis_ref",
+        "modulus_basis_temperature",
+    } == set(defs["LoadCase"]["allOf"][0]["not"]["required"])
     assert "modulus_basis_records" in defs["Combination"]["properties"]
     modulus_record = defs["ModulusBasisRecord"]
     assert modulus_record["additionalProperties"] is False

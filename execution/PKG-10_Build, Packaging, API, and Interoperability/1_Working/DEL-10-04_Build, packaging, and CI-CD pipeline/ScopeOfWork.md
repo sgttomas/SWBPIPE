@@ -63,6 +63,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > | Desktop packaging baseline | Tauri-supported macOS, Windows, and Linux targets. |
 > | Release-quality boundary | Development/release automation evidence only; no engineering certification or code-compliance claim. |
 > | Root workspace manifest evidence | `projects/chirality-piping/package.json`: `apps/desktop` workspace; desktop dev/build/wasm/test/e2e scripts; `generate:product-preview-mechanics` invented-fixture generator. Attributed to DEL-10-04 by D-41 `DEC-074` O3. |
+> | Build-readiness panel evidence | SURF-011, `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx`: local Build/Package Readiness preview with embedded `DEL-10-04` / `PKG-10` / `SOW-032` identity. Attributed by D-42 `DEC-076`; no CI or release authority implied. |
 >
 
 ### CLM-005 — Conditions
@@ -109,6 +110,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - `docs/_Registers/ScopeLedger.csv` - row SOW-032.
 > - `docs/_Registers/ContextBudgetQA.csv` - row DEL-10-04.
 > - `projects/chirality-piping/package.json` - existing root npm workspace/build evidence attributed by D-41 `DEC-074` O3; read-only in this tranche.
+> - `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx` - existing SURF-011 local preview evidence attributed by D-42 `DEC-076`; read-only in the attribution tranche.
 >
 
 ### CLM-008 — TBD and Human-Ruling Slots
@@ -195,6 +197,13 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > the governed shared `core/product_preview` boundary, or broaden fixture
 > generation beyond the existing command.
 >
+> Under D-42 ruling `DEC-076`, SURF-011
+> (`apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx`) is
+> DEL-10-04 implementation evidence. Its packet self-identifies this
+> deliverable/package/scope item and reports local scripts, Tauri shell
+> metadata, unresolved release decisions, and explicit no-release/no-
+> professional-claim boundaries. This attribution changes no panel behavior.
+>
 
 ### CLM-014 — Standards
 
@@ -219,6 +228,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > | Protected-data boundary | Text review | No protected standards content, proprietary values, or private data are introduced. |
 > | Authority boundary | Text review | No certification, sealing, approval, endorsement, or compliance claim is made. |
 > | Root workspace manifest attribution | Read-only inspection of `projects/chirality-piping/package.json` | Existing desktop workspace scripts and preview-mechanics fixture-generator command are recorded as DEL-10-04 implementation/build evidence under `DEC-074` O3. |
+> | SURF-011 attribution | Read-only inspection of `BuildReadinessPanel.tsx`, embedded packet identity, and boundary fields | Existing local build/package-readiness preview is recorded as DEL-10-04 implementation evidence under `DEC-076`; no behavior or authority changes. |
 >
 
 ### CLM-016 — Documentation
@@ -283,6 +293,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > 6. Execute `dependency-extract` by writing `Dependencies.csv` v3.1 and refreshing `_DEPENDENCIES.md`.
 > 7. Run local validation checks for document presence, dependency schema, semantic/lensing structure, status, and write-scope compliance.
 > 8. For build-evidence review, inspect the root `projects/chirality-piping/package.json` read-only and confirm its desktop workspace scripts plus `generate:product-preview-mechanics` command remain attributed to DEL-10-04 under D-41 `DEC-074` O3.
+> 9. Inspect SURF-011 read-only and confirm its embedded `deliverable_id`, `package_id`, `scope_item`, local-only boundary, and no-release/no-professional-claim posture remain consistent with D-42 `DEC-076`.
 >
 
 ### CLM-021 — Verification
@@ -297,7 +308,8 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - `_STATUS.md` current state is `SEMANTIC_READY`.
 > - No files outside the deliverable folder were edited.
 > - No CI workflow, packaging script, manifest, release file, source code, or repo-level artifact was created or modified.
-> - Root `projects/chirality-piping/package.json` evidence is read-only and its recorded script inventory matches the manifest; this check does not resolve the separate D-42 build-readiness panel conflict.
+> - Root `projects/chirality-piping/package.json` evidence is read-only and its recorded script inventory matches the manifest.
+> - SURF-011 is read-only; its embedded identity and boundary fields match the D-42 `DEC-076` attribution without changing behavior.
 >
 
 ### CLM-022 — Records
@@ -377,6 +389,11 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > workspace scripts and preview-mechanics fixture-generator command as existing
 > build entrypoints, not as hosted-CI activation, release readiness, or authority
 > to change the governed shared product-preview boundary.
+>
+> SURF-011 is current DEL-10-04 implementation evidence under D-42
+> `DEC-076`. Interpret the panel as a local technical-preview reporting
+> surface, not as CI activation, package generation, signing, publication,
+> release authorization, or professional/code-compliance evidence.
 >
 
 ### CLM-029 — Trade-offs

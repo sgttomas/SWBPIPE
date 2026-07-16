@@ -198,11 +198,10 @@ export type PreviewModel = {
     status: string;
     provenance: string;
     primitive_loads?: Array<Record<string, unknown>>;
-    /** Optional user-entered modulus basis (DEC-068 item 1): the
-     * user-assigned temperature-point id whose stored material values this
-     * case solves with. Exact selection only; starts absent; no
-     * interpolation and no default. */
+    /** Optional exact user-entered modulus basis (DEC-068 item 1). */
     modulus_basis_ref?: string;
+    /** Optional DEC-077 solve temperature for bounded E/alpha interpolation. */
+    modulus_basis_temperature?: QuantityValue;
     /** Optional user-entered static-equivalent occasional-load generation
      * inputs (DEC-068 item 2). Starts absent; every value is user-entered;
      * no code coefficient, catalog value, or physical-constant default. */

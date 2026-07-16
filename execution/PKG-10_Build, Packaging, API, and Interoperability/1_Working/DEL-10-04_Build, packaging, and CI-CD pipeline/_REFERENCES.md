@@ -22,10 +22,15 @@
   manifest and build-script evidence attributed to DEL-10-04 under D-41
   `DEC-074` O3; SHA-256 at the R5 T1 read-only inspection:
   `7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656`.
+- `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx` -
+  SURF-011 build/package-readiness panel attributed to DEL-10-04 by
+  D-42/`DEC-076`; read-only implementation SHA-256 at the bounded mapping
+  update: `78d3382e44891e4dc22604019ca6c518007966ea4d95031f6450840a6963010a`.
 - Package context remains limited to accepted decomposition/register scope;
   the manifest attribution does not expand it.
 
 ## Notes
 - Historical PREPARATION used only the governing documents and registers.
-- D-41 R5 T1 adds the ruled root-manifest evidence pointer without editing the
-  manifest or resolving the separate D-42 build-readiness panel conflict.
+- D-41 R5 T1 added the ruled root-manifest evidence pointer. D-42/`DEC-076`
+  later resolved the separate build-readiness panel conflict and authorizes
+  the bounded SURF-011 documentation attribution recorded here.

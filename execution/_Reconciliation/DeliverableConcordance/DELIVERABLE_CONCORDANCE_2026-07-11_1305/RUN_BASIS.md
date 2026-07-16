@@ -868,3 +868,12 @@ dispositions are never represented as owner or engineering rulings.
   remain open governed loop work citing `DEC-076`; no attribution or
   source edit is applied by the ruling record itself. No lifecycle
   transition or product behavior change.
+
+- **2026-07-15 — R7 DEC-076 PDU-077 bounded re-extraction COMPLETE.** The
+  ruled SURF-011 attribution was recorded in DEL-10-04's existing
+  documentation home and re-extracted into append-only phase artifacts under
+  `R7_DEC076_PDU077/`. The original frozen-source rows remain immutable
+  historical derivative evidence; the addendum covers SURF-011 only, cites
+  `DEC-076`, records the implementation hash and exact embedded identity, and
+  changes no behavior or lifecycle state. Rerun requirements and derivative
+  limits are recorded in `R7_DEC076_PDU077/COVERAGE_AND_QA.md`.

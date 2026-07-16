@@ -11,6 +11,20 @@ revision: 0.5
 
 # MEMORY - DEL-10-04 Build, Packaging, And CI/CD Pipeline
 
+## 2026-07-15 - D-42 SURF-011 attribution closeout (PDU-077)
+
+- Owner ruling `DEC-076` attributes SURF-011,
+  `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx`, to
+  DEL-10-04 under its accepted build/package/CI scope.
+- Read-only inspection confirms the embedded `DEL-10-04` / `PKG-10` /
+  `SOW-032` identity, local script/Tauri/readiness metadata, unresolved
+  release decisions, and explicit no-release/no-professional-claim boundary.
+- The panel SHA-256 at inspection is
+  `78d3382e44891e4dc22604019ca6c518007966ea4d95031f6450840a6963010a`.
+- Deliverable documentation and the bounded PDU-077 concordance re-extraction
+  were updated; panel behavior, lifecycle, CI, packaging, signing,
+  publication, and release authority remain unchanged.
+
 ## 2026-07-12 - D-41 R5 T1 root workspace-manifest attribution (PDU-077)
 
 - Owner ruling `DEC-074` option O3 attributes the existing root

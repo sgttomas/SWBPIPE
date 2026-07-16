@@ -257,7 +257,7 @@
           ]
         },
         "modulus_basis_records": {
-          "description": "Explicit record of the modulus basis each range term solved with. Expansion-range combinations (result-state subtraction and range envelopes) record, per operand load case, the user-entered temperature-point basis id or the reserved label material_base_values. Records are declarations of the solved basis, not selectors; no interpolation is implied.",
+          "description": "Explicit record of the modulus basis each range term solved with. Expansion-range combinations record, per operand load case, the exact user-entered temperature-point basis, the DEC-077 interpolated solve-temperature basis with source-point/method provenance, or the reserved label material_base_values. Records are declarations of the solved basis, not selectors.",
           "type": "array",
           "minItems": 1,
           "items": {
@@ -523,6 +523,16 @@
         "loads",
         "provenance"
       ],
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "modulus_basis_ref",
+              "modulus_basis_temperature"
+            ]
+          }
+        }
+      ],
       "properties": {
         "id": {
           "$ref": "#/$defs/Id"
@@ -556,8 +566,12 @@
           "$ref": "#/$defs/EquivalentStaticGeneration"
         },
         "modulus_basis_ref": {
-          "description": "Optional modulus basis: the user-assigned temperature-case id whose user-entered temperature-dependent material property values (elastic modulus and, when stored on the same point, thermal expansion coefficient) this load case solves with. Selection is exact - a reference matching no stored temperature-indexed value is a blocking diagnostic and no interpolation between stored points is performed.",
+          "description": "Optional exact modulus basis: the user-assigned temperature-point id whose user-entered elastic modulus and, when present, thermal expansion coefficient this load case solves with. Exact-id selection remains unchanged under DEC-077. This field is mutually exclusive with modulus_basis_temperature.",
           "$ref": "#/$defs/Id"
+        },
+        "modulus_basis_temperature": {
+          "description": "Optional user-entered absolute solve temperature for DEC-077 linear interpolation of elastic modulus and thermal expansion coefficient between two adjacent user-entered material temperature points. Requests at or beyond stored range edges block; extrapolation and base-value substitution are not performed. This field is mutually exclusive with modulus_basis_ref.",
+          "$ref": "#/$defs/QuantityValue"
         },
         "provenance": {
           "$ref": "#/$defs/Provenance"
