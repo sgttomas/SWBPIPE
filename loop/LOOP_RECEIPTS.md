@@ -31,8 +31,27 @@
 5. **Gate outcomes with reason.** stopped / executed / awaiting owner — and
    why, especially no-op outcomes ("all remaining work is owner-shaped"), so
    the next loop neither rediscovers the stop nor invents work around it.
-6. **Capped.** Roughly 6–12 lines per receipt. If it wants more, the detail
-   belongs in a decision packet, PR description, or project-local record.
+6. **Capped.** Roughly 6–12 lines per legacy receipt. Beginning with Receipt
+   45, the versioned contract permits at most 12 top-level records and 4,096
+   UTF-8 bytes excluding the heading. If it wants more, the detail belongs in
+   a decision packet, PR description, AgentRuns record, or project-local
+   record.
+7. **Exact cursor.** Every versioned receipt has exactly one `Receipt-ID`,
+   `Examined-Through`, and `Parent-Receipt` record. `Examined-Through` is the
+   full commit SHA examined at the end of Step 0 before mutation;
+   `Parent-Receipt` is the actual handoff basis and need not be the physically
+   preceding entry when concurrent sessions share a parent.
+8. **Admissible records only.** A versioned receipt also has exactly one
+   `Gate-Outcome` and may contain only `Owner-Direction`, `Stale-Map-Delta`,
+   `Pointers`, `Checks`, and `Model-Attribution` records. Chat-only directions
+   carry `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING`; recoverable history,
+   measurements, dispositions, status, and orchestration details stay in
+   their owning artifacts and are represented here only by pointers.
+9. **Deterministic closeout gate.** Run
+   `python3 tools/validation/validate_piping_loop_receipts.py --repo-root .`
+   before using the latest cursor and again after appending a receipt. D-44 /
+   DEC-075 freezes the ledger prefix through Receipt 44; later entries use the
+   versioned grammar below. Validator PASS is structural evidence only.
 
 ## Receipts
 
@@ -1112,3 +1131,16 @@
   - Checks: ruling-text hash verified; self-check and governance tests pass.
   - Gate outcome: executed — O-A is ruled; implementation starts only after
     this ruling-only change merges to `main`.
+
+<!-- receipt-contract-v2 frozen-through=Receipt-44 prefix-bytes=74168 prefix-sha256=671a1f722a56d98bbc52bb5a3062d0bf7c25bc37312384fc63526bc43c2ca59f -->
+
+- **2026-07-15 — Receipt 45** (D-44 O-A implementation).
+  - Receipt-ID: `Receipt-45`
+  - Examined-Through: `09dd651421fce167c6ad7dd850ecc4f3ff4fe68f`
+  - Parent-Receipt: `Receipt-44`
+  - Pointers: `D-44_RULING_2026-07-15.md`; `DEC-075`;
+    `tools/validation/validate_piping_loop_receipts.py`; `LOOP_INIT.md`;
+    `WORKPLAN_2026-07-10_piping_loop.md`
+  - Checks: receipt validator, repo-wide self-check, and governance tests pass.
+  - Gate-Outcome: `EXECUTED` — O-A implementation applied; validation and
+    authorized PR closeout remain.

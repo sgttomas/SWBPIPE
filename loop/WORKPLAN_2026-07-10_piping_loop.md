@@ -33,8 +33,10 @@ authority permits — stopping at every owner gate.
 0. **Discover (mandatory core).** Clean `git` state and branch awareness (log since
    the last receipt; concurrent loops may be live in this monorepo — keep write scopes
    disjoint from `_DomainEngines/**`, `projects/chirality-app-dev/**`,
-   `projects/pec/**`, and treat unrelated dirty files as external state). Read the
-   latest receipt(s) in `LOOP_RECEIPTS.md`. Check
+   `projects/pec/**`, and treat unrelated dirty files as external state). Run
+   `python3 tools/validation/validate_piping_loop_receipts.py --repo-root .` and only
+   then read the latest applicable receipt(s) in `LOOP_RECEIPTS.md`; a validator
+   failure blocks use of the cursor. Check
    `execution/_Coordination/_DECISIONS/_REGISTER.md` for rulings newer than the last
    receipt — new rulings are how work unlocks, look every time. Re-derive the current
    target stage from `execution/_Coordination/_COORDINATION.md` (the ruled recording
@@ -64,10 +66,12 @@ authority permits — stopping at every owner gate.
    (options + non-binding recommendation + on-ruling mechanism) registered in the
    decision register; if a packet already awaits ruling, take the next unblocked item.
 3. **Gate.** STOP; adoption/ruling/direction is the owner's act (K-AUTH-1; D-GOV-04).
-   In-session directions/rulings are quoted verbatim in the receipt and recorded in
-   their governed artifact as part of execution — except directions fully re-derivable
-   from git/PR history (e.g. bare merge directions), per the receipt ledger's local
-   rule 2. Record every gate outcome — including no-ops and their reason.
+   In-session directions/rulings are recorded verbatim in their governed artifact;
+   only chat-only directions with no governed home are transcribed into the receipt,
+   labeled as evidence rather than ruling. Directions fully re-derivable from git/PR
+   history (e.g. bare merge directions) need no receipt transcription, per the
+   ledger's local rule 2. Record every gate outcome — including no-ops and their
+   reason.
 4. **Execute + check.** *Intake:* read the selected deliverable's folder (`_STATUS.md`
    incl. `Remaining`, `MEMORY.md`, `_CONTEXT.md`, `_REFERENCES.md`, dependency files,
    the four-document kit, recent `_run_records/**`) and active DAG-discovered
@@ -94,9 +98,10 @@ authority permits — stopping at every owner gate.
    what landed — landed scope is removed, newly named residuals are added),
    `MEMORY.md`, and `_run_records/**`. Lifecycle transitions follow the register's
    ruled gates (F-PIP-3); `CHECKING → ISSUED` routing follows the `DEC-062`
-   issuance-wave structure (W1–W7, five-point evidence bar, owner-paced). Append a
-   minimal receipt to `LOOP_RECEIPTS.md` per its local rules. Next iteration starts
-   at 0.
+   issuance-wave structure (W1–W7, five-point evidence bar, owner-paced). Append one
+   versioned minimal receipt to `LOOP_RECEIPTS.md` per its local rules, then rerun
+   `python3 tools/validation/validate_piping_loop_receipts.py --repo-root .`; receipt
+   validation is a mandatory pre-commit and closeout gate. Next iteration starts at 0.
 
 ## Standing constraints — fences (all iterations)
 

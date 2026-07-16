@@ -27,7 +27,9 @@ history. Current state is re-derived from the live sources the plan names
 (registers, profile, git, harness commands); the handoff context (owner
 directions, gate outcomes, stale-map deltas) lives in the latest receipts in
 `LOOP_RECEIPTS.md` beside this file, whose local rules govern what a receipt
-may contain.
+may contain. Before using any receipt as a cursor or handoff basis, run the
+receipt validator named by the standing plan; a structural failure blocks use
+of the ledger until repaired through its governed path.
 
 ## 3. First return from Step 0
 
@@ -82,9 +84,10 @@ CANDIDATE brief(s); for coordination/control work, present a decision slate
 (options + non-binding recommendation + on-ruling mechanism). Surface what you
 would do once each is adopted/ruled, and **stop there** for the owner. Only
 after the owner acts do you execute inside the fence, run the plan's
-work-type checks, and append a minimal receipt to `LOOP_RECEIPTS.md` beside
-this file (per its local rules: verbatim owner directions, pointers to
-artifacts, gate outcomes, check pass/fail) so the next iteration starts clean.
+work-type checks, append one versioned minimal receipt to `LOOP_RECEIPTS.md`
+beside this file (per its local rules: exact cursor, claim-calibrated chat
+transcriptions only when needed, pointers, gate outcome, pass/fail-only check
+summary), and rerun the receipt validator so the next iteration starts clean.
 
 ## 7. Multi-agent orchestration
 
@@ -140,10 +143,11 @@ written. The session conventions are:
   where the harness supports it) for planning, for adversarial verification
   of anything that will be recorded as fact, and for execution that touches
   governed artifacts, fences, or rulings; reduced effort only for mechanical
-  execution of fully specified changes. Record in each receipt which model
-  actually performed each dispatched role; never silently substitute models
-  mid-task — a model or capability-tier change within a wave is a
-  receipt-worthy event.
+  execution of fully specified changes. Record actual dispatched models in
+  the governed AgentRuns record and point to it from the receipt; when no
+  AgentRuns record exists, the receipt may carry the minimum model
+  attribution directly. Never silently substitute models mid-task — a model
+  or capability-tier change within a wave is a receipt-worthy event.
 
 If the owner appended a steer for this run (the launcher's `Steer` line, their
 message, or a line below), honor it on top of the plan and over §5's defaults;
