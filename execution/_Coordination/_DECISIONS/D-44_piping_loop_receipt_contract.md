@@ -1,6 +1,6 @@
 # D-44 — Piping Loop Receipt Contract and Enforcement
 
-**Status:** PROPOSAL — AWAITING_RULING
+**Status:** RULED — O-A selected; see `D-44_RULING_2026-07-15.md`
 
 **Date prepared:** 2026-07-15
 

@@ -1103,3 +1103,12 @@
   - Gate outcome: awaiting owner — F-PIP-5 requires an O-A/O-B/O-C ruling;
     no receipt validator or loop-protocol change executed, and independent
     lawful piping work is unaffected.
+
+- **2026-07-15 — Receipt 44** (D-44 O-A ruling recorded).
+  - Cursor: `Receipt-ID=Receipt-44`;
+    `Examined-Through=6411dc5a794dd5c1c8dd53b036075ecb59a668b4`;
+    `Parent-Receipt=Receipt-43`.
+  - Pointers: `D-44_RULING_2026-07-15.md`; register row `D-44`; `DEC-075`.
+  - Checks: ruling-text hash verified; self-check and governance tests pass.
+  - Gate outcome: executed — O-A is ruled; implementation starts only after
+    this ruling-only change merges to `main`.
