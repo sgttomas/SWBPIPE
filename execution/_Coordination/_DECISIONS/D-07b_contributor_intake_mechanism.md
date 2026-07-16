@@ -237,7 +237,24 @@ If O-B is accepted, the operative rule proposed is:
 
 ## 10. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded (2026-07-15, Ryan Tufts, human project authority,
+in-session decision slate):** Option **O-B**, approved as recommended —
+trigger structure and R5 disposition ruled now; intake stays closed; the §5
+review process and §6 screening are the pre-agreed mechanism skeleton; the
+§7 disposition record is adopted ("process defined, intake closed"); the §4
+legal-instrument choice stays open until a future activation act taken on
+legal advice. Verbatim slate ruling over the rows presented in the order
+D-42, D-38, D-12, D-07b (with D-06b noted as NOT_PREPARED):
+
+> My rulings:
+>
+> O-A, O-B, O-B, O-B, we don't need to act on D-06b right now.
+
+Mapping for this row: D-07b → O-B. Recorded by agent at owner direction
+(K-AUTH-1; D-GOV-04). Codified as `DEC-079` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-07b →
+RULED. Per §11, no edit to `DEC-027` or any draft governance surface occurs;
+`TBD` resolution happens only at a future activation act.
 
 ## 11. Ruling Mechanism
 

@@ -853,3 +853,18 @@ dispositions are never represented as owner or engineering rulings.
   Lifecycle 100 IN_PROGRESS + DEL-01-01 ISSUED; bootstrap zero; D-42 remains
   AWAITING_RULING. PR #211 remains owner-controlled. R5 stops with governed
   residuals open, not repair-closed.
+- **2026-07-15 — D-42 RULED (O-A); PDU-077 attribution basis complete.**
+  Human project authority ruling (Ryan Tufts, in-session decision slate,
+  2026-07-15): Option O-A adopted — SURF-011 (build-readiness panel) is
+  attributed to DEL-10-04 per its embedded packet identity and accepted
+  build/package/CI scope; SURF-021 (export-unit disclosure helper) is
+  classified as shared desktop export infrastructure consuming the
+  DEL-17-02 export-unit contract, with DEL-17-02 remaining contract owner
+  only. Codified as `DEC-076` in
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-42 →
+  RULED; verbatim ruling in the packet's ruling section. A Remaining item
+  is seeded on DEL-10-04. The bounded attribution/documentation update and
+  the PDU-077 implementation-surface + claim-concordance re-extraction
+  remain open governed loop work citing `DEC-076`; no attribution or
+  source edit is applied by the ruling record itself. No lifecycle
+  transition or product behavior change.

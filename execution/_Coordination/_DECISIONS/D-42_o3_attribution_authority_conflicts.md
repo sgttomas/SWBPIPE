@@ -1,6 +1,6 @@
 # D-42 — O3 Attribution Authority Conflicts
 
-**Status:** PROPOSAL — AWAITING_RULING
+**Status:** RULED — Option O-A (2026-07-15)
 
 **Date prepared:** 2026-07-12
 
@@ -78,3 +78,26 @@ the D-42 register row, record the result in the D-41 run basis, seed any
 needed receiving-deliverable Remaining item, and execute only the selected
 bounded attribution/documentation change. No lifecycle transition or product
 behavior change occurs under the attribution ruling itself.
+
+## Human ruling and disposition
+
+**Ruling (2026-07-15, Ryan Tufts, human project authority, in-session
+decision slate):** Option **O-A**, approved as recommended. Verbatim slate
+ruling over the rows presented in the order D-42, D-38, D-12, D-07b (with
+D-06b noted as NOT_PREPARED):
+
+> My rulings:
+>
+> O-A, O-B, O-B, O-B, we don't need to act on D-06b right now.
+
+Mapping for this row: D-42 → O-A. Recorded by agent at owner direction
+(K-AUTH-1; D-GOV-04). Codified as `DEC-076` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-42 →
+RULED. Per the on-ruling mechanism: the disposition is recorded in the D-41
+run basis
+(`execution/_Reconciliation/DeliverableConcordance/DELIVERABLE_CONCORDANCE_2026-07-11_1305/RUN_BASIS.md`),
+a Remaining item is seeded on DEL-10-04, and the bounded
+attribution/documentation update plus the PDU-077 implementation-surface and
+claim-concordance re-extraction execute as ordinary governed loop work citing
+`DEC-076`. No lifecycle transition or product behavior change occurs under
+this ruling.

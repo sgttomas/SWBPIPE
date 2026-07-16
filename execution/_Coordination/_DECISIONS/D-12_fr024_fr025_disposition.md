@@ -285,7 +285,21 @@ text changes under any option in this packet.
 
 ## 10. Human Ruling And Disposition
 
-**Ruling recorded:** _Awaiting owner ruling._
+**Ruling recorded (2026-07-15, Ryan Tufts, human project authority,
+in-session decision slate):** Option **O-B**, approved as recommended —
+FR-024 explicit deferral (de-scoped, §7 wording); FR-025 implement
+post-beta in the Phase H (v0.2 R6) lane per §7. Verbatim slate ruling over
+the rows presented in the order D-42, D-38, D-12, D-07b (with D-06b noted
+as NOT_PREPARED):
+
+> My rulings:
+>
+> O-A, O-B, O-B, O-B, we don't need to act on D-06b right now.
+
+Mapping for this row: D-12 → O-B. Recorded by agent at owner direction
+(K-AUTH-1; D-GOV-04). Codified as `DEC-078` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-12 →
+RULED. Follow-on edits execute per §11.
 
 ## 11. Ruling Mechanism
 

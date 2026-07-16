@@ -110,4 +110,17 @@ declared-interpolation path behind the evidence bar above.
 
 ## 7. Human Ruling And Disposition
 
-*(unruled — this section is completed by the human project authority)*
+**Ruling (2026-07-15, Ryan Tufts, human project authority, in-session
+decision slate):** Option **O-B**, approved as recommended. Verbatim slate
+ruling over the rows presented in the order D-42, D-38, D-12, D-07b (with
+D-06b noted as NOT_PREPARED):
+
+> My rulings:
+>
+> O-A, O-B, O-B, O-B, we don't need to act on D-06b right now.
+
+Mapping for this row: D-38 → O-B. Recorded by agent at owner direction
+(K-AUTH-1; D-GOV-04). Codified as `DEC-077` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-38 →
+RULED. Exact selection remains the shipped behavior until the O-B tranche
+lands under the §6 mechanism behind the §5 evidence bar.
