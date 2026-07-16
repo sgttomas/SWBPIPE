@@ -1090,3 +1090,16 @@
     `5141cfd625c5b095030fe7b05643b346f5bbec5af2a81b027c0b12fa1200eadf`.
   - QA: Python 496/496; desktop 476/476 + build; harness 263/1 skip;
     containment 3 active / 6 frozen. PR #211 remains owner-controlled.
+
+- **2026-07-15 — Receipt 43** (D-44 receipt-contract decision packet).
+  - Cursor: `Receipt-ID=Receipt-43`;
+    `Examined-Through=4e8ab5b0c20fca4ac8ed50b7e1d3da9072323ec5`;
+    `Parent-Receipt=Receipt-42`.
+  - Owner direction of record (2026-07-15, in-session, Ryan Tufts),
+    `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING`: "proceed accordingly."
+  - Pointers: decision packet `D-44_piping_loop_receipt_contract.md`; register
+    row `D-44` (`AWAITING_RULING`).
+  - Checks: repo-wide self-check pass; practitioner-harness pytest pass.
+  - Gate outcome: awaiting owner — F-PIP-5 requires an O-A/O-B/O-C ruling;
+    no receipt validator or loop-protocol change executed, and independent
+    lawful piping work is unaffected.
