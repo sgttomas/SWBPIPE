@@ -82,6 +82,6 @@ exists; release labels remain `TBD`.
 ## Boundary
 
 This case page documents software verification evidence for an invented
-public-original fixture. It is not a release-readiness, professional
-approval, certification, sealing, authentication, or code-compliance record,
-and it does not settle any `TBD` threshold or governed tolerance decision.
+public-original fixture. It is development verification and screening
+evidence (claims registry BS-VALID, DEC-081), and it does not settle any
+`TBD` threshold or governed tolerance decision.
