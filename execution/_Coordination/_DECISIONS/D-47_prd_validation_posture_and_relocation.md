@@ -208,3 +208,33 @@ resolves v0.1 FR/milestone tokens through Annex A.
 `AWAITING_RULING`. No PRD text change, relocation, deliverable-scope edit,
 stage-record re-expression, prover activation, or reproduction acceptance is
 authorized by this proposal.
+
+## 8. Human Ruling And Disposition (2026-07-16)
+
+Owner ruling (Ryan Tufts, in-session, 2026-07-16, verbatim): *"You should
+execute this through planning and subagents.  Do so now.  To begin merge PR
+#253.  Then I rule in favor of O-A for D-47.  Then proceed accordingly."*
+
+**D-47 → O-A** (amend, relocate, and propagate as one SCA-007 transaction).
+
+Recorded session decisions accompanying the ruling (owner answers to the
+agent's structured questions, 2026-07-16, same session):
+
+1. **Amendment pre-acceptance:** "Pre-accept; run end-to-end" — the O-A
+   ruling counts as acceptance of the amendment actions as scoped in §5; the
+   SCA-007 bundle records the preview and this acceptance basis, and Gate-5
+   execution proceeds without a mid-lane stop. Owner review occurs at the
+   final PR.
+2. **Merge authority:** "I merge both in this session" — one-time,
+   session-scoped authorization for the agent to merge the ruling-record PR
+   (#255) and the SCA-007 execution PR once checks pass. This authorization
+   does not extend beyond this session or this D-47/SCA-007 chain.
+
+Disposition: PR #253 merged first per the same direction (merge commit
+`886bdea18`). Ruling codified as `DEC-080` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-47 →
+RULED. Execution proceeds as SCA-007 under §6's mechanism with the
+pre-acceptance noted above. No stage advancement, prover activation,
+reproduction acceptance, release-readiness, professional-approval,
+certification, sealing, authentication, or code-compliance claim is created
+by the ruling record itself.
