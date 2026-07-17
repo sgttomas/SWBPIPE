@@ -93,6 +93,14 @@ human-acceptance record per §21.3; no acceptance workflow exists in MVP.
 Labels attach to individual results, reports, and case pages instead of
 global hedging.
 
+`non-authoritative` (evidence-standing qualifier; owner-adopted by the
+D-49 ruling, `DEC-082`) — marks external-run, parsed, or invented-fixture
+evidence as admissible bounded technical context (regression, handoff
+review) that does not close source-basis, code-compliance, or acceptance
+questions (PRD §21.2). This is a source-basis standing label on governance
+surfaces, distinct from the retired product-surface hedge; it never
+appears on product surfaces.
+
 ## 3. Composite anchors (authoritative, never weakened)
 
 - **PRD §19.3 report notice** — the required composite for generated

@@ -1,6 +1,6 @@
 # D-49 — Standing Decision-Latitude Delegation for Disposition-Class Judgments
 
-**Status:** AWAITING_RULING
+**Status:** RULED (O-A, 2026-07-17)
 **Prepared:** 2026-07-17 (session agent, at owner direction)
 **Owner:** Ryan Tufts
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` D-49
@@ -241,12 +241,25 @@ class is defined by its boundary, not only by positive examples:
 
 ## 9. Human Ruling And Disposition
 
+**Ruled:** 2026-07-17, in-session (Ryan Tufts, owner).
+
 <!-- BEGIN OWNER RULING VERBATIM -->
-*(reserved for the owner's verbatim ruling)*
+I Rule "O-A"
 <!-- END OWNER RULING VERBATIM -->
 
-**Canonical ruling-text SHA-256:** *(recorded on ruling and verified by
-recomputation, per §8.1)*
+**Canonical ruling-text SHA-256:**
+`26743be581639738e653f8b0caacb2e28aaaa583b52b57c6e04e6e263317b826`
+(UTF-8 text between the verbatim markers, excluding the markers and
+delimiter newlines; verified by recomputation after writing, per §8.1)
+
+**Disposition on this ruling (per §7 O-A as amended):** the standing
+delegation of §§3–5 is adopted and codified as `DEC-082`; **Appendix A is
+adopted by this ruling as the owner's act** and applied to
+`docs/claims_registry.md` §2; A1 stands as the delegation's first recorded
+application, with this packet as its rationale artifact. The §6.1
+near-miss examples and §3 method binding are carried into the `DEC-082`
+codification. Landing occurs via PR #263; merge is the owner's per-chain
+grant (limit 9 — not exercised by the agent under this delegation).
 
 ---
 

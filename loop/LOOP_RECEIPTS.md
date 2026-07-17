@@ -1279,3 +1279,28 @@
     tree. Ruled history untouched. Standard claim fence applies (F-PIP-2;
     claims taxonomy per DEC-081). No lifecycle, stage, release,
     prover-activation, or reproduction-acceptance change.
+
+- **2026-07-17 — Receipt 52** (D-49 O-A: standing disposition-class delegation adopted; DEC-082).
+  - Receipt-ID: `Receipt-52`
+  - Examined-Through: `dd4ba3e69a65b3a0dd90dc8fdcf7c435ba2ffc86`
+  - Parent-Receipt: `Receipt-51`
+  - Pointers: D-49 packet §9 (verbatim ruling, canonical SHA-256 bound and
+    recomputation-verified); `DEC-082` (SOFTWARE_DECOMP §12: class test,
+    reach, method binding, limits, attribution, near-miss examples);
+    `docs/claims_registry.md` §2 evidence-standing entry (owner-adopted by
+    the ruling itself, per the 2026-07-17 amendment steer); A1 (DEL-13-01
+    prohibition repair) recorded as the delegation's first exercise with
+    the packet as rationale artifact; adversarial pre-commit verifier
+    return (COMMIT-SAFE) per packet §8.4.
+  - Checks: claims lint VALID (exit 0) over the full live tree; receipt
+    validator and `git diff --check` pass; ruling-hash recomputation
+    match; docs-only tranche — DEC-025 sweep not triggered.
+  - Model-Attribution: session parent + one independent adversarial
+    verifier node (session model, harness-assigned; no named-model steer).
+  - Gate-Outcome: `EXECUTED` — the standing delegation is the owner's
+    adopted act; A1 is the agent's decision under owner-delegated latitude
+    citing `DEC-082`; the Appendix A registry entry is the owner's act
+    within the same ruling, not a delegation exercise. Landing via PR #263
+    awaits the owner's merge (limit 9). No lifecycle, stage, release,
+    prover-activation, or reproduction-acceptance change. Standard claim
+    fence applies (F-PIP-2; claims taxonomy per DEC-081).
