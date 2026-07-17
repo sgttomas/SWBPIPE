@@ -126,3 +126,16 @@ case-page promotion, or R5-exit claim.
 <!-- BEGIN OWNER RULING VERBATIM -->
 My ruling is O-C on D-46 and adopting the candidate brief.
 <!-- END OWNER RULING VERBATIM -->
+
+## Supersession note (2026-07-16)
+
+The question this packet governed — what evidence satisfies the reproduction
+exit criterion and how it is accepted — is superseded by D-47 Option O-A,
+codified as `DEC-080` and executed as SCA-007: the criterion is now
+actor-neutral (validation examples reproduce from a clean checkout per the
+amended PRD v0.3 §24 R6, maintainer- or agent-executable), and independent
+third-party reproduction is re-homed as a publication-era credibility
+objective under the `D-05b` public-repository gate family, no longer a
+milestone exit criterion. The O-C deferral ruling recorded above remains
+immutable history and is not rewritten. No acceptance-protocol work proceeds
+under this packet.

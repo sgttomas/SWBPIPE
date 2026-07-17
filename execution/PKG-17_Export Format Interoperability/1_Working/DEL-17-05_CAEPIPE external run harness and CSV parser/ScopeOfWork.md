@@ -592,6 +592,12 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 > Invented public fixtures remain rights-safe test inputs, but user-provided CSV/runtime evidence must not inherit their public classification by default.
 
+### CLM-043 — DEC-080 validation-posture currency note (2026-07-16)
+
+> ##### DEC-080 validation-posture currency note (2026-07-16)
+>
+> Per `DEC-080` (D-47 O-A, SCA-007, 2026-07-16), external-prover correlation (e.g., CAEPIPE) is now the amended PRD's principal validation posture (v0.3 §22.5) rather than merely future/optional validation evidence; activation remains owner-gated on lawful tool procurement, and this deliverable's bounded contract — optional user-owned harness, O10 gates, and regression/handoff classification of raw runs and parsed CSVs short of accepted correlation comparisons — is unchanged, with no scope expansion.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |

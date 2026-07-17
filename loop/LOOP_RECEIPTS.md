@@ -1198,3 +1198,28 @@
     is complete; hosted/public CI remains D-05b-gated and signing/notarization
     or its explicit PRD deviation remains D-06b-gated. No lifecycle or release
     claim changed.
+
+- **2026-07-16 — Receipt 49** (D-47 O-A ruled and executed as SCA-007: PRD v0.3 amendment, relocation, propagation).
+  - Receipt-ID: `Receipt-49`
+  - Examined-Through: `edaee30ecf7526c261480bcd59d05138c9c4d361`
+  - Parent-Receipt: `Receipt-48`
+  - Pointers: D-47 packet §8 (verbatim ruling + pre-acceptance + session
+    merge authority); `DEC-080` (SOFTWARE_DECOMP §12); SCA-007 snapshot
+    `execution/_ScopeChange/SCA-007_2026-07-16_2026/` (brief, impact
+    assessment, amendment preview/actions, acceptance record, run summary,
+    handoff state); AgentRuns record
+    `execution/_Coordination/AgentRuns/SCA-007_2026-07-16/RUN_RECORD.md`;
+    adopted PRD now `docs/PRD.md` (v0.3), v0.1 archived at
+    `docs/_history/PRD_v0.1.md`.
+  - Checks: receipt validator, repo-wide self-check, practitioner-harness
+    pytest, and `git diff --check` pass; grep verification set pass
+    (documentation-only change; DEC-025 sweep not triggered).
+  - Model-Attribution: session parent + four subagent nodes per the AgentRuns
+    record (session model, harness-assigned; no named-model steer).
+  - Gate-Outcome: `EXECUTED` — owner merged PR #253 by direction; D-47 ruled
+    O-A with amendment pre-acceptance and session-scoped merge authority
+    (packet §8); ruling merged via PR #255 before dispatch. SCA-007 closed:
+    stage unchanged, no prover activation or procurement, no reproduction
+    acceptance, no lifecycle/release/professional claim. DEL-09-04
+    reproduction residual is now actor-neutral and selectable; named
+    residuals in the SCA-007 handoff state.

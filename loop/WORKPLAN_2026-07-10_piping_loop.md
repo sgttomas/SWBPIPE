@@ -24,8 +24,10 @@
   (open rows rehomed into deliverable-local `_STATUS.md` `## Remaining` sections).
 
 **The loop's goal** (agent-phrased; owner may correct the wording): advance
-chirality-piping toward completion per the PRD yardstick (`docs/PRD.md` §10 functional
-requirements, §22 release milestones) and physical-model correctness, as far as live
+chirality-piping toward completion per the PRD yardstick (`docs/PRD.md`, the amended
+v0.3 after DEC-080/SCA-007: §11 functional requirements, §24 release milestones;
+pre-amendment v0.1 text archived at `docs/_history/PRD_v0.1.md`) and
+physical-model correctness, as far as live
 authority permits — stopping at every owner gate.
 
 ## The loop protocol (every iteration)
@@ -138,7 +140,9 @@ authority permits — stopping at every owner gate.
   codified rulings `execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
 - **Dependency authority:** `execution/_DAG/_LATEST.md` → the approved DAG it names.
 - **What must be built and why:** `execution/_Decomposition/SOFTWARE_DECOMP.md` ·
-  product yardstick: `docs/PRD.md` (§10, §22) · strategic orientation: `docs/PLAN.md`
+  product yardstick: `docs/PRD.md` (v0.3 after DEC-080/SCA-007; §11 functional
+  requirements, §24 release milestones; pre-amendment v0.1 archived at
+  `docs/_history/PRD_v0.1.md`) · strategic orientation: `docs/PLAN.md`
   (non-governing).
 - **Agent posture:** `AGENTS.md` (dispatch contract, closeout discipline).
 - **Evidence:** `_run_records/**`, `validation/evidence/**`, deliverable-local files.

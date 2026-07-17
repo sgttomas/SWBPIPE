@@ -26,15 +26,24 @@ evidence was reviewed through
 `validation/evidence/sweeps/SWEEP_20260623T051552Z_16cca07f3b64.json`.
 The human project authority accepted the refreshed packet as a conditional R4
 gate and authorized R4-to-R5 target-stage advancement. The ordinary in-stage
-program is now Phase E: engineering beta and release machinery. R5 exit
-criteria are PRD §22.6: external engineers can reproduce validation examples,
-and the public repository contains no known protected standards data. The PRD
-§16.2 / §16.5 complete benchmark/manual evidence system remains explicit
-residual work to gather later, including once the agent harness is active and
-can participate. Boundary prohibitions continue unchanged: no protected
-standards content, private-data defaults, unapproved release-readiness claim,
-professional approval, certification, sealing, authentication, or
-code-compliance claim.
+program is now Phase E: engineering beta and release machinery. The exit
+criteria, expressed in amended-PRD tokens per `DEC-080`, are: validation
+examples reproduce from a clean checkout by following the documented
+validation-manual procedure, with recorded environment, tool versions,
+commands, exit codes, and output hashes, actor-neutral (maintainer- or
+agent-executable) — amended PRD (v0.3) §24 R6; and the public repository
+contains no known protected standards data (v0.3 §20.1 / D-20 lineage). The
+historical v0.1 token "PRD §22.6: external engineers can reproduce validation
+examples" resolves through the D-21 Annex A crosswalk. The complete
+benchmark/manual evidence system — historically cited as PRD §16.2 / §16.5,
+now the v0.3 §22.2 required solver benchmarks plus the §24 R6
+validation-manual deliverable — remains explicit residual work to gather
+later, including once the agent harness is active and can participate.
+Boundary prohibitions continue unchanged: no protected standards content,
+private-data defaults, unapproved release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim.
+This record was re-expressed 2026-07-16 in amended-PRD tokens under
+`DEC-080`/SCA-007; the target stage itself is unchanged.
 
 Agents propose stage advancement with evidence; only a human-approved
 coordination update advances the target stage recorded here. This standard is
