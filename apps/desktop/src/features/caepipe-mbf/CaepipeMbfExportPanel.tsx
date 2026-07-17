@@ -318,7 +318,7 @@ function caepipeMbfExportProfile() {
       "CAEPIPE MBF output is a bounded desktop smoke-subset package.",
       "Target version, record subset closure, and direct MBF stable-ID carrying remain TBD.",
       "Sidecar stable-ID mapping is the conservative default for this preview.",
-      "The package does not assert CAEPIPE compatibility, solver validation, release readiness, code compliance, or professional reliance."
+      "The package does not assert CAEPIPE compatibility. Validation occurs in the user's accepted professional tools; this package is screening and handoff evidence."
     ]
   };
 }

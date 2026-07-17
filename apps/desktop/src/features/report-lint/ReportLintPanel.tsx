@@ -69,8 +69,8 @@ export function ReportLintPanel({
         />
       </div>
       <small className="report-note">
-        Lint output is deterministic technical-preview review evidence for public preview surfaces only; it is not legal
-        clearance, redaction certification, or professional acceptance.
+        Lint output is deterministic technical-preview review evidence for public preview surfaces only; acceptance and
+        professional judgment remain with the responsible engineer.
       </small>
     </section>
   );
@@ -519,266 +519,266 @@ function lintTargets({
       "apps/desktop/src/features/report/ReportPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Report packet template uses metadata, diagnostics, limitations, and no professional approval claim."
+      "Report packet template uses metadata, diagnostics, and limitations; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-rendered-report-template",
       "apps/desktop/src/features/report/RenderedReportPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Rendered report template records renderable-report unit basis, canonical HTML hash route, export-blocked state, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Rendered report template records renderable-report unit basis, canonical HTML hash route, export-blocked state, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-results-viewer-template",
       "apps/desktop/src/features/results/ResultsPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Results viewer template records solved result groups, result-unit policy, row count, filtering state, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Results viewer template records solved result groups, result-unit policy, row count, filtering state, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-comparison-workspace-template",
       "apps/desktop/src/features/comparison/ComparisonPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Comparison workspace template records explicit-unit matching policy, tolerance status, mapped result counts, comparison diagnostics, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Comparison workspace template records explicit-unit matching policy, tolerance status, mapped result counts, comparison diagnostics, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-agent-proposal-template",
       "apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Agent proposal template records review-only operation proposal unit-validation status, user-acceptance boundary, accepted-state mutation false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Agent proposal template records review-only operation proposal unit-validation status, user-acceptance boundary, accepted-state mutation false, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-export-review-template",
       "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Export review template records local preview exports, private payload false, protected payload false, and no release or professional claim."
+      "Export review template records local preview exports, private payload false, protected payload false; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-project-storage-template",
       "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Project storage audit template records local project persistence, unit round-trip evidence, local-only boundary, external file copy false, private payload false, protected payload false, and no release or professional claim."
+      "Project storage audit template records local project persistence, unit round-trip evidence, local-only boundary, external file copy false, private payload false, protected payload false; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-project-validation-template",
       "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Project validation preflight template records schema/version checks, migration evidence, hash verification, unit round-trip evidence, private payload false, protected payload false, and no release, code compliance, or professional reliance claim."
+      "Project validation preflight template records schema/version checks, migration evidence, hash verification, unit round-trip evidence, private payload false, protected payload false; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-build-readiness-template",
       "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Build readiness template records provider-neutral local scripts, Tauri preview shell metadata, private payload false, protected payload false, unresolved CI and release decisions, and no release authorization, code compliance, or professional reliance claim."
+      "Build readiness template records provider-neutral local scripts, Tauri preview shell metadata, private payload false, protected payload false, unresolved CI and release decisions; technical preview — not a released product."
     ),
     target(
       "target:desktop-telemetry-boundary-template",
       "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Telemetry boundary template records disabled default-off configuration, opt-in false, allowlist false, blocked event attempts, payload construction false, network initialization false, endpoint and vendor false, private payload false, protected payload false, and no security certification, code compliance, or professional reliance claim."
+      "Telemetry boundary template records disabled default-off configuration, opt-in false, allowlist false, blocked event attempts, payload construction false, network initialization false, endpoint and vendor false, private payload false, protected payload false, no security-certification claim; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-secret-private-library-template",
       "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Secret and private-library template records metadata-only private library, private path, and credential references, public fixture blocking, public report reference-only handling, direct SQL false, storage bypass false, network false, private payload false, protected payload false, and no security certification, code compliance, or professional reliance claim."
+      "Secret and private-library template records metadata-only private library, private path, and credential references, public fixture blocking, public report reference-only handling, direct SQL false, storage bypass false, network false, private payload false, protected payload false, no security-certification claim; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-security-threat-model-template",
       "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Security threat-model template records DEL-12-05 metadata-only threat inventory counts, local-first posture, telemetry default-off, no-bypass controls, open TBD decisions, private payload false, protected payload false, and no security sufficiency, release, code compliance, or professional reliance claim."
+      "Security threat-model template records DEL-12-05 metadata-only threat inventory counts, local-first posture, telemetry default-off, no-bypass controls, open TBD decisions, private payload false, protected payload false, no security-sufficiency claim; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-editor-contract-template",
       "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Editor contract template records material/component/rule-pack reference editor metadata, operation-intent routing, private library references only, private payload false, protected payload false, accepted state mutation false, and no approval, authentication, certification, sealing, code compliance, or professional reliance claim."
+      "Editor contract template records material/component/rule-pack reference editor metadata, operation-intent routing, private library references only, private payload false, protected payload false, accepted state mutation false; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-rule-pack-declarations-template",
       "apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx",
       "public_report_template",
       "public_metadata",
-      "Rule-pack declarations template records required-input and value-slot unit-reference policy, browser manual-entry route, stored unit refs preserved, conversion false, private payload false, protected payload false, and no parser, release, code-compliance, or professional reliance claim."
+      "Rule-pack declarations template records required-input and value-slot unit-reference policy, browser manual-entry route, stored unit refs preserved, conversion false, private payload false, protected payload false, no parser claim; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-rule-pack-expression-template",
       "apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
       "public_report_template",
       "public_metadata",
-      "Rule-pack expression composer template records structured AST unit-reference policy, browser manual-entry route, stored expression unit refs preserved, conversion false, private payload false, protected payload false, read-only text preview only, and no parser, release, code-compliance, or professional reliance claim."
+      "Rule-pack expression composer template records structured AST unit-reference policy, browser manual-entry route, stored expression unit refs preserved, conversion false, private payload false, protected payload false, read-only text preview only, no parser claim; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-library-manager-template",
       "apps/desktop/src/features/library/LibraryManagerPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Library manager template records material, section, and component draft unit helpers, DEC-018-filtered unit choices, private local-import boundary, conversion false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Library manager template records material, section, and component draft unit helpers, DEC-018-filtered unit choices, private local-import boundary, conversion false, private payload false, protected payload false; user-supplied data with recorded provenance; no protected standards content."
     ),
     target(
       "target:desktop-load-case-manager-template",
       "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Load case manager template records load-case, primitive-load, and combination operation intents with explicit unit-validation status, direct model mutation false, conversion false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Load case manager template records load-case, primitive-load, and combination operation intents with explicit unit-validation status, direct model mutation false, conversion false, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-property-inspector-template",
       "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
       "public_report_template",
       "public_metadata",
-      "Property inspector template records edit, material, section, support, node-delete, pipe-delete, and support-delete operation intents with explicit unit-validation status, direct model mutation false, conversion false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Property inspector template records edit, material, section, support, node-delete, pipe-delete, and support-delete operation intents with explicit unit-validation status, direct model mutation false, conversion false, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-operation-diff-template",
       "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Operation diff preview template records local review-only operation diffs, declared change units and dimensions, unit preservation witnesses, accepted state mutation false, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
+      "Operation diff preview template records local review-only operation diffs, declared change units and dimensions, unit preservation witnesses, accepted state mutation false, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-operation-apply-template",
       "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Apply Operations template records queued structured operations, unit-validation outcomes, session-local applied receipts, receipt unit-serialization policy, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
+      "Apply Operations template records queued structured operations, unit-validation outcomes, session-local applied receipts, receipt unit-serialization policy, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-operation-ledger-template",
       "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Operation review ledger template records local review-only operation records, unit-policy evidence, held user-acceptance decisions, accepted state mutation false, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
+      "Operation review ledger template records local review-only operation records, unit-policy evidence, held user-acceptance decisions, accepted state mutation false, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-viewport-editor-template",
       "apps/desktop/src/features/viewport/PipeViewport.tsx",
       "public_report_template",
       "public_metadata",
-      "Viewport editor template records create-node, pipe-run, and component-symbol gesture intents as review-only structured operations, pending service validation, direct mutation false, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
+      "Viewport editor template records create-node, pipe-run, and component-symbol gesture intents as review-only structured operations, pending service validation, direct mutation false, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-missing-data-template",
       "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Missing-data warning template records solve-required versus rule-check-required warning classes, text remediation fields, silent defaults false, auto-fill false, private payload false, protected payload false, accepted state mutation false, and no approval, authentication, certification, sealing, code compliance, or professional reliance claim."
+      "Missing-data warning template records solve-required versus rule-check-required warning classes, text remediation fields, silent defaults false, auto-fill false, private payload false, protected payload false, accepted state mutation false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-accessibility-baseline-template",
       "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Accessibility baseline template records DEL-07-06 deterministic GUI-contract evidence, target TBD, desktop runtime evaluation not performed, color-only status signaling false, private payload false, protected payload false, and no accessibility conformance, release, code compliance, or professional reliance claim."
+      "Accessibility baseline template records DEL-07-06 deterministic GUI-contract evidence, target TBD, desktop runtime evaluation not performed, color-only status signaling false, private payload false, protected payload false, no accessibility-conformance claim; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-design-workspace-template",
       "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Design workspace template records DEL-07-08 design knowledge, constraint warning, state/run, comparison, overlay, and operation-diff review metadata, accepted model mutation false, private payload false, protected payload false, and no acceptance, release, code compliance, or professional reliance claim."
+      "Design workspace template records DEL-07-08 design knowledge, constraint warning, state/run, comparison, overlay, and operation-diff review metadata, accepted model mutation false, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-design-knowledge-template",
       "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Design knowledge template records local invented knowledge records, computed preview result unit context, provenance and review metadata, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Design knowledge template records local invented knowledge records, computed preview result unit context, provenance and review metadata, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-validation-evidence-template",
       "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Validation evidence template records DEL-09-04 and DEL-09-05 manual sections, evidence areas, local readiness profiles, release-gate families, unresolved TBD decisions, browser tool execution false, private payload false, protected payload false, and no release authorization, certification, code compliance, or professional reliance claim."
+      "Validation evidence template records DEL-09-04 and DEL-09-05 manual sections, evidence areas, local readiness profiles, release-gate families, unresolved TBD decisions, browser tool execution false, private payload false, protected payload false; validation occurs in the user's accepted professional tools; this package is screening and handoff evidence."
     ),
     target(
       "target:desktop-run-audit-template",
       "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Run audit template records local analysis-run audit metadata, model-state and result hash references, result-envelope unit traceability, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Run audit template records local analysis-run audit metadata, model-state and result hash references, result-envelope unit traceability, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-solve-job-template",
       "apps/desktop/src/features/solve/SolvePanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Solve job template records local solve execution audit metadata, model and result unit-policy evidence, cancellation and progress metadata, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Solve job template records local solve execution audit metadata, model and result unit-policy evidence, cancellation and progress metadata, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-diagnostics-template",
       "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Diagnostics template records selected diagnostic source, affected refs, linked result unit context, review explanation, professional boundary, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Diagnostics template records selected diagnostic source, affected refs, linked result unit context, review explanation, professional boundary, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-rule-check-run-template",
       "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Run Rule Checks template records private rule-pack binding routes, runtime value unit policy, solver-result and private-library binding counts, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+      "Run Rule Checks template records private rule-pack binding routes, runtime value unit policy, solver-result and private-library binding counts, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-rule-completeness-template",
       "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Rule-check completeness template records missing user/private rule-check data, explicit rule-input unit policy, unit-mismatch diagnostic policy, mechanics separation, private payload false, protected payload false, and no code-compliance, approval, certification, or professional reliance claim."
+      "Rule-check completeness template records missing user/private rule-check data, explicit rule-input unit policy, unit-mismatch diagnostic policy, mechanics separation, private payload false, protected payload false; acceptance and professional judgment remain with the responsible engineer."
     ),
     target(
       "target:desktop-result-export-template",
       "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Result export template records schema-first local JSON result envelopes, explicit result units, unit preservation witnesses, private payload false, protected payload false, and no release, target compatibility, code-compliance, or professional reliance claim."
+      "Result export template records schema-first local JSON result envelopes, explicit result units, unit preservation witnesses, private payload false, protected payload false, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-local-fea-handoff-template",
       "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Local FEA handoff template records target-neutral selected-region metadata, result-reference transfer basis, mesh not generated, external solver not invoked, target format TBD, private payload false, protected payload false, and no approval, authentication, certification, sealing, or code-compliance claim."
+      "Local FEA handoff template records target-neutral selected-region metadata, result-reference transfer basis, mesh not generated, external solver not invoked, target format TBD, private payload false, protected payload false; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-headless-runner-template",
       "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Headless runner template records schema-first preview request/result handoff metadata, result-reference unit preservation witnesses, DEC-065 local CLI/process policy, network false, private payload false, protected payload false, and no release, target compatibility, code-compliance, or professional reliance claim."
+      "Headless runner template records schema-first preview request/result handoff metadata, result-reference unit preservation witnesses, DEC-065 local CLI/process policy, network false, private payload false, protected payload false, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-handoff-package-template",
       "apps/desktop/src/features/handoff/HandoffPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Handoff package template records stable IDs, local review handoff metadata, result-reference unit preservation witnesses, target-specific mapping deferred, private payload false, protected payload false, and no target compatibility, approval, certification, code-compliance, or professional reliance claim."
+      "Handoff package template records stable IDs, local review handoff metadata, result-reference unit preservation witnesses, target-specific mapping deferred, private payload false, protected payload false, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-external-prover-template",
       "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "External prover boundary template records metadata-only names, tags, references, attachment refs, unsupported target flags, private payload false, and no software authority claim."
+      "External prover boundary template records metadata-only names, tags, references, attachment refs, unsupported target flags, private payload false; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-native-package-template",
       "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Native JSON package template records project-owned package members, stable IDs, unit preservation witnesses, private payload false, protected payload false, target compatibility false, and no release, code-compliance, or professional reliance claim."
+      "Native JSON package template records project-owned package members, stable IDs, unit preservation witnesses, private payload false, protected payload false, target compatibility false; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-review-geometry-template",
@@ -792,42 +792,42 @@ function lintTargets({
       "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Conservative PCF export template records ASCII PCF preview text, stable ID sidecar, mandatory loss report, private payload false, protected payload false, target profile TBD, and no target compatibility, solver validation, code compliance, or professional reliance claim."
+      "Conservative PCF export template records ASCII PCF preview text, stable ID sidecar, mandatory loss report, private payload false, protected payload false, target profile TBD, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-caepipe-mbf-export-template",
       "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "CAEPIPE MBF export template records invented ASCII MBF preview text, sidecar stable IDs, mandatory loss report, carried target-version and record-subset TBDs, private payload false, protected payload false, external invocation false, and no target compatibility, solver validation, code compliance, or professional reliance claim."
+      "CAEPIPE MBF export template records invented ASCII MBF preview text, sidecar stable IDs, mandatory loss report, carried target-version and record-subset TBDs, private payload false, protected payload false, external invocation false, no target-compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-caepipe-external-template",
       "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "CAEPIPE external harness template records parser-only invented CSV rows, absent executable configuration, external invocation false, user-owned live execution TBDs, private payload false, protected payload false, and no CAEPIPE compatibility, solver validation, code compliance, or professional reliance claim."
+      "CAEPIPE external harness template records parser-only invented CSV rows, absent executable configuration, external invocation false, user-owned live execution TBDs, private payload false, protected payload false, no CAEPIPE-compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-adapter-framework-template",
       "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Adapter framework template records format-neutral adapter declaration metadata, unit-validation policy evidence, no-bypass controls, concrete external formats deferred, private payload false, protected payload false, and no support, compatibility, release, code compliance, or professional reliance claim."
+      "Adapter framework template records format-neutral adapter declaration metadata, unit-validation policy evidence, no-bypass controls, concrete external formats deferred, private payload false, protected payload false, no support or compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-export-adapter-sdk-template",
       "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Export adapter SDK template records target-registry preview metadata, additional target source-basis admission TBDs, deny-by-default permissions, private payload false, protected payload false, and no support, compatibility, release, code compliance, or professional reliance claim."
+      "Export adapter SDK template records target-registry preview metadata, additional target source-basis admission TBDs, deny-by-default permissions, private payload false, protected payload false, no support or compatibility claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:desktop-stress-neutral-template",
       "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
       "public_report_template",
       "public_metadata",
-      "Stress-neutral export template records CSV/JSON preview rows, explicit units and dimensions, stable IDs, private payload false, protected payload false, diagnostic-only comparison semantics, no vendor format, solver validation, code compliance, or professional reliance claim."
+      "Stress-neutral export template records CSV/JSON preview rows, explicit units and dimensions, stable IDs, private payload false, protected payload false, diagnostic-only comparison semantics, no vendor-format claim; handoff evidence for external validation, not a validation outcome."
     ),
     target(
       "target:invented-preview-fixture",
@@ -927,7 +927,8 @@ function prohibitedClaimCode(text: string) {
     code: "PROHIBITED_PROFESSIONAL_CLAIM",
     class: "PROFESSIONAL_BOUNDARY_WARNING",
     severity: "BLOCKING",
-    policy: "Public report surfaces must not claim certification, sealing, approval, authentication, or code compliance.",
+    policy:
+      "PRD §21.2 prohibited-claims rule: public report surfaces must not claim certification, sealing, approval, authentication, or code compliance.",
     excerpt: claim,
     message: "A public report surface appears to overstate software or professional authority.",
     remediation: "Rewrite the text as decision-support evidence with human-review-required boundary language.",

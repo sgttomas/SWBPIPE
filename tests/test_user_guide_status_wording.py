@@ -16,8 +16,13 @@ def test_user_guide_lists_external_human_approval_status_without_software_claim(
     assert "external human acceptance record" in lower
     assert "exact reviewed hashes" in lower
     assert "not emitted by the solver or rule-pack evaluator" in lower
-    assert "not software approval" in lower
-    assert "not software approval, certification, sealing, authentication, or code-compliance determination" in lower
+    # DEC-081 claims taxonomy: the row carries the registry BS-ACCEPT
+    # standalone variant instead of an ad-hoc prohibition litany.
+    assert (
+        "acceptance, professional judgment, and any certification, sealing, "
+        "or code-compliance determination remain with the responsible "
+        "engineer and project authority" in lower
+    )
 
 
 if __name__ == "__main__":

@@ -7,9 +7,9 @@ import type { RulePackDocument } from "./rulePackService";
 // `run_rule_checks` command backed by `core/rules/rule_check_runner`; browser
 // preview mode has no backend and reports an explicit unavailable route
 // instead of synthesizing a fallback evaluator. The runner emits ONLY the
-// three automatic rule-check statuses and makes no professional,
-// certification, sealing, authentication, approval, or code-compliance claim
-// (PRD §12.5, §22.4; DEC-022 grammar v1.0.0).
+// three automatic rule-check statuses; acceptance and professional judgment
+// remain with the responsible engineer (PRD §12.5, §22.4; DEC-022 grammar
+// v1.0.0; docs/claims_registry.md, DEC-081).
 
 export const RULE_CHECK_BACKEND_DIAGNOSTIC =
   "RULE-CHECK-BACKEND-DESKTOP-ONLY: running rule checks (completeness gate, frozen-grammar " +

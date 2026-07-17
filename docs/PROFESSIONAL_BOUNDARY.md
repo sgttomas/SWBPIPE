@@ -13,6 +13,9 @@ refs:
 
 # Professional Boundary and Product Claims Policy
 
+> **Registry:** This document is the policy depth behind the `BS-ACCEPT`
+> boundary statement in `docs/claims_registry.md` (D-48 / `DEC-081`).
+
 ## 1. Purpose
 
 This policy defines the professional-responsibility boundary for

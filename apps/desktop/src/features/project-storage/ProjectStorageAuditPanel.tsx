@@ -138,8 +138,8 @@ export function ProjectStorageAuditPanel({
         />
       </div>
       <small className="report-note">
-        Storage audit packets are local technical-preview evidence only; create/open/save operations do not accept model
-        changes, copy external project files, or create professional reliance.
+        Storage audit packets are local evidence only; create/open/save operations do not accept model changes or copy
+        external project files. Acceptance and professional judgment remain with the responsible engineer.
       </small>
     </section>
   );
@@ -284,7 +284,7 @@ function storageDiagnostics(storageCapability: LocalStorageCapability | null, pr
     diagnostic(
       "STORAGE-AUDIT-LOCAL-ONLY",
       "info",
-      "Project storage is local technical-preview evidence and does not create professional acceptance."
+      "Project storage is local evidence; acceptance and professional judgment remain with the responsible engineer."
     )
   ];
   if (!storageCapability) {

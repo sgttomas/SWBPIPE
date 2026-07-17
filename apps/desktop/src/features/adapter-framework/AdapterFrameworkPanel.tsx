@@ -339,7 +339,7 @@ function adapterBoundarySummary(packet: ReturnType<typeof buildAdapterFrameworkP
     `local_first=${String(packet.adapter_declaration.privacy.local_first)}`,
     `telemetry=${String(packet.adapter_declaration.privacy.telemetry_allowed)}`,
     `private_redacted=${String(packet.adapter_declaration.privacy.private_payload_redacted)}`,
-    "no compliance, certification, sealing, approval, or security-certification claim"
+    "handoff evidence for external validation, not a validation outcome"
   ].join("; ");
 }
 

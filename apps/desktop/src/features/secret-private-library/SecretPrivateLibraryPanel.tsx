@@ -109,8 +109,8 @@ export function SecretPrivateLibraryPanel({
       </div>
       <small className="report-note">
         Secret and private-library review records metadata-only references. It does not store credential values, read
-        private libraries, choose a secret provider, finalize encryption/key management, or create security,
-        professional, certification, sealing, authentication, approval, or code-compliance reliance.
+        private libraries, choose a secret provider, or finalize encryption/key management. No protected standards
+        content; code-specific data is user-supplied.
       </small>
     </section>
   );

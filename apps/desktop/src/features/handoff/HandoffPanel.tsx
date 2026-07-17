@@ -369,7 +369,7 @@ function handoffBoundary(handoffPackage: ReturnType<typeof buildHandoffPackage>)
     !handoffPackage.protected_content_included &&
     !handoffPackage.release_or_professional_claim
   ) {
-    return "local review handoff only; no private payload; no protected content; no release or professional claim";
+    return "local review handoff only; no private payload; no protected content; validation occurs in the user's accepted professional tools";
   }
   return "handoff boundary requires attention";
 }

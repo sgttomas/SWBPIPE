@@ -237,7 +237,7 @@ function buildPcfExportPacket({
       ],
       boundary_notes: [
         "PCF export is a conservative desktop preview package only.",
-        "The package is not PCF completeness evidence, downstream import compatibility evidence, solver validation evidence, code compliance evidence, release readiness evidence, or professional reliance evidence.",
+        "The package does not assert PCF completeness or downstream import compatibility; validation occurs in the user's accepted professional tools, and this package is screening and handoff evidence.",
         "Nominal size, first target profile/version, support/restraint preservation, hidden translator defaults, and downstream import behavior remain TBD or loss-reported.",
         "The sidecar ID map is authoritative for audit correlation."
       ]

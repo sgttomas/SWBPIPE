@@ -10,6 +10,9 @@ refs:
 
 # IP and Data Boundary Policy
 
+> **Registry:** This document is the policy depth behind the `BS-IP` boundary
+> statement in `docs/claims_registry.md` (D-48 / `DEC-081`).
+
 ## 1. Purpose
 
 This policy keeps the public OpenPipeStress repository aligned with the project intent: public open mechanics, private/user-supplied code and proprietary data.

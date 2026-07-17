@@ -1,7 +1,7 @@
 # Status: DEL-08-01 Calculation report generator
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-07-16
 
 ## Remaining
 - Bind the report-package seam: desktop menu binding + caller-side atomic on-disk save (write-temp/rename per the D-09 packet); runner side is the export-results downstream payload binding (HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD; no new runner verb without a ruling) (see also DEL-10-05) (source: Receipt 10 named remainders / TP-E3-CONTAINER-001 residuals)
@@ -9,6 +9,7 @@
 - Define the .opsproj container compatibility-window/versioning policy beyond schema_version 1.0.0 (DEC-028 bounded-tranche territory) (see also DEL-02-05) (source: TP-E3-CONTAINER-001 residuals)
 
 ## History
+- 2026-07-16 - DEC-081/D-48 Wave-1 claims-language alignment: the report renderer's professional-boundary notice now emits the PRD v0.3 §19.3 required notice verbatim, and `docs/report_notice_template.md` quotes the same canonical block; report-surface boundary summaries use registry BS-ACCEPT variants. No lifecycle change; no scope change.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)

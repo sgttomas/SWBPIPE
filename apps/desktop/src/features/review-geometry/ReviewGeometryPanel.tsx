@@ -115,8 +115,8 @@ export function ReviewGeometryPanel({
         />
       </div>
       <small className="report-note">
-        Review geometry is visual context only; it is not solver geometry, target compatibility evidence, or professional
-        validation.
+        Review geometry is visual context only; it is not solver geometry or target compatibility evidence. Validation
+        occurs in the user's accepted professional tools.
       </small>
     </section>
   );
@@ -695,7 +695,7 @@ function reviewGeometryDiagnostics(model: PreviewModel) {
     {
       code: "REVIEW-GEOMETRY-VISUAL-ONLY",
       severity: "warning",
-      message: "glTF review geometry is visual context only and is not solver geometry or professional validation.",
+      message: "glTF review geometry is visual context only and is not solver geometry; validation occurs in the user's accepted professional tools.",
       affected_refs: [model.project.id]
     }
   ];

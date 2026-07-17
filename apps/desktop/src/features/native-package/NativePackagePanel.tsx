@@ -334,11 +334,11 @@ export function buildNativePackageReview({
       deterministic_hash_basis: "JCS-compatible JSON where member canonical payloads are available",
       runtime_timestamp_fields_in_hash_inputs: false,
       boundary_notes: [
-        "technical-preview browser-local JSON review package only",
+        "browser-local JSON review package only",
         "physical project container remains TBD",
         "public transport and target-specific adapter behavior remain TBD",
         "no protected standards content or private rule payload is bundled",
-        "no release, compatibility, code-compliance, or professional acceptance claim"
+        "validation occurs in the user's accepted professional tools; this package is screening and handoff evidence"
       ]
     },
     stable_id_map: {
@@ -970,7 +970,7 @@ function nativePackageBoundary(packet: ReturnType<typeof buildNativePackageRevie
     !packet.professional_boundary.software_makes_compliance_claim &&
     !packet.professional_boundary.software_makes_approval_claim
   ) {
-    return "local review package only; no private payload, protected content, release claim, compatibility claim, compliance claim, or professional approval claim";
+    return "local review package only; no private payload or protected content bundled; validation occurs in the user's accepted professional tools — this package is screening and handoff evidence";
   }
   return "boundary requires review before export";
 }

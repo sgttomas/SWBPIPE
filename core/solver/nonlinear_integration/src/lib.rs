@@ -522,7 +522,7 @@ pub fn assembled_loop_limitations() -> Vec<String> {
         "DEC-046 threshold authority exists only where callers supply explicit controls and policy references; unmeasured classes and broader release/external thresholds remain out of scope.".to_string(),
         "User-stiffness and curved-bend macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
         "The bounded sliding friction force is a single-iterate Coulomb bound, not a path-dependent or load-step friction history model; its magnitude is not itself a convergence residual axis.".to_string(),
-        "The result is mechanics evidence only and does not state rule compliance, professional approval, certification, sealing, authentication, or code compliance.".to_string(),
+        "The result is mechanics decision-support evidence; acceptance and professional judgment remain with the responsible engineer.".to_string(),
     ]
 }
 

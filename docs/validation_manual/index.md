@@ -18,14 +18,19 @@ refs:
 ## 1. Authority Boundary
 
 This manual organizes verification and validation evidence for OpenPipeStress
-software quality. It does not certify a piping model, decide code compliance,
-authenticate a professional judgment, or approve project-specific reliance.
+software quality. Candidate designs are validated in the user's accepted
+professional tools (external-prover correlation, PRD §22.5). Internal
+benchmarks and rule checks are development verification and screening
+evidence.
+Acceptance, professional judgment, and any certification, sealing, or
+code-compliance determination remain with the responsible engineer and
+project authority (boundary vocabulary: `docs/claims_registry.md`, DEC-081).
 
 Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
 revision `0.8` and approved `execution/_DAG/DAG-007/` graph coordination
 authority. `DAG-007` supplies active dependency context only; it does not
-settle lifecycle state, release labels, legal clearance, professional approval,
-certification, sealing, authentication, or code-compliance claims.
+settle lifecycle state, release labels, or legal clearance, and acceptance and
+professional judgment remain with the responsible engineer.
 
 Use this manual to answer four separate questions:
 
@@ -188,14 +193,14 @@ governed `DEC-046` policy records committed beside the crate
 | Nonlinear support regression | [Section 3.3 case pages](#33-nonlinear-support-cases-del-09-03); `validation/benchmarks/nonlinear/` with governed `DEC-046` policy records | `DRAFT_EVIDENCE`; production release thresholds and external validation claims are `TBD`. |
 | Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples are reproducible from invented fixtures, but the `run-benchmark`/`run-regression` payload bindings remain stubbed and public benchmark thresholds remain `TBD`. |
 | GUI workflow validation | GUI workflow tests, screenshots, and interaction evidence when available | `PLANNED`; required evidence type, coverage, and review criteria are `TBD`. |
-| Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; does not provide legal clearance, professional approval, or code-compliance proof. |
+| Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; development review evidence, not legal clearance, and acceptance stays with the responsible engineer. |
 | Release quality evidence | Future `DEL-09-05` release quality gate checklist | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
 | Validation evidence bundles | Future evidence package location/format | `TBD`; long-term storage, retention, and release attachment policy are unsettled. |
 | Professional boundary | `docs/PROFESSIONAL_BOUNDARY.md` | Draft policy surface for reliance wording and release-claim limits. |
 
-This inventory is not complete validation, release readiness, legal clearance,
-or professional reliance evidence. It is the starting index for future evidence
-review and release-quality decisions.
+This inventory is the starting index for future evidence review and
+release-quality decisions. Validation occurs in the user's accepted
+professional tools; this package is screening and handoff evidence.
 
 ## 6. Section Requirements
 

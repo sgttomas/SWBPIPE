@@ -322,7 +322,8 @@ describe("RuleCheckRunPanel", () => {
           diagnostic_codes: []
         }
       ],
-      professional_boundary_notice: "Software rule-check evidence only; not a professional claim."
+      professional_boundary_notice:
+        "Rule-check results are engineering decision-support information computed from user-supplied rules and data; acceptance and professional judgment remain with the responsible engineer. Human review remains required."
     });
 
     render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
@@ -344,7 +345,7 @@ describe("RuleCheckRunPanel", () => {
     // derives this from the check's acceptability_relation; TP-C4-ACCEPTREL-001).
     expect(outcome.textContent).toContain("relation=less_than_or_equal");
     expect(screen.getByTestId("rule-check-professional-boundary").textContent).toContain(
-      "not a professional claim"
+      "acceptance and professional judgment remain with the responsible engineer"
     );
     expect(invokeMock).toHaveBeenCalledWith("run_rule_checks", expect.objectContaining({ rulePackDocument: expect.anything() }));
   });
@@ -357,7 +358,8 @@ describe("RuleCheckRunPanel", () => {
       grammar_version: "1.0.0",
       aggregate_status: "RULE_INPUTS_INCOMPLETE",
       checks: [],
-      professional_boundary_notice: "Software rule-check evidence only; not a professional claim."
+      professional_boundary_notice:
+        "Rule-check results are engineering decision-support information computed from user-supplied rules and data; acceptance and professional judgment remain with the responsible engineer. Human review remains required."
     });
     const pack = {
       metadata: { rule_pack_id: "p" },
@@ -405,7 +407,8 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
         diagnostic_codes: []
       }
     ],
-    professional_boundary_notice: "Software rule-check evidence only; not a professional claim."
+    professional_boundary_notice:
+        "Rule-check results are engineering decision-support information computed from user-supplied rules and data; acceptance and professional judgment remain with the responsible engineer. Human review remains required."
   };
 
   it("lifts the worst-of aggregate to onAggregateChange on a desktop run", async () => {

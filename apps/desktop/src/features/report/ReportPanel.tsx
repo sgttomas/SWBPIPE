@@ -252,7 +252,7 @@ export function ReportPanel({
             ) : null}
             <ReportLine
               label="Boundary"
-              value="technical preview only; human review required; no compliance or professional approval claim"
+              value="human review remains required; acceptance stays with the responsible engineer"
             />
           </div>
         </>
@@ -262,8 +262,8 @@ export function ReportPanel({
         </p>
       )}
       <small className="report-note">
-        Uses invented or cleared preview data for {model.project.id}; private rule criteria and professional acceptance
-        are not bundled.
+        Uses invented or cleared preview data for {model.project.id}; private rule criteria are not bundled. Acceptance
+        and professional judgment remain with the responsible engineer.
       </small>
     </section>
   );
@@ -589,7 +589,7 @@ function boundarySummary(boundary: Record<string, boolean>): string {
     !boundary.software_makes_sealing_claim &&
     !boundary.software_makes_approval_claim
   ) {
-    return "human review required; no compliance, certification, sealing, or approval claim";
+    return "human review remains required; acceptance stays with the responsible engineer";
   }
   return "review boundary requires attention";
 }
@@ -612,7 +612,7 @@ function proposalBoundarySummary(proposal: AgentProposal): string {
     !proposal.professional_boundary.software_makes_compliance_claim &&
     !proposal.professional_boundary.software_makes_approval_claim
   ) {
-    return "review-only; requires user acceptance; does not mutate accepted model state; no compliance or professional approval claim";
+    return "review-only; requires user acceptance; does not mutate accepted model state; acceptance and professional judgment remain with the responsible engineer";
   }
   return "proposal boundary requires attention";
 }
@@ -993,7 +993,7 @@ function editorIntentBoundarySummary(intent: EditorOperationIntent): string {
     !intent.professional_boundary.software_makes_compliance_claim &&
     !intent.professional_boundary.software_makes_approval_claim
   ) {
-    return "review-only; requires user acceptance; does not mutate accepted model state; no compliance or professional approval claim";
+    return "review-only; requires user acceptance; does not mutate accepted model state; acceptance and professional judgment remain with the responsible engineer";
   }
   return "editor intent boundary requires attention";
 }

@@ -181,7 +181,7 @@ function ruleReadiness(status: string): string {
 function professionalReadiness(status: string): string {
   const normalized = status.toLowerCase();
   if (normalized.includes("not_provided") || normalized.includes("not provided")) {
-    return "human review required; no professional acceptance record";
+    return "no professional acceptance record; human review remains required; acceptance stays with the responsible engineer";
   }
   return formatStatus(status);
 }

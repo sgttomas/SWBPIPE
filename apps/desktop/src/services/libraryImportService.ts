@@ -7,8 +7,8 @@ import { invoke } from "@tauri-apps/api/core";
 // reports an explicit unavailable route instead of synthesizing a TypeScript
 // fallback validator. Imported private libraries are never transmitted or
 // committed (OPS-K-PRIV-1, PRD §13.5, §17.3). Every status is a software
-// finding only — never a legal, certification, sealing, authentication, or
-// code-compliance determination.
+// finding only; acceptance and professional judgment remain with the
+// responsible engineer (docs/claims_registry.md, DEC-081).
 
 export const LIBRARY_IMPORT_BACKEND_DIAGNOSTIC =
   "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY: library-import provenance validation runs through the " +

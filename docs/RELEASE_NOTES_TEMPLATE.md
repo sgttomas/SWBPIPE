@@ -33,9 +33,10 @@ with an owner or gate.
 `[Short summary of implemented software changes and review state.]`
 
 This release evidence describes software behavior, validation status, known
-limitations, and data-boundary controls. It is not professional engineering
-approval, certification, sealing, endorsement, authentication, legal advice, or
-a code-compliance determination for reliance.
+limitations, and data-boundary controls. Results are engineering
+decision-support information. Acceptance, professional judgment, and any
+certification, sealing, or code-compliance determination remain with the
+responsible engineer and project authority.
 
 ## Changed Surfaces
 
@@ -60,7 +61,7 @@ a code-compliance determination for reliance.
 
 Waivers must reference a human governance record and must not authorize
 protected-content copying, private-data exposure, signing-secret exposure,
-professional approval claims, or code-compliance claims.
+professional approval claims, or code-compliance claims (PRD §21.2 prohibited-claims rule).
 
 ## Known Limitations And Open Risks
 
@@ -82,8 +83,9 @@ professional approval claims, or code-compliance claims.
 
 OpenPipeStress is decision-support software. It may compute mechanics, evaluate
 user-supplied rule packs, record diagnostics, and assemble auditable reports.
-Competent human review remains required before professional reliance on any
-project-specific piping calculation.
+Competent human review remains required; acceptance and professional judgment
+for any project-specific piping calculation stay with the responsible engineer
+(`docs/claims_registry.md`).
 
 ## Reproducibility Manifest
 

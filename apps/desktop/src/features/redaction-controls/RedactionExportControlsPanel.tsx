@@ -172,10 +172,9 @@ export function RedactionExportControlsPanel({ model }: { model: PreviewModel })
         />
       </div>
       <small className="report-note">
-        Redaction warnings inform the local export decision only. They do not certify redaction sufficiency and do not
-        create a release, legal-clearance, professional, certification, sealing, authentication, approval, or
-        code-compliance claim. Classification uses explicit user-entered metadata only; the source model is never
-        mutated and nothing is transmitted.
+        Redaction warnings inform the local export decision only; they do not certify redaction sufficiency. No
+        protected standards content; code-specific data is user-supplied. Classification uses explicit user-entered
+        metadata only; the source model is never mutated and nothing is transmitted.
       </small>
     </section>
   );

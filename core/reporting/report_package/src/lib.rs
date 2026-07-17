@@ -596,9 +596,9 @@ fn package_manifest_document(
             "blocking_reasons": blocking_reasons
         },
         "boundary_notes": [
-            "This container is an artifact format, not an issuance act; assembling it creates \
-             no lifecycle, release-readiness, professional approval, certification, sealing, \
-             authentication, or code-compliance claim.",
+            "This container is an artifact format, not an issuance act; package contents are \
+             engineering decision-support information, and acceptance and professional \
+             judgment remain with the responsible engineer and project authority.",
             "Human professional review is required before any reliance on package contents.",
             "No timestamps or generated identifiers are recorded anywhere in this package; \
              identical inputs produce identical bytes."

@@ -349,7 +349,7 @@ function boundarySummary(boundary: Record<string, boolean>): string {
     !boundary.software_makes_approval_claim &&
     !boundary.software_makes_authentication_claim
   ) {
-    return "human review required; no compliance, certification, sealing, authentication, or approval claim";
+    return "human review remains required; acceptance stays with the responsible engineer";
   }
   return "professional boundary requires attention";
 }

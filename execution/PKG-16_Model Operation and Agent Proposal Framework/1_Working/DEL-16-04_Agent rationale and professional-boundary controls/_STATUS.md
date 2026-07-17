@@ -1,7 +1,7 @@
 # Status: DEL-16-04 Agent rationale and professional-boundary controls
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-07-16
 
 ## Remaining
 - Preserve the v0.2 R7/F3 live-binding gate: the T4 persisted-report workflow does not bind agent rationale into downstream runtime integrations or infer human/professional approval.
@@ -9,6 +9,7 @@
 - Obtain the owning human disposition for `PKG16-DEL1604-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` despite the implemented copied-context scanner coverage (PDU-060).
 
 ## History
+- 2026-07-16 - DEC-081/D-48 Wave-1 claims-language alignment: the governed claims registry `docs/claims_registry.md` and the deterministic claims-language lint (repo-root `tools/validation/validate_claims_language.py`, self-check GEN-13) landed under this deliverable as the professional-boundary vocabulary controls; product boundary strings across the desktop UI now use the registry statements. No lifecycle change; no scope change.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed the rationale-scanner finding disposition without altering the R7/F3 gate, formal review, or lifecycle.
 - 2026-07-12 - D-41 R5 T4 PDU-012 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.

@@ -1385,7 +1385,9 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   // GUI-true — load a pack, bind inputs, run, see pass/fail/blocked.
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("rule-check-run-panel")).toBeVisible();
-  await expect(page.getByTestId("rule-check-boundary-note")).toContainText("code-compliance");
+  await expect(page.getByTestId("rule-check-boundary-note")).toContainText(
+    "acceptance stays with the responsible engineer",
+  );
 
   // Load the bundled invented demo pack through a visible control; the binding
   // plan is derived from the loaded document.

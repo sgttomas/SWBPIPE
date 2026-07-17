@@ -76,8 +76,9 @@ export function ExternalProverBoundaryPanel({
         />
       </div>
       <small className="report-note">
-        External-prover metadata is descriptive review context only; external tools, target parsers, and human-owned
-        acceptance records remain outside this preview packet.
+        External-prover metadata is descriptive review context only; external tools and target parsers remain outside
+        this packet. Validation occurs in the user's accepted professional tools; this packet is screening and handoff
+        evidence.
       </small>
     </section>
   );

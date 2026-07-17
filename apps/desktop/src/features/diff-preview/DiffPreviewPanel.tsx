@@ -106,8 +106,8 @@ export function DiffPreviewPanel({
         </p>
       )}
       <small className="report-note">
-        Diff previews are local review evidence only; this panel does not apply operations, mutate accepted model state,
-        or create professional acceptance.
+        Diff previews are local review evidence only; this panel does not apply operations or mutate accepted model
+        state. Acceptance and professional judgment remain with the responsible engineer.
       </small>
     </section>
   );
@@ -342,7 +342,7 @@ function diffBoundary(packet: ReturnType<typeof buildDiffPreviewPacket>): string
     `accepted model mutated=${String(packet.summary.accepted_model_state_mutated)}`,
     `private payload=${String(packet.private_payload_included)}`,
     `protected content=${String(packet.protected_content_included)}`,
-    "no release or professional claim"
+    "acceptance and professional judgment remain with the responsible engineer"
   ].join("; ");
 }
 

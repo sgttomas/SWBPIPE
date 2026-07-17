@@ -116,8 +116,8 @@ export function ValidationEvidencePanel({ model }: { model: PreviewModel }) {
         />
       </div>
       <small className="report-note">
-        Validation evidence is local technical-preview review context only. It organizes software-quality evidence and
-        unresolved decisions; it does not authorize release, certify engineering work, or make code-compliance claims.
+        Validation evidence is local review context only. It organizes software-quality evidence and unresolved
+        decisions; acceptance and professional judgment remain with the responsible engineer.
       </small>
     </section>
   );

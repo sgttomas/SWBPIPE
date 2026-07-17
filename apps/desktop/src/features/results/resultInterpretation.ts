@@ -59,7 +59,7 @@ export function buildResultInterpretation({
       envelope_hash_available: envelopeHashAvailable
     },
     endpoint_pair: endpointPairFor(result, item),
-    professional_boundary: "human review required; review-only interpretation; no compliance or professional approval claim"
+    professional_boundary: "review-only interpretation; human review remains required; acceptance stays with the responsible engineer"
   };
 }
 
@@ -110,7 +110,7 @@ export function buildDiagnosticInterpretation({
     linked_results: linkedResults,
     linked_knowledge: linkedKnowledge,
     review_explanation: diagnosticExplanation(diagnostic, affectedRefs, linkedResults.length),
-    professional_boundary: "review-only diagnostic explanation; no compliance or professional approval claim"
+    professional_boundary: "review-only diagnostic explanation; acceptance and professional judgment remain with the responsible engineer"
   };
 }
 

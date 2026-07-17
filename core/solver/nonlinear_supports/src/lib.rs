@@ -339,7 +339,7 @@ pub fn active_set_report_limitations() -> Vec<String> {
         "This crate does not assemble or solve the global nonlinear system.".to_string(),
         "Production tolerance policy, sparse solver selection, final constraint strategy, and result-envelope integration remain outside this bounded crate."
             .to_string(),
-        "The record is mechanics-reporting evidence only and does not state rule compliance or professional approval."
+        "The record is mechanics-reporting decision-support evidence; acceptance and professional judgment remain with the responsible engineer."
             .to_string(),
     ]
 }
@@ -1209,7 +1209,8 @@ mod tests {
         assert!(report
             .limitations
             .iter()
-            .any(|limitation| limitation.contains("rule compliance")));
+            .any(|limitation| limitation
+                .contains("acceptance and professional judgment remain with the responsible engineer")));
     }
 
     #[test]

@@ -163,8 +163,8 @@ export function StressNeutralExportPanel({
         </p>
       )}
       <small className="report-note">
-        Stress-neutral export is a local technical-preview review package only; it is not a vendor format, solver input
-        deck, solver validation, code compliance, or professional reliance record.
+        Stress-neutral export is a local review package only; it is not a vendor format or solver input deck. Validation
+        occurs in the user's accepted professional tools; this package is screening and handoff evidence.
       </small>
     </section>
   );
@@ -323,7 +323,7 @@ function buildStressNeutralExportPacket({
     boundary_notes: [
       "Local browser preview does not emit canonical package member hashes.",
       "The package is not a vendor format, solver input deck, or external target compatibility claim.",
-      "Comparison pass/fail, tolerances, release gates, and professional acceptance remain outside this export."
+      "Comparison pass/fail and tolerances remain outside this export; validation occurs in the user's accepted professional tools, and this package is screening and handoff evidence."
     ],
     privacy: {
       privacy_classification: "public_metadata_and_invented_results",

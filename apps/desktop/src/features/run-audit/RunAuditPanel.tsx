@@ -75,7 +75,7 @@ export function RunAuditPanel({
         </p>
       )}
       <small className="report-note">
-        Audit evidence for {model.project.id} is local technical-preview context; it is not a release or professional acceptance record.
+        Audit evidence for {model.project.id} is stored locally; acceptance and professional judgment remain with the responsible engineer.
       </small>
     </section>
   );
@@ -108,7 +108,7 @@ function boundarySummary(boundary: Record<string, boolean>): string {
     !boundary.software_makes_approval_claim &&
     !boundary.software_makes_authentication_claim
   ) {
-    return "human review required; no compliance, certification, sealing, authentication, or approval claim";
+    return "human review remains required; acceptance stays with the responsible engineer";
   }
   return "professional boundary requires attention";
 }

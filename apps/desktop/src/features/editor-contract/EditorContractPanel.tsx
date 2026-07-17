@@ -102,8 +102,8 @@ export function EditorContractPanel({
       </div>
       <small className="report-note">
         Editor records are review-only command intent context. Private rule packs, private libraries, protected source
-        content, durable mutation, approval, authentication, certification, sealing, and code-compliance claims are not
-        bundled or generated.
+        content, and durable mutation are not bundled or generated; acceptance and professional judgment remain with
+        the responsible engineer.
       </small>
     </section>
   );

@@ -1455,7 +1455,7 @@ export function App() {
       ) : null}
 
       <footer className="app-footer">
-        Technical preview only: no production-readiness, release-readiness, certification, sealing, code-compliance; no licensed engineering reliance claim.
+        Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
       </footer>
     </main>
   );

@@ -342,7 +342,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(initialReadiness).getByTestId("readiness-professional")
         .textContent,
-    ).toContain("human review required");
+    ).toContain("human review remains required");
     expect(screen.getByTestId("solve-job-summary").textContent).toContain(
       "state=not_started",
     );
@@ -501,7 +501,7 @@ describe("OpenPipeStress desktop preview", () => {
       "Run mechanics preview to generate immutable model-state and analysis-run audit references",
     );
     expect(runAudit.textContent).toContain(
-      "not a release or professional acceptance record",
+      "is stored locally; acceptance and professional judgment remain with the responsible engineer",
     );
     const resultExport = await screen.findByLabelText("Result export audit");
     expect(
@@ -551,9 +551,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(headlessRunner).getByTestId("headless-runner-boundary")
         .textContent,
-    ).toContain(
-      "no compliance, certification, sealing, authentication, or approval claim",
-    );
+    ).toContain("handoff evidence for external validation, not a validation outcome");
     const headlessHref =
       within(headlessRunner)
         .getByTestId("headless-runner-export-link")
@@ -2868,7 +2866,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("protected content blocked=true");
     expect(
       within(exportReview).getByTestId("export-review-boundary").textContent,
-    ).toContain("no release or professional claim");
+    ).toContain("handoff evidence for external validation, not a validation outcome");
     expect(
       within(exportReview).getByTestId(
         "export-review-record-telemetry_boundary_review",
@@ -6451,10 +6449,13 @@ describe("OpenPipeStress desktop preview", () => {
   it("does not claim professional or release acceptance", async () => {
     render(<App />);
 
-    const footer = await screen.findByText(/Technical preview only/i);
-    expect(footer.textContent).toContain("no production-readiness");
-    expect(footer.textContent).toContain(
-      "no licensed engineering reliance claim",
+    await screen.findAllByText(/Technical preview — not a released product/i);
+    const footer = document.querySelector("footer.app-footer");
+    expect(footer?.textContent).toContain(
+      "Technical preview — not a released product",
+    );
+    expect(footer?.textContent).toContain(
+      "Acceptance and professional judgment remain with the responsible engineer",
     );
   });
 
@@ -6530,7 +6531,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("does not mutate accepted model state");
     expect(
       within(report).getByTestId("report-editor-intent-boundary").textContent,
-    ).toContain("no compliance or professional approval claim");
+    ).toContain(
+      "acceptance and professional judgment remain with the responsible engineer",
+    );
 
     const exportHref =
       within(report).getByTestId("report-export-link").getAttribute("href") ??
@@ -6597,7 +6600,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("1 pending operation");
     expect(
       within(handoff).getByTestId("handoff-boundary").textContent,
-    ).toContain("no release or professional claim");
+    ).toContain(
+      "validation occurs in the user's accepted professional tools",
+    );
     const handoffHref =
       within(handoff).getByTestId("handoff-export-link").getAttribute("href") ??
       "";
@@ -6655,7 +6660,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("accepted model mutated=false");
     expect(
       within(diffPreview).getByTestId("diff-preview-boundary").textContent,
-    ).toContain("no release or professional claim");
+    ).toContain(
+      "acceptance and professional judgment remain with the responsible engineer",
+    );
     expect(
       within(diffPreview).getByTestId(
         "diff-preview-record-op-editor-intent-material-invented-carbon-steel-elastic-modulus-value",
@@ -6852,7 +6859,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("no private/protected payloads");
     expect(
       within(exportReview).getByTestId("export-review-boundary").textContent,
-    ).toContain("no release or professional claim");
+    ).toContain("handoff evidence for external validation, not a validation outcome");
     expect(
       within(exportReview).getByTestId("export-review-units").textContent,
     ).toContain("unit-system:dec-018-si-dual-display");
@@ -9591,7 +9598,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(resultExport).getByTestId("result-export-boundary").textContent,
     ).toContain(
-      "no compliance, certification, sealing, authentication, or approval claim",
+      "human review remains required; acceptance stays with the responsible engineer",
     );
     const resultExportHref =
       within(resultExport)
@@ -10408,7 +10415,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(nativePackage).getByTestId("native-package-boundary").textContent,
     ).toContain(
-      "no private payload, protected content, release claim, compatibility claim, compliance claim, or professional approval claim",
+      "validation occurs in the user's accepted professional tools — this package is screening and handoff evidence",
     );
     const nativePackageHref =
       within(nativePackage)
@@ -10892,7 +10899,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(runAudit).getByTestId("run-audit-boundary").textContent,
     ).toContain(
-      "no compliance, certification, sealing, authentication, or approval claim",
+      "human review remains required; acceptance stays with the responsible engineer",
     );
     const comparison = await screen.findByLabelText("Comparison workspace");
     expect(
@@ -10932,7 +10939,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(comparison).getByTestId("comparison-boundary").textContent,
     ).toContain(
-      "no compliance, certification, sealing, authentication, or approval claim",
+      "review-only comparison; acceptance and professional judgment remain with the responsible engineer",
     );
     const comparisonRow = within(comparison).getByTestId(
       "comparison-row-result:combination:combination-C-OPER-ALT:reaction:support-S-120",
@@ -11574,8 +11581,10 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBeInTheDocument();
     expect(within(report).getByText(/result_envelope/i)).toBeInTheDocument();
     expect(
-      within(report).getByText(/no compliance or professional approval claim/i),
-    ).toBeInTheDocument();
+      within(report).getAllByText(
+        /human review remains required; acceptance stays with the responsible engineer/i,
+      ).length,
+    ).toBeGreaterThan(0);
     expect(
       within(report).getByTestId("report-comparison-summary").textContent,
     ).toContain("261 mapped pairs");
@@ -12422,7 +12431,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("does not mutate accepted model state");
     expect(
       within(report).getByTestId("report-proposal-boundary").textContent,
-    ).toContain("no compliance or professional approval claim");
+    ).toContain(
+      "acceptance and professional judgment remain with the responsible engineer",
+    );
 
     const proposalExportHref =
       within(report).getByTestId("report-export-link").getAttribute("href") ??
@@ -12746,7 +12757,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("0 hash-bound rows");
     expect(
       within(diffPreview).getByTestId("diff-preview-boundary").textContent,
-    ).toContain("no release or professional claim");
+    ).toContain(
+      "acceptance and professional judgment remain with the responsible engineer",
+    );
     const proposalDiffRecord = within(diffPreview).getByTestId(
       "diff-preview-record-op-review-computed-diagnostic",
     );

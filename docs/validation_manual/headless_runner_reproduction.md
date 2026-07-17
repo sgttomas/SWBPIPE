@@ -18,9 +18,10 @@ refs:
 
 This draft validation-manual slice records the current external-reproducibility
 path for the local `openpipestress-runner` CLI implemented under `DEC-065`.
-It uses invented public-metadata fixtures only. It is software-quality evidence,
-not a release-readiness, professional approval, certification, sealing,
-authentication, or code-compliance claim.
+It uses invented public-metadata fixtures only. It is development verification
+and screening evidence, not a release-readiness record; validation occurs in
+the user's accepted professional tools, and acceptance and professional
+judgment remain with the responsible engineer.
 
 ## Authority And Boundaries
 

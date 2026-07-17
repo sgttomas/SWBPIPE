@@ -112,7 +112,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
       </div>
       <small className="report-note">
         Missing-data warnings distinguish mechanics solve readiness from user-rule checking. They do not fill missing
-        engineering values and do not certify, approve, seal, authenticate, or declare code compliance.
+        engineering values; acceptance and professional judgment remain with the responsible engineer.
       </small>
     </section>
   );
@@ -536,7 +536,7 @@ function previewProvenance() {
     source_license: "project-invented metadata only",
     contributor: "OpenPipeStress app integration tranche",
     contributor_certification:
-      "Invented warning metadata only; no protected standards, private rule pack, private project payload, or professional acceptance record.",
+      "Invented warning metadata only; no protected standards content — code-specific data is user-supplied; acceptance and professional judgment remain with the responsible engineer.",
     redistribution_status: "invented_non_engineering_example",
     review_status: "pending",
     privacy_classification: "public_metadata"

@@ -92,9 +92,9 @@ export function TelemetryBoundaryPanel({
         />
       </div>
       <small className="report-note">
-        Telemetry remains default-off and no-op in this preview. This review records policy and guard state only; it does
-        not authorize collection, transport, endpoint, vendor, support-bundle upload, security certification, or
-        professional/code-compliance reliance.
+        Telemetry remains default-off and no-op. This review records policy and guard state only; it does not authorize
+        collection, transport, endpoint, vendor, or support-bundle upload. Acceptance and professional judgment remain
+        with the responsible engineer.
       </small>
     </section>
   );

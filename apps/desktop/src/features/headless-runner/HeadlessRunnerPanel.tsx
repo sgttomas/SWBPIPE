@@ -400,7 +400,7 @@ function runnerBoundarySummary(packet: ReturnType<typeof buildHeadlessRunnerPack
     `telemetry=${String(packet.request.privacy.telemetry_allowed)}`,
     `network_required=${String(storage.network_required)}`,
     `direct_sql=${String(storage.direct_sql_access_allowed)}`,
-    "no compliance, certification, sealing, authentication, or approval claim"
+    "handoff evidence for external validation, not a validation outcome"
   ].join("; ");
 }
 

@@ -674,8 +674,8 @@ function EntityGrid({
         </button>
       </div>
       <p className="muted entity-grid-boundary" data-testid="entity-grid-boundary">
-        Grid mode fans each changed cell into a structured review intent; storage remains local and professional
-        approval is not recorded.
+        Grid mode fans each changed cell into a structured review intent; storage remains local, and acceptance stays
+        with the responsible engineer.
       </p>
       {queuedMessage ? (
         <p className="entity-grid-queued" data-testid="entity-grid-queued-message">

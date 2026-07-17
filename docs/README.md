@@ -52,9 +52,10 @@ export-format interoperability scope into the active working surface.
 The project license selected by human governance decision is
 `PolyForm-Noncommercial-1.0.0`; see `../LICENSE.md`.
 
-This docs package remains a governance and coordination index. It is not an
-approved engineering work product, not a legal opinion, not a release record,
-and not a claim of code compliance or professional reliance.
+This docs package remains a governance and coordination index for
+OpenPipeStress, which computes open, auditable piping mechanics; acceptance
+and professional judgment remain with the responsible engineer (boundary
+vocabulary: `claims_registry.md`, DEC-081).
 
 ## How agents should use this package
 

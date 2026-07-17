@@ -76,8 +76,9 @@ pub const DOCUMENT_KIND: &str = "openpipestress.rule_check.run";
 /// Boundary notice carried on every run result. No professional/code-compliance
 /// claim is made anywhere in this crate.
 pub const PROFESSIONAL_BOUNDARY_NOTICE: &str =
-    "Software rule-check evidence only; not a professional, certification, sealing, \
-     authentication, approval, or code-compliance claim. Human review remains required.";
+    "Rule-check results are engineering decision-support information computed from \
+     user-supplied rules and data; acceptance and professional judgment remain with the \
+     responsible engineer. Human review remains required.";
 
 /// One solver value the caller resolved from a solved mechanics envelope for a
 /// `solver_result` required input.

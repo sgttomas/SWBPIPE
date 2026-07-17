@@ -36,7 +36,7 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 
 ## Status
 
-This package is the **v0.2 current downstream decomposition basis** for agentic preparation and sealed deliverable execution. It is not an approved engineering work product, not a legal opinion, and not a claim of code compliance.
+This package is the **v0.2 current downstream decomposition basis** for agentic preparation and sealed deliverable execution. OpenPipeStress computes open, auditable piping mechanics; acceptance and professional judgment remain with the responsible engineer (see `docs/claims_registry.md`).
 
 ## How agents should use this package
 

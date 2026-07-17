@@ -1205,9 +1205,9 @@ pub fn validate_rule_pack_document(
         },
         publicly_exportable: record.is_publicly_exportable(),
         professional_boundary_notice:
-            "Software document validation only. No professional, certification, sealing, \
-             authentication, approval, or code-compliance claim is made or implied; human \
-             review remains required."
+            "Document validation results are engineering decision-support information \
+             computed from user-supplied rule-pack content; acceptance and professional \
+             judgment remain with the responsible engineer. Human review remains required."
                 .to_string(),
         has_blocking_findings,
     }

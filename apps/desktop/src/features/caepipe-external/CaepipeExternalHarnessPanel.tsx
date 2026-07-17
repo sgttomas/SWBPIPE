@@ -240,7 +240,7 @@ function buildCaePipeExternalHarnessPacket({
       "CAEPIPE external execution is optional and user-owned.",
       "This desktop preview does not configure, discover, invoke, bundle, download, install, or license CAEPIPE.",
       "Parsed CSV rows are invented parser-only regression and handoff evidence.",
-      "Evidence does not assert CAEPIPE compatibility, solver validation, release readiness, code compliance, or professional reliance."
+      "Evidence does not assert CAEPIPE compatibility. Validation occurs in the user's accepted professional tools; this is screening and handoff evidence."
     ],
     privacy: {
       classification: "invented_public_example",

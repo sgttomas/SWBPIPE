@@ -116,8 +116,8 @@ export function ExportReviewPanel({
         </div>
       </div>
       <small className="report-note">
-        Export review is a local technical-preview manifest only; it does not certify redaction, release readiness, or
-        professional acceptance.
+        Export review is a local manifest only; validation occurs in the user&apos;s accepted professional tools — this
+        manifest is screening and handoff evidence.
       </small>
     </section>
   );
@@ -655,7 +655,7 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Provider-neutral local build/package readiness metadata; no CI provider, installer, signing, publishing, release, or professional claim."
+        "Provider-neutral local build/package readiness metadata; CI provider, installer, signing, and publishing remain unselected. Technical preview — not a released product."
     },
     {
       export_id: "validation_release_evidence_review",
@@ -882,7 +882,7 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Local glTF JSON visual-review geometry with stable-ID sidecar metadata; not solver geometry, target compatibility evidence, or professional validation."
+        "Local glTF JSON visual-review geometry with stable-ID sidecar metadata; not solver geometry or target-compatibility evidence; validation occurs in the user's accepted professional tools."
     },
     {
       export_id: "conservative_pcf_export",
@@ -1092,7 +1092,7 @@ function buildExportReviewManifest({
       protected_content_included: false,
       release_or_professional_claim: false,
       review_note:
-        "Local public report-surface heuristic lint; clean output is not legal, redaction, release, or professional clearance."
+        "Local public report-surface heuristic lint; clean output is screening evidence only — human review remains required; acceptance stays with the responsible engineer."
     },
     {
       export_id: "handoff_package",
@@ -1258,7 +1258,7 @@ function exportBoundary(manifest: ReturnType<typeof buildExportReviewManifest>):
   return [
     `private payloads=${manifest.summary.private_payload_count}`,
     `protected payloads=${manifest.summary.protected_payload_count}`,
-    "no release or professional claim"
+    "handoff evidence for external validation, not a validation outcome"
   ].join("; ");
 }
 

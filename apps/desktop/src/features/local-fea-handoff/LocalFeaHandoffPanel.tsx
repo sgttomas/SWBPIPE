@@ -118,8 +118,9 @@ export function LocalFeaHandoffPanel({
         </p>
       )}
       <small className="report-note">
-        Local FEA handoff output is target-neutral review context only; no mesh, external solver, target format,
-        approval, authentication, certification, sealing, or code-compliance claim is generated.
+        Local FEA handoff output is target-neutral review context only; no mesh, external solver run, or target format
+        is generated. Validation occurs in the user&apos;s accepted professional tools; this package is screening and
+        handoff evidence.
       </small>
     </section>
   );

@@ -237,8 +237,8 @@ export function buildDraftRulePackDocument(): RulePackDocument {
       rule_pack_version: "0.1.0",
       lifecycle_status: "draft",
       source_notice:
-        "User-supplied private rule-pack draft. Not an engineering design basis, not a " +
-        "standards interpretation, and not suitable for professional reliance.",
+        "User-supplied private rule-pack draft. Not an engineering design basis or standards " +
+        "interpretation; acceptance and professional judgment remain with the responsible engineer.",
       status: "active"
     },
     classification: {
@@ -362,7 +362,7 @@ export function buildDraftRulePackDocument(): RulePackDocument {
         message: "Private user rule-pack draft; software computes user-defined checks only.",
         remediation:
           "Complete provenance, values, and review before relying on any rule-check output; " +
-          "professional acceptance remains a human record outside this software.",
+          "acceptance and professional judgment remain with the responsible engineer.",
         provenance
       }
     ],

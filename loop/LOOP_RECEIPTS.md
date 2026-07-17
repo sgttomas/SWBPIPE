@@ -1223,3 +1223,31 @@
     acceptance, no lifecycle/release/professional claim. DEL-09-04
     reproduction residual is now actor-neutral and selectable; named
     residuals in the SCA-007 handoff state.
+
+- **2026-07-16 — Receipt 50** (D-48 O-A Wave 1: claims registry, lint, and product-surface alignment).
+  - Receipt-ID: `Receipt-50`
+  - Examined-Through: `d171339b800abaa5d56d7b1699c4a5996e9cbb89`
+  - Parent-Receipt: `Receipt-49`
+  - Pointers: D-48 packet §9 (verbatim ruling, pre-acceptance, session merge
+    authority); `DEC-081` (SOFTWARE_DECOMP §12); `docs/claims_registry.md`;
+    `tools/validation/validate_claims_language.py` + GEN-13 (repo root, per
+    the DEC-081 scope grant); AgentRuns record
+    `execution/_Coordination/AgentRuns/D-48_2026-07-16/RUN_RECORD.md`
+    (6-node fan-out + serial test stage + parent integration log); DEL-16-04
+    and DEL-08-01 `_STATUS.md` history lines.
+  - Checks: claims lint VALID (exit 0); desktop Vitest suite pass; cargo
+    green across the touched reporting/rules/solver crates; repo-wide
+    self-check exit 0 incl. GEN-13; harness, validation, and full project
+    pytest suites pass; DEC-025 five-surface sweep executed for this
+    code-touching tranche (artifact under `validation/evidence/sweeps/`);
+    receipt validator and `git diff --check` pass.
+  - Model-Attribution: session parent + seven subagent nodes per the
+    AgentRuns record (session model, harness-assigned; no named-model steer).
+  - Gate-Outcome: `EXECUTED` — Wave 1 of DEC-081 landed: product boundary
+    strings (desktop UI, report-lint corpus, emitted core notices, user
+    docs) now use the governed registry vocabulary; the report renderer
+    emits the PRD v0.3 §19.3 notice verbatim; lint enforces the taxonomy
+    with the Wave-2 surfaces (the live SOW set and remaining docs)
+    gated to the next tranche. Standard claim fence applies (F-PIP-2; claims taxonomy
+    per DEC-081). No lifecycle, stage, release, prover-activation, or
+    reproduction-acceptance change.

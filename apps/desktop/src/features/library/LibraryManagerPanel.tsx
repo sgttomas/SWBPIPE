@@ -921,8 +921,9 @@ export function LibraryManagerPanel({
         project storage only — never committed to the repository, transmitted, or bundled into
         public artifacts. Only an accepted private import is stored; a suspected-protected or
         otherwise-blocked import is refused, not stored (DEC-036). Import validation reports
-        software findings over an already-parsed payload — never a legal, redistribution,
-        certification, sealing, approval, or professional acceptance claim.
+        software findings over an already-parsed payload; no protected standards content —
+        code-specific data is user-supplied. Acceptance and professional judgment remain with the
+        responsible engineer.
       </small>
     </section>
   );

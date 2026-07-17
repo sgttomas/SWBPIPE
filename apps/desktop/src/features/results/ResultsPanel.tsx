@@ -185,7 +185,7 @@ function GoverningRatioState({ ratioCount }: { ratioCount: number }) {
           : "unavailable; no user-rule ratio rows are present in this result envelope; mechanics results remain reviewable but no governing rule-check ratio is inferred"}
       </p>
       <small>
-        This view reports supplied ratio rows only. It does not synthesize allowables, code criteria, compliance, or professional approval.
+        This view reports supplied ratio rows only; it does not synthesize allowables or code criteria. Acceptance and professional judgment remain with the responsible engineer.
       </small>
     </section>
   );

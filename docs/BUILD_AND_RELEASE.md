@@ -22,9 +22,10 @@ skeleton for OpenPipeStress. It gives maintainers a reproducible local path for
 collecting software-quality evidence before a future CI provider, release
 matrix, signing process, and publishing workflow are selected.
 
-This guide is not a live CI workflow, release publication authorization,
-professional engineering approval, legal opinion, certification, sealing,
-standards-body endorsement, or code-compliance determination.
+This guide is not a live CI workflow or a release publication authorization.
+Acceptance, professional judgment, and any certification, sealing, or
+code-compliance determination remain with the responsible engineer and
+project authority (`docs/claims_registry.md`).
 
 ## 2. Current Authority Boundary
 
@@ -173,9 +174,9 @@ sweep on the same checkout: surfaces 3 and 4 rebuild the shared wasm engine
 artifact, and the cargo sweep saturates the same cores. The atomic wasm-build
 swap (§3) removes the half-written-artifact hazard, not the contention.
 
-A green sweep is development evidence only. It is not a release claim,
-release publication authorization, professional engineering approval,
-certification, sealing, authentication, or code-compliance determination.
+A green sweep is development evidence, not a release claim or a release
+publication authorization; acceptance and professional judgment remain with
+the responsible engineer.
 
 ## 6. Packaging Skeleton
 
@@ -332,9 +333,9 @@ caveat (the emitter records it verbatim in every record):
 > commit-bound sweep artifact + the release artifact record, not by an OS
 > code signature.
 
-Release labels describe software maturity and validation evidence. They do not
-approve a project-specific piping calculation, authenticate a user rule pack,
-or replace competent professional review.
+Release labels describe software maturity and validation evidence; acceptance
+and professional judgment for any project-specific piping calculation remain
+with the responsible engineer.
 
 ## 9. Open Decisions
 

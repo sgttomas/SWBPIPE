@@ -16,7 +16,9 @@ refs:
 This template defines baseline notice language for OpenPipeStress-generated
 reports and public report-template examples. Report generators may format this
 content for the target output, but the professional-boundary meaning must be
-preserved.
+preserved. Boundary-statement vocabulary for all other surfaces is governed by
+`docs/claims_registry.md` (DEC-081); this template is the home of the PRD
+§19.3 composite notice.
 
 ## Current Authority Basis
 
@@ -32,27 +34,25 @@ and jurisdiction-specific professional-practice wording remain `TBD`.
 
 ## Required Notice
 
+The required notice is the PRD §19.3 composite, quoted verbatim (changes
+require a PRD-level owner act):
+
 ```text
-OpenPipeStress is decision-support software for transparent piping mechanics
-analysis, analysis-grade design-engine workflows, and stress-model authoring.
-This report may include mechanical results, diagnostics, warnings,
-assumptions, provenance notes, software versions, model hashes, rule-pack
-references, design-authoring or comparison records, handoff/export metadata,
-and user-rule check results.
+OpenPipeStress is decision-support software for piping design, flexibility,
+and stress-analysis workflows. It computes mechanical results from recorded
+user inputs and may evaluate user-supplied rule packs. It does not certify,
+seal, approve, authenticate, or determine code compliance for professional
+reliance. Code-specific and project-specific data are supplied by the user or
+user-controlled private sources. Competent human review and, where required,
+validation in accepted professional tools remain the responsibility of the
+user and project authority.
+```
 
-Mechanical solve results are not professional engineering approval. User-rule
-check results are computed from user-supplied rule packs and user-supplied
-data; they are not an automatic code-compliance determination.
+Where a report includes design-authoring records, comparison outputs, handoff
+packages, export metadata, or external-prover references, the report must
+also state:
 
-Before professional reliance, a competent human reviewer must review the model,
-inputs, units, load basis, private libraries, rule-pack basis, source and
-provenance records, warnings, assumptions, limitations, and report contents for
-the specific project use.
-
-OpenPipeStress does not provide legal advice, standards-body approval,
-professional engineering certification, sealing, endorsement, authentication,
-or project-specific code-compliance approval.
-
+```text
 Design-authoring records, comparison outputs, handoff packages, export
 metadata, and external-prover references are review aids only unless a separate
 competent human acceptance record states otherwise for the bound project basis.

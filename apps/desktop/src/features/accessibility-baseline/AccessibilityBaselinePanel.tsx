@@ -62,9 +62,9 @@ export function AccessibilityBaselinePanel({ model }: { model: PreviewModel }) {
         />
       </div>
       <small className="report-note">
-        Accessibility baseline review is deterministic technical-preview evidence from invented GUI contract records. It
-        does not select a final conformance target, run a full desktop accessibility tree audit, mutate engineering data,
-        or create release/professional reliance.
+        Accessibility baseline review is deterministic evidence from invented GUI contract records. It does not select a
+        final conformance target, run a full desktop accessibility tree audit, or mutate engineering data; acceptance and
+        professional judgment remain with the responsible engineer.
       </small>
     </section>
   );

@@ -71,8 +71,8 @@ export function BuildReadinessPanel({ model }: { model: PreviewModel }) {
         />
       </div>
       <small className="report-note">
-        Build/package readiness is local technical-preview evidence only; it does not select CI, publish packages, sign
-        binaries, authorize release, or make professional/code-compliance claims.
+        Build/package readiness is local evidence only; it does not select CI, publish packages, sign binaries, or
+        authorize release. Technical preview — not a released product.
       </small>
     </section>
   );

@@ -314,7 +314,9 @@ describe("LibraryManagerPanel (browser preview seam)", () => {
     const note = screen.getByTestId("library-boundary-note").textContent ?? "";
     expect(note).toContain("never committed to the repository");
     expect(note).toContain("DEC-036");
-    expect(note).toContain("never a legal");
+    expect(note).toContain(
+      "Acceptance and professional judgment remain with the responsible engineer",
+    );
   });
 
   it("drafts component field units without synthesizing a browser catalog", async () => {

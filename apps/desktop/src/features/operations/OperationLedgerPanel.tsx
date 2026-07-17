@@ -109,7 +109,8 @@ export function OperationLedgerPanel({
       )}
       <small className="report-note">
         Operation ledger records are local review evidence only; this panel does not apply operations. Application runs
-        through the structured apply seam (Apply Operations panel) and never creates professional acceptance.
+        through the structured apply seam (Apply Operations panel); acceptance and professional judgment remain with the
+        responsible engineer.
       </small>
     </section>
   );
@@ -432,7 +433,7 @@ function ledgerBoundary(ledger: ReturnType<typeof buildOperationReviewLedger>): 
     !ledger.professional_boundary.software_makes_compliance_claim &&
     !ledger.professional_boundary.software_makes_approval_claim
   ) {
-    return "review-only; requires explicit user acceptance; does not mutate accepted model state; no compliance or professional approval claim";
+    return "review-only; requires explicit user acceptance; does not mutate accepted model state; acceptance and professional judgment remain with the responsible engineer";
   }
   return "operation ledger boundary requires attention";
 }

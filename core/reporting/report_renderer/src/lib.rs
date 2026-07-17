@@ -716,10 +716,13 @@ cannot appear inside the bytes it binds.",
                     "Professional Boundary And Human Review",
                     vec![
                         SectionBlock::BoundaryBox {
-                            text: "This document is a software-generated calculation record. \
-It is not a professional engineering approval, certification, seal, authentication, or \
-code-compliance determination. Human review by a qualified engineer is required before any \
-reliance."
+                            text: "OpenPipeStress is decision-support software for piping \
+design, flexibility, and stress-analysis workflows. It computes mechanical results from \
+recorded user inputs and may evaluate user-supplied rule packs. It does not certify, seal, \
+approve, authenticate, or determine code compliance for professional reliance. Code-specific \
+and project-specific data are supplied by the user or user-controlled private sources. \
+Competent human review and, where required, validation in accepted professional tools remain \
+the responsibility of the user and project authority."
                                 .to_string(),
                         },
                         subheading("Human Review Record"),
