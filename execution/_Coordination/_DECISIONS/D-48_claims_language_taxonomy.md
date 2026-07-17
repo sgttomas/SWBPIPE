@@ -219,3 +219,41 @@ the source of the accretion (governance authoring habits) in place.
 
 `AWAITING_RULING`. No UI, doc, SOW, template, registry, or lint change is
 authorized by this proposal.
+
+## 9. Human Ruling And Disposition (2026-07-16)
+
+Owner ruling (Ryan Tufts, in-session, 2026-07-16, verbatim): *"Plan and
+execute with subagents, as before. Merge PRs as before."* — followed, when
+the agent asked which option this rules (K-AUTH-1 requires a definite
+selection), by the structured answer: **"O-A — full two-wave alignment"**.
+
+**D-48 → O-A.**
+
+Recorded session decisions accompanying the ruling ("as before" mirrors the
+D-47 packet §8 pattern, confirmed by the owner's structured answers):
+
+1. **Amendment pre-acceptance:** execution runs end-to-end with the
+   alignment actions pre-accepted as scoped in this packet §3–§5 and §7;
+   owner review occurs at the wave PRs. Any action outside that scope — in
+   particular any string change that alters behavior beyond text — returns
+   to the owner instead of being absorbed.
+2. **Merge authority:** session-scoped authorization for the agent to merge
+   this packet PR (#257) and the Wave-1 / Wave-2 execution PRs once checks
+   pass. It does not extend beyond this session or the D-48 chain.
+3. **Execution form:** planned multi-agent execution (subagents) with an
+   AgentRuns record, per the owner's direction.
+
+Disposition: ruling codified as `DEC-081` in
+`execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row D-48 →
+RULED. Pre-dispatch exploration (recorded in the AgentRuns record) refined
+the packet's estimates: all 16 live `_STATUS.md` litany occurrences sit
+under `## History` (ruled history — zero Wave-2 `_STATUS` litany edits;
+Wave 2 is the 45 `ScopeOfWork.md` files / 77 occurrences), Wave 1 is larger
+than estimated (~54 UI strings, the ReportLintPanel expectation corpus, two
+emitted core notices, ~14 test assertions), and the lint lands at the
+repo-root `tools/validation/` + practitioner-harness GEN-13 locations this
+packet §3.4 named — that naming plus this ruling is the explicit scope
+grant for those files; the `DEC-025` five-surface sweep list is not
+modified. No stage advancement, lifecycle change, release-readiness,
+professional-approval, certification, sealing, authentication, or
+code-compliance claim is created by the ruling record itself.
