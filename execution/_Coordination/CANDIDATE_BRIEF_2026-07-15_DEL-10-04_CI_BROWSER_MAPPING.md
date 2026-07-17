@@ -1,7 +1,7 @@
 # CANDIDATE Brief - DEL-10-04 CI Browser Provisioning And Phase Mapping
 
 **Brief ID:** CB-2026-07-15-DEL-10-04-CIBROWSER-001  
-**Status:** CANDIDATE - AWAITING OWNER ADOPTION  
+**Status:** ADOPTED AND EXECUTED — 2026-07-16
 **Prepared:** 2026-07-15  
 **Deliverable:** DEL-10-04 - Build, packaging, and CI/CD pipeline  
 **Package:** PKG-10  
@@ -115,3 +115,18 @@ any lifecycle transition. On completion, the resulting run record and receipt
 must identify the source authority, derivative status, residual gates, and
 rerun trigger (changes to package scripts, Playwright configs, or DEC-025
 ordering).
+
+## Owner Adoption
+
+**Owner:** Ryan Tufts
+
+**Adoption date:** 2026-07-16
+
+**Approved brief commit:** `7088da1b39f36584b9c7adcf966f31336c7655a2`
+
+The owner adopted this bounded documentation brief in-session. The D-46 O-C
+ruling in the same act remains separate and does not enlarge this brief.
+
+<!-- BEGIN OWNER ADOPTION VERBATIM -->
+My ruling is O-C on D-46 and adopting the candidate brief.
+<!-- END OWNER ADOPTION VERBATIM -->

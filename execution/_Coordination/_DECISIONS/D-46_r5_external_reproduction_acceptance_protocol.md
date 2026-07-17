@@ -1,6 +1,6 @@
 # D-46 - R5 External-Reproduction Acceptance Protocol
 
-**Status:** PROPOSAL  
+**Status:** RULED — O-C
 **Date prepared:** 2026-07-15  
 **Decision ID:** D-46  
 **Prepared by:** agent, from the DEL-09-04 R5-exit residual  
@@ -107,5 +107,22 @@ immutable evidence contract.
 
 ## 6. Current Gateway
 
-`AWAITING_RULING`. No external-reproduction acceptance, case-page promotion,
-or R5-exit closure is authorized by this proposal.
+`RULED — O-C`. The acceptance protocol is deferred. No clean-checkout run
+counts toward PRD §22.6, no case page is promoted, and the DEL-09-04 residual
+remains open.
+
+## 7. Owner Ruling — 2026-07-16
+
+**Owner:** Ryan Tufts
+
+**Selected option:** O-C — defer the acceptance protocol
+
+**Approved packet commit:** `7088da1b39f36584b9c7adcf966f31336c7655a2`
+
+This section transcribes the owner's in-session act. It selects O-C and does
+not authorize an O-A/O-B reproduction procedure, evidence-bundle acceptance,
+case-page promotion, or R5-exit claim.
+
+<!-- BEGIN OWNER RULING VERBATIM -->
+My ruling is O-C on D-46 and adopting the candidate brief.
+<!-- END OWNER RULING VERBATIM -->

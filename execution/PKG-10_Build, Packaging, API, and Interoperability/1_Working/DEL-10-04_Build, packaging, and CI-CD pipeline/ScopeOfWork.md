@@ -204,6 +204,14 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > metadata, unresolved release decisions, and explicit no-release/no-
 > professional-claim boundaries. This attribution changes no panel behavior.
 >
+> The owner-adopted brief `CB-2026-07-15-DEL-10-04-CIBROWSER-001` adds
+> documentation evidence in `docs/BUILD_AND_RELEASE.md` §7. It records the
+> Playwright-managed Chromium provisioning basis, CI worker/server posture,
+> both source-mode and production-dist browser lanes, and their mapping to the
+> provider-neutral phases. The mapping does not activate hosted CI or alter
+> package scripts, Playwright configs, manifests, source code, or release
+> authority.
+>
 
 ### CLM-014 — Standards
 
@@ -229,6 +237,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > | Authority boundary | Text review | No certification, sealing, approval, endorsement, or compliance claim is made. |
 > | Root workspace manifest attribution | Read-only inspection of `projects/chirality-piping/package.json` | Existing desktop workspace scripts and preview-mechanics fixture-generator command are recorded as DEL-10-04 implementation/build evidence under `DEC-074` O3. |
 > | SURF-011 attribution | Read-only inspection of `BuildReadinessPanel.tsx`, embedded packet identity, and boundary fields | Existing local build/package-readiness preview is recorded as DEL-10-04 implementation evidence under `DEC-076`; no behavior or authority changes. |
+> | CI browser provisioning and phase mapping | Compare `docs/BUILD_AND_RELEASE.md` §7 to the root/desktop package scripts, both Playwright configs, installed Playwright CLI, and `DEC-025` order | Managed Chromium provisioning, CI posture, source and dist lanes, and provider-neutral ordering match live executable surfaces without activating a provider workflow. |
 >
 
 ### CLM-016 — Documentation

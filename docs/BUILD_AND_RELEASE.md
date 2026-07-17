@@ -235,17 +235,45 @@ records, and the human release authority's acceptance.
 ## 7. Future CI Mapping
 
 Hosted CI is deferred (`DEC-025`; re-decided at `D-05b` with D-06). When a
-hosted location is later selected, the provider workflow should map to these
-stable phases, with the five-surface sweep (§5.1) as the local command basis
-so local and hosted evidence stay comparable:
+hosted location is later selected, its workflow should map to the stable
+phases below. This is a provider-neutral command map, not an activated
+workflow. The commit-bound five-surface sweep (§5.1) remains the authoritative
+local aggregate command and must retain its sequential, F-4-safe ordering.
 
-| Phase | Provider-neutral command basis |
-|---|---|
-| Repository sanity | `python3 tools/release/check_release_readiness.py --profile skeleton --execute` |
-| Python/schema contracts | `python3 tools/release/check_release_readiness.py --profile python --execute` |
-| Security/privacy checks | `python3 tools/release/check_release_readiness.py --profile security --execute` |
-| Rust crates | `python3 tools/release/check_release_readiness.py --profile cargo --execute` |
-| Release candidate review | Release notes, gate record, scan record, and human acceptance record. |
+| Sequence | Provider-neutral phase | Command basis and ordering constraint |
+|---:|---|---|
+| Preflight | Repository sanity | `python3 tools/release/check_release_readiness.py --profile skeleton --execute` before the evidence surfaces. |
+| 1 | All discovered Rust crates | `python3 tools/release/check_release_readiness.py --profile cargo --execute`; surface 1 of the §5.1 order. |
+| 2 | Python/schema contracts and security/privacy | `python3 tools/release/check_release_readiness.py --profile python --execute` and `python3 tools/release/check_release_readiness.py --profile security --execute`; complete before desktop wasm/Vitest work. |
+| 3 | Desktop wasm build and Vitest | `npm run build:wasm:desktop` then `npm run test:desktop`; surface 3 of the §5.1 order. |
+| 4 | Playwright source-mode lane | `npm run test:e2e:desktop`; surface 4, using the dev-server configuration. |
+| 4a | Playwright production-dist lane | `npm run test:e2e:dist:desktop`; supplemental browser lane after source mode. Its existing script rebuilds wasm and the production bundle before serving `dist/`. It must not replace or silently omit the source-mode lane. |
+| 5 | Desktop production build confirmation | `npm run build:desktop`; final §5.1 surface. The earlier dist lane's internal build does not remove this explicit final confirmation. |
+| Review | Release-candidate review | Release notes, gate record, scan record, known limitations, and human acceptance record; this is not inferred from green jobs. |
+
+### 7.1 Playwright Browser Provisioning Policy
+
+A future authorized CI job must install dependencies from the committed
+lockfile with `npm ci` in the `projects/chirality-piping` workspace, then
+provision the Playwright-managed Chromium that matches the installed
+`@playwright/test` package:
+
+```bash
+npx playwright install --with-deps chromium
+```
+
+That command is the supported-Linux-image basis. A different authorized image
+must declare its equivalent operating-system dependency preparation. CI must
+not rely on the macOS Google Chrome fallback in the Playwright configs. An
+explicit `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` is an exceptional declared
+override, not the provider-neutral default.
+
+Run both browser lanes with `CI=true`. Each live config then defaults to one
+worker; a positive integer `PLAYWRIGHT_WORKERS` may override that posture only
+when backed by recorded evidence. CI mode also prevents reuse of an existing
+web server. Both lanes retain traces on failure. Those traces are diagnostic
+artifacts and do not, by themselves, constitute release evidence or human
+acceptance.
 
 Hosted CI must not receive private project data, private rule packs, private
 material/component libraries, protected standards content, signing secrets, or

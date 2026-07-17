@@ -11,6 +11,25 @@ revision: 0.5
 
 # MEMORY - DEL-10-04 Build, Packaging, And CI/CD Pipeline
 
+## 2026-07-16 - CI browser provisioning and provider-neutral phase mapping
+
+- Owner adoption of `CB-2026-07-15-DEL-10-04-CIBROWSER-001` authorized the
+  two documentation residuals in `_STATUS.md`.
+- `docs/BUILD_AND_RELEASE.md` §7 now binds future authorized CI preparation to
+  lockfile installation, Playwright-managed Chromium, `CI=true`, the configs'
+  one-worker default, and both the source-mode and production-dist browser
+  commands. The phase table preserves the `DEC-025` sequential order and
+  identifies the dist lane as supplemental rather than a replacement.
+- Source authority is the accepted DEL-10-04 requirements and rulings plus
+  the live package scripts, Playwright configs, installed CLI, and evidence
+  sweep. The guide and this memory are derivative documentation; neither is a
+  live provider workflow or release acceptance record.
+- Hosted/public CI (`D-05b`), signing/notarization or its explicit PRD
+  deviation (`D-06b`), publication, thresholds, and release authority remain
+  unresolved or gated. Lifecycle remains `IN_PROGRESS`.
+- Rerun this mapping review if package scripts, either Playwright config,
+  Playwright provisioning syntax, or `DEC-025` surface ordering changes.
+
 ## 2026-07-15 - D-42 SURF-011 attribution closeout (PDU-077)
 
 - Owner ruling `DEC-076` attributes SURF-011,
