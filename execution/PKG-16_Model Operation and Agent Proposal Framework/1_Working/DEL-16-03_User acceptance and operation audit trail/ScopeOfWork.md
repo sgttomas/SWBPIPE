@@ -82,7 +82,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > | Rejected-record behavior | Established: rejected operations are recorded as rejected audit records and set `accepted_model_state_mutated` to `false`. |
 > | Missing input diagnostics | Established: missing validation outcome, diff-preview reference, user decision, timestamp, and rationale are surfaced as visible `TBD` diagnostics or placeholder values. |
 > | Deterministic record shape | Established: records are sorted by canonical JSON, hashes are derived from stable JSON serialization, and focused tests compare canonical output stability. |
-> | Professional/compliance claims | Established: current audit output carries boundary flags and focused tests reject prohibited professional, certification, sealing, authentication, approval, and code-compliance wording. |
+> | Professional/compliance claims | Established: current audit output carries boundary flags and focused tests reject prohibited professional, certification, sealing, authentication, approval, and code-compliance wording (PRD §21.2). |
 > | Durable persistence container or storage mechanism | TBD; current implementation returns an in-memory audit payload and does not define long-term storage. |
 > | Long-term retention policy | TBD; rejected operations are recorded in the current payload, but durable retention duration and disposal rules are not defined. |
 > | Final actor identity model beyond current fields | TBD; current fields include `actor_type`, `actor_ref`, and `source_role`, but final identity/authentication semantics are not defined. |
@@ -142,7 +142,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 >
 > DEL-16-03 covers the backend feature slice for recording accepted/rejected model operations, affected entities, actor/source metadata, timestamps, assumptions, operation history, rationale, and audit metadata needed for reproducible model-state review.
 >
-> The scope is bounded to SOW-069 and SOW-070 and supports OBJ-015. It does not implement hidden model mutation, autonomous engineering acceptance, professional approval, certification, sealing, or code-compliance claims. Exact audit-log schema, persistence details, and autonomy policy beyond the default user-acceptance posture remain TBD until a sealed implementation brief resolves them.
+> The scope is bounded to SOW-069 and SOW-070 and supports OBJ-015. It does not implement hidden model mutation or autonomous engineering acceptance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Exact audit-log schema, persistence details, and autonomy policy beyond the default user-acceptance posture remain TBD until a sealed implementation brief resolves them.
 >
 > Current implementation evidence establishes a narrow deterministic audit-record constructor at `core/model_operations/audit_trail/engine.py`. It returns an audit payload for structured operation inputs and does not persist the payload, apply operations, or mutate accepted model state. The current upstream operation schema, validation/preview engine, fixtures, and focused tests are the evidence basis for this specification update.
 >
@@ -159,7 +159,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > | DEL-16-03-REQ-004 | The audit trail shall record affected entities, actor/source metadata, timestamps, assumptions, validation outcomes, diff-preview references, operation history, audit metadata, and explicit visible `TBD` diagnostics for missing inputs. | `_CONTEXT.md`; `core/model_operations/audit_trail/engine.py` | `tests/test_operation_audit_trail.py` asserts affected entities, actor/source metadata, unresolved assumptions, validation outcome, diff-preview ref, and visible missing-input diagnostics. |
 > | DEL-16-03-REQ-005 | Accepted model-operation audit records shall preserve operation history, rationale, assumptions, affected entities, audit metadata, accepted model-state references, and hash evidence needed for reproducible model-state review. | SOW-070 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `docs/_Registers/ScopeLedger.csv` row SOW-070; `core/model_operations/audit_trail/engine.py` | Focused tests confirm accepted records retain review metadata, diff-preview evidence, model-state hash references, and stable record hashes. |
 > | DEL-16-03-REQ-006 | The default workflow shall require explicit user acceptance before a record can be marked accepted. | `_CONTEXT.md`; OI-016 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 12; `core/model_operations/audit_trail/engine.py` | `tests/test_operation_audit_trail.py` covers that agent-only or missing acceptance signals produce `held_for_user_acceptance` with `AUDIT-EXPLICIT-USER-ACCEPTANCE-REQUIRED`. |
-> | DEL-16-03-REQ-007 | The audit trail shall not represent operation acceptance as professional approval, certification, sealing, or code compliance. | `docs/DIRECTIVE.md` section 3; `INIT.md`; `docs/TYPES.md` section 9; SOW-070 note | Tests or review checks assert terminology remains development/audit oriented and does not create professional reliance claims. |
+> | DEL-16-03-REQ-007 | The audit trail shall not represent operation acceptance as professional approval, certification, sealing, or code compliance (PRD §21.2). | `docs/DIRECTIVE.md` section 3; `INIT.md`; `docs/TYPES.md` section 9; SOW-070 note | Tests or review checks assert terminology remains development/audit oriented and does not create professional reliance claims. |
 > | DEL-16-03-REQ-008 | Public examples and records shall not introduce protected standards text, code-specific values, proprietary project data, or private engineering data by default. | `docs/DIRECTIVE.md` section 3; `docs/IP_AND_DATA_BOUNDARY.md` sections 3-5; `docs/CONTRACT.md` OPS-K-PRIV and OPS-K-AGENT invariants | Protected-content/provenance review gate for fixtures and sample audit records. |
 > | DEL-16-03-REQ-009 | Missing data and assumptions shall be visible rather than silently defaulted. | `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-AGENT-1; `docs/SPEC.md` section 12 | Tests verify unresolved assumptions and missing required inputs are recorded or surfaced as TBD. |
 > | DEL-16-03-REQ-010 | Accepted audit records shall require a hash-bound diff-preview reference and a current accepted model-state hash that matches the operation current-hash precondition. | `core/model_operations/audit_trail/engine.py`; `schemas/model_operation.schema.json`; `fixtures/model_operations/invented_accepted_model_state.json` | `tests/test_operation_audit_trail.py` asserts missing model-state hash prevents accepted status; the audit engine also emits blocking diagnostics for missing or mismatched operation current-hash preconditions and missing diff-preview hash. |
@@ -185,7 +185,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > | Scope alignment | DEL-16-03 ID, PKG-16 package, SOW-069/SOW-070 scope, and OBJ-015 objective match `_CONTEXT.md`, registers, and decomposition. |
 > | Audit-log content | Operation audit log records disposition, affected entities, actor/source metadata, timestamp, assumptions, rationale/history where accepted, and audit metadata. |
 > | Acceptance workflow | Tests cover accepted and rejected model-operation paths and demonstrate that default user acceptance gates proposed operations. |
-> | Boundary language | Review confirms no professional approval, certification, sealing, or code-compliance claim is introduced. |
+> | Boundary language | Review confirms no prohibited authority claim (PRD §21.2) is introduced. |
 > | Data boundary | Review confirms no protected standards text, proprietary project data, or private engineering data appears in public fixtures or examples. |
 > | State nonmutation | Tests confirm audit recording and validation preview leave accepted model state unchanged and do not apply operations. |
 > | Hash binding | Tests and code inspection confirm accepted audit records require current accepted-state hash evidence and hash-bound preview evidence. |
@@ -272,7 +272,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > 7. For accepted operations, preserve operation history, rationale, assumptions, affected entities, validation outcome, diff-preview reference, accepted model-state reference, and audit metadata needed for reproducible model-state review.
 > 8. For rejected operations, preserve rejected disposition and audit metadata without mutating accepted model state. Exact durable rejection-retention policy remains TBD.
 > 9. For missing validation outcome, diff-preview reference, user decision, timestamp, rationale, source, actor, or audit metadata, preserve visible `TBD` diagnostics or placeholder fields rather than silently defaulting.
-> 10. Avoid language or fields that imply professional approval, certification, sealing, authentication, or code compliance.
+> 10. Avoid language or fields that imply prohibited authority claims (PRD §21.2).
 > 11. Validate public fixtures and examples for protected-content, provenance, privacy, and data-boundary issues before treating them as acceptable test data.
 > 12. Produce acceptance workflow tests covering accepted, rejected, held-for-user-acceptance, blocked validation, missing hash, missing input/TBD, deterministic output, accepted-state nonmutation, and professional-boundary wording paths.
 >
@@ -342,7 +342,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > - Treat explicit user acceptance as the current accepted-record gate. The current audit implementation requires `accepted: true`, `decision: accept`, and `actor_type: user`; otherwise the record is held for user acceptance unless it is explicitly rejected.
 > - Require nonblocking validation and preview evidence before accepted status. Current accepted records require passed schema, constraint, and unit validation, generated diff preview, `application_status: not_applied`, a hash-bound diff-preview reference, and current accepted-state hash evidence.
 > - Keep audit recording separate from operation application. The current module records audit payloads and does not mutate accepted model state.
-> - Keep professional authority separate. The project permits computation and audit support, but not certification, sealing, approval, authentication, or automatic code-compliance claims.
+> - Keep professional authority separate. The project permits computation and audit support; acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 > - Prefer explicit TBDs over silent defaults. Unknown schema fields, autonomy details, persistence mechanics, and acceptance criteria remain TBD until supported by a sealed implementation brief or accepted architecture decision.
 >
 
@@ -368,7 +368,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > | Agent autonomy | Keep explicit user acceptance as the accepted-record gate; do not infer autonomous acceptance from agent proposal capability. |
 > | Blocked validation | Treat blocking validation or preview evidence as preventing accepted status; record diagnostics visibly instead of upgrading status. |
 > | Accepted-state handling | Treat audit recording as nonmutating; operation application belongs outside this slice until separately resolved. |
-> | Professional wording | Use audit/review/development acceptance language; avoid professional approval or code-compliance wording. |
+> | Professional wording | Use audit/review/development acceptance language; avoid professional approval or code-compliance wording (PRD §21.2). |
 > | Dependency mirror handling | Preserve approved DAG-006 rows as ACTIVE; do not reinterpret the mirror as a fresh extraction result. |
 >
 

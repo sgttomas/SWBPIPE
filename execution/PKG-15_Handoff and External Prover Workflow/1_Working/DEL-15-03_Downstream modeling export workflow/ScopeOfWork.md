@@ -76,7 +76,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > | Target surfaces, canonical package container, and target-specific implementation | OI-015 names initial export and target surfaces; canonical package container, concrete mappings, target field coverage, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02. |
 > | Exact dependency versions and package-specific implementation choices | TBD per `_CONTEXT.md#Architecture Basis Injection`. |
 > | Target-specific commercial stress output parsers | Deferred per `_CONTEXT.md#Context Envelope` and `SOFTWARE_DECOMP.md#SOW-074`. |
-> | Professional approval, certification, sealing, or code-compliance claims | Excluded by `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4. |
+> | Prohibited claims — standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081) | Excluded by `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4. |
 > | Unit handling | Exports must remain unit-aware and validate against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`; target-specific unit export strategy remains TBD under OI-015. |
 > | Private/protected data | Must be excluded unless intentionally supplied with documented rights through a governed path. |
 >
@@ -138,7 +138,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 >
 > - target-specific commercial stress output parsers;
 > - comprehensive commercial-tool result ingestion;
-> - formal prover-status lifecycle, automatic professional acceptance record, certification, sealing, approval, authentication, or code-compliance status;
+> - formal prover-status lifecycle or automatic professional acceptance record — standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081);
 > - protected standards text, tables, examples, formulas, proprietary commercial data, private rule packs, owner standards, or code-specific acceptance criteria;
 > - canonical package container, concrete mappings, target field coverage, target-specific implementation, dependency versions, and package-specific implementation choices until separately resolved.
 >
@@ -154,7 +154,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > | DEL-15-03-REQ-003 | The workflow shall remain generic and shall not implement target-specific commercial-tool parsers in this deliverable. | `_CONTEXT.md#Context Envelope`; `SOFTWARE_DECOMP.md#SOW-074`; OI-015 | Tests or review evidence confirming invented target fixture use and no commercial parser fixture dependency. |
 > | DEL-15-03-REQ-004 | The workflow shall preserve unit metadata across the export boundary. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md#Unit system and dimensional analysis` | Schema validation and unit-manifest checks. |
 > | DEL-15-03-REQ-005 | The workflow shall preserve diagnostics, warnings, unresolved assumptions, provenance, and hashes rather than hiding missing data or boundary risks. | `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-REPORT-1; `docs/TYPES.md` Diagnostic, Assumption, Checksum, ResultExportEnvelope | Export validation tests and review of generated diagnostics/warnings. |
-> | DEL-15-03-REQ-006 | The workflow shall not claim certification, sealing, approval, authentication, professional acceptance, or engineering code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-AGENT-4; `SOFTWARE_DECOMP.md` OBJ-017 and DEC-015 | Protected/professional-boundary wording review and tests where applicable. |
+> | DEL-15-03-REQ-006 | The workflow shall not claim certification, sealing, approval, authentication, professional acceptance, or engineering code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-AGENT-4; `SOFTWARE_DECOMP.md` OBJ-017 and DEC-015 | Protected/professional-boundary wording review and tests where applicable. |
 > | DEL-15-03-REQ-007 | Public fixtures and examples shall use invented or otherwise cleared data and shall not copy protected standards content, commercial software examples, or proprietary data. | `docs/IP_AND_DATA_BOUNDARY.md`; `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3 | Protected-content review, fixture provenance review, and validation gate. |
 > | DEL-15-03-REQ-008 | The workflow shall respect schema-first contracts and JSON Schema 2020-12 and shall preserve the producer-declared checksum byte-basis label. DEL-15-03 carries supplied hashes without recomputing or relabeling them and therefore makes no independent JCS claim. | `_CONTEXT.md#Architecture Basis Injection`; `SOFTWARE_DECOMP.md` DEC-009 through DEC-012; D-41 R5 T2A | Implementation review verifies checksum metadata is carried unchanged and no unproved JCS assertion is introduced. |
 > | DEL-15-03-REQ-009 | The workflow shall consume upstream handoff/mapping/security/model-transformation context only through explicit contracts or approved dependency evidence. | Local `Dependencies.csv`; `_DEPENDENCIES.md` | Dependency review; no sibling deliverable source copying without an approved input contract. |
@@ -184,7 +184,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > | Unit manifest preservation | Tests that exported values carry explicit unit metadata or are explicitly dimensionless/TBD according to schema rules. |
 > | Hash/provenance preservation | Tests or review evidence for model/package hash fields, provenance fields, and unresolved assumptions. |
 > | Unsupported-target behavior | Invented target fixture that exercises unsupported or approximate mapping behavior without using proprietary commercial examples. |
-> | Boundary wording | Review confirming no generated metadata or report-adjacent output claims professional approval, certification, sealing, authentication, or code compliance. |
+> | Boundary wording | Review confirming no generated metadata or report-adjacent output claims professional approval, certification, sealing, authentication, or code compliance (PRD §21.2). |
 > | Protected-content screening | Protected-content/provenance gate for fixture and example data. |
 >
 
@@ -262,7 +262,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > | Schema check | Output validates against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
 > | Unit check | Unit-bearing exported values carry explicit unit metadata or a documented dimensionless/TBD classification. |
 > | Warning/assumption check | Missing data and unsupported target behavior are explicit findings, not silent defaults. |
-> | Boundary check | Output does not claim certification, sealing, approval, authentication, professional acceptance, or code compliance. |
+> | Boundary check | Output does not claim certification, sealing, approval, authentication, professional acceptance, or code compliance (PRD §21.2). |
 > | Fixture check | Invented target fixture has provenance and does not use protected or commercial-tool example data. |
 > | Dependency check | Approved DAG-002 mirror rows remain preserved; no dependency extraction refresh reclassifies them without human approval. |
 >
@@ -311,7 +311,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > | Explicit missingness | Missing mapping support, unresolved assumptions, warnings, and unsupported target behavior should be visible in the export output. | SOW-074; `docs/CONTRACT.md` OPS-K-DATA-2 |
 > | Unit-aware export | Unit metadata must cross the export boundary unless a field is explicitly dimensionless or otherwise classified. | `docs/SPEC.md#Unit system and dimensional analysis`; OPS-K-UNIT-1 |
 > | Provenance and hash discipline | Exported packages should preserve references, provenance, rule/library refs, diagnostics, and hashes without treating them as professional acceptance. | `docs/TYPES.md` Assumption, TraceabilityLink, Diagnostic, Checksum, ResultExportEnvelope |
-> | Professional boundary | The workflow may support professional review; it must not claim approval, certification, sealing, authentication, or code compliance. | OBJ-017; DEC-015; OPS-K-AUTH-1 |
+> | Professional boundary | The workflow may support professional review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OBJ-017; DEC-015; OPS-K-AUTH-1 |
 > | Protected-content boundary | Fixtures must be invented or cleared; do not import protected standards examples or commercial tool files. | `docs/IP_AND_DATA_BOUNDARY.md`; OPS-K-IP-1 through OPS-K-IP-3 |
 >
 
@@ -334,7 +334,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > |---|---|
 > | Generic exporter vs. target-specific parser | Prefer a generic exporter with explicit unsupported-target flags; defer target-specific parsing behavior. |
 > | Strict schema validation vs. permissive export | Prefer schema validation and explicit findings over silent coercion. |
-> | Helpful external metadata vs. professional status | Preserve references, notes, hashes, and diagnostics, but avoid approval/certification/status claims. |
+> | Helpful external metadata vs. professional status | Preserve references, notes, hashes, and diagnostics, but avoid approval/certification/status claims (PRD §21.2). |
 > | Realistic fixture vs. protected/commercial data risk | Prefer invented fixture data with clear provenance. |
 >
 

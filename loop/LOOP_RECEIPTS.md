@@ -1251,3 +1251,31 @@
     gated to the next tranche. Standard claim fence applies (F-PIP-2; claims taxonomy
     per DEC-081). No lifecycle, stage, release, prover-activation, or
     reproduction-acceptance change.
+
+- **2026-07-17 — Receipt 51** (D-48 O-A Wave 2: governance-surface claims-language alignment and lint scope activation).
+  - Receipt-ID: `Receipt-51`
+  - Examined-Through: `c99e3696365cd09cf7c3bf16182a6649788af13c`
+  - Parent-Receipt: `Receipt-50`
+  - Pointers: D-48 packet §9 (ruling, pre-acceptance, session merge
+    authority); `DEC-081`; `docs/claims_registry.md`; AgentRuns record
+    `execution/_Coordination/AgentRuns/D-48_2026-07-16/RUN_RECORD.md`
+    (Wave-2 seven-node fan-out, fan-in log, dispositioned residual
+    classes); per-deliverable `_STATUS.md` History appends citing DEC-081;
+    F-PIP-2 authoring note in
+    `loop/WORKPLAN_2026-07-10_piping_loop.md` (fence text unchanged);
+    `tools/validation/validate_claims_language.py` Wave-2 scope activation.
+  - Checks: claims lint VALID (exit 0) over the full live tree with the
+    Wave-2 surfaces active; repo-wide self-check exit 0 incl. GEN-13;
+    repo-root validation and harness pytest pass; full project pytest
+    pass; receipt validator and `git diff --check` pass; docs-only tranche
+    — DEC-025 sweep not triggered.
+  - Model-Attribution: session parent + seven subagent nodes per the
+    AgentRuns record (session model, harness-assigned; no named-model
+    steer).
+  - Gate-Outcome: `EXECUTED` — Wave 2 of DEC-081 landed: live scopes of
+    work and remaining governance/spec/architecture/security docs now use
+    the governed registry vocabulary or carry the PRD §21.2 authority
+    citation on kept prohibitions; the claims lint now scans the full live
+    tree. Ruled history untouched. Standard claim fence applies (F-PIP-2;
+    claims taxonomy per DEC-081). No lifecycle, stage, release,
+    prover-activation, or reproduction-acceptance change.

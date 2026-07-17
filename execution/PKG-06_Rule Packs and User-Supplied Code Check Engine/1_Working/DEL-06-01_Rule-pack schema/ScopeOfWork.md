@@ -67,7 +67,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > | Unit handling | Rule-pack inputs, formulas, and allowables must be unit-aware and dimensionally checked by later implementation work. | OPS-K-UNIT-1 |
 > | Missing data behavior | Missing rule-check-required values become explicit findings, not silent defaults. | OPS-K-DATA-2 |
 > | Evaluator boundary | Formula representation must remain declarative and sandbox-compatible; exact expression grammar/library remains `TBD`. | SOW-045 note; OI-006 |
-> | Professional boundary | A rule-pack pass/fail result is not professional certification, sealing, or engineering approval. | OPS-K-AUTH-1; OPS-K-MECH-2 |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-AUTH-1; OPS-K-MECH-2 |
 >
 
 ### CLM-005 — Conditions
@@ -184,7 +184,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > - Negative fixtures for missing units, missing provenance, missing source notes, missing redistribution status, missing required inputs, checksum mismatch, and private/public classification gaps.
 > - Protected-content review confirming public fixtures do not contain standards text, copied protected formulas, proprietary allowables, protected tables, or project-specific engineering values.
 > - Canonical JSON/JCS-compatible hash verification for JSON rule-pack payloads and manifest hash behavior for any non-JSON assets.
-> - Status wording review confirming no output claims certification, sealing, engineering approval, or code compliance for reliance.
+> - Status wording review confirming no output claims certification, sealing, engineering approval, or code compliance for reliance (PRD §21.2).
 >
 
 ### CLM-014 — Documentation
@@ -320,7 +320,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > - Require source notes, provenance, redistribution status, and checksum metadata before a rule pack can be treated as traceable.
 > - Treat missing required inputs, missing allowables, missing units, missing provenance, and unresolved redistribution status as explicit findings.
 > - Preserve unit awareness and dimensional checking through the schema shape even before the evaluator is implemented.
-> - Preserve the professional boundary: a rule-pack result can support review, but it is not certification, sealing, or professional approval.
+> - Preserve the professional boundary: a rule-pack result can support review; acceptance and professional judgment remain with the responsible engineer.
 > - Mark exact expression grammar/library, private storage/encryption behavior, and physical project packaging as `TBD` unless a later human-approved brief resolves them.
 >
 

@@ -89,13 +89,13 @@ Plugins and adapters must not bypass:
   handles, table-name coupling, or direct store mutation;
 - command/query/job/result-envelope boundaries;
 - diagnostics, warnings, limitations, hashes, and reproducibility metadata;
-- report boundary language that prevents certification, sealing, approval, endorsement, or automatic code-compliance claims.
+- report boundary language that prevents certification, sealing, approval, endorsement, or automatic code-compliance claims (PRD §21.2).
 
 If an extension encounters suspected protected standards text, copied protected tables, protected examples, copied code formulas, proprietary vendor data without rights, private rule values, or private project data in a public contribution path, it must block or quarantine the payload and emit an appropriate diagnostic for human review.
 
 ## Professional Boundary
 
-Extension outputs are software artifacts. They may report mechanics results, user-rule outcomes, warnings, assumptions, provenance, privacy posture, and checksums. They must not state or imply that OpenPipeStress, a plugin, an adapter, or an agent has certified, sealed, approved, authenticated, endorsed, or declared a calculation code-compliant for professional reliance.
+Extension outputs are software artifacts. They may report mechanics results, user-rule outcomes, warnings, assumptions, provenance, privacy posture, and checksums. They must not state or imply that OpenPipeStress, a plugin, an adapter, or an agent has certified, sealed, approved, authenticated, endorsed, or declared a calculation code-compliant for professional reliance (PRD §21.2).
 
 Human review remains required for professional use. Any future human acceptance record must be external to automatic plugin output and bound to the relevant model, result, rule-pack, report, and manifest hashes.
 

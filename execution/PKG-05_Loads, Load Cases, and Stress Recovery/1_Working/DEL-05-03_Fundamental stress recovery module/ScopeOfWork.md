@@ -237,7 +237,7 @@ This Scope of Work defines `DEL-05-03` in service of project scope [SOW-015] and
 > 5. For new behavior, identify required input contracts for axial force, bending moments, torsion, pressure, section properties, station resultants, units, diagnostics, ranges, and result envelopes.
 > 6. Add or preserve explicit findings for missing solve-required values, invalid/non-finite values, non-positive properties, unit metadata defects, incomplete statuses, blocked states, and status-boundary violations; do not apply silent defaults.
 > 7. Add deterministic tests with synthetic or cleared inputs for any changed behavior.
-> 8. Verify recovered stresses remain mechanical results and do not claim code compliance, release acceptance, or professional approval.
+> 8. Verify recovered stresses remain mechanical results and do not claim code compliance, release acceptance, or professional approval (PRD §21.2).
 >
 
 ### CLM-020 — Verification

@@ -59,7 +59,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | Diagnostic class enum | `CONSTRAINT_MISSING_DATA`, `CONNECTIVITY_CONFLICT`, `CLEARANCE_CONFLICT`, `ROUTE_CONFLICT`, `SUPPORT_ZONE_CONFLICT`, `SLOPE_DRAIN_VENT_CONFLICT`, `PROVENANCE_WARNING`, `UNIT_WARNING`, `IP_BOUNDARY_WARNING`, `SCHEMA_VALIDATION`, and `TBD` |
 > | Provenance shape | `Provenance` requires `source_name`, `source_location`, `source_license`, `contributor`, `contributor_certification`, `redistribution_status`, `review_status`, and `privacy_classification` |
 > | Unit posture | Unit-bearing values use `Quantity` with required `value`, `unit`, `dimension`, and `provenance`; the current dimension enum matches the accepted PKG-02 dimension vocabulary tested by `tests/test_constraint_schema.py` |
-> | Professional-boundary posture | Constraint entities and outputs must not encode software-generated professional approval, certification, sealing, authentication, or code-compliance labels (`docs/CONTRACT.md`; `docs/SPEC.md#4.3 Analysis status and authority boundary`) |
+> | Professional-boundary posture | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). (`docs/CONTRACT.md`; `docs/SPEC.md#4.3 Analysis status and authority boundary`) |
 > | IP/data posture | Public artifacts must not bundle protected owner standards, protected code criteria, proprietary project data, copied standards text, protected tables, or code-specific values (`INIT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-13`) |
 >
 
@@ -72,7 +72,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | Source of constraints | Constraints are represented from available user/project/import/agent/source design knowledge. Protected owner or code standards are not bundled as public defaults. |
 > | Missing required data | Missing data is represented as an explicit constraint/diagnostic finding with provenance rather than silently defaulted. |
 > | Validation result role | The schema provides diagnostic and `validation_status` slots. Runtime validation behavior remains downstream in `DEL-13-03` and is still `TBD` for this deliverable. |
-> | Engineering acceptance | Constraint records may support review, but they do not provide professional acceptance or code-compliance certification. |
+> | Engineering acceptance | Constraint records may support review; acceptance and professional judgment remain with the responsible engineer. |
 > | Dependency inputs | The approved local dependency mirror records upstream architecture basis, design knowledge schema, canonical domain model schema, unit contract, persistence contract, and professional-boundary policy as active predecessor context. |
 > | Public examples | The implemented schema encodes `data_boundary.public_examples_policy` as `invented_or_cleared_data_only`; actual public example payload selection, review, and publication remain `TBD`. |
 > | Downstream consumption | Physical-to-analytical transform consumption, GUI presentation/blocking behavior, and runtime constraint validation remain downstream `TBD` items. |
@@ -137,7 +137,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | R-13-02-004 | Missing solve-required or rule-check-required values shall be modeled as explicit findings or diagnostics, not silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md#4.3 Analysis status and authority boundary` |
 > | R-13-02-005 | Unit-bearing physical values referenced by constraints shall use the canonical unit contract or another explicitly approved unit-bearing quantity representation; dimensionless treatment shall not be used as a fallback for missing units. | `docs/SPEC.md#4 Unit system and dimensional analysis`; `docs/CONTRACT.md` OPS-K-UNIT-1 |
 > | R-13-02-006 | Public schema artifacts and examples shall not embed protected standards text, protected tables, protected criteria, proprietary catalog data, private owner standards, private project data, or code-specific values. | `INIT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-DATA-1 |
-> | R-13-02-007 | The constraint model shall not define software-generated statuses for certification, sealing, authentication, professional approval, or code-compliance acceptance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md#4.3 Analysis status and authority boundary` |
+> | R-13-02-007 | The constraint model shall not define software-generated statuses for certification, sealing, authentication, professional approval, or code-compliance acceptance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md#4.3 Analysis status and authority boundary` |
 > | R-13-02-008 | The schema shall align with the accepted JSON Schema 2020-12 basis where JSON schema artifacts are produced. | `_CONTEXT.md#Architecture Basis Injection`; `docs/TYPES.md#Domain object vocabulary` |
 > | R-13-02-009 | Constraint records shall be able to participate in the physical source-of-truth model through typed references, diagnostics/warnings, unresolved assumptions, and traceability links. | `docs/SPEC.md#3 Domain model and schema`; `docs/TYPES.md#Domain object vocabulary` |
 > | R-13-02-010 | The implemented schema shall declare stable schema identity and a version slot: `$schema` = `https://json-schema.org/draft/2020-12/schema`, `$id` = `https://openpipestress.org/schemas/constraint.schema.json`, and required `schema_version` matching `^[0-9]+\\.[0-9]+\\.[0-9]+$`. | `schemas/constraint.schema.json`; `tests/test_constraint_schema.py` |
@@ -166,7 +166,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | R-13-02-004 | Schema review checks `missing_required_data`, `CONSTRAINT_MISSING_DATA`, diagnostics, assumptions, and missing-data validation statuses; runtime validation behavior remains downstream in `DEL-13-03`. |
 > | R-13-02-005 | `tests/test_constraint_schema.py` checks `Quantity` required fields and exact alignment with the accepted PKG-02 dimension vocabulary. |
 > | R-13-02-006 | `tests/test_constraint_schema.py` checks data-boundary constants and scans schema strings for forbidden protected/professional-claim text. |
-> | R-13-02-007 | `tests/test_constraint_schema.py` checks `ProfessionalBoundary` constants require human review and prohibit software compliance, certification, sealing, approval, and authentication claims. |
+> | R-13-02-007 | `tests/test_constraint_schema.py` checks `ProfessionalBoundary` constants require human review and prohibit software compliance, certification, sealing, approval, and authentication claims (PRD §21.2). |
 > | R-13-02-008, R-13-02-010 | `python3 -m json.tool schemas/constraint.schema.json` checks JSON syntax; `schemas/constraint.schema.json` declares `$id`; `tests/test_constraint_schema.py` checks the JSON Schema 2020-12 declaration, root identity constants, and required version slot. |
 > | R-13-02-009 | Schema review confirms typed `Reference` objects, diagnostics, assumptions, provenance, and model/design-knowledge references are available; physical-to-analytical transform consumption remains downstream `TBD`. |
 >
@@ -240,7 +240,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > 7. Ensure every unit-bearing physical quantity in the model is represented through the implemented `Quantity` contract with explicit `unit`, `dimension`, and `provenance`.
 > 8. Include provenance capacity for user/project/import/agent/source-derived origin where known; represent unknown or unresolved provenance explicitly through the schema's `TBD`, review, privacy, and redistribution statuses.
 > 9. Ensure missing required data is represented as a finding, diagnostic, assumption, or validation status, not a silent default.
-> 10. Exclude protected standards text, protected tables, owner standards, proprietary project data, code-specific values, and professional approval/code-compliance statuses from public schema artifacts and examples.
+> 10. Exclude protected standards text, protected tables, owner standards, proprietary project data, code-specific values, and professional approval/code-compliance statuses from public schema artifacts and examples (PRD §21.2).
 > 11. Record traceability from schema content back to SOW-067, SOW-068, OBJ-014, OBJ-018, and applicable governance invariants.
 > 12. Defer validation-engine behavior, user-interface behavior, physical-to-analytical transform consumption, public example payload policy, and acceptance tests that depend on downstream runtime behavior to later bounded work unless a human-approved brief expands this deliverable.
 >
@@ -255,7 +255,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | Provenance check | Constraint records can identify known user/project/import/agent/source provenance or explicitly mark unknown provenance. |
 > | Missing-data check | Required missing information appears as diagnostics/findings, not defaults. |
 > | Unit check | Unit-bearing values are unit-aware or blocked as `TBD`. |
-> | Professional-boundary check | No schema field or fixture asserts software-generated approval, certification, sealing, authentication, or code compliance. |
+> | Professional-boundary check | No schema field or fixture asserts software-generated approval, certification, sealing, authentication, or code compliance (PRD §21.2). |
 > | Data-boundary check | Public artifacts contain no protected standards text, protected tables, proprietary catalog data, private owner data, or code-specific values. |
 > | Dependency mirror check | Current DAG-006 predecessor context and preserved historical DAG-002 local mirror rows remain unchanged if dependency extraction is run in this folder. |
 > | JSON syntax check | `python3 -m json.tool schemas/constraint.schema.json` completes successfully. |
@@ -298,7 +298,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | Keep design knowledge user/project supplied | Constraint categories may refer to owner/project design knowledge, but public artifacts must not bundle owner standards, protected code criteria, proprietary project data, or code-specific values. | SOW-067; `docs/IP_AND_DATA_BOUNDARY.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-13` |
 > | Preserve provenance | Constraint records should identify where known information came from, including user, project, import, agent, or source provenance. Unknown provenance should remain visible as `TBD`, not normalized away. | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv`; `docs/CONTRACT.md` OPS-K-IP-2, OPS-K-DATA-3 |
 > | Separate schema from validation engine | This deliverable defines representation and provenance. Deterministic validation behavior belongs to DEL-13-03. | `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-13` |
-> | Preserve professional responsibility | Constraint records and validation messages support review but must not become automatic professional approval or code-compliance certification. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md#4.3 Analysis status and authority boundary` |
+> | Preserve professional responsibility | Constraint records and validation messages support review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md#4.3 Analysis status and authority boundary` |
 >
 
 ### CLM-024 — Considerations
@@ -322,7 +322,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | Category breadth | Include the categories explicitly named by SOW-068; defer additional categories to human-approved scope or later decomposition change. |
 > | Example payloads | Prefer no examples until invented/public-permissive examples are reviewed. Do not use real owner/project standards or protected code examples. |
 > | Validation detail | Use the implemented diagnostic and validation-status slots, but avoid encoding DEL-13-03 engine behavior as if already implemented. |
-> | Professional status | Use diagnostics and review-needed findings; avoid approval/certification/compliance statuses. |
+> | Professional status | Use diagnostics and review-needed findings; avoid approval/certification/compliance statuses (PRD §21.2). |
 >
 
 ### CLM-026 — Examples

@@ -22,3 +22,4 @@
 - 2026-07-12 - D-41 R5 T2B recorded PDU-047 as held at the broader mechanics-suitability grain. The section-property witness is relevant evidence but cannot validate the full 3D transform boundary; no product behavior, outcome, disposition, or lifecycle state changed.
 - 2026-07-12 - D-41 R5 T2C PDU-023 added paired field-scalar paths for valid copied component geometry quantities and held runtime result-envelope continuation; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T4 PDU-036 added a bounded invented omission/warning/assumption trace-gap fixture and focused test; evidence remains verification-only and lifecycle remains IN_PROGRESS.
+- 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).

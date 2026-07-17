@@ -20,8 +20,7 @@ of four states:
 | rejected | Considered and declined by human ruling |
 
 Only humans author binding rulings. An ADR in any state is a development
-record, never a release-readiness, professional-approval, certification, or
-engineering-code-compliance claim.
+record. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Numbering
 

@@ -160,7 +160,7 @@ acceptance reference, the authority kind, the binding hashes, and
 `invalidates_on_hash_change = true`.
 
 Human acceptance references are not solver outputs, rule-pack outputs,
-certification, sealing, authentication, or automatic code-compliance statuses.
+certification, sealing, authentication, or automatic code-compliance statuses (PRD §21.2).
 Their canonical binding is the hash-bound project envelope and related
 payload hashes, even when the bytes are stored inside the local SQLite project
 store.

@@ -115,7 +115,7 @@ Telemetry payloads must not include:
 | Local file paths | User names, project names embedded in paths, directory names, file names, mount points, repository paths, or temporary paths. |
 | Secrets and credentials | Tokens, passwords, API keys, license keys, certificates, private keys, signing keys, cookies, or authorization headers. |
 | Protected standards content | Standards text, tables, figures, copied examples, copied formulas, proprietary engineering values, commercial benchmark content, or protected/code-derived content. |
-| Professional or code-compliance claims | Claims of certification, sealing, professional approval, code compliance, safety approval, or fitness for reliance. |
+| Professional or code-compliance claims | Claims of certification, sealing, professional approval, code compliance, safety approval, or fitness for reliance (PRD §21.2). |
 
 ## Diagnostics And Reports
 

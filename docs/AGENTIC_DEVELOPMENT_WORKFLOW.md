@@ -28,9 +28,9 @@ If this map conflicts with a governing document, an assigned sealed brief, an
 approved DAG record, a deliverable-local `_STATUS.md`, a review disposition, or
 a human project-authority instruction, stop and surface the conflict.
 
-This workflow is project guidance only. It is not legal advice, professional
-engineering approval, certification, sealing, standards-body endorsement,
-release authorization, lifecycle approval, or a code-compliance determination.
+This workflow is project guidance only; it is not legal advice, release
+authorization, or lifecycle approval.
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Authority Map
 
@@ -43,7 +43,7 @@ release authorization, lifecycle approval, or a code-compliance determination.
 | `AGENTS.md` | Project mapping of Chirality roles to OpenPipeStress work. | It does not redefine the canonical agent framework. |
 | The newest `loop/WORKPLAN_*.md` (entry via `loop/LOOP_INIT.md`) | Current entry protocol, work selection from deliverable folders, bounded execution discipline, validation, and handoff rules. | Handoff prose is not substitute authority. |
 | `execution/_Coordination/_COORDINATION.md` | Ruled workflow records: the current target stage and the `DEC-040` state-tracking augmentation. | A record surface, not the operative protocol. |
-| `execution/_DAG/_LATEST.md` and approved DAG records | Active dependency graph authority and approved edge context. | DAG approval does not dispatch Type 2 work, change lifecycle state, promote candidates, or create release/professional claims. |
+| `execution/_DAG/_LATEST.md` and approved DAG records | Active dependency graph authority and approved edge context. | DAG approval does not dispatch Type 2 work, change lifecycle state, promote candidates, or create release/professional claims (PRD §21.2). |
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` and `docs/_Registers/*.csv` | Package, deliverable, scope, objective, and context-budget truth. | Do not renumber, reinterpret, or silently expand scope. |
 | Deliverable-local `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, and `_run_records/**` | Selected deliverable context, lifecycle state, references, dependency evidence, working memory, and execution evidence. | Local records do not supersede decomposition, DAG, review, or human approval authority. |
 | Human project authority and formal review/change records | Binding decisions, lifecycle gates, acceptance, release decisions, and scope amendments. | Software, agents, and deterministic tools provide evidence only. |
@@ -271,8 +271,8 @@ review scopes.
 `_COORDINATION.md` should define `ISSUED` criteria, the human approval gate,
 immutable evidence requirements, the governed scope-change process for
 already-issued deliverables (`docs/TYPES.md` §9, as amended per `D-39`),
-final review and closure records, and boundary language for
-release, professional, legal, certification, and code-compliance claims.
+final review and closure records, and boundary language per
+`docs/claims_registry.md` (DEC-081).
 
 `NEXT_INSTANCE_STATE.md`, if used, should record phase `ISSUANCE`,
 deliverables in `CHECKING`, deliverables eligible for `ISSUED`, deliverables
@@ -332,10 +332,11 @@ text, tables, figures, examples, copied code-derived formulas, proprietary
 vendor data without rights, private project models, owner standards, private
 rule packs, company design bases, credentials, or real secrets.
 
-Maintainer acceptance of a repository contribution is project governance only.
-It is not professional engineering approval of a piping calculation. Software
-and agents do not certify, seal, authenticate, approve, or declare engineering
-code compliance for reliance.
+Maintainer acceptance of a repository contribution is project governance
+only. It is not professional engineering approval of a piping calculation.
+Per DEC-081, acceptance, professional judgment, and any certification,
+sealing, or code-compliance determination remain with the responsible
+engineer and project authority (PRD §21.2).
 
 The project license has been selected as `PolyForm-Noncommercial-1.0.0`.
 The final contributor legal mechanism, maintainer roster/quorum, release
@@ -355,9 +356,9 @@ human project-authority path when:
 - a required engineering value, source citation, governance decision, or legal
   conclusion is missing;
 - two sources conflict on scope, authority, or safety-relevant meaning;
-- a change would imply release readiness, lifecycle transition, professional
-  reliance, code compliance, certification, sealing, authentication, or
-  standards-body endorsement;
+- a change would imply release readiness, a lifecycle transition,
+  professional reliance, or a claim prohibited by the PRD section 21.2
+  prohibited-claims table;
 - validation cannot be run or fails and the brief does not authorize a
   deferral.
 

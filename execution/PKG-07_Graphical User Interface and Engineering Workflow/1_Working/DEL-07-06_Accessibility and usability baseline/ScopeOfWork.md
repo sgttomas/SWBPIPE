@@ -146,7 +146,7 @@ This Scope of Work defines `DEL-07-06` in service of project scope [SOW-036] and
 >
 > This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the OpenPipeStress GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.
 >
-> This setup pass does not implement UI behavior, edit GUI source, edit tests, edit schemas, edit package manifests, select a final accessibility standard, assert a WCAG conformance target, alter report templates, or claim professional engineering approval or code compliance.
+> This setup pass does not implement UI behavior, edit GUI source, edit tests, edit schemas, edit package manifests, select a final accessibility standard, assert a WCAG conformance target, or alter report templates. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-012 — Requirements
@@ -164,7 +164,7 @@ This Scope of Work defines `DEL-07-06` in service of project scope [SOW-036] and
 > | DEL-07-06-RQ-007 | Unit-bearing values, result quantities, and report-facing data shall display units and preserve unit-safety context. | OPS-K-UNIT-1; PRD section 6.6; SPEC section 8 | Future UI/report checks verify units remain visible in fields, tables, exports, and report previews. |
 > | DEL-07-06-RQ-008 | Undo/redo affordances shall apply only to reversible model edits and shall preserve diagnostics when solve readiness changes. | PRD section 21; AB-00-05 | Future interaction tests verify undo/redo state and diagnostic refresh after reversible edits. |
 > | DEL-07-06-RQ-009 | Public GUI fixtures, screenshots, report examples, and checklist examples shall not include protected standards content, proprietary values, private project data, or copied commercial examples. | OPS-K-IP-1/2/3; OPS-K-PRIV; IP_AND_DATA_BOUNDARY sections 2, 3, and 7 | Protected-content/provenance review for public fixtures and templates. |
-> | DEL-07-06-RQ-010 | GUI and report-facing language shall not claim certification, sealing, approval, authentication, or automatic engineering code compliance. | OPS-K-AUTH-1; TYPES section 4; PRD sections 8.4 and 15 | Product-claims review and future text snapshot tests for prohibited status/language. |
+> | DEL-07-06-RQ-010 | GUI and report-facing language shall not claim certification, sealing, approval, authentication, or automatic engineering code compliance (PRD §21.2). | OPS-K-AUTH-1; TYPES section 4; PRD sections 8.4 and 15 | Product-claims review and future text snapshot tests for prohibited status/language. |
 >
 
 ### CLM-013 — Standards
@@ -236,7 +236,7 @@ This Scope of Work defines `DEL-07-06` in service of project scope [SOW-036] and
 > usability basis or human-selected measurable target was supplied. PDU-046
 > cannot be upgraded by the existing warning evidence.
 
-- **AC-001** — The contract preserves the accessibility and engineering-review baseline, keeps the measurable contrast/readability target explicitly human-owned and TBD, separates diagnostic classes, preserves units and provenance, and makes no certification, compliance, or professional-approval claim.
+- **AC-001** — The contract preserves the accessibility and engineering-review baseline, keeps the measurable contrast/readability target explicitly human-owned and TBD, separates diagnostic classes, and preserves units and provenance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -302,7 +302,7 @@ This Scope of Work defines `DEL-07-06` in service of project scope [SOW-036] and
 > | Data boundary | No protected standards content, proprietary values, or private project data are introduced. |
 > | Warning boundary | Solve-blocking and rule-check-blocking warnings remain distinct in future verification hooks. |
 > | Fixture boundary | Future screenshots, public examples, and exported report fixtures are checked for protected standards content and private project data. |
-> | Professional boundary | No output claims certification, code compliance, sealing, approval, or professional reliance. |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Dependency register | `Dependencies.csv` validates against v3.1 schema. |
 >
 > Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items X-001 and X-002 were checked against `docs/SPEC.md` section 7, `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06, `docs/IP_AND_DATA_BOUNDARY.md` section 3, and this procedure's verification table before this enrichment.
@@ -364,7 +364,7 @@ This Scope of Work defines `DEL-07-06` in service of project scope [SOW-036] and
 > - Units and provenance are part of readability. A readable table that omits units or source status is not adequate for engineering review.
 > - Accessibility conformance is not finalized here. The exact WCAG or other target remains `TBD` until human ruling.
 > - Public fixtures and report examples must remain protected-data-free and private-data-free.
-> - The software may support review; it does not certify, approve, seal, authenticate, or declare engineering code compliance.
+> - The software may support review; acceptance and professional judgment remain with the responsible engineer.
 >
 
 ### CLM-030 — Considerations

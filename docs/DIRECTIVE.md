@@ -45,7 +45,7 @@ The software must distinguish:
 - missing or unverified data;
 - human professional approval.
 
-A result can be mechanically solved without being ready for rule-checking. A rule-pack pass/fail can be computed without being a professional code-compliance certification. Missing information is a finding, not a problem to hide.
+A result can be mechanically solved without being ready for rule-checking. A rule-pack pass/fail can be computed without being a professional code-compliance certification (PRD §21.2). Missing information is a finding, not a problem to hide.
 
 ### 2.3 Praxiology — how is the work done?
 
@@ -62,7 +62,7 @@ Public safety, professional responsibility, evidence, auditability, and respect 
 3. **Centerline global model first.** The primary solver is a 3D line-element/frame model. Local shell/solid FEA is a specialized handoff path.
 4. **Unit safety.** All models, results, imports, exports, and formulas are unit-aware.
 5. **Provenance by design.** Material, component, rule, allowable, SIF, flexibility, and report data carry source/provenance fields.
-6. **Human authority.** The software may compute; it does not certify, seal, approve, or authenticate engineering work.
+6. **Human authority.** The software may compute; it does not certify, seal, approve, or authenticate engineering work (PRD §21.2).
 7. **Data boundary enforcement.** Protected standards tables, code text, copyrighted examples, and proprietary commercial data are not accepted into the public repository.
 8. **Validation before reliance.** Solver features must have tests, benchmark cases, and release quality gates.
 
@@ -84,7 +84,7 @@ Public safety, professional responsibility, evidence, auditability, and respect 
 
 - Redistribution of ASME or other protected standards content.
 - Automatic legal/code interpretation.
-- Claiming ASME approval, certification, endorsement, or official compliance.
+- Claiming ASME approval, certification, endorsement, or official compliance (PRD §21.2).
 - Replacing the engineer of record.
 - Routine global 3D solid modeling as the default pipe stress method.
 - Public distribution of vendor data without permission.
@@ -112,7 +112,7 @@ remain `TBD` until the human project authority records those decisions.
 Governance artifacts must preserve these boundaries:
 
 - Maintainer approval is project governance only; it is not professional engineering approval of a piping calculation.
-- Release labels describe software maturity and validation evidence only; they must not imply code compliance, certification, endorsement, sealing, or project-specific engineering acceptance.
+- Release labels describe software maturity and validation evidence only; they must not imply code compliance, certification, endorsement, sealing, or project-specific engineering acceptance (PRD §21.2).
 - Public contribution review must check source, provenance, redistribution rights, protected-content risk, private-data risk, and test evidence before merge.
 - Public releases must include known limitations, validation status, data-boundary notices, and professional-responsibility notices.
 - Private rule packs, material data, component data, owner standards, and project models remain user-controlled unless the user intentionally exports or contributes them with documented rights.

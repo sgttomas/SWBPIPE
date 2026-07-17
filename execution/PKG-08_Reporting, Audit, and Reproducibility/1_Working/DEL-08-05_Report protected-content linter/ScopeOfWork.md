@@ -74,7 +74,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > | Public repository must not contain protected standards text, tables, figures, examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. | `docs/CONTRACT.md` OPS-K-IP-1; `docs/IP_AND_DATA_BOUNDARY.md` Section 3 | Binding guardrail for future linter scope. |
 > | Suspected protected content must be quarantined and escalated; agents must not paraphrase protected tables into public data. | `docs/CONTRACT.md` OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` Section 5 | Linter findings must route to review rather than automatic acceptance. |
 > | Public report templates and examples must not reproduce protected standards content. | `docs/CONTRACT.md` OPS-K-REPORT-2; `docs/SPEC.md` Section 8 | Direct requirement for this deliverable. |
-> | Reports must not claim certification, sealing, approval, authentication, or code compliance for reliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` Section 4 | Linter scope may include prohibited public-claim language, but human review remains required. |
+> | Reports must not claim certification, sealing, approval, authentication, or code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` Section 4 | Linter scope may include prohibited public-claim language, but human review remains required. |
 > | Reports may reference user rule-pack IDs, versions, checksums, and source notes without embedding protected formulas or tables. | `docs/IP_AND_DATA_BOUNDARY.md` Section 7; `docs/SPEC.md` Sections 6 and 8 | Safe metadata is allowed; rule-pack content remains user/private unless rights are documented. |
 > | Telemetry/private data boundaries must be preserved. | `docs/CONTRACT.md` OPS-K-PRIV-1; OPS-K-PRIV-2 | Future linter should not transmit or collect private project/rule data. |
 >
@@ -91,7 +91,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > |---|---|---|
 > | Protected text/table/formula indicators | Detect likely copied standards/code/vendor content in public templates/examples using heuristic patterns and allowlisted safe placeholders. | No protected examples may be embedded as fixtures. |
 > | Public/private marker checks | Require explicit public/private or redistribution-status metadata where template/example content may expose rule-pack or provenance text. | Unknown status is a finding, not a silent pass. |
-> | Prohibited public claims | Flag public report language that claims software certification, sealing, approval, authentication, or automatic code compliance. | The check supports OPS-K-AUTH-1 but does not replace human review. |
+> | Prohibited public claims | Flag public report language that claims software certification, sealing, approval, authentication, or automatic code compliance (PRD §21.2). | The check supports OPS-K-AUTH-1 but does not replace human review. |
 > | Safe metadata allowance | Permit rule-pack identity, version, checksum, source notice, redistribution status, and user-supplied notices when represented as metadata. | Do not reproduce protected rule formulas or tables in public artifacts. |
 > | Review routing | Emit actionable diagnostics such as `IP_BOUNDARY_WARNING` and review-required findings. | Do not auto-quarantine outside future authorized implementation scope. |
 >
@@ -143,7 +143,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > - checks over public report templates/examples and other explicitly configured public report surfaces;
 > - heuristic detection of protected-content risk categories without embedding protected examples as fixtures;
 > - diagnostics that route suspected protected/private content to human review;
-> - checks that public report language does not claim software certification, sealing, approval, authentication, or automatic code compliance;
+> - checks that public report language does not claim software certification, sealing, approval, authentication, or automatic code compliance (PRD §21.2);
 > - CI guard integration when separately authorized by implementation scope.
 >
 > Out of scope for this setup session:
@@ -194,7 +194,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > | Public-surface scan fixture | Verifies only configured public report-template/example paths are scanned by default. |
 > | Synthetic protected-risk fixture | Verifies invented markers trigger protected-content findings without copying protected content. |
 > | Safe metadata fixture | Verifies rule-pack identity/version/checksum/source notice can appear without embedding protected rule content. |
-> | Prohibited-claim fixture | Verifies public report language does not claim certification, sealing, approval, authentication, or automatic code compliance. |
+> | Prohibited-claim fixture | Verifies public report language does not claim certification, sealing, approval, authentication, or automatic code compliance (PRD §21.2). |
 > | Diagnostic output fixture | Verifies findings carry stable code/class/severity/source/remediation fields where available. |
 > | Determinism check | Verifies stable output for the same inputs/config/version. |
 > | CI policy check | Verifies severity-to-fail/warn mapping and review-blocking behavior. |
@@ -322,7 +322,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > 6. Verify boundaries.
 >    - Check no private data transmission occurs by default.
 >    - Check public templates/examples remain protected-content-free.
->    - Check public report language avoids certification, sealing, approval, authentication, and automatic code-compliance claims.
+>    - Check public report language avoids certification, sealing, approval, authentication, and automatic code-compliance claims (PRD §21.2).
 > 7. Prepare review evidence.
 >    - Include test results, fixture provenance, known limitations, and residual risk notes.
 >    - State that heuristic linting is not sole legal control.
@@ -399,7 +399,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > | Use synthetic fixtures | Future tests should use invented markers and safe placeholders rather than copied standards/code/vendor content. |
 > | Flag, do not certify | Findings should route suspected content to quarantine/review. A clean scan should not be described as legally sufficient. |
 > | Allow safe metadata | Rule-pack IDs, versions, checksums, source notices, redistribution status, and required-input status can be safe when they do not expose protected content. |
-> | Keep professional boundary visible | Public report text should avoid claims of certification, sealing, approval, authentication, or automatic code compliance. |
+> | Keep professional boundary visible | Public report text should avoid claims of certification, sealing, approval, authentication, or automatic code compliance (PRD §21.2). |
 > | Keep diagnostics reproducible | Finding output should be stable, traceable to files/locations, and suitable for CI and review records. |
 >
 

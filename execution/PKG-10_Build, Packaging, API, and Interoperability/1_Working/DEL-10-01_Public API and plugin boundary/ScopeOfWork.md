@@ -74,7 +74,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Public API capability families | Model creation/import/export, load-case definition, solve execution, result extraction, rule-pack evaluation, report generation, and validation-test execution. | `docs/PRD.md` section 19.3 |
 > | Contract baseline | Schema-first command/query/job/result envelopes; JSON Schema 2020-12 public schema/interchange basis. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | Adapter/plugin baseline | Deny-bypass boundary: adapters/plugins may translate or extend, but cannot bypass units, provenance, diagnostics, rule sandboxing, public/private data controls, or report controls. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-07; `docs/SPEC.md` section 1 |
-> | Professional boundary | API results can expose mechanics status and user-rule-check status, but not software-declared code compliance or professional approval. | `docs/TYPES.md` sections 4 and 6; `docs/CONTRACT.md` OPS-K-AUTH-1 |
+> | Professional boundary | API results can expose mechanics status and user-rule-check status, but not software-declared code compliance or professional approval (PRD §21.2). | `docs/TYPES.md` sections 4 and 6; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 > | Protected-data boundary | Public API/plugin contracts must not bundle protected standards text, tables, code-derived formulas, allowables, SIF/flexibility tables, proprietary catalogs, or private project/rule data. | `docs/CONTRACT.md` OPS-K-IP-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-3 |
 >
 
@@ -174,7 +174,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | DEL-10-01-REQ-08 | Rule-pack-facing API/plugin hooks shall preserve sandboxed, deterministic, unit-aware evaluation and shall not permit arbitrary code execution or bypass of required-input completeness checks. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-RULE-2. SourcePath: `docs/SPEC.md`; SectionRef: 6. Rule-pack evaluator. |
 > | DEL-10-01-REQ-09 | Rule-pack identities, versions, checksums, source notices, redistribution status, and private/public markings shall be carried through API envelopes where rule-pack data or results are referenced. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-RULE-3 and OPS-K-DATA-3. SourcePath: `docs/SPEC.md`; SectionRef: 6 and 8. |
 > | DEL-10-01-REQ-10 | Result envelopes shall distinguish invalid input, incomplete model, mechanics solved, rule-inputs incomplete, user-rule checked/failed, human-review-required, and human-approved-for-project states without introducing automatic `CODE_COMPLIANT` status. | SourcePath: `docs/TYPES.md`; SectionRef: 4. Analysis-status vocabulary. |
-> | DEL-10-01-REQ-11 | API, plugin, adapter, and report-facing outputs shall not claim to certify, seal, approve, authenticate, endorse, or declare engineering code compliance for professional reliance. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/DIRECTIVE.md`; SectionRef: 4.2 Out of scope. |
+> | DEL-10-01-REQ-11 | API, plugin, adapter, and report-facing outputs shall not claim to certify, seal, approve, authenticate, endorse, or declare engineering code compliance for professional reliance (PRD §21.2). | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/DIRECTIVE.md`; SectionRef: 4.2 Out of scope. |
 > | DEL-10-01-REQ-12 | The plugin boundary shall be deny-by-default: no plugin capability, private-data access, filesystem/network/process access, report/export control bypass, or rule-evaluator integration is granted unless a later approved permission/sandbox design authorizes it. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07 and OI-006. SourcePath: `docs/PRD.md`; SectionRef: 18.2 Telemetry and 18.3 Private Data Protection. |
 > | DEL-10-01-REQ-13 | Public API transport, concrete endpoint syntax, concrete plugin runtime, exact permission taxonomy, exact external import/export formats, exact code-generation tooling, and repository-level `api/openapi.yaml` placement remain TBD until human/architecture approval. | SourcePath: `_CONTEXT.md`; SectionRef: Still TBD and write scope. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 and 8.2. |
 > | DEL-10-01-REQ-14 | JSON payloads that are hashed for API manifests, jobs, model snapshots, results, or reproducibility records shall use the accepted canonical JSON/JCS-compatible hash basis where applicable; non-JSON/binary assets require manifest hashes. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 and 8.2. |
@@ -210,7 +210,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | REQ-02 | Public API capability-family review confirms the PRD section 19.3 families are represented and that non-DEL-10-01 implementation work remains deferred. |
 > | REQ-05, REQ-06, REQ-07 | Protected-content/provenance review confirms import/export and plugin contribution paths require units, source, redistribution status, private/public classification, and quarantine behavior. |
 > | REQ-08, REQ-09, REQ-12 | Rule-pack/security review confirms no hook bypasses sandboxing, unit awareness, checksum/version/source metadata, private markings, or required-input blocking. |
-> | REQ-10, REQ-11 | Status/professional-boundary review confirms no automatic code-compliance state or certification/approval claim appears in API, plugin, result, or report outputs. |
+> | REQ-10, REQ-11 | Status/professional-boundary review confirms no automatic code-compliance state or certification/approval claim appears in API, plugin, result, or report outputs (PRD §21.2). |
 > | REQ-13 | TBD review confirms transport, endpoint syntax, plugin runtime, permission taxonomy, format list, code generation, and repository-level API artifact placement are not silently resolved. |
 > | REQ-14 | Reproducibility review confirms canonical JSON/JCS-compatible hash basis is referenced where hashes are required and non-JSON assets remain manifest-hash governed. |
 > | REQ-15 | Layered gate review confirms later concrete implementation will need schema, unit, provenance, diagnostics, protected-content, privacy, sandbox, report, and regression evidence. |
@@ -253,7 +253,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Plugin identity/version/capability request | Candidate concept; exact field names, permission taxonomy, and approval path TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07 and OI-004. |
 > | Privacy/telemetry posture | Required deny-by-default declaration for private data exposure; exact policy hook TBD. | `docs/PRD.md` 18.2 and 18.3. |
 
-- **AC-001** — The contract preserves schema-first command/query/job/result envelopes, deny-bypass service boundaries, unit and provenance validation, protected/private-data controls, deterministic plugin declarations, current implemented-slice evidence, visible transport and permission-taxonomy TBDs, and the prohibition on compliance, certification, or professional-approval claims.
+- **AC-001** — The contract preserves schema-first command/query/job/result envelopes, deny-bypass service boundaries, unit and provenance validation, protected/private-data controls, deterministic plugin declarations, current implemented-slice evidence, and visible transport and permission-taxonomy TBDs. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -337,7 +337,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 >    - Do not choose defaults without human/project authority evidence.
 > 8. Check protected-data and authority boundaries:
 >    - Confirm no protected standards text, tables, copied formulas, proprietary vendor data, private project data, or private rule-pack content is embedded.
->    - Confirm no wording claims certification, sealing, approval, endorsement, or code compliance.
+>    - Confirm no wording claims certification, sealing, approval, endorsement, or code compliance (PRD §21.2).
 > 9. Produce setup artifacts:
 >    - Four-document kit.
 >    - `_SEMANTIC.md`.
@@ -358,7 +358,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Four-document check | Datasheet, Specification, Guidance, and Procedure exist with default sections. |
 > | Boundary check | No transport, plugin runtime, source code, package manifest, repository-level API file, or external format implementation is introduced. |
 > | Protected-data check | No protected standards content, proprietary commercial data, or private project/rule/component/material data is introduced. |
-> | Professional-boundary check | No certification, sealing, approval, endorsement, or code-compliance claim appears. |
+> | Professional-boundary check | No certification, sealing, approval, endorsement, or code-compliance claim appears (PRD §21.2). |
 > | Semantic check | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and preserve lens-not-authority separation. |
 > | Dependency check | `Dependencies.csv` validates against v3.1 schema and canonical enum values. |
 >
@@ -450,7 +450,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Project reviewers | Evidence that extension cannot bypass governance | Trace every capability to unit, provenance, rule, privacy, report, and professional-boundary controls. |
 > | Future implementers | Concrete enough contract to build against | Carry unresolved transport/runtime/schema-layout decisions as visible `TBD`, not hidden assumptions. |
 >
-> Public API and plugin docs should avoid marketing language such as "certified", "approved", "code compliant", or "professionally accepted". They should describe computed states and human-review obligations using the project vocabulary in `docs/TYPES.md`.
+> Public API and plugin docs should avoid marketing language such as "certified", "approved", "code compliant", or "professionally accepted" (PRD §21.2). They should describe computed states and human-review obligations using the project vocabulary in `docs/TYPES.md`.
 >
 
 ### CLM-032 — Trade-offs

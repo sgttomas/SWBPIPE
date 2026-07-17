@@ -114,6 +114,10 @@ authority permits — stopping at every owner gate.
 - **F-PIP-2 (claims):** no release-readiness, professional approval, certification,
   sealing, authentication, or code-compliance claims. Git closeout is source-control
   hygiene, not lifecycle issuance.
+  *Authoring note (DEC-081):* the fence text above is the governing definition and
+  is never edited. New artifacts do not restate it as an ad-hoc litany — write
+  "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)." and use
+  `docs/claims_registry.md` for any surface-facing boundary statement.
 - **F-PIP-3 (lifecycle):** deliverable lifecycle transitions follow the register's
   ruled gates; no `CHECKING -> ISSUED` issuance without the owner's gate; the
   currently `ISSUED` baseline is opened only through a human-approved change path.

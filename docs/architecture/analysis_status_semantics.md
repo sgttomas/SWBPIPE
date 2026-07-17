@@ -14,7 +14,7 @@ This document defines the analysis-status boundary for OpenPipeStress result env
 
 ## Authority Boundary
 
-Analysis statuses describe what the software has computed or found. They do not claim code compliance, certification, sealing, approval, authentication, or professional reliance.
+Analysis statuses describe what the software has computed or found. They do not claim code compliance, certification, sealing, approval, authentication, or professional reliance (PRD §21.2).
 
 The software may emit:
 
@@ -68,11 +68,11 @@ Every status envelope carries:
 - source and actor metadata;
 - at least one hash for the payload or evidence basis;
 - optional references to diagnostics, rule packs, reports, or human acceptance records;
-- professional-boundary fields that are fixed false for software compliance, certification, sealing, approval, and authentication claims.
+- professional-boundary fields that are fixed false for software compliance, certification, sealing, approval, and authentication claims (PRD §21.2).
 
 The automatic status set intentionally excludes `HUMAN_APPROVED_FOR_PROJECT`. A result can be mechanically solved, rule checked, and still require human review. A human acceptance record can be attached later only as a separate hash-bound record.
 
-Automatic status fields must not contain code-compliance, certification, sealing, approval, authentication, or professional-acceptance claims. Those boundaries are recorded separately as fixed-false professional-boundary fields and, where applicable, external hash-bound human records.
+Automatic status fields must not contain code-compliance, certification, sealing, approval, authentication, or professional-acceptance claims (PRD §21.2). Those boundaries are recorded separately as fixed-false professional-boundary fields and, where applicable, external hash-bound human records.
 
 ## Transition Pattern
 

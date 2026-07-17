@@ -23,3 +23,4 @@
 - 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 12); no state change.
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T3 applied DEC-074 O7-before-E5 for PDU-018/PDU-028: the selected declaration-to-runtime seam now rejects/quarantines no-bypass violations and never dispatches, including after a valid declaration. No runtime model, capability grant, whole-product security claim, or lifecycle change.
+- 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).

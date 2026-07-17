@@ -143,7 +143,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 >
 > This deliverable specifies a backend feature slice for deterministic comparison of immutable model states. It covers the model-state side of SOW-073 and the SOW-071 state-record context needed by that comparison. It must report added, removed, changed, and unchanged model entities using stable IDs and explicit mapping records where required.
 >
-> This deliverable excludes the full analysis-run comparison engine (`DEL-14-04`), the mapping/tolerance/export contract definition (`DEL-14-05`), the immutable state data model itself (`DEL-14-01`), and any claim of external validation, certification, code compliance, sealing, or professional approval.
+> This deliverable excludes the full analysis-run comparison engine (`DEL-14-04`), the mapping/tolerance/export contract definition (`DEL-14-05`), and the immutable state data model itself (`DEL-14-01`). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 > Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `DEL-14-01` through `DEL-14-05`; `docs/_Registers/ScopeLedger.csv` rows `SOW-071` and `SOW-073`.
 >
@@ -162,7 +162,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 > | REQ-14-03-006 | The comparison shall preserve relevant state metadata, including unresolved assumptions, warnings, notes, external references, and deterministic hashes when those fields are present in the state contract. | `docs/_Registers/ScopeLedger.csv` row `SOW-071`; `docs/SPEC.md` section 3 Domain objects | Tests confirming metadata is not discarded from comparison context. |
 > | REQ-14-03-007 | Unit-bearing changed values shall not be compared as bare numbers without unit/dimension metadata or an explicit unit-normalization contract. | `docs/SPEC.md` section 4 Unit system and dimensional analysis; `Dependencies.csv` row `DAG-002-E0794` | Tests for unit metadata handling; `TBD` until `DEL-02-02` and `DEL-14-05` provide final contracts. |
 > | REQ-14-03-008 | Comparison result envelopes shall carry diagnostics/provenance sufficient to expose missing mappings, unsupported comparison categories, unresolved assumptions, and professional-boundary limits. | `docs/SPEC.md` sections 4.3 and 9; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06` | Tests asserting diagnostic fields and no forbidden status labels. |
-> | REQ-14-03-009 | Outputs shall not claim certification, sealing, authentication, professional approval, code compliance, or external validation. | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/DIRECTIVE.md` section 3; `docs/_Registers/ScopeLedger.csv` row `SOW-073` | Protected-claim review of result labels and report/export-facing strings. |
+> | REQ-14-03-009 | Outputs shall not claim certification, sealing, authentication, professional approval, code compliance, or external validation (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/DIRECTIVE.md` section 3; `docs/_Registers/ScopeLedger.csv` row `SOW-073` | Protected-claim review of result labels and report/export-facing strings. |
 > | REQ-14-03-010 | State diff tests shall use invented, public-safe fixtures and must not include protected standards text, proprietary values, or private project data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-RULE-1`; `docs/SPEC.md` section 10 | Fixture provenance review and protected-content gate. |
 >
 
@@ -192,7 +192,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 > | Explicit mapping | Use mapping records from `DEL-14-05` once available; until then, mark detailed mapping behavior `TBD`. |
 > | Unit-bearing value handling | Confirm missing or incompatible unit metadata produces diagnostics rather than silent numeric comparison. |
 > | Determinism | Repeat the same comparison and compare canonical serialized output or result hash where implemented. |
-> | Boundary language | Assert no output status or label implies professional acceptance, code compliance, certification, sealing, or external validation. |
+> | Boundary language | Assert no output status or label implies professional acceptance, code compliance, certification, sealing, or external validation (PRD §21.2). |
 >
 
 ### CLM-015 — Documentation
@@ -274,7 +274,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 >
 > 8. Preserve review context: state hashes, warnings, unresolved assumptions, notes, external references, provenance, and diagnostics where present.
 >
-> 9. Return a deterministic result envelope with professional-boundary language. Do not emit automatic certification, sealing, code-compliance, external-validation, or human-approval statuses.
+> 9. Return a deterministic result envelope with professional-boundary language. Do not emit automatic certification, sealing, code-compliance, external-validation, or human-approval statuses (PRD §21.2).
 >
 > 10. Build state diff tests using invented/public-safe fixtures. Cover stable-ID matching, added/removed/changed/unchanged classifications, mapping behavior once available, deterministic repeatability, unit metadata diagnostics, and forbidden-claim checks.
 >
@@ -290,7 +290,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 > | Changed classification | Source-supported relevant field changes are reported as changed. Exact normalization policy is `TBD`. |
 > | Unit metadata | Unit-bearing fields require unit/dimension context or produce diagnostics. |
 > | Metadata preservation | Warnings, assumptions, external references, notes, provenance, and hashes are not silently dropped. |
-> | Boundary language | No result label claims professional acceptance, code compliance, certification, sealing, authentication, or external validation. |
+> | Boundary language | No result label claims professional acceptance, code compliance, certification, sealing, authentication, or external validation (PRD §21.2). |
 > | Fixture governance | Test fixtures are invented/public-safe and do not include protected standards text, proprietary values, or private project data. |
 >
 
@@ -351,7 +351,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 > | Deterministic output | The same inputs should produce the same classifications and serialized result shape. Hashing or canonical serialization details are governed by the persistence/hash basis where JSON payloads are involved. |
 > | No silent defaults | Missing mappings, missing units, unsupported entity categories, and unresolved assumptions should become diagnostics or `TBD`, not implicit acceptance. |
 > | Metadata preservation | Notes, warnings, external references, unresolved assumptions, provenance, and hashes attached to model states are part of the review context. |
-> | Boundary clarity | The comparison is diagnostic/audit functionality. It must not imply professional review, code compliance, external prover approval, or certification. |
+> | Boundary clarity | The comparison is diagnostic/audit functionality. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 >
 > Sources: `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/CONTRACT.md` invariants `OPS-K-DATA-2`, `OPS-K-AUTH-1`, `OPS-K-MECH-2`; `docs/SPEC.md` sections 4, 4.3, and 4.4.
 >

@@ -76,7 +76,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > | Stable ID preservation | Required through direct fields or sidecar mapping; exact stress-neutral ID-map layout is `TBD`. |
 > | Diagnostics and boundary notes | Required so review consumers can see limitations, unresolved assumptions, warnings, and non-authoritative status. |
 > | Protected/private content handling | Public fixtures and examples must not include protected standards data, proprietary examples, private project data, code allowables, SIF/flexibility tables, or owner criteria. |
-> | Professional boundary | The package is evidence for review/regression/downstream tooling only; it must not declare code compliance, certification, sealing, professional approval, formal validation, or engineering acceptance. |
+> | Professional boundary | The package is evidence for review/regression/downstream tooling only. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 >
 
 ### CLM-006 — Construction
@@ -179,7 +179,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > | DEL-17-06-REQ-006 | Result values shall carry explicit unit and dimensional metadata or produce blocking diagnostics. Exact CSV/JSON representation is `TBD`. | `docs/SPEC.md` result export section; `docs/CONTRACT.md` OPS-K-UNIT-1 |
 > | DEL-17-06-REQ-007 | The package shall carry diagnostics, warnings, unresolved assumptions, provenance, reproducibility references, and professional-boundary notices when those are present in the source result/export envelope. | `docs/SPEC.md` result export section; `docs/TYPES.md` `ResultExportEnvelope` |
 > | DEL-17-06-REQ-008 | The package shall not copy protected standards text, protected tables, proprietary formulas, code-specific allowables, SIF/flexibility values, private rule-pack payloads, private project data, or proprietary commercial examples into public artifacts. | `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/TYPES.md` |
-> | DEL-17-06-REQ-009 | The package shall not declare code compliance, certification, sealing, professional approval, formal validation, engineering acceptance, or release readiness. | `docs/CONTRACT.md` OPS-K-AUTH-1; `DEL-17-01/Specification.md`; `DEL-17-02/Specification.md` |
+> | DEL-17-06-REQ-009 | The package shall not declare code compliance, certification, sealing, professional approval, formal validation, engineering acceptance, or release readiness (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `DEL-17-01/Specification.md`; `DEL-17-02/Specification.md` |
 > | DEL-17-06-REQ-010 | Target-specific or version-sensitive behavior not resolved by source evidence shall remain `TBD` and shall not be represented as supported behavior. | `DEL-17-01/Specification.md`; `DEL-17-02/Specification.md` |
 > | DEL-17-06-REQ-011 | The stress-neutral profile shall carry source-basis references for DEL-08-04, DEL-14-02, DEL-14-05, and DEL-17-02; missing references shall block package acceptance. | DAG-006 DEL-17-06 dependency edges; DEL-17-02 export contract; DEL-08-04 result export format; DEL-14-02 analysis run records; DEL-14-05 comparison export contracts. |
 >
@@ -205,7 +205,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > |---|---|---|
 > | DEL-17-06-VER-001 | Confirm all four documents exist and preserve required default sections. | `tools/validation/check_four_documents.sh` result. |
 > | DEL-17-06-VER-002 | Confirm the deliverable-local minimum fileset remains present. | `tools/validation/check_min_viable_fileset.sh` result. |
-> | DEL-17-06-VER-003 | Review the four documents for prohibited claims: code compliance, professional approval, formal validation, release compatibility, or engineering acceptance. | Manual text review or grep-based evidence in run record. |
+> | DEL-17-06-VER-003 | Review the four documents for prohibited claims (PRD §21.2): code compliance, professional approval, formal validation, release compatibility, or engineering acceptance. | Manual text review or grep-based evidence in run record. |
 > | DEL-17-06-VER-004 | Review the four documents for protected/proprietary copied examples or protected standards data. | Manual text review or grep-based evidence in run record. |
 > | DEL-17-06-VER-005 | Confirm unresolved target behavior, exact table columns, JSON shape, manifest layout, tolerance thresholds, and comparison semantics remain `TBD`. | Four-document review. |
 >
@@ -341,7 +341,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > ```bash
 > tools/validation/check_four_documents.sh "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package"
 > tools/validation/check_min_viable_fileset.sh "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package"
-> rg -n "certif|seal|code compliance|professional approval|engineering acceptance|formal validation|release readiness|proprietary example|protected standards" "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package"
+> rg -n "certif|seal|code compliance|professional approval|engineering acceptance|formal validation|release readiness|proprietary example|protected standards" "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package" # prohibited-claims screen per PRD §21.2
 > git diff --check -- "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package"
 > ```
 >
@@ -387,7 +387,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > - `MEMORY.md` remains unchanged as instructed.
 > - No sibling DEL-17 folders are edited.
 > - No later skills are run.
-> - No schema, code, release, compatibility, code-compliance, professional-approval, formal-validation, or engineering-acceptance claim is made.
+> - No schema, code, release, or compatibility claim is made. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 > Future implementation closeout checks, once implementation artifacts exist:
 >
@@ -432,7 +432,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > Use this deliverable to keep the stress-neutral CSV/JSON package narrow and auditable. Its job is to expose result/package evidence in a project-controlled form that humans and downstream tools can inspect, compare, and adapt.
 >
-> The package must not be described as a solver certification, code-compliance result, professional approval state, formal validation record, or vendor compatibility guarantee.
+> The package must not be described as a vendor compatibility guarantee; it is handoff evidence for external validation, not a validation outcome. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-032 — Principles
@@ -467,7 +467,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > The package may help review, regression comparison, downstream tooling, and adapter development. It does not authenticate an engineering design or establish professional reliance. Any human acceptance reference remains separate and hash-bound outside this package.
 >
-> If a future workflow needs to point at a human acceptance reference, this package should carry only a neutral external reference such as a model-state, report, analysis-run, or project-governance record identifier plus the reviewed hash basis. The reference target, reviewer authority, and acceptance meaning stay outside the stress-neutral CSV/JSON package, and the package must not convert that reference into a software-generated approval, certification, code-compliance, or professional-reliance status.
+> If a future workflow needs to point at a human acceptance reference, this package should carry only a neutral external reference such as a model-state, report, analysis-run, or project-governance record identifier plus the reviewed hash basis. The reference target, reviewer authority, and acceptance meaning stay outside the stress-neutral CSV/JSON package, and the package must not convert that reference into a software-generated authority status (PRD §21.2).
 >
 
 ### CLM-037 — Considerations

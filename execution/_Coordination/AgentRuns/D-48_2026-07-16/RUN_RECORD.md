@@ -131,3 +131,50 @@ workplan (fence text unchanged); cross-project residuals recorded
 `QA_CHECKS.md` — outside the piping fence, not edited); lint green over the
 full live tree; self-check; harness pytest; Receipt-51; PR; session-
 authorized merge. Docs-only wave → no DEC-025 sweep (per plan).
+
+## Wave 2 — returns (fan-in log, 2026-07-17)
+
+**All seven nodes COMPLETED; returns valid at fan-in (374 SOW + 57 doc
+findings dispositioned; 82 `_STATUS.md` History appends, one line each,
+no existing History line modified):**
+
+- **W2-SOW-1 (PKG-01..04):** 74/74 — 15 GF-TOKEN, 14 tail excisions, 45
+  §21.2 citations; 18 appends; identifiers/enums untouched.
+- **W2-SOW-2 (PKG-05..08):** 86/86 — 21/23/42; 22 appends; DEL-08-05 (the
+  report linter deliverable) kept all enforcement rules verbatim + citation.
+- **W2-SOW-3 (PKG-09..12):** 97/97 — 8/18/71; 20 appends; PKG-12 security
+  prohibitions preserved verbatim with citations per the brief's caution.
+- **W2-SOW-4 (PKG-13..15):** 73/73 — 14/10/49; 13 appends; disclosed
+  deviation accepted: repaired an evident pre-existing typo in DEL-13-01
+  ("require false … claims" → "prohibit … claims (PRD §21.2)"), restoring
+  the intended prohibition (strengthens, never weakens).
+- **W2-SOW-5 (PKG-16..17):** 44/44 — 7/13/24; 9 appends; DEL-16-04
+  boundary-control definitions kept with citations (registry/lint home).
+- **W2-DOCS-1 (spec/governance docs):** 37/37 — 4 registry rewrites, 33
+  normative prohibitions kept verbatim + on-line §21.2 citation; TYPES.md
+  enum vocabulary and schema identifiers untouched.
+- **W2-DOCS-2 (architecture/security/misc docs):** 20/20 — 8 registry
+  rewrites, 12 citation-suppressed; zero security rules weakened.
+
+**Parent integration (serialized):** 64 validation-manual case pages
+mechanically aligned (identical boilerplate → BS-VALID-derived sentence,
+pre-dispatch); one residual quoted verification row in DEL-15-01
+citation-suppressed at fan-in; `tests/test_local_fea_handoff_contract.py`
+guidance-wording assertions updated to the registry text; validator
+`WAVE2_SURFACES_ACTIVE=True` (full doc tree + all live SOWs in scope;
+Wave-1 gate retained for tests) with tests updated (16/16); F-PIP-2
+authoring note added to the loop workplan (fence text unchanged).
+
+**Dispositioned residual classes (recorded, not edited):** (1) hyphenated
+"non-authoritative" as an evidence-status qualifier on external-run /
+handoff / fixture evidence (e.g. DEL-17-01/-05/-09, DEL-15-02/-04) — a
+source-basis standing label, not the retired product-surface hedge;
+lint-clean. (2) Cross-project litany sources outside the piping fence:
+`agents/AGENT_DOMAIN_ENGINE.md`, `skills/software-bounded-implementation/QA_CHECKS.md`
+— not edited (write-scope fence).
+
+**Verification (Wave 2):** claims lint VALID (262 files, exit 0) over the
+full live tree with Wave-2 scope active; repo-wide self-check exit 0 incl.
+GEN-13 (WARN baseline pin holds); repo-root validation+harness pytest pass;
+full project pytest pass; `git diff --check` and receipt validator run at
+closeout. Docs-only tranche — DEC-025 sweep not triggered (per plan).

@@ -152,7 +152,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > | DEL-09-02-RQ-001 | The benchmark suite shall include setup coverage slots for axial, bending, torsion, pressure, and stress range behavior. | DEL-09-02 context; SOW-026 | Four-document review confirms all five behavior slots are present. |
 > | DEL-09-02-RQ-002 | Benchmark source material shall be original, public-domain, or permissively licensed, with provenance and redistribution review before public use. | SOW-026 note; OPS-K-IP-2 | Provenance review checklist before future fixture acceptance. |
 > | DEL-09-02-RQ-003 | The suite shall exclude protected standards text, protected examples, copied code formulas, protected tables, proprietary data, material allowables, and code stress equations. | OPS-K-IP-1; OPS-K-IP-3; OPS-K-RULE-1 | Protected-content review before future fixture acceptance. |
-> | DEL-09-02-RQ-004 | Benchmarks shall verify mechanics stress recovery behavior only and shall not decide code compliance, fatigue acceptability, certification, sealing, or professional approval. | OPS-K-AUTH-1; OPS-K-AGENT-4; package exclusion | Report/review wording check and result-envelope review. |
+> | DEL-09-02-RQ-004 | Benchmarks shall verify mechanics stress recovery behavior only and shall not decide code compliance, fatigue acceptability, certification, sealing, or professional approval (PRD §21.2). | OPS-K-AUTH-1; OPS-K-AGENT-4; package exclusion | Report/review wording check and result-envelope review. |
 > | DEL-09-02-RQ-005 | Benchmark inputs, expected outputs, comparisons, and diagnostics shall be unit-aware and dimensionally checked. | OPS-K-UNIT-1; AB-00-08 | Unit mismatch and dimensional review tests when implementation is authorized. |
 > | DEL-09-02-RQ-006 | Missing source, unit, sign convention, load-pair convention, result-envelope, or tolerance information shall be explicit `TBD` or diagnostic evidence, never a silent default. | OPS-K-DATA-2; OPS-K-AGENT-1; AB-00-06 | Negative checks for incomplete benchmark metadata. |
 > | DEL-09-02-RQ-007 | Numerical verification tolerances follow DEC-026 reference-result classes with governed relative+absolute per-quantity-kind pairs; the analytic class is seeded at `1e-9` relative where measured suites pass, while unmeasured per-kind values remain `TBD` and fixture-local overrides may only tighten. | DEC-026; OI-005 | Review confirms the analytic seed is not generalized into unmeasured absolute floors or other class/kind values. |
@@ -209,7 +209,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 >
 > `governed_complete_stress_result_envelope()` routes the existing complete rights-safe stress-recovery output through the DEL-08-04 governed result-export types and validator. Six stress components carry explicit Pa/stress metadata, recovery-to-result trace links, deterministic fixture hashes, an evidence-only diagnostic, `MECHANICS_SOLVED`, `HUMAN_REVIEW_REQUIRED`, and the default no-authority professional boundary. Passing this conformance check is verification, not engineering validation or release readiness.
 
-- **AC-001** — The contract preserves public/original/permissive provenance, unit and sign conventions, diagnostics and governed result-envelope evidence, DEC-026's measured analytic relative seed, explicit unmeasured per-kind relative-plus-absolute TBDs, and separation from code compliance, fatigue acceptance, certification, or professional approval.
+- **AC-001** — The contract preserves public/original/permissive provenance, unit and sign conventions, diagnostics and governed result-envelope evidence, DEC-026's measured analytic relative seed, and explicit unmeasured per-kind relative-plus-absolute TBDs; fatigue acceptance remains out of scope. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -260,7 +260,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > 5. Record unit metadata, sign convention, pressure convention, stress component naming, and result-envelope fields for each accepted candidate.
 > 6. Keep expected values and final tolerances as `TBD` until the responsible authority accepts them.
 > 7. Wire accepted cases into the approved regression harness only after source, unit, diagnostic, and tolerance gates are satisfied.
-> 8. Record benchmark outputs as mechanics verification evidence only; do not claim code compliance, certification, sealing, approval, or project-specific professional reliance.
+> 8. Record benchmark outputs as mechanics verification evidence only; do not claim code compliance, certification, sealing, approval, or project-specific professional reliance (PRD §21.2).
 >
 
 ### CLM-023 — Verification

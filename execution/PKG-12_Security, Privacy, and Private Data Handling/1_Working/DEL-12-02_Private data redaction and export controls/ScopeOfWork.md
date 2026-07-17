@@ -71,7 +71,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | Shared/public export | Shared or public-facing exports must redact or block private values according to configuration and emit an auditable warning/manifest. |
 > | Report manifest | Export records should preserve model/report hashes, solver/report versions, rule-pack identity/version/checksum, provenance summaries, warnings, and limitations without revealing redacted values. |
 > | Adapter boundary | Import/export adapters and plugins cannot bypass units, provenance, diagnostics, sandboxing, report controls, or public/private data checks. |
-> | Professional boundary | Redaction status, report export, or rule-pack checksum must not be framed as certification, sealing, approval, authentication, or code compliance. |
+> | Professional boundary | Redaction status, report export, or rule-pack checksum must not be framed as certification, sealing, approval, authentication, or code compliance (PRD §21.2). |
 >
 
 ### CLM-005 — Redaction Configuration Contract
@@ -127,7 +127,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > - implementation guidance in `docs/security/redaction_export_controls.md`;
 > - semantic matrix/lensing and dependency setup artifacts.
 >
-> This run does not create product source code, tests, schemas, real project data, private rule packs, protected standards content, secrets, credentials, cloud operations, destructive quarantine movement, legal sufficiency, security certification, lifecycle acceptance, or professional/code-compliance claims.
+> This run does not create product source code, tests, schemas, real project data, private rule packs, protected standards content, secrets, credentials, cloud operations, destructive quarantine movement, legal sufficiency, security certification, lifecycle acceptance, or professional/code-compliance claims (PRD §21.2).
 >
 
 ### CLM-008 — References
@@ -172,7 +172,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > This deliverable specifies the documentation-level contract for private-data redaction and export controls where reports, shared models, downstream-tool exports, public templates, or examples may expose protected or private values.
 >
-> The original setup run was documentation production only. Current June 7 evidence now includes a metadata-only redaction helper, a schema-governed redaction/export-control contract, focused invented-fixture tests, and security documentation. This deliverable still does not process real project data, create report templates, integrate runtime report/export routes, move quarantine material, approve legal/security sufficiency, or make lifecycle, professional, certification, approval, sealing, authentication, or code-compliance claims.
+> The original setup run was documentation production only. Current June 7 evidence now includes a metadata-only redaction helper, a schema-governed redaction/export-control contract, focused invented-fixture tests, and security documentation. This deliverable still does not process real project data, create report templates, integrate runtime report/export routes, move quarantine material, approve legal/security sufficiency, or make lifecycle, professional, certification, approval, sealing, authentication, or code-compliance claims (PRD §21.2).
 >
 
 ### CLM-012 — Requirements
@@ -193,7 +193,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | REXC-REQ-010 | Materials, components, sections, SIF/flexibility-like values, allowables, manufacturer/vendor values, and code/design-basis fields shall carry provenance and privacy/redistribution status into redaction decisions. | OPS-K-DATA-3; OPS-K-IP-2; `docs/TYPES.md` §§7-8 | Future schema/adapter tests check provenance and status inputs. |
 > | REXC-REQ-011 | Diagnostics and result/report envelopes shall surface redaction, protected-content, and private-data export findings using machine-readable diagnostics, including `IP_BOUNDARY_WARNING` where applicable. | AB-00-06; `docs/SPEC.md` §7 | Future diagnostics tests check code/class/severity/source/affected object/message/remediation/provenance fields. |
 > | REXC-REQ-012 | Adapters, plugins, CLI exports, GUI report preview/export, and downstream-tool handoffs shall not bypass redaction, provenance, unit, sandboxing, diagnostics, or report controls. | AB-00-02; AB-00-07; OPS-K-PRIV-1 | Future adapter/plugin tests exercise no-bypass routes. |
-> | REXC-REQ-013 | Export controls shall preserve the distinction among mechanics solved, user-rule checked, and human-approved states, and shall not claim certification, sealing, approval, authentication, or code compliance. | OPS-K-AUTH-1; OPS-K-AUTH-2; AB-00-03; `docs/TYPES.md` §4 | Report review checks professional-boundary notices and status vocabulary. |
+> | REXC-REQ-013 | Export controls shall preserve the distinction among mechanics solved, user-rule checked, and human-approved states, and shall not claim certification, sealing, approval, authentication, or code compliance (PRD §21.2). | OPS-K-AUTH-1; OPS-K-AUTH-2; AB-00-03; `docs/TYPES.md` §4 | Report review checks professional-boundary notices and status vocabulary. |
 > | REXC-REQ-014 | Redaction/export tests shall cover public report export, local private export, shared model export, downstream-tool export, adapter/plugin routes, manifest preservation, unknown provenance, and source-model non-mutation. | AB-00-08; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` §5 | Focused helper/schema tests now exist; runtime report/export, GUI/CLI/API, adapter/plugin, and protected-content linter integration tests remain `TBD`. |
 > | REXC-REQ-015 | Any unresolved config schema, UI control, export format, public API transport, or physical project package/container choice shall remain `TBD` until resolved through an authorized implementation or architecture decision. | AB-00-04; AB-00-07; OPS-K-AGENT-1 | Review this deliverable for explicit TBD/open issue entries. |
 >
@@ -217,7 +217,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | REXC-VER-002 | Validate `Dependencies.csv` with `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv`. | Schema valid with all 29 v3.1 columns. |
 > | REXC-VER-003 | Confirm `_SEMANTIC.md` has no `MatrixError` or `MATRIX_ERROR` and no algebra/operator leaks in final result tables. | Semantic setup gate passes. |
 > | REXC-VER-004 | Confirm `_SEMANTIC_LENSING.md` has complete coverage for matrices A, B, C, F, D, X, and E. | 96 required lens coverage rows are present. |
-> | REXC-VER-005 | Search deliverable artifacts for protected standards content, real private project values, real secrets, cloud-operation assumptions, and certification/compliance/approval/seal claims. | No disallowed content found. |
+> | REXC-VER-005 | Search deliverable artifacts for protected standards content, real private project values, real secrets, cloud-operation assumptions, and certification/compliance/approval/seal claims (PRD §21.2). | No disallowed content found. |
 > | REXC-VER-006 | Read `_STATUS.md` without editing it. | Current lifecycle state is `IN_PROGRESS`; this evidence alignment does not promote lifecycle state or imply acceptance. |
 > | REXC-VER-007 | Confirm June 7 evidence surfaces exist for `schemas/redaction_export_controls.schema.yaml`, `core/security/redaction/`, `tests/security/test_redaction_export_controls.py`, and `docs/security/redaction_export_controls.md`. | Evidence exists; lifecycle state remains separately governed. |
 > | REXC-VER-008 | Confirm June 7 run evidence records focused redaction/storage privacy hardening validation. | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md` and package fan-in record passing focused tests. |
@@ -262,7 +262,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > - approval choices;
 > - real project data, real private values, protected standards content, secrets, credentials, or cloud behavior.
 
-- **AC-001** — The contract preserves export-context and redaction-action vocabularies, safe manifest evidence, explicit local-private intent, non-mutation, protected/private/provenance handling, metadata-only schema/helper/test evidence, no-bypass adapter boundaries, visible runtime integration and approval TBDs and conflicts, and the separation of export safeguards from legal, security, professional, or code-compliance approval.
+- **AC-001** — The contract preserves export-context and redaction-action vocabularies, safe manifest evidence, explicit local-private intent, non-mutation, protected/private/provenance handling, metadata-only schema/helper/test evidence, no-bypass adapter boundaries, and visible runtime integration and approval TBDs and conflicts; export safeguards remain separate from legal and security review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -339,7 +339,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > 6. Ensure redaction affects only export/report representations and never mutates authoritative project models or private libraries.
 > 7. Extend the focused helper/schema tests into runtime integration tests for public/shared redaction, local-private override, unknown provenance, protected-content linting, adapter/plugin no-bypass behavior, manifest preservation, and source non-mutation.
 > 8. Define quarantine review routing without destructive movement unless a maintainer-approved quarantine workflow is authorized.
-> 9. Preserve professional-boundary notices and avoid certification, sealing, approval, authentication, or code-compliance claims.
+> 9. Preserve professional-boundary notices and avoid certification, sealing, approval, authentication, or code-compliance claims (PRD §21.2).
 >
 
 ### CLM-022 — Verification
@@ -419,7 +419,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | Preserve reproducibility evidence | Redaction should keep non-sensitive hashes, versions, warnings, provenance summaries, and rule-pack identifiers where safe. |
 > | Do not mutate source data | Redaction is an export/report transformation, not a change to the authoritative project model or private libraries. |
 > | No-bypass exports | GUI, CLI, adapters, plugins, public APIs, and downstream handoffs must use the same unit, provenance, diagnostic, sandboxing, and data-boundary checks. |
-> | Human authority | Redaction/export controls support review; they do not certify, seal, approve, authenticate, or declare code compliance. |
+> | Human authority | Redaction/export controls support review. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. |
 >
 
 ### CLM-028 — Considerations

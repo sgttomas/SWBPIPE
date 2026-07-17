@@ -149,7 +149,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > - real engineering allowables, stress limits, code formulas, SIF/flexibility values, protected dimensional tables, or owner/vendor data;
 > - implementation of the rule-pack schema, evaluator, completeness checker, or checksum registry;
-> - any claim that a future example demonstrates code compliance or professional approval.
+> - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-011 — Requirements
@@ -160,7 +160,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > |---|---|---|
 > | DEL-06-05-REQ-01 | The setup documentation shall state that public rule-pack examples use invented non-code values and clear non-engineering notices. | `docs/CONTRACT.md` `OPS-K-RULE-1`; `docs/_Registers/ScopeLedger.csv` row `SOW-016` |
 > | DEL-06-05-REQ-02 | The setup documentation shall prohibit protected standards text, tables, figures, copied formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-IP-3`; `docs/DIRECTIVE.md` sections 3 and 4.2 |
-> | DEL-06-05-REQ-03 | The setup documentation shall distinguish a user-rule check from professional approval and shall not claim certification, sealing, authentication, or code compliance for reliance. | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` sections 4 and 6 |
+> | DEL-06-05-REQ-03 | The setup documentation shall distinguish a user-rule check from professional approval and shall not claim certification, sealing, authentication, or code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` sections 4 and 6 |
 > | DEL-06-05-REQ-04 | The setup documentation shall keep code-specific values user-supplied or private and shall mark unknowns as `TBD` rather than supplying defaults. | `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-DATA-2`; `INIT.md` Agent rule |
 > | DEL-06-05-REQ-05 | A future example rule pack shall carry source/provenance and redistribution status fields; actual checksum values remain `TBD` until a concrete payload exists. | `docs/CONTRACT.md` `OPS-K-DATA-3`, `OPS-K-RULE-3`; `docs/SPEC.md` section 6 |
 > | DEL-06-05-REQ-06 | A future example rule pack shall remain declarative and non-executable; evaluator grammar and sandbox details remain owned by separate PKG-06 deliverables. | `docs/CONTRACT.md` `OPS-K-RULE-2`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEL-06-02` and `OI-006` |
@@ -253,7 +253,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > | Governing sources | `_CONTEXT.md`, `_REFERENCES.md`, `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, `docs/SPEC.md`, decomposition, and registers are read |
 > | Current lifecycle state | `OPEN`, `INITIALIZED`, or `SEMANTIC_READY` before setup refresh |
 > | Protected-data posture | No protected standards text, formulas, tables, examples, or proprietary data are used |
-> | Professional-boundary posture | No certification, sealing, authentication, approval, or code-compliance reliance claim is made |
+> | Professional-boundary posture | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 >
 
 ### CLM-019 — Steps
@@ -336,7 +336,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > |---|---|
 > | Invented-only public content | Use original, artificial, non-engineering values only. When in doubt, use `TBD` and document the missing source. |
 > | Code-neutral example posture | Demonstrate the rule-pack mechanism without encoding a real code, owner specification, or proprietary design basis. |
-> | Professional boundary | A rule-pack check is software computation using user data. It is not professional approval, authentication, sealing, certification, or a reliance decision. |
+> | Professional boundary | A rule-pack check is software computation using user data. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. |
 > | Provenance first | Every value class in a future example should state whether it is original/invented, user-supplied private, licensed, or unknown. |
 > | No silent defaults | Missing solve-required or rule-check-required information is a finding, not a placeholder to hide with a plausible number. |
 > | Local setup only | This run documents the example concept inside the deliverable folder and does not write the repo-level example file. |

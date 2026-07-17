@@ -22,3 +22,4 @@
 - 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 12); no state change.
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T1 / PDU-061 recorded rotational-deformation visualization as DEL-07-05's sole Remaining home under DEC-074 O1; current `rx`/`ry`/`rz` emission is preserved as evidence and no GUI implementation or lifecycle change is claimed.
+- 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).

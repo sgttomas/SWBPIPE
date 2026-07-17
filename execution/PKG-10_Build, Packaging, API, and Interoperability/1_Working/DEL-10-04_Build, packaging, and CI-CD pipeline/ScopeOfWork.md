@@ -160,7 +160,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - selecting a final CI provider;
 > - finalizing a release matrix or final thresholds;
 > - creating or editing actual workflow files, packaging scripts, manifests, release templates, or source code;
-> - making certification, endorsement, sealing, or code-compliance claims.
+> - making certification, endorsement, sealing, or code-compliance claims (PRD §21.2).
 >
 
 ### CLM-012 — Requirements
@@ -175,7 +175,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > | REQ-10-04-04 | CI provider, coverage thresholds, performance thresholds, exact dependency versions, signing, publishing, and release matrix details must remain `TBD` unless a human authority record resolves them. | DEC-012; OI-002; user brief | Check all unresolved choices are visible as `TBD`. |
 > | REQ-10-04-05 | Pipeline and packaging concepts must not bypass unit checks, provenance checks, diagnostics, privacy controls, or adapter/plugin governance boundaries. | AB-00-02; AB-00-06; AB-00-07; OPS-K-UNIT-1; OPS-K-PRIV | Future implementation review and security/privacy checks. |
 > | REQ-10-04-06 | Public release automation must not include protected standards text, protected examples, proprietary engineering values, private rule packs, private project data, or private library data. | OPS-K-IP-1/2/3; OPS-K-DATA-1/2/3; OPS-K-PRIV | Protected-content/provenance gate and review. |
-> | REQ-10-04-07 | Release artifacts and pipeline status must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance. | OPS-K-AUTH-1; professional responsibility boundary | Product-claims and release-note review. |
+> | REQ-10-04-07 | Release artifacts and pipeline status must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). | OPS-K-AUTH-1; professional responsibility boundary | Product-claims and release-note review. |
 > | REQ-10-04-08 | Packaging and CI outputs must support reproducibility evidence such as commit/build identifiers, test results, validation status, and known limitations. | PRD 22; VALIDATION_STRATEGY release gate; SPEC reporting/audit principles | Future release checklist and reproducibility review. |
 >
 
@@ -234,7 +234,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > | Scope boundary | Diff/file inspection | No CI workflows, package scripts, manifests, release files, source code, or repo-level artifacts are modified. |
 > | TBD preservation | Text review | CI provider, release matrix, and thresholds remain visible as `TBD`. |
 > | Protected-data boundary | Text review | No protected standards content, proprietary values, or private data are introduced. |
-> | Authority boundary | Text review | No certification, sealing, approval, endorsement, or compliance claim is made. |
+> | Authority boundary | Text review | No certification, sealing, approval, endorsement, or compliance claim is made (PRD §21.2). |
 > | Root workspace manifest attribution | Read-only inspection of `projects/chirality-piping/package.json` | Existing desktop workspace scripts and preview-mechanics fixture-generator command are recorded as DEL-10-04 implementation/build evidence under `DEC-074` O3. |
 > | SURF-011 attribution | Read-only inspection of `BuildReadinessPanel.tsx`, embedded packet identity, and boundary fields | Existing local build/package-readiness preview is recorded as DEL-10-04 implementation evidence under `DEC-076`; no behavior or authority changes. |
 > | CI browser provisioning and phase mapping | Compare `docs/BUILD_AND_RELEASE.md` §7 to the root/desktop package scripts, both Playwright configs, installed Playwright CLI, and `DEC-025` order | Managed Chromium provisioning, CI posture, source and dist lanes, and provider-neutral ordering match live executable surfaces without activating a provider workflow. |

@@ -144,7 +144,7 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > | R-DEL-06-03-003 | Rule-pack values, materials, components, SIF/flexibility factors, allowables, and related inputs must carry provenance where relied upon. | `docs/CONTRACT.md` OPS-K-DATA-3; `docs/TYPES.md` provenance labels | Schema/provenance validation in future feature tests. |
 > | R-DEL-06-03-004 | Completeness must be machine-checkable from declarative rule-pack input declarations, not arbitrary executable code. | SOW-004; `docs/SPEC.md` rule-pack `required_inputs`; OPS-K-RULE-2 | Future tests bind rule-pack required-input declarations to missing-input diagnostics without executing arbitrary code. |
 > | R-DEL-06-03-005 | Missing rule-pack input must map to a rule-check-blocking condition distinct from solve-blocking physical input. | `docs/SPEC.md` warning classes; `docs/TYPES.md` `RULE_INPUTS_INCOMPLETE` | Status/diagnostic tests verify `RULE_CHECK_BLOCKING` classification. |
-> | R-DEL-06-03-006 | The checker must not assert code compliance, certification, approval, sealing, or professional reliance. | OPS-K-AUTH-1; `docs/TYPES.md` analysis-status vocabulary | Report/API text review and future status tests exclude automatic `CODE_COMPLIANT`. |
+> | R-DEL-06-03-006 | The checker must not assert code compliance, certification, approval, sealing, or professional reliance (PRD §21.2). | OPS-K-AUTH-1; `docs/TYPES.md` analysis-status vocabulary | Report/API text review and future status tests exclude automatic `CODE_COMPLIANT`. |
 > | R-DEL-06-03-007 | Suspected protected or proprietary data requests must be surfaced and escalated, not translated into public data. | OPS-K-IP-1/2/3; `docs/IP_AND_DATA_BOUNDARY.md` quarantine rule | Protected-content lint and quarantine-path tests in later implementation. |
 >
 
@@ -308,7 +308,7 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > 1. Missing rule-check data is a finding.
 > 2. Code-specific defaults are not invented by the public project.
 > 3. User rule packs are user-owned or private design-basis artifacts unless explicitly contributed with redistribution rights.
-> 4. The checker gates software status only; it does not certify code compliance or professional acceptability.
+> 4. The checker gates software status only; acceptance and professional judgment remain with the responsible engineer.
 > 5. Provenance is part of completeness whenever reliance on the supplied value may affect engineering judgment.
 >
 

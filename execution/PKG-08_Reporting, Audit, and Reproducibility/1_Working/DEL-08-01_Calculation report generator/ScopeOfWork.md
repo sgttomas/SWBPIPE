@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-007]
 
 This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and package objectives [OBJ-007].
 
-- **OUT-001** — A calculation-report generation contract covering auditable input, source, result, warning, assumption, limitation, unit, provenance, rule-pack, and reproducibility content is produced without claiming certification or professional approval.
+- **OUT-001** — A calculation-report generation contract covering auditable input, source, result, warning, assumption, limitation, unit, provenance, rule-pack, and reproducibility content is produced. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Deliverable Definition — Ontology
 
@@ -62,7 +62,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > | Anticipated downstream artifacts | Report renderer, report template, tests. |
 > | Setup-session implementation boundary | Renderer source, templates outside this deliverable, tests, schemas, and repo-level artifacts are out of write scope. |
 > | Architecture baseline | Rust core/application services, schema-first command/query/job/result envelopes, JSON Schema 2020-12 contracts, canonical JSON/JCS-compatible hash basis where JSON payload hashes are used. |
-> | Report authority boundary | Reports are decision-support artifacts and must not claim certification, sealing, approval, authentication, or automatic code compliance. |
+> | Report authority boundary | Reports are decision-support artifacts. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Protected-content boundary | Public templates/examples must not reproduce protected standards text, protected standards tables, protected figures, proprietary formulas, or protected code-derived content. |
 >
 
@@ -152,7 +152,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > | R-08-01-001 | The report generator shall assemble auditable reports that include inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations. | ScopeLedger.csv row SOW-024; CONTRACT.md OPS-K-REPORT-1; SPEC.md section 8 | Inspect generated report contract/template behavior in future implementation tests. |
 > | R-08-01-002 | Reports shall include software version, solver version, model hash, input manifest, unit system, provenance summary, load cases/combinations, mechanical results, warnings, assumptions, missing data, rule-pack name/version/checksum, user-supplied data notice, and professional-review notice where those inputs exist. | SPEC.md section 8 | Report fixture/golden-output tests verify presence and omission rules. |
 > | R-08-01-003 | Public report templates and examples shall not reproduce protected code text, protected standards tables, protected figures, proprietary formulas, protected examples, protected dimensional tables, or proprietary commercial data. | CONTRACT.md OPS-K-IP-1, OPS-K-REPORT-2; SPEC.md section 8 | Protected-content report gate and human review before public release. |
-> | R-08-01-004 | Reports shall not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance. | CONTRACT.md OPS-K-AUTH-1; TYPES.md sections 4 and 8; DIRECTIVE.md sections 2 and 6 | Text review/lint gate checks prohibited claim language. |
+> | R-08-01-004 | Reports shall not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD §21.2). | CONTRACT.md OPS-K-AUTH-1; TYPES.md sections 4 and 8; DIRECTIVE.md sections 2 and 6 | Text review/lint gate checks prohibited claim language. |
 > | R-08-01-005 | Reports shall distinguish mechanics solved, user-rule checked, rule inputs incomplete, and human review required states. | TYPES.md section 4; SOFTWARE_DECOMP.md AB-00-03 and AB-00-06 | Status fields in report fixtures are checked against analysis-status vocabulary. |
 > | R-08-01-006 | Reports shall preserve unit context for unit-bearing inputs and results. | CONTRACT.md OPS-K-UNIT-1; SPEC.md sections 3 and 8 | Unit-aware fixture tests verify displayed and structured units. |
 > | R-08-01-007 | Reports shall disclose diagnostics using result-envelope-compatible warning classes including solve-blocking, rule-check-blocking, provenance, assumption, nonlinear, and IP-boundary warnings when present. | SPEC.md section 7; SOFTWARE_DECOMP.md AB-00-06 | Diagnostic fixture tests verify warning class pass-through and report rendering. |
@@ -346,7 +346,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > | Auditability first | Report content should be traceable to model inputs, result envelopes, diagnostics, provenance records, report settings, and rule-pack references. |
 > | Boundary clarity | The report should separate mechanics solve output, user-rule-check output, incomplete inputs, and human review. |
 > | No protected content | Public report templates and examples should contain placeholders, invented values, or safe metadata, not protected code text/tables/formulas. |
-> | No professional overclaim | Report language should say what the software computed and what data was supplied, not that the work is certified, sealed, approved, or code-compliant for reliance. |
+> | No professional overclaim | Report language should say what the software computed and what data was supplied; acceptance and professional judgment remain with the responsible engineer. |
 > | Unit visibility | Unit-bearing values should display units and keep dimensional context visible. |
 > | Reproducibility | Reports should bind to versions, hashes, manifests, warnings, and rule-pack checksums so reviewers can reproduce or compare results. |
 > | Local-first privacy | Private project/rule/material/component data should remain user-controlled unless intentionally exported with documented rights. |

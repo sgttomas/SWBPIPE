@@ -200,7 +200,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 
 > ##### Acceptance Notes
 >
-> This setup can be marked `SEMANTIC_READY` only after the four-document pass, semantic matrix build, lens register, Pass 3 consistency sweep, dependency extraction, and local validation gates complete. `SEMANTIC_READY` is a development lifecycle state only; it is not product implementation, code compliance, professional approval, or an issued deliverable.
+> This setup can be marked `SEMANTIC_READY` only after the four-document pass, semantic matrix build, lens register, Pass 3 consistency sweep, dependency extraction, and local validation gates complete. `SEMANTIC_READY` is a development lifecycle state only; it is not product implementation or an issued deliverable. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ### CLM-016 — D-41 R5 T5 PDU-008 current GUI boundary
 
@@ -334,7 +334,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > - Show missing solve-required data and rule-check-required data as findings, not as empty success states.
 > - Treat stress ratios as user-rule-pack outputs. Do not invent thresholds, allowables, categories, or pass/fail meanings.
 > - Preserve export/report traceability: visible result review should align with reproducibility metadata instead of becoming an isolated screen state.
-> - Keep professional-boundary notices close enough to result status that software output is not mistaken for certification, sealing, approval, or code compliance.
+> - Keep professional-boundary notices close to result status; acceptance and professional judgment remain with the responsible engineer.
 >
 
 ### CLM-029 — Considerations
@@ -361,7 +361,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > | Trade-off | Guidance |
 > |---|---|
 > | Dense tables vs. graphical overlays | Use each where it supports review. Tables support exact inspection; overlays support spatial pattern recognition. Both must remain unit-aware and diagnostics-qualified. |
-> | Ratio display vs. code-compliance claims | Ratios may show user-rule-pack calculations when inputs are complete. The UI must not turn those ratios into automatic professional approval or public code compliance claims. |
+> | Ratio display vs. code-compliance claims | Ratios may show user-rule-pack calculations when inputs are complete. The UI must not turn those ratios into automatic professional approval or public code compliance claims (PRD §21.2). |
 > | Convenience filters vs. hidden warnings | Filters should not suppress blocking diagnostics or professional-boundary status without a deliberate, visible review state. |
 > | Export readiness vs. report generation | The viewer may expose report/export readiness signals, but report generation and structured result exports remain PKG-08 surfaces unless a later sealed brief says otherwise. |
 >

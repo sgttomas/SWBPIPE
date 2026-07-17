@@ -19,3 +19,4 @@
 - 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 12); no state change.
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 4 cited declaration claims to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
+- 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).

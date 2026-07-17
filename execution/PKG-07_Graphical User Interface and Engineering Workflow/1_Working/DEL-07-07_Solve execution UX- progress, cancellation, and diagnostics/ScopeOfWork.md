@@ -76,7 +76,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Missing rule-check inputs | Presented separately from solve readiness as `RULE_CHECK_BLOCKING` or equivalent diagnostics |
 > | Nonlinear or numerical uncertainty | Presented as solver diagnostics and warning classes rather than hidden state |
 > | Protected standards/code data | Not introduced; any code-specific or proprietary data remains user-supplied/private |
-> | Professional reliance | Human review remains required; the GUI shall not claim certification, approval, sealing, or code compliance |
+> | Professional reliance | Human review remains required; acceptance stays with the responsible engineer |
 > | Reproducibility | Run records should preserve model/version/hash/checksum inputs when provided by upstream contracts; exact fields remain TBD |
 >
 
@@ -159,7 +159,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | REQ-07-07-004 | Cancellation controls shall issue a cancellation request through the application-service boundary and shall preserve the final job/result-envelope state returned by that boundary. The GUI shall not bypass cancellation boundaries or claim successful cancellation without envelope evidence. | DEL-00-03 REQ-03-04; OPS-K-AGENT-1 |
 > | REQ-07-07-005 | Diagnostic presentation shall preserve machine-readable diagnostic fields for code, class, severity, source, affected object, message, remediation, and provenance where supplied. | DEL-00-06 REQ-06-01 |
 > | REQ-07-07-006 | The solve UX shall preserve warning classes for `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, and `IP_BOUNDARY_WARNING` when those classes are present in diagnostics/result envelopes. | `docs/SPEC.md` section 7; DEL-00-06 REQ-06-02 |
-> | REQ-07-07-007 | The solve UX shall distinguish invalid input, incomplete model, mechanics solved, rule-check result, and human-review-needed states; it shall not expose automatic code-compliance, certification, approval, sealing, or professional-authentication states. | DEL-00-06 REQ-06-04/05; `docs/TYPES.md` section 4; OPS-K-AUTH-1 |
+> | REQ-07-07-007 | The solve UX shall distinguish invalid input, incomplete model, mechanics solved, rule-check result, and human-review-needed states; it shall not expose automatic code-compliance, certification, approval, sealing, or professional-authentication states (PRD §21.2). | DEL-00-06 REQ-06-04/05; `docs/TYPES.md` section 4; OPS-K-AUTH-1 |
 > | REQ-07-07-008 | Solve-required missing data and rule-check-required missing data shall remain separate visible findings. Missing values shall not be supplied by the GUI as silent defaults. | OPS-K-DATA-1/2/3; `docs/DIRECTIVE.md` section 3 |
 > | REQ-07-07-009 | Any solve-run review summary intended for reports or exports shall retain traceability to available reproducibility metadata such as model hash, input manifest, solver version, rule-pack version/checksum, warnings, assumptions, and limitations. | OBJ-007; `docs/SPEC.md` section 8; DEL-00-03 REQ-03-04 |
 > | REQ-07-07-010 | Private project data, private rule-pack data, proprietary values, and protected standards/code content shall not be transmitted, displayed as public defaults, or copied into public setup artifacts. | OPS-K-IP-1/2/3; OPS-K-PRIV-1/2; OPS-K-DATA-1 |
@@ -212,7 +212,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 
 > ##### Acceptance Notes
 >
-> `SEMANTIC_READY` means the setup artifacts are prepared for review. It does not mean product implementation is complete, UI behavior is tested, solver behavior is verified, protected data is authorized, code compliance is established, or professional approval has occurred.
+> `SEMANTIC_READY` means the setup artifacts are prepared for review. It does not mean product implementation is complete, UI behavior is tested, solver behavior is verified, or protected data is authorized. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ### CLM-016 — D-41 R5 T5 PDU-008 current GUI boundary
 
@@ -284,7 +284,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > 4. Preserve data and authority boundaries.
 >    - Do not introduce protected standards text, code tables, proprietary values, or private project data.
 >    - Mark unknown implementation details as `TBD`.
->    - Avoid certification, approval, sealing, or code-compliance claims.
+>    - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 > 5. Build semantic setup artifacts.
 >    - Generate `_SEMANTIC.md` as a lens, not an authority.
@@ -384,7 +384,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Cancellation is a request | Cancellation UX should distinguish requested, accepted, completed, failed, and not-supported states only when the service contract supplies those states. Exact enum names remain `TBD`. |
 > | Diagnostics stay attached | Warnings and errors should remain linked to the run, affected object, source, severity, and remediation fields where available. |
 > | Missing data is visible | Solve-blocking, rule-check-blocking, provenance, assumption, nonlinear, and IP-boundary warnings should remain visible instead of becoming generic failure messages. |
-> | Professional boundary remains visible | A completed mechanics solve is not a code-compliance certificate. Human review remains required for professional reliance. |
+> | Professional boundary remains visible | A completed mechanics solve is decision-support information for review by the responsible engineer. Human review remains required; acceptance stays with the responsible engineer. |
 >
 
 ### CLM-029 — Considerations
@@ -409,7 +409,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Percent progress | Prefer contract-supplied percentages; otherwise use indeterminate or phase-based progress | False precision can mislead users and reviewers |
 > | Cancellation feedback | Show request and final job state separately | Users may believe a solve stopped cleanly when the service did not confirm it |
 > | Diagnostic density | Provide summary and detail surfaces | Hiding details weakens reviewability; flooding the main surface weakens usability |
-> | Result status wording | Use mechanics/rule/human-review status vocabulary | Users may infer code compliance or professional approval from software output |
+> | Result status wording | Use mechanics/rule/human-review status vocabulary | Users may misread software output as a determination reserved for the responsible engineer (PRD §21.2) |
 > | Error recovery | Preserve terminal envelopes and run records | Failed/canceled solves become unreviewable |
 >
 

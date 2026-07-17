@@ -72,7 +72,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > - The deliverable belongs to a schema-first architecture baseline: Rust core/application services, JSON Schema 2020-12 contracts, schema-first command/query/job result envelopes, and JCS-compatible canonical JSON hash basis where JSON payloads are hashed (`_CONTEXT.md`, Architecture Basis Injection).
 > - The model state record must respect OpenPipeStress data-boundary invariants: protected standards text, copied tables, proprietary values, and private project/rule data must not be committed publicly by default (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6).
 > - Missing or unsupported data remains explicit and visible; silent engineering defaults are disallowed (`docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` section 3).
-> - Human acceptance or external approval, if referenced later, remains external and hash-bound; the software must not emit professional approval, certification, sealing, authentication, or code-compliance equivalents as automatic statuses (`docs/SPEC.md` sections 4.4 and 9; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2).
+> - Human acceptance or external approval, if referenced later, remains external and hash-bound; the software must not emit professional approval, certification, sealing, authentication, or code-compliance equivalents as automatic statuses (PRD §21.2) (`docs/SPEC.md` sections 4.4 and 9; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2).
 > - Approved DAG-002 mirror rows identify architecture-basis predecessors plus dependencies on canonical model, persistence, audit/hash, and analysis-status vocabulary surfaces (`Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md`).
 >
 
@@ -161,7 +161,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > | DEL-14-01-R5 | Hash records shall identify payload scope; exact state hash partitioning is TBD. | `docs/SPEC.md` section 4.4 |
 > | DEL-14-01-R6 | Round-trip persistence must not insert silent engineering defaults for units, provenance, rule-pack values, material data, component data, SIF/flexibility inputs, allowables, or load-basis values. | `docs/SPEC.md` section 4.4 |
 > | DEL-14-01-R7 | Model state records must preserve unresolved assumptions and warnings as visible review evidence, not hidden defaults. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/TYPES.md` entries `Assumption` and `Diagnostic` |
-> | DEL-14-01-R8 | The record surface must not create software-generated professional approval, certification, sealing, authentication, or code-compliance statuses. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 9 |
+> | DEL-14-01-R8 | The record surface must not create software-generated professional approval, certification, sealing, authentication, or code-compliance statuses (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 9 |
 > | DEL-14-01-R9 | External references must remain explicit and must not bypass schema validation, privacy controls, protected-content screening, or professional-boundary checks. | `docs/TYPES.md` entry `Reference`; `docs/SPEC.md` sections 4.4 and 4.5 |
 > | DEL-14-01-R10 | The public repository must not embed protected standards content, proprietary values, or private project/rule data in model state examples or fixtures. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6 |
 >
@@ -188,7 +188,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > | R1-R3 | Schema validation and persistence tests should prove that saved records retain identity, metadata, and read-only snapshot semantics. Exact test names TBD. |
 > | R4-R5 | Hash determinism tests should compare canonicalized JSON payload bytes and verify payload-scope metadata. Exact canonicalization implementation TBD. |
 > | R6-R7 | Round-trip tests should confirm that assumptions, warnings, provenance-bearing references, and other review evidence survive save/load without silent defaults. |
-> | R8 | Schema and service tests should reject or omit automatic professional approval/code-compliance status fields. |
+> | R8 | Schema and service tests should reject or omit automatic professional approval/code-compliance status fields (PRD §21.2). |
 > | R9-R10 | Protected-content/private-data review should verify examples and fixtures contain only invented or cleared public data and explicit external-reference metadata. |
 >
 
@@ -203,7 +203,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > - test evidence or validation output from the eventual implementation task
 > - any unresolved `TBD` decisions for hash scope, canonicalization implementation, schema property names, and persistence service entry points
 
-- **AC-001** — The contract preserves names, tags, notes, external references, unresolved assumptions, warnings, deterministic hash metadata, JSON Schema and canonical-JSON boundaries, no-silent-default behavior, public/private data controls, formal-prover-status exclusions, and visible schema, hash-partition, persistence, and runtime-screening TBDs without implying lifecycle closure, external validation, professional approval, or code compliance.
+- **AC-001** — The contract preserves names, tags, notes, external references, unresolved assumptions, warnings, deterministic hash metadata, JSON Schema and canonical-JSON boundaries, no-silent-default behavior, public/private data controls, formal-prover-status exclusions, and visible schema, hash-partition, persistence, and runtime-screening TBDs without implying lifecycle closure or external validation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -263,7 +263,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > 5. Apply the accepted JCS-compatible canonical JSON basis for JSON payload hashes and record payload scope explicitly.
 > 6. Add or update persistence tests that demonstrate save/load behavior, stable metadata, read-only snapshot behavior, deterministic hash metadata, and no silent default insertion.
 > 7. Add checks or fixtures only with invented or cleared public data; do not include protected standards text, proprietary vendor data, owner standards, private project values, or code-specific values.
-> 8. Ensure no automatic professional approval, certification, sealing, authentication, external-prover approval, or code-compliance status is introduced.
+> 8. Ensure no automatic professional approval, certification, sealing, authentication, external-prover approval, or code-compliance status is introduced (PRD §21.2).
 > 9. Record all unresolved implementation decisions and unsupported source assumptions in deliverable notes or test evidence.
 >
 

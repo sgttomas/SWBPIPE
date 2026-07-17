@@ -157,7 +157,7 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 > | JSON Schema 2020-12 baseline | Governs public schema/interchange posture for future structured I/O | Accepted by SCA-001; exact schema files TBD |
 > | Canonical JSON/JCS-compatible hashing | Applies where JSON payload hashes are used for reproducibility | Accepted by SCA-001; physical package/container TBD |
 > | Command/query/job/result-envelope baseline | Governs application-service separation for GUI/headless execution | Accepted by SCA-001; concrete interface language TBD |
-> | Professional responsibility boundary | Prohibits software or agent claims of certification, sealing, approval, or automatic code compliance | Binding invariant |
+> | Professional responsibility boundary | Prohibits software or agent claims of certification, sealing, approval, or automatic code compliance (PRD §21.2) | Binding invariant |
 >
 
 ### CLM-012 — Verification

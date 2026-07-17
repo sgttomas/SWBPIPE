@@ -150,7 +150,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > | DEL-03-08-RQ-003 | All input quantities, intermediate calculations, and outputs shall be unit-aware and dimensionally checked. | SOW-051; OPS-K-UNIT-1; OBJ-012 | Tests assert canonical output dimensions and rejection of mixed units. Approved unit conversion constants and dependency satisfaction remain `TBD`. |
 > | DEL-03-08-RQ-004 | Library-sourced inputs shall carry provenance and redistribution status through calculator schema hooks. | SOW-018; OPS-K-DATA-3 | `Quantity` and `quantity_from_mapping` require provenance. Accepted schema field placement and private-library record linkage remain `TBD`. |
 > | DEL-03-08-RQ-005 | Public repository fixtures shall not encode protected pipe dimensional tables, protected material data, proprietary commercial data, or paraphrased protected tables. | OPS-K-IP-1; OPS-K-IP-3 | Protected-content review and fixture review. |
-> | DEL-03-08-RQ-006 | Calculator outputs intended for solver consumption shall remain code-neutral and shall not claim certification, code compliance, or professional approval. | OPS-K-AGENT-4; AB-00-06 | Review of diagnostics/result envelopes and report-facing text. |
+> | DEL-03-08-RQ-006 | Calculator outputs intended for solver consumption shall remain code-neutral and shall not claim certification, code compliance, or professional approval (PRD §21.2). | OPS-K-AGENT-4; AB-00-06 | Review of diagnostics/result envelopes and report-facing text. |
 > | DEL-03-08-RQ-007 | The calculator shall be isolated from global solver implementation and rule-pack compliance logic. | PKG-03 exclusion; OPS-K-SOLVER-1 | Module boundary review confirms `core/section_properties` is outside global solver and rule-pack logic; downstream solver integration policy remains `TBD`. |
 >
 
@@ -212,7 +212,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > `tests/test_calculation_witness.py` now executes `calculate_pipe_section_properties` with the existing rights-safe TP-PHYS-015 outside diameter and wall thickness, then compares the produced area, section modulus, and torsional constant to both the formal oracle and `tp_phys_015_section_property_stress_evidence_envelope.json` using the witness's existing tolerances. It also asserts the emitted units and dimensions. This is bounded validation evidence, not an engineering-validation or lifecycle disposition.
 
-- **AC-001** — The contract preserves accepted calculator requirements and boundaries, including user-entered or lawfully imported inputs, dimensional checks, no silent defaults, invented fixtures, unresolved conversion, schema, contributor, dependency, and human-review decisions, and no code-compliance or professional-approval claim.
+- **AC-001** — The contract preserves accepted calculator requirements and boundaries, including user-entered or lawfully imported inputs, dimensional checks, no silent defaults, invented fixtures, unresolved conversion, schema, contributor, dependency, and human-review decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -310,7 +310,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > Use user-entered dimensions and material data as the source of truth. If a required value is missing, incompatible, unprovenanced, or not licensed for redistribution, record a blocking diagnostic rather than substituting a default.
 >
-> Keep the calculator code-neutral. Section and mass properties can support solver and reporting workflows, but this deliverable does not determine code compliance, professional acceptance, or certification.
+> Keep the calculator code-neutral. Section and mass properties can support solver and reporting workflows; acceptance and professional judgment remain with the responsible engineer.
 >
 > Keep unit behavior explicit. The calculator currently requires matching units at the calculation boundary and rejects mixed units; approved unit conversion support remains a separate `TBD`.
 >

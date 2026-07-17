@@ -110,7 +110,7 @@ This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and
 > - Rule-pack evaluator implementation.
 > - B31J or other protected SIF/flexibility tables, formulas, examples, or paraphrased derivations.
 > - Public bundled engineering values or default code data.
-> - Certification, approval, sealing, or compliance claims.
+> - Claims language — Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-009 — Requirements

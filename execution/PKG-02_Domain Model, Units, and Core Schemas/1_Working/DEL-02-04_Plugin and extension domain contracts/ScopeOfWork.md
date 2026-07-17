@@ -92,7 +92,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > - Suspected protected content must be quarantined and escalated rather than paraphrased into public data. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-3.
 > - Code-specific values and proprietary data are user-supplied or lawfully imported private data, not bundled public defaults. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-DATA-1.
 > - All plugin or adapter ingress, egress, and rule-related values must remain unit-aware and dimensionally checked where numerical or dimensional data is involved. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-UNIT-1.
-> - Plugin and adapter outputs must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1.
+> - Plugin and adapter outputs: Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1.
 > - Any rule-pack or expression-facing extension must remain sandboxed and unable to execute arbitrary code. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-RULE-2.
 > - Telemetry, if ever exposed to plugins, is off by default and must not transmit private engineering/code data. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-PRIV-2.
 >
@@ -174,7 +174,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | DEL-02-04-REQ-05 | Plugin/adapter contracts shall prohibit public redistribution of protected standards text, protected tables, protected examples, copied code formulas, protected dimensional data, proprietary vendor data without rights, and private rule/project/library data. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-1. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 3. Public repository must not contain. |
 > | DEL-02-04-REQ-06 | Suspected protected or proprietary content encountered by a plugin/adapter shall be classified, quarantined, and escalated for human/legal review rather than imported into public artifacts. | SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 5. Quarantine rule. SourcePath: `docs/DIRECTIVE.md`; SectionRef: 5. Authority and stop rules. |
 > | DEL-02-04-REQ-07 | Plugin/adapter diagnostics shall use the project diagnostic/result-envelope basis, including code, class, severity, source, affected object, message, remediation, and provenance where applicable. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06. |
-> | DEL-02-04-REQ-08 | Plugin/adapter outputs and reports shall not claim certification, sealing, approval, authentication, endorsement, or engineering code compliance for reliance. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/DIRECTIVE.md`; SectionRef: 4.2 Out of scope. |
+> | DEL-02-04-REQ-08 | Plugin/adapter outputs and reports shall not claim certification, sealing, approval, authentication, endorsement, or engineering code compliance for reliance (PRD §21.2). | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/DIRECTIVE.md`; SectionRef: 4.2 Out of scope. |
 > | DEL-02-04-REQ-09 | Mutating plugin/adapter operations shall route through schema-first application-service commands or equivalent governed service boundaries, not direct domain-core, solver, storage, or report-control bypasses. For this contract, an equivalent governed boundary preserves schema validation, unit checks where dimensional data is present, diagnostics/result envelopes, provenance and public/private data-boundary checks, report controls, and audit/reproducibility metadata. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-02, AB-00-03, and AB-00-07. SourcePath: `docs/SPEC.md`; SectionRef: 1. Architectural overview. |
 > | DEL-02-04-REQ-10 | Read-only and long-running plugin/adapter operations shall preserve the command/query/job distinction where exposed through application services, including cancellation/progress and reproducibility metadata when applicable. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-03. SourcePath: `docs/PRD.md`; SectionRef: 20. Performance Requirements. |
 > | DEL-02-04-REQ-11 | Public plugin manifests and interchange contracts shall align with the accepted JSON Schema 2020-12 and schema-first envelope baseline. Exact schema file layout and code-generation tooling remain TBD. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline and DEC-010. |
@@ -217,7 +217,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | REQ-03, REQ-04 | Provenance-field schema validation and contribution-review checklist confirm required source, license, contributor, redistribution, and review metadata. |
 > | REQ-05, REQ-06 | Protected-content/provenance gate and quarantine procedure exercise public and private data paths with invented non-code fixtures only. |
 > | REQ-07 | Diagnostic envelope tests confirm required fields and warning class propagation for plugin/adapter failures. |
-> | REQ-08 | Report/template and message review confirms no certification, approval, endorsement, or code-compliance claims. |
+> | REQ-08 | Report/template and message review confirms no certification, approval, endorsement, or code-compliance claims (PRD §21.2). |
 > | REQ-11, REQ-12 | Schema validation and canonicalization/hash tests verify manifest and envelope stability once concrete schemas exist. |
 > | REQ-13 | Security tests for any rule-pack-facing hook confirm no arbitrary code, filesystem, or network access unless a later human-approved sandbox design allows a bounded capability. |
 > | REQ-14 | Layered test plan maps plugin/adapter behavior to schema, unit, provenance, diagnostics, protected-content, and regression gates. |
@@ -340,7 +340,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 >    - Require source/provenance, redistribution status, and review disposition for imported or public data.
 >    - Require diagnostics/result-envelope compatibility for plugin/adapter failures and warnings.
 >    - Require protected-content, public/private data-boundary, and report-control checks before data is committed, exported, or included in public artifacts.
->    - Prohibit certification, approval, endorsement, or automatic code-compliance claims.
+>    - Prohibit certification, approval, endorsement, or automatic code-compliance claims (PRD §21.2).
 >
 > 6. Draft sandbox and permission model notes.
 >    - Start from deny-by-default.
@@ -372,7 +372,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > - Scope remains DEL-02-04 and PKG-02; no files outside the allowed write targets are modified.
 > - Requirements cite accessible source slices or are labeled ASSUMPTION/TBD.
 > - No protected standards/code text, copied tables, copied code formulas, proprietary commercial data, or private project/rule/library data is introduced.
-> - No statement claims certification, sealing, approval, endorsement, or automatic engineering code compliance.
+> - No statement claims certification, sealing, approval, endorsement, or automatic engineering code compliance (PRD §21.2).
 > - Terms are used consistently: plugin/adapter, extension point, schema-first envelope, unit-aware validation, provenance, diagnostics/result envelope, public/private data boundary, and report controls.
 > - Remaining implementation details are visible as TBD, especially public API transport, import/export format list, exact permission taxonomy, exact sandbox mechanism, exact dependency versions, CI thresholds, and concrete schema layout.
 >
@@ -428,7 +428,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > 3. Unit and provenance checks are not optional plugin features. They are part of the core data contract and must be preserved across imports, exports, reports, and rule-facing hooks. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-UNIT-1 and OPS-K-DATA-3.
 > 4. Private or protected data must remain under user control. Public artifacts can provide schemas, empty templates, invented examples, and import mechanisms, but must not embed protected standards or proprietary data. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 2. Public repository may contain and 3. Public repository must not contain.
 > 5. Diagnostics should be machine-readable as well as user-visible. Plugin/adapter failures need enough source, affected-object, remediation, and provenance detail to support audit and review. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06.
-> 6. Software may show computed states and user-rule outcomes, but it must not claim professional approval or code compliance. SourcePath: `docs/TYPES.md`; SectionRef: 4. Analysis-status vocabulary. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1.
+> 6. Software may show computed states and user-rule outcomes; acceptance and professional judgment remain with the responsible engineer. SourcePath: `docs/TYPES.md`; SectionRef: 4. Analysis-status vocabulary. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1.
 >
 
 ### CLM-029 — Considerations
@@ -480,7 +480,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | Scenario | Expected contract behavior |
 > |---|---|
 > | Invented CSV import adapter reads user-supplied component metadata from a private path. | Adapter declares private data access, maps fields to canonical schema, requires units for dimensional values, records source/provenance, and emits diagnostics for missing source/license fields. |
-> | Invented result exporter writes a machine-readable result package. | Exporter receives data through a governed query/result envelope, preserves units, includes warnings/assumptions, and does not claim code compliance or professional approval. |
+> | Invented result exporter writes a machine-readable result package. | Exporter receives data through a governed query/result envelope, preserves units, includes warnings/assumptions, and does not claim code compliance or professional approval (PRD §21.2). |
 > | Invented rule-pack helper provides a custom interpolation table using user-owned values. | Helper remains sandboxed and deterministic, records redistribution status, rejects missing units, and does not access filesystem or network except through a granted, reviewed capability. |
 > | Invented report extension tries to include copied standards text. | Protected-content gate blocks the public artifact, classifies the issue for quarantine/human review, and emits an `IP_BOUNDARY_WARNING`. |
 >

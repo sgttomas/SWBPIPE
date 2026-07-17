@@ -67,7 +67,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > | Path convention level | This deliverable records symbolic path classes only; OS-specific roots and the physical package/container remain implementation-level TBD. |
 > | Public/private separation | Public repository paths must not be used as default private-library or private-project storage locations. |
 > | Export/report boundary | Export and report paths can expose private data and must defer redaction/export controls to DEL-12-02. |
-> | Professional boundary | Storage status, rule-pack presence, or report export must not be framed as certification, sealing, approval, or code compliance. |
+> | Professional boundary | Storage status, rule-pack presence, or report export must not be framed as certification, sealing, approval, or code compliance (PRD §21.2). |
 >
 
 ### CLM-005 — Symbolic Path Classes
@@ -98,7 +98,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > - metadata-only guard code in `core/security/local_first_storage/`;
 > - focused tests in `tests/security/test_local_first_storage_policy.py`.
 >
-> The June 7 guard helper classifies explicit storage metadata only. It does not create a runtime storage service, choose OS-specific roots, create real private directories, store payloads or secrets, open SQLite handles, authorize direct SQL, implement encryption or key management, create cloud service assumptions, or make approval, security-certification, professional, sealing, authentication, or code-compliance claims.
+> The June 7 guard helper classifies explicit storage metadata only. It does not create a runtime storage service, choose OS-specific roots, create real private directories, store payloads or secrets, open SQLite handles, authorize direct SQL, implement encryption or key management, create cloud service assumptions, or make approval, security-certification, professional, sealing, authentication, or code-compliance claims (PRD §21.2).
 >
 
 ### CLM-007 — References
@@ -139,7 +139,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 >
 > The original setup run was documentation production only. Later bounded TASK evidence now exists: a metadata-only `core.security.local_first_storage` guard helper, updated `docs/security/local_first_storage_policy.md`, and focused invented-fixture tests in `tests/security/test_local_first_storage_policy.py`.
 >
-> This deliverable still does not implement runtime storage, choose OS-specific roots, create private paths, create real secrets or private data, implement encryption or key management, introduce cloud service defaults, or make approval, security-certification, professional, sealing, authentication, or code-compliance claims. SCA-003 establishes the local SQLite-backed MVP storage profile, but detailed physical package/container mechanics remain deferred.
+> This deliverable still does not implement runtime storage, choose OS-specific roots, create private paths, create real secrets or private data, implement encryption or key management, introduce cloud service defaults, or make approval, security-certification, professional, sealing, authentication, or code-compliance claims (PRD §21.2). SCA-003 establishes the local SQLite-backed MVP storage profile, but detailed physical package/container mechanics remain deferred.
 >
 
 ### CLM-010 — Requirements
@@ -156,7 +156,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > | LFSP-REQ-006 | Path conventions shall use symbolic path classes until implementation chooses OS-specific roots, application data directories, or project package structure. | Acceptance/risk note; setup write-scope constraint | Confirm no real user path, secret path, or environment-specific private data location is created. |
 > | LFSP-REQ-007 | Private rule-pack references shall preserve identity, version, checksum, source notice, and redistribution status without bundling protected formulas, code text, allowables, or proprietary values into public artifacts. | OPS-K-RULE-3; `docs/SPEC.md` §6; `docs/IP_AND_DATA_BOUNDARY.md` §§3,6 | Review rule-pack path references for metadata-only public handling. |
 > | LFSP-REQ-008 | Material, component, section, rule-pack, report, and project data crossing storage/import/export boundaries shall preserve provenance and redistribution/privacy status. | OPS-K-IP-2; OPS-K-DATA-3; OPS-K-UNIT-1; `docs/TYPES.md` §§7-8 | Future schema and adapter tests check provenance fields and unit-bearing values. |
-> | LFSP-REQ-009 | Storage diagnostics and result/report envelopes shall surface private/public boundary warnings without claiming certification, sealing, approval, authentication, or automatic code compliance. | OPS-K-AUTH-1; AB-00-06; `docs/SPEC.md` §§7-8 | Future diagnostics/report tests check warnings and professional-boundary notices. |
+> | LFSP-REQ-009 | Storage diagnostics and result/report envelopes shall surface private/public boundary warnings without claiming certification, sealing, approval, authentication, or automatic code compliance (PRD §21.2). | OPS-K-AUTH-1; AB-00-06; `docs/SPEC.md` §§7-8 | Future diagnostics/report tests check warnings and professional-boundary notices. |
 > | LFSP-REQ-010 | Adapters, imports, exports, plugins, and private-library access shall not bypass unit checks, provenance checks, diagnostics, sandboxing, or public/private data-boundary controls. | AB-00-02; AB-00-07; OPS-K-PRIV-1 | Future adapter/plugin tests must exercise no-bypass behavior. |
 > | LFSP-REQ-011 | Tests for implemented storage behavior shall include private-path resolution, repository-leakage prevention, deterministic round-trip serialization, migration status handling, provenance preservation, and report/export boundary checks. | AB-00-08; `docs/SPEC.md` §§9,11; `TASK_RUN_2026-06-07_0140.md` | Focused metadata-only guard tests now exist for classification and leakage blocking. Runtime storage-service tests, OS-root tests, package/container tests, migration tests, and report/export integration tests remain future work. |
 > | LFSP-REQ-012 | Missing storage choices, unresolved roots, and incomplete private-data handling shall be explicit `TBD`, warning, or finding states rather than silent defaults. | OPS-K-DATA-2; OPS-K-AGENT-1; `docs/DIRECTIVE.md` §3 | Review the deliverable for visible TBD/open issue entries. |
@@ -181,7 +181,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > | LFSP-VER-002 | Validate `Dependencies.csv` with `tools/validation/validate_dependencies_schema.py`. | Schema valid with all 29 v3.1 columns. |
 > | LFSP-VER-003 | Confirm `_SEMANTIC.md` audit result is PASS and `_SEMANTIC_LENSING.md` has complete matrix coverage for A, B, C, F, D, X, and E. | Semantic setup gates pass. |
 > | LFSP-VER-004 | Confirm June 7 code, policy documentation, and focused tests exist for the metadata-only guard helper. | `core/security/local_first_storage/`, `docs/security/local_first_storage_policy.md`, `tests/security/test_local_first_storage_policy.py`, and `TASK_RUN_2026-06-07_0140.md` are present. |
-> | LFSP-VER-005 | Search deliverable and evidence artifacts for disallowed claims or real secret/path examples. | No runtime storage service, real secret, cloud service default, protected data, approval claim, professional claim, code-compliance claim, or security-certification claim is introduced. |
+> | LFSP-VER-005 | Search deliverable and evidence artifacts for disallowed claims or real secret/path examples. | No runtime storage service, real secret, cloud service default, protected data, approval claim, professional claim, code-compliance claim, or security-certification claim is introduced (PRD §21.2). |
 > | LFSP-VER-006 | Confirm this alignment does not edit `_STATUS.md` or promote lifecycle state. | Lifecycle status remains owned by `_STATUS.md` and later human-gated review/transition workflows. |
 >
 
@@ -214,7 +214,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > - real private paths, secrets, credentials, or private data.
 > - cloud exception workflow;
 > - encryption, secret storage, and key management;
-> - lifecycle acceptance, release approval, or professional/security/code-compliance approval.
+> - lifecycle acceptance, release approval, or professional/security/code-compliance approval (PRD §21.2).
 >
 
 ### CLM-014 — D-41 R5 T4 PDU-036 evidence boundary
@@ -223,7 +223,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 >
 > The invented DEL-13-04 trace-gap fixture is adjacent evidence for linked omissions/warnings/assumptions only. It does not implement or validate LFSP-REQ-011 runtime private-path resolution, storage package round-trip, migration handling, or report/export boundary integration; those test families remain explicit gaps.
 
-- **AC-001** — The contract preserves the source-defined public/private path classes, local SQLite-backed profile boundary, deterministic persistence and provenance constraints, metadata-only guard evidence, report/export and secret-owner handoffs, visible physical-root/container/runtime/cloud/encryption TBDs and conflict, and the prohibition on treating storage evidence as certification, approval, professional reliance, or code compliance.
+- **AC-001** — The contract preserves the source-defined public/private path classes, local SQLite-backed profile boundary, deterministic persistence and provenance constraints, metadata-only guard evidence, report/export and secret-owner handoffs, and visible physical-root/container/runtime/cloud/encryption TBDs and conflict. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -297,7 +297,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > | Semantic audit | Confirm `_SEMANTIC.md` contains `Audit: PASS`. | PASS. |
 > | Lensing coverage | Count `_SEMANTIC_LENSING.md` lens rows for matrices A, B, C, F, D, X, and E. | 96 rows. |
 > | June 7 metadata-guard evidence | Confirm `core/security/local_first_storage/`, `docs/security/local_first_storage_policy.md`, `tests/security/test_local_first_storage_policy.py`, `TASK_RUN_2026-06-07_0140.md`, and package fan-in evidence exist. | Present; evidence is metadata-only and side-effect-free. |
-> | Boundary scan | Search deliverable files for real secrets, hidden cloud defaults, protected standards content, approval claims, professional claims, code-compliance claims, or security-certification claims. | No disallowed content found. |
+> | Boundary scan | Search deliverable files for real secrets, hidden cloud defaults, protected standards content, approval claims, professional claims, code-compliance claims, or security-certification claims (PRD §21.2). | No disallowed content found. |
 > | Lifecycle status | Read `_STATUS.md` without editing it. | This alignment does not promote lifecycle state; later lifecycle transitions require human-gated workflow authority. |
 >
 
@@ -321,7 +321,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > - `core/security/local_first_storage/`;
 > - `tests/security/test_local_first_storage_policy.py`.
 >
-> Do not move any artifact to `ISSUED` during setup or readiness-evidence alignment. Do not use this procedure to approve runtime storage, cloud behavior, encryption/key management, real secret storage, professional reliance, code compliance, security certification, or release readiness.
+> Do not move any artifact to `ISSUED` during setup or readiness-evidence alignment. Do not use this procedure to approve runtime storage, cloud behavior, encryption/key management, real secret storage, professional reliance, code compliance, security certification, or release readiness (PRD §21.2).
 >
 > For PDU-036, classify the transform trace-gap fixture as adjacent verification evidence only. Re-run LFSP-REQ-011 only when the actual runtime path, package/migration, and report/export owners supply their bounded implementations and fixtures.
 
@@ -355,7 +355,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > | Persistence compatibility | Do not define storage conventions that conflict with versioned schema governance, migration status, canonical JSON/JCS-compatible hashing, provenance, unit awareness, or round-trip reproducibility. |
 > | No silent defaults | Unknown roots, package choices, privacy statuses, or provenance fields remain `TBD` or warnings. |
 > | No-bypass adapters | Import/export, plugins, and private library adapters must still pass through validation, unit, provenance, diagnostic, and public/private boundary controls. |
-> | Human authority | Storage controls and reports support review; they do not certify, seal, approve, authenticate, or declare code compliance. |
+> | Human authority | Storage controls and reports support review. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. |
 >
 
 ### CLM-025 — Considerations
@@ -444,7 +444,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > | LFSP-OI-004 | Cloud exception approval path | TBD | Cloud services are out of MVP unless separately approved. The exact approval record format is not defined here. |
 > | LFSP-OI-005 | Secret storage, encryption, and key management | TBD | Owned by DEL-12-04 and later implementation/governance decisions, not this DEL-12-01 alignment run. |
 > | LFSP-OI-006 | Runtime storage service and schema migration behavior | TBD | The metadata-only guard does not read/write project stores, open SQLite handles, or implement migrations. |
-> | LFSP-OI-007 | Lifecycle acceptance and approval choices | TBD | Review-readiness evidence is not `ISSUED`, release approval, security certification, professional approval, sealing, authentication, or code-compliance acceptance. |
+> | LFSP-OI-007 | Lifecycle acceptance and approval choices | TBD | Review-readiness evidence is not `ISSUED`, release approval, security certification, professional approval, sealing, authentication, or code-compliance acceptance (PRD §21.2). |
 >
 
 ### CLM-034 — Conflict Table (for human ruling)

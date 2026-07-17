@@ -46,8 +46,7 @@ Documents, rulings, code locations, and registers this ADR's claims trace to.
 
 ## Boundary Note
 
-ADRs record software development decisions only. They are not
-release-readiness, professional-approval, certification, sealing,
-authentication, or engineering-code-compliance claims. ADRs must stay
+ADRs record software development decisions only. Standard claim fence
+applies (F-PIP-2; claims taxonomy per DEC-081). ADRs must stay
 code-neutral (no protected standards text, tables, formulas, or proprietary
 values) per `docs/CONTRACT.md`.

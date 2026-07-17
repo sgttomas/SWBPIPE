@@ -163,7 +163,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > | ID | Requirement | Source |
 > |---|---|---|
 > | DEL-02-03-R01 | The boundary model shall represent the status vocabulary from `docs/TYPES.md` section 4: `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, `HUMAN_REVIEW_REQUIRED`, and `HUMAN_APPROVED_FOR_PROJECT`. | `docs/TYPES.md` section 4 |
-> | DEL-02-03-R02 | The model shall not include `CODE_COMPLIANT` as an automatic software status and shall not claim certification, sealing, approval, authentication, or engineering code compliance for reliance. | `docs/TYPES.md` section 4; `docs/CONTRACT.md` `OPS-K-AUTH-1`; `INIT.md` Agent rule |
+> | DEL-02-03-R02 | The model shall not include `CODE_COMPLIANT` as an automatic software status and shall not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). | `docs/TYPES.md` section 4; `docs/CONTRACT.md` `OPS-K-AUTH-1`; `INIT.md` Agent rule |
 > | DEL-02-03-R03 | The mechanics solve boundary shall communicate that solver output is a mechanics result only. | `docs/CONTRACT.md` `OPS-K-MECH-2`; `docs/PRD.md` section 6.1; `docs/INTENT.md` mechanics/rule-pack boundary |
 > | DEL-02-03-R04 | The rule-check boundary shall require user-supplied rule-pack data for acceptability checks and shall not bundle proprietary or protected code content into the public model. | `SOW-002`; `docs/PRD.md` sections 6.1 and 12.1; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-3 |
 > | DEL-02-03-R05 | Missing solve-required and rule-check-required values shall surface as explicit statuses or diagnostics, never as silent defaults. | `docs/CONTRACT.md` `OPS-K-DATA-2`; `docs/PRD.md` section 6.2 |
@@ -247,7 +247,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > | V05 | R09, R10 | Confirm future schema/API work references JSON Schema 2020-12 and no-bypass adapter constraints without selecting unresolved implementation details. |
 > | V06 | R11 | Confirm all unresolved implementation-level choices remain `TBD`. |
 > | V07 | All | Confirm no protected standards text, tables, proprietary data, or code-compliance/certification claims appear in the artifact. |
-> | V08 | R02, R07 | Confirm `HUMAN_APPROVED_FOR_PROJECT` is presented only as a project-specific human record and never as software approval, certification, or code compliance. |
+> | V08 | R02, R07 | Confirm `HUMAN_APPROVED_FOR_PROJECT` is presented only as a project-specific human record and never as software approval, certification, or code compliance (PRD §21.2). |
 > | V09 | R01, R05, R08 | Confirm each status has the required actor/authority level, evidence reference, and diagnostic or rule-pack hook from the producer authority and evidence map. |
 > | V10 | R08 | Confirm minimum provenance contents identify status evidence, rule-pack source/version/checksum where applicable, diagnostic provenance where present, and hash/input-manifest binding when available. |
 > | V11 | R10 | Confirm every adapter, plugin, API surface, or schema surface that can observe or mutate analysis status routes through validation, diagnostics/provenance, and public/private data-boundary controls; no unvalidated status write path is permitted. |
@@ -440,7 +440,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 
 > ##### Vocabulary Note
 >
-> Use `human acceptance record` as the preferred term for the data object or pointer that may support `HUMAN_APPROVED_FOR_PROJECT`. Use `professional approval` only for the human governance concept described in `docs/TYPES.md` section 6, not for a software action. Accepted aliases such as human professional approval, project-specific human acceptance, and human approval must resolve to a human record outside solver authority. UI, API, and report text should not shorten `HUMAN_APPROVED_FOR_PROJECT` to "approved" without the project-specific human-record qualifier.
+> Use `human acceptance record` as the preferred term for the data object or pointer that may support `HUMAN_APPROVED_FOR_PROJECT`. Use `professional approval` only for the human governance concept described in `docs/TYPES.md` section 6, not for a software action. Accepted aliases such as human professional approval, project-specific human acceptance, and human approval must resolve to a human record outside solver authority. UI, API, and report text should not shorten `HUMAN_APPROVED_FOR_PROJECT` to "approved" without the project-specific human-record qualifier (PRD §21.2).
 >
 > Source: `docs/TYPES.md` sections 4 and 6; `docs/CONTRACT.md` `OPS-K-AUTH-1` and `OPS-K-AUTH-2`; `INIT.md` Agent rule.
 >
@@ -468,7 +468,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > | Separate status axes for solve/rule/human | More accurate authority modeling when concurrent facts must be retained. | Larger schema surface; may exceed this deliverable's limited implementation surface and affect adjacent packages. | Mark as future refinement unless human project authority expands scope or accepts the split. |
 > | Store human acceptance in solver result | Easy to display near results. | Blurs software authority and professional acceptance. | Store or reference it outside solver core and bind it to hashes/evidence. |
 > | Include rule-pack formulas in public reports/examples | Easier for demos. | May expose protected standards or proprietary data. | Public examples use invented non-code values only; private user reports remain user responsibility. |
-> | Treat a successful user-rule check as "approved" | Shorter UX language. | Violates professional-responsibility boundary. | Use "user rule checked" or equivalent non-certifying language. |
+> | Treat a successful user-rule check as "approved" | Shorter UX language. | Violates professional-responsibility boundary. | Use "user rule checked" or equivalent non-certifying language (PRD §21.2). |
 >
 
 ### CLM-028 — Examples

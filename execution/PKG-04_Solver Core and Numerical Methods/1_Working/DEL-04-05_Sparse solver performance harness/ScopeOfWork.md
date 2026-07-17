@@ -151,7 +151,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 > | DEL-04-05-RQ-004 | Fixture data shall be invented, public-permissive, or otherwise lawful and shall not contain protected standards examples, protected tables, vendor data, or proprietary commercial benchmark data. | OPS-K-IP-1; docs/DIRECTIVE.md data-boundary rules | Protected-content and provenance review. |
 > | DEL-04-05-RQ-005 | Harness outputs shall preserve solver version, model/hash basis where available, warning/diagnostic classes, assumptions, provenance notes, and limitations. | AB-00-06; OPS-K-REPORT-1 | Result-envelope/report-facing tests once result schema exists. |
 > | DEL-04-05-RQ-006 | Unit-sensitive fixture inputs and outputs shall pass the accepted unit-system/dimensional checks. | OPS-K-UNIT-1 | Unit validation tests once fixture schema exists. |
-> | DEL-04-05-RQ-007 | The harness shall remain mechanics-only and shall not claim professional approval, certification, or code compliance. | OPS-K-MECH-1; OPS-K-AGENT-4; OPS-K-REPORT-1 | Review of result labels, generated reports, and release notes. |
+> | DEL-04-05-RQ-007 | The harness shall remain mechanics-only and shall not claim professional approval, certification, or code compliance (PRD §21.2). | OPS-K-MECH-1; OPS-K-AGENT-4; OPS-K-REPORT-1 | Review of result labels, generated reports, and release notes. |
 >
 
 ### CLM-013 — Standards
@@ -171,7 +171,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 > | Sparse performance | Capture timing/memory/scale observations once solver implementation exists; target values remain `TBD`. |
 > | Conditioning | Record conditioning-related diagnostics or solver-status observations when supported by the solver/result envelope. |
 > | Data boundary | Confirm all fixtures are invented, public-permissive, or otherwise lawful. |
-> | Reporting | Confirm harness output does not imply certification, code compliance, or professional acceptance. |
+> | Reporting | Confirm harness output does not imply certification, code compliance, or professional acceptance (PRD §21.2). |
 >
 
 ### CLM-015 — Documentation
@@ -304,7 +304,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 > - Prefer deterministic, schema-backed inputs and outputs so repeated runs can be compared.
 > - Preserve unknowns as `TBD`; do not invent runtime, memory, model-size, or conditioning thresholds.
 > - Use only invented, public-permissive, or otherwise lawful benchmark fixtures.
-> - Keep result wording mechanics-focused and avoid certification, compliance, approval, or professional-reliance claims.
+> - Keep result wording mechanics-focused. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-028 — Considerations

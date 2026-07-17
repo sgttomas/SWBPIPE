@@ -61,7 +61,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | Intended audience | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 1; AGENTS.md project-specific TASK profiles | New contributors and Type 2 TASK workers who need a safe first path through OpenPipeStress governance, decomposition, and bounded execution. |
 > | Documentation targets | _CONTEXT.md; Deliverables.csv row DEL-11-05 | Future CONTRIBUTING tutorial material and future AGENTIC_DEVELOPMENT_WORKFLOW onboarding material, staged here only. |
 > | Data boundary | INIT.md; docs/DIRECTIVE.md sections 3-5; docs/IP_AND_DATA_BOUNDARY.md sections 2-6 | Public onboarding must not introduce protected standards text, copied tables, protected examples, proprietary vendor data, private rule packs, owner standards, or company design bases. |
-> | Professional boundary | docs/CONTRACT.md OPS-K-AUTH-1; docs/TYPES.md section 4; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 4 | Onboarding must not state or imply that software, agents, maintainers, or contributors certify, approve, seal, authenticate, or declare engineering code compliance for reliance. |
+> | Professional boundary | docs/CONTRACT.md OPS-K-AUTH-1; docs/TYPES.md section 4; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 4 | Onboarding must not state or imply that software, agents, maintainers, or contributors certify, approve, seal, authenticate, or declare engineering code compliance for reliance (PRD §21.2). |
 > | Agent boundary | AGENTS.md dispatch rule; docs/SPEC.md sections 10-11 | Type 2 work uses one sealed deliverable, explicit write scope, applicable invariants, acceptance criteria, and evidence. |
 > | Architecture-basis context | _CONTEXT.md Architecture Basis Injection | Applicable architecture basis IDs are AB-00-01, AB-00-02, AB-00-06, AB-00-07, and AB-00-08; they inform contributor routing but do not mark PKG-00 as ISSUED. |
 >
@@ -153,7 +153,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | REQ-11-05-03 | The tutorial draft shall describe Type 1 and Type 2 agent responsibilities without expanding TASK authority beyond a sealed deliverable. | AGENTS.md primary agents and dispatch rule; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md sections 1-4 | Guidance and Procedure distinguish routing, execution, review, and human authority. |
 > | REQ-11-05-04 | The tutorial draft shall require contributors to preserve protected standards, vendor IP, private data, and provenance controls. | docs/CONTRACT.md OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-PRIV-1; docs/IP_AND_DATA_BOUNDARY.md sections 2-6 | Guidance includes stop rules; dependencies record governing constraints. |
 > | REQ-11-05-05 | The tutorial draft shall preserve the rule-pack boundary: public examples use invented non-code values and user/code data remains user supplied. | docs/CONTRACT.md OPS-K-RULE-1 and OPS-K-RULE-3; docs/SPEC.md section 6; ScopeLedger.csv SOW-033 | Guidance and Procedure prohibit protected or private rule-pack examples. |
-> | REQ-11-05-06 | The tutorial draft shall preserve professional responsibility boundaries and avoid certification, code-compliance, approval, sealing, or reliance claims by agents/software. | docs/CONTRACT.md OPS-K-AUTH-1; docs/TYPES.md section 4; docs/DIRECTIVE.md sections 3 and 6 | Text scan confirms no software/agent compliance certification claim. |
+> | REQ-11-05-06 | The tutorial draft shall preserve professional responsibility boundaries and avoid certification, code-compliance, approval, sealing, or reliance claims by agents/software (PRD §21.2). | docs/CONTRACT.md OPS-K-AUTH-1; docs/TYPES.md section 4; docs/DIRECTIVE.md sections 3 and 6 | Text scan confirms no software/agent compliance certification claim. |
 > | REQ-11-05-07 | The tutorial draft shall tell contributors to use architecture-basis constraints only as dispatch context and not as ISSUED product authority. | _CONTEXT.md Architecture Basis Injection; SCA-001 Handoff_State.md Explicit Holds | Procedure includes architecture-basis handling. |
 > | REQ-11-05-08 | The tutorial draft shall include evidence expectations: changed paths, validation commands/results, warnings, open issues, and review handoff. | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md sections 4-5; docs/SPEC.md section 11 | Procedure includes final handoff checklist. |
 > | REQ-11-05-09 | The setup artifacts shall include four documents, semantic matrix, lensing register, dependency register, run records, and final status only if setup gates pass. | Human brief; skills/four-documents/SKILL.md; skills/semantic-matrix-build/SKILL.md; skills/lens-register/SKILL.md; skills/dependency-extract/SKILL.md | Local validation commands pass before final `_STATUS.md` is set to SEMANTIC_READY. |
@@ -177,7 +177,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | Dependency schema | `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` returns VALID. |
 > | Lifecycle enum | `python3 tools/validation/validate_enum.py LIFECYCLE_STATE SEMANTIC_READY` returns VALID. |
 > | Protected-data boundary scan | Local review finds no protected standards tables, code examples, proprietary vendor data, private rule packs, or commercial software examples introduced. |
-> | Professional-claims scan | Local review finds no automatic compliance, certification, approval, sealing, or professional reliance claim by software or agents. |
+> | Professional-claims scan | Local review finds no automatic compliance, certification, approval, sealing, or professional reliance claim by software or agents (PRD §21.2). |
 > | Semantic setup | `_SEMANTIC.md` has Audit Result PASS and `_SEMANTIC_LENSING.md` includes coverage rows for matrices A, B, C, F, D, X, and E. |
 >
 
@@ -210,7 +210,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3 | Public onboarding content must exclude protected standards/vendor/commercial/private material and must require provenance review for public data. |
 > | OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3 | Code-specific and proprietary engineering data are user supplied or private; missing values stay explicit. |
 > | OPS-K-RULE-1, OPS-K-RULE-3 | Public rule-pack examples are invented/non-code and rule packs carry version, checksum, source notes, and public/private markers where referenced. |
-> | OPS-K-AUTH-1 | No software or agent certification, approval, sealing, authentication, or code-compliance reliance claim. |
+> | OPS-K-AUTH-1 | No software or agent certification, approval, sealing, authentication, or code-compliance reliance claim (PRD §21.2). |
 > | OPS-K-PRIV-1 and OPS-K-PRIV-2 | Private project/code/rule/component data and telemetry boundaries stay visible. |
 > | OPS-K-AGENT-1 through OPS-K-AGENT-4 | Contributors and agents do not invent facts; conflicts are surfaced; Type 2 work is sealed; outputs are drafts until accepted. |
 > | No-bypass adapter/API baseline | Contributors touching plugins/adapters/API topics must preserve units, provenance, diagnostics, rule sandboxing, report controls, and data-boundary checks. |
@@ -282,7 +282,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > 4. Preserve hard boundaries.
 >    - Do not edit repo-level `CONTRIBUTING`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, source code, examples, schemas, or documentation outside this deliverable.
 >    - Do not introduce protected standards text, copied standards tables, code-derived formulas, commercial software examples, proprietary vendor data, private rule packs, owner standards, or company design bases.
->    - Do not claim software, agents, contributors, or maintainers certify, approve, seal, authenticate, or declare engineering code compliance.
+>    - Do not claim software, agents, contributors, or maintainers certify, approve, seal, authenticate, or declare engineering code compliance (PRD §21.2).
 >
 > 5. Generate setup artifacts in sequence.
 >    - Run `four-documents` with `RUN_PASSES=P1_P2`.
@@ -384,7 +384,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ###### Professional Responsibility Boundary
 >
-> The tutorial should avoid language that sounds like certification. A maintainer can accept a development artifact, but that is not a professional engineering approval of a piping calculation. A user rule-check result is not a professional code-compliance declaration. Software output remains decision support until a competent human accepts it for a particular project.
+> The tutorial should avoid language that sounds like certification (PRD §21.2). A maintainer can accept a development artifact, but that is not a professional engineering approval of a piping calculation. A user rule-check result is not a professional code-compliance declaration. Software output remains decision support until a competent human accepts it for a particular project.
 >
 
 ### CLM-031 — Architecture-Basis Handling

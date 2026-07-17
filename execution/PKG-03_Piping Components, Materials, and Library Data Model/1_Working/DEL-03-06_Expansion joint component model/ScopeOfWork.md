@@ -83,7 +83,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 > - Public repository artifacts must not include manufacturer proprietary values, protected standards text, protected examples, or copied data tables.
 > - Missing solve-required or rule-check-required expansion joint values must remain explicit findings, never silent defaults.
 > - Current schema dimensions classify stiffness as `linear_stiffness` and `rotational_stiffness`; any supplied numeric quantity must remain unit-aware and dimensionally checked before mechanics or rule-check use.
-> - Outputs may support review but must not claim certification, authentication, or code compliance.
+> - Outputs may support review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-007 — Construction

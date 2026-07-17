@@ -61,7 +61,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > | Hash basis for non-JSON or binary assets | Manifest hashes recorded as separate asset entries. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
 > | Required reproducibility markers | Model hash, solver version, rule-pack checksum, and input manifest. Source: `docs/_Registers/Deliverables.csv` row DEL-08-02. |
 > | Rule-pack boundary | Rule packs are user/private design-basis artifacts; public artifacts may reference ID, version, checksum, and source note without embedding protected formulas. Source: `docs/SPEC.md` sections 6 and 8; `docs/IP_AND_DATA_BOUNDARY.md` section 7. |
-> | Professional boundary | The manifest supports review and reproducibility; it does not certify, seal, approve, or authenticate engineering work. Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` section 3. |
+> | Professional boundary | The manifest supports review and reproducibility. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` section 3. |
 > | Physical project container | TBD. The architecture basis says the physical package/container remains implementation-level TBD. Source: `_CONTEXT.md` Architecture Basis Injection. |
 >
 
@@ -143,7 +143,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > | DEL-08-02-R6 | The manifest shall preserve unit-system and unit-aware model context so replay does not depend on hidden unit defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` section 8 |
 > | DEL-08-02-R7 | Missing provenance, version, checksum, or required manifest inputs shall be surfaced as warnings/findings, not silently defaulted. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/CONTRACT.md` OPS-K-DATA-2 |
 > | DEL-08-02-R8 | Public manifest/report templates shall not embed protected standards text, protected tables, proprietary formulas, private rule-pack payloads, or private project data. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
-> | DEL-08-02-R9 | The manifest shall distinguish mechanics solved, user-rule checked, and human/professional acceptance states; it shall not claim code compliance or professional approval. | `docs/TYPES.md` sections 4 and 8; `docs/CONTRACT.md` OPS-K-AUTH-1 |
+> | DEL-08-02-R9 | The manifest shall distinguish mechanics solved, user-rule checked, and human/professional acceptance states; it shall not claim code compliance or professional approval (PRD §21.2). | `docs/TYPES.md` sections 4 and 8; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 > | DEL-08-02-R10 | Hash and manifest tests shall verify deterministic stability, checksum changes on material input changes, binary asset manifest handling, and protected/private data exclusion behavior. | `docs/VALIDATION_STRATEGY.md` sections 2 and 4; `docs/SPEC.md` section 9 |
 >
 
@@ -252,7 +252,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > 4. Capture rule-pack identity, version, checksum, source notice, and redistribution status without copying protected formulas or private values into public artifacts.
 > 5. Capture solver version and deterministic settings relevant to replay or regression comparison.
 > 6. Emit missing-input, missing-provenance, protected-content, or private-data warnings when manifest fields cannot be populated safely.
-> 7. Expose manifest and hash metadata to report generation and result export surfaces without claiming professional approval or code compliance.
+> 7. Expose manifest and hash metadata to report generation and result export surfaces without claiming professional approval or code compliance (PRD §21.2).
 > 8. Verify deterministic behavior through hash/reproducibility tests in a later implementation brief.
 >
 
@@ -308,7 +308,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > - Keep the hash boundary explicit. JSON payloads use the canonical JSON/JCS-compatible basis; binary and other non-JSON assets use manifest entries with their own hashes.
 > - Record references without leaking payloads. Rule-pack IDs, versions, checksums, source notices, and redistribution statuses are useful; protected formulas, private owner data, and copyrighted standard text do not belong in public artifacts.
 > - Treat missing data as evidence. Missing provenance, checksum, solver version, or manifest inputs should be visible warnings/findings.
-> - Preserve the professional boundary. A manifest can support replay and review; it cannot certify code compliance, seal a calculation, or replace competent engineering review.
+> - Preserve the professional boundary. A manifest can support replay and review; acceptance and professional judgment remain with the responsible engineer.
 >
 
 ### CLM-025 — Considerations

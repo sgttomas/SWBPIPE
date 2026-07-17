@@ -104,7 +104,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 
 > ###### Current Secret Handling Evidence
 >
-> June 7 evidence records focused invented-fixture tests for current metadata-only guard behavior. These tests do not create real secret storage, runtime private-library storage, cloud/network behavior, external secret-manager integration, legal clearance, security certification, professional approval, or code-compliance approval.
+> June 7 evidence records focused invented-fixture tests for current metadata-only guard behavior. These tests do not create real secret storage, runtime private-library storage, cloud/network behavior, external secret-manager integration, legal clearance, security certification, professional approval, or code-compliance approval (PRD §21.2).
 >
 > | Test area | Expected evidence |
 > |---|---|
@@ -156,7 +156,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > - cloud secret management or cloud storage operations unless separately approved;
 > - final operating-system credential-store integration details;
 > - exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, and approval choices;
-> - legal sufficiency, certification, approval, sealing, endorsement, or professional code-compliance claims;
+> - legal sufficiency, certification, approval, sealing, endorsement, or professional code-compliance claims (PRD §21.2);
 > - real private libraries, real credentials, real private project data, protected standards text, protected tables, proprietary formulas, material allowables, SIF/flexibility tables, or protected dimensional data.
 >
 > Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-12 and row `DEL-12-04`; `docs/PRD.md` sections 17.3, 18.1, and 18.3.
@@ -233,7 +233,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 >
 > Remaining implementation details not resolved by this specification include exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, and approval choices.
 
-- **AC-001** — The contract preserves opaque-reference-over-secret behavior, private-library metadata and provenance/checksum posture, redaction/quarantine/permission/no-bypass controls, metadata-only helper and invented-fixture evidence, source-labeled assumptions, visible provider/encryption/storage/grant/cloud/approval TBDs and conflicts, and the separation of guard evidence from legal, security, professional, or code-compliance approval.
+- **AC-001** — The contract preserves opaque-reference-over-secret behavior, private-library metadata and provenance/checksum posture, redaction/quarantine/permission/no-bypass controls, metadata-only helper and invented-fixture evidence, source-labeled assumptions, and visible provider/encryption/storage/grant/cloud/approval TBDs and conflicts; guard evidence remains separate from legal and security review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -368,7 +368,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > - `tests/security/test_secret_private_library_handling.py` covers private reference metadata, public fixture blocking, redaction/export release contexts, telemetry exclusion markers, concrete path reduction, cloud/network markers, external secret-manager markers, direct SQL/raw SQLite markers, and storage-bypass markers.
 > - `_run_records/TASK_RUN_2026-06-07_0942_secret-private-library-alignment.md` and package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md` record passing focused and paired PKG-12 validation.
 >
-> This evidence does not finalize exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, approval choices, legal sufficiency, security certification, professional approval, or code-compliance status.
+> This evidence does not finalize exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, approval choices, legal sufficiency, security certification, professional approval, or code-compliance status (PRD §21.2).
 >
 
 ### CLM-024 — Principles

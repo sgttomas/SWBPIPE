@@ -176,7 +176,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | DEL-10-03-REQ-03 | Handoff payload concepts shall remain unit-aware and dimensionally explicit for coordinates, forces, moments, displacements, rotations, stresses, load/result references, and any user-supplied local-detail assumptions. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-UNIT-1. SourcePath: `docs/SPEC.md`; SectionRef: sections 1, 3, 4, and 8. |
 > | DEL-10-03-REQ-04 | Handoff payload concepts shall carry source/provenance, redistribution status, privacy classification, and review status where engineering reliance or public contribution risk may be affected. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-2, OPS-K-DATA-3, OPS-K-PRIV. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: sections 4-6. |
 > | DEL-10-03-REQ-05 | The contract shall surface missing solve-required values, missing rule-check values, missing provenance, unresolved local-detail assumptions, and unresolved format/tool decisions as explicit diagnostics or `TBD`s, never as silent defaults. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-DATA-2 and OPS-K-AGENT-1. SourcePath: `docs/SPEC.md`; SectionRef: section 7 warning classes. |
-> | DEL-10-03-REQ-06 | Handoff guidance labels shall be advisory only and shall not assert code compliance, professional approval, certification, sealing, endorsement, or project-specific acceptability. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/TYPES.md`; SectionRef: sections 4 and 6. |
+> | DEL-10-03-REQ-06 | Handoff guidance labels shall be advisory only and shall not assert code compliance, professional approval, certification, sealing, endorsement, or project-specific acceptability (PRD §21.2). | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/TYPES.md`; SectionRef: sections 4 and 6. |
 > | DEL-10-03-REQ-07 | The contract shall prohibit public artifacts from embedding protected standards text, protected tables, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary vendor data without rights, private project data, or private rule-pack values. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-1 and OPS-K-IP-3. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: sections 2-3. |
 > | DEL-10-03-REQ-08 | The handoff contract shall align with the schema-first command/query/job/result-envelope boundary and shall not allow an export adapter or plugin to bypass domain validation, unit checks, diagnostics, provenance checks, privacy controls, protected-content screening, or report controls. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-02, AB-00-03, AB-00-06, AB-00-07. SourcePath: `docs/architecture/plugin_boundary.md`; SectionRef: Boundary Rules and No-Bypass Constraints. |
 > | DEL-10-03-REQ-09 | Final public API transport, concrete external FEA format list, concrete adapter implementation, external solver invocation semantics, and schema file placement shall remain `TBD` unless later approved in a separate implementation deliverable. | SourcePath: `_CONTEXT.md`; SectionRef: Still TBD. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 and section 8.2. |
@@ -341,7 +341,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >    - Do not choose defaults without human/project authority evidence.
 > 7. Check protected-data and authority boundaries:
 >    - Confirm no protected standards text, tables, copied formulas, proprietary vendor data, private project data, private rule-pack values, or commercial software examples are embedded.
->    - Confirm no wording claims certification, sealing, approval, endorsement, or code compliance.
+>    - Confirm no wording claims certification, sealing, approval, endorsement, or code compliance (PRD §21.2).
 > 8. Produce setup artifacts:
 >    - Four-document kit.
 >    - `_SEMANTIC.md`.
@@ -363,7 +363,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Handoff boundary check | Local FEA is optional/specialized; global centerline/frame analysis remains the normal global method. |
 > | Implementation boundary check | No external FEA implementation, mesh generation, external solver behavior, final exchange format, source code, package manifest, or repository-level schema file is introduced. |
 > | Protected-data check | No protected standards content, proprietary commercial data, private project/rule/component/material data, or copied commercial software examples are introduced. |
-> | Professional-boundary check | No certification, sealing, approval, endorsement, or code-compliance claim appears. |
+> | Professional-boundary check | No certification, sealing, approval, endorsement, or code-compliance claim appears (PRD §21.2). |
 > | Semantic check | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and preserve lens-not-authority separation. |
 > | Dependency check | `Dependencies.csv` validates against v3.1 schema and canonical enum values. |
 >
@@ -436,7 +436,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >
 > - Treat local FEA handoff as an optional interoperability path. The OpenPipeStress global model remains a 3D centerline/frame model unless later scope explicitly changes that boundary.
 > - Keep the handoff package descriptive and reproducible. It should identify the source model, selected local region, units, load/result basis, diagnostics, assumptions, provenance, and hashes.
-> - Keep criteria labels advisory. They can help a user decide where further local review may be warranted, but they cannot certify adequacy, compliance, approval, or professional acceptability.
+> - Keep criteria labels advisory. They can help a user decide where further local review may be warranted. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 > - Prefer schema-ready concepts and `TBD` placeholders over invented external solver fields, mesh settings, or proprietary exchange behavior.
 > - Require every dimensional or engineering value in the handoff package to carry units and source/provenance where reliance may be affected.
 > - Preserve public/private and protected-content boundaries. User-private values may be referenced as private inputs; protected or proprietary data must not become public project content.

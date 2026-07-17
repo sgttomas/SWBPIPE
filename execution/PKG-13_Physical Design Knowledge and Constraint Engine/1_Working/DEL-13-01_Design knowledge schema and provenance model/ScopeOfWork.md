@@ -51,7 +51,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Physical-model relationship | Physical model is the source of truth for editable design data; detailed design-knowledge records are owned by PKG-13 specialized schemas/services | `docs/SPEC.md` section 3; `docs/TYPES.md` Canonical domain object registry |
 > | Schema baseline | JSON Schema 2020-12 contracts are the accepted architecture basis for schema surfaces | `_CONTEXT.md` Architecture Basis Injection |
 > | Public-data boundary | No protected owner standards, protected code data, or private project data may be bundled in public examples | `_CONTEXT.md`; `docs/CONTRACT.md` OPS-K-IP-1/OPS-K-DATA-1; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Professional boundary | Records and software output must not claim certification, sealing, professional approval, or code compliance for reliance | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` Analysis-status vocabulary |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` Analysis-status vocabulary |
 > | Unit-bearing data boundary | Unit-bearing physical values crossing schema or service boundaries require explicit unit metadata unless explicitly dimensionless | `docs/SPEC.md` section 4 |
 > | Missing-data posture | Missing solve-required or rule-check-required values must be explicit findings, never silent defaults | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` section 4.4 |
 >
@@ -135,7 +135,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | REQ-13-01-006 | Unit-bearing physical values crossing the schema boundary shall carry explicit unit metadata unless the field is explicitly dimensionless, ratio, percentage, or coefficient. | `docs/SPEC.md` section 4 | Schema validation review confirms unit-bearing fields use an explicit quantity/unit representation or are explicitly classified non-unit-bearing. |
 > | REQ-13-01-007 | Missing required design knowledge, missing units, and unresolved assumptions shall be represented as explicit findings or records, not silently defaulted. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4 and 4.4 | Schema/test review confirms diagnostics, assumptions, source notes, `TBD` enum values, and absence of schema `default` keys. |
 > | REQ-13-01-008 | The schema/provenance model shall preserve the product boundary that the physical model is the editable source of truth and that detailed design-knowledge records are owned by PKG-13 specialized schemas/services. | `docs/SPEC.md` section 3; `docs/TYPES.md` Model registry entry | Schema/interface review confirms design knowledge links to the physical model without bypassing the physical-model source-of-truth role. |
-> | REQ-13-01-009 | The deliverable shall not introduce software-generated professional approval, certification, sealing, authentication, or code-compliance status. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` Analysis-status vocabulary | Status and enum review confirms no automatic professional/code-compliance authority terms are emitted. |
+> | REQ-13-01-009 | The deliverable shall not introduce software-generated professional approval, certification, sealing, authentication, or code-compliance status (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` Analysis-status vocabulary | Status and enum review confirms no automatic professional/code-compliance authority terms are emitted. |
 > | REQ-13-01-010 | The schema artifact shall follow the accepted JSON Schema 2020-12 contract baseline unless a later human-approved architecture decision changes it. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001/SCA-002 basis | Schema file review/test confirms the JSON Schema 2020-12 declaration and stable `$id`. |
 > | REQ-13-01-011 | Schema, adapter, and service paths that consume design knowledge shall preserve schema validation, unit checks, provenance checks, private-data controls, protected-content screening, diagnostics/result envelopes, persistence hashes, and professional-boundary controls. | `docs/SPEC.md` sections 1, 4.4, and 4.5 | Integration review confirms no bypass route is introduced; unsupported routes remain `TBD`. |
 >
@@ -165,7 +165,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Provenance completeness | Review provenance fields against `docs/IP_AND_DATA_BOUNDARY.md` section 4. | Required provenance fields are implemented and tested; review disposition for findings remains human-gated. |
 > | Unit metadata | Review all unit-bearing fields. | `Quantity` requires `value`, `unit`, `dimension`, and `provenance`; no dimensionless fallback hides missing units. |
 > | Missing-data behavior | Review schema structure and tests. | Missing values are represented through diagnostics, assumptions, source notes, or `TBD` enums; the test confirms no schema `default` keys are present. |
-> | Professional boundary | Review enum/status/diagnostic strings. | Professional-boundary flags require human review and require false software compliance/certification/sealing/approval/authentication claims. |
+> | Professional boundary | Review enum/status/diagnostic strings. | Professional-boundary flags require human review and prohibit software compliance/certification/sealing/approval/authentication claims (PRD §21.2). |
 > | Dependency boundary | Confirm local dependency mirror remains approved DAG-006 evidence and all approved rows remain ACTIVE. | `Dependencies.csv` validates structurally and preserves DAG-002 rows. |
 >
 
@@ -272,7 +272,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > 7. Review the public/private and professional boundaries.
 >    - Confirm no protected standards text, code-specific tables, proprietary project data, owner standards, private rule-pack data, or copied commercial examples are present.
->    - Confirm no automatic professional approval, certification, sealing, authentication, or code-compliance status is introduced.
+>    - Confirm no automatic professional approval, certification, sealing, authentication, or code-compliance status is introduced (PRD §21.2).
 >
 > 8. Validate current artifacts.
 >    - Validate JSON Schema syntax and declared draft/version.
@@ -340,7 +340,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Provenance is part of the record | Source notes, source status, review status, redistribution status, and assumptions should be close to the data they qualify. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `_CONTEXT.md` Description |
 > | No silent defaults | Missing design knowledge, missing units, or unresolved assumptions should surface as findings/TBD records. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4 and 4.4 |
 > | Physical source of truth | Design knowledge should support the editable physical model without bypassing model schema validation or downstream transformation traceability. | `docs/SPEC.md` section 3; `docs/TYPES.md` Model registry entry |
-> | Professional boundary | Avoid terms that imply software certification, approval, sealing, authentication, or code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
+> | Professional boundary | Avoid terms that imply software certification, approval, sealing, authentication, or code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
 >
 
 ### CLM-023 — Considerations

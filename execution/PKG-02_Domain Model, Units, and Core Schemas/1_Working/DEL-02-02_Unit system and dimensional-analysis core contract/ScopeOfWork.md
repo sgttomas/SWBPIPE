@@ -77,7 +77,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > |---|---|---|
 > | No silent defaults | Missing solve-required or rule-check-required values must surface as findings, not implicit defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` Sections 2.2, 3 |
 > | No protected standards data | The unit contract must not embed protected standards text, tables, copyrighted examples, proprietary formulas, protected dimensional tables, or commercial data without documented rights. | `docs/CONTRACT.md` OPS-K-IP-1; `docs/IP_AND_DATA_BOUNDARY.md` Section 3 |
-> | Professional boundary | Unit correctness supports analysis, but software outputs must not claim certification, approval, sealing, authentication, or code compliance for reliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Sections 3-4 |
+> | Professional boundary | Unit correctness supports analysis. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Sections 3-4 |
 > | Adapter/plugin boundary | Import/export adapters and plugins must validate units and cannot bypass validation, diagnostics, provenance, sandboxing, or data-boundary controls. | `SOFTWARE_DECOMP.md` Section 8.1 AB-00-07; `docs/SPEC.md` Section 1 |
 > | Determinism | Unit conversion and dimensional checking must be deterministic and testable across calculations, schemas, imports, exports, and rule evaluations. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/SPEC.md` Section 4.5; `docs/VALIDATION_STRATEGY.md` Section 2 |
 > | Human review | This draft does not resolve exact unit list, conversion constants, numeric representation, or tolerances. | `docs/CONTRACT.md` OPS-K-AGENT-1 and OPS-K-AGENT-4 |
@@ -189,7 +189,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | U-008 | Persisted project/schema payloads shall be versioned, unit-aware, schema-governed, provenance-preserving, migration-aware, and round-trip testable. The architecture objective is deterministic canonical JSON; the current Python persistence boundary uses the explicitly non-JCS `SORTED_COMPACT_JSON` byte contract unless a later governed RFC 8785 implementation is proven. | `SOFTWARE_DECOMP.md` Section 8.1 AB-00-04; `_CONTEXT.md` Architecture Basis Injection; D-41 R5 T2A |
 > | U-009 | Public schemas/interchange definitions for quantities, units, dimensions, and unit-bearing fields shall use the JSON Schema 2020-12 baseline. Exact schema location and code-generation tooling are TBD. | `_CONTEXT.md` Architecture Basis Injection; `SOFTWARE_DECOMP.md` Section 8.2; `docs/_Registers/ScopeLedger.csv` row SOW-041 as related context |
 > | U-010 | Unit-related diagnostics and result-envelope fields, where emitted, shall include enough machine-readable context to identify code, class, severity, source, affected object, message, remediation, and provenance. Exact unit diagnostic code names are TBD. | `_CONTEXT.md` applicable AB-00-06; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-06 |
-> | U-011 | The unit contract shall preserve the boundary between mechanics solve, user-rule checks, and human approval. Unit checks must not be presented as code compliance, certification, approval, sealing, or authentication. | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-MECH-2; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-03 |
+> | U-011 | The unit contract shall preserve the boundary between mechanics solve, user-rule checks, and human approval. Unit checks must not be presented as code compliance, certification, approval, sealing, or authentication (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-MECH-2; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-03 |
 > | U-012 | The unit test set shall cover dimension compatibility, incompatible-unit rejection, deterministic conversion behavior, serialization round trips, schema validation, import/export paths, rule-pack unit mismatch, and hash/reproducibility behavior for JSON payloads where applicable. | `docs/SPEC.md` Section 9; `docs/VALIDATION_STRATEGY.md` Section 2; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-08 |
 > | U-013 | Missing values, unsupported unit dimensions, unresolved conversion constants, and unapproved assumptions shall remain visible as `TBD`, diagnostics, or open issues; the implementation shall not silently invent engineering values. | `docs/CONTRACT.md` OPS-K-AGENT-1 and OPS-K-AGENT-2; `INIT.md` Agent rule |
 > | U-014 | Public examples and test fixtures for unit behavior shall use original, invented, public-domain, or permissively licensed data. Protected code examples and commercial software examples require documented permission before use. | `docs/IP_AND_DATA_BOUNDARY.md` Sections 2-3; `docs/VALIDATION_STRATEGY.md` Section 5 |
@@ -252,7 +252,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | U-007, U-014 | Protected-content/provenance review for unit/conversion data and test fixtures. |
 > | U-008, U-009 | JSON Schema validation and serialization round-trip tests for unit-bearing fields. |
 > | U-008 | Exact-byte, fixed-hash, ordering, mutation, and round-trip tests for the declared serialization label; do not claim JCS without RFC 8785 conformance evidence. |
-> | U-011 | Report/result-envelope review to confirm unit checks are not described as professional approval or code compliance. |
+> | U-011 | Report/result-envelope review to confirm unit checks are not described as professional approval or code compliance (PRD §21.2). |
 > | U-013 | Review checklist confirming all unknowns are represented as `TBD`, explicit assumptions, diagnostics, or open decisions. |
 >
 
@@ -401,7 +401,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | Dimensionless classification | Schema and unit tests distinguish explicit dimensionless fields from missing units on unit-bearing fields. |
 > | Decision ownership | Open contract decisions have a human owner or review gate before schemas/APIs are frozen. |
 > | Data boundary | Unit/conversion data and fixtures include provenance/redistribution status and pass protected-content review. |
-> | Professional boundary | Documentation avoids certification, approval, sealing, authentication, or code-compliance claims. |
+> | Professional boundary | Documentation avoids certification, approval, sealing, authentication, or code-compliance claims (PRD §21.2). |
 > | Architecture basis | ADRs, schema-first envelopes, deterministic persistence/hash behavior, diagnostics, adapter validation, and layered tests are addressed where applicable. |
 >
 
@@ -478,7 +478,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > |---|---|---|
 > | Unit safety is mandatory | Treat unit metadata and dimensional compatibility as part of the domain model, not as UI decoration or optional import metadata. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/DIRECTIVE.md` Section 3 |
 > | Missing data is visible | Unknown units, missing units, unsupported conversion constants, or incomplete rule-check inputs should become diagnostics, `TBD`, or explicit open issues. | `docs/CONTRACT.md` OPS-K-DATA-2; `INIT.md` Agent rule |
-> | Preserve boundaries | Unit checks support mechanics and rule evaluation, but they do not establish professional code compliance or human approval. | `docs/CONTRACT.md` OPS-K-AUTH-1; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-03 |
+> | Preserve boundaries | Unit checks support mechanics and rule evaluation; acceptance and professional judgment remain with the responsible engineer. | `docs/CONTRACT.md` OPS-K-AUTH-1; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-03 |
 > | Keep public data clean | Unit and conversion data introduced as public records need provenance and redistribution status; suspected protected content is stopped and escalated. | `docs/IP_AND_DATA_BOUNDARY.md` Sections 3-5 |
 > | Determinism beats convenience | Prefer explicit registries, strict parsers, and repeatable conversion behavior over permissive parsing or hidden fallback conversion. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/VALIDATION_STRATEGY.md` Section 2 |
 > | Make adapters boring | Imports, exports, plugins, and adapters should pass through the same unit validation and diagnostics as internal services. | `SOFTWARE_DECOMP.md` Section 8.1 AB-00-07; `docs/SPEC.md` Section 1 |

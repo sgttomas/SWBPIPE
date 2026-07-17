@@ -59,7 +59,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > |---|---|---|
 > | Metadata purpose | Support external-prover workflow metadata | `docs/_Registers/ScopeLedger.csv` row SOW-075 |
 > | Required metadata posture | Flexible names, tags, notes, external references, attachments, and comparison-report linkage | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row and SOW-075 note |
-> | Prohibited automatic statuses | No hard-coded approval, certification, code-compliance, formal prover lifecycle, or automatic professional acceptance status | `docs/_Registers/Deliverables.csv` row DEL-15-04; `docs/_Registers/ScopeLedger.csv` row SOW-075; `docs/TYPES.md` section 4 |
+> | Prohibited automatic statuses | No hard-coded approval, certification, code-compliance, formal prover lifecycle, or automatic professional acceptance status (PRD §21.2) | `docs/_Registers/Deliverables.csv` row DEL-15-04; `docs/_Registers/ScopeLedger.csv` row SOW-075; `docs/TYPES.md` section 4 |
 > | Commercial tool result ingestion | Comprehensive commercial-tool result ingestion is out of MVP scope | `docs/_Registers/ScopeLedger.csv` row SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 |
 > | Professional reliance boundary | Non-authoritative; software output remains decision support until competent human review | `INIT.md` Agent rule; `docs/DIRECTIVE.md` sections 1-3; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 > | Public/private data boundary | External artifacts and examples must not introduce protected standards text, proprietary values, private project data, or commercial software examples without permission | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections |
@@ -120,7 +120,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 >
 > This deliverable covers the data-model boundary for external-prover workflow metadata in PKG-15. It is limited to flexible metadata and validation expectations for names, tags, notes, external references, attachments, and related handoff/comparison context.
 >
-> This deliverable excludes hard-coded professional approval, certification, code-compliance, sealing, authentication, formal prover-status lifecycle, automatic professional acceptance records, and comprehensive commercial stress-software result ingestion for the MVP. Source: `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04; `docs/_Registers/ScopeLedger.csv` row SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 and DEC-016.
+> This deliverable excludes formal prover-status lifecycle, automatic professional acceptance records, and comprehensive commercial stress-software result ingestion for the MVP; standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04; `docs/_Registers/ScopeLedger.csv` row SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 and DEC-016.
 >
 
 ### CLM-010 — Requirements
@@ -133,7 +133,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > | DEL-15-04-R2 | The metadata surface shall support flexible names, tags, notes, external references, and attachments. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row; SOW-075 note | Schema/review tests check that these categories are representable without requiring a fixed prover lifecycle. |
 > | DEL-15-04-R3 | The metadata model shall not force a formal prover-status lifecycle. | SOW-075 in `docs/_Registers/ScopeLedger.csv`; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 | Negative tests reject or flag hard-coded lifecycle authority when represented as automatic software status. |
 > | DEL-15-04-R4 | The metadata model shall not create automatic professional acceptance records. | SOW-075; `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 | Tests verify software-generated metadata cannot assert human acceptance. |
-> | DEL-15-04-R5 | The metadata model shall not emit approval, certification, code-compliance, sealing, authentication, endorsement, or professional-reliance equivalents as automatic statuses. | `INIT.md` Agent rule; `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4; `docs/SPEC.md` analysis-status boundary | Boundary validation tests cover prohibited status labels and equivalents. |
+> | DEL-15-04-R5 | The metadata model shall not emit approval, certification, code-compliance, sealing, authentication, endorsement, or professional-reliance equivalents as automatic statuses (PRD §21.2). | `INIT.md` Agent rule; `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4; `docs/SPEC.md` analysis-status boundary | Boundary validation tests cover prohibited status labels and equivalents. |
 > | DEL-15-04-R6 | External prover metadata shall remain diagnostic/handoff support rather than proof of external verification sufficiency. | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` DAG2-RD-010; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 | Review/test evidence checks wording and status semantics. |
 > | DEL-15-04-R7 | Any external human acceptance reference, if later represented, shall be external, human-actor-owned, and bound to reviewed payload hashes. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 and analysis-status boundary | Tests require external/hash-bound representation and prevent content-change survival without re-review. |
 > | DEL-15-04-R8 | Public fixtures, examples, report snippets, and metadata examples shall not copy protected standards text, protected tables, proprietary formulas, proprietary engineering values, private project data, private rule-pack payloads, private library content, real secrets, or unauthorized commercial software examples. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections | Protected-content/private-data review or lint evidence is required for public examples. |
@@ -161,7 +161,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > | Verification Target | Required Evidence |
 > |---|---|
 > | Required metadata categories are representable | `python3 tests/test_external_prover_boundary_metadata.py` plus schema review evidence for names, tags, notes, external references, attachments, and relevant handoff/comparison links |
-> | Prohibited automatic statuses are blocked | Negative tests for approval, certification, code-compliance, sealing, authentication, professional approval, and formal prover lifecycle labels |
+> | Prohibited automatic statuses are blocked | Negative tests for approval, certification, code-compliance, sealing, authentication, professional approval, and formal prover lifecycle labels (PRD §21.2) |
 > | Human acceptance remains external and hash-bound | Tests or review evidence showing software metadata cannot create professional acceptance and cannot preserve acceptance across bound-hash changes |
 > | Protected/private data is not introduced | Protected-content/private-data review evidence for any fixtures, examples, or sample external references |
 > | Dependency boundary remains aligned | Review against local `Dependencies.csv` mirror, especially DEL-01-04, DEL-15-01, DEL-15-02, DEL-15-03, and DEL-14-01 upstream context |
@@ -219,7 +219,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `Specification.md`, and the approved local dependency mirror before drafting any schema or tests.
 > 3. Define only descriptive external-prover metadata categories supported by the sources: names, tags, notes, external references, attachments, and diagnostic comparison/handoff links.
 > 4. Use `schemas/external_prover_metadata.schema.json` for schema path, field names, required/optional cardinality, attachment-as-reference behavior, and external artifact checksum references; concrete commercial-tool parser behavior remains out of scope.
-> 5. Add or update schema fields so that they cannot be interpreted as automatic professional approval, certification, sealing, authentication, code compliance, or formal prover lifecycle state.
+> 5. Add or update schema fields so that they cannot be interpreted as automatic professional approval, certification, sealing, authentication, code compliance, or formal prover lifecycle state (PRD §21.2).
 > 6. If a human acceptance reference is in scope, represent it only as an external, human-owned, reviewed-payload hash-bound record. Do not create it automatically.
 > 7. Add boundary validation tests for allowed flexible metadata.
 > 8. Add negative boundary validation tests for prohibited authority/status terms and formal prover lifecycle behavior.
@@ -235,7 +235,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > |---|---|
 > | Deliverable identity check | Files and tests reference DEL-15-04 / PKG-15 consistently. |
 > | Flexible metadata check | Names, tags, notes, external references, attachments, and comparison/handoff links can be represented. |
-> | Status-boundary check | Automatic approval, certification, code-compliance, sealing, authentication, professional reliance, and formal prover lifecycle states are absent or rejected. |
+> | Status-boundary check | Automatic approval, certification, code-compliance, sealing, authentication, professional reliance, and formal prover lifecycle states are absent or rejected (PRD §21.2). |
 > | Human acceptance check | Any human acceptance reference is external, human-owned, and hash-bound; otherwise it is `TBD` or absent. |
 > | Data-boundary check | Fixtures/examples contain no protected standards text, proprietary values, private project data, unauthorized commercial examples, real secrets, or private rule-pack payloads. |
 > | Dependency check | Upstream dependency context from `Dependencies.csv` is preserved; approved DAG-006 mirror rows are not deleted, retired, or reclassified by this setup pass. |
@@ -257,7 +257,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 >
 > This tranche does not edit lifecycle `_STATUS.md`, dependency mirrors, or human review dispositions.
 
-- **VER-001** — Validate the contract and review source parity, every flexible metadata category, schema and attachment-as-reference behavior, prohibited-status rejection, external human-owned hash-bound acceptance boundaries, provenance and public/private controls, comprehensive commercial-ingestion exclusion, retained TBDs, and no approval, certification, compliance, sealing, or professional-reliance claims.
+- **VER-001** — Validate the contract and review source parity, every flexible metadata category, schema and attachment-as-reference behavior, prohibited-status rejection, external human-owned hash-bound acceptance boundaries, provenance and public/private controls, comprehensive commercial-ingestion exclusion, retained TBDs, and no approval, certification, compliance, sealing, or professional-reliance claims (PRD §21.2).
 
 ## Governing Values and Decisions — Axiology
 
@@ -279,7 +279,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 >
 > | Principle | Guidance | Source |
 > |---|---|---|
-> | Descriptive, not authoritative | Treat external-prover metadata as context for review and handoff, not as proof that a model is code-compliant or professionally accepted. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/CONTRACT.md` OPS-K-AUTH-1; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 |
+> | Descriptive handoff evidence | Treat external-prover metadata as context for review: handoff evidence for external validation, not a validation outcome. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/CONTRACT.md` OPS-K-AUTH-1; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 |
 > | Flexible metadata | Use the schema-backed descriptive fields for names, tags, notes, references, attachments, assumptions, warnings, unsupported target flags, and handoff/export links over fixed prover-status stages. | SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row; `schemas/external_prover_metadata.schema.json` |
 > | No lifecycle overclaim | Do not encode a formal prover lifecycle unless later authorized by explicit scope change. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 |
 > | Human authority remains external | Human acceptance, when it exists, is outside solver authority and must be a human-owned, hash-bound project record. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 |

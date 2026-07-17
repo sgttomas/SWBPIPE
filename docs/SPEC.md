@@ -144,8 +144,8 @@ canonical JSON/JCS-compatible payload bytes remaining the domain and
 interchange truth.
 
 Model states do not provide formal prover approval states, certification
-states, sealing states, authentication states, automatic code-compliance
-statuses, or professional acceptance records.
+states, sealing states, or authentication states (PRD §21.2), automatic
+code-compliance statuses, or professional acceptance records.
 
 ## 4. Unit system and dimensional analysis
 
@@ -199,8 +199,8 @@ semantics such as offset temperature, gauge versus absolute pressure, and
 angle/rotation treatment remain explicit `TBD` decisions or blocking
 diagnostics.
 
-Unit checks support mechanics and rule evaluation. They do not certify, seal,
-approve, authenticate, or declare engineering code compliance for reliance.
+Unit checks support mechanics and rule evaluation. They do not certify,
+seal, approve, or authenticate work, or declare code compliance (PRD §21.2).
 
 ## 4.1 Material library schema
 
@@ -324,9 +324,9 @@ The analysis boundary is represented by
 
 Software-generated statuses may report `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`,
 `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, and
-`HUMAN_REVIEW_REQUIRED`. Software must not emit human approval, certification,
-sealing, authentication, or code-compliance labels as automatic analysis
-statuses.
+`HUMAN_REVIEW_REQUIRED`. Software must not emit human-approval labels or
+certification, sealing, authentication, or code-compliance labels (PRD §21.2)
+as automatic analysis statuses.
 
 Missing solve-required inputs and missing rule-check-required inputs are
 explicit findings with diagnostics and provenance. They are not defaulted by the
@@ -369,9 +369,9 @@ silent engineering defaults for units, provenance, rule-pack values, material
 data, component data, SIF/flexibility inputs, allowables, or load basis values.
 
 Optional human acceptance references, when present in persisted projects, are
-external and hash-bound. They invalidate on bound-hash changes and do not imply
-software certification, sealing, authentication, professional approval, or
-automatic code compliance.
+external and hash-bound. They invalidate on bound-hash changes and imply no
+certification, sealing, authentication, or professional approval (PRD §21.2)
+or automatic code compliance.
 
 The MVP storage posture is local-first and offline-capable: core model
 authoring, solve, rule-check, and reporting require no network, and there is no
@@ -404,7 +404,7 @@ schema validation, unit checks, provenance checks, private-data controls,
 protected-content screening, diagnostics/result envelopes, persistence hashes,
 rule-pack sandboxing, report boundaries, solver boundaries, and external
 hash-bound human acceptance records. They must not create software-generated
-professional approval records or automatic code-compliance statuses.
+professional approval records or automatic code-compliance statuses (PRD §21.2).
 
 The import/export adapter framework is represented by
 `schemas/adapter_framework.schema.yaml` and
@@ -678,8 +678,8 @@ references, missing required values, non-finite inputs, division by zero,
 dimension mismatches, type mismatches, and human-approval status boundary
 violations. It preserves the separation among mechanics solved, rule inputs
 incomplete, user-rule checked, user-rule failed, and human review required. It
-does not emit certification, sealing, authentication, human approval, or
-code-compliance statuses.
+does not emit certification, sealing, or authentication statuses (PRD §21.2)
+or human-approval or code-compliance statuses.
 
 ## 8. GUI requirements
 
@@ -754,8 +754,8 @@ Analysis-status envelopes must preserve the project authority boundary:
 software may emit `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`,
 `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, and
 `HUMAN_REVIEW_REQUIRED`, but it must not emit `HUMAN_APPROVED_FOR_PROJECT` or
-any code-compliance, certification, sealing, approval, authentication, or
-professional-reliance equivalent as an automatic status. Any human acceptance
+any equivalent prohibited-claim status (code compliance, certification,
+sealing, approval, authentication, professional reliance) per PRD section 21.2. Any human acceptance
 record is external, human-actor-owned, and bound to reviewed payload hashes.
 
 The warnings, assumptions, and provenance report-section surface is represented
@@ -785,8 +785,9 @@ source note, privacy class, and review state, but public artifacts must not
 copy private formulas, protected standards text, protected tables, proprietary
 engineering values, private project data, private rule-pack payloads, or real
 secrets. Report sections preserve the professional boundary: software output is
-decision support and must not declare code compliance, certification, sealing,
-approval, authentication, endorsement, or professional reliance.
+engineering decision-support information; acceptance, professional judgment,
+and any certification, sealing, or code-compliance determination (PRD §21.2)
+remain with the responsible engineer and project authority.
 
 The result export format is represented by `schemas/results.schema.yaml` and
 the bounded `core/reporting/result_export` crate. The baseline is a
@@ -839,9 +840,9 @@ public-report-example, and public-fixture surfaces. The implementation uses
 invented synthetic markers for fixtures and never requires protected examples
 or `DEL-11-04` educational example models. It does not scan private user
 templates by default, move files into quarantine, implement redaction/export
-controls, choose CI or release policy, access host resources, or provide legal
-clearance, security sufficiency, professional approval, certification, sealing,
-endorsement, authentication, or code-compliance proof.
+controls, choose CI or release policy, access host resources, or provide
+legal clearance, security sufficiency, or any
+professional-approval, certification, or code-compliance proof (PRD §21.2).
 
 Protected-content linter findings must preserve target identity, path, line,
 column, finding code, class, severity, matched policy, excerpt, remediation,

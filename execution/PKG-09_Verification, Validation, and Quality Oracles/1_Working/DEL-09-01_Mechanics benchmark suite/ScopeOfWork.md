@@ -166,7 +166,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 > | DEL-09-01-RQ-004 | Benchmark inputs and expected outputs shall be unit-aware and dimensionally checked. | OPS-K-UNIT-1; docs/SPEC.md sections 4.1 and 4.2 | Unit validation tests once fixture schema exists. |
 > | DEL-09-01-RQ-005 | The suite shall preserve solver diagnostics, result-envelope status, solver version, assumptions, provenance, and limitations where supported by implementation contracts. | AB-00-06; docs/SPEC.md sections 4.5 and 9 | Result-envelope comparison and diagnostic review. |
 > | DEL-09-01-RQ-006 | The setup artifacts shall not set final numerical tolerances, release thresholds, or benchmark pass/fail authority without human approval. | OI-005; OPS-K-AGENT-1..4 | Review confirms unresolved tolerances remain `TBD`. |
-> | DEL-09-01-RQ-007 | The suite shall remain mechanics verification support and shall not claim certification, code compliance, professional approval, or project-specific reliance. | OPS-K-AUTH-1; docs/VALIDATION_STRATEGY.md section 1 | Review of result labels, reports, and release notes. |
+> | DEL-09-01-RQ-007 | The suite shall remain mechanics verification support and shall not claim certification, code compliance, professional approval, or project-specific reliance (PRD §21.2). | OPS-K-AUTH-1; docs/VALIDATION_STRATEGY.md section 1 | Review of result labels, reports, and release notes. |
 >
 
 ### CLM-014 — Standards
@@ -222,7 +222,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 >
 > The existing mechanics benchmarks remain explicit and dimensionally checked under `PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K`. That fixture-local basis does not satisfy RQ-004 or Unit safety at the accepted-project-unit-system grain while the canonical catalog and conversion constants remain unresolved. No threshold or validation outcome is selected here.
 
-- **AC-001** — The contract preserves unit-aware inputs and outputs, solver diagnostics, result-envelope fields, assumptions, provenance, limitations, fixture-local unit evidence, and explicit TBD tolerances and project-unit-system decisions without claiming certification, code compliance, professional approval, or project reliance.
+- **AC-001** — The contract preserves unit-aware inputs and outputs, solver diagnostics, result-envelope fields, assumptions, provenance, limitations, fixture-local unit evidence, and explicit TBD tolerances and project-unit-system decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -275,7 +275,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 > 6. Run benchmark cases through the authorized solver or headless runner without changing solver logic.
 > 7. Compare outputs using the approved comparison/tolerance policy; if no approved policy exists, record `TBD` rather than inventing pass/fail criteria.
 > 8. Capture solver version, result-envelope fields, warnings, diagnostics, assumptions, limitations, and comparison records.
-> 9. Stop and escalate if fixture provenance is missing, protected content is suspected, numerical tolerances are unsupported, or output wording implies certification, code compliance, or professional approval.
+> 9. Stop and escalate if fixture provenance is missing, protected content is suspected, numerical tolerances are unsupported, or output wording implies certification, code compliance, or professional approval (PRD §21.2).
 >
 
 ### CLM-024 — Verification

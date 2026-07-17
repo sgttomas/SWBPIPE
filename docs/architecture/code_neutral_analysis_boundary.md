@@ -19,7 +19,7 @@ This document defines the rules implemented by `schemas/analysis_boundary.schema
   for user-rule checks, and `external_hash_bound_human_record_only` for human
   acceptance.
 - The mechanics solver computes open mechanics results only: model validation findings, displacements, reactions, forces, moments, stresses, convergence facts, and diagnostics.
-- A mechanics result is not a code check, pass/fail result, professional acceptance, certification, sealing, approval, authentication, or compliance claim.
+- A mechanics result is not a code check, pass/fail result, professional acceptance, certification, sealing, approval, authentication, or compliance claim (PRD §21.2).
 - User-rule checks require an explicit user-supplied rule-pack reference with version, checksum, source notice, redistribution status, and provenance.
 - Missing solve-required or rule-check-required inputs are explicit `MODEL_INCOMPLETE` or `RULE_INPUTS_INCOMPLETE` findings with diagnostics. They are not silently defaulted.
 - Human acceptance, if present, is referenced as an external project record bound to reviewed model, rule-pack, result, or report hashes. The solver and rule-pack evaluator do not generate it.

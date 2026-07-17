@@ -71,7 +71,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > ##### Conditions
 >
 > - This setup kit is deliverable-local. It does not create or modify `docs/theory/centerline_analysis.md`.
-> - The final theory note must be educational and auditable, not a substitute for professional judgment, code compliance, or sealed engineering work.
+> - The final theory note must be educational and auditable. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 > - Classical lineage may be described at a conceptual level until public/permissive mechanics sources are selected and cited.
 > - Modern implementation may describe the project direction as a 3D line-element/frame model, but detailed code equations, protected formulas, code tables, and standard-derived examples remain out of scope.
 > - Missing citation sources, exact source sections, and any historical claims not supported by accessible public sources remain `TBD`.
@@ -168,7 +168,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | REQ-11-03-01 | The theory note shall explain centerline analysis as an educational mechanics concept and shall not assert code compliance, certification, sealing, approval, or professional reliance. | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `INIT.md` |
+> | REQ-11-03-01 | The theory note shall explain centerline analysis as an educational mechanics concept and shall not assert code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `INIT.md` |
 > | REQ-11-03-02 | The theory note shall distinguish mechanics solving from user-supplied rule checks and human professional acceptance. | `docs/CONTRACT.md` `OPS-K-MECH-2`, `OPS-K-DATA-1`; `INIT.md` |
 > | REQ-11-03-03 | The theory note shall frame routine global piping analysis as a 3D centerline/frame model and distinguish local shell/solid FEA as a handoff path. | `docs/CONTRACT.md` `OPS-K-MECH-1`; `INIT.md` |
 > | REQ-11-03-04 | The theory note shall use only public/permissive sources for historical and mechanics claims and shall cite source provenance. | `_CONTEXT.md`; `docs/CONTRACT.md` `OPS-K-IP-2` |
@@ -240,7 +240,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > | Four-document setup exists | File presence check | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` present in this folder |
 > | Scope isolation | Path review | All created/modified setup artifacts remain under `DEL-11-03_Theory notes- classical to modern centerline analysis/` |
 > | Protected-data boundary | Content review | No copied standards formulas/examples/tables, material allowables, SIF/flexibility tables, or proprietary values |
-> | Non-certification boundary | Content review | No statement that software output certifies, seals, approves, authenticates, or declares engineering code compliance |
+> | Non-certification boundary | Content review | No statement that software output certifies, seals, approves, authenticates, or declares engineering code compliance (PRD §21.2) |
 > | Source gap handling | Content review | Unsupported public-source needs are marked `TBD` |
 > | Source inventory control | Content review | Candidate sources carry the minimum provenance fields and a status of `ACCEPTED`, `REJECTED`, `QUARANTINED`, or `TBD`; only accepted public/permissive sources support final claims |
 > | Semantic setup | Artifact review | `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and P3 run record exist and preserve lens-not-authority language |

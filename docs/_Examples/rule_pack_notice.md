@@ -16,5 +16,6 @@ and evaluated by competent human engineering judgment before use on a real
 project.
 
 The software may report user-rule checked, user-rule failed, missing-input, or
-human-review-required states. It does not certify, approve, seal, authenticate,
-or declare engineering code compliance for reliance.
+human-review-required states. Acceptance, professional judgment, and any
+certification, sealing, or code-compliance determination remain with the
+responsible engineer and project authority.

@@ -65,7 +65,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Solver boundary | The guide must present the solver as open mechanics for a 3D centerline/frame model, not as a code-compliance authority. |
 > | Rule-pack boundary | The guide must present rule packs as user-supplied/private design-basis artifacts with provenance, checksums, and redistribution status. |
 > | Contribution boundary | Contributors may improve mechanics, schemas, tests, docs, and permissively sourced/invented examples; they must not add protected standards data, private project data, or misleading approval claims. |
-> | Professional boundary | Software output and agent artifacts are drafts/decision support until accepted by human review; they do not certify, seal, approve, authenticate, or declare engineering compliance. |
+> | Professional boundary | Software output and agent artifacts are drafts/decision support until accepted by human review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 >
 
 ### CLM-005 — Conditions
@@ -383,7 +383,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Unit discipline | Any developer path touching model data, rule variables, imports, exports, reports, or tests must preserve unit awareness and dimensional checks. |
 > | Provenance discipline | Material, component, rule, allowable, SIF, flexibility, report, and public data values require source/provenance and redistribution status. |
 > | Test before reliance | Solver and rule-engine changes need deterministic tests before release use; documentation should state the expected evidence families. |
-> | Human authority | The guide must not suggest that software, maintainers, or agents certify, seal, approve, authenticate, or declare project-specific engineering compliance. |
+> | Human authority | The guide must not suggest that software, maintainers, or agents certify, seal, approve, authenticate, or declare project-specific engineering compliance (PRD §21.2). |
 >
 
 ### CLM-026 — Considerations
@@ -475,7 +475,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > - copied standards text, tables, clause examples, or formulas;
 > - material allowable tables or dimensional tables copied from standards;
 > - private company rule packs, owner standards, project models, or commercial software benchmark files;
-> - report snippets that imply official compliance, certification, approval, or professional sealing by the software.
+> - report snippets that imply official compliance, certification, approval, or professional sealing by the software (PRD §21.2).
 >
 
 ### CLM-033 — Open Decisions

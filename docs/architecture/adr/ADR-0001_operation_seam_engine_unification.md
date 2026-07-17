@@ -127,9 +127,8 @@ Per plan §6 risks and stop rules:
 
 ## Boundary Note
 
-This ADR records a software development decision only. It is not a
-release-readiness, professional-approval, certification, sealing,
-authentication, or engineering-code-compliance claim. It contains no
+This ADR records a software development decision only. Standard claim fence
+applies (F-PIP-2; claims taxonomy per DEC-081). It contains no
 protected standards content and no proprietary data. Semantics of the
 operation seam are preserved — this decision changes *where* validation runs,
 never *what* it accepts (plan §5).

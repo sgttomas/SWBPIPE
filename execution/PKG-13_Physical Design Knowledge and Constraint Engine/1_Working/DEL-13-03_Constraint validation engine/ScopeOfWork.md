@@ -76,7 +76,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 > |---|---|
 > | Input knowledge boundary | Validation is over available design knowledge and constraints; missing data is an explicit finding rather than a silently supplied default. Sources: SOW-068; `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4 and 4.3. |
 > | Public/private data boundary | Public artifacts must not bundle protected standards text, protected tables, proprietary values, owner standards, or private project data. Sources: `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6. |
-> | Professional boundary | Software outputs are decision support and must not automatically claim certification, approval, sealing, authentication, code compliance, or professional reliance. Sources: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 4.3; `docs/DIRECTIVE.md` Professional boundary. |
+> | Professional boundary | Software outputs are decision support. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Sources: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 4.3; `docs/DIRECTIVE.md` Professional boundary. |
 > | Unit and provenance controls | Domain-core and adapter paths may not bypass unit checks, provenance checks, or public/private data boundaries. Sources: `docs/SPEC.md` sections 1 and 4. |
 > | Upstream evidence surface | `Dependencies.csv` is a deliverable-local evidence surface under the current DAG-006 coordination basis. It preserves historical DAG-002 dependency IDs for audit while listing ACTIVE rows for architecture basis, design-knowledge schema/provenance, constraint entity/provenance, unit, diagnostics, and persistence predecessors. Source: `_DEPENDENCIES.md`; `Dependencies.csv`; `_COORDINATION.md`. |
 > | Design-knowledge reference handling | The validator indexes supplied `design_knowledge.records` by `id` and emits unresolved-reference diagnostics when constraint references are absent from the supplied design-knowledge envelope. Source: `core/constraints/validation/engine.py`; `tests/test_constraint_validation.py`. |
@@ -310,7 +310,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 >
 > 7. Enforce public/private and professional-boundary checks on fixtures, messages, and documentation.
 >    - Reject or quarantine suspected protected content according to `docs/IP_AND_DATA_BOUNDARY.md`.
->    - Do not emit software-generated professional approval, code-compliance, certification, sealing, or authentication statuses.
+>    - Do not emit software-generated professional approval, code-compliance, certification, sealing, or authentication statuses (PRD §21.2).
 >
 > 8. Maintain validation diagnostics tests.
 >    - Current coverage: deterministic output behavior, represented SOW-068 category handling, missing-data findings, unresolved references, provenance visibility, unit metadata and dimension checks, and boundary protection.
@@ -379,7 +379,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 > | Validate available knowledge only | Treat available design knowledge and explicit constraints as the validation surface. Do not infer hidden owner standards or protected code criteria. | `_CONTEXT.md`; SOW-068; `docs/CONTRACT.md` OPS-K-AGENT-1 |
 > | Missing data is a finding | Missing solve-required or rule-check-required values must become explicit diagnostics/findings, not silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4 and 4.3 |
 > | Preserve provenance | Where records include source/provenance, diagnostics should preserve reviewable source visibility through `source_references` and affected object references. Broader GUI presentation remains `TBD`. | SOW-068; `docs/SPEC.md` sections 1 and 4; `core/constraints/validation/engine.py` |
-> | Keep authority boundaries visible | Constraint validation is not professional approval, code compliance, certification, sealing, or owner-standard interpretation. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 4.3 |
+> | Keep authority boundaries visible | Constraint validation does not perform owner-standard interpretation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 4.3 |
 > | Keep public artifacts clean | Do not copy protected standards text, protected tables, proprietary values, private owner data, or code-specific defaults into public fixtures, messages, or docs. | `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6 |
 > | Use schema-first boundaries | The current implementation exposes a deterministic Python diagnostic dict shape and `ValidationResult.to_dict()`. Application runtime/result-envelope integration remains `TBD`. | `_CONTEXT.md` Architecture Basis Injection; `docs/SPEC.md` sections 1 and 9; `core/constraints/validation/engine.py` |
 >

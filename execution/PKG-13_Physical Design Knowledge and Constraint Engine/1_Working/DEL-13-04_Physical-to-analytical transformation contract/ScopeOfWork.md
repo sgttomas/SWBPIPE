@@ -70,7 +70,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 > | Unit handling | Unit-bearing physical values crossing boundaries require explicit unit metadata. | `docs/SPEC.md` section 4; `docs/CONTRACT.md` OPS-K-UNIT-1 |
 > | Missing required values | Missing solve-required values are explicit findings, not silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` missing-data warning classes |
 > | Protected-data boundary | Public artifacts must not bundle protected standards data, tables, or proprietary values. | `docs/CONTRACT.md` OPS-K-IP-1; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Professional boundary | Software must not claim certification, sealing, approval, authentication, or code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `INIT.md` |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `INIT.md` |
 > | Transform implementation path | `core/model_transform/physical_to_analytical/contract.py` | Current implementation evidence and `MEMORY.md` |
 > | Internal solver-boundary adapter path | `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` | Current implementation evidence and `tests/test_analytical_solver_boundary_adapter.py` |
 > | Canonical physical fixture | `fixtures/domain/invented_physical_source_of_truth_model.json` | Current fixture evidence and `tests/test_physical_to_analytical_transform.py` |
@@ -223,7 +223,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 > ###### Out of Scope
 >
 > - Protected standards data, code-specific defaults, protected tables, copied formulas, owner standards, proprietary catalog values, or private project data.
-> - Final engineering acceptance, code compliance, certification, sealing, approval, or professional reliance claims.
+> - Final engineering acceptance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 > - Owner standards or final acceptance logic for physical design constraints, per PKG-13 package exclusions.
 > - Final transform-loss taxonomy, release thresholds, dependency versions, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, and human/professional acceptance.
 >
@@ -257,7 +257,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 > | DEL-13-04-REQ-006 | Missing solve-required values shall be represented as explicit findings and shall not be silently defaulted by the transformation contract. | Negative transform and adapter tests expect deterministic `PTA-*` or `ASBA-*` diagnostics instead of defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` missing-data warning classes |
 > | DEL-13-04-REQ-007 | The analytical output shall target the project primary global mechanics boundary: a 3D centerline/frame model. | Contract review confirms no routine shell/solid FEA target is introduced for this deliverable. | `docs/CONTRACT.md` OPS-K-MECH-1; `INIT.md` principles |
 > | DEL-13-04-REQ-008 | The contract shall not bundle protected standards content, code-specific default values, protected tables, copied formulas, proprietary catalog values, or owner standards. | Protected-content review / contribution gate; public fixtures use invented or permissive data only. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-DATA-1; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | DEL-13-04-REQ-009 | The contract and its warnings shall not claim certification, sealing, approval, authentication, engineering acceptance, or code compliance. | Text/schema review for forbidden authority claims; report/result wording remains diagnostic only. | `docs/CONTRACT.md` OPS-K-AUTH-1; `INIT.md` |
+> | DEL-13-04-REQ-009 | The contract and its warnings shall not claim certification, sealing, approval, authentication, engineering acceptance, or code compliance (PRD §21.2). | Text/schema review for forbidden authority claims; report/result wording remains diagnostic only. | `docs/CONTRACT.md` OPS-K-AUTH-1; `INIT.md` |
 > | DEL-13-04-REQ-010 | Solver-facing changes resulting from this contract shall have deterministic verification tests before release. | Current focused tests are executable with `python3 tests/test_physical_to_analytical_transform.py`, `python3 tests/test_analytical_solver_boundary_adapter.py`, and joint `pytest`; release thresholds remain `TBD`. | `docs/CONTRACT.md` OPS-K-SOLVER-1; `Dependencies.csv` row DAG-002-E0666 |
 > | DEL-13-04-REQ-011 | The contract shall treat upstream dependency surfaces as prerequisite context and shall not reinterpret the local dependency mirror as independent dispatch authority. | Dependency artifact review confirms current local dependency rows remain evidence under DAG-006 coordination; this refresh does not edit dependency files. | `_DEPENDENCIES.md` Authority Boundary; `Dependencies.csv`; `_COORDINATION.md` |
 > | DEL-13-04-REQ-012 | The internal solver-boundary adapter shall accept only strict `analytical_solver_model` mappings and shall not become a public API, GUI/runtime path, external prover path, or final solver acceptance claim. | Adapter tests enforce analytical-model role, strict load union handling, adapter DTO evidence, and diagnostics for unsupported runtime conditions. | `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py`; `tests/test_analytical_solver_boundary_adapter.py`; `MEMORY.md` |
@@ -436,7 +436,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >    - assumptions;
 >    - unresolved `TBD` items.
 > 4. For the internal adapter, specify DTO outputs only as internal solver-boundary evidence: nodes, straight-pipe connectivity, property bindings, support targets, load-case records/applications, adapter DTO identity/hash/source-chain records, load-case diagnostics, and diagnostics.
-> 5. Do not encode compliance, approval, certification, external-prover success, release readiness, or professional reliance status in transform or adapter outputs.
+> 5. Do not encode compliance, approval, certification, external-prover success, release readiness, or professional reliance status in transform or adapter outputs (PRD §21.2).
 >
 
 ### CLM-031 — 4. Define Determinism Rules
@@ -488,7 +488,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 > | Traceability | Contract records physical-to-analytical links or explicit unresolved gaps. |
 > | Unit safety | Missing/ambiguous unit metadata produces findings, not defaults. |
 > | Data boundary | No protected/private/proprietary engineering content is introduced. |
-> | Professional boundary | Outputs avoid certification, approval, compliance, or professional reliance claims. |
+> | Professional boundary | Outputs avoid certification, approval, compliance, or professional reliance claims (PRD §21.2). |
 > | Internal adapter boundary | Adapter accepts only strict `analytical_solver_model` mappings and reports DTO/load/orientation/property failures as diagnostics. |
 > | Dependency preservation | Existing local dependency rows remain unchanged during evidence refresh; historical row IDs remain audit evidence under the current DAG-006 coordination basis. |
 >

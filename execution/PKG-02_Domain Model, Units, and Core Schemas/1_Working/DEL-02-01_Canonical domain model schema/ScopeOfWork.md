@@ -153,7 +153,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > - rule-pack evaluator implementation or code-specific rule content;
 > - report generator implementation;
 > - physical project-file package/container selection;
-> - any code-compliance, certification, approval, or professional-authentication claim.
+> - claims boundary — Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-011 — Requirements
@@ -411,7 +411,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > | Hash-scope check | JSON payload hashes have a documented payload boundary and canonicalization basis, or an explicit deferral. |
 > | Fixture provenance check | Public examples and fixtures have a provenance manifest or a visible `TBD` manifest path. |
 > | Data-boundary check | No protected standards/code text, copied formulas, protected tables, proprietary data, or private user data are introduced. |
-> | Authority check | No compliance, certification, approval, sealing, or professional-reliance claim is made by the software/schema. |
+> | Authority check | No compliance, certification, approval, sealing, or professional-reliance claim is made by the software/schema (PRD §21.2). |
 > | Conflict check | Objective/revision discrepancies are surfaced in `Guidance.md` for human ruling. |
 > | Status check | `_STATUS.md` moves from `OPEN` to `INITIALIZED` only after Pass 1+2 document creation succeeds. |
 >

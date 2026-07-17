@@ -428,7 +428,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > python3 tools/validation/validate_dependencies_schema.py "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/Dependencies.csv"
 > python3 tools/validation/validate_semantic_matrix.py "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 > python3 tools/validation/validate_lens_register.py "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
-> rg -n "certify|certified|approve|approved|issue|issued|code compliance|code-compliant|ASME table|protected table|proprietary|validation|validated|formal acceptance|compatibility|CAEPIPE requirement|reverse engineer" "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
+> rg -n "certify|certified|approve|approved|issue|issued|code compliance|code-compliant|ASME table|protected table|proprietary|validation|validated|formal acceptance|compatibility|CAEPIPE requirement|reverse engineer" "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts" # prohibited-claims screen per PRD §21.2
 > rg -n "TBD|tbd|location TBD" "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 > git diff --check -- "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 > ```

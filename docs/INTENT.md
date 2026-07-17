@@ -36,7 +36,7 @@ It should not be represented as:
 
 > An open-source copy of ASME B31.1, ASME B31.3, ASME B31J, ASME B16, ASME B36, or any other copyrighted standard.
 
-It should not claim to be ASME-approved, ASME-certified, officially code-compliant, or endorsed by any standards body.
+It should not claim to be ASME-approved, ASME-certified, officially code-compliant, or endorsed by any standards body (PRD §21.2).
 
 ## Copyright-respecting design principle
 

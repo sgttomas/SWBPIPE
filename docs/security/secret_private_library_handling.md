@@ -85,7 +85,7 @@ This control does not:
 - move quarantine material;
 - transmit data to a cloud service;
 - decide legal rights;
-- assert professional approval or code-compliance status.
+- assert professional approval or code-compliance status (PRD §21.2).
 
 Diagnostics identify reference IDs and reason codes only. They must not print
 secret-like values, private path payloads, private library payloads, private

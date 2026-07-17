@@ -83,7 +83,7 @@ Plugins and adapters must not:
 - rely on hidden translator defaults for conservative PCF or other target exports instead of emitting explicit unsupported, approximated, omitted, or delegated behavior records;
 - allow adapter SDK templates or manifests to widen permissions, skip no-bypass controls, or depend on transport/runtime/loading details still marked `TBD`;
 - embed protected standards text, protected tables, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary vendor data, or private user rule packs in public artifacts;
-- claim certification, sealing, approval, authentication, official endorsement, or code compliance for professional reliance.
+- claim certification, sealing, approval, authentication, official endorsement, or code compliance for professional reliance (PRD §21.2).
 
 ## Private Data Handling
 

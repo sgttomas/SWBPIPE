@@ -20,8 +20,9 @@ This checklist routes release-impacting changes through software-quality gates.
 It covers solver changes, rule-engine changes, GUI releases, report-template
 releases, and mixed changes.
 
-The checklist is not a professional engineering approval, code-compliance
-ruling, legal opinion, release publication authorization, or CI implementation.
+The checklist is not a professional engineering approval or a
+code-compliance ruling (PRD §21.2); it is not a legal opinion, release
+publication authorization, or CI implementation.
 It defines evidence that maintainers must collect or explicitly waive before a
 release label is considered.
 
@@ -83,7 +84,7 @@ Required evidence:
 Not permitted:
 
 - selecting final public release tolerances without a human governance record;
-- claiming code compliance, certification, or professional acceptance;
+- claiming code compliance, certification, or professional acceptance (PRD §21.2);
 - using protected standards examples or commercial benchmark files without
   documented rights.
 
@@ -116,8 +117,7 @@ Required evidence:
   not collapsed into generic success states;
 - workflow tests or screenshots are recorded where practical;
 - private data stays local and is not sent to unapproved services;
-- GUI labels avoid compliance, certification, endorsement, and professional
-  approval claims.
+- GUI labels avoid compliance, certification, endorsement, and professional approval claims (PRD §21.2).
 
 Final browser/device matrix, accessibility threshold, and screenshot tooling are
 `TBD` until governed by a release-policy decision.
@@ -159,8 +159,8 @@ A waiver must be explicit. It must name:
 - known risk and limitation text;
 - human governance decision record.
 
-No waiver may authorize protected-content copying, private-data exposure,
-certification claims, code-compliance claims, or professional reliance claims.
+No waiver may authorize protected-content copying, private-data exposure, or
+certification, code-compliance, or professional-reliance claims (PRD §21.2).
 
 ## 10. Open Decisions
 

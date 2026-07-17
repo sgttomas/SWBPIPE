@@ -137,7 +137,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 > | DEL-04-02-RQ-004 | Weight hooks shall expose the information needed for load-case application without silently applying hidden load defaults. | SOW-006; OPS-K-DATA-2; AB-00-03 | Load-interface tests once the primitive load contract is accepted. |
 > | DEL-04-02-RQ-005 | Element force recovery shall return unit-aware mechanical result components suitable for downstream stress recovery, without encoding code stress checks. | SOW-006; OPS-K-MECH-2; OPS-K-UNIT-1 | Solver result-envelope tests and downstream interface review. |
 > | DEL-04-02-RQ-006 | Solver changes shall include deterministic verification tests before release use. | OPS-K-SOLVER-1; AB-00-08 | Deterministic solver tests using synthetic or cleared inputs. |
-> | DEL-04-02-RQ-007 | Diagnostics shall use governed result-envelope concepts and shall not claim professional approval, certification, or compliance. | AB-00-06; OPS-K-AGENT-4 | Diagnostic/result-envelope review. |
+> | DEL-04-02-RQ-007 | Diagnostics shall use governed result-envelope concepts and shall not claim professional approval, certification, or compliance (PRD §21.2). | AB-00-06; OPS-K-AGENT-4 | Diagnostic/result-envelope review. |
 >
 
 ### CLM-012 — Standards

@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > | User/model assumptions | Classify as `ASSUMPTION_WARNING` and keep the assumption visible through result review/report handoff. | SOW-022; OBJ-006 |
 > | Nonlinear uncertainty | Classify as `NONLINEAR_WARNING` when convergence or active-state uncertainty affects interpretation. | OPS-K-SOLVER-2; `docs/SPEC.md` section 4.4 and section 7 |
 > | IP or private-data risk | Classify as `IP_BOUNDARY_WARNING`; do not move protected/private data into public artifacts. | OPS-K-IP-1/2/3; `docs/IP_AND_DATA_BOUNDARY.md` quarantine rule |
-> | Professional boundary | Never present software output as certified, sealed, approved, authenticated, or professionally code-compliant. | OPS-K-AUTH-1; OBJ-011 |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-AUTH-1; OBJ-011 |
 > | Warning display access | Warning class, severity, affected object, message, and remediation must be available through text/assistive paths and not color-only signaling. | `_SEMANTIC_LENSING.md` C-001; `docs/SPEC.md` section 7 |
 >
 
@@ -133,7 +133,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > | R-DEL-07-04-007 | Assumptions shall remain visible as `ASSUMPTION_WARNING` and shall not be treated as authenticated engineering approval. | OBJ-006; OPS-K-AUTH-1 | Review workflow tests show assumption warnings survive result review and report handoff. |
 > | R-DEL-07-04-008 | Nonlinear convergence or active-state uncertainty shall remain visible as `NONLINEAR_WARNING` and shall not be hidden behind nominal result display. | OPS-K-SOLVER-2; `docs/SPEC.md` section 4.4 | Solver-result UX tests expose convergence/active-state uncertainty when present. |
 > | R-DEL-07-04-009 | Suspected protected/private content in public contribution, export, or report flows shall produce `IP_BOUNDARY_WARNING` and route to quarantine or human review rather than public output. | OPS-K-IP-1/2/3; `docs/IP_AND_DATA_BOUNDARY.md` section 5 | Protected-content/export tests verify warning and block/quarantine behavior. |
-> | R-DEL-07-04-010 | GUI warning text shall not claim certification, sealing, approval, authentication, official endorsement, or professional code compliance. | OPS-K-AUTH-1; `docs/DIRECTIVE.md` sections 2 and 5 | Product-claims wording review and negative tests exclude automatic `CODE_COMPLIANT` or equivalent claims. |
+> | R-DEL-07-04-010 | GUI warning text shall not claim certification, sealing, approval, authentication, official endorsement, or professional code compliance (PRD §21.2). | OPS-K-AUTH-1; `docs/DIRECTIVE.md` sections 2 and 5 | Product-claims wording review and negative tests exclude automatic `CODE_COMPLIANT` or equivalent claims. |
 > | R-DEL-07-04-011 | GUI state changes that affect solve or rule-check readiness shall route through application-service commands and preserve diagnostics across undo/redo where applicable. | AB-00-05; DEL-00-05 Specification REQ-05-03/05 | Future interaction tests verify warning state updates after editable model changes. |
 > | R-DEL-07-04-012 | Setup artifacts and future public examples shall use invented/non-code data only and shall not embed protected standards text, copied formulas, protected tables, or proprietary values. | OPS-K-IP-1; OPS-K-RULE-1 | Protected-content review confirms setup and future fixtures remain clean. |
 > | R-DEL-07-04-013 | Warning class, severity, affected object, message, and remediation shall be exposed through text/assistive paths and shall not rely on color-only signaling. | `_SEMANTIC_LENSING.md` C-001; SOW-036 adjacency via DEL-07-06 | Accessibility-oriented UX tests confirm non-color and assistive access to warning meaning. |
@@ -172,7 +172,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > - tests that `RULE_CHECK_BLOCKING` blocks/qualifies rule-check results without erasing mechanics results;
 > - tests that provenance, assumption, nonlinear, and IP-boundary warnings remain visible through result review and report/export handoff;
 > - accessibility-oriented checks that warning severity, class, message, affected object, and remediation are available without color-only signaling;
-> - wording checks that no warning, report preview, or status surface claims certification, approval, sealing, authentication, official endorsement, or professional code compliance;
+> - wording checks that no warning, report preview, or status surface claims certification, approval, sealing, authentication, official endorsement, or professional code compliance (PRD §21.2);
 > - protected-content checks for public examples, exported artifacts, and report templates touched by future implementation.
 > - explicit `IP_BOUNDARY_WARNING` tests for public contribution, export, and report-preview paths using invented fixtures only.
 >
@@ -270,7 +270,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > - missing values are surfaced as `TBD`, diagnostic findings, or blocked/qualified results rather than silent defaults;
 > - provenance, assumption, nonlinear, and IP-boundary warnings survive result review and report/export handoff;
 > - keyboard, non-color, and assistive-technology paths can identify warning class, severity, affected object, and remediation;
-> - warning text does not claim certification, approval, sealing, authentication, official endorsement, or code compliance.
+> - warning text does not claim certification, approval, sealing, authentication, official endorsement, or code compliance (PRD §21.2).
 > - `IP_BOUNDARY_WARNING` blocks, qualifies, quarantines, or routes public contribution/report/export risk without exposing protected/private data.
 >
 
@@ -317,7 +317,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > - `SOLVE_BLOCKING` and `RULE_CHECK_BLOCKING` are not interchangeable: the former affects mechanics solve readiness; the latter affects rule-check readiness.
 > - Result displays may show mechanics outputs only with the relevant diagnostics and limitations visible.
 > - Warnings should carry actionable remediation, affected object identity, source/provenance where applicable, and severity.
-> - Warning UX must preserve the professional responsibility boundary: software assists analysis but does not certify, approve, seal, authenticate, or declare code compliance for reliance.
+> - Warning UX must preserve the professional responsibility boundary: software assists analysis; acceptance and professional judgment remain with the responsible engineer.
 > - Public-facing examples, report previews, and exports must preserve protected-data and privacy boundaries.
 > - `HUMAN_REVIEW_REQUIRED` is the appropriate reminder for professional reliance; it is not a substitute for a human approval record and must not be presented as software approval.
 >

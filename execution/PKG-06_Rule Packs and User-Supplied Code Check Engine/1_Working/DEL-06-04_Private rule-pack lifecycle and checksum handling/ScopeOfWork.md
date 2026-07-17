@@ -61,7 +61,7 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 > |---|---|
 > | Protected data | Do not include protected standards text, tables, figures, examples, copied code formulas, material allowables, SIF/flexibility tables, dimensional standards, or proprietary vendor data. |
 > | Private data | Private rule packs remain user-controlled and are not transmitted, exported, or committed by default. |
-> | Professional responsibility | Rule-pack evaluation is software decision support using user data. It is not certification, sealing, approval, endorsement, or a code-compliance claim. |
+> | Professional responsibility | Rule-pack evaluation is software decision support using user data. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Unit awareness | Rule-pack values and evaluator inputs must remain unit-aware where numeric quantities are involved; missing required units or values are findings, not silent defaults. |
 > | Architecture basis | SCA-001 requires JSON Schema 2020-12 contracts, schema-first command/query/job result envelopes, and canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. |
 > | Deferred decisions | Private storage location, encryption defaults, access-control policy defaults, permission grant persistence, and physical project container are deferred to PKG-12/PKG-02 architecture decisions unless separately approved. |
@@ -131,7 +131,7 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 > | R-06-04-006 | A checksum shall identify what was hashed and shall not depend on environment-local paths, timestamps, UI session state, or other volatile fields unless their treatment is explicitly documented. | docs/architecture/persistence_contract.md Hash Rules |
 > | R-06-04-007 | The lifecycle shall emit diagnostics for missing source notice, missing redistribution status, stale or missing checksum, suspected protected content, attempted public export of private content, and rule-check-required data gaps. | docs/SPEC.md Sections 6-8; docs/architecture/code_neutral_analysis_boundary.md Boundary Rules |
 > | R-06-04-008 | Reports and exports may reference private rule-pack identity, version, checksum, and source note without exposing protected formulas or private values in public templates. | docs/IP_AND_DATA_BOUNDARY.md Section 7; docs/PRD.md Section 15 |
-> | R-06-04-009 | Rule-pack lifecycle status shall not state or imply professional certification, sealing, approval, endorsement, or automatic code compliance. | INIT.md Agent rule; docs/CONTRACT.md OPS-K-AUTH-1; docs/architecture/code_neutral_analysis_boundary.md Status Separation |
+> | R-06-04-009 | Rule-pack lifecycle status shall not state or imply professional certification, sealing, approval, endorsement, or automatic code compliance (PRD §21.2). | INIT.md Agent rule; docs/CONTRACT.md OPS-K-AUTH-1; docs/architecture/code_neutral_analysis_boundary.md Status Separation |
 > | R-06-04-010 | Numeric rule-pack inputs and values shall preserve unit metadata where applicable; missing required values or units shall be explicit findings. | docs/CONTRACT.md OPS-K-UNIT-1 and OPS-K-DATA-2/3 |
 > | R-06-04-011 | Storage location, encryption default, access-control policy, permission persistence, and private-library secret handling are deferred architecture decisions for PKG-12 and related persistence work. | DEL-06-04 Context Envelope Notes; docs/architecture/persistence_contract.md Remaining TBDs |
 > | R-06-04-012 | The implementation boundary shall preserve schema-first service/result envelope behavior and shall not allow adapters or plugins to bypass provenance, privacy, protected-content, checksum, or report controls. | docs/architecture/extension_domain_contracts.md No-Bypass Rules |
@@ -243,7 +243,7 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 >    - Public templates must not render private formulas, protected tables, or copied standards text.
 >
 > 5. Preserve professional-boundary wording.
->    - Do not emit `CODE_COMPLIANT`, certification, approval, sealing, endorsement, or equivalent professional reliance language.
+>    - Do not emit `CODE_COMPLIANT`, certification, approval, sealing, endorsement, or equivalent professional reliance language (PRD §21.2).
 >    - Keep human acceptance external and hash-bound if it is introduced by later work.
 >
 > 6. Defer private storage and access decisions.

@@ -77,7 +77,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | Missing values | Missing solve-required or rule-check-required values are explicit findings, not silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` Principles |
 > | Provenance | Reliance-affecting data carries source/provenance fields and review status. | `docs/CONTRACT.md` OPS-K-IP-2; `docs/CONTRACT.md` OPS-K-DATA-3; `docs/TYPES.md` Provenance |
 > | Private data boundary | Private project, material, component, rule-pack, owner-standard, and company design-basis data are user-controlled and excluded from public surfaces by default. | `docs/IP_AND_DATA_BOUNDARY.md` Private user data; `docs/CONTRACT.md` OPS-K-PRIV-1 |
-> | Professional boundary | Software and agents must not certify, seal, approve, authenticate, or declare engineering code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Principles |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Principles |
 > | Handoff role | Shell/solid FEA remains a specialized local-analysis handoff path, not the primary global analysis model. | `docs/CONTRACT.md` OPS-K-MECH-1; `docs/DIRECTIVE.md` Principles |
 >
 
@@ -130,7 +130,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 >
 > This deliverable defines an API contract for target mapping metadata and unsupported or approximate behavior flags used by handoff exports. It covers the target mapping schema and unsupported behavior taxonomy identified in `_CONTEXT.md`.
 >
-> This deliverable excludes target-specific commercial parser implementation, automatic external-prover approval states, professional acceptance records, comprehensive commercial-tool result ingestion, and any claim that a downstream target has validated, certified, sealed, or approved the engineering work. These exclusions are grounded in the PKG-15 package exclusion and the professional-boundary constraints in `docs/CONTRACT.md`.
+> This deliverable excludes target-specific commercial parser implementation, automatic external-prover approval states, professional acceptance records, and comprehensive commercial-tool result ingestion; the contract is handoff evidence for external validation, not a validation outcome. These exclusions are grounded in the PKG-15 package exclusion and the professional-boundary constraints in `docs/CONTRACT.md`.
 >
 
 ### CLM-011 — Requirements
@@ -147,7 +147,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | DEL-15-02-R006 | The contract shall preserve source, provenance, redistribution/private-public status, and review status for reliance-affecting references where present. | `docs/CONTRACT.md` OPS-K-IP-2; `docs/CONTRACT.md` OPS-K-DATA-3; `docs/TYPES.md` Provenance | Contract review confirms provenance fields or references are available; private payload copying remains prohibited. |
 > | DEL-15-02-R007 | The contract shall not silently replace missing or unsupported values with defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` Principles | Validation plan includes blocking diagnostics or explicit TBD/unsupported findings for missing required data. |
 > | DEL-15-02-R008 | The contract shall not embed protected standards text, protected tables, proprietary values, private formulas, or private rule-pack payloads into public artifacts. | `docs/IP_AND_DATA_BOUNDARY.md` Private user data; `docs/SPEC.md` result export boundary | Protected-content review confirms only references, checksums, source notes, and allowed metadata are exposed. |
-> | DEL-15-02-R009 | The contract shall not create software-generated professional approval, certification, sealing, authentication, or code-compliance statuses. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` adapter framework boundary | Vocabulary review confirms status fields are diagnostic/handoff support only and do not imply professional reliance approval. |
+> | DEL-15-02-R009 | The contract shall not create software-generated professional approval, certification, sealing, authentication, or code-compliance statuses (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` adapter framework boundary | Vocabulary review confirms status fields are diagnostic/handoff support only and do not imply professional reliance approval. |
 > | DEL-15-02-R010 | The contract shall remain compatible with the canonical handoff package schema and manifest predecessor. | `Dependencies.csv` DAG-002-E0805; `_DEPENDENCIES.md` authority boundary | Dependency trace confirms DEL-15-01 predecessor relationship remains visible and ACTIVE in the approved mirror. |
 > | DEL-15-02-R011 | The contract shall preserve redaction/export-control boundaries. | `Dependencies.csv` DAG-002-E0808; `docs/IP_AND_DATA_BOUNDARY.md` Private user data | Schema review confirms private data can be excluded or referenced without public disclosure; exact redaction workflow is TBD. |
 > | DEL-15-02-R012 | The contract shall keep concrete mappings, target field coverage, target-specific taxonomy extensions, canonical package container, and target-specific implementation gated until accepted by the governing workflow. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015; DEL-17-01; DEL-17-02 | Review confirms no unapproved target-specific mapping maturity, package container, or implementation strategy has been asserted. |
@@ -173,7 +173,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | Verification ID | Approach | Covers |
 > |---|---|---|
 > | V-001 | Schema inspection plus `python3 tests/test_target_mapping_contract.py` against `DEL-15-02-R001` through `DEL-15-02-R004`. | Target mapping metadata, unsupported-target flags, approximate behavior, warnings, assumptions. |
-> | V-002 | Boundary vocabulary review. | No professional approval/status overclaim; no code-compliance claim. |
+> | V-002 | Boundary vocabulary review. | No professional approval/status overclaim; no code-compliance claim (PRD §21.2). |
 > | V-003 | Protected-content and privacy review. | No private or protected data copied into public artifacts. |
 > | V-004 | Unit/provenance validation plan review. | Unit awareness, dimensional metadata, source/provenance. |
 > | V-005 | Dependency mirror check. | Approved DAG-002 predecessor evidence remains ACTIVE and unmodified. |
@@ -270,7 +270,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > 5. Define unsupported behavior handling:
 >    - Record unsupported or approximate behavior as explicit flags, findings, diagnostics, or TBD slots.
 >    - Do not coerce unsupported behavior into defaults.
->    - Do not claim target-tool equivalence, validation, certification, approval, or code compliance.
+>    - Do not claim target-tool equivalence, validation, certification, approval, or code compliance (PRD §21.2).
 >
 > 6. Define privacy and protected-content handling:
 >    - Prefer stable references, checksums, source notes, review state, and redaction status.
@@ -300,7 +300,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | Source grounding | Non-trivial claims cite `_CONTEXT.md`, decomposition/registers, approved dependency mirror, or listed governing docs. |
 > | Unsupported behavior | Unsupported and approximate behavior are explicit; no silent defaults are introduced. |
 > | Privacy/IP boundary | Public artifacts do not copy private/protected payloads. |
-> | Professional boundary | No field or procedure creates software-generated approval, certification, sealing, authentication, or code-compliance status. |
+> | Professional boundary | No field or procedure creates software-generated approval, certification, sealing, authentication, or code-compliance status (PRD §21.2). |
 > | Dependency mirror preservation | All existing approved DAG-006 rows in `Dependencies.csv` remain ACTIVE and unmodified. |
 > | Schema validation | `python3 tests/test_target_mapping_contract.py` validates generated normal and negative contracts against `schemas/target_mapping.schema.json`; `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` passes if `Dependencies.csv` exists. |
 >
@@ -366,7 +366,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | Unit safety | Unit-bearing values and exports must preserve unit and dimensional metadata or diagnostics. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/DIRECTIVE.md` Principles |
 > | Provenance preservation | Mapped entities, rule/library references, and reliance-affecting metadata should carry source/provenance references where supported by upstream contracts. | `docs/CONTRACT.md` OPS-K-IP-2; `docs/TYPES.md` Provenance |
 > | Private-data restraint | Public handoff artifacts should expose references, checksums, review status, and allowed metadata without copying private or protected payloads. | `docs/IP_AND_DATA_BOUNDARY.md` Private user data; `docs/SPEC.md` result export boundary |
-> | Professional-boundary restraint | Handoff support is not software certification, sealing, approval, authentication, or code-compliance determination. | `docs/CONTRACT.md` OPS-K-AUTH-1; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 |
+> | Professional-boundary restraint | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 |
 > | Deferred target specificity | OI-015 names initial export and target surfaces. Concrete mappings, target field coverage, target-specific taxonomy extensions, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 |
 >
 

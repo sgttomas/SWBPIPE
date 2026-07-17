@@ -75,7 +75,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > |---|---|---|
 > | User documentation is in scope for PKG-11. | `docs/_Registers/Deliverables.csv` row DEL-11-01; `docs/_Registers/ScopeLedger.csv` row SOW-033 | The skeleton covers the user-facing workflow, not source code or examples. |
 > | Open mechanics and protected standards data must remain separated. | `INIT.md`; `docs/DIRECTIVE.md` sections 1-4; OPS-K-IP-1 through OPS-K-IP-3 | Guide sections must describe user/private data requirements without copying or paraphrasing protected standards content. |
-> | Mechanics solve, user rule check, and professional approval are separate states. | `docs/TYPES.md` sections 4 and 6; OPS-K-AUTH-1 | The guide outline must explain statuses and warnings without implying automatic code compliance. |
+> | Mechanics solve, user rule check, and professional approval are separate states. | `docs/TYPES.md` sections 4 and 6; OPS-K-AUTH-1 | The guide outline must explain statuses and warnings without implying automatic code compliance (PRD §21.2). |
 > | Primary global analysis is a 3D centerline/frame model. | `docs/DIRECTIVE.md` section 3; `docs/SPEC.md` sections 1 and 4 | Modeling sections emphasize centerline nodes, elements, components, supports, loads, and unit-aware fields. |
 > | Reports must be auditable and boundary-aware. | `docs/SPEC.md` section 8; OPS-K-REPORT-1 and OPS-K-AUTH-1 | Reporting sections include provenance, warnings, hashes/checksums, limitations, and human review notice. |
 > | Future implementation details are unresolved. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 11 | Setup/install and advanced integration content uses `TBD` rather than inventing product behavior. |
@@ -145,7 +145,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > This deliverable defines the deliverable-local skeleton for the OpenPipeStress user guide. It covers the guide structure needed for project setup, centerline modeling, mechanics solving, user rule checks, result review, report generation, limitations, and professional responsibility notices.
 >
-> This deliverable does not edit `docs/user_guide/index.md`, does not create tutorials or example models, does not document protected standards content, and does not claim certification, endorsement, approval, sealing, authentication, or engineering code compliance.
+> This deliverable does not edit `docs/user_guide/index.md`, does not create tutorials or example models, and does not document protected standards content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-011 — Requirements
@@ -184,7 +184,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > | Four-document presence | Run `tools/validation/check_four_documents.sh` on the deliverable folder. | All four setup documents are present. |
 > | Required guide slots | Compare Datasheet Construction against UG-REQ-001. | Required setup, modeling, solving, rule-check, report, and limitation sections are present. |
 > | Protected-content boundary | Manual review against `docs/IP_AND_DATA_BOUNDARY.md` and OPS-K-IP invariants. | No protected standards data, proprietary examples, or private user data are introduced. |
-> | Professional boundary | Search for certification, approval, sealing, authentication, endorsement, and compliance overclaims. | Any hits are prohibitions or boundary statements, not product claims. |
+> | Professional boundary | Search for certification, approval, sealing, authentication, endorsement, and compliance overclaims (PRD §21.2). | Any hits are prohibitions or boundary statements, not product claims. |
 > | Dependency register schema | Run `python3 tools/validation/validate_dependencies_schema.py` on `Dependencies.csv`. | v3.1 schema is valid. |
 > | Lensing coverage | Count matrix lens coverage rows in `_SEMANTIC_LENSING.md`. | 96 rows for matrices A, B, C, F, D, X, and E. |
 >
@@ -208,7 +208,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > The repository-level `docs/user_guide/index.md` remains read-only for this deliverable.
 
-- **AC-001** — The contract preserves the source-defined guide structure, current implementation declarations, unit and missing-data visibility, diagnostics and result interpretation boundaries, invented-example posture, protected/private-data controls, accessibility intent, visible unresolved documentation decisions, and the prohibition on treating software output as professional approval or code compliance.
+- **AC-001** — The contract preserves the source-defined guide structure, current implementation declarations, unit and missing-data visibility, diagnostics and result interpretation boundaries, invented-example posture, protected/private-data controls, accessibility intent, and visible unresolved documentation decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -245,7 +245,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > | Sealed context | Confirm `DEL-11-01`, `PKG-11`, SOW-033, OBJ-001, and OBJ-011 from `_CONTEXT.md` and the registers. |
 > | Governing sources | Read the local references listed in `_REFERENCES.md`, especially `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | Data boundary | Do not introduce protected standards data, proprietary commercial data, or private user/project data into public setup artifacts. |
-> | Professional boundary | Do not certify, endorse, approve, seal, authenticate, or declare engineering code compliance. |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Write scope | Write only inside this deliverable folder. |
 >
 
@@ -373,7 +373,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > - Copied protected standards tables, figures, examples, formulas, or commentary.
 > - Commercial software examples, manuals, screenshots, or benchmark files without redistribution permission.
 > - Vendor catalog or owner data without documented public redistribution rights.
-> - Any wording that implies software certification, endorsement, engineering seal, official approval, or automatic code compliance.
+> - Any wording that implies software certification, endorsement, engineering seal, official approval, or automatic code compliance (PRD §21.2).
 >
 
 ### CLM-028 — Conflict Table (for human ruling)

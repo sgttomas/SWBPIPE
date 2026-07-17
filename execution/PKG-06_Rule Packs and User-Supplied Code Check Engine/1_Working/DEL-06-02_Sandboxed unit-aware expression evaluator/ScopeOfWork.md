@@ -72,7 +72,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > | Missing required values | Explicit findings, never silent defaults. | OPS-K-DATA-2 |
 > | Expression grammar/library | TBD. No final grammar or library is selected by this setup run. | OI-006; sealed brief |
 > | Protected formulas or code-derived values | Excluded from public setup artifacts. | OPS-K-IP-1; OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Professional approval | Outside evaluator authority. User-rule checked status is not code compliance. | OPS-K-MECH-2; OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
+> | Professional approval | Outside evaluator authority. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-MECH-2; OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
 >
 
 ### CLM-006 — Conditions
@@ -171,7 +171,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > | REQ-06-02-005 | Variable binding shall be limited to declared rule-pack variables, solver result fields, and user-supplied design-basis inputs allowed by the sealed schema/interface contract. | `docs/SPEC.md` section 6; AB-00-02; AB-00-07 |
 > | REQ-06-02-006 | The exact expression grammar, parser, and evaluator library remain TBD and require a future human architecture decision before implementation. | OI-006; sealed brief |
 > | REQ-06-02-007 | Public artifacts shall not include protected standards text, tables, code-derived formulas, material allowables, SIF/flexibility data, proprietary vendor data, owner standards, or private rule packs. | OPS-K-IP-1; OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | REQ-06-02-008 | Rule-pack evaluation results shall not be represented as automatic code compliance, certification, sealing, approval, or professional reliance. | OPS-K-AUTH-1; OPS-K-MECH-2; `docs/TYPES.md` section 4 |
+> | REQ-06-02-008 | Rule-pack evaluation results shall not be represented as automatic code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | OPS-K-AUTH-1; OPS-K-MECH-2; `docs/TYPES.md` section 4 |
 > | REQ-06-02-009 | Diagnostics and result envelopes shall preserve mechanics solved, user-rule checked, incomplete data, and human-approved state separation. | AB-00-03; AB-00-06 |
 > | REQ-06-02-010 | Adapters and plugins shall not bypass sandboxing, unit checks, provenance checks, diagnostics, or public/private data boundaries. | AB-00-07 |
 > | REQ-06-02-011 | Future tests shall cover unsafe expression rejection, dimension mismatch, missing binding, deterministic diagnostic emission, protected-content boundaries for public examples, and plugin/adapter bypass attempts. | `docs/VALIDATION_STRATEGY.md`; AB-00-08 |

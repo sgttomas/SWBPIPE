@@ -52,7 +52,7 @@ This Scope of Work defines `DEL-01-01` in service of project scope [SOW-001, SOW
 > | Governance surfaces | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `governance/MAINTAINERS.md` | _CONTEXT.md anticipated artifacts |
 > | Policy scope | Governance baseline, maintainer policy skeleton, release/governance boundary language | DEL-01-01 register row; SOW-048 |
 > | Public data boundary | Protected standards text, tables, figures, examples, protected formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data are not public repository content | OPS-K-IP-1; docs/DIRECTIVE.md Sections 3 and 4 |
-> | Professional authority boundary | Software and agents do not certify, seal, approve, authenticate, or declare engineering code compliance for reliance | OPS-K-AUTH-1; docs/DIRECTIVE.md Section 6 |
+> | Professional authority boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-AUTH-1; docs/DIRECTIVE.md Section 6 |
 > | Agent authority boundary | Type 2 outputs are drafts/proposals until accepted by a human gate | OPS-K-AGENT-4; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md |
 >
 
@@ -146,7 +146,7 @@ This Scope of Work defines `DEL-01-01` in service of project scope [SOW-001, SOW
 > | ID | Requirement | Basis | Verification |
 > |---|---|---|---|
 > | REQ-01-01-01 | The governance baseline must preserve the human-selected project license, `PolyForm-Noncommercial-1.0.0`, while avoiding legal advice and professional/code-compliance claims. | SOW-001; SOW-048; OPS-K-GOV-1 | Confirm the selected license is visible and no legal conclusion is asserted. |
-> | REQ-01-01-02 | Governance language must distinguish project governance approval from professional engineering approval. | OPS-K-AUTH-1; docs/DIRECTIVE.md Section 6 | Check that maintainer/release approval is not described as certification, sealing, authentication, endorsement, or code-compliance approval. |
+> | REQ-01-01-02 | Governance language must distinguish project governance approval from professional engineering approval. | OPS-K-AUTH-1; docs/DIRECTIVE.md Section 6 | Check that maintainer/release approval is not described as certification, sealing, authentication, endorsement, or code-compliance approval (PRD §21.2). |
 > | REQ-01-01-03 | Public contribution and release policy language must include protected-content, provenance, redistribution-rights, privacy, and review gates. | OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-GOV-4 | Check for policy slots covering source/provenance, redistribution status, contributor certification, review disposition, quarantine/escalation, and private-data risk. |
 > | REQ-01-01-04 | Public release policy language must require disclosure of scope, validation status, known limitations, data-boundary constraints, and professional-responsibility limitations. | OPS-K-GOV-3 | Check release policy skeleton for each disclosure category or an explicit `TBD` slot. |
 > | REQ-01-01-05 | Maintainer authority, release authority, and public-governance decisions must be recorded in public governance artifacts before being treated as project policy. | OPS-K-GOV-2 | Check that draft language does not treat unrecorded roles, quorum, signing, or license choices as effective policy. |
@@ -248,7 +248,7 @@ This Scope of Work defines `DEL-01-01` in service of project scope [SOW-001, SOW
 > 2. Read the applicable contract invariants for hierarchy, IDs, IP boundary, professional authority, governance, and agent execution.
 > 3. Draft or refresh deliverable-local `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`; edit repo-level governance targets only when the active tranche grants explicit write scope.
 > 4. Record the selected project license as `PolyForm-Noncommercial-1.0.0`; mark remaining unresolved governance choices as `TBD`, including maintainer roster, quorum, release signing, release authority, and legal review process.
-> 5. Check that draft language does not assert certification, sealing, endorsement, code compliance, legal opinion, or professional approval.
+> 5. Check that draft language does not assert certification, sealing, endorsement, code compliance, legal opinion, or professional approval (PRD §21.2).
 > 6. Generate `_SEMANTIC.md` as a question-shaping semantic lens after the four documents exist.
 > 7. Generate `_SEMANTIC_LENSING.md` from `_SEMANTIC.md` and the four production documents.
 > 8. Apply P3 enrichment only where the lensing register identifies warranted additions supported by local sources.
@@ -265,11 +265,11 @@ This Scope of Work defines `DEL-01-01` in service of project scope [SOW-001, SOW
 > | Scope boundary | Writes stay within the deliverable folder and any explicitly authorized governance surfaces. |
 > | Repo-level targets | `docs/README.md` and `governance/MAINTAINERS.md` may be edited when explicitly authorized; `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, lifecycle files, release records, and DAG artifacts are not edited by this refresh. |
 > | Protected content | No protected standards/code text, tables, examples, or proprietary data are reproduced. |
-> | Professional boundary | No certification, approval, sealing, authentication, or compliance-for-reliance claim appears. |
+> | Professional boundary | No certification, approval, sealing, authentication, or compliance-for-reliance claim appears (PRD §21.2). |
 > | Unknowns | Unresolved policy values are marked `TBD`. |
 > | Setup artifacts | Four documents, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, and `_run_records` exist. |
 >
-> Release validation disclosures are communication controls. They must not be treated as professional reliance approval, code compliance, certification, sealing, endorsement, or authentication.
+> Release validation disclosures are communication controls, not acceptance records. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 > The durable run record should explicitly state whether repo-level artifacts were edited, whether protected standards/code content was reproduced, and which unresolved governance decisions remain `TBD`.
 >
@@ -314,7 +314,7 @@ This Scope of Work defines `DEL-01-01` in service of project scope [SOW-001, SOW
 >
 > - **Open mechanics, protected standards.** Governance should support a public, inspectable mechanics platform while preventing protected standards content or proprietary commercial data from entering public artifacts.
 > - **Maintainer authority is project authority only.** Maintainers may govern repository process, releases, and contribution acceptance; they do not professionally approve piping calculations by maintaining or releasing software.
-> - **Release labels are software labels.** A release may describe maturity, validation evidence, and known limitations; it must not imply engineering compliance, certification, endorsement, or sealing.
+> - **Release labels are software labels.** A release may describe maturity, validation evidence, and known limitations. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 > - **Unknown policy choices remain TBD.** The project license is selected as `PolyForm-Noncommercial-1.0.0`; release quorum, maintainer roster, signing process, and legal review process remain human-governed `TBD`s.
 > - **Drafts are not policy.** Agent outputs are proposals until accepted by the human gate and recorded in the appropriate public governance artifact.
 >

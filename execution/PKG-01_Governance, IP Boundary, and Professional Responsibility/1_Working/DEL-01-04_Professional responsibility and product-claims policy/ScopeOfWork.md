@@ -47,7 +47,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | Attribute | Value | Source |
 > |---|---|---|
 > | Primary purpose | Define permitted/prohibited claims, report disclaimers, human approval boundaries, and product-claim boundaries for the design-engine scope. | _CONTEXT.md; Deliverables.csv row DEL-01-04 |
-> | Professional boundary | Software and agents do not certify, approve, seal, authenticate, or declare engineering code compliance for reliance. | CONTRACT.md OPS-K-AUTH-1; ScopeLedger.csv SOW-034 |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | CONTRACT.md OPS-K-AUTH-1; ScopeLedger.csv SOW-034 |
 > | Design-engine scope boundary | OpenPipeStress may be framed as an analysis-grade piping design engine and stress-model authoring environment with a full internal solver, but reliance remains non-authoritative without competent human review. | ScopeLedger.csv SOW-064; SOFTWARE_DECOMP.md revision 0.7 |
 > | Solver/rule boundary | The solver computes mechanics; rule packs evaluate user-defined acceptability; professional compliance remains human judgment. | CONTRACT.md OPS-K-MECH-2 |
 > | Report boundary | Reports must disclose provenance, warnings, assumptions, limitations, and professional-responsibility notices. | CONTRACT.md OPS-K-REPORT-1; SPEC.md Section 8 |
@@ -62,7 +62,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | Condition | Draft Policy Value |
 > |---|---|
 > | Permitted software/product claims | May describe implemented mechanics, user-rule evaluation, diagnostics, validation evidence, provenance capture, and report generation when supported by source evidence. |
-> | Prohibited software/product claims | Must not claim certification, sealing, professional approval, official code compliance, standards endorsement, or readiness for reliance without competent human review. |
+> | Prohibited software/product claims | Must not claim certification, sealing, professional approval, official code compliance, standards endorsement, or readiness for reliance without competent human review (PRD §21.2). |
 > | Unknown or unsupported claims | Mark `TBD`, `ASSUMPTION`, or `PROPOSAL`; do not convert uncertainty into product language. |
 > | Protected standards/code data | Do not reproduce protected standards text, tables, figures, code-derived formulas, examples, allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. |
 > | Human acceptance records | If used, bind to specific model/rule/report hashes and do not survive content changes without re-review. |
@@ -129,8 +129,8 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 >
 > | Req ID | Requirement | Source | Verification |
 > |---|---|---|---|
-> | DEL-01-04-R01 | Policy language shall state that OpenPipeStress software and agents do not certify, seal, approve, authenticate, or declare engineering code compliance for reliance. | OPS-K-AUTH-1; SOW-034 | Text review for prohibited-claim absence and explicit notice presence. |
-> | DEL-01-04-R02 | Policy language shall distinguish mechanics solve, user-rule-pack check, and competent human professional approval. | OPS-K-MECH-2; TYPES.md Analysis-status vocabulary | Cross-check terms against `MECHANICS_SOLVED`, `USER_RULE_CHECKED`, `HUMAN_REVIEW_REQUIRED`, and `HUMAN_APPROVED_FOR_PROJECT`. |
+> | DEL-01-04-R01 | Policy language shall state that OpenPipeStress software and agents do not certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD §21.2). | OPS-K-AUTH-1; SOW-034 | Text review for prohibited-claim absence and explicit notice presence. |
+> | DEL-01-04-R02 | Policy language shall distinguish mechanics solve, user-rule-pack check, and competent human professional approval (PRD §21.2). | OPS-K-MECH-2; TYPES.md Analysis-status vocabulary | Cross-check terms against `MECHANICS_SOLVED`, `USER_RULE_CHECKED`, `HUMAN_REVIEW_REQUIRED`, and `HUMAN_APPROVED_FOR_PROJECT`. |
 > | DEL-01-04-R03 | Report notice language shall say that code-specific data is user-supplied and that professional reliance requires competent human review. | SPEC.md Section 8; OPS-K-REPORT-1 | Report-template checklist includes both notices. |
 > | DEL-01-04-R04 | Product and release claims shall disclose scope, validation status, known limitations, data-boundary constraints, and professional-responsibility limitations. | OPS-K-GOV-3 | Release/review checklist references these disclosure categories. |
 > | DEL-01-04-R05 | Human acceptance records, if implemented, shall bind to specific model, rule-pack, and report hashes and require re-review after content changes. | OPS-K-AUTH-2 | Acceptance-record schema or procedure includes hash binding and invalidation rule. |
@@ -138,7 +138,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | DEL-01-04-R07 | Unknown policy choices, legal interpretations, or jurisdiction-specific professional obligations shall be marked `TBD` and escalated for human/legal/professional review. | OPS-K-AGENT-1; DIRECTIVE.md stop rules | Review confirms no legal conclusion is stated as fact. |
 > | DEL-01-04-R08 | Public notices and examples shall not reproduce protected standards content or proprietary engineering data. | OPS-K-IP-1; OPS-K-REPORT-2 | Protected-content review gate. |
 > | DEL-01-04-R09 | Repo-level professional-boundary and report-notice text shall remain draft until a human review gate accepts it; local evidence must not present draft text as issued policy. | _CONTEXT.md write-scope limit; OPS-K-AGENT-4 | Review confirms this local kit does not present repo-level text as issued policy. |
-> | DEL-01-04-R10 | Product claims may frame OpenPipeStress as an analysis-grade piping design engine and stress-model authoring environment only when they preserve the non-authoritative professional reliance boundary. | SOW-064; OBJ-018; DIRECTIVE.md §1-§3 | Claim scan confirms design-engine language does not imply certification, sealing, authentication, or code compliance. |
+> | DEL-01-04-R10 | Product claims may frame OpenPipeStress as an analysis-grade piping design engine and stress-model authoring environment only when acceptance and professional judgment remain with the responsible engineer. | SOW-064; OBJ-018; DIRECTIVE.md §1-§3 | Claim scan confirms design-engine language does not imply certification, sealing, authentication, or code compliance (PRD §21.2). |
 >
 
 ### CLM-011 — Standards
@@ -163,7 +163,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 >
 > | Check | Method | Pass Condition |
 > |---|---|---|
-> | Prohibited claim scan | Search policy/report notice text for certification, approval, seal, authentication, compliance-for-reliance, official endorsement, or equivalent language. | Any such term is absent or clearly negated as outside software authority. |
+> | Prohibited claim scan | Search policy/report notice text for certification, approval, seal, authentication, compliance-for-reliance, official endorsement, or equivalent language (PRD §21.2). | Any such term is absent or clearly negated as outside software authority. |
 > | Status vocabulary scan | Compare policy/report text to TYPES.md. | No automatic `CODE_COMPLIANT` status or equivalent is introduced. |
 > | Report notice completeness | Review report-template candidate language. | Includes software/version/provenance/warnings/limitations and human-review notice categories. |
 > | Human gate trace | Review acceptance-record references. | Human approval, if present, is hash-bound and draft/proposal status remains clear. |
@@ -229,7 +229,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > 3. Extract related report, governance, and agent boundaries from OPS-K-REPORT-1, OPS-K-REPORT-2, OPS-K-GOV-3, OPS-K-AGENT-1 through OPS-K-AGENT-4, and OPS-K-MECH-2.
 > 4. Extract the SOW-064 design-engine/product-scope boundary and keep it subordinate to the non-authoritative professional reliance boundary.
 > 5. Draft permitted-claim language that describes only supported behavior: mechanics computation, user-rule evaluation, warnings, provenance, assumptions, limitations, design-authoring support, and human-review support.
-> 6. Draft prohibited-claim language that excludes certification, sealing, approval, authentication, official endorsement, and compliance-for-reliance claims by software or agents.
+> 6. Draft prohibited-claim language that excludes certification, sealing, approval, authentication, official endorsement, and compliance-for-reliance claims by software or agents (PRD §21.2).
 > 7. Review `docs/report_notice_template.md` for notice language that states code-specific data is user-supplied and professional reliance requires competent human review.
 > 8. Mark legal conclusions, jurisdiction-specific obligations, unresolved acceptance workflow details, and final acceptance of notice wording as `TBD`.
 > 9. Check drafts against protected-content boundaries before publication or release use.
@@ -244,7 +244,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | Check | Action |
 > |---|---|
 > | Scope check | Confirm edits are limited to the authorized deliverable or later authorized repo-level target. |
-> | Prohibited-claim check | Confirm no affirmative certification, sealing, approval, authentication, endorsement, or compliance-for-reliance claim remains. |
+> | Prohibited-claim check | Confirm no affirmative certification, sealing, approval, authentication, endorsement, or compliance-for-reliance claim remains (PRD §21.2). |
 > | Status check | Confirm mechanics, user-rule, missing-data, and human-approval states remain distinct. |
 > | Provenance check | Confirm report notice language requires source/provenance disclosure where engineering reliance may be affected. |
 > | Publication-readiness screen | Confirm exact notice wording, protected-content checks, and human acceptance status before repo-level publication. |
@@ -293,12 +293,12 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 >
 > | Principle | Guidance |
 > |---|---|
-> | Use precise authority language | Say what the software computes or records. Do not say it certifies, seals, approves, authenticates, or declares professional/code compliance for reliance. |
+> | Use precise authority language | Say what the software computes or records. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Separate statuses | Keep `MECHANICS_SOLVED`, `USER_RULE_CHECKED`, `HUMAN_REVIEW_REQUIRED`, and `HUMAN_APPROVED_FOR_PROJECT` distinct. |
 > | Preserve human decision rights | A human project authority may accept a development artifact; a competent engineering professional may accept a project calculation. These are different gates. |
 > | Make missing data visible | Missing code data, provenance, assumptions, and warnings are findings, not silent defaults. |
 > | Keep public examples safe | Public notices and examples use original, invented, or permissively sourced content only. |
-> | Keep design-engine claims bounded | The current product scope may describe a design engine and stress-model authoring environment, but that language cannot imply professional approval or code compliance. |
+> | Keep design-engine claims bounded | The current product scope may describe a design engine and stress-model authoring environment; acceptance and professional judgment remain with the responsible engineer. |
 >
 
 ### CLM-025 — Considerations

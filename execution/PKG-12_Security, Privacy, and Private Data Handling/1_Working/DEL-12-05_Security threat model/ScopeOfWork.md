@@ -66,7 +66,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Rule-pack posture | Private or user-owned; versioned, checksummed, source-noted, and marked public/private. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` `OPS-K-RULE-3` |
 > | Plugin/import posture | Adapters and plugins cannot bypass validation, unit checks, provenance, diagnostics, sandboxing, or report controls. | `_CONTEXT.md` Architecture Basis Injection `AB-00-07`; `docs/SPEC.md` section 1 |
 > | Report posture | Reports disclose provenance, warnings, limitations, and rule-pack identifiers without public protected content. | `docs/SPEC.md` section 8; `docs/IP_AND_DATA_BOUNDARY.md` section 7 |
-> | Professional boundary | Software and agents must not certify, seal, approve, authenticate, or declare code compliance for reliance. | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/DIRECTIVE.md` section 3 |
+> | Professional boundary | Software and agents must not certify, seal, approve, authenticate, or declare code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/DIRECTIVE.md` section 3 |
 >
 
 ### CLM-005 — Conditions
@@ -95,7 +95,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Area | Boundary |
 > |---|---|
 > | Legal sufficiency | This deliverable is not a legal opinion and does not determine redistribution rights. |
-> | Professional approval | This deliverable does not certify, approve, seal, or authenticate engineering work. |
+> | Professional approval | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Cloud service design | Cloud operation is excluded unless separately authorized by the human project authority. |
 > | Detailed encryption implementation | Optional encrypted storage is noted as a product requirement; concrete key management remains `TBD`. |
 > | Exact plugin permission model | Plugin permissions, transport protocol, and external format list remain implementation-level `TBD`. |
@@ -197,7 +197,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >
 > This specification defines the deliverable-local setup content for the planned OpenPipeStress security threat model. It covers private data handling threats for local-first workflows, report sharing, shared model/export paths, plugins, imports, rule packs, private libraries, and supply chain exposure.
 >
-> This document is not the product artifact `docs/security/threat_model.md`; it is the setup-stage source content inside the sealed DEL-12-05 folder. It must not introduce protected standards content, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims.
+> This document is not the product artifact `docs/security/threat_model.md`; it is the setup-stage source content inside the sealed DEL-12-05 folder. It must not introduce protected standards content, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims (PRD §21.2).
 >
 > Source basis: `_CONTEXT.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `PKG-12`, `SOW-040`, `OBJ-010`, architecture basis rows `AB-00-01/02/03/04/06/07/08`, `docs/CONTRACT.md`, `docs/PRD.md` section 18, and `docs/IP_AND_DATA_BOUNDARY.md`.
 >
@@ -217,7 +217,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | STM-REQ-007 | Plugin, adapter, import/export, and FEA handoff threats must preserve the no-bypass boundary for unit checks, provenance, diagnostics, validation, sandboxing, and report controls. | `AB-00-07`; `docs/SPEC.md` section 1; `SOW-038` context | Plugin/import threat rows include no-bypass controls and implementation `TBD` fields. |
 > | STM-REQ-008 | Import and public contribution threats must include provenance, redistribution status, protected-content suspicion, quarantine, and human/legal review paths. | `OPS-K-IP-2`; `OPS-K-IP-3`; `docs/IP_AND_DATA_BOUNDARY.md` sections 4-5 | Import/contribution threat rows include provenance and quarantine controls. |
 > | STM-REQ-009 | Diagnostics and result envelopes referenced by the threat model must use warning classes that include provenance, assumption, and IP-boundary signals where relevant. | `AB-00-06`; `docs/SPEC.md` section 7 | Control rows mention diagnostic classes and affected output paths. |
-> | STM-REQ-010 | The threat model must distinguish mechanics solved, user-rule checked, and human-approved states; it must not imply automatic code compliance or professional approval. | `OPS-K-AUTH-1`; `OPS-K-MECH-2`; `docs/TYPES.md` section 4 | Authority-boundary section is present and contains no certification/seal claims. |
+> | STM-REQ-010 | The threat model must distinguish mechanics solved, user-rule checked, and human-approved states; it must not imply automatic code compliance or professional approval (PRD §21.2). | `OPS-K-AUTH-1`; `OPS-K-MECH-2`; `docs/TYPES.md` section 4 | Authority-boundary section is present and contains no certification/seal claims. |
 > | STM-REQ-011 | Supply-chain threats must include dependency/plugin package provenance, build/release artifact integrity, open-source license review, and protected-content review gates where applicable. | `AB-00-08`; `docs/PRD.md` technology considerations and risk table | Supply-chain threat rows include provenance/review gates and `TBD` implementation details. |
 > | STM-REQ-012 | Unknown implementation choices must remain `TBD` rather than being invented. | `OPS-K-AGENT-1`; `_CONTEXT.md` "Still TBD" | Open questions list marks exact permission, encryption, package, and transport decisions `TBD`. |
 >
@@ -264,7 +264,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > |---|---|
 > | Four-document setup kit | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist with default sections. |
 > | Scope match | Documents reference `DEL-12-05`, `PKG-12`, `SOW-040`, and `OBJ-010` without expanding to unrelated deliverables. |
-> | Boundary compliance | No protected standards text/tables/data, no real private project data, no real secrets, and no certification/approval/seal claims. |
+> | Boundary compliance | No protected standards text/tables/data, no real private project data, no real secrets, and no certification/approval/seal claims (PRD §21.2). |
 > | Local-first posture | Cloud operation remains out of scope unless separately approved; telemetry is off by default. |
 > | Threat coverage | Threat inventory covers reports/sharing, plugins/adapters, imports, rule packs, private libraries, telemetry, local storage, secrets, and supply chain. |
 > | Open questions | Implementation-level unknowns are marked `TBD`. |
@@ -294,7 +294,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >
 > Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. `docs/security/threat_model.md` now exists as the current project-owned threat-model surface. It records threats, boundaries, and residual mitigations; it is not a penetration-test result, security certification, or assurance ruling.
 
-- **AC-001** — The contract preserves the source-defined assets, threat inventory, trust boundaries, local-first and explicit-disclosure controls, provenance/quarantine/sandbox/no-bypass requirements, bounded telemetry-guard witness and explicit interception absences, open implementation questions, update triggers, and the distinction from penetration testing, legal sufficiency, security certification, professional approval, or code-compliance assurance.
+- **AC-001** — The contract preserves the source-defined assets, threat inventory, trust boundaries, local-first and explicit-disclosure controls, provenance/quarantine/sandbox/no-bypass requirements, bounded telemetry-guard witness and explicit interception absences, open implementation questions, update triggers, and the distinction from penetration testing, legal sufficiency, security certification, professional approval, or code-compliance assurance (PRD §21.2).
 
 ## Production and Verification Method — Praxeology
 
@@ -329,7 +329,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Governance sources | Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, relevant `SOFTWARE_DECOMP.md` revision 0.7 rows, register rows, and deliverable-local metadata. |
 > | Source boundary | Use only accessible source material; mark missing implementation details `TBD`. |
 > | Write boundary | Write only inside this deliverable folder. Do not create or edit repo-level `docs/security/threat_model.md`. |
-> | Protected/private data boundary | Do not include protected standards text/tables/data, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims. |
+> | Protected/private data boundary | Do not include protected standards text/tables/data, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims (PRD §21.2). |
 > | Status boundary | Keep `_STATUS.md` at `SEMANTIC_READY` after a successful setup refresh; do not mark `ISSUED`. |
 >
 
@@ -439,7 +439,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >
 > This guidance explains how to interpret and maintain the OpenPipeStress security threat model setup content for private data handling. The deliverable exists to make privacy, protected-content, report-sharing, plugin/import, and supply-chain risks visible before implementation details harden.
 >
-> The threat model is a development artifact. It supports architecture and review; it is not legal advice, professional engineering approval, certification, or a compliance attestation.
+> The threat model is a development artifact. It supports architecture and review; it is not legal advice (PRD §21.2). Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 >
 
 ### CLM-033 — Principles
@@ -454,7 +454,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Provenance before reuse | Treat imported or contributed data without source/license/redistribution metadata as incomplete or suspect. |
 > | Sandboxed extensibility | Treat plugins, adapters, importers, script APIs, and rule evaluators as untrusted boundaries until validation, sandboxing, permissions, diagnostics, and no-bypass controls are specified. |
 > | Reports are decision support | Reports may disclose hashes, checksums, warnings, assumptions, and source notes, but public templates must not reproduce protected code text/tables or proprietary formulas. |
-> | Human authority preserved | Software statuses and reports must not claim certification, seal, approval, authentication, or automatic code compliance. |
+> | Human authority preserved | Software statuses and reports must not claim certification, seal, approval, authentication, or automatic code compliance (PRD §21.2). |
 >
 > Source basis: `docs/DIRECTIVE.md` sections 3-6, `docs/CONTRACT.md` invariant index, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/SPEC.md` sections 6-8, and `docs/PRD.md` sections 17-18.
 >

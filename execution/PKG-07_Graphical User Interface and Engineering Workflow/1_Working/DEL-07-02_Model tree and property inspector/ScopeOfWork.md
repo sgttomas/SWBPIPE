@@ -162,7 +162,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 >
 > This deliverable owns the bounded model-tree and property-inspector behavior implementation within the GUI state/interaction architecture owned by `DEL-00-05`. It covers tree navigation, selected-entity property presentation/editing, selection synchronization with the 3D centerline workflow, missing-data visibility, provenance/private-data presentation, and UI test expectations.
 >
-> Current evidence includes bounded implementation and focused tests. Under `DEC-074` option O2, this ownership statement does not transfer GUI architecture authority from `DEL-00-05`, broaden functionality, select unresolved component/state libraries, introduce engineering defaults, embed protected standards content, or claim professional approval/code compliance. Broader model-level modulus entry, unit-entry coverage, test/factoring hardening, and full canvas/tree/editor UX remain residual work.
+> Current evidence includes bounded implementation and focused tests. Under `DEC-074` option O2, this ownership statement does not transfer GUI architecture authority from `DEL-00-05`, broaden functionality, select unresolved component/state libraries, introduce engineering defaults, or embed protected standards content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Broader model-level modulus entry, unit-entry coverage, test/factoring hardening, and full canvas/tree/editor UX remain residual work.
 >
 
 ### CLM-014 — Accepted Ownership Delegation
@@ -187,7 +187,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 > | DEL-07-02-RQ-004 | Missing solve-required or rule-check-required values shall be visible as findings and shall not be silently supplied by the tree, inspector, or UI defaults. | OPS-K-DATA-2; OBJ-006; docs/SPEC.md section 7 | Negative UI tests for missing physical inputs and missing rule-pack inputs. |
 > | DEL-07-02-RQ-005 | Provenance and redistribution/private status shall remain visible for materials, sections, components, and rule-pack references where inspector fields expose them. | OPS-K-DATA-3; OPS-K-RULE-3; OPS-K-PRIV-1; docs/TYPES.md sections 7 and 8 | UI tests for provenance/status display and private/public boundary indicators. |
 > | DEL-07-02-RQ-006 | GUI mutations from the property inspector shall route through application-service commands; tree/inspector reads shall use governed query or result-envelope boundaries. | AB-00-03; AB-00-05 | Service-boundary review and command/query interaction tests. |
-> | DEL-07-02-RQ-007 | Diagnostics shown in the inspector shall use governed diagnostic/result-envelope concepts and shall not claim certification, sealing, professional approval, or automatic code compliance. | AB-00-06; OPS-K-AGENT-4; docs/TYPES.md analysis statuses | Diagnostic presentation tests and protected/professional-claim review. |
+> | DEL-07-02-RQ-007 | Diagnostics shown in the inspector shall use governed diagnostic/result-envelope concepts and shall not claim certification, sealing, professional approval, or automatic code compliance (PRD §21.2). | AB-00-06; OPS-K-AGENT-4; docs/TYPES.md analysis statuses | Diagnostic presentation tests and protected/professional-claim review. |
 > | DEL-07-02-RQ-008 | Public examples, screenshots, fixtures, and test data for the UI slice shall not contain protected standards text, protected tables, proprietary commercial data, or private project data. | OPS-K-IP-1; OPS-K-IP-3; OPS-K-RULE-1; OPS-K-PRIV-1 | Protected-content and fixture provenance review. |
 >
 
@@ -210,7 +210,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 > | Unit safety | Tests should cover unit-bearing value display/edit pathways and dimensional validation failures once contracts exist. |
 > | Provenance/privacy | Tests should show provenance and private/public redistribution status are visible where relevant. |
 > | Command/query boundary | Tests or review evidence should show inspector edits do not bypass application-service commands. |
-> | Professional boundary | UI text, diagnostics, and fixtures must not claim code compliance, certification, approval, or sealing. |
+> | Professional boundary | UI text, diagnostics, and fixtures must not claim code compliance, certification, approval, or sealing (PRD §21.2). |
 >
 
 ### CLM-018 — Verification Coverage Slots

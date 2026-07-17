@@ -136,9 +136,10 @@ The desktop technical preview binds this contract into the export workflow
 The application binding classifies a metadata-only export representation of
 the user-entered model; it never mutates the source model and never transmits
 anything. Its warnings inform the local export decision only — they do not
-certify redaction sufficiency and do not create a release, legal-clearance,
-professional, certification, sealing, authentication, approval, or
-code-compliance claim.
+certify redaction sufficiency and create no release or legal-clearance claim.
+Acceptance, professional judgment, and any certification, sealing, or
+code-compliance determination remain with the responsible engineer and
+project authority.
 
 ## Source Data
 

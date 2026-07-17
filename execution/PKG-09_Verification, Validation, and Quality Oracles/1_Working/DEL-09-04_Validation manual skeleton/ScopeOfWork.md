@@ -58,7 +58,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > | Attribute | Value |
 > |---|---|
 > | Primary purpose | Define a validation manual structure that separates mechanics verification, workflow validation, user rule checks, and professional reliance. |
-> | Required boundary | The manual must not certify, approve, seal, authenticate, or declare code compliance. |
+> | Required boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Engineering authority | Human engineering judgment remains required for project-specific reliance. |
 > | Code-specific data posture | User-supplied or private; not bundled into public validation examples. |
 > | Benchmark source posture | Original, public-domain, or permissively licensed examples only. |
@@ -147,7 +147,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > - user rule-pack checks;
 > - professional reliance and human acceptance.
 >
-> This deliverable does not edit `docs/VALIDATION_STRATEGY.md`, does not create issued validation evidence, does not certify code compliance, and does not approve any piping calculation for reliance.
+> This deliverable does not edit `docs/VALIDATION_STRATEGY.md` and does not create issued validation evidence. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-011 — Requirements
@@ -163,7 +163,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > | VAL-REQ-005 | The skeleton shall include the ten manual sections listed by the validation strategy. | `docs/VALIDATION_STRATEGY.md` section 3 | Datasheet outline and Procedure records include all ten sections. |
 > | VAL-REQ-006 | Benchmark and validation examples referenced by the skeleton shall be original, public-domain, or permissively licensed, with protected and proprietary examples excluded. | `docs/VALIDATION_STRATEGY.md` section 5; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-3 | Review confirms no protected examples, code tables, or proprietary values are introduced. |
 > | VAL-REQ-007 | The skeleton shall expose missing evidence, open risks, limitations, and `TBD` entries rather than filling gaps silently. | OPS-K-AGENT-1; OPS-K-AGENT-2; `docs/VALIDATION_STRATEGY.md` section 4 | Review confirms open items are visible in the manual outline. |
-> | VAL-REQ-008 | Release-gate language shall describe software maturity and validation evidence only, not engineering approval. | `docs/VALIDATION_STRATEGY.md` section 4; OPS-K-AUTH-1 | Review confirms no certification, sealing, approval, authentication, or code-compliance claims. |
+> | VAL-REQ-008 | Release-gate language shall describe software maturity and validation evidence only, not engineering approval. | `docs/VALIDATION_STRATEGY.md` section 4; OPS-K-AUTH-1 | Review confirms no certification, sealing, approval, authentication, or code-compliance claims (PRD §21.2). |
 > | VAL-REQ-009 | Unit, schema, diagnostic, and result-envelope checks shall be represented where relevant to validation manual sections. | OPS-K-UNIT-1; `docs/SPEC.md` sections 7-9; AB-00-06 | Review confirms those check families have section slots and do not overclaim. |
 > | VAL-REQ-010 | The skeleton shall preserve the public/private data boundary for rule packs, materials, component data, owner requirements, and project models. | OPS-K-IP-1 through OPS-K-IP-3; OPS-K-DATA-1 through OPS-K-DATA-3 | Review confirms user/private data is described as supplied by users or lawful private sources. |
 >
@@ -185,7 +185,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > |---|---|---|
 > | Four-document presence | Run `tools/validation/check_four_documents.sh` on the deliverable folder. | All four setup documents are present. |
 > | Protected-content boundary | Manual review against `docs/IP_AND_DATA_BOUNDARY.md` and OPS-K-IP invariants. | No protected standards data, proprietary values, or commercial examples introduced. |
-> | Professional boundary | Search for certification, approval, sealing, authentication, and compliance claims. | No software/agent claim exceeds decision-support authority. |
+> | Professional boundary | Search for certification, approval, sealing, authentication, and compliance claims (PRD §21.2). | No software/agent claim exceeds decision-support authority. |
 > | Manual outline coverage | Compare Datasheet Construction against `docs/VALIDATION_STRATEGY.md` section 3. | Ten manual sections are represented. |
 > | Dependency register schema | Run `python3 tools/validation/validate_dependencies_schema.py` on `Dependencies.csv`. | v3.1 schema is valid. |
 >
@@ -209,7 +209,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 >
 > The repository-level `docs/VALIDATION_STRATEGY.md` remains read-only for this deliverable.
 
-- **AC-001** — The contract preserves the ten manual sections, unit/schema/diagnostic/result-envelope evidence slots, public/private and protected-content boundaries, visible gaps and limitations, software-release versus project-reliance distinction, and human-owned professional judgment without certification or code-compliance claims.
+- **AC-001** — The contract preserves the ten manual sections, unit/schema/diagnostic/result-envelope evidence slots, public/private and protected-content boundaries, visible gaps and limitations, software-release versus project-reliance distinction, and human-owned professional judgment. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -246,7 +246,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > | Sealed context | Confirm `DEL-09-04`, `PKG-09`, SOW-027, OBJ-008, and OBJ-011 from `_CONTEXT.md` and the registers. |
 > | Governing sources | Read the local references listed in `_REFERENCES.md`, especially `docs/VALIDATION_STRATEGY.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | Data boundary | Do not introduce protected standards data, proprietary commercial data, or private user data into public setup artifacts. |
-> | Professional boundary | Do not certify, approve, seal, authenticate, or declare code compliance. |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Write scope | Write only inside this deliverable folder. |
 >
 
@@ -367,7 +367,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > - Copied protected standards tables, figures, examples, equations, or commentary.
 > - Commercial software benchmark files without documented redistribution rights.
 > - Vendor or owner data without documented permission for public redistribution.
-> - Any example implying software certification, engineering seal, official endorsement, or automatic code compliance.
+> - Any example implying software certification, engineering seal, official endorsement, or automatic code compliance (PRD §21.2).
 >
 
 ### CLM-028 — Conflict Table (for human ruling)

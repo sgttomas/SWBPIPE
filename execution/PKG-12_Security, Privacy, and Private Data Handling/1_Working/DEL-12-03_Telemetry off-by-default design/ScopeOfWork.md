@@ -154,7 +154,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > | TEL-REQ-004 | Telemetry shall not collect or transmit private project models, code-specific rule data, private rule packs, private material or component libraries, generated reports, model hashes, local file paths, user secrets, credentials, or protected standards content. | Helper rejects forbidden field classes before payload construction; protected-content/privacy scan evidence is recorded in the June 7 package fan-in. |
 > | TEL-REQ-005 | Opt-in state shall be represented as a local configuration value whose default is false. The exact storage location and schema are TBD until the implementation deliverable chooses the product config surface. | Metadata resolution tests cover fail-closed behavior; product config-default fixture remains `TBD` until schema exists. |
 > | TEL-REQ-006 | Turning telemetry on shall require an affirmative user action distinct from accepting general terms, installing the software, opening a project, or running a solve. | PDU-042 adds a distinct `Request telemetry enablement review` action to the existing panel. The interaction only records a local request and remains fail-closed; it does not turn telemetry on, grant consent, approve an allowlist, mutate product config, or initialize payload/network behavior. Focused App interaction evidence covers this bounded behavior. |
-> | TEL-REQ-007 | Telemetry settings and diagnostics shall preserve the distinction between mechanics solved, user-rule checked, and human-approved states; telemetry shall not create professional approval or compliance claims. | Report/diagnostic text scan; status vocabulary test. |
+> | TEL-REQ-007 | Telemetry settings and diagnostics shall preserve the distinction between mechanics solved, user-rule checked, and human-approved states; telemetry shall not create professional approval or compliance claims (PRD §21.2). | Report/diagnostic text scan; status vocabulary test. |
 > | TEL-REQ-008 | Telemetry-related diagnostics, if emitted, shall use the project diagnostic envelope when available and shall not include private payload content in messages. | Diagnostic schema test; privacy snapshot test. |
 > | TEL-REQ-009 | Plugins, adapters, import/export paths, reports, and private-library mechanisms shall not bypass telemetry opt-in or privacy filters. | PDU-043 documented absence: the current guard covers telemetry-panel event attempts only; consumer interception remains unimplemented until separately authorized. |
 > | TEL-REQ-010 | If telemetry remains unimplemented in MVP, product behavior shall remain a no-op with tests proving no outbound telemetry behavior is reachable by default. | Focused desktop service/App tests prove the selected seam remains disabled with no payload/network/persistence initialization; this is not whole-product security validation. |
@@ -169,7 +169,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > | `docs/CONTRACT.md` OPS-K-PRIV-1 | Private project, material, component, and rule-pack data must not be transmitted or committed publicly by default. |
 > | `docs/CONTRACT.md` OPS-K-PRIV-2 | Telemetry is off by default and cannot include private engineering or code data. |
 > | `docs/CONTRACT.md` OPS-K-IP-1/2/3 | Protected standards text, tables, examples, copied formulas, and proprietary data must not enter public artifacts or telemetry payloads. |
-> | `docs/CONTRACT.md` OPS-K-AUTH-1/2 | Software and agents must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance. |
+> | `docs/CONTRACT.md` OPS-K-AUTH-1/2 | Software and agents must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). |
 > | `docs/DIRECTIVE.md` Section 4.2 | Hidden cloud storage or telemetry of private project/rule data is out of scope. |
 > | `docs/IP_AND_DATA_BOUNDARY.md` Sections 3 and 6 | Private rule packs, owner standards, company design bases, component catalogs, and project data remain user controlled. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-037 and OI-008 | Telemetry, if implemented, is opt-in and privacy preserving; MVP default is no telemetry; any telemetry design requires explicit human approval. |
@@ -189,7 +189,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > | TEL-TEST-004 | Attempt to include private model, rule-pack, material, component, report, path, hash, secret, protected, or professional-claim fields. | Current helper tests reject the field before payload construction. |
 > | TEL-TEST-005 | Enable opt-in using an explicit approved config path. | Only approved allowlist fields are eligible for metadata-only allowance; actual consent surface and approval record remain `TBD`. |
 > | TEL-TEST-006 | Exercise plugin, adapter, report, and private-library routes. | No route bypasses telemetry opt-in or payload filtering. Runtime route coverage remains future scope until those surfaces call the helper. |
-> | TEL-TEST-007 | Scan telemetry messages and docs. | No certification, approval, seal, security-certification, or automatic code-compliance claims appear. |
+> | TEL-TEST-007 | Scan telemetry messages and docs. | No certification, approval, seal, security-certification, or automatic code-compliance claims appear (PRD §21.2). |
 >
 
 ### CLM-014 — Current Evidence
@@ -229,7 +229,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 >
 > The existing panel now demonstrates one explicit action whose identity is distinct from terms acceptance, installation, application/project open, and solve. Before the action, no request is recorded. After the action, the panel records `request_telemetry_enablement_review` and immediately reports `request_recorded_fail_closed_pending_consent_and_allowlist`. The action is not an opt-in or consent surface and cannot enable telemetry.
 
-- **AC-001** — The contract preserves absent/malformed/default-disabled behavior, forbidden private/protected/secret/path/report fields, no implicit network/persistence/payload construction, the bounded desktop request and telemetry-panel guard seam, explicit absence of whole-runtime consumer interception, remaining consent/config/allowlist/transport TBDs, and the prohibition on professional, certification, approval, or code-compliance claims.
+- **AC-001** — The contract preserves absent/malformed/default-disabled behavior, forbidden private/protected/secret/path/report fields, no implicit network/persistence/payload construction, the bounded desktop request and telemetry-panel guard seam, explicit absence of whole-runtime consumer interception, and remaining consent/config/allowlist/transport TBDs. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -345,7 +345,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > | Private data never leaves by telemetry | Treat project models, rule packs, code-specific values, reports, hashes, paths, secrets, private libraries, and protected standards content as forbidden telemetry content. |
 > | Allowlist over redaction-only | If telemetry is later approved, use a small approved event allowlist. Redaction can be a second guard, not the primary permission model. |
 > | Local evidence | Keep approval records, config state, and test evidence local and reviewable. |
-> | Human authority | Telemetry status must never imply professional engineering review, certification, sealing, or code compliance. |
+> | Human authority | Telemetry status must never imply professional engineering review, certification, sealing, or code compliance (PRD §21.2). |
 >
 
 ### CLM-026 — Considerations

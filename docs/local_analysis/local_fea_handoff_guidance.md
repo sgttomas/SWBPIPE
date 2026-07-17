@@ -17,10 +17,12 @@ centerline/frame model. A local handoff package is a specialized downstream
 artifact that references global model context, selected entities, load/result
 bases, units, assumptions, warnings, hashes, and provenance.
 
-The labels below are advisory routing labels only. They do not certify,
-approve, seal, authenticate, or determine code compliance. Final engineering
-reliance remains a human responsibility tied to the exact model, result,
-assumption, rule, and report records reviewed.
+The labels below are advisory routing labels only — engineering
+decision-support information for review by the responsible engineer.
+Acceptance, professional judgment, and any certification, sealing, or
+code-compliance determination remain with the responsible engineer and
+project authority. Final engineering reliance remains tied to the exact
+model, result, assumption, rule, and report records reviewed.
 
 ## Labels
 

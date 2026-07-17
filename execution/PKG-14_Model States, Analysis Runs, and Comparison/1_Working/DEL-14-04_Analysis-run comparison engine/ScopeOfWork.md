@@ -65,7 +65,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 > | Required comparison basis | Stable IDs, manual mappings where required, unit-normalized result deltas, and tolerance profiles. |
 > | Analysis-run basis | Exact model states, solver versions, settings, units, load cases, diagnostics, results, rule-pack references, library references, and result hashes. |
 > | Entity/result coverage | Mapped nodes, elements, supports, terminals, stress/result locations, diagnostics, and settings. |
-> | Role boundary | Diagnostic/audit functionality only; not automatic external validation, professional approval, certification, sealing, authentication, or code-compliance determination. |
+> | Role boundary | Diagnostic/audit functionality only. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Architecture basis | Rust core/application services; schema-first command/query/job result envelopes; JSON Schema 2020-12; JCS-compatible hash basis for JSON payloads when hashed; Cargo/Vitest/Playwright/validation/protected-content gates as applicable. |
 > | Open implementation decisions | Exact dependency versions, solver numerical library, public API transport, import/export format list, CI provider/coverage thresholds, physical project package/container, comparison tolerance defaults, and mapping workflows remain `TBD` unless separately approved. |
 >
@@ -159,7 +159,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 >
 > DEL-14-04 covers the backend feature slice for an analysis-run comparison engine. It compares two analysis runs, and where applicable their bound model states, using stable IDs, manual mappings where required, unit-normalized result deltas, diagnostics, settings, and tolerance profiles.
 >
-> DEL-14-04 excludes comprehensive commercial-prover result ingestion, external validation, professional approval, certification, sealing, authentication, automatic code-compliance determination, and protected standards-data content.
+> DEL-14-04 excludes comprehensive commercial-prover result ingestion, external validation, and protected standards-data content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-013 — Requirements
@@ -205,7 +205,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 > | Unit-normalized deltas | Same-dimension values compare after accepted unit normalization; incompatible/missing units emit diagnostics. | `TBD`; depends on DEL-02-02 unit contract maturity. |
 > | Diagnostics/settings deltas | Diagnostic and settings differences are surfaced without compliance claims. | `TBD`; depends on result/run record schema. |
 > | Tolerance profiles | Tolerance profile affects classification without changing raw delta evidence. | `TBD`; OI-014 open. |
-> | Boundary wording | Output statuses avoid human approval, certification, sealing, authentication, and automatic code-compliance labels. | Required by governance; concrete assertions `TBD`. |
+> | Boundary wording | Output statuses avoid human approval, certification, sealing, authentication, and automatic code-compliance labels (PRD §21.2). | Required by governance; concrete assertions `TBD`. |
 >
 
 ### CLM-016 — Documentation
@@ -338,7 +338,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 > | Unit normalization | Same-dimension conversion path and missing/incompatible-unit diagnostic path both exercised. |
 > | Scope coverage | Mapped result locations, diagnostics, and settings are represented where upstream records expose them. |
 > | Tolerance behavior | Raw deltas remain available while tolerance classification changes with profile. |
-> | Governance boundary | Output avoids professional approval, certification, sealing, authentication, and automatic code-compliance labels. |
+> | Governance boundary | Output avoids professional approval, certification, sealing, authentication, and automatic code-compliance labels (PRD §21.2). |
 > | Protected-content boundary | Fixtures and examples contain no protected standards text/tables, proprietary values, private project data, or private rule-pack payloads. |
 >
 
@@ -411,7 +411,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 > - Treat unit-bearing values as comparable only when unit and dimension metadata support the comparison. Missing or ambiguous unit metadata is a diagnostic.
 > - Preserve raw delta evidence separately from tolerance-based classification. `ASSUMPTION`: this separation is needed so tolerance profiles can change without rewriting source evidence; the exact output structure is `TBD`.
 > - Keep diagnostics and settings in scope because the decomposition names them explicitly for DEL-14-04.
-> - Preserve the professional boundary: comparison output is review evidence, not approval, certification, sealing, authentication, or code compliance.
+> - Preserve the professional boundary: comparison output is review evidence. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-032 — Considerations

@@ -63,7 +63,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > | Mutation boundary | GUI mutations route through application-service commands; durable project state remains separated from transient session, viewport, selection, and job-progress state. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-05. |
 > | Diagnostic boundary | Diagnostics and result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance; outputs must not claim certification or compliance. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06. |
 > | Data boundary | Missing solve-required or rule-check-required values are explicit findings and not silent defaults. Source: `docs/CONTRACT.md` / Invariant index. |
-> | Professional boundary | Software and agents must not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance. Source: `docs/CONTRACT.md` / Invariant index. |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` / Invariant index. |
 >
 
 ### CLM-005 — Conditions
@@ -149,7 +149,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > | REQ-07-08-004 | The operation/diff review surface shall preserve the distinction between proposed, validated, accepted, and audited model operations; exact UI state labels are TBD pending upstream operation contracts. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-069, SOW-070; `Dependencies.csv` rows DAG-002-E0851 through DAG-002-E0853 |
 > | REQ-07-08-005 | The state/run browser shall treat immutable model states, analysis runs, and deterministic comparisons as first-class review records; exact data contract shape is inherited from upstream PKG-14 deliverables. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-071 through SOW-073; `Dependencies.csv` rows DAG-002-E0847 through DAG-002-E0850 |
 > | REQ-07-08-006 | Constraint and warning presentation shall preserve structured diagnostic fields and the project warning classes where available. | `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06 |
-> | REQ-07-08-007 | Comparison views shall be diagnostic and review-oriented; they shall not present deterministic comparisons as automatic external validation, professional approval, or code compliance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-073; `docs/CONTRACT.md` / OPS-K-AUTH-1 |
+> | REQ-07-08-007 | Comparison views shall be diagnostic and review-oriented; they shall not present deterministic comparisons as automatic external validation, professional approval, or code compliance (PRD §21.2). | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-073; `docs/CONTRACT.md` / OPS-K-AUTH-1 |
 > | REQ-07-08-008 | Missing solve-required, rule-check-required, provenance, assumption, nonlinear, or IP-boundary information shall remain visible as findings or warnings and shall not be silently defaulted by the GUI. | `docs/SPEC.md` / GUI requirements; `docs/CONTRACT.md` / OPS-K-DATA-2 |
 > | REQ-07-08-009 | The GUI-facing implementation shall follow the accepted architecture basis: Tauri 2 where desktop-shell-facing, TypeScript/React/Vite where GUI-facing, and Three.js where 3D viewport-facing. Exact package versions remain TBD. | `_CONTEXT.md` / Architecture Basis Injection |
 > | REQ-07-08-010 | Verification shall include GUI-appropriate automated checks where implementation exists, including layered GUI tests and rendering/interaction checks; exact test harness and acceptance thresholds are TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-08; `docs/SPEC.md` / GUI requirements |
@@ -268,7 +268,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > 5. Preserve diagnostic structure in warning UI. Where diagnostics are supplied, keep code, class, severity, source, affected object, message, remediation, and provenance available to the user.
 > 6. Implement state/run browsing only against upstream model-state and analysis-run records. Exact query shape, routing, pagination, and storage access are TBD pending implementation context.
 > 7. Implement comparison tables and overlays only against upstream comparison records, mapping/tolerance contracts, or deterministic diff output. Exact visual encodings and tolerance display rules are TBD.
-> 8. Review all labels, empty states, and status text for professional-boundary risk. The GUI must not claim automatic certification, sealing, approval, authentication, or code compliance.
+> 8. Review all labels, empty states, and status text for professional-boundary risk. The GUI must not claim automatic certification, sealing, approval, authentication, or code compliance (PRD §21.2).
 > 9. Add tests appropriate to the implemented surface. Expected classes include component/unit tests, interaction tests, and Playwright/rendering checks where a frontend scaffold exists. Exact commands and thresholds are TBD.
 > 10. Record remaining TBDs, assumptions, missing upstream contracts, and warning/provenance limitations in the deliverable review notes for human evaluation.
 >
@@ -338,7 +338,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > 1. Consume upstream contracts, do not invent them. DEL-07-08 depends on GUI foundations plus design, transform, state/comparison, and operation contracts. The workspace should represent those contracts faithfully and mark unsupported details as TBD. Source: `Dependencies.csv`; `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015.
 > 2. Keep authoring controlled. GUI-originated edits should become application-service command intents and controlled operations, not direct writes to durable project state. Source: `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-05.
 > 3. Keep missing information visible. Missing solve-required data, rule-check data, provenance, assumptions, nonlinear uncertainty, and IP-boundary risks are findings or warnings, not values to hide or default. Source: `docs/SPEC.md` / GUI requirements; `docs/CONTRACT.md` / OPS-K-DATA-2.
-> 4. Keep comparisons non-authoritative. State/run comparisons support design review and audit; they are not automatic professional validation, external approval, or code-compliance findings. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-073; `docs/CONTRACT.md` / OPS-K-AUTH-1.
+> 4. Keep comparisons review-oriented. State/run comparisons support design review and audit; acceptance and professional judgment remain with the responsible engineer. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-073; `docs/CONTRACT.md` / OPS-K-AUTH-1.
 > 5. Preserve public/private and protected-content boundaries. Design knowledge and project metadata may include user-owned or private information; public artifacts must not copy protected standards, owner requirements, private rule-pack payloads, or proprietary data. Source: `docs/IP_AND_DATA_BOUNDARY.md` / Public repository must not contain.
 >
 
@@ -364,7 +364,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > | Rich workspace versus bounded scope | Build around the SOW-076 surfaces and upstream contracts first; defer unrelated editors or report rendering to their owning deliverables. |
 > | Convenience editing versus auditability | Prefer structured operations and diff review over direct mutation because OBJ-015 requires controlled, reviewable, auditable model operations. |
 > | Visual overlays versus traceability | Overlays should be backed by state/comparison/diagnostic records where available; unsupported visual semantics remain TBD. |
-> | Smooth comparison UX versus professional boundary | Use neutral review wording. Do not label a comparison as approved, validated, certified, sealed, or code compliant unless a separate human-owned record is explicitly in scope. |
+> | Smooth comparison UX versus professional boundary | Use neutral review wording. Do not label a comparison as approved, validated, certified, sealed, or code compliant unless a separate human-owned record is explicitly in scope (PRD §21.2). |
 > | Public examples versus realistic data | Use invented or cleared data only. Real owner/project/code/vendor data belongs in private user-controlled paths unless contribution review clears it. |
 >
 

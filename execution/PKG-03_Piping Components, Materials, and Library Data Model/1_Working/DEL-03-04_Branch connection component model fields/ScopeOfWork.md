@@ -177,7 +177,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 > - dependency, review-finding, DAG, coordination, lifecycle, or status edits;
 > - protected standards text, formulas, tables, figures, copied examples, or proprietary data;
 > - bundled branch, SIF, flexibility, dimensional, material, or allowable defaults;
-> - certification, sealing, approval, authentication, or compliance claims.
+> - claims language — Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-011 — Requirements

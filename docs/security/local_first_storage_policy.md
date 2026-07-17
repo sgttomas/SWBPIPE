@@ -25,9 +25,10 @@ refs:
 This policy defines OpenPipeStress local-first storage and private path posture
 for `DEL-12-01`. It is a privacy and product-boundary artifact, not a
 filesystem layout, cloud-service design, encryption claim, secret storage
-design, professional engineering approval, security certification, compliance
-attestation, or claim that analysis results are fit for reliance without
-competent human review.
+design, security certification, or compliance attestation (PRD §21.2).
+Acceptance, professional judgment, and any certification, sealing, or
+code-compliance determination remain with the responsible engineer and
+project authority.
 
 ## Scope
 
@@ -79,7 +80,7 @@ The helper classifies only explicit metadata. It does not read files, write
 files, choose operating-system roots, store project payloads, store secrets,
 open SQLite handles, expose direct SQL, transmit data, authorize cloud or
 network storage, implement encryption, or make security-certification,
-professional, approval, authentication, sealing, or code-compliance claims.
+professional, approval, authentication, sealing, or code-compliance claims (PRD §21.2).
 
 Public-repository and shared contexts block private project, rule-pack,
 material, component, report, diagnostic, cache, and secret storage records by
@@ -234,4 +235,4 @@ for:
 - absence of protected standards content, proprietary engineering values, real
   private project data, real secrets, real filesystem paths, hosted database
   commitments, cloud storage commitments, network requirements, encryption
-  claims, and professional/code-compliance or security-certification claims.
+  claims, and professional/code-compliance or security-certification claims (PRD §21.2).

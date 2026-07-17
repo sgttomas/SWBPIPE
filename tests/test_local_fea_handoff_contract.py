@@ -321,8 +321,12 @@ def main():
     normalized_guidance = normalize_text(guidance)
     for label in REQUIRED_GUIDANCE_LABELS:
         assert f"`{label}`" in guidance
-    assert "They do not certify" in normalized_guidance
-    assert "Final engineering reliance remains a human responsibility" in (
+    assert (
+        "Acceptance, professional judgment, and any certification, sealing, or "
+        "code-compliance determination remain with the responsible engineer and "
+        "project authority."
+    ) in normalized_guidance
+    assert "Final engineering reliance remains tied to the exact" in (
         normalized_guidance
     )
     assert "Target solver, mesh, and exchange format remain separate decisions" in (

@@ -157,7 +157,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 >
 > DEL-17-08 defines and implements a bounded JSON `.gltf` review-geometry profile for lightweight visual inspection, review context, and stable identity correlation back to canonical model entities. Under `DEC-074` O11/E7, the selected profile remains JSON glTF with embedded buffer data, line-mode centerline segments, direct `extras`, and an authoritative sidecar ID map.
 >
-> This bounded profile does not select or imply binary GLB, broad geometry coverage, viewer compatibility, engineering validation, an API endpoint, release path, external-tool certification, solver geometry, stress analysis handoff, code-compliance process, or professional acceptance workflow.
+> This bounded profile does not select or imply binary GLB, broad geometry coverage, viewer compatibility, engineering validation, an API endpoint, release path, solver geometry, or stress analysis handoff. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-012 — Requirements

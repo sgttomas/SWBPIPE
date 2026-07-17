@@ -61,7 +61,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | Additional export formats | TBD; this setup deliverable does not choose CSV, HDF5, neutral-file, spreadsheet, or external tool formats as final. |
 > | Anticipated implementation artifacts | `schemas/results.schema.yaml`, exporter source, and tests. Source: `_CONTEXT.md` Anticipated Artifacts; not created or edited in this setup session. |
 > | Envelope content categories | Result identity, model/run references, unit-aware value arrays, diagnostics, provenance, analysis status, warnings, and reproducibility references. Source: `docs/SPEC.md` sections 4.5, 7, 8, and 9; `execution/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows AB-00-03, AB-00-04, AB-00-06, and AB-00-07. |
-> | Review boundary | Exports support review and comparison; they do not certify, seal, approve, authenticate, or declare code compliance. Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4. |
+> | Review boundary | Exports support review and comparison. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4. |
 > | Unit boundary | Exported values must be unit-aware and dimensionally traceable; missing units are findings, not silent defaults. Source: `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2. |
 > | Protected-data boundary | Public export contracts must not embed protected standards text, copied standards tables, proprietary formulas, private rule-pack payloads, or private project data by default. Source: `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7. |
 >
@@ -147,7 +147,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | DEL-08-04-R4 | Result envelopes shall carry or reference provenance and reproducibility metadata, including model/run identity, solver version basis, rule-pack checksum where applicable, warnings, assumptions, and source notes. | `docs/SPEC.md` sections 4.5 and 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 > | DEL-08-04-R5 | Result envelopes shall carry structured diagnostics using the PKG-00 baseline fields: code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` section 7 |
 > | DEL-08-04-R6 | Exported statuses shall distinguish mechanics solved, user-rule checked, rule-input incomplete, human-review required, and human-approved record states where present. | `docs/TYPES.md` sections 4 and 8; `docs/CONTRACT.md` OPS-K-AUTH-1 |
-> | DEL-08-04-R7 | Result exports shall not claim certification, sealing, professional approval, authentication, or automatic engineering code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
+> | DEL-08-04-R7 | Result exports shall not claim certification, sealing, professional approval, authentication, or automatic engineering code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
 > | DEL-08-04-R8 | Result exports and public examples shall not embed protected standards text, copied standards tables, proprietary formulas, private rule-pack payloads, or private project data by default. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
 > | DEL-08-04-R9 | Exporters and adapters shall not bypass validation, unit checks, diagnostics, provenance handling, report controls, or public/private data-boundary checks. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07; `docs/SPEC.md` section 1 |
 > | DEL-08-04-R10 | Export ordering and identifiers should be deterministic enough for regression comparison of equivalent result sets. | `docs/SPEC.md` sections 4.5 and 9; `docs/_Registers/ScopeLedger.csv` row SOW-046 |
@@ -312,7 +312,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > ##### Principles
 >
 > - Preserve the result envelope as the governed contract. Downstream tools may consume exports, but they should not bypass unit checks, diagnostics, provenance, public/private data handling, or report controls.
-> - Keep the export format review-oriented. A result export can support professional review, but the software must not claim certification, sealing, approval, authentication, or automatic code compliance.
+> - Keep the export format review-oriented. A result export can support professional review; acceptance and professional judgment remain with the responsible engineer.
 > - Treat units as data, not context. Every exported numeric result needs explicit unit and dimensional meaning, or a diagnostic explaining why it is incomplete.
 > - Keep diagnostics structured. Review and regression tools need stable diagnostic codes/classes/severities and affected-object references, not prose-only warnings.
 > - Carry reproducibility references without copying private payloads. Model hashes, manifest IDs, solver versions, and rule-pack checksums are appropriate references; protected standards text, proprietary formulas, private rule-pack internals, and owner data are not public export payloads by default.

@@ -275,7 +275,7 @@ This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and
 > - Verify missing required data and missing provenance produce diagnostics rather than defaults.
 > - Verify unit-bearing imported/exported values are dimensionally checked.
 > - Verify private-boundary checks run before shared exports.
-> - Verify result envelopes do not claim certification, approval, sealing, or automatic code compliance.
+> - Verify result envelopes do not claim certification, approval, sealing, or automatic code compliance (PRD §21.2).
 > - Verify tests and examples use invented or otherwise redistributable data with provenance.
 > - Verify each selected no-bypass control fails closed before dispatch, protected-suspected content quarantines, and a valid declaration remains blocked with `ADAPTER_RUNTIME_NOT_SELECTED`.
 >

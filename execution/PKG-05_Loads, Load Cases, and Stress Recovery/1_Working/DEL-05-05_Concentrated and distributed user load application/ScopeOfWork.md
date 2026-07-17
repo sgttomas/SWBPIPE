@@ -155,7 +155,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 >
 > - code-specific load combinations, factors, or default values;
 > - protected standard content or proprietary allowables;
-> - certification, compliance, or professional approval claims.
+> - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 > - final result-envelope/API/persistence/GUI/CLI/report integration unless
 >   separately dispatched.
 >

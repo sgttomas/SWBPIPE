@@ -168,7 +168,7 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 > | DEL-14-05-R006 | JSON export semantics shall align with the schema-first result-envelope baseline. Exact deliverable-specific JSON fields are TBD. | `_CONTEXT.md#Architecture-Basis-Injection`; `docs/SPEC.md#result-export-format` |
 > | DEL-14-05-R007 | CSV export semantics shall be specified without embedding protected standards data, proprietary engineering values, private project data, or private rule-pack payloads. Exact columns are TBD. | `_CONTEXT.md#Description`; `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain`; `docs/SPEC.md#result-export-format` |
 > | DEL-14-05-R008 | Report-section export semantics shall preserve diagnostics, provenance, hashes or audit-manifest references, analysis statuses, limitations, and professional-boundary notices. Layout is TBD. | `docs/SPEC.md#result-export-format`; `docs/SPEC.md#report-boundary`; `docs/CONTRACT.md#OPS-K-REPORT-1` |
-> | DEL-14-05-R009 | The contracts shall not claim certification, sealing, approval, authentication, external validation, or code compliance. | `docs/CONTRACT.md#OPS-K-AUTH-1`; `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073` |
+> | DEL-14-05-R009 | The contracts shall not claim certification, sealing, approval, authentication, external validation, or code compliance (PRD §21.2). | `docs/CONTRACT.md#OPS-K-AUTH-1`; `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073` |
 > | DEL-14-05-R010 | Public artifacts shall not bundle protected standards text, protected tables, code-specific acceptance criteria, proprietary values, or private user data. | `docs/CONTRACT.md#OPS-K-IP-1`; `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain` |
 > | DEL-14-05-R011 | The contract shall remain compatible with model-state records, analysis-run records, result export envelopes, and unit-system contracts identified as upstream dependency evidence. | `Dependencies.csv`; `_DEPENDENCIES.md` |
 >
@@ -313,7 +313,7 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 > | Source-grounding check | Non-trivial requirements cite `_CONTEXT.md`, `_REFERENCES.md`, decomposition, local dependency mirror, or referenced governance docs. |
 > | TBD check | Unsupported details are marked `TBD` or `ASSUMPTION`; no engineering values are invented. |
 > | Unit check | Unit-bearing comparison/export values are specified as unit-aware or diagnostic-producing. |
-> | Boundary check | No professional approval, certification, code-compliance, or external-validation claim is introduced. |
+> | Boundary check | No professional approval, certification, code-compliance, or external-validation claim is introduced (PRD §21.2). |
 > | IP/privacy check | No protected standards content, proprietary data, private project data, or private rule-pack payload is embedded. |
 > | Dependency mirror check | Existing approved DAG-006 rows remain present and ACTIVE. |
 >
@@ -372,7 +372,7 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 > | Missing values stay visible | Tolerance defaults, mapping workflow details, and exact export field sets remain `TBD` where sources do not define them. Do not substitute engineering defaults. Source: `docs/CONTRACT.md#OPS-K-DATA-2`; `execution/_Decomposition/SOFTWARE_DECOMP.md#OI-014`. |
 > | Units are contract data | Unit-normalized deltas still need explicit unit/dimensional metadata or diagnostics. Source: `docs/CONTRACT.md#OPS-K-UNIT-1`; `docs/SPEC.md#result-export-format`. |
 > | Export is review evidence | Exports should carry enough context for review, regression comparison, report consumption, and downstream tooling without claiming external validation. Source: `docs/SPEC.md#result-export-format`; `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073`. |
-> | Professional authority remains human | Avoid terms or statuses that imply software certification, sealing, professional approval, authentication, or code compliance. Source: `docs/CONTRACT.md#OPS-K-AUTH-1`; `docs/TYPES.md#Analysis-status-vocabulary`. |
+> | Professional authority remains human | Avoid terms or statuses that imply software certification, sealing, professional approval, authentication, or code compliance (PRD §21.2). Source: `docs/CONTRACT.md#OPS-K-AUTH-1`; `docs/TYPES.md#Analysis-status-vocabulary`. |
 > | Public artifacts stay clean | Public examples and contract documentation must not embed protected standards text, protected tables, code-specific values, proprietary data, or private rule-pack payloads. Source: `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain`. |
 >
 

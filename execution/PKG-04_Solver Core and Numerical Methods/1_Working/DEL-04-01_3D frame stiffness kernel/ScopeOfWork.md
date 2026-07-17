@@ -79,7 +79,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > - This deliverable does not implement straight pipe element mechanics, support families, nonlinear support active-set logic, load cases, stress recovery, diagnostics, rule-pack evaluation, GUI behavior, reports, or packaging except as interface constraints named by the sealed context.
 > - The kernel must remain unit-aware and dimensionally checked through the project unit contracts.
 > - Missing solve-required values must be surfaced as explicit findings rather than silently defaulted.
-> - Solver mechanics and rule-pack acceptability decisions remain separated; this deliverable must not claim code compliance or professional certification.
+> - Solver mechanics and rule-pack acceptability decisions remain separated. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 > - Protected standards text, tables, figures, examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data are out of bounds.
 >
 
@@ -134,7 +134,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > - Straight pipe element details owned by DEL-04-02.
 > - Support/restraint model families owned by DEL-04-03 and DEL-04-04.
 > - Solver diagnostics layer owned by DEL-04-06.
-> - Rule-pack acceptability, code compliance decisions, certification claims, and professional approval.
+> - Rule-pack acceptability decisions; claims language per the standard claim fence (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-010 — Requirements

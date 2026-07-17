@@ -56,7 +56,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | Attribute | Current value | Source |
 > |---|---|---|
 > | Primary subject | `core/solver/diagnostics` implements deterministic mechanics-solver diagnostics for singular, ill-conditioned, nonconverged, invalid-restraint, invalid-topology, invalid-numeric-input, and explicit solver-configuration TBD states. | `_CONTEXT.md`; `core/solver/diagnostics/README.md`; `core/solver/diagnostics/src/lib.rs` |
-> | Solver-result boundary | Diagnostics describe mechanics-solver/model-validation status under `solver_result_only` authority and do not emit rule-check status, human-acceptance status, professional approval, or code-compliance claims. | `docs/CONTRACT.md` OPS-K-MECH-2; OPS-K-AUTH-1; `core/solver/diagnostics/src/lib.rs` `SolverStatus::analysis_boundary_mapping` |
+> | Solver-result boundary | Diagnostics describe mechanics-solver/model-validation status under `solver_result_only` authority and do not emit rule-check status, human-acceptance status, professional approval, or code-compliance claims (PRD §21.2). | `docs/CONTRACT.md` OPS-K-MECH-2; OPS-K-AUTH-1; `core/solver/diagnostics/src/lib.rs` `SolverStatus::analysis_boundary_mapping` |
 > | Diagnostic envelope fields | `SolverDiagnostic` carries `code`, `class`, `severity`, `source`, `message`, optional `affected_ref`, optional `canonical_ref`, optional `remediation`, `provenance`, and `quantity_units`. | `core/solver/diagnostics/src/lib.rs` `SolverDiagnostic` |
 > | Provenance/remediation/unit metadata | Default diagnostics include solver-generated provenance with `review_status: TBD`, default remediation text by diagnostic code/severity, optional canonical model reference, and optional quantity-unit metadata. | `core/solver/diagnostics/src/lib.rs` `DiagnosticProvenance`, `default_remediation`, `with_canonical_ref`, `with_quantity_unit` |
 > | Analysis-boundary statuses | `ReadyToSolve`, `ModelIncomplete`, and `SolveFailed` map to `MODEL_INCOMPLETE`; `MechanicsSolved` and `SolvedWithWarnings` map to `MECHANICS_SOLVED`; every mapping keeps `human_review_required: true`, `emits_rule_status: false`, and `emits_human_acceptance: false`. | `core/solver/diagnostics/src/lib.rs` `SolverStatus::analysis_boundary_mapping` |
@@ -89,7 +89,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > - Nonlinear solver diagnostics must report convergence, active-set state, and unresolved non-convergence when nonlinear support behavior is involved. Source: `docs/CONTRACT.md` OPS-K-SOLVER-2.
 > - Missing solve-required values and invalid restraints must become explicit findings rather than silent defaults. Source: `docs/CONTRACT.md` OPS-K-DATA-2.
 > - Units in solver-facing values and outputs remain dimensionally checked. Source: `docs/CONTRACT.md` OPS-K-UNIT-1.
-> - Current evidence is implementation evidence for the diagnostic crate, not release acceptance, professional reliance, or code-compliance approval.
+> - Current evidence is implementation evidence for the diagnostic crate, not release acceptance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-007 — Construction
@@ -114,7 +114,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 >
 > - `core/solver/diagnostics/README.md` states this crate is the bounded implementation slice for `DEL-04-06`.
 > - `_run_records/TASK_RUN_2026-06-05_0736_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_B.md` records `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked` passing with 19 tests.
-> - The same June 5 evidence preserves deferrals for sparse solver selection, tolerance policy, nonlinear support behavior, release claims, professional approval, and code-compliance claims.
+> - The same June 5 evidence preserves deferrals for sparse solver selection, tolerance policy, nonlinear support behavior, release claims, professional approval, and code-compliance claims (PRD §21.2).
 >
 
 ### CLM-009 — References
@@ -178,7 +178,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | REQ-04-06-008 | Conditioning diagnostics shall classify finite nonnegative condition-ratio evidence into no diagnostic, `IllConditionedSystem` warning, or `ConditioningFailure` failure using caller-supplied thresholds. | SOW-035; OI-005; `classify_condition_ratio` |
 > | REQ-04-06-009 | Nonconvergence diagnostics shall classify residual/tolerance evidence as no diagnostic, warning-level `NonConvergence`, or failure-level `NonConvergence` using caller-supplied tolerance and iteration count. | OPS-K-SOLVER-2; `convergence_diagnostic` |
 > | REQ-04-06-010 | Sparse-solver adapter selection and accepted tolerance policy shall remain explicit warning-level `TBD` diagnostics until accepted by a later governed decision. | `_CONTEXT.md` Still TBD; OI-005; `sparse_solver_tbd_diagnostic`; `tolerance_policy_tbd_diagnostic` |
-> | REQ-04-06-011 | The diagnostic slice shall preserve mechanics-only boundaries and shall not claim certification, sealing, approval, professional reliance, release readiness, or code compliance. | OPS-K-MECH-2; OPS-K-AUTH-1; `core/solver/diagnostics/README.md` |
+> | REQ-04-06-011 | The diagnostic slice shall preserve mechanics-only boundaries and shall not claim certification, sealing, approval, professional reliance, release readiness, or code compliance (PRD §21.2). | OPS-K-MECH-2; OPS-K-AUTH-1; `core/solver/diagnostics/README.md` |
 >
 
 ### CLM-014 — Standards
@@ -204,7 +204,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | REQ-04-06-008 | Unit coverage includes condition-ratio no-diagnostic, warning, failure, and non-finite-input rejection cases. |
 > | REQ-04-06-009 | Unit coverage includes failed nonconvergence and converged residual cases. |
 > | REQ-04-06-010 | Unit coverage includes sparse-solver `TBD` warning behavior; tolerance-policy `TBD` is implemented as the companion unresolved-policy diagnostic and remains a release deferral. |
-> | REQ-04-06-011 | Boundary review checks wording and run-record evidence for no release, professional approval, or code-compliance claim. |
+> | REQ-04-06-011 | Boundary review checks wording and run-record evidence for no release, professional approval, or code-compliance claim (PRD §21.2). |
 >
 
 ### CLM-016 — Documentation
@@ -213,7 +213,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 >
 > Current local documentation artifacts are `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `MEMORY.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. This document update does not edit lifecycle state, dependency registers, review finding dispositions, DAG files, coordination prompts, code, or tests.
 
-- **AC-001** — The contract preserves the accepted diagnostic codes and mappings, caller-supplied threshold and tolerance behavior, explicit sparse-solver and tolerance-policy TBD diagnostics, stable affected and canonical references, unit-aware provenance, rights-cleared verification evidence, and mechanics-only authority without inventing numerical policy, release readiness, professional approval, or code-compliance meaning.
+- **AC-001** — The contract preserves the accepted diagnostic codes and mappings, caller-supplied threshold and tolerance behavior, explicit sparse-solver and tolerance-policy TBD diagnostics, stable affected and canonical references, unit-aware provenance, rights-cleared verification evidence, and mechanics-only authority without inventing numerical policy or release readiness. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -257,7 +257,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > 10. Confirm conditioning and nonconvergence diagnostics with caller-supplied thresholds/tolerances and input validation.
 > 11. Confirm sparse-solver and tolerance-policy TBD diagnostics remain warning-level unresolved-policy evidence.
 > 12. Check recent run records for validation evidence; the June 5 Worker B record reports 19 passing diagnostics tests.
-> 13. Preserve deferrals for sparse solver selection, accepted tolerance thresholds, nonlinear support warning finalization, final result-envelope integration, release claims, professional approval, and code-compliance claims.
+> 13. Preserve deferrals for sparse solver selection, accepted tolerance thresholds, nonlinear support warning finalization, final result-envelope integration, release claims, professional approval, and code-compliance claims (PRD §21.2).
 > 14. For document-only alignment work, do not edit code, `_STATUS.md`, review finding dispositions, dependency registers, DAG files, or coordination prompts.
 >
 
@@ -270,7 +270,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > 3. Add original/public/permissive singular, restraint, topology, load, conditioning, and nonconvergence fixtures only within an authorized implementation scope.
 > 4. Add nonlinear support active-set regression coverage only after nonlinear diagnostic policy is accepted.
 > 5. Add release gate coverage for accepted sparse solver and tolerance policy only after those decisions are governed.
-> 6. Verify that each fixture emits machine-readable diagnostics and does not claim professional approval or code compliance.
+> 6. Verify that each fixture emits machine-readable diagnostics and does not claim professional approval or code compliance (PRD §21.2).
 >
 
 ### CLM-022 — Verification
@@ -342,7 +342,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > - Preserve diagnostic provenance, remediation, affected references, canonical references, and unit metadata so downstream reports can explain which object, solver stage, and source produced a warning or blocking condition.
 > - Keep invalid restraints, invalid topology, invalid numeric inputs, and missing solve-required values visible as findings; do not normalize them away.
 > - Use `SolverStatus::analysis_boundary_mapping` for mechanics-only status handoff: solver diagnostics may map to `MODEL_INCOMPLETE` or `MECHANICS_SOLVED`, but they do not emit rule status or human acceptance.
-> - Keep release claims, professional approval, sealing, certification, and code-compliance language outside this deliverable.
+> - Keep release claims outside this deliverable. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-029 — Considerations

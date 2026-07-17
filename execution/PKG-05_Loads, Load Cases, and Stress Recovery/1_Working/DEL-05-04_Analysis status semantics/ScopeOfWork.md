@@ -56,7 +56,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 
 > ##### Conditions
 >
-> - Status records describe what software computed or found; they must not claim certification, sealing, approval, authentication, or professional code compliance. Source: OPS-K-AUTH-1 and OPS-K-MECH-2.
+> - Status records describe what software computed or found; they must not claim certification, sealing, approval, authentication, or professional code compliance (PRD §21.2). Source: OPS-K-AUTH-1 and OPS-K-MECH-2.
 > - Missing solve-required or rule-check-required values must be explicit findings and never silent defaults. Source: OPS-K-DATA-2.
 > - Human acceptance records, if used later, must bind to specific model, rule-pack, result, and report hashes and must not survive content changes without re-review. Source: OPS-K-AUTH-2.
 > - Reports must disclose solver/version, rule-pack checksum, warnings, assumptions, limitations, source/provenance notes, and professional-boundary notices. Source: OPS-K-REPORT-1.
@@ -131,7 +131,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 
 > ##### Scope
 >
-> This deliverable specifies the analysis-status semantics used by result envelopes and related boundaries. It covers status distinctions among mechanics solved, rule-pack checked or blocked by incomplete rule inputs, incomplete solve data, and human-approved/not-human-approved records. Implemented evidence exists for the schema vocabulary, result/API fields, boundary tests, and downstream consumers. Lifecycle promotion, release readiness, GUI acceptance workflow ownership, report rendering acceptance, and professional approval remain outside this deliverable-local kit.
+> This deliverable specifies the analysis-status semantics used by result envelopes and related boundaries. It covers status distinctions among mechanics solved, rule-pack checked or blocked by incomplete rule inputs, incomplete solve data, and records with or without a hash-bound human acceptance. Implemented evidence exists for the schema vocabulary, result/API fields, boundary tests, and downstream consumers. Lifecycle promotion, release readiness, GUI acceptance workflow ownership, report rendering acceptance, and professional approval remain outside this deliverable-local kit.
 >
 
 ### CLM-011 — Requirements
@@ -178,7 +178,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 > | REQ-05-04-007 | `tests/test_analysis_status_schema.py`, `tests/test_analysis_boundary_schema.py`, `tests/test_results_schema.py`, and `tests/test_api_boundary_contract.py` exclude `HUMAN_APPROVED_FOR_PROJECT` from automatic/API/result statuses. |
 > | REQ-05-04-008 | `schemas/analysis_status.schema.yaml` defines hash-bound `HumanAcceptanceRecord`; workflow ownership, storage, and UI presentation remain TBD. |
 > | REQ-05-04-009 | `schemas/analysis_boundary.schema.yaml`, `schemas/results.schema.yaml`, report/result export modules, and tests preserve diagnostics, provenance, and boundary notices. |
-> | REQ-05-04-010 | Focused schema/API tests prevent `CODE_COMPLIANT`, certification, sealing, approval, or equivalent automatic statuses. |
+> | REQ-05-04-010 | Focused schema/API tests prevent `CODE_COMPLIANT`, certification, sealing, approval, or equivalent automatic statuses (PRD §21.2). |
 > | REQ-05-04-011 | Protected-content and product-claims review of examples, docs, and report-facing wording. |
 > | REQ-05-04-012 | Open-item review requiring unresolved human workflow details to remain explicit `TBD`s. |
 > | REQ-05-04-013 | Schema/API review and tests confirm status-envelope fields remain distinct and do not imply approval. |
@@ -200,7 +200,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 > |---|---|---|---|---|---|---|
 > | None | No conflict identified during current evidence alignment. | N/A | N/A | N/A | N/A | TBD |
 
-- **AC-001** — The contract preserves the accepted separation of numerical computation, user-rule evaluation, missing data, professional review, and human-owned project acceptance, including hash-bound external acceptance residuals, without automatic certification, sealing, compliance, approval, or stale-record reuse.
+- **AC-001** — The contract preserves the accepted separation of numerical computation, user-rule evaluation, missing data, professional review, and human-owned project acceptance, including hash-bound external acceptance residuals, without automatic certification, sealing, compliance, or approval statuses (PRD §21.2) and without stale-record reuse.
 
 ## Production and Verification Method — Praxeology
 

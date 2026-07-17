@@ -66,7 +66,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > ##### Conditions
 > - Scope is process and CI gate definition only. This setup does not modify CI workflows, tests, release files outside this deliverable, or repo-level artifacts.
 > - Final numerical tolerances, coverage percentages, performance thresholds, CI provider details, signing process, release matrix, and maintainer quorum remain `TBD` unless later approved by the human project authority.
-> - Release labels describe software maturity and validation evidence only. They must not imply code compliance, endorsement, sealing, certification, or project-specific engineering acceptance.
+> - Release labels describe software maturity and validation evidence only. They must not imply code compliance, endorsement, sealing, certification, or project-specific engineering acceptance (PRD §21.2).
 > - Benchmark sources and public examples must be original, public-domain, or permissively licensed with documented provenance.
 > - Missing solve-required or rule-check-required data is a finding and cannot be hidden by a release gate.
 >
@@ -135,7 +135,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - implementing CI jobs, tests, solver logic, GUI workflows, rule-engine logic, or report templates;
 > - moving artifacts to `ISSUED`;
 > - selecting final tolerance, coverage, performance, release-matrix, signing, or maintainer-quorum thresholds without human authority;
-> - asserting certification, code compliance, professional approval, or engineering reliance.
+> - asserting certification, code compliance, professional approval, or engineering reliance (PRD §21.2).
 >
 
 ### CLM-012 — Requirements
@@ -207,7 +207,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - `Dependencies.csv` validates against the v3.1 dependency schema.
 > - `Current State` is `SEMANTIC_READY` only after the setup artifacts and dependency schema validation pass.
 > - No CI workflows, release files outside this folder, tests, or repo-level artifacts are modified.
-> - No certification, code-compliance, endorsement, sealing, or professional-approval claim is made.
+> - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 - **AC-001** — The contract preserves deterministic gate evidence, union routing, provenance, protected/private-data controls, missing-data findings, open risks and TBD thresholds, gate outcome vocabulary, human waiver/risk disposition, and the distinction between release governance and professional engineering approval.
 
@@ -304,7 +304,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - Confirm the procedure does not modify CI workflows, tests, release files outside this deliverable, or repo-level artifacts.
 > - Confirm no final thresholds are asserted without human authority.
 > - Confirm no protected standards text, protected examples, copied formulas, allowables, SIF/flexibility tables, proprietary values, or private user data are introduced.
-> - Confirm no software or agent output claims certification, sealing, endorsement, official compliance, or professional approval.
+> - Confirm no software or agent output claims certification, sealing, endorsement, official compliance, or professional approval (PRD §21.2).
 > - Confirm setup artifacts include semantic matrices, semantic lensing, dependency artifacts, run records, and `SEMANTIC_READY` status only after validation passes.
 >
 

@@ -22,3 +22,4 @@
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T3/PDU-049 preserved `DEL-07-03-R-011` as `VERIFIED_NOT_VALIDATED`: private-by-default project evidence remains verification, no independent usability/security basis was produced, lifecycle remains IN_PROGRESS, and no review closure is claimed.
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 2 cited declaration claims to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
+- 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).

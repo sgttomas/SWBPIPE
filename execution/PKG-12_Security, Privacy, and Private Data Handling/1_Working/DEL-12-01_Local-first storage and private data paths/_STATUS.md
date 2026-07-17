@@ -33,6 +33,7 @@ PDU-055 cited claim(s): `DEL-12-01-DECL-005`.
 - 2026-05-11 - TP-RECON-01 reconciled archived DEL-12-01 evidence and commit `84e0a73`; state preserved as CHECKING with TBD and boundary constraints unchanged.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
+- 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 
 ## Setup Gate Evidence
 

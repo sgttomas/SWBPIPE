@@ -70,7 +70,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > | Provenance | Materials, components, SIFs, flexibility factors, allowables, and rule-pack values carry provenance fields. |
 > | Units | Editor inputs, validation, imports, exports, and rule-pack references must be unit-aware and dimensionally checked. |
 > | Rule packs | Rule packs are versioned, checksummed, source-noted, marked public/private, and evaluated by sandboxed unit-aware logic outside this GUI setup deliverable. |
-> | Professional boundary | UI copy and workflow state must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance. |
+> | Professional boundary | UI copy and workflow state must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). |
 > | Scope split risk | Multiple editors remain in one GUI domain for setup, but later implementation may require split work if the surface expands. |
 >
 > Sources: `docs/CONTRACT.md` invariants `OPS-K-IP-1`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-UNIT-1`, `OPS-K-RULE-1`, `OPS-K-RULE-2`, `OPS-K-RULE-3`, `OPS-K-AUTH-1`; `docs/DIRECTIVE.md` sections 2, 3, 5; `docs/_Registers/ContextBudgetQA.csv` row `DEL-07-03`.
@@ -163,7 +163,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > - GUI source implementation, tests, package manifests, schemas, or repo-level documentation.
 > - Bundled protected standards content, proprietary material/component/rule data, or silent engineering defaults.
 > - Selection of exact GUI component libraries, state libraries, rule expression grammar/library, dependency versions, public API transport, or physical project package/container.
-> - Any claim that the GUI certifies, seals, approves, authenticates, or declares engineering code compliance.
+> - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 > Sources: `_CONTEXT.md` sections "Description", "Anticipated Artifacts", "Architecture Basis Injection"; `docs/_Registers/Deliverables.csv` row `DEL-07-03`; `docs/_Registers/ScopeLedger.csv` row `SOW-021`; `docs/CONTRACT.md` invariants `OPS-K-IP-1`, `OPS-K-DATA-1`, `OPS-K-AUTH-1`, `OPS-K-AGENT-4`.
 >
@@ -369,7 +369,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > - Ensure `_SEMANTIC.md` contains matrices A, B, C, F, D, K, G, X, T, E and an audit pass note.
 > - Ensure `_SEMANTIC_LENSING.md` contains lens coverage for matrices A, B, C, F, D, X, E.
 > - Ensure `Dependencies.csv` ACTIVE rows include `EvidenceFile` and `SourceRef`.
-> - Ensure no text claims code compliance, certification, sealing, approval, or professional reliance.
+> - Ensure no text claims code compliance, certification, sealing, approval, or professional reliance (PRD §21.2).
 > - Ensure no protected standards data or proprietary library content appears in the documents.
 >
 

@@ -158,7 +158,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 >
 > DEL-17-07 shall define and later implement a conservative PCF subset exporter for broader plant-design interoperability. The deliverable shall produce a PCF subset profile, PCF writer behavior, unsupported behavior report, and invented fixtures.
 >
-> This deliverable shall not claim PCF completeness, CAEPIPE compatibility, solver validation, release readiness, code compliance, professional acceptance, or formal external-tool approval. It shall not implement schema changes or code in this Phase A four-document pass.
+> This deliverable shall not claim PCF completeness, CAEPIPE compatibility, solver validation, or release readiness. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). It shall not implement schema changes or code in this Phase A four-document pass.
 >
 
 ### CLM-012 — Requirements
@@ -239,7 +239,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > | DEL-17-01 source basis | Governing project source-basis authority for downstream PCF claims. |
 > | DEL-17-02 export contract | Governing project contract for profile, manifest, ID map, and loss reporting. |
 > | PCF format specification | `TBD`; no redistributed proprietary specification text is admitted in this phase. |
-> | Engineering design codes and standards | Out of scope for this exporter; no code-compliance or professional-approval claim is permitted. |
+> | Engineering design codes and standards | Out of scope for this exporter; the prohibited-claims boundary (PRD §21.2) applies. |
 >
 
 ### CLM-019 — Verification
@@ -417,7 +417,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > 3. Confirm the stable ID sidecar links canonical IDs to emitted target records or loss-report entries.
 > 4. Confirm every unsupported, approximated, delegated, omitted, or `TBD` behavior appears in the loss report.
 > 5. Confirm no release, compatibility, code-compliance, formal-validation, or professional-acceptance claim is present.
-> 6. Confirm generated PCF export evidence is not described as downstream import compatibility, solver validation, release readiness, code compliance, professional acceptance, or external-tool approval.
+> 6. Confirm generated PCF export evidence is not described as downstream import compatibility, solver validation, or release readiness, and carries no prohibited authority claim (PRD §21.2).
 >
 
 ### CLM-033 — Verification

@@ -89,7 +89,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > - The public schema and tests must not introduce protected standards text, protected tables, proprietary values, copied formulas, or commercial examples. Source: `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-5.
 > - Project files may contain private project/rule data in user-controlled contexts, but public fixtures must use invented, original, or permissively licensed data with documented provenance. Source: `docs/IP_AND_DATA_BOUNDARY.md` sections 2, 4, and 6; `docs/CONTRACT.md` OPS-K-PRIV-1.
 > - All persisted numerical and engineering-relevant values must be unit-aware or carry enough unit metadata for downstream dimensional checks. Source: `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/PRD.md` section 10 FR-002.
-> - Software output and persistence metadata must not claim code compliance, certification, sealing, approval, or professional reliance. Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4.
+> - Software output and persistence metadata: Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4.
 >
 
 ### CLM-007 — Construction
@@ -214,7 +214,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | REQ-02-05-013 | Private project, material, component, and rule-pack data shall remain local-first and shall not be transmitted or committed publicly by default. | `docs/CONTRACT.md` OPS-K-PRIV-1; `docs/PRD.md` section 18 |
 > | REQ-02-05-014 | Public fixtures and examples used by this deliverable shall be invented, original, public-domain, or permissively licensed and shall include provenance/redistribution status when data records are present. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-5; `docs/VALIDATION_STRATEGY.md` section 5 |
 > | REQ-02-05-015 | The round-trip test suite shall include schema validation, deterministic reserialization, JSON canonicalization/hash stability, migration-status handling, unit/provenance preservation, private-data boundary checks, and protected-content/provenance gates where relevant. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-08; `docs/VALIDATION_STRATEGY.md` sections 2 and 4; `docs/PRD.md` section 22.1 |
-> | REQ-02-05-016 | No persistence status, field, diagnostic, report hook, or example shall claim professional approval, certification, sealing, authentication, or automatic code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4; `docs/DIRECTIVE.md` section 3 |
+> | REQ-02-05-016 | No persistence status, field, diagnostic, report hook, or example shall claim professional approval, certification, sealing, authentication, or automatic code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4; `docs/DIRECTIVE.md` section 3 |
 > | REQ-02-05-017 | The project file schema shall enumerate logical envelope slots for document/schema metadata, project identity, unit-system reference, model payload, load payloads, rule-pack references, provenance/redistribution metadata, diagnostics or migration status, reproducibility metadata, and optional review records. | SOW-050; `docs/SPEC.md` section 3; `docs/IP_AND_DATA_BOUNDARY.md` section 4; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 > | REQ-02-05-018 | Round-trip acceptance criteria shall compare semantic equality for model content, unit metadata, loads, rule-pack references, provenance metadata, and reproducibility metadata after parse -> validate/normalize -> serialize -> parse. | SOW-050; `docs/PRD.md` section 10 FR-001; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 > | REQ-02-05-019 | Unit round-trip criteria shall distinguish explicit units, declared unit-system references, missing units, and incompatible unit metadata; missing or incompatible units shall produce findings instead of silent defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/PRD.md` section 10 FR-002; `docs/DIRECTIVE.md` sections 2.2 and 3 |
@@ -304,7 +304,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | `RULE_CHECK_BLOCKING` | Mechanics may exist, but required user/rule-pack data is missing. | `docs/SPEC.md` section 7; PRD section 14.4. |
 > | `IP_BOUNDARY_WARNING` | Public contribution, fixture, report hook, or export may expose protected/private content. | `docs/SPEC.md` section 7; IP/data-boundary policy. |
 > | `PRIVATE_DATA` (PROPOSAL) | An operation would transmit, commit, export, or publish private project/rule/library data by default. | OPS-K-PRIV-1; PRD section 18. |
-> | `PROFESSIONAL_BOUNDARY` (PROPOSAL) | A status or artifact could imply certification, sealing, approval, authentication, or automatic code compliance. | OPS-K-AUTH-1; `docs/TYPES.md` section 4. |
+> | `PROFESSIONAL_BOUNDARY` (PROPOSAL) | A status or artifact could imply certification, sealing, approval, authentication, or automatic code compliance (PRD §21.2). | OPS-K-AUTH-1; `docs/TYPES.md` section 4. |
 >
 > PROPOSAL: Exact diagnostic code prefixes remain TBD; the table above records required deterministic coverage, not final code names.
 >
@@ -453,7 +453,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > 8. Review public-data safety.
 >    - Confirm public fixtures are invented, original, public-domain, or permissively licensed.
 >    - Confirm no protected standards text, protected tables, proprietary formulas, material allowables, copied SIF/flexibility data, or commercial examples are present.
->    - Confirm no persisted status claims automatic code compliance or professional approval.
+>    - Confirm no persisted status claims automatic code compliance or professional approval (PRD §21.2).
 >    - Produce or update a `public_fixture_data_boundary_review` record (PROPOSAL; final path TBD) with fixture name, source/provenance, redistribution status, contributor certification, protected-content review status, private-data review status, and professional-boundary review status.
 >
 > 9. Record open items.
@@ -540,7 +540,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > - Preserve provenance. Missing provenance is a finding or warning, not a reason to invent source information. Source: `docs/CONTRACT.md` OPS-K-DATA-2 and OPS-K-DATA-3; `docs/TYPES.md` section 5.
 > - Store rule-pack references and checksums without bundling protected rule content into public project examples. Source: `docs/SPEC.md` section 6; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7.
 > - Route persistence through application/service/storage boundaries that keep validation and diagnostics enforceable. Source: `docs/SPEC.md` section 1; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-03, AB-00-06, and AB-00-07.
-> - Separate software-computed state from professional approval. Persistence may record user-rule check states or human review records only with appropriate authority labels and hashes; it must not turn software output into code compliance. Source: `docs/TYPES.md` section 4; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2.
+> - Separate software-computed state from professional approval. Persistence may record user-rule check states or human review records only with appropriate authority labels and hashes; acceptance and professional judgment remain with the responsible engineer. Source: `docs/TYPES.md` section 4; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2.
 >
 
 ### CLM-037 — Considerations
@@ -594,7 +594,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 >
 > TBD. No deliverable-specific project file example was available in the accessible sources. Any future public fixture should use invented or permissively licensed data, include provenance/redistribution fields where data records exist, and avoid protected standards/code content.
 >
-> Future fixtures should also carry a durable review record with, at minimum, source name/location, license or redistribution basis, contributor certification, review status, and confirmation that the fixture does not include protected standards/code data, proprietary values, or professional approval claims. Source: `docs/IP_AND_DATA_BOUNDARY.md` sections 2-5; `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3 and OPS-K-AUTH-1.
+> Future fixtures should also carry a durable review record with, at minimum, source name/location, license or redistribution basis, contributor certification, review status, and confirmation that the fixture does not include protected standards/code data, proprietary values, or professional approval claims (PRD §21.2). Source: `docs/IP_AND_DATA_BOUNDARY.md` sections 2-5; `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3 and OPS-K-AUTH-1.
 >
 
 ### CLM-041 — Conflict Table (for human ruling)

@@ -113,7 +113,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 >
 > - Nonlinear active-set behavior such as one-way restraints, lift-off, gaps, and friction, assigned to DEL-04-04.
 > - Sparse solver selection, performance harness work, final result-envelope integration, and support coordinate policy beyond explicit node DOFs.
-> - Code compliance, certification, professional approval, or bundled protected standards/vendor values.
+> - Bundled protected standards/vendor values; claims language per the standard claim fence (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-010 — Requirements
@@ -132,7 +132,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > | DEL-04-03-R08 | The support model shall preserve module boundaries and inward dependencies toward domain contracts; adapters/plugins must not bypass validation, diagnostics, or governance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02 |
 > | DEL-04-03-R09 | Solver-facing support changes shall be covered by deterministic verification tests before release use. | `docs/CONTRACT.md` OPS-K-SOLVER-1; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-08 |
 > | DEL-04-03-R10 | Unknown support coordinate policy, sparse solver integration points, final result-envelope integration, and release-readiness criteria shall remain `TBD` until resolved by a governed brief or human decision. | `docs/CONTRACT.md` OPS-K-AGENT-1; `_CONTEXT.md` Still TBD |
-> | DEL-04-03-R11 | Documentation shall not imply nonlinear support behavior, a penalty method, sparse solver integration, release approval, professional approval, or code-compliance acceptance. | Human hard stop; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01 |
+> | DEL-04-03-R11 | Documentation shall not imply nonlinear support behavior, a penalty method, sparse solver integration, release approval, professional approval, or code-compliance acceptance (PRD §21.2). | Human hard stop; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01 |
 > | DEL-04-03-R12 | Boundary preparation and application shall use `prepare_boundary` and `apply_linear_supports` as the current implemented surfaces for dense-system support handling. | `core/solver/linear_supports/src/lib.rs`; `core/solver/linear_supports/README.md` |
 >
 
@@ -159,7 +159,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > | R08 | Architecture review checks dependency direction and no-bypass behavior. |
 > | R09 | June 5 evidence records `cargo test --manifest-path core/solver/linear_supports/Cargo.toml --locked` passing 14 tests. |
 > | R10 | Open policy and integration choices are tracked as `TBD` or decision-record inputs, not hidden assumptions. |
-> | R11 | Review confirms artifacts do not claim nonlinear behavior, release approval, professional approval, code compliance, sparse solver integration, or invented support stiffness/defaults. |
+> | R11 | Review confirms artifacts do not claim nonlinear behavior, release approval, professional approval, code compliance, sparse solver integration, or invented support stiffness/defaults (PRD §21.2). |
 > | R12 | Tests cover `prepare_boundary` output and `apply_linear_supports` spring diagonal application, imposed displacement force adjustment, rigid zero-displacement reduction, and blocking findings before reduction. |
 >
 
@@ -196,7 +196,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 
 > ##### Purpose
 >
-> Use this procedure to verify DEL-04-03 review-readiness evidence for the implemented linear support/restraint slice without expanding scope into nonlinear supports, sparse solver integration, final result-envelope integration, release approval, or professional/code-compliance claims.
+> Use this procedure to verify DEL-04-03 review-readiness evidence for the implemented linear support/restraint slice without expanding scope into nonlinear supports, sparse solver integration, final result-envelope integration, or release approval. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-017 — Prerequisites
@@ -207,7 +207,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > - Read `_CONTEXT.md`, `_REFERENCES.md`, `docs/CONTRACT.md`, and the SOFTWARE_DECOMP rows for SOW-011, OBJ-003, DEL-04-03, DEL-04-04, and AB-00-01/02/03/06/08.
 > - Confirm protected data and professional-compliance hard stops before drafting support examples or tests.
 > - Confirm the current implementation evidence in `core/solver/linear_supports/README.md`, `core/solver/linear_supports/src/lib.rs`, and the June 5 support-boundary-hardening run record.
-> - Confirm any support coordinate policy, sparse solver integration, final result-envelope integration, release-readiness criterion, or professional/code-compliance conclusion is either already accepted by a governed decision or marked `TBD`.
+> - Confirm any support coordinate policy, sparse solver integration, final result-envelope integration, release-readiness criterion, or professional/code-compliance conclusion (PRD §21.2) is either already accepted by a governed decision or marked `TBD`.
 >
 
 ### CLM-018 — Steps

@@ -94,7 +94,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | Assumptions | Show user/model assumptions requiring review | Do not convert assumptions into accepted facts |
 > | User-supplied values | Identify values supplied by users, private libraries, or rule packs where report-facing provenance is needed | Do not reproduce protected source content |
 > | Source/provenance notes | Summarize source identity, license/redistribution status, checksum/ref where applicable, and review status where available | Do not claim legal sufficiency or professional acceptance |
-> | Professional notice | State the software output is decision support and requires competent human review before reliance | Do not claim certification, sealing, approval, or code compliance |
+> | Professional notice | State the software output is decision support and requires competent human review before reliance | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 >
 
 ### CLM-007 — Provenance Payload Field Inventory
@@ -181,14 +181,14 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | DEL-08-03-REQ-002 | The report section shall render warning classes supplied by diagnostics/result envelopes, including solve blocking, rule-check blocking, provenance, assumption, nonlinear, and IP-boundary warnings where present. | `docs/SPEC.md` Section 7; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 | Fixture covers each supported warning class and preserves class/severity/code |
 > | DEL-08-03-REQ-003 | Each rendered warning or assumption shall preserve machine-readable trace data when supplied: code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 | Schema/snapshot test confirms trace fields are retained or explicitly marked `TBD` |
 > | DEL-08-03-REQ-004 | User-supplied values and rule-pack references shall be identified as user-supplied or private where applicable, with source/provenance notes and rule-pack identity/checksum references when supplied by upstream artifacts. | `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-DATA-3, OPS-K-RULE-3; `docs/SPEC.md` Section 8 | Report fixture shows source/provenance and rule-pack ref/checksum without embedding protected content |
-> | DEL-08-03-REQ-005 | The report section shall include a professional-responsibility notice stating that professional reliance requires competent human review and that software output is decision support. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` Section 8 | Snapshot or template check finds the notice and rejects certification/approval language |
+> | DEL-08-03-REQ-005 | The report section shall include a professional-responsibility notice stating that professional reliance requires competent human review and that software output is decision support. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` Section 8 | Snapshot or template check finds the notice and rejects certification/approval language (PRD §21.2) |
 > | DEL-08-03-REQ-006 | The report section shall not reproduce protected code text, protected standards tables, copyrighted examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data in public templates/examples. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-REPORT-2; `docs/IP_AND_DATA_BOUNDARY.md` Section 7 | Protected-content lint and review evidence pass for public templates/examples |
 > | DEL-08-03-REQ-007 | The report section shall preserve unit context for any rendered values and shall not display unit-bearing values without their units when units are supplied. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` Section 8 | Report fixture includes unit-bearing values with units and rejects unitless display where units exist |
 > | DEL-08-03-REQ-008 | The report section shall distinguish mechanics-solved, user-rule-checked, incomplete-data, and human-review-required states without presenting software-generated code compliance. | `docs/TYPES.md` Section 4; `docs/CONTRACT.md` OPS-K-MECH-2 and OPS-K-AUTH-1 | Status fixture avoids `CODE_COMPLIANT` and includes human-review-required boundary language |
 > | DEL-08-03-REQ-009 | The report section shall support reproducibility by referencing model/report metadata supplied by audit manifest work, including model hash, software/solver version, and rule-pack checksum when present. | `docs/SPEC.md` Section 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 | Integration fixture consumes manifest fields by reference or marks unavailable fields `TBD` |
 > | DEL-08-03-REQ-010 | Missing source/provenance shall itself be reportable as a provenance warning rather than silently omitted. | `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-DATA-3; `docs/SPEC.md` Section 7 | Fixture with `UNKNOWN_SOURCE` or missing source emits a provenance warning |
 > | DEL-08-03-REQ-011 | If automated protected-content lint is unavailable during early implementation, the report-section change shall remain subject to explicit human review and shall record the unavailable lint gate as an open verification item. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-REPORT-2; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` Review checklist | Review evidence records lint status and human review requirement |
-> | DEL-08-03-REQ-012 | Report-section tests or review checks shall reject language that claims software certification, approval, endorsement, sealing, authentication, or automatic code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Section 4.2 | Snapshot/lint/review check covers prohibited claim language |
+> | DEL-08-03-REQ-012 | Report-section tests or review checks shall reject language that claims software certification, approval, endorsement, sealing, authentication, or automatic code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Section 4.2 | Snapshot/lint/review check covers prohibited claim language |
 >
 
 ### CLM-013 — Standards
@@ -212,7 +212,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | Professional-boundary snapshot | Verifies the notice is present and prohibited certification/compliance language is absent |
 > | Protected-content lint | Verifies public templates/examples do not embed protected standards content |
 > | Lint fallback review | Verifies unavailable protected-content lint is recorded as an open verification item and does not advance silently |
-> | Prohibited-claim check | Verifies report text avoids certification, approval, endorsement, sealing, authentication, and automatic code-compliance claims |
+> | Prohibited-claim check | Verifies report text avoids certification, approval, endorsement, sealing, authentication, and automatic code-compliance claims (PRD §21.2) |
 > | Unit display check | Verifies unit-bearing values are rendered with units |
 > | Reproducibility reference check | Verifies manifest/hash/rule-pack checksum fields are referenced when supplied |
 >
@@ -239,7 +239,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > - report provenance section;
 > - tests.
 
-- **AC-001** — The contract preserves upstream diagnostic class, severity, source, affected object, message, remediation and provenance when supplied; exposes missingness rather than defaulting it; protects private/protected content; and makes no certification, approval, sealing, authentication, or automatic-compliance claim.
+- **AC-001** — The contract preserves upstream diagnostic class, severity, source, affected object, message, remediation and provenance when supplied; exposes missingness rather than defaulting it; and protects private/protected content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -305,7 +305,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >
 > 4. Preserve boundaries.
 >    - Do not reproduce protected standards text, copied standards tables, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary vendor data in public templates/examples.
->    - Do not claim certification, sealing, approval, authentication, endorsement, or automatic code compliance.
+>    - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >    - Do not transmit or publish private project/rule-pack/library data by default.
 >    - Bind final professional-boundary wording to a canonical product-claims policy or approved report notice when available; until then, keep wording conservative and mark exact final text `TBD`.
 >
@@ -339,7 +339,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | Dependency schema command | `python3 tools/validation/validate_dependencies_schema.py <deliverable_path>/Dependencies.csv` passes |
 > | Scope guard | No files outside the DEL-08-03 working folder are modified by this setup run |
 > | Protected-data guard | Public setup artifacts contain no protected standards text/tables/formulas or proprietary data |
-> | Professional-boundary guard | Setup artifacts do not claim certification, approval, sealing, endorsement, or software-authenticated code compliance |
+> | Professional-boundary guard | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Lint fallback guard | If protected-content lint tooling is unavailable, record that status as an open verification item requiring human review |
 >
 
@@ -385,7 +385,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 
 > ##### Purpose
 >
-> This deliverable exists so calculation reports make uncertainty, missing inputs, assumptions, and provenance visible to professional reviewers. The section should help a reviewer see what the software computed, what the user supplied, what remains incomplete, and what must not be treated as software-certified engineering approval.
+> This deliverable exists so calculation reports make uncertainty, missing inputs, assumptions, and provenance visible to professional reviewers. The section should help a reviewer see what the software computed, what the user supplied, and what remains incomplete; acceptance and professional judgment remain with the responsible engineer.
 >
 
 ### CLM-026 — Principles
@@ -397,7 +397,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | Findings over defaults | Missing solve-required or rule-check-required values should appear as explicit findings, not be filled by convenience defaults. |
 > | Provenance over opacity | Values affecting engineering reliance should carry source/provenance notes or a visible `TBD`/unknown-source finding. |
 > | Warnings preserve origin | Report rendering should carry diagnostic class, severity, source, affected object, and remediation from the producing layer when available. |
-> | Decision support only | Report language may support professional review but must not claim certification, sealing, approval, authentication, or automatic code compliance. |
+> | Decision support only | Report language may support professional review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Protected-content restraint | Public templates/examples may identify rule-pack references and checksums but must not reproduce protected standards text, tables, copied formulas, or proprietary content. |
 > | Unit visibility | Values shown in the section should preserve unit context wherever units exist in upstream data. |
 >

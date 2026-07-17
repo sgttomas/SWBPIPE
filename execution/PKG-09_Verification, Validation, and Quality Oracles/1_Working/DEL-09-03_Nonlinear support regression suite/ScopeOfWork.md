@@ -64,7 +64,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > | Solver dependency | Depends on nonlinear solver maturity. |
 > | Diagnostics dependency | Nonlinear support behavior must expose convergence, active-state, gap, lift-off, friction-state, iteration-count, tolerance, and non-convergence warning information. |
 > | Units expectation | Inputs, checks, and result comparisons must be unit-aware. |
-> | Professional boundary | Regression success is software-quality evidence only; it is not certification, sealing, approval, or a code-compliance claim. |
+> | Professional boundary | Regression success is software-quality evidence only. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 >
 
 ### CLM-005 — Conditions
@@ -136,7 +136,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > - creating benchmark source files or regression tests;
 > - copying protected standards examples, code text, tables, formulas, or proprietary commercial cases;
 > - inventing final numerical convergence tolerances;
-> - asserting certification, professional approval, or code compliance.
+> - asserting certification, professional approval, or code compliance (PRD §21.2).
 >
 
 ### CLM-011 — Requirements
@@ -152,7 +152,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > | REQ-09-03-005 | Regression comparisons shall be deterministic for the same model, units, solver version, and applicable rule-pack inputs. | `docs/SPEC.md` section 4.5; OBJ-008. | Repeat-run checks once solver and runner support exist. |
 > | REQ-09-03-006 | All case definitions, inputs, and expected observations shall be unit-aware and dimensionally checkable. | OPS-K-UNIT-1; `docs/SPEC.md` sections 3, 4.5, and 9. | Unit/schema validation before case acceptance. |
 > | REQ-09-03-007 | Final numerical convergence tolerances and pass/fail thresholds shall remain `TBD` until nonlinear solver maturity provides evidence for defensible values. | DEL-09-03 risk note; OPS-K-AGENT-1. | Human review of solver evidence and tolerance proposal before implementation. |
-> | REQ-09-03-008 | Regression outcomes shall be reported as software verification evidence only and shall not claim code compliance, certification, sealing, approval, or professional reliance. | OPS-K-AUTH-1; `docs/TYPES.md` analysis-status vocabulary; `docs/DIRECTIVE.md` section 4.2. | Review report text and test labels for prohibited authority claims. |
+> | REQ-09-03-008 | Regression outcomes shall be reported as software verification evidence only and shall not claim code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | OPS-K-AUTH-1; `docs/TYPES.md` analysis-status vocabulary; `docs/DIRECTIVE.md` section 4.2. | Review report text and test labels for prohibited authority claims. |
 >
 
 ### CLM-012 — Standards
@@ -263,7 +263,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > 6. Defer final numerical convergence tolerances until nonlinear solver evidence is available and reviewed.
 > 7. When implementation is later authorized, create case fixtures and regression tests only in the appropriate validation/test locations named by the decomposition.
 > 8. Validate future tests through unit/schema checks, deterministic reruns, diagnostics/result-envelope review, and protected-content/provenance review.
-> 9. Report regression outcomes as software-quality evidence only; do not claim code compliance, certification, sealing, approval, or professional reliance.
+> 9. Report regression outcomes as software-quality evidence only; do not claim code compliance, certification, sealing, approval, or professional reliance (PRD §21.2).
 >
 
 ### CLM-021 — Verification

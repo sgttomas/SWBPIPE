@@ -65,7 +65,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > | Unit boundary | Unit-bearing physical values crossing schema, service, solver, import/export, report, or rule-evaluation boundaries must carry explicit unit metadata unless explicitly dimensionless or equivalent. | `docs/SPEC.md` section 4 |
 > | Hash boundary | DEL-14-02 hashes UTF-8 bytes from Python sorted-key compact JSON with ASCII escaping and emits `SORTED_COMPACT_JSON`; full RFC 8785/JCS conformance and non-JSON/binary partitioning are not claimed. | `docs/SPEC.md` section 4.4; `DEC-074` E1 / PDU-003 |
 > | Result-envelope relationship | Result export envelopes must identify result set, model/run basis, solver version, unit-system reference, load-case or combination basis, diagnostics, provenance, reproducibility hashes or audit-manifest reference, analysis statuses, rule-pack references where present, and professional-boundary notice. | `docs/SPEC.md` result export section |
-> | Professional boundary | Software must not emit automatic human approval, certification, sealing, authentication, or code-compliance labels. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 > | Protected/private data boundary | Public artifacts must not copy private formulas, protected standards text, protected tables, proprietary values, or private rule-pack payloads. | `docs/SPEC.md` result export section; `docs/IP_AND_DATA_BOUNDARY.md` |
 >
 
@@ -173,7 +173,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > | DEL-14-02-R005 | Unit-bearing physical values included or referenced by run records shall carry explicit unit metadata unless explicitly classified as dimensionless, ratio, percentage, or coefficient. | `docs/SPEC.md` section 4; `docs/CONTRACT.md` OPS-K-UNIT-1 | Schema validation and negative tests reject or diagnose missing unit metadata where required. |
 > | DEL-14-02-R006 | Missing solve-required or rule-check-required values shall be explicit findings with diagnostics and provenance, not silent defaults. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-DATA-2 | Tests confirm missing required values produce structured diagnostics. |
 > | DEL-14-02-R007 | Hash records shall identify payload scope and label the implemented JSON serialization precisely. DEL-14-02 uses deterministic sorted-key compact JSON with ASCII escaping; it does not claim RFC 8785/JCS conformance. | `_CONTEXT.md` architecture basis; `docs/SPEC.md` section 4.4; `DEC-074` E1 / PDU-003 | Reproducibility tests prove the exact emitted label and bytes, stable hashes, payload-mutation sensitivity, and absence of an emitted JCS claim. |
-> | DEL-14-02-R008 | The record shall preserve the software authority boundary: solver results and diagnostics are software outputs; human acceptance is external and hash-bound. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2 | Schema/status tests ensure automatic approval, certification, sealing, authentication, or code-compliance labels are not emitted. |
+> | DEL-14-02-R008 | The record shall preserve the software authority boundary: solver results and diagnostics are software outputs; human acceptance is external and hash-bound. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2 | Schema/status tests ensure automatic approval, certification, sealing, authentication, or code-compliance labels are not emitted (PRD §21.2). |
 > | DEL-14-02-R009 | Rule-pack and library references shall expose identity/provenance/checksum-style metadata where source-supported, without embedding protected standards text, protected tables, proprietary values, private formulas, or private payloads in public artifacts. | SOW-072; `docs/SPEC.md` result export section; `docs/IP_AND_DATA_BOUNDARY.md` | Protected-content/private-data tests inspect examples and fixtures before acceptance. |
 > | DEL-14-02-R010 | Run reproducibility tests shall be part of the deliverable output surface. | `_CONTEXT.md` anticipated artifacts | Test files exist and exercise stable run-record/hash behavior once implementation occurs. |
 > | DEL-14-02-R011 | The schema and tests shall remain compatible with schema-first command/query/job result-envelope architecture. | `_CONTEXT.md` architecture basis; `docs/SPEC.md` runner/result-envelope sections | Service/result-envelope integration tests or contract tests are added when implementation scope reaches that boundary. |
@@ -203,7 +203,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > | Immutability of run evidence | Round-trip/persistence test | A saved run remains bound to the original model-state/run basis after unrelated model changes. |
 > | Hash reproducibility | Deterministic serialization and mutation tests | Equivalent supported JSON payloads produce exact stable sorted-compact bytes and hashes; changed values change hashes; payload scope and `SORTED_COMPACT_JSON` are recorded; no JCS claim is emitted. |
 > | Unit safety | Negative and positive unit tests | Unit-bearing values include unit metadata or produce blocking diagnostics. |
-> | Professional boundary | Status/label tests | No automatic human approval, certification, sealing, authentication, or code-compliance label is emitted. |
+> | Professional boundary | Status/label tests | No automatic human approval, certification, sealing, authentication, or code-compliance label is emitted (PRD §21.2). |
 > | Protected/private data boundary | Protected-content and fixture review | Public examples do not embed private/protected rule, library, standards, or proprietary payload content. |
 >
 
@@ -275,7 +275,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > 5. Mark unsupported field-level choices as TBD until a source, accepted architecture decision, or human ruling supports them.
 > 6. Ensure unit-bearing values are unit-aware or produce explicit diagnostics for missing/ambiguous units.
 > 7. Ensure hash records identify payload scope and the implemented serialization basis. For DEL-14-02, emit `SORTED_COMPACT_JSON` for Python sorted-key compact JSON with ASCII escaping; preserve deterministic hash bytes and do not claim RFC 8785/JCS conformance without conformance-vector evidence.
-> 8. Preserve professional-boundary constraints: do not generate approval, certification, sealing, authentication, or code-compliance labels as software statuses.
+> 8. Preserve professional-boundary constraints: do not generate approval, certification, sealing, authentication, or code-compliance labels as software statuses (PRD §21.2).
 > 9. Preserve protected/private-data constraints: do not embed private formulas, protected standards text, protected tables, proprietary values, or private rule-pack/library payloads in public fixtures or examples.
 > 10. Add run reproducibility tests covering stable serialization/hash behavior, binding to model-state/run basis, unit diagnostics, and professional-boundary status behavior.
 > 11. Record remaining TBDs and assumptions in implementation notes or tests rather than silently defaulting engineering behavior.
@@ -371,7 +371,7 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 > | Embedded results vs references | Use the source-supported term "results" without deciding whether the schema embeds result payloads, references result envelopes, or supports both. Exact representation is TBD. |
 > | Hash granularity | Require explicit payload scope. Do not decide final partitioning for non-JSON or binary payloads; `docs/SPEC.md` leaves that TBD. |
 > | Rule-pack/library metadata depth | Preserve identity/provenance/checksum/reference metadata without copying private formulas, protected tables, proprietary values, or private payloads. |
-> | Status vocabulary | Use software status/diagnostic categories only within the professional-boundary model. Do not introduce automatic human approval or code-compliance statuses. |
+> | Status vocabulary | Use software status/diagnostic categories only within the professional-boundary model. Do not introduce automatic human approval or code-compliance statuses (PRD §21.2). |
 > | Comparison readiness | DEL-14-02 should not pre-solve DEL-14-04 comparison semantics. It should preserve enough run basis and result hash evidence to support deterministic comparison later. |
 >
 

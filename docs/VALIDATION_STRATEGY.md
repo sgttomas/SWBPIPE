@@ -22,7 +22,7 @@ This draft is aligned to `execution/_Decomposition/SOFTWARE_DECOMP.md`
 revision `0.7` and approved `execution/_DAG/DAG-007/` graph coordination
 authority. `DAG-007` preserves dependency coordination and does not itself
 authorize lifecycle changes, release labels, professional approval, legal
-clearance, certification, sealing, authentication, or code-compliance claims.
+clearance, certification, sealing, authentication, or code-compliance claims (PRD §21.2).
 
 This strategy keeps five evidence surfaces separate:
 

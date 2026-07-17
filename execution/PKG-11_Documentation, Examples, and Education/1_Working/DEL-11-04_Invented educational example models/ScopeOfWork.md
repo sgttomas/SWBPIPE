@@ -78,7 +78,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > | A fake rule pack needs pass/fail behavior | Use clearly fictional labels and non-engineering placeholder values; avoid code-style formulas and realistic allowables. |
 > | A mechanics-only example needs numeric quantities | Use original toy quantities with unit labels and provenance; document that they are not engineering recommendations. |
 > | A tutorial wants to compare against commercial software | Exclude the comparison from public examples unless a separate lawful and approved basis exists. |
-> | A future example is used in validation or regression | Record the distinction between mechanics verification and code compliance; do not imply professional approval. |
+> | A future example is used in validation or regression | Record the distinction between mechanics verification and code compliance; do not imply professional approval (PRD §21.2). |
 >
 
 ### CLM-006 — Construction
@@ -149,11 +149,11 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > | ID | Requirement | Source basis | Verification approach |
 > |---|---|---|---|
 > | R-DEL-11-04-001 | Public educational examples must use invented or original data only and must not contain protected standards content, standards-derived examples, commercial-software examples, proprietary vendor data, code allowables, SIF/flexibility data, or protected dimensional tables. | OPS-K-IP-1/2/3; OPS-K-RULE-1; SOW-033 | Protected-content and provenance review before any future public example is materialized. |
-> | R-DEL-11-04-002 | Future example artifacts must state that they are educational/test fixtures only and are not suitable for engineering reliance, certification, approval, sealing, or code-compliance claims. | OPS-K-AUTH-1; `docs/DIRECTIVE.md` human authority principle; `docs/TYPES.md` professional boundary | Documentation review verifies no professional reliance or automatic compliance language is present. |
+> | R-DEL-11-04-002 | Future example artifacts must state that they are educational/test fixtures only and are not suitable for engineering reliance, certification, approval, sealing, or code-compliance claims (PRD §21.2). | OPS-K-AUTH-1; `docs/DIRECTIVE.md` human authority principle; `docs/TYPES.md` professional boundary | Documentation review verifies no professional reliance or automatic compliance language is present. |
 > | R-DEL-11-04-003 | Mechanics-only examples must illustrate open mechanics and unit-aware reproducibility without embedding code-specific load combinations, allowables, acceptance formulas, or standards interpretations. | OPS-K-DATA-1/2; OPS-K-UNIT-1; `docs/SPEC.md` loads and stress recovery sections | Future example review checks unit labels, provenance fields, and absence of code-specific defaults. |
 > | R-DEL-11-04-004 | Fake-rule-pack demonstrations must use fictional labels and non-engineering placeholder values and must not approximate realistic design-code formulas, allowables, or pass/fail criteria. | OPS-K-RULE-1/3; `docs/SPEC.md` rule-pack evaluator section | Future rule-pack demo review checks fictional notices, checksum/provenance metadata, and no protected rule content. |
 > | R-DEL-11-04-005 | Missing solve-required, rule-check-required, or provenance information in future examples must be explicit as `TBD` or a visible finding, never a silent default. | OPS-K-DATA-2; OPS-K-AGENT-1/2 | Future review checks example manifests for explicit unresolved fields and no invented hidden defaults. |
-> | R-DEL-11-04-006 | Future examples used for regression or validation support must distinguish mechanics verification from code compliance and professional approval. | OBJ-008; `docs/SPEC.md` V&V mechanics; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` review checklist | Future validation handoff checks state that examples are original or invented and are not compliance evidence. |
+> | R-DEL-11-04-006 | Future examples used for regression or validation support must distinguish mechanics verification from code compliance and professional approval (PRD §21.2). | OBJ-008; `docs/SPEC.md` V&V mechanics; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` review checklist | Future validation handoff checks state that examples are original or invented and are not compliance evidence. |
 > | R-DEL-11-04-007 | This setup session must write only inside the DEL-11-04 deliverable folder and must not move artifacts to `ISSUED`. | User sealed brief; OPS-K-AGENT-3/4 | Final file list and git status are scoped to the deliverable folder. |
 >
 
@@ -220,7 +220,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 >
 > Register-listed future artifacts under `examples/models/invented/*` and tutorials are not created by this setup session.
 
-- **AC-001** — The contract preserves the source-defined example families, synthetic-data and provenance requirements, units and assumptions, expected diagnostics and learning outcomes, reproducibility and verification evidence, protected/private-data exclusions, non-reliance notice, visible conflicts and TBDs, and separation from benchmark, code-compliance, certification, or professional-approval claims.
+- **AC-001** — The contract preserves the source-defined example families, synthetic-data and provenance requirements, units and assumptions, expected diagnostics and learning outcomes, reproducibility and verification evidence, protected/private-data exclusions, non-reliance notice, visible conflicts and TBDs, and separation from benchmark claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -333,7 +333,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > 3. Fake-rule-pack examples demonstrate missing-data and rule-check plumbing, not real design rules.
 > 4. Every future example must carry unit and provenance information.
 > 5. Missing or unresolved data remains visible as `TBD` or a finding.
-> 6. Software examples never certify, approve, seal, or declare professional code compliance.
+> 6. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-028 — Considerations

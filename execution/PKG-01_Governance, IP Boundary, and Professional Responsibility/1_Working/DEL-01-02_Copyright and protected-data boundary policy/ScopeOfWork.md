@@ -86,7 +86,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > 1. Boundary categories: allowed public content, prohibited public content, private/user-controlled content, and suspected protected content.
 > 2. Required contribution metadata: source, location, license or redistribution basis, contributor, certification, redistribution status, review status, and disposition.
 > 3. Review actions: intake screening, provenance check, redistribution-rights check, protected-content scan, quarantine decision, human/legal escalation, and final accept/reject/quarantine outcome.
-> 4. Non-claims: no legal opinion, no code-compliance claim, no professional engineering approval, no certification/seal/endorsement claim.
+> 4. Non-claims: no legal opinion. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-007 — References
@@ -132,7 +132,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > | DEL-01-02-R5 | The policy shall state that missing, unknown, or undocumented provenance/redistribution status blocks public acceptance until resolved. | docs/CONTRACT.md OPS-K-DATA-2, OPS-K-IP-2; docs/TYPES.md §5, §7 | Checklist includes `TBD`, `UNKNOWN_SOURCE`, and rejection/quarantine outcomes. |
 > | DEL-01-02-R6 | The policy shall require public rule-pack examples and public report templates/examples to avoid protected standards content and use invented or permissively sourced data. | docs/CONTRACT.md OPS-K-RULE-1, OPS-K-REPORT-2; docs/SPEC.md §6, §8 | Review public-example and report-template review rows. |
 > | DEL-01-02-R7 | The policy shall make contributor review a maintainer gate for IP, provenance, privacy, and protected-content risks before accepting public contributions. | docs/CONTRACT.md OPS-K-GOV-4; docs/DIRECTIVE.md §6 | Checklist includes review disposition and responsible reviewer field. |
-> | DEL-01-02-R8 | The policy shall not claim legal advice, professional engineering approval, certification, sealing, code compliance, or standards-body endorsement. | docs/CONTRACT.md OPS-K-AUTH-1, OPS-K-AGENT-4; docs/DIRECTIVE.md §4.2, §6 | Review notices and forbidden-claim checks. |
+> | DEL-01-02-R8 | The policy shall not claim legal advice, professional engineering approval, certification, sealing, code compliance, or standards-body endorsement (PRD §21.2). | docs/CONTRACT.md OPS-K-AUTH-1, OPS-K-AGENT-4; docs/DIRECTIVE.md §4.2, §6 | Review notices and forbidden-claim checks. |
 > | DEL-01-02-R9 | The policy shall preserve stable IDs and traceability to DEL-01-02, PKG-01, SOW-003, SOW-028, and OBJ-002 in the deliverable-local kit. | docs/CONTRACT.md OPS-K-HIER-1, OPS-K-ID-1; docs/TYPES.md §1-2 | Confirm IDs appear consistently in this kit. |
 > | DEL-01-02-R10 | Architecture-facing references to diagnostics, result envelopes, tests, and gates shall remain constraints for downstream implementation only unless this deliverable explicitly resolves them. | execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-06, AB-00-08; sealed brief | Confirm policy text uses non-implementation wording and records downstream handoff. |
 > | DEL-01-02-R11 | The repo-level checklist location is `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`; reviewer role and final legal/governance mechanism shall remain `TBD` until assigned by the human project authority. | docs/IP_AND_DATA_BOUNDARY.md §8; governance/CONTRIBUTION_REVIEW_CHECKLIST.md; docs/CONTRACT.md OPS-K-GOV-2, OPS-K-GOV-4 | Confirm the checklist path exists while reviewer and final legal mechanism remain unresolved. |
@@ -153,7 +153,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > - Default sections are present in Datasheet, Specification, Guidance, and Procedure.
 > - Requirements cite local project sources rather than protected standard text.
 > - Unknowns are marked `TBD`.
-> - No product implementation, protected standards/code data, legal conclusion, certification, sealing, approval, or compliance-for-reliance claim is introduced.
+> - No product implementation, protected standards/code data, legal conclusion, certification, sealing, approval, or compliance-for-reliance claim is introduced (PRD §21.2).
 > - The contribution checklist verification remains field-by-field; path existence is resolved at `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`, while reviewer role and final legal mechanism remain `TBD`.
 > - Dependency register validates against v3.1 schema after extraction.
 >
@@ -212,7 +212,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 >    - quarantine/escalation record, if applicable.
 > 5. If suspected protected content appears, stop ingestion, avoid reproducing it, mark the item `PROTECTED_CONTENT_SUSPECTED`, quarantine outside public examples, record the issue, and request human/legal review.
 > 6. Replace unknowns with `TBD` rather than inventing license status, legal conclusions, provenance, examples, formulas, or engineering values.
-> 7. Verify the policy avoids claims of legal advice, code compliance, professional engineering approval, certification, sealing, endorsement, or release fitness.
+> 7. Verify the policy avoids claims of legal advice, code compliance, professional engineering approval, certification, sealing, endorsement, or release fitness (PRD §21.2).
 > 8. Perform a field-by-field checklist acceptance review against Specification R2 and R11, treating reviewer role and final governance/legal mechanism as `TBD` until assigned by the human project authority.
 > 9. Route the repo-level policy/checklist for REVIEW and then human acceptance before treating it as project policy.
 >

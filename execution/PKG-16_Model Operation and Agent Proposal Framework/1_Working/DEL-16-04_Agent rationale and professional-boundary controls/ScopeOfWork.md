@@ -45,11 +45,11 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 >
 > | Attribute | Value | Source |
 > |---|---|---|
-> | Deliverable purpose | Capture agent rationale and unresolved assumptions while preventing certification, approval, or code-compliance claims. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 7, DEL-16-04 |
+> | Deliverable purpose | Capture agent rationale and unresolved assumptions while preventing certification, approval, or code-compliance claims (PRD §21.2). | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 7, DEL-16-04 |
 > | Scope item requirement | Accepted model operations shall preserve operation history, rationale, assumptions, affected entities, and audit metadata needed for reproducible model-state review. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 4, SOW-070 |
-> | Professional boundary | Software and agents must not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance. | `docs/CONTRACT.md` section 1, OPS-K-AUTH-1 |
+> | Professional boundary | Software and agents must not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` section 1, OPS-K-AUTH-1 |
 > | Agent authority | Agent outputs are drafts or proposals until accepted by a human gate. | `docs/CONTRACT.md` section 1, OPS-K-AGENT-4; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 1 |
-> | Status vocabulary boundary | Automatic software statuses are limited to software findings and must not include human approval, code-compliance, certification, sealing, or approval-equivalent language. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.3 |
+> | Status vocabulary boundary | Automatic software statuses are limited to software findings and must not include human approval, code-compliance, certification, sealing, or approval-equivalent language (PRD §21.2). | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.3 |
 > | Missing information handling | Missing data and assumptions must be surfaced; unknown engineering values remain `TBD`. | `INIT.md` root instructions; `docs/SPEC.md` section 12 |
 > | Protected content posture | Public artifacts must not contain protected standards content, proprietary commercial data, or private project/rule data. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6 |
 >
@@ -65,7 +65,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > | Human acceptance, if represented, is external, human-actor-owned, and bound to reviewed evidence hashes. | FACT: `docs/SPEC.md` sections 4.3 and 9. |
 > | Current rationale implementation path is established for this slice. | FACT: `core/model_operations/agent_rationale/engine.py` provides `record_agent_rationale()` and `canonical_json()` for DEL-16-04 rationale records. |
 > | Current focused guard-test path is established for this slice. | FACT: `tests/test_agent_rationale_boundary.py` covers deterministic rationale records, decision-support posture, no accepted-state mutation, visible TBD diagnostics, unresolved assumptions, prohibited-claim blocking, copied-context scanning, enum-style authority tokens, and lowercase approved coordination-context false-positive behavior. |
-> | No project-specific engineering values, code clauses, code-compliance conclusions, or professional approval evidence are established by this implementation slice. | FACT: implementation and fixtures use invented/public metadata and professional-boundary flags; downstream human review dispositions remain external. |
+> | No project-specific engineering values, code clauses, code-compliance conclusions, or professional approval evidence (PRD §21.2) are established by this implementation slice. | FACT: implementation and fixtures use invented/public metadata and professional-boundary flags; downstream human review dispositions remain external. |
 > | Standalone rationale JSON Schema, final UI/agent workflow presentation, broader persistence/application-service behavior, and human review dispositions remain unresolved. | TBD for downstream Type 2 work or human ruling. |
 >
 
@@ -118,7 +118,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > Included:
 >
 > - rationale and assumption recording expectations for accepted model operations;
-> - professional-boundary controls that prevent agent/software claims of certification, approval, authentication, sealing, professional reliance, or code compliance;
+> - professional-boundary controls that prevent agent/software claims of certification, approval, authentication, sealing, professional reliance, or code compliance (PRD §21.2);
 > - guard-test expectations for that boundary.
 >
 > Excluded:
@@ -141,8 +141,8 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > | REQ-16-04-01 | The deliverable shall remain bounded to DEL-16-04, PKG-16, SOW-070, OBJ-015, and OBJ-018. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` sections 4-7 | Review document metadata and scope references. |
 > | REQ-16-04-02 | Accepted model operations shall preserve operation history, rationale, assumptions, affected entities, and audit metadata needed for reproducible model-state review. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 4, SOW-070 | Current `record_agent_rationale()` output preserves rationale text/status, assumptions, validation context, affected entities, audit references, audit context, and operation context; standalone schema remains TBD. |
 > | REQ-16-04-03 | Agent outputs shall remain drafts or proposals until accepted by a human gate. | `docs/CONTRACT.md` section 1, OPS-K-AGENT-4; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 1 | `tests/test_agent_rationale_boundary.py` confirms rationale records are decision-support only, create no accepted operation record, do not bypass user acceptance, and do not mutate accepted model state. |
-> | REQ-16-04-04 | Software and agents shall not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance. | `docs/CONTRACT.md` section 1, OPS-K-AUTH-1; `docs/DIRECTIVE.md` sections 3-5 | `tests/test_agent_rationale_boundary.py` confirms prohibited rationale language emits blocking professional-boundary diagnostics. |
-> | REQ-16-04-05 | Automatic status vocabulary shall not include `HUMAN_APPROVED_FOR_PROJECT`, `CODE_COMPLIANT`, `CERTIFIED`, `SEALED`, `APPROVED`, or equivalent professional/code-compliance language. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.3 | Current tests confirm enum-style authority tokens in copied context are blocked and lowercase approved coordination context is not treated as professional approval. Adjacent schema tests confirm forbidden operation statuses remain excluded from `model_operation.schema.json`. |
+> | REQ-16-04-04 | Software and agents shall not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` section 1, OPS-K-AUTH-1; `docs/DIRECTIVE.md` sections 3-5 | `tests/test_agent_rationale_boundary.py` confirms prohibited rationale language emits blocking professional-boundary diagnostics. |
+> | REQ-16-04-05 | Automatic status vocabulary shall not include `HUMAN_APPROVED_FOR_PROJECT`, `CODE_COMPLIANT`, `CERTIFIED`, `SEALED`, `APPROVED`, or equivalent professional/code-compliance language (PRD §21.2). | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.3 | Current tests confirm enum-style authority tokens in copied context are blocked and lowercase approved coordination context is not treated as professional approval. Adjacent schema tests confirm forbidden operation statuses remain excluded from `model_operation.schema.json`. |
 > | REQ-16-04-06 | Any human acceptance record represented by the product shall be external, human-actor-owned, and bound to reviewed payload hashes; it shall not be software-generated professional approval. | `docs/SPEC.md` sections 4.3 and 9 | Current rationale record stores audit context/references as context and sets `rationale_creates_audit_acceptance`/accepted-record creation flags false; final human-disposition workflow remains TBD. |
 > | REQ-16-04-07 | Missing data, unresolved assumptions, warnings, limitations, and `TBD` values shall remain explicit findings and shall not be converted into silent defaults. | `docs/DIRECTIVE.md` section 2.4; `docs/SPEC.md` sections 4.3, 9, and 12 | Current tests confirm missing audit, validation, source, actor, rationale text, and timestamp inputs emit visible `TBD_VISIBLE` diagnostics and unresolved assumptions remain counted/reportable. |
 > | REQ-16-04-08 | Public artifacts shall not introduce protected standards text, code-specific values, proprietary data, private project data, or private rule-pack payloads. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/CONTRACT.md` section 1, OPS-K-IP-1 through OPS-K-IP-3 | Protected-content and data-boundary review; exact linter integration TBD. |
@@ -198,7 +198,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 >
-> These documents cite current implementation/test evidence for the bounded DEL-16-04 slice only. They do not claim lifecycle transition, engineering acceptance, professional approval, certification, sealing, authentication, or code compliance.
+> These documents cite current implementation/test evidence for the bounded DEL-16-04 slice only. They do not claim lifecycle transition or engineering acceptance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 - **AC-001** — The contract preserves operation context/history, rationale, unresolved assumptions, affected entities, audit and validation context/references, source/actor metadata, timestamps, diagnostics, provenance, stable rationale identity/hash, visible TBD findings, explicit human-review and external hash-bound human-authority boundaries, copied-context claim scanning, prohibited authority-language blocking, no accepted-record creation, no acceptance bypass, no accepted-state mutation, protected/private-data controls, and unresolved standalone schema, persistence, UI/API/report, broader application, dependency, and human-disposition matters.
 
@@ -256,7 +256,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > 5. Mark unsupported schema fields, standalone schema path, persistence path, UI/agent workflow presentation, broader application behavior, and human dispositions as `TBD` rather than inventing them.
 > 6. Identify prohibited professional-boundary outputs from `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `PROHIBITED_CLAIM_PATTERNS` in `core/model_operations/agent_rationale/engine.py`.
 > 7. Check that rationale text and copied operation/audit/validation/source/actor/reference context produce blocking diagnostics for prohibited authority language.
-> 8. Check that lowercase coordination references such as approved DAG authority are not misclassified as professional approval unless they use blocked authority language.
+> 8. Check that lowercase coordination references such as approved DAG authority are not misclassified as professional approval (PRD §21.2) unless they use blocked authority language.
 > 9. Check that assumptions, warnings, limitations, missing context, and `TBD` values remain explicit findings.
 > 10. Check that no protected standards text, code-specific values, private project data, or private rule-pack payloads are introduced.
 > 11. Check dependency handling against the local DAG-006 mirror; do not retire, delete, or reclassify approved ACTIVE rows during this setup pass.
@@ -272,7 +272,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > | Scope check | Documents and rationale artifacts reference DEL-16-04, PKG-16, SOW-070, OBJ-015, and OBJ-018 without expanding into sibling deliverables. |
 > | Rationale preservation check | Operation history, rationale, assumptions, affected entities, and audit metadata are present as required categories or explicitly marked TBD pending schema work. |
 > | Non-acceptance check | Current rationale output is decision-support only and does not create accepted operation records, bypass user acceptance, or mutate accepted model state. |
-> | Prohibited-claim check | Automatic output cannot state or imply certification, sealing, approval, authentication, professional reliance, external validation authority, autonomous engineering acceptance, or code compliance. |
+> | Prohibited-claim check | Automatic output cannot state or imply certification, sealing, approval, authentication, professional reliance, external validation authority, autonomous engineering acceptance, or code compliance (PRD §21.2). |
 > | Status-vocabulary check | Automatic statuses remain within the permitted vocabulary from `docs/TYPES.md` and `docs/SPEC.md`. |
 > | Human-acceptance check | Any human acceptance reference is external, human-actor-owned, and hash-bound; it is not generated by software. |
 > | Copied-context check | Prohibited authority language in copied operation, audit, or validation context is blocked before rationale is treated as captured for user review. |
@@ -317,7 +317,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > |---|---|---|
 > | Proposal is not acceptance | Treat agent rationale as proposal/supporting explanation until a human gate accepts the related work. | `docs/CONTRACT.md` OPS-K-AGENT-4; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 1 |
 > | Preserve rationale and assumptions | Do not collapse rationale, unresolved assumptions, affected entities, and audit metadata into unstructured text that cannot support reproducible review. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-070 |
-> | Block professional claims | Controls should prevent certification, approval, sealing, authentication, professional reliance, and code-compliance claim language from being generated as software/agent authority. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
+> | Block professional claims | Controls should prevent certification, approval, sealing, authentication, professional reliance, and code-compliance claim language (PRD §21.2) from being generated as software/agent authority. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
 > | Surface unknowns | Missing or unsupported facts should remain `TBD` or explicit assumptions rather than silent defaults. | `docs/DIRECTIVE.md` section 2.4; `docs/SPEC.md` section 12 |
 > | Keep protected data out | Rationale and tests must not quote or paraphrase protected standards content, proprietary data, private project data, or private rule-pack payloads into public artifacts. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6 |
 > | Preserve hash-bound human authority | If human acceptance records are referenced, treat them as external, human-owned, and bound to reviewed payload hashes. | `docs/SPEC.md` sections 4.3 and 9 |
@@ -359,9 +359,9 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > | Category | Examples from Sources |
 > |---|---|
 > | Permitted automatic software statuses | `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, `HUMAN_REVIEW_REQUIRED` (`docs/TYPES.md` section 4). |
-> | Prohibited automatic status or claim language | `HUMAN_APPROVED_FOR_PROJECT`, `CODE_COMPLIANT`, `CERTIFIED`, `SEALED`, `APPROVED`, or equivalent professional/code-compliance language (`docs/TYPES.md` section 4). |
+> | Prohibited automatic status or claim language | `HUMAN_APPROVED_FOR_PROJECT`, `CODE_COMPLIANT`, `CERTIFIED`, `SEALED`, `APPROVED`, or equivalent professional/code-compliance language (PRD §21.2; `docs/TYPES.md` section 4). |
 > | Required epistemic labels | `FACT`, `ASSUMPTION`, `PROPOSAL`, `TBD` (`docs/TYPES.md` section 5). |
-> | Current rationale blocking diagnostics | `RATIONALE-AUTHORITY-COMPLIANCE-BLOCKED`, `RATIONALE-AUTHORITY-CERTIFICATION-BLOCKED`, `RATIONALE-AUTHORITY-SEALING-BLOCKED`, `RATIONALE-AUTHORITY-AUTHENTICATION-BLOCKED`, `RATIONALE-AUTHORITY-PROFESSIONAL-APPROVAL-BLOCKED`, `RATIONALE-AUTHORITY-EXTERNAL-VALIDATION-BLOCKED`, and `RATIONALE-AUTHORITY-AUTONOMOUS-ACCEPTANCE-BLOCKED` from `core/model_operations/agent_rationale/engine.py`. |
+> | Current rationale blocking diagnostics | `RATIONALE-AUTHORITY-COMPLIANCE-BLOCKED`, `RATIONALE-AUTHORITY-CERTIFICATION-BLOCKED`, `RATIONALE-AUTHORITY-SEALING-BLOCKED`, `RATIONALE-AUTHORITY-AUTHENTICATION-BLOCKED`, `RATIONALE-AUTHORITY-PROFESSIONAL-APPROVAL-BLOCKED`, `RATIONALE-AUTHORITY-EXTERNAL-VALIDATION-BLOCKED`, and `RATIONALE-AUTHORITY-AUTONOMOUS-ACCEPTANCE-BLOCKED` from `core/model_operations/agent_rationale/engine.py` (enforcing PRD §21.2). |
 > | Current visible TBD diagnostics | Missing audit context, validation context, source metadata, actor metadata, rationale text, and timestamp are emitted as `TBD_VISIBLE` diagnostics in `record_agent_rationale()`. |
 >
 > The authorized implementation/test evidence uses invented fixtures only. No project-specific engineering example, standards clause, acceptance value, or professional/code-compliance conclusion is established by this slice.
