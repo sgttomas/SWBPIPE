@@ -50,18 +50,24 @@ construction and stops at the owner's ruling gate.
   not a gate — sequencing is part of the gate. Run each mandatory gate so
   that its failure stops the chain (separate invocation, or short-circuit
   conjunction only; never `;`). Cross-corpus: app-dev NM-4.
-- **N6 — repeal by misclassification.** An owner-revised project convention
-  (the 2026-07-12 model-provenance convention) was classified as "canonical
-  agent doctrine" and deleted, although no complete canonical successor
-  existed anywhere — so deduplication was in fact silent repeal of an
+- **N6 — repeal by misclassification.** In the PR #268-era
+  instruction-separation work, the owner-revised (2026-07-12) model-agnostic
+  subagent capability-assignment and attribution convention was classified
+  as "canonical agent doctrine" and deleted, although no complete canonical
+  successor existed anywhere — deduplication was in fact repeal of an
   owner-ruled instruction, which fails class test (a): repeal changes
-  normative content and is an owner act. Caught in owner-mediated
-  cross-project review; resolved by owner direction restoring the
-  obligation. Standing correction (imported with app-dev NM-5): a verifier's
-  refutation claims must be enumeration-derived — every governed artifact
-  touched by a diff generates claims about that artifact's applicable
-  protections; the tranche's description of its own intent cannot substitute
-  for that enumeration. Cross-corpus: app-dev NM-5.
+  normative content and is an owner act. The deletion existed only in
+  unmerged PR #268 and would have been silent repeal had that PR merged;
+  main never lost the convention. Owner review closed PR #268 unmerged, and
+  the D-APP-61 ruling preserved the rule and re-homed it verbatim (M3-C:
+  app-dev `AGENTS.md`, "Runtime capability convention"). The same
+  misclassification pattern in piping PR #269's initial commit was caught in
+  owner-mediated cross-project review and resolved by owner direction before
+  merge (run-record N6 candidate). Standing correction (imported with
+  app-dev NM-5): a verifier's refutation claims must be enumeration-derived
+  — every governed artifact touched by a diff generates claims about that
+  artifact's applicable protections; the tranche's description of its own
+  intent cannot substitute for that enumeration. Cross-corpus: app-dev NM-5.
 
 ## 4. Cross-corpus numbering map (per the offer, recorded to prevent misjoins)
 
