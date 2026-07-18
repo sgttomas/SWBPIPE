@@ -1338,18 +1338,30 @@
   - Receipt-ID: `Receipt-54`
   - Examined-Through: `b495fe19b470b68a87a791708c1b21bf75951900`
   - Parent-Receipt: `Receipt-53`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — owner
+    direction 2026-07-18 restores mandatory-or-pointer executor/model
+    provenance now, forbids silent substitution, and routes the generic
+    model-selection doctrine through a separate canonical proposal.
+  - Stale-Map-Delta: central PR #268 closed unmerged on 2026-07-18; root
+    launcher-catalog and shared-validator alignment therefore require a
+    replacement central PR before this project PR can become merge-ready.
   - Pointers: verbatim owner direction, classification, and validation in
     `execution/_Coordination/AgentRuns/INSTRUCTION-SEPARATION-20260717/RUN_RECORD.md`;
-    revised project `AGENTS.md`, `init/init-prompt.md`, `loop/LOOP_INIT.md`, and
-    `loop/WORKPLAN_2026-07-17_piping_loop.md`; root launcher-catalog and shared
-    instruction-entrypoint-validator alignment remain declared cross-PR dependencies.
+    revised project `AGENTS.md`, `init/init-prompt.md`, `loop/LOOP_INIT.md`,
+    `loop/LOOP_RECEIPTS.md`, and `loop/WORKPLAN_2026-07-17_piping_loop.md`;
+    root launcher-catalog and shared instruction-entrypoint-validator alignment
+    remain declared cross-PR dependencies.
   - Checks: path-anchor, claims-language, receipt, targeted validation, full
     practitioner-harness pytest, self-check, and `git diff --check` pass;
-    instruction-entrypoint validator fails only on its seven superseded
-    project-local orchestration-phrase requirements.
-  - Model-Attribution: single session agent; no child sessions.
+    instruction-entrypoint validator fails pending central alignment.
+  - Model-Attribution: session parent plus depth probe
+    `/root/depth2_probe_manager` and nested executor
+    `/root/depth2_probe_manager/depth2_probe_executor`; both inherited the
+    harness-assigned session model without override or substitution and made no
+    project writes.
   - Gate-Outcome: `EXECUTED` — default piping entry is HELP_HUMAN and generic
     runtime hierarchy/orchestration text is removed from active piping loop surfaces;
     piping-specific discovery, authority, fences, validation, evidence, receipts,
-    and closeout rules remain. Project PR awaits central dependency alignment and
-    owner merge; no product behavior, lifecycle, stage, release, or claims posture changed.
+    and closeout rules remain. Project PR remains draft pending a replacement
+    central dependency PR and owner merge; no product behavior, lifecycle, stage,
+    release, or claims posture changed.

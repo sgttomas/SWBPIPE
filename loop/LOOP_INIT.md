@@ -90,7 +90,22 @@ summary), and rerun the receipt validator so the next iteration starts clean.
 
 Immutable receipts that say a steer overrides “LOOP_INIT §7 defaults” refer to
 the conventions section as numbered when those steers were recorded. Those
-historical references do not supply current runtime-agent instructions.
+historical section references do not override the current plan or canonical
+runtime instructions.
+
+Loop execution obligations are discharged through canonical Agent 1 execution,
+not as permissions of the entry session; if the required executable child depth
+is unavailable, the affected stage defers. For a `DEC-082`/`DEC-083` exercise,
+the loop session holds the Step 2 disposition judgment while execution,
+rationale-artifact writes, and independent verification are delegated; the
+rationale artifact and receipt separately attribute the judgment holder,
+executor, and verifier.
+
+Beginning with Receipt 46, every versioned receipt has exactly one
+`Model-Attribution` record naming the model or capability actually used for
+each session or delegated role, or pointing to the owning run record that does.
+Any mid-task model or capability change is explicit; silent substitution is not
+valid closeout.
 
 Standing constraints and the loop protocol live in the plan — follow them as
 written.
