@@ -1,0 +1,31 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "version": 1,
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-EXEC-R3",
+  "requested_by": "HELP_HUMAN",
+  "manager": "WORKING_ITEMS",
+  "selection_authority": "HELP_HUMAN owner-standing-approved basis",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "node_id": "TASK-DEL0904-CLEAN-REPRO-01",
+      "agent_form": "ephemeral_agent_2_generalist",
+      "serialized_bash_integration_owner": true,
+      "package_id": "PKG-09",
+      "deliverable_id": "DEL-09-04",
+      "read_scope": "project root and accepted basis named in CHILD_BRIEF.md",
+      "write_ownership": "exclusive targets listed in CHILD_BRIEF.md",
+      "dependencies": [],
+      "expected_return": "terminal PASS, FAIL, or BLOCKED with exact evidence and path inventory"
+    }
+  ],
+  "edges": [],
+  "concurrency": "none",
+  "fan_in_gates": [
+    "candidate acceptance criteria satisfied or truthful failure/block recorded",
+    "exact write-scope containment",
+    "immutable evidence bundle and one sweep artifact",
+    "receipt only on PASS",
+    "no Git closeout or external action"
+  ]
+}

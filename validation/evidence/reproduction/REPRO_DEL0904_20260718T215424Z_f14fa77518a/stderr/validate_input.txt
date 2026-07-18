@@ -1,0 +1,2 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running `/tmp/chirality-del0904-repro.Q4mJ3Z/target/debug/openpipestress-runner validate-input --input validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json --output /tmp/chirality-del0904-repro.Q4mJ3Z/output/tp_runner_015_validation_blocking.json`

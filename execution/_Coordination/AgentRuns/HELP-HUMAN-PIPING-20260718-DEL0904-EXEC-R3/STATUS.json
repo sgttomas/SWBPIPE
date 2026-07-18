@@ -1,0 +1,26 @@
+{
+  "schema": "chirality-managed-run-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-EXEC-R3",
+  "manager_role": "WORKING_ITEMS",
+  "closeout_recorded_by": "HELPS_HUMANS",
+  "run_disposition": "FAIL",
+  "git_closeout": "READY_FOR_COMMIT_WITH_OWNER_EXCEPTION_DEC_086",
+  "git_diff_cached_check_exit": 2,
+  "authorized_whitespace_findings": [
+    "projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260718T215424Z_f14fa77518a/stdout/cargo_test.txt:42: new blank line at EOF."
+  ],
+  "closeout_gate": "PASS_WITH_OWNER_EXCEPTION_DEC_086",
+  "staged_file_count": 108,
+  "deliverable_lifecycle": "IN_PROGRESS",
+  "clean_reproduction_remaining_open": true,
+  "latest_receipt": "Receipt-55",
+  "raw_evidence_edited": false,
+  "sweep_edited": false,
+  "reproduction_accepted": false,
+  "lifecycle_changed": false,
+  "receipt_appended": false,
+  "external_effect": false,
+  "remaining_blockers": [
+    "EVIDENCE_SWEEP_INCOMPLETE_AND_OFFLINE_POSTURE_NOT_ESTABLISHED_FOR_ANY_RERUN"
+  ]
+}

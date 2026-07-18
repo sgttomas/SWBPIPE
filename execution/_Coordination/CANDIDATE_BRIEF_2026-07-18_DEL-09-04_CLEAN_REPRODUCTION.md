@@ -1,19 +1,19 @@
 ---
 doc_id: CB-2026-07-18-DEL-09-04-CLEAN-REPRO-001
 doc_kind: coordination.candidate_brief
-status: owner_standing_approval_activated_ready_for_durable_landing
+status: owner_standing_approval_effective_execution_released
 prepared: 2026-07-18
 package_id: PKG-09
 deliverable_id: DEL-09-04
 decision_basis: DEC-080, DEC-085
-owner_standing_approval: activated_s5_commit_safe_awaiting_durable_landing
+owner_standing_approval: effective_at_governance_commit_f14fa77518a06f112ae72a8fcce4de0fab958d47
 agent_classification: classify_eligible
-rule_activation: activate_owner_standing_approval_ready_for_landing
+rule_activation: activate_owner_standing_approval_effective
 ---
 
 # CANDIDATE Brief — DEL-09-04 Actor-Neutral Clean-Checkout Reproduction
 
-**Status:** `OWNER STANDING APPROVAL ACTIVATED — READY FOR DURABLE LANDING; EXECUTION HOLD`
+**Status:** `OWNER STANDING APPROVAL EFFECTIVE AT f14fa77518a06f112ae72a8fcce4de0fab958d47 — EXECUTION RELEASED`
 
 **Prepared by:** ORCHESTRATOR for HELP_HUMAN
 
@@ -27,11 +27,11 @@ class-level approval and adoption rule itself. HELPS_HUMANS classified this
 brief `CLASSIFY_ELIGIBLE` and recorded `ACTIVATE_OWNER_STANDING_APPROVAL`.
 Adoption remains the human owner's act under that rule; the agent does not
 adopt or rule, and no separate owner case selection is claimed. The adoption
-effect remains held until the owner approval plus agent
-classification/activation are durably SHA-bound. The local verifier and actual
-DEC-083 S5 sibling review are both `COMMIT-SAFE`; no correction remains. Only
-after durable landing may a new managed execution node release the bounded
-work below. Adoption does not accept a reproduction result,
+effect was durably SHA-bound at governance commit
+`f14fa77518a06f112ae72a8fcce4de0fab958d47`. The local verifier and actual
+DEC-083 S5 sibling review are both `COMMIT-SAFE`; no correction remains. The
+bounded managed execution node is therefore released. Adoption does not
+accept a reproduction result,
 advance a lifecycle or target stage, or perform any other owner act.
 
 ## 1. Purpose and Accepted Basis
@@ -492,7 +492,7 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## 10. Owner Adoption by Standing Approval and Agent Classification
 
-**Owner standing-approval status:** `ACTIVATED — S5_COMMIT_SAFE / READY_FOR_DURABLE_LANDING`
+**Owner standing-approval status:** `EFFECTIVE — S5_COMMIT_SAFE / DURABLY_LANDED`
 
 **Owner:** Ryan Tufts
 
@@ -512,7 +512,7 @@ rule, 2026-07-18
 
 **Adoption authority:** `HUMAN_OWNER_BY_STANDING_APPROVAL`
 
-**Owner adoption result:** `CONDITIONAL_ADOPTION_TRIGGERED_BY_ELIGIBILITY_CLASSIFICATION — READY_FOR_DURABLE_LANDING`
+**Owner adoption result:** `CONDITIONAL_ADOPTION_TRIGGERED_BY_ELIGIBILITY_CLASSIFICATION — EFFECTIVE AT f14fa77518a06f112ae72a8fcce4de0fab958d47`
 
 **Owner case-specific selection:** `NONE`
 
@@ -523,11 +523,12 @@ rule, 2026-07-18
 verifier-02 `COMMIT-SAFE`; actual DEC-083 S5 sibling review `COMMIT-SAFE` with
 no correction required, recorded in the R2 run.
 
-**Effect status:** `READY_FOR_DURABLE_LANDING — EXECUTION HELD UNTIL K-AUTH-2 / D-GOV-04 BINDING`
+**Effect status:** `EFFECTIVE — K-AUTH-2 / D-GOV-04 BOUND AT f14fa77518a06f112ae72a8fcce4de0fab958d47; EXECUTION RELEASED`
 
 **Preserved gates:** reproduction-result acceptance; evidence-posture
 promotion; lifecycle/stage/issuance/release; prover activation/correlation;
 publication/external action; merge authority; D-45; D-06b; F-PIP-1..5.
 
-`READY_FOR_DURABLE_LANDING` is not `EFFECTIVE`. No downstream execution node
-may be released before durable K-AUTH-2/D-GOV-04 landing.
+The durable governance landing at
+`f14fa77518a06f112ae72a8fcce4de0fab958d47` made the conditional owner-adoption
+effect effective before this execution node was released.
