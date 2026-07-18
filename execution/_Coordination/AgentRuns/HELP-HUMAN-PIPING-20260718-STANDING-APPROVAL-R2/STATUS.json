@@ -1,0 +1,31 @@
+{
+  "schema": "chirality-managed-run-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-STANDING-APPROVAL-R2",
+  "instance_id": "HELPS-HUMANS-PIPING-STANDING-APPROVAL-01",
+  "parent_role": "HELP_HUMAN",
+  "manager_role": "HELPS_HUMANS",
+  "run_status": "READY_FOR_DURABLE_LANDING",
+  "closure_verdict": "LOCAL_AND_S5_COMMIT_SAFE_OWNER_STANDING_APPROVAL_ACTIVATED_EXECUTION_HELD_UNTIL_LANDING",
+  "owner_standing_approval": "ACTIVATED_CONDITIONAL_CLASS_LEVEL_RULE_READY_FOR_DURABLE_LANDING",
+  "agent_classification": "CLASSIFY_ELIGIBLE",
+  "rule_activation": "ACTIVATE_OWNER_STANDING_APPROVAL",
+  "owner_case_selection": "NONE",
+  "first_verifier": "BLOCK_PRESERVED",
+  "fresh_verifier": "COMMIT_SAFE",
+  "s5_review": "COMMIT_SAFE_NO_CORRECTION_REQUIRED",
+  "reproduction_executed": false,
+  "downstream_execution_released": false,
+  "source_head_at_launch": "35b93dde4e74746e7db39b120a5a28e4903ee90d",
+  "execution_mechanism": {
+    "kind": "CODEX_COLLABORATION_CHILD_SESSION",
+    "canonical_task_path": "/root/helps_humans_standing_approval"
+  },
+  "model_attribution": {
+    "capability": "HARNESS_ASSIGNED_CURRENT_SESSION_MODEL",
+    "override": false,
+    "substitution": false
+  },
+  "blockers": [
+    "DURABLE_SHA_BOUND_LANDING_REQUIRED_BEFORE_EFFECT"
+  ]
+}

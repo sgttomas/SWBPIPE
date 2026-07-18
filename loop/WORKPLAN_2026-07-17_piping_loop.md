@@ -17,6 +17,10 @@
 > `LOOP_RECEIPTS.md` beside this file (rules live at the top of that file).
 > The owner-directed instruction-separation amendment on 2026-07-17 touches only
 > protocol Step 4 and is the first post-re-mint surgical amendment.
+> The owner-directed standing-approval overlay on 2026-07-18 (`DEC-085`) touches
+> only protocol Step 2 and is the second post-re-mint surgical amendment; clauses
+> marked `*(DEC-085)*` were added by that owner direction. Shared-Block v1 remains
+> unchanged.
 
 ## Owner intent
 
@@ -89,6 +93,19 @@ authority permits — stopping at every owner gate.
    naming the failed gate or limit. Over-referral costs owner attention;
    over-deciding silently converts owner authority — borderline defaults to the
    owner.
+   *Standing-approval overlay (DEC-085):* an owner-gated matter may be
+   classified `CLASSIFY_ELIGIBLE` and activate the owner's conditional
+   class-level standing approval only after the D-52 fast-reject boundary
+   passes and live, artifact-grounded ontology, epistemology, praxeology, and
+   axiology converge on exactly one defensible bounded/reversible outcome. The
+   adoption or ruling is always the owner's act under the standing rule; the
+   agent only classifies and records `ACTIVATE_OWNER_STANDING_APPROVAL`, never
+   adopts or rules. `OwnerCaseSelection=NONE` records that no separate
+   case-specific choice occurred. Each exercise records a rationale and requires
+   independent refutation before effect. Preference, accountability,
+   scope/normative change, lifecycle/stage/release/acceptance, external or
+   destructive action, protected data, unavailable evidence, and every other
+   D-52 fast-reject class still stop for the owner. *(DEC-085)*
 3. **Gate.** STOP; adoption/ruling/direction is the owner's act (K-AUTH-1; D-GOV-04).
    In-session directions/rulings are recorded verbatim in their governed artifact;
    only chat-only directions with no governed home are transcribed into the receipt,

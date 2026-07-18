@@ -1,0 +1,39 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-R1",
+  "version": 1,
+  "frozen_by": "HELP_HUMAN",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "selection_authority": "AGENT_0_APPLYING_OWNER_ADOPTED_LOOP_PLAN",
+  "concurrency": "NONE",
+  "nodes": [
+    {
+      "node_id": "N1_PREPARE_DEL0904_CANDIDATE",
+      "role": "ORCHESTRATOR",
+      "instance_id": "ORCHESTRATOR-DEL0904-BRIEF-01",
+      "parent_role": "HELP_HUMAN",
+      "execution_mechanism": "CODEX_COLLABORATION_CHILD_SESSION",
+      "canonical_task_path": "/root/orchestrator_del0904_brief",
+      "package_id": "PKG-09",
+      "deliverable_id": "DEL-09-04",
+      "dependencies": [],
+      "status": "COMPLETED",
+      "writes": [
+        "execution/_Coordination/CANDIDATE_BRIEF_2026-07-18_DEL-09-04_CLEAN_REPRODUCTION.md",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-R1/**"
+      ],
+      "expected_return": "VALIDATED_CANDIDATE_BRIEF_AND_MANAGER_HANDOFF",
+      "fan_in_gate": "REQUIRED_ARTIFACTS_PRESENT_AND_READ_ONLY_VALIDATION_PASS"
+    }
+  ],
+  "downstream_release": {
+    "execution_node_in_graph": false,
+    "status": "HELD",
+    "release_condition": "EXPLICIT_OWNER_ADOPTION_RECORDED_BY_HELP_HUMAN"
+  },
+  "model_attribution": {
+    "capability": "HARNESS_ASSIGNED_CURRENT_SESSION_MODEL",
+    "override": false,
+    "substitution": false
+  }
+}

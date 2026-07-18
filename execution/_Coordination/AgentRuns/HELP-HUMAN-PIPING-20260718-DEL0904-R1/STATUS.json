@@ -1,0 +1,27 @@
+{
+  "schema": "chirality-managed-run-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-R1",
+  "instance_id": "ORCHESTRATOR-DEL0904-BRIEF-01",
+  "parent_role": "HELP_HUMAN",
+  "manager_role": "ORCHESTRATOR",
+  "package_id": "PKG-09",
+  "deliverable_id": "DEL-09-04",
+  "run_status": "COMPLETED",
+  "closure_verdict": "CANDIDATE_PREPARED_AND_VALIDATED_AWAITING_OWNER_ADOPTION",
+  "owner_gate": "AWAITING_OWNER_ADOPTION",
+  "reproduction_executed": false,
+  "downstream_execution_released": false,
+  "source_head_at_launch": "35b93dde4e74746e7db39b120a5a28e4903ee90d",
+  "execution_mechanism": {
+    "kind": "CODEX_COLLABORATION_CHILD_SESSION",
+    "canonical_task_path": "/root/orchestrator_del0904_brief"
+  },
+  "model_attribution": {
+    "capability": "HARNESS_ASSIGNED_CURRENT_SESSION_MODEL",
+    "override": false,
+    "substitution": false
+  },
+  "blockers": [
+    "OWNER_ADOPTION_REQUIRED_BEFORE_EXECUTION"
+  ]
+}

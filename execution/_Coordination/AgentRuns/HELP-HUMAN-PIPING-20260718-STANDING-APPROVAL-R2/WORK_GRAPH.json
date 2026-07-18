@@ -1,0 +1,73 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-STANDING-APPROVAL-R2",
+  "version": 4,
+  "frozen_by": "HELP_HUMAN",
+  "posture": "MIXED",
+  "selection_authority": {
+    "standing_approval": "HUMAN",
+    "application_and_routing": "AGENT_0"
+  },
+  "nodes": [
+    {
+      "node_id": "N1_INSTRUMENT_AND_CLASSIFICATION",
+      "role": "HELPS_HUMANS",
+      "instance_id": "HELPS-HUMANS-PIPING-STANDING-APPROVAL-01",
+      "parent_role": "HELP_HUMAN",
+      "dependencies": [],
+      "concurrency_eligible": false,
+      "status": "COMPLETED_READY_FOR_DURABLE_LANDING",
+      "write_ownership": "SERIALIZED_INTEGRATION_OWNER",
+      "expected_return": "READY_FOR_DURABLE_LANDING_INSTRUMENT_AND_CURRENT_CANDIDATE_CLASSIFICATION_ACTIVATION"
+    },
+    {
+      "node_id": "N2_LOCAL_ADVERSARIAL_VERIFIER",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "STANDING-APPROVAL-LOCAL-VERIFIER-01",
+      "parent_role": "HELPS_HUMANS",
+      "dependencies": [
+        "N1_INSTRUMENT_AND_CLASSIFICATION_DRAFT_COMPLETE"
+      ],
+      "concurrency_eligible": false,
+      "status": "COMPLETED_BLOCK",
+      "write_ownership": "VERIFIER_RETURN_ONLY",
+      "expected_return": "COMMIT-SAFE_OR_BLOCK"
+    },
+    {
+      "node_id": "N2B_POST_REWORK_ADVERSARIAL_VERIFIER",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "STANDING-APPROVAL-LOCAL-VERIFIER-02",
+      "parent_role": "HELPS_HUMANS",
+      "dependencies": [
+        "N2_LOCAL_ADVERSARIAL_VERIFIER_BLOCK",
+        "N1_AUTHORITY_ATTRIBUTION_REWORK_COMPLETE"
+      ],
+      "concurrency_eligible": false,
+      "status": "COMPLETED_COMMIT_SAFE",
+      "write_ownership": "VERIFIER_RETURN_ONLY",
+      "expected_return": "COMMIT-SAFE_OR_BLOCK"
+    },
+    {
+      "node_id": "N3_SIBLING_PROJECT_S5_REVIEW",
+      "role": "SIBLING_PROJECT_REVIEWER_ROUTED_BY_HELP_HUMAN",
+      "parent_role": "HELP_HUMAN",
+      "dependencies": [
+        "N1_FIRST_RETURN"
+      ],
+      "concurrency_eligible": false,
+      "status": "COMPLETED_COMMIT_SAFE_NO_CORRECTION",
+      "write_ownership": "READ_ONLY_REVIEW_RETURN_OUTSIDE_N1",
+      "expected_return": "S5_COMMIT-SAFE_OR_BLOCK_WITH_FINDINGS"
+    }
+  ],
+  "fan_in": {
+    "first_return": "N1_VALIDATION_PASS_AND_N2B_COMMIT_SAFE",
+    "operational_effect": "HELD_PENDING_DURABLE_OWNER_BINDING",
+    "del_09_04_execution_release": "HELD"
+  },
+  "model_attribution": {
+    "capability": "HARNESS_ASSIGNED_CURRENT_SESSION_MODEL",
+    "override": false,
+    "substitution": false
+  }
+}
