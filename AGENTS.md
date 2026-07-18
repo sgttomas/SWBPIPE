@@ -5,42 +5,21 @@ status: draft
 created: 2026-04-30
 ---
 
-# AGENTS — OpenPipeStress Agent Index
+# AGENTS — OpenPipeStress Project Instructions
 
-This file maps the general Chirality agent framework onto OpenPipeStress development. It does not redefine the canonical agent framework; it specifies how the existing agent roles should be used for this project.
+This file records OpenPipeStress-specific instructions. Root `AGENTS.md` and
+the canonical `agents/AGENT_*.md` packages govern runtime roles, selection,
+delegation, and orchestration.
 
 ## Path Anchors
 
-Executable prompts and TASK briefs must derive paths from the active checkout:
+Executable prompts and bounded execution briefs must derive paths from the
+active checkout:
 
 - Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.
 - Set `WORKING_ROOT` to `{REPO_ROOT}/projects/chirality-piping`.
 - Use `{REPO_ROOT}` and `{WORKING_ROOT}` in project-local instructions and
   briefs instead of machine-specific absolute paths.
-
-## Agent posture
-
-| Row | Purpose in OpenPipeStress |
-|---|---|
-| Normative | Define constraints: data boundary, solver architecture, validation, professional responsibility. |
-| Operative | Execute bounded deliverables: code, tests, schemas, GUI slices, docs, reports. |
-| Evaluative | Review, reconcile, audit, and decide whether outputs are acceptable for the next stage. |
-
-## Primary agents
-
-| Agent | Type | Role in this project |
-|---|---:|---|
-| `HELP_HUMAN` | 0 | Optional supervising entry; derives the cross-package graph, launches package managers, brokers notices, and validates cross-package fan-in. |
-| `SOFTWARE_DECOMP` | 1 | Maintains `_Decomposition/SOFTWARE_DECOMP.md`, scope ledger, packages, deliverables, context budget, and open issues. |
-| `WORKING_ITEMS` | 1 | One package-scoped instance per activated package; derives the intra-package graph, dispatches Agent 2 work across deliverables, validates fan-in, and returns package closure evidence. |
-| `PREPARATION` | 2 | Scaffolds package and deliverable folders from the decomposition. |
-| `TASK` | 2 | Executes one sealed deliverable using an appropriate skill/profile. |
-| `REVIEW` | 1 | Reviews deliverables against scope, tests, data boundary, and acceptance criteria. |
-| `RECONCILIATION` | 1 | Runs activated deliverable-corpus concordance through claim-level discovery, package waves, synthesis, decision routing, repair, and backcheck. |
-| `EVALUATION` | 1 | Orchestrates generic read-only audits and cross-surface assessment outside deliverable-corpus concordance. |
-| `CHANGE` | 1 | Performs final Git/file-state closeout for validated tranches: scoped status review, staging, commit, and fast-forward-safe push. |
-| `RESEARCH` | 1 | Evidence-grounded, read-only inquiry over accepted decompositions, source/standards catalogs, and retrieval indexes; returns cited findings without changing project state. |
-| `AUDIT_*` | 2 | Runs bounded checks for decomposition coverage, governance conformance, dependency closure, and epistemic integrity. |
 
 ## Knowledge-source reliability
 
@@ -50,11 +29,10 @@ content**, but its **extracted equation artifacts are NOT reliable** — they ar
 unreviewed `pdf2md`/OCR extractions pending the maintainer's manual equation
 review, which writes a per-artifact JSON review status.
 
-- `RESEARCH`/`RESEARCHER` and any retrieval consumer (including a future embedded
-  design agent) may cite `piping-design` for concepts, terminology, and approach,
-  but must **never present an extracted equation from this corpus as
-  authoritative**, and must surface each artifact's review status (cleared vs
-  unverified).
+- Any retrieval consumer may cite `piping-design` for concepts, terminology,
+  and approach, but must **never present an extracted equation from this corpus
+  as authoritative**, and must surface each artifact's review status (cleared
+  vs unverified).
 - **Never use `piping-design` equation artifacts as references for a
   physics-model build** (solver / kernel / analytic-verification, including
   grounding the Phase-D engineering decisions D-16 / D-18 / D-19). Physics and
@@ -64,24 +42,10 @@ Per human directive 2026-06-18 (`DEC-043`).
 
 ## Project-Wide Execution Discipline
 
-Use a recorded work graph for every multi-agent tranche. The human may
-prescribe the graph or delegate selection to HELP_HUMAN or a directly invoked
-WORKING_ITEMS instance. Terminal fan-out/fan-in is appropriate for independent
-children; supervised many-to-many agency is appropriate when active findings
-may affect siblings. Mixed sequential/concurrent stages are allowed.
-
-HELP_HUMAN owns cross-package dependencies and shared-surface ownership. Each
-WORKING_ITEMS instance owns exactly one package and coordinates its
-deliverable-scoped Agent 2 children. Shared reads are allowed. Concurrent
-writes must be disjoint; overlapping writes are serialized against an
-accepted predecessor or assigned to one integration owner. Agent 1 and Agent 2
-siblings do not message or delegate directly; coordination flows through the
-parent and preserves claim status and evidence.
-
-Software package activations use `software-workflow.json` under the root
-`../../docs/SOFTWARE_WORKFLOW_PROFILE.md` contract. WORKING_ITEMS selects the
-appropriate `software-*` TASK skill and registered checks; the profile does not
-expand project authority or replace the evidence and owner gates below.
+Software work uses `software-workflow.json` under the root
+`../../docs/SOFTWARE_WORKFLOW_PROFILE.md` contract. The profile registers
+project checks; it does not expand project authority or replace the evidence
+and owner gates below.
 
 Dependency-register work is governed by the canonical v3.1 type system. New or
 refreshed dependency rows must emit only canonical core enum values; legacy
@@ -104,14 +68,7 @@ that work.
 ## Closeout And Git Discipline
 
 When a tranche is complete, validated, and project closeout rules allow it,
-the package `WORKING_ITEMS` instance returns a closeout handoff to HELP_HUMAN
-or the human, which invokes `CHANGE` as a separate Agent 1 for final
-Git/file-state review. `CHANGE` should commit and push the validated
-tranche as the ordinary terminal action when git state allows closeout;
-per-run `APPROVE:` tokens are not required for scoped closeout commit/push.
-
-If a `CHANGE` agent/subagent is unavailable, perform the `CHANGE` closeout
-checklist inline:
+perform the following scoped Git/file-state closeout checklist:
 
 - inspect root git status;
 - confirm validation evidence and skipped-check notes;
@@ -140,46 +97,16 @@ most one timestamped plan under `{WORKING_ROOT}/plans/` for the session. Do
 not create a plan merely to satisfy this instruction when no actionable issue
 was found.
 
-## Project-specific TASK skill profiles
+## Bounded-execution evidence contract
 
-These are proposed profile labels for `TASK`; they may be implemented as skills or as explicit sealed briefs.
+Every bounded deliverable execution must bind:
 
-| Profile | Typical deliverables |
-|---|---|
-| `solver-core` | PKG-04 and PKG-05 solver/load/stress deliverables. |
-| `domain-schema` | PKG-02, PKG-03, PKG-06 schemas and data models. |
-| `rule-pack-engine` | PKG-06 evaluator and completeness-check deliverables. |
-| `gui-workflow` | PKG-07 GUI deliverables. |
-| `report-audit` | PKG-08 report and reproducibility deliverables. |
-| `validation-qa` | PKG-09 verification/validation deliverables. |
-| `interop-build` | PKG-10 API, plugin, packaging, and FEA handoff deliverables. |
-| `docs-education` | PKG-11 documentation and invented-example deliverables. |
-| `security-privacy` | PKG-12 private-data and telemetry deliverables. |
-| `ip-governance` | PKG-01 and data-boundary deliverables. |
-
-## Dispatch rule
-
-Every Type 2 execution must receive:
-
-- one `DeliverableID`, except an authorized related representation-migration
-  batch may receive an ordered list of at most five `DeliverableID` values and
-  at most 2,053 frozen legacy source lines;
+- one `DeliverableID` or an otherwise authorized bounded integration scope;
 - the parent `PackageID`;
 - scope items and objectives from `_Registers/Deliverables.csv`;
 - applicable invariants from `CONTRACT.md`;
 - acceptance criteria from `_CONTEXT.md` or the sealed brief;
 - explicit write scope.
 
-For that representation-migration exception, WORKING_ITEMS dispatches one
-package-wide author and, only after author fan-in, one fresh evidence-only
-package-wide verifier over 100% of the same members. Packages exceeding either
-observed bound are split into the minimum number of consecutive numeric
-sub-batches, while one WORKING_ITEMS instance retains package ownership.
-Per-member mappings, hashes, clean-finalization evidence, replacement/inverse
-rows, simulations, checks, telemetry, findings, and rerun triggers remain
-mandatory. The verifier does not repair author output. RECONCILIATION retains
-100% aggregate checks, fresh reproduction of every exception and the
-numerically final clean member, and expansion to the affected full package on
-any exception or aggregate/sample failure.
-
-If a requested task crosses package boundaries or requires protected data, stop and escalate to `SOFTWARE_DECOMP` or the human project authority.
+If a bounded execution would cross package boundaries or require protected
+data, stop and return the condition to the governing authority.

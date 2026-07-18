@@ -1333,3 +1333,23 @@
     owner. No lifecycle, stage, release, prover-activation, or
     reproduction-acceptance change. Standard claim fence applies
     (F-PIP-2; claims taxonomy per DEC-081).
+
+- **2026-07-17 — Receipt 54** (owner-directed standing-loop instruction separation).
+  - Receipt-ID: `Receipt-54`
+  - Examined-Through: `b495fe19b470b68a87a791708c1b21bf75951900`
+  - Parent-Receipt: `Receipt-53`
+  - Pointers: verbatim owner direction, classification, and validation in
+    `execution/_Coordination/AgentRuns/INSTRUCTION-SEPARATION-20260717/RUN_RECORD.md`;
+    revised project `AGENTS.md`, `init/init-prompt.md`, `loop/LOOP_INIT.md`, and
+    `loop/WORKPLAN_2026-07-17_piping_loop.md`; root launcher-catalog and shared
+    instruction-entrypoint-validator alignment remain declared cross-PR dependencies.
+  - Checks: path-anchor, claims-language, receipt, targeted validation, full
+    practitioner-harness pytest, self-check, and `git diff --check` pass;
+    instruction-entrypoint validator fails only on its seven superseded
+    project-local orchestration-phrase requirements.
+  - Model-Attribution: single session agent; no child sessions.
+  - Gate-Outcome: `EXECUTED` — default piping entry is HELP_HUMAN and generic
+    runtime hierarchy/orchestration text is removed from active piping loop surfaces;
+    piping-specific discovery, authority, fences, validation, evidence, receipts,
+    and closeout rules remain. Project PR awaits central dependency alignment and
+    owner merge; no product behavior, lifecycle, stage, release, or claims posture changed.

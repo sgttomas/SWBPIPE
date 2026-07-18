@@ -15,6 +15,8 @@
 > indexes; it carries NO status, NO work history, and NO measurements. Each iteration
 > re-derives state from the live tree; loop closes append a minimal receipt to
 > `LOOP_RECEIPTS.md` beside this file (rules live at the top of that file).
+> The owner-directed instruction-separation amendment on 2026-07-17 touches only
+> protocol Step 4 and is the first post-re-mint surgical amendment.
 
 ## Owner intent
 
@@ -102,17 +104,12 @@ authority permits — stopping at every owner gate.
    incl. `Remaining`, `MEMORY.md`, `_CONTEXT.md`, `_REFERENCES.md`, dependency files,
    the four-document kit, recent `_run_records/**`) and active DAG-discovered
    dependencies only — do not trawl governance deliverable folders for project-wide
-   policy. *Multi-agent execution:* derive the current work graph under
-   `LOOP_INIT.md` §7. HELP_HUMAN may activate one WORKING_ITEMS instance per package;
-   a directly invoked WORKING_ITEMS instance remains within one package. Each Agent 2
-   brief names its deliverable scope, parent package, acceptance basis, evidence plan,
-   and read/write bounds. Use terminal or supervised many-to-many coordination as the
-   graph requires; validate staged and terminal fan-in before downstream use.
-   *Discipline:* branch-first + PR unless the owner directs otherwise; never
+   policy. *(Owner-directed instruction separation, 2026-07-17.)* *Discipline:*
+   branch-first + PR unless the owner directs otherwise; never
    self-merge; write scopes stay inside `projects/chirality-piping/**` unless the
    owner grants wider scope. *Validation:* the selected work type's evidence
    conventions (test plans, run records); the `DEC-025` five-surface evidence sweep
-   (`python3 tools/release/run_evidence_sweep.py --execute`) as the pre-push/fan-in
+   (`python3 tools/release/run_evidence_sweep.py --execute`) as the pre-push
    merge gate for every code-touching branch; UI slices carry the H4 desktop evidence
    posture recorded in `_COORDINATION.md`'s ruled workflow records (Playwright e2e
    default, Vitest unit tests, `apps/desktop/SMOKE.md`-only evidence as the recorded
@@ -172,7 +169,8 @@ authority permits — stopping at every owner gate.
   requirements, §24 release milestones; pre-amendment v0.1 archived at
   `docs/_history/PRD_v0.1.md`) · strategic orientation: `docs/PLAN.md`
   (non-governing).
-- **Agent posture:** `AGENTS.md` (dispatch contract, closeout discipline).
+- **Project instructions:** `AGENTS.md` (path anchors, source reliability,
+  project execution fences, evidence obligations, and closeout discipline).
 - **Evidence:** `_run_records/**`, `validation/evidence/**`, deliverable-local files.
 - **Historical archive (never selection surfaces):** `plans/**` (open rows rehomed to
   deliverable `_STATUS.md` on 2026-07-10; see `plans/PLAN_COMPLETION_LOG.md`) ·
