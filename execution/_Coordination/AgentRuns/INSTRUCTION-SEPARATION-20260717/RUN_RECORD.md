@@ -175,15 +175,51 @@ Child-depth evidence is harness-specific:
 
 ## Near-miss candidate for paired corpus review
 
-**N5 candidate — repeal by misclassification.** A project-specific,
+**N6 candidate — repeal by misclassification.** A project-specific,
 owner-directed executor-provenance convention was classified as canonical
 duplication even though no complete canonical successor existed; deleting it
 therefore silently converted an owner-ruled convention into repeal. The item
 fails the delegation class test because repeal changes normative content and
 requires an owner act. This record preserves the lesson as a proposal only; it
 does not edit the frozen Shared-Block v1, D-49/D-50 packets, or local N1–N4
-corpus. Addition to the paired permanent corpora requires their governed
-owner-mediated amendment path.
+corpus. Piping's N5 slot is held by the earlier command-chaining gate-bypass
+candidate disclosed on PR #265; app-dev offers this repeal-by-misclassification
+incident as NM-5 through its governed path, and piping accession waits on that
+offer under the D-APP-61 piping-hold terms. Addition to the paired permanent
+corpora requires their governed owner-mediated amendment path.
+
+## Named root-catalog grant and closeout execution (2026-07-18)
+
+Owner grant (verbatim bounds, issued 2026-07-18 in session): "for PR #269
+only, write access to root `init/init-prompt.md` limited to (a) the §5 tagged
+`<init-prompt>` block for `projects/chirality-piping` and (b) the §5 rationale
+paragraph beneath it, including replacing the stale
+`WORKPLAN_2026-07-04_piping_loop.md` pointer with the newest-workplan
+resolution form. The grant is exercisable only after the D-APP-61
+implementation PR merges... No other root scope is implied." The gate was
+satisfied by PR #271 (merge `d3ad7fd2326dd32093aadf24ef32f0f8a9aff24a`).
+
+Execution by the piping loop session (Claude Fable 5), owner-directed:
+
+- Merged `origin/main` into this branch twice, preserving published history
+  (merge commits `e610aaccd` after PR #271; `3549224e4` after PR #272).
+- Exercised the grant: root §5 tagged block replaced with a byte-copy of
+  `projects/chirality-piping/init/init-prompt.md`; §5 rationale rewritten in
+  newest-workplan resolution form (no pinned workplan filename). Pair
+  byte-parity verified by direct diff before commit.
+- Relabeled the near-miss candidate N5 → N6 (piping's N5 slot is held by the
+  PR #265 gate-bypass candidate).
+- First validator run (post-#271) surfaced three unconditional legacy
+  orchestration-phrase requirements on project `AGENTS.md` — residue outside
+  the ruled Appendix V contract. Referred to the owner as a pre-triaged
+  owner-class conflict (two defensible resolutions; cross-project validator
+  ownership). Owner resolved via app-dev-side conformance fix PR #272
+  (merge `51c7193106528e2a02735966f2ed0d8bfec8b9ba`); no prose was added to
+  satisfy the removed checks.
+- Post-#272 empirical run: `validate_instruction_entrypoints.py` PASS —
+  V1 root/project launcher parity holds; V2 structural checks active for
+  piping report no findings, so the LOOP_INIT §7 topology and provenance
+  paragraphs stand as written with no reshaping toward the V3 citation form.
 
 ## Changed paths
 
@@ -191,6 +227,8 @@ owner-mediated amendment path.
 - `projects/chirality-piping/init/init-prompt.md`
 - `projects/chirality-piping/loop/LOOP_INIT.md`
 - `projects/chirality-piping/loop/WORKPLAN_2026-07-17_piping_loop.md`
+- `init/init-prompt.md` (§5 block and rationale only, under the named
+  owner grant recorded above)
 - this run record
 - `projects/chirality-piping/loop/LOOP_RECEIPTS.md` at closeout
 
@@ -205,9 +243,7 @@ owner-mediated amendment path.
   known inventory (`INFO=15`, `NOT_APPLICABLE=2`, `REVIEW=27`, `WARN=6`).
 - `git diff --check`: PASS.
 - `python3 tools/validation/validate_instruction_entrypoints.py .`: EXPECTED
-  DEPENDENCY FAILURE on obsolete project-local orchestration phrase
-  requirements. No failing phrase is retained merely to satisfy the stale
-  validator; central validator/test alignment is required before this PR can
-  become merge-ready.
+  DEPENDENCY FAILURE at the time of this section's writing (see the 2026-07-18
+  closeout section above: after PRs #271/#272 the live validator passes).
 - No executable product code changed; the DEC-025 five-surface code-touching
   sweep is not triggered.

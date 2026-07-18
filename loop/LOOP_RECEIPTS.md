@@ -1342,26 +1342,31 @@
     direction 2026-07-18 restores mandatory-or-pointer executor/model
     provenance now, forbids silent substitution, and routes the generic
     model-selection doctrine through a separate canonical proposal.
-  - Stale-Map-Delta: central PR #268 closed unmerged on 2026-07-18; root
-    launcher-catalog and shared-validator alignment therefore require a
-    replacement central PR before this project PR can become merge-ready.
-  - Pointers: verbatim owner direction, classification, and validation in
+  - Stale-Map-Delta: central PR #268 closed unmerged on 2026-07-18; the
+    replacement central dependency was then satisfied by D-APP-61
+    implementation PR #271 (merge `d3ad7fd23`) and by validator-conformance
+    PR #272 (merge `51c719310`), and the root §5 launcher swap was folded
+    into this PR under a named owner grant recorded in the run record.
+  - Pointers: verbatim owner direction, classification, validation, named
+    root-catalog grant, and closeout execution in
     `execution/_Coordination/AgentRuns/INSTRUCTION-SEPARATION-20260717/RUN_RECORD.md`;
     revised project `AGENTS.md`, `init/init-prompt.md`, `loop/LOOP_INIT.md`,
     `loop/LOOP_RECEIPTS.md`, and `loop/WORKPLAN_2026-07-17_piping_loop.md`;
-    root launcher-catalog and shared instruction-entrypoint-validator alignment
-    remain declared cross-PR dependencies.
+    root `init/init-prompt.md` §5 block and rationale under the named grant.
   - Checks: path-anchor, claims-language, receipt, targeted validation, full
-    practitioner-harness pytest, self-check, and `git diff --check` pass;
-    instruction-entrypoint validator fails pending central alignment.
-  - Model-Attribution: session parent plus depth probe
+    piping pytest, self-check, `git diff --check`, and instruction-entrypoint
+    validator pass.
+  - Model-Attribution: separation session parent plus depth probe
     `/root/depth2_probe_manager` and nested executor
-    `/root/depth2_probe_manager/depth2_probe_executor`; both inherited the
-    harness-assigned session model without override or substitution and made no
-    project writes.
+    `/root/depth2_probe_manager/depth2_probe_executor`, all on the
+    harness-assigned session model without override or substitution (probes
+    made no project writes); closeout session (grant exercise, N6 relabel,
+    final validation) executed by Claude Fable 5 with no child sessions and
+    no mid-task substitution.
   - Gate-Outcome: `EXECUTED` — default piping entry is HELP_HUMAN and generic
     runtime hierarchy/orchestration text is removed from active piping loop surfaces;
     piping-specific discovery, authority, fences, validation, evidence, receipts,
-    and closeout rules remain. Project PR remains draft pending a replacement
-    central dependency PR and owner merge; no product behavior, lifecycle, stage,
-    release, or claims posture changed.
+    and closeout rules remain. Root §5 and the project launcher flipped as one
+    byte-identical pair under the named grant; the live Appendix V validator
+    passes. PR ready for owner review and merge; no product behavior, lifecycle,
+    stage, release, or claims posture changed.
