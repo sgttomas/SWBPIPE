@@ -1370,3 +1370,29 @@
     byte-identical pair under the named grant; the live Appendix V validator
     passes. PR ready for owner review and merge; no product behavior, lifecycle,
     stage, release, or claims posture changed.
+
+- **2026-07-18 — Receipt 55** (D-51 O-A: near-miss corpus accession N5 and N6; DEC-084).
+  - Receipt-ID: `Receipt-55`
+  - Examined-Through: `64fef9a7428a7bb8f0843dfd98aa2e5b98976155`
+  - Parent-Receipt: `Receipt-54`
+  - Pointers: ruling verbatim and SHA-256 binding in
+    `execution/_Coordination/_DECISIONS/D-51_near_miss_accession_N5_N6.md` §9
+    with the packet as rationale artifact; `DEC-084` codification row in
+    `execution/_Decomposition/SOFTWARE_DECOMP.md`; the D-51 register row and
+    its ruling pointer; app-dev offer record per PR #273; S5 sibling-review
+    disposition and its provenance correction on PR #274.
+  - Checks: receipt validator, claims-language, path-anchor,
+    instruction-entrypoint, self-check, `git diff --check`, and full piping
+    pytest pass; two independent enumeration-derived adversarial verifiers
+    returned COMMIT-SAFE across staging and the S5 correction, and a third
+    pre-commit verifier gates this ruling execution.
+  - Model-Attribution: ruling-execution session Claude Fable 5; adversarial
+    verifier child sessions on the harness-assigned session model; no
+    mid-task model or capability substitution.
+  - Gate-Outcome: `EXECUTED` — the owner ruled O-A on D-51; N5 and N6 are
+    acceded and the local near-miss corpus enumeration is N1–N6 under the
+    DEC-083 supersede-never-edit discipline; the cross-corpus numbering map
+    is recorded; codified as `DEC-084`; no ruled history edited and
+    Shared-Block v1 untouched; no delegation-latitude, lifecycle, stage,
+    release, or claims posture change. Merge of PR #274 remains the owner's
+    per-chain grant. Standard claim fence applies per DEC-081.

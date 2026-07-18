@@ -1,6 +1,6 @@
 # D-51 — Near-miss corpus accession: N5 (gate bypass) and N6 (repeal by misclassification)
 
-**Status:** AWAITING_RULING
+**Status:** RULED (O-A — 2026-07-18)
 **Date staged:** 2026-07-18
 **Prepared by:** piping loop session agent (Claude Fable 5) — PROPOSAL only;
 adoption is the owner's act (K-AUTH-1; D-GOV-04; DEC-082 limit 3)
@@ -124,5 +124,25 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## 9. Ruling
 
-*(Reserved. Written only after the owner rules; verbatim transcription with
-canonical SHA-256 binding per the D-49 §9 / D-50 §8 convention.)*
+Ruled by the owner (Ryan Tufts, in-session, 2026-07-18), after the DEC-083
+S5 owner-mediated sibling review returned support for O-A and its
+conditional provenance correction was applied and re-verified
+(COMMIT-SAFE, 14 checks). Verbatim, between markers:
+
+<!-- BEGIN RULING D-51 -->
+I Rule "O-A"
+<!-- END RULING D-51 -->
+
+Canonical SHA-256 (UTF-8 bytes between the marker lines, excluding the
+marker lines and the newline delimiters adjacent to them):
+`26743be581639738e653f8b0caacb2e28aaaa583b52b57c6e04e6e263317b826` —
+recomputed and verified after writing this section. Note: this hash equals
+the D-49 §9 ruling hash because the canonical ruling text is identical;
+the two rulings are distinct owner acts, distinguished by their packets,
+register rows, and dates — the binding is per-packet by construction.
+
+Executed as: N5 and N6 acceded per §3 (as corrected per the S5 review);
+corpus enumeration now N1–N6 per §5; cross-corpus map per §4 recorded;
+codified as `DEC-084`; register row → RULED; Receipt-55 written with this
+packet as the rationale artifact. Merge of the staging PR remains the
+owner's per-chain grant.
