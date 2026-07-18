@@ -1,6 +1,6 @@
 # D-50 — Adoption of Shared-Block v1 (frozen cross-project delegation template)
 
-**Status:** AWAITING_RULING
+**Status:** RULED (O-A, sub-choice (b), S5 adopted — 2026-07-17)
 **Prepared:** 2026-07-17 (session agent, per the owner-approved execution plan)
 **Owner:** Ryan Tufts
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` D-50
@@ -262,12 +262,26 @@ operative — congruence is then verified by the owner at amendment time.
 
 ## 8. Human Ruling And Disposition
 
+**Ruled:** 2026-07-17, in-session (Ryan Tufts, owner).
+
 <!-- BEGIN OWNER RULING VERBATIM -->
-*(reserved for the owner's verbatim ruling)*
+I Rule "O-A, sub-choice (b, re-mint), S5 adopted"
 <!-- END OWNER RULING VERBATIM -->
 
-**Canonical ruling-text SHA-256:** *(recorded after the ruling exists and
-verified by recomputation, per §7.1)*
+**Canonical ruling-text SHA-256:** `18f461cc4f8b93a7a039bce59f35c1489a925c355959263d1442b21789714cee`
+(UTF-8 text between the verbatim markers, excluding the markers and
+delimiter newlines; computed from the written file and verified by
+recomputation, per §7.1)
+
+**Disposition on this ruling:** S1–S4 adopted with S2 executed under
+sub-choice (b) — Appendix A applied as a re-mint
+(`WORKPLAN_2026-07-17_piping_loop.md` supersedes the 2026-07-10 plan;
+strict threshold convention recorded: more than two protocol steps or a
+third lineage entry → re-mint with independent carry-forward verifier) —
+and S5 adopted (amendment-time, owner-mediated cross-project instrument
+review; no standing sibling channel). Codified as `DEC-083`. Shared-Block
+v1 is this project's delegation core, layered on `DEC-082`/D-49 (both
+byte-stable ruled history). Merge of PR #265 remains the owner's act.
 
 ---
 

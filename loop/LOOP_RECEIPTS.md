@@ -1304,3 +1304,32 @@
     awaits the owner's merge (limit 9). No lifecycle, stage, release,
     prover-activation, or reproduction-acceptance change. Standard claim
     fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+- **2026-07-17 — Receipt 53** (D-50 ruling executed: Shared-Block v1 adopted; DEC-083; workplan re-minted; S5 cross-review live).
+  - Receipt-ID: `Receipt-53`
+  - Examined-Through: `ecd9e13607942e51f8f550ac239e6f3ee4dfe0aa`
+  - Parent-Receipt: `Receipt-52`
+  - Pointers: D-50 packet §8 (verbatim ruling, canonical SHA-256 bound and
+    recomputation-verified); `DEC-083` (SOFTWARE_DECOMP §12: block adoption
+    with local bindings, strict amendment convention, S3 receipt
+    convention, S4 staleness check, S5 amendment-time owner-mediated
+    cross-project review); `loop/WORKPLAN_2026-07-17_piping_loop.md`
+    (re-mint superseding the 2026-07-10 plan; 2026-07-10 file preserved as
+    history); Shared-Block v1 hash identical in the merged app-dev
+    D-APP-60 record (paired-adoption tripwire pass); combined
+    carry-forward + pre-commit adversarial verifier returned COMMIT-SAFE
+    before this receipt was written.
+  - Checks: claims lint pass; receipt validator pass; self-check pass;
+    `git diff --check` pass; ruling-hash and block-hash recomputations
+    match; carry-forward verification pass.
+  - Model-Attribution: session parent + one independent adversarial
+    verifier node (session model, harness-assigned; no named-model steer).
+  - Gate-Outcome: `EXECUTED` — D-50 ruled by the owner; Shared-Block v1
+    is this project's delegation core (owner act), layered on `DEC-082`
+    with D-49 byte-stable; the loop protocol now carries delegation
+    triage, the STOP clarification, and the staleness check via the
+    re-minted plan; no delegation exercise occurred in this tranche (all
+    acts owner-ruled or mechanics thereof). Merge of PR #265 awaits the
+    owner. No lifecycle, stage, release, prover-activation, or
+    reproduction-acceptance change. Standard claim fence applies
+    (F-PIP-2; claims taxonomy per DEC-081).
