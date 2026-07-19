@@ -1,0 +1,9 @@
+{
+  "required_file_count": 18,
+  "missing": [],
+  "profile_all_pass": true,
+  "source_commit_exact": true,
+  "initial_clean": true,
+  "final_clean": true,
+  "overall_pass": true
+}

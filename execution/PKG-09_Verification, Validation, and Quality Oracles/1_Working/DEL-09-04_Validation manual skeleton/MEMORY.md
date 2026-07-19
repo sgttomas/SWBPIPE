@@ -11,6 +11,13 @@ revision: 0.5
 
 # MEMORY - DEL-09-04 Validation Manual Skeleton
 
+## 2026-07-19 - DEL-09-04 clean-checkout reproduction R11
+
+- Completed the adopted actor-neutral E1 runner reproduction from clean detached source commit `23eeaabc904064e2297690e391df153dea116ff0` under DEC-080.
+- Immutable derivative evidence: `validation/evidence/reproduction/REPRO_DEL0904_20260719T202023Z_23eeaabc9040/` (`INTERNALLY_VERIFIED`). The generator was byte-deterministic; solve completed with diagnostic-clean request/result surfaces and 830 result references; both documented blocking cases emitted their required diagnostics; the two review checks and all four registered checks passed, including exactly one five-surface sweep.
+- The clean-checkout Remaining item is discharged. Lifecycle remains `IN_PROGRESS`; public tolerance promotion and the broader E2 manual residuals remain open.
+- Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). This evidence does not imply lifecycle issuance, release, professional acceptance, certification, sealing, authentication, or code-compliance acceptance.
+
 ## 2026-07-10 - TP-E2-VALMANUAL-001 per-case validation manual (Phase E row E2)
 
 - Added 63 per-case validation-manual pages under

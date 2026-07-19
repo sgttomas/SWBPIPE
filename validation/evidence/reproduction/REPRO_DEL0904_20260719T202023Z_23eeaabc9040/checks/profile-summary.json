@@ -1,0 +1,22 @@
+{
+  "registered_checks": {
+    "piping-pytest": "PASS",
+    "evidence-sweep": "PASS",
+    "harness-pytest": "PASS",
+    "harness-self-check": "PASS"
+  },
+  "validators": {
+    "receipt-validator": 0,
+    "claims-validator": 0,
+    "path-anchors": 0,
+    "instruction-entrypoints": 0,
+    "git-diff-check": 0,
+    "json-jsonl-validation": 0,
+    "change-scope": 0,
+    "protected-source-hashes": 0
+  },
+  "sweep_delta": [
+    "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260719T202805Z_23eeaabc9040-dirty.json"
+  ],
+  "all_pass": true
+}

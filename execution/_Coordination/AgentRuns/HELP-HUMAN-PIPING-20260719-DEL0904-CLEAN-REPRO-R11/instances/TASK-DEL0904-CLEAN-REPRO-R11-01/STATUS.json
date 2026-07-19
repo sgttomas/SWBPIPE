@@ -1,0 +1,11 @@
+{
+  "schema": "chirality-managed-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260719-DEL0904-CLEAN-REPRO-R11",
+  "instance_id": "TASK-DEL0904-CLEAN-REPRO-R11-01",
+  "agent_type": 2,
+  "status": "COMPLETED",
+  "objective_status": "PASS",
+  "source_commit": "23eeaabc904064e2297690e391df153dea116ff0",
+  "reproduction_run_id": "REPRO_DEL0904_20260719T202023Z_23eeaabc9040",
+  "updated_utc": "2026-07-19T20:35:00Z"
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260719-DEL0904-CLEAN-REPRO-R11",
+  "plan_version": 1,
+  "selection_authority": "explicit HELP_HUMAN launch under effective adopted candidate brief",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "package_id": "PKG-09",
+  "selected_deliverables": ["DEL-09-04"],
+  "source_commit": "23eeaabc904064e2297690e391df153dea116ff0",
+  "reproduction_run_id": "REPRO_DEL0904_20260719T202023Z_23eeaabc9040",
+  "nodes": [{
+    "id": "TASK-DEL0904-CLEAN-REPRO-R11-01",
+    "agent_type": 2,
+    "construction": "ephemeral bounded generalist under TASK base contract",
+    "serialized": true,
+    "integration_owner": true,
+    "dependencies": [],
+    "read_scope": "repository root; prior runs and bundles read-only",
+    "write_targets": "candidate section 5 exact fence, narrowed to fresh R11 identities",
+    "expected_return": "terminal PASS/FAIL/BLOCKED with sealed bundle and exact evidence pointers",
+    "fan_in_gate": "candidate predicates, exact-once checks, checksum, containment, protected-history preservation",
+    "escalation": "terminalize without repair"
+  }],
+  "edges": [],
+  "concurrency": "none; exactly one serialized child"
+}

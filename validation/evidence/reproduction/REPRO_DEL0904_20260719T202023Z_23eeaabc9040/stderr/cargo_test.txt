@@ -1,0 +1,6 @@
+   Compiling open_pipe_stress_headless_runner v0.1.0 (/private/tmp/del0904-r11.aY9RbJ/checkout/projects/chirality-piping/core/runner/headless)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.72s
+     Running unittests src/lib.rs (/tmp/del0904-r11.aY9RbJ/target/debug/deps/open_pipe_stress_headless_runner-2a687e159ef67d1c)
+     Running unittests src/bin/headless_preview_runner.rs (/tmp/del0904-r11.aY9RbJ/target/debug/deps/headless_preview_runner-52947d27bd95acd6)
+     Running unittests src/bin/openpipestress-runner.rs (/tmp/del0904-r11.aY9RbJ/target/debug/deps/openpipestress_runner-c84579f783e4dd0e)
+   Doc-tests open_pipe_stress_headless_runner
