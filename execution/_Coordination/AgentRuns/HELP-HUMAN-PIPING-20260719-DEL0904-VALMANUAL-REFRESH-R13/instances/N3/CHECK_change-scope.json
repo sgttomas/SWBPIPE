@@ -1,0 +1,28 @@
+{
+  "allowed": [
+    "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-19_DEL-09-04_VALMANUAL_REFRESH.md",
+    "projects/chirality-piping/docs/validation_manual/headless_runner_reproduction.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-19_DEL0904_VALMANUAL_REFRESH_R13.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL0904-VALMANUAL-REFRESH-R13",
+    "projects/chirality-piping/loop/LOOP_RECEIPTS.md"
+  ],
+  "paths": [
+    "projects/chirality-piping/docs/validation_manual/headless_runner_reproduction.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-19_DEL0904_VALMANUAL_REFRESH_R13.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL0904-VALMANUAL-REFRESH-R13/CURRENT_CANDIDATE_RATIONALE.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL0904-VALMANUAL-REFRESH-R13/ORCHESTRATION_PLAN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL0904-VALMANUAL-REFRESH-R13/instances/N1/RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL0904-VALMANUAL-REFRESH-R13/instances/N2/RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL0904-VALMANUAL-REFRESH-R13/instances/N3/CHECK_change-scope.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL0904-VALMANUAL-REFRESH-R13/instances/N3/CHECK_harness-pytest.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL0904-VALMANUAL-REFRESH-R13/instances/N3/CHECK_harness-self-check.json",
+    "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-19_DEL-09-04_VALMANUAL_REFRESH.md"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

@@ -11,6 +11,38 @@ revision: 0.5
 
 # MEMORY - DEL-09-04 Validation Manual Skeleton
 
+## 2026-07-19 - Validation-manual reproduction page refresh (post-PR #287) R13
+
+- Refreshed `docs/validation_manual/headless_runner_reproduction.md` under
+  adopted brief `CB-2026-07-19-DEL-09-04-VALMANUAL-REFRESH-001` (run R13,
+  base `45ec0524d`): the page now has a two-part body — the frozen E1
+  `tp_runner_015` procedure with a dated 2026-07-19 historical note on
+  case 3 (on sources at or after PR #287 the frozen payload-less
+  `run-benchmark` command exits 1 with
+  `HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING`; the stub diagnostic is
+  confined to `export-results`), and a new bound-path section documenting
+  the five committed `del1005_payload_binding_*` fixture/witness pairs
+  (expected exits 0/0/0/1/1; success witnesses carry `"diagnostics": []`;
+  1/1 mechanics, 3/3 stress, 5/5 nonlinear with the whole-suite default),
+  fail-closed blocked-case semantics
+  (`HEADLESS_RUNNER_{BENCHMARK,REGRESSION}_CASE_COMPARISON_BASIS_NOT_REUSABLE`),
+  and the rerun consequence per `CB-2026-07-18-DEL-09-04-CLEAN-REPRO-001` §8.
+- Every asserted value is anchored to committed witness bytes, the preserved
+  R12 N3 evidence, or the live runner source; an optional offline spot-run of
+  the six documented commands (five bound-path plus frozen case 3) against
+  the prebuilt local binary corroborated the recorded exits and diagnostics
+  (ephemeral outputs only).
+- `_STATUS.md` first Remaining bullet now records the bindings dependency as
+  landed (DEL-10-05 / PR #287 / Receipt-59); MAINTAINER_REVIEWED case-page
+  promotion and GUI-workflow validation evidence remain open in that bullet;
+  the owner-gated DEC-046 tolerance bullet is untouched. Frozen E1
+  fixtures/generator/witnesses remain byte-identical. No reproduction run,
+  no bundle or witness write, no lifecycle change.
+- Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). This
+  refresh describes landed behavior with witness-committed values only; it
+  makes no release-readiness, threshold, professional, certification,
+  sealing, authentication, or code-compliance claim.
+
 ## 2026-07-19 - DEL-09-04 clean-checkout reproduction R11
 
 - Completed the adopted actor-neutral E1 runner reproduction from clean detached source commit `23eeaabc904064e2297690e391df153dea116ff0` under DEC-080.
