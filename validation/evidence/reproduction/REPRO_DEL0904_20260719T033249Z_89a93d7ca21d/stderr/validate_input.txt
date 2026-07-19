@@ -1,0 +1,2 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `/tmp/del0904-r8.iFx8Aa/cargo-target/debug/openpipestress-runner validate-input --input validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json --output /tmp/del0904-r8.iFx8Aa/outputs/tp_runner_015_validation_blocking.json`

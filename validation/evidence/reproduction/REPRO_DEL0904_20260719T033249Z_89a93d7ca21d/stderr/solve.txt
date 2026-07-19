@@ -1,0 +1,40 @@
+     Locking 36 packages to latest compatible versions
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.186
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/solver/linear_supports)
+   Compiling generic-array v0.14.7
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling serde_json v1.0.150
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/solver/diagnostics)
+   Compiling itoa v1.0.18
+   Compiling serde v1.0.229
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling syn v3.0.0
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling cfg-if v1.0.4
+   Compiling ryu v1.0.23
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/units)
+   Compiling serde_derive v1.0.229
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_headless_runner v0.1.0 (/private/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping/core/runner/headless)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.34s
+     Running `/tmp/del0904-r8.iFx8Aa/cargo-target/debug/openpipestress-runner solve --input validation/witness/inputs/tp_runner_015_final_cli_solve_input.json --output /tmp/del0904-r8.iFx8Aa/outputs/tp_runner_015_solve.json`

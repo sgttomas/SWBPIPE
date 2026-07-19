@@ -1,0 +1,49 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R8",
+  "plan_version": 1,
+  "selection_authority": "explicit HELP_HUMAN launch under effective adopted candidate brief",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "package_id": "PKG-09",
+  "selected_deliverables": ["DEL-09-04"],
+  "source_commit": "89a93d7ca21d64c57cc344955d17deef709fd685",
+  "reproduction_run_id": "REPRO_DEL0904_20260719T033249Z_89a93d7ca21d",
+  "nodes": [
+    {
+      "id": "TASK-DEL0904-CLEAN-REPRO-R8-01",
+      "agent_type": 2,
+      "construction": "ephemeral bounded generalist under TASK shell contract",
+      "serialized": true,
+      "integration_owner": true,
+      "dependencies": [],
+      "read_scope": "repository root with minimum-sufficient candidate and DEL-09-04 inputs; protected history read only for hash validation",
+      "write_targets": [
+        "projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/**",
+        "projects/chirality-piping/validation/evidence/sweeps/exactly-one-new-SWEEP_*.json",
+        "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md",
+        "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/MEMORY.md",
+        "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/exactly-one-WORKING_ITEMS_RUN_*.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R8/**",
+        "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+        "one validated mktemp root outside the checkout"
+      ],
+      "expected_returns": [
+        "terminal structured RETURN.md and STATUS.json",
+        "unique immutable reproduction bundle",
+        "PASS-only state/receipt closeout or truthful FAIL/BLOCKED preservation",
+        "complete evidence pointers, inventory, blockers, and model attribution"
+      ],
+      "fan_in_gate": "all candidate runtime/review/profile/validation predicates and write containment validated",
+      "escalation": "return terminal FAIL/BLOCKED without repair on any discrepancy"
+    }
+  ],
+  "edges": [],
+  "concurrency": "none; exactly one serialized child",
+  "escalation_points": [
+    "authority or basis drift",
+    "missing local prerequisite",
+    "runtime/review/profile/validation failure",
+    "unexpected changed path or sweep delta",
+    "checksum, immutability, or protected-history drift"
+  ]
+}

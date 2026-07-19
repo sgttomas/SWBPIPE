@@ -1,0 +1,30 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260719-DEL0904-R8-GIT-EXCEPTION-R9",
+  "manager": "HELPS_HUMANS",
+  "parent": "HELP_HUMAN",
+  "execution_posture": "serialized_terminal_fan_out_fan_in",
+  "nodes": [
+    {
+      "id": "TASK-DEL0904-R8-EXCEPTION-VERIFY-R9-01",
+      "construction": "ephemeral_bounded_generalist_under_TASK",
+      "dependencies": [],
+      "read_scope": "projects/chirality-piping plus root Git index/state",
+      "write_targets": [],
+      "expected_return": "COMMIT-SAFE or BLOCK with recomputed predicates",
+      "delegation": "forbidden"
+    },
+    {
+      "id": "HELPS-HUMANS-R9-CODIFY",
+      "dependencies": ["TASK-DEL0904-R8-EXCEPTION-VERIFY-R9-01:COMMIT-SAFE"],
+      "write_targets": [
+        "D-55",
+        "decision register D-55 row",
+        "SOFTWARE_DECOMP DEC-088 row",
+        "R8 manager RETURN/HANDOFF/STATUS",
+        "R9 managed record"
+      ],
+      "expected_return": "PASS_WITH_OWNER_EXCEPTION_DEC_088 or HOLD"
+    }
+  ]
+}

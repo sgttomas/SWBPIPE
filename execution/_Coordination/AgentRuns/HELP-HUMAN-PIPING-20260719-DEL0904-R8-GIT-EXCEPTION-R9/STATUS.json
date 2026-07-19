@@ -1,0 +1,15 @@
+{
+  "schema": "chirality-managed-run-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260719-DEL0904-R8-GIT-EXCEPTION-R9",
+  "manager": "HELPS_HUMANS",
+  "parent": "HELP_HUMAN",
+  "status": "COMPLETED",
+  "objective_status": "PASS_WITH_OWNER_EXCEPTION_DEC_088",
+  "source_commit": "89a93d7ca21d64c57cc344955d17deef709fd685",
+  "plan_version": 1,
+  "active_instance": null,
+  "accepted_instance": "TASK-DEL0904-R8-EXCEPTION-VERIFY-R9-01",
+  "fan_in_status": "SUCCESSFUL_FAN_IN",
+  "r8_objective_status": "FAIL",
+  "next_owner": "CHANGE"
+}

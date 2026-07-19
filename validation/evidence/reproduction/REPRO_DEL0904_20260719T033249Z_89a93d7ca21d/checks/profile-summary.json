@@ -1,0 +1,15 @@
+{
+  "schema": "chirality-del0904-profile-summary/v1",
+  "overall_status": "FAIL",
+  "checks": [
+    {"id": "piping-pytest", "status": "PASS", "exit_code": 0},
+    {"id": "evidence-sweep", "status": "PASS", "exit_code": 0, "sweep_delta_count": 1, "sweep_file": "SWEEP_20260719T034442Z_89a93d7ca21d-dirty.json"},
+    {"id": "harness-pytest", "status": "FAIL", "exit_code": 1, "passed": 264, "failed": 2},
+    {"id": "harness-self-check", "status": "NOT_RUN", "exit_code": null}
+  ],
+  "failure_basis": [
+    "tools/practitioner_harness/test_live_baseline.py::test_live_self_check_severity_totals_are_recorded_loop_anchors",
+    "tools/practitioner_harness/test_live_baseline.py::test_live_gen8_abs_path_24_file_baseline"
+  ],
+  "disposition": "Terminal FAIL; no repair authorized."
+}

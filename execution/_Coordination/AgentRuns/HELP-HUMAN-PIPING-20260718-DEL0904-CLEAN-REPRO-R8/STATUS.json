@@ -1,0 +1,22 @@
+{
+  "schema": "chirality-managed-run-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R8",
+  "manager": "WORKING_ITEMS",
+  "status": "COMPLETED",
+  "objective_status": "FAIL",
+  "source_commit": "89a93d7ca21d64c57cc344955d17deef709fd685",
+  "reproduction_run_id": "REPRO_DEL0904_20260719T033249Z_89a93d7ca21d",
+  "plan_version": 1,
+  "active_instance": null,
+  "accepted_instance": "TASK-DEL0904-CLEAN-REPRO-R8-01",
+  "fan_in_status": "SUCCESSFUL_FAN_IN",
+  "git_closeout": {
+    "authority": "D-55/DEC-088",
+    "gate": "PASS_WITH_OWNER_EXCEPTION_DEC_088",
+    "git_diff_cached_check_exit": 2,
+    "objective_status_preserved": "FAIL",
+    "commit_owner": "CHANGE",
+    "drift_disposition": "HOLD"
+  },
+  "updated_utc": "2026-07-19T07:13:56Z"
+}

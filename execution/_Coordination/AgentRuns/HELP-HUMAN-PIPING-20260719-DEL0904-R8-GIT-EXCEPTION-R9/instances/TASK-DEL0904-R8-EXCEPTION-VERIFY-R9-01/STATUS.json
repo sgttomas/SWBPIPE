@@ -1,0 +1,11 @@
+{
+  "schema": "chirality-managed-instance-status/v1",
+  "instance_id": "TASK-DEL0904-R8-EXCEPTION-VERIFY-R9-01",
+  "parent_run_id": "HELP-HUMAN-PIPING-20260719-DEL0904-R8-GIT-EXCEPTION-R9",
+  "agent_type": 2,
+  "construction": "ephemeral_bounded_generalist_under_TASK",
+  "status": "COMPLETED",
+  "objective_status": "COMMIT-SAFE",
+  "delegation_allowed": false,
+  "write_allowed": false
+}
