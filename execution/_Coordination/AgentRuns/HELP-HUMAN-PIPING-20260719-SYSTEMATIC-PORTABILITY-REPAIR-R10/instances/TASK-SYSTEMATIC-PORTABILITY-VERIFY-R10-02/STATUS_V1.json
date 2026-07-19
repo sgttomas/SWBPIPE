@@ -1,0 +1,13 @@
+{
+  "schema": "chirality-managed-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260719-SYSTEMATIC-PORTABILITY-REPAIR-R10",
+  "instance_id": "TASK-SYSTEMATIC-PORTABILITY-VERIFY-R10-02",
+  "agent_type": 2,
+  "status": "COMPLETED",
+  "run_status": "SUCCESS",
+  "objective_status": "BLOCKED",
+  "verdict": "BLOCK",
+  "source_commit": "dca98da8527fc118d9bbdcc1e88ccdc7c96b863d",
+  "updated_utc": "2026-07-19T19:46:31Z",
+  "return_path": "RETURN_V1.md"
+}

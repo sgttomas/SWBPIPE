@@ -1,0 +1,3 @@
+# Exact reproduction stdout/stderr are checksum-governed byte evidence.
+validation/evidence/reproduction/REPRO_DEL0904_*/stdout/*.txt -diff -merge -text
+validation/evidence/reproduction/REPRO_DEL0904_*/stderr/*.txt -diff -merge -text

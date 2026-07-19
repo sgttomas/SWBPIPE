@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "project_root": "projects/chirality-piping",
+  "historical_role_overrides": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/BASELINE_AND_TOOLS.json",
+      "sha256": "6f6f4bd4dd0d49833dbef0999896769f21d07289d538d8a4286c0c95d6faab53",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable P1 capture of the machine-local toolchain used to repair the registered offline prerequisites.",
+      "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/PREFLIGHT_BEFORE.json",
+      "sha256": "2a0d975743ab618b0233b5986d3350295ff036b820cbd601db838f6ad8b0411d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable P1 capture of the pre-repair prerequisite state and its execution directory.",
+      "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/PREFLIGHT_AFTER_NPM.json",
+      "sha256": "3741debc0aa0eb7f470ca07b4a5b6871817883ebd70f517e9b5fade06c2185d9",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable P1 capture of the intermediate prerequisite state and its execution directory.",
+      "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/PREFLIGHT_FINAL.json",
+      "sha256": "ecf9385426f2f29e1506215be415b52fc5650711209169d9dd230c6eed31caec",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable P1 capture proving the repaired prerequisite state and its execution directory.",
+      "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+    }
+  ],
+  "control_path_exceptions": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-54_reasoned_discretion_standing_approval_refinement.md",
+      "sha256": "8d078777a4f77879aca2ff334e6b045e01c63d3d304fd068b9397f1010e10525",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "The governed decision preserves the owner's machine-absolute source direction verbatim.",
+      "authority": "Owner-approved systematic portability repair; D-54 records the governing direction."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/ORCHESTRATION_PLAN.md",
+      "sha256": "dbcc1a21d3586bcafc821ee3d51519e4eed19bea3fa43e7d2f00dddefac90f47",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable P1 orchestration history records the actual provisioned checkout anchors.",
+      "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/LAUNCH_BRIEF.md",
+      "sha256": "bc368a4834894550ad217011fd6ff4bb8c48f6b1e08e2d22d547fbbb650b4c4d",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable P1 child brief records the concrete checkout anchors authorized for that completed run.",
+      "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+    }
+  ]
+}

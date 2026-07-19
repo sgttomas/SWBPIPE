@@ -1421,3 +1421,12 @@
     noted without a repeat piping S5 event; registered sweep prerequisites
     repaired and proven locally/offline. DEL-09-04 was not rerun or accepted,
     remains `IN_PROGRESS`, and requires a fresh run ID in a new session.
+
+- **2026-07-19 — Receipt 57** (systematic portability repair R10).
+  - Receipt-ID: `Receipt-57`
+  - Examined-Through: `dca98da8527fc118d9bbdcc1e88ccdc7c96b863d`
+  - Parent-Receipt: `Receipt-56`
+  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-SYSTEMATIC-PORTABILITY-REPAIR-R10/` (preserved verifier v1 BLOCK, Amendments 001–003, author v2 remediation, verifier v2 `COMMIT-SAFE`, terminal handoff); `validation/portability_policy.json`; admitted sweep `validation/evidence/sweeps/SWEEP_20260719T195631Z_dca98da8527f-dirty.json`; earlier R10 sweep preserved as superseded/non-admitted.
+  - Checks: focused/full harness, full piping pytest, semantic portability invariants, claims/path/receipt/instruction-entrypoint/JSON/JSONL/containment/Git-diff checks, raw-evidence Git regression, and admitted five-surface sweep pass.
+  - Model-Attribution: HELP_HUMAN parent, HELPS_HUMANS manager, and the two serialized Agent 2 identities used inherited Codex runtime capability without override or mid-task substitution; exact model strings were not exposed.
+  - Gate-Outcome: `EXECUTED` — systematic portability repair is `COMMIT-SAFE` and locally commit-ready; DEL-09-04 remains `IN_PROGRESS` with clean reproduction open. No reproduction acceptance, lifecycle/stage change, evidence promotion, release, publication, push, merge, or external effect.

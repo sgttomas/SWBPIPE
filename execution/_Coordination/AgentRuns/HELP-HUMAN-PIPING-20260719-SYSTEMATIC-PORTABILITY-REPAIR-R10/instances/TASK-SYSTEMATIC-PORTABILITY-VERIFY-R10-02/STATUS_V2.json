@@ -1,0 +1,15 @@
+{
+  "schema": "chirality-managed-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260719-SYSTEMATIC-PORTABILITY-REPAIR-R10",
+  "instance_id": "TASK-SYSTEMATIC-PORTABILITY-VERIFY-R10-02",
+  "agent_type": 2,
+  "status": "COMPLETED",
+  "run_status": "SUCCESS",
+  "objective_status": "SUCCESS",
+  "verdict": "COMMIT-SAFE",
+  "source_commit": "dca98da8527fc118d9bbdcc1e88ccdc7c96b863d",
+  "admitted_sweep": "SWEEP_20260719T195631Z_dca98da8527f-dirty.json",
+  "admitted_sweep_sha256": "4ac56dda2b2c5169f083f5f010166492aa0586fda622bd618fd5b9282324fa4a",
+  "updated_utc": "2026-07-19T20:10:15Z",
+  "return_path": "RETURN_V2.md"
+}

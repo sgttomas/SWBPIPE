@@ -1,0 +1,52 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260719-SYSTEMATIC-PORTABILITY-REPAIR-R10",
+  "plan_version": 4,
+  "selection_authority": "explicit owner approval of the systematic portability-repair plan",
+  "posture": "SERIAL_AUTHOR_THEN_ADVERSARIAL_VERIFY",
+  "source_commit": "dca98da8527fc118d9bbdcc1e88ccdc7c96b863d",
+  "nodes": [
+    {
+      "id": "TASK-SYSTEMATIC-PORTABILITY-AUTHOR-R10-01",
+      "agent_type": 2,
+      "construction": "ephemeral bounded generalist under TASK shell contract",
+      "serialized": true,
+      "integration_owner": true,
+      "dependencies": [],
+      "read_scope": "repository root, limited to applicable instructions, harness, validators, piping policy/evidence surfaces, and protected-history hash checks",
+      "write_targets": [
+        "tools/practitioner_harness/**",
+        "tools/validation/validate_path_anchors.py",
+        "tools/validation/test_validate_path_anchors.py",
+        "tools/validation/README.md",
+        "projects/chirality-piping/.gitattributes",
+        "projects/chirality-piping/validation/portability_policy.json",
+        "projects/chirality-piping/validation/evidence/sweeps/exactly-two-R10-SWEEP_*.json-one-superseded-one-final",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-SYSTEMATIC-PORTABILITY-REPAIR-R10/**"
+      ],
+      "expected_returns": ["terminal RETURN.md and STATUS.json", "changed-path inventory", "validation evidence and hashes", "PASS/FAIL/BLOCKED verdict"],
+      "fan_in_gate": "all implementation and author-level validation complete",
+      "escalation": "stop without out-of-fence writes"
+    },
+    {
+      "id": "TASK-SYSTEMATIC-PORTABILITY-VERIFY-R10-02",
+      "agent_type": 2,
+      "construction": "fresh ephemeral bounded generalist under TASK shell contract",
+      "serialized": true,
+      "integration_owner": false,
+      "dependencies": ["TASK-SYSTEMATIC-PORTABILITY-AUTHOR-R10-01"],
+      "read_scope": "repository root and complete R10 candidate delta",
+      "write_targets": [
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-SYSTEMATIC-PORTABILITY-REPAIR-R10/instances/TASK-SYSTEMATIC-PORTABILITY-VERIFY-R10-02/**"
+      ],
+      "expected_returns": ["terminal adversarial RETURN.md and STATUS.json", "COMMIT-SAFE or BLOCK verdict"],
+      "fan_in_gate": "independent recomputation of scope, invariants, ledger, tests, prior-history immutability, and receipt eligibility",
+      "escalation": "return BLOCK without repair"
+    }
+  ],
+  "edges": [
+    {"from": "TASK-SYSTEMATIC-PORTABILITY-AUTHOR-R10-01", "to": "TASK-SYSTEMATIC-PORTABILITY-VERIFY-R10-02"}
+  ],
+  "concurrency": "none",
+  "escalation_points": ["authority drift", "out-of-fence write", "invalid or stale exception", "test failure", "protected-history drift", "verifier block"]
+}
