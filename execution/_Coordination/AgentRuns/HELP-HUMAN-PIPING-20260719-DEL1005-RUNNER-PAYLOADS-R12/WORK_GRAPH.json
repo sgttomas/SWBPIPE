@@ -1,0 +1,66 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260719-DEL1005-RUNNER-PAYLOADS-R12",
+  "plan_version": 1,
+  "selection_authority": "AGENT_0",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "frozen_at_utc": "2026-07-19T21:11:09Z",
+  "head_at_freeze": "96563e8e0",
+  "receipt_cursor": "Receipt-58",
+  "nodes": [
+    {
+      "id": "N1",
+      "role": "ORCHESTRATOR_FOR_HELP_HUMAN",
+      "agent_layer": 1,
+      "objective": "intake_and_author_candidate_brief_plus_d54_rationale",
+      "depends_on": [],
+      "write_targets": [
+        "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-19_DEL-10-05_RUNNER_PAYLOAD_BINDINGS.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL1005-RUNNER-PAYLOADS-R12/instances/N1/",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL1005-RUNNER-PAYLOADS-R12/CURRENT_CANDIDATE_RATIONALE.md"
+      ],
+      "expected_return": "brief_path_plus_rationale_plus_enumerated_claims",
+      "fan_in_gate": "HELP_HUMAN_review"
+    },
+    {
+      "id": "N2",
+      "role": "FRESH_CONTEXT_ADVERSARIAL_VERIFIER",
+      "agent_layer": 2,
+      "objective": "refute_n1_claims",
+      "depends_on": ["N1"],
+      "write_targets": [
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL1005-RUNNER-PAYLOADS-R12/instances/N2/"
+      ],
+      "expected_return": "COMMIT-SAFE_or_BLOCK",
+      "fan_in_gate": "BLOCK_holds_N3"
+    },
+    {
+      "id": "N3",
+      "role": "WORKING_ITEMS_SERIALIZED_EXECUTOR",
+      "agent_layer": 1,
+      "objective": "execute_sealed_brief_runner_payload_bindings",
+      "depends_on": ["N2"],
+      "write_targets": ["per_candidate_brief_write_fence_only"],
+      "expected_return": "implementation_evidence_and_check_results",
+      "fan_in_gate": "HELP_HUMAN_review_plus_N4"
+    },
+    {
+      "id": "N4",
+      "role": "FRESH_CONTEXT_IMPLEMENTATION_VERIFIER",
+      "agent_layer": 2,
+      "objective": "refute_n3_claims_precommit",
+      "depends_on": ["N3"],
+      "write_targets": [
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL1005-RUNNER-PAYLOADS-R12/instances/N4/"
+      ],
+      "expected_return": "COMMIT-SAFE_or_BLOCK",
+      "fan_in_gate": "BLOCK_holds_closeout"
+    }
+  ],
+  "preserved_gates": [
+    "owner_merge",
+    "threshold_and_tolerance_promotion_DEC-046",
+    "lifecycle_stage_release_acceptance",
+    "D-45_AWAITING_RULING",
+    "F-PIP-1..5"
+  ]
+}

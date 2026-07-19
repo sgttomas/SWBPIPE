@@ -576,6 +576,18 @@ pub fn fixture_inventory_ids() -> Vec<&'static str> {
         .collect()
 }
 
+/// Additive accessor exposing this crate's already-encoded internal assertion
+/// comparison basis (`INTERNAL_ASSERTION_EPSILON`, the same predicate used by
+/// this crate's own `validate_*` fixture verification) so a caller such as the
+/// DEL-10-05 headless runner can reuse the recorded comparison basis without
+/// re-encoding a tolerance. This is not a release threshold, tolerance policy,
+/// or acceptance criterion; those remain `TBD` pending human approval.
+pub fn recorded_comparison_holds(observed: f64, recorded: f64) -> bool {
+    observed.is_finite()
+        && recorded.is_finite()
+        && (observed - recorded).abs() <= INTERNAL_ASSERTION_EPSILON
+}
+
 pub fn readiness_boundaries_are_documented() -> bool {
     REQUIRED_READINESS_TBD_MARKERS.iter().all(|marker| {
         contains_normalized_marker(BENCHMARK_README, marker)

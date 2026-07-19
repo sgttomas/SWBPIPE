@@ -6,6 +6,8 @@
 //! filesystem, run GUI/report/adapter/local-FEA workflows, or emit professional
 //! or code-compliance claims.
 
+pub mod benchmark_binding;
+
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{
     run_linear_static_preview, LinearStaticPreviewRequest, MechanicsEnvelope,

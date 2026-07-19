@@ -30,7 +30,8 @@ use open_pipe_stress_stress_recovery::{
 };
 use sha2::{Digest, Sha256};
 
-#[cfg(test)]
+// Ungated (value unchanged) so `recorded_comparison_holds` can expose the
+// crate's already-encoded comparison basis outside `#[cfg(test)]`.
 const INTERNAL_ASSERTION_EPSILON: f64 = 1.0e-9;
 const PKG09_STRESS_FIXTURE_UNIT_SYSTEM_REF: &str = "PKG09-STRESS-FIXTURE-UNITS-EXPLICIT-N-M-PA";
 const TP_STRESS_016_SECTION_EVIDENCE_ID: &str =
@@ -452,6 +453,18 @@ pub fn fixture_inventory() -> Vec<StressBenchmark> {
         tp_pmm_p3_milltol_effective_wall_stress_fixture(),
         tp_pmm_p3_modulusbasis_range_stress_fixture(),
     ]
+}
+
+/// Additive accessor exposing this crate's already-encoded internal assertion
+/// comparison basis (`INTERNAL_ASSERTION_EPSILON`, the same predicate used by
+/// this crate's own fixture verification via `assert_close`) so a caller such
+/// as the DEL-10-05 headless runner can reuse the recorded comparison basis
+/// without re-encoding a tolerance. This is not a release threshold, tolerance
+/// policy, or acceptance criterion; those remain `TBD` pending human approval.
+pub fn recorded_comparison_holds(observed: f64, recorded: f64) -> bool {
+    observed.is_finite()
+        && recorded.is_finite()
+        && (observed - recorded).abs() <= INTERNAL_ASSERTION_EPSILON
 }
 
 pub fn missing_required_families(fixtures: &[StressBenchmark]) -> Vec<StressBenchmarkFamily> {

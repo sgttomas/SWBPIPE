@@ -1,0 +1,155 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 2,
+  "decision_basis": "DEC-025",
+  "boundary_note": "Local-only development evidence. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "96563e8e09b89908e13e6b2f1f1139aca3283855",
+    "branch": "claude/chirality-piping-loop-init-a45657",
+    "status_capture_failed": false,
+    "working_tree_dirty": true,
+    "dirty_paths": [
+      "projects/chirality-piping/core/runner/headless/Cargo.toml",
+      "projects/chirality-piping/core/runner/headless/src/benchmark_binding.rs",
+      "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_run_records/WORKING_ITEMS_RUN_2026-07-19_DEL1005_RUNNER_PAYLOADS_R12.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-DEL1005-RUNNER-PAYLOADS-R12/",
+      "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-19_DEL-10-05_RUNNER_PAYLOAD_BINDINGS.md",
+      "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+      "projects/chirality-piping/validation/benchmarks/stress/src/lib.rs",
+      "projects/chirality-piping/validation/witness/generated/del1005_payload_binding_benchmark_multi_case.json",
+      "projects/chirality-piping/validation/witness/generated/del1005_payload_binding_benchmark_payload_missing.json",
+      "projects/chirality-piping/validation/witness/generated/del1005_payload_binding_benchmark_single_case.json",
+      "projects/chirality-piping/validation/witness/generated/del1005_payload_binding_regression_full_suite.json",
+      "projects/chirality-piping/validation/witness/generated/del1005_payload_binding_regression_payload_missing.json",
+      "projects/chirality-piping/validation/witness/inputs/del1005_payload_binding_benchmark_multi_case_input.json",
+      "projects/chirality-piping/validation/witness/inputs/del1005_payload_binding_benchmark_payload_missing_input.json",
+      "projects/chirality-piping/validation/witness/inputs/del1005_payload_binding_benchmark_single_case_input.json",
+      "projects/chirality-piping/validation/witness/inputs/del1005_payload_binding_regression_full_suite_input.json",
+      "projects/chirality-piping/validation/witness/inputs/del1005_payload_binding_regression_payload_missing_input.json",
+      "projects/chirality-piping/validation/witness/inputs/generate_del1005_payload_binding_inputs.py"
+    ]
+  },
+  "runtime": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.7",
+    "node": "v24.5.0",
+    "npm": "11.5.2",
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)"
+  },
+  "started_utc": "2026-07-19T22:02:36+00:00",
+  "finished_utc": "2026-07-19T22:06:23+00:00",
+  "duration_seconds": 227.078,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "commands": [
+        {
+          "argv": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 87.031
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "commands": [
+        {
+          "argv": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 14.696
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 7.423
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 39.194
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_playwright_e2e",
+      "description": "Playwright end-to-end smoke in a real Chrome browser: dev-server lane, then production-dist lane via vite preview (TP-APP-R2-WASMPKG-001).",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 67.61
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:dist:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 7.014
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 5,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 4.109
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "overall_status": "pass"
+}

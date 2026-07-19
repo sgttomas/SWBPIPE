@@ -1,5 +1,54 @@
 # MEMORY - DEL-10-05 Headless CLI and structured I/O analysis runner
 
+## 2026-07-19 - Benchmark/regression payload bindings (CB-2026-07-19-DEL-10-05-RUNNER-PAYLOADS-001, run R12)
+
+- Bound `run-benchmark` (suites `mechanics` = DEL-09-01, `stress` = DEL-09-02)
+  and `run-regression` (suite `nonlinear` = DEL-09-03) per the adopted brief
+  `execution/_Coordination/CANDIDATE_BRIEF_2026-07-19_DEL-10-05_RUNNER_PAYLOAD_BINDINGS.md`
+  (DEC-085/D-52 standing approval; N2 `COMMIT-SAFE`; run
+  `HELP-HUMAN-PIPING-20260719-DEL1005-RUNNER-PAYLOADS-R12`). Verb-named
+  optional `benchmark`/`regression` payload objects `{suite, cases[]}` beside
+  `request` follow the settled TP-RUNNER-015 `solve` wrapper precedent;
+  omitted/empty `cases` selects the suite's full `fixture_inventory()` set.
+- New bounded module `core/runner/headless/src/benchmark_binding.rs` reports,
+  per requested case, recorded values, observed values, deltas, and a
+  match/fail status expressed only in the suites' regression-evidence claim
+  posture. Comparison reuses ONLY crate-encoded bases (`recorded_comparison_holds`
+  additive accessors in the mechanics/stress crates; mechanics public
+  `validate_*` predicates; nonlinear `NonlinearRegressionCase::run` /
+  `matches_expected_outcome`). No new tolerance constant anywhere; cases
+  without a reusable public comparison surface fail closed with
+  `HEADLESS_RUNNER_*_CASE_COMPARISON_BASIS_NOT_REUSABLE` (mechanics 10 of 21,
+  stress 3 of 15; nonlinear 0 of 5). DEC-065 exit policy preserved: 0 only
+  when all requested cases execute and match; 1 for mismatch/unknown/
+  unsupported/missing-payload/blocked; 2 unchanged. Payload-missing
+  diagnostics `HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING` /
+  `HEADLESS_RUNNER_REGRESSION_PAYLOAD_MISSING`; the stub diagnostic
+  `HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD` now belongs to
+  `export-results` only (its Remaining bullet stays open).
+- Evidence: five new `validation/witness/inputs/del1005_payload_binding_*_input.json`
+  fixtures (+ deterministic generator) and five generated witnesses with exit
+  codes 0/0/0/1/1 (single-case mechanics; multi-case stress; nonlinear
+  whole-suite 5/5 matched; payload-missing per verb). Frozen TP-RUNNER-015
+  inputs/generator/witnesses byte-unchanged; schema and contract test
+  unchanged (wrapper-level payloads, like `solve`, are not schema-modeled).
+- Validation: fmt/tests (runner 16+1+15; mechanics 33; stress 23), contract
+  test, piping-pytest, harness-pytest, harness-self-check, claims-language,
+  path-anchors, `git diff --check`, JSON parses, and change-scope containment
+  all passed. The DEC-025 `evidence-sweep` gate was initially BLOCKED in this
+  fresh worktree (missing gitignored local build state); HELP_HUMAN's recorded
+  disposition R12-ENVREPAIR-01 (offline copy of owner-recorded ignored state;
+  no network; `git status` unchanged) repaired the environment and the rerun
+  PASSED, producing exactly one new sweep artifact
+  `validation/evidence/sweeps/SWEEP_20260719T220236Z_96563e8e09b8-dirty.json`.
+- Boundary preserved: regression evidence for current solver behavior only;
+  release thresholds, final tolerance policy, CI gate policy, DEC-046
+  promotion, professional reliance, lifecycle/stage/release/acceptance acts,
+  `export-results` binding, and DEL-09-04 wording updates all remain open or
+  owner-gated. Known follow-on for HELP_HUMAN: E1 case-3 documented stub
+  expectation in `docs/validation_manual/headless_runner_reproduction.md` is
+  now historical (out of this fence).
+
 ## 2026-07-05 - TP-RUNNER-015 final local CLI implementation (DEC-065 / D-33 O-A)
 
 - Recorded D-33 as ruled by `DEC-065`: stable local binary

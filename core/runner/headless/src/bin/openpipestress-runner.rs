@@ -9,6 +9,7 @@ use std::io::{self, Read};
 use std::process::ExitCode;
 
 use open_pipe_stress_headless_runner::{
+    benchmark_binding::{self, SuiteRunReport},
     run_preview_in_memory_with_rule_check, validate_request, validate_result, Diagnostic,
     JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult, RunnerValidation,
 };
@@ -34,11 +35,26 @@ struct CliInput {
     solve: Option<SolveInput>,
     #[serde(default)]
     rule_check_aggregate: Option<String>,
+    #[serde(default)]
+    benchmark: Option<SuitePayload>,
+    #[serde(default)]
+    regression: Option<SuitePayload>,
 }
 
 #[derive(Debug, Deserialize)]
 struct SolveInput {
     preview_model: Value,
+}
+
+/// Verb-named downstream payload beside `request`, following the settled
+/// TP-RUNNER-015 `solve` wrapper precedent: a suite selector plus an optional
+/// suite-local `fixture_id` case list (omitted or empty selects the named
+/// suite's full `fixture_inventory()` case set).
+#[derive(Debug, Deserialize)]
+struct SuitePayload {
+    suite: String,
+    #[serde(default)]
+    cases: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -68,6 +84,7 @@ struct CliOutput {
     result_validation: Option<RunnerValidation>,
     runner_result: Option<RunnerResult>,
     mechanics_envelope: Option<MechanicsEnvelope>,
+    suite_run: Option<SuiteRunReport>,
     diagnostics: Vec<Diagnostic>,
 }
 
@@ -234,9 +251,21 @@ fn execute_json(verb: &str, raw_input: &str) -> (u8, CliOutput) {
             )
         }
         RunnerOperation::Solve => execute_solve(verb, input, request_validation, diagnostics),
-        RunnerOperation::ExportResults
-        | RunnerOperation::RunBenchmark
-        | RunnerOperation::RunRegression => {
+        RunnerOperation::RunBenchmark => execute_suite_verb(
+            verb,
+            RunnerOperation::RunBenchmark,
+            input.benchmark,
+            request_validation,
+            diagnostics,
+        ),
+        RunnerOperation::RunRegression => execute_suite_verb(
+            verb,
+            RunnerOperation::RunRegression,
+            input.regression,
+            request_validation,
+            diagnostics,
+        ),
+        RunnerOperation::ExportResults => {
             diagnostics.push(blocking(
                 "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD",
                 "runner_operation",
@@ -257,6 +286,83 @@ fn execute_json(verb: &str, raw_input: &str) -> (u8, CliOutput) {
         }
         RunnerOperation::Tbd => unreachable!("TBD is not mapped from a stable CLI verb"),
     }
+}
+
+fn execute_suite_verb(
+    verb: &str,
+    operation: RunnerOperation,
+    payload: Option<SuitePayload>,
+    request_validation: RunnerValidation,
+    mut diagnostics: Vec<Diagnostic>,
+) -> (u8, CliOutput) {
+    let (payload_field, missing_code) = match operation {
+        RunnerOperation::RunBenchmark => ("benchmark", "HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING"),
+        RunnerOperation::RunRegression => {
+            ("regression", "HEADLESS_RUNNER_REGRESSION_PAYLOAD_MISSING")
+        }
+        _ => unreachable!("execute_suite_verb only binds run-benchmark and run-regression"),
+    };
+
+    let Some(payload) = payload else {
+        diagnostics.push(blocking(
+            missing_code,
+            "runner_operation",
+            operation_token(operation),
+            format!(
+                "{verb} command requires {payload_field}.suite (with optional \
+                 {payload_field}.cases fixture_id list) in the schema-first \
+                 input JSON"
+            ),
+        ));
+        return (
+            1,
+            base_output(
+                verb,
+                Some(operation),
+                Some(request_validation),
+                None,
+                None,
+                diagnostics,
+            ),
+        );
+    };
+
+    if request_validation.has_blocking_diagnostics() || has_blocking(&diagnostics) {
+        return (
+            1,
+            base_output(
+                verb,
+                Some(operation),
+                Some(request_validation),
+                None,
+                None,
+                diagnostics,
+            ),
+        );
+    }
+
+    let outcome = match operation {
+        RunnerOperation::RunBenchmark => {
+            benchmark_binding::run_benchmark_cases(&payload.suite, &payload.cases)
+        }
+        RunnerOperation::RunRegression => {
+            benchmark_binding::run_regression_cases(&payload.suite, &payload.cases)
+        }
+        _ => unreachable!("execute_suite_verb only binds run-benchmark and run-regression"),
+    };
+    diagnostics.extend(outcome.diagnostics);
+
+    let exit_code = if has_blocking(&diagnostics) { 1 } else { 0 };
+    let mut output = base_output(
+        verb,
+        Some(operation),
+        Some(request_validation),
+        None,
+        None,
+        diagnostics,
+    );
+    output.suite_run = outcome.report;
+    (exit_code, output)
 }
 
 fn execute_solve(
@@ -383,6 +489,7 @@ fn base_output(
         result_validation,
         runner_result,
         mechanics_envelope,
+        suite_run: None,
         diagnostics,
     }
 }
@@ -541,11 +648,211 @@ mod tests {
 
     #[test]
     fn downstream_operation_verbs_are_stable_but_stubbed() {
-        let raw = json!({ "request": request(RunnerOperation::RunBenchmark) }).to_string();
-        let (code, output) = execute_json("run-benchmark", &raw);
+        // Only export-results remains stubbed after the DEL-10-05
+        // benchmark/regression payload-binding tranche.
+        let raw = json!({ "request": request(RunnerOperation::ExportResults) }).to_string();
+        let (code, output) = execute_json("export-results", &raw);
         assert_eq!(code, 1);
         assert!(output.diagnostics.iter().any(|diagnostic| {
             diagnostic.code == "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD"
         }));
+    }
+
+    #[test]
+    fn run_benchmark_blocks_missing_payload_without_executing_cases() {
+        let raw = json!({ "request": request(RunnerOperation::RunBenchmark) }).to_string();
+        let (code, output) = execute_json("run-benchmark", &raw);
+        assert_eq!(code, 1);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING"));
+        assert!(!output.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD"
+        }));
+        assert!(output.suite_run.is_none());
+    }
+
+    #[test]
+    fn run_regression_blocks_missing_payload_without_executing_cases() {
+        let raw = json!({ "request": request(RunnerOperation::RunRegression) }).to_string();
+        let (code, output) = execute_json("run-regression", &raw);
+        assert_eq!(code, 1);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "HEADLESS_RUNNER_REGRESSION_PAYLOAD_MISSING"));
+        assert!(output.suite_run.is_none());
+    }
+
+    #[test]
+    fn run_benchmark_executes_named_mechanics_case_and_matches_recorded_values() {
+        let raw = json!({
+            "request": request(RunnerOperation::RunBenchmark),
+            "benchmark": {
+                "suite": "mechanics",
+                "cases": ["MECH-TP-PHYS-004-LOAD-TO-RESULTANT"]
+            }
+        })
+        .to_string();
+        let (code, output) = execute_json("run-benchmark", &raw);
+        assert_eq!(code, 0, "{output:#?}");
+        let report = output.suite_run.expect("suite run report present");
+        assert_eq!(report.suite, "mechanics");
+        assert_eq!(report.requested_case_count, 1);
+        assert_eq!(report.executed_and_matched, 1);
+        assert!(!report.whole_suite_default_applied);
+        let case = &report.cases[0];
+        assert_eq!(case.fixture_id, "MECH-TP-PHYS-004-LOAD-TO-RESULTANT");
+        assert_eq!(case.encoded_predicate_result, Some(true));
+        assert!(case
+            .values
+            .iter()
+            .all(|value| value.within_recorded_basis == Some(true) && value.observed.is_some()));
+        assert!(output.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn run_benchmark_whole_suite_default_reports_every_case_without_silent_skips() {
+        let raw = json!({
+            "request": request(RunnerOperation::RunBenchmark),
+            "benchmark": { "suite": "stress" }
+        })
+        .to_string();
+        let (code, output) = execute_json("run-benchmark", &raw);
+        // Fail-closed cases (no reusable public observed-value surface) make
+        // the whole-suite default exit blocking, never silently partial.
+        assert_eq!(code, 1);
+        let report = output.suite_run.expect("suite run report present");
+        assert!(report.whole_suite_default_applied);
+        assert_eq!(report.requested_case_count, 15);
+        assert_eq!(report.cases.len(), 15);
+        assert_eq!(report.executed_and_matched, 12);
+        assert_eq!(report.executed_and_mismatched, 0);
+        assert_eq!(report.blocked, 3);
+        assert_eq!(
+            report.executed_and_matched + report.executed_and_mismatched + report.blocked,
+            report.requested_case_count
+        );
+        assert!(output.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "HEADLESS_RUNNER_BENCHMARK_CASE_COMPARISON_BASIS_NOT_REUSABLE"
+        }));
+    }
+
+    #[test]
+    fn run_benchmark_multi_case_stress_run_matches_recorded_values() {
+        let raw = json!({
+            "request": request(RunnerOperation::RunBenchmark),
+            "benchmark": {
+                "suite": "stress",
+                "cases": [
+                    "STRESS-AXIAL-NORMAL-ORIGINAL",
+                    "STRESS-RANGE-MECHANICS-ORIGINAL",
+                    "STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS"
+                ]
+            }
+        })
+        .to_string();
+        let (code, output) = execute_json("run-benchmark", &raw);
+        assert_eq!(code, 0, "{output:#?}");
+        let report = output.suite_run.expect("suite run report present");
+        assert_eq!(report.requested_case_count, 3);
+        assert_eq!(report.executed_and_matched, 3);
+        assert!(output.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn run_benchmark_unknown_case_blocks_with_structured_diagnostic() {
+        let raw = json!({
+            "request": request(RunnerOperation::RunBenchmark),
+            "benchmark": {
+                "suite": "mechanics",
+                "cases": ["MECH-DOES-NOT-EXIST"]
+            }
+        })
+        .to_string();
+        let (code, output) = execute_json("run-benchmark", &raw);
+        assert_eq!(code, 1);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "HEADLESS_RUNNER_BENCHMARK_CASE_UNKNOWN"));
+        let report = output.suite_run.expect("suite run report present");
+        assert_eq!(report.blocked, 1);
+        assert_eq!(report.cases[0].fixture_id, "MECH-DOES-NOT-EXIST");
+    }
+
+    #[test]
+    fn run_benchmark_rejects_unsupported_suite_names() {
+        let raw = json!({
+            "request": request(RunnerOperation::RunBenchmark),
+            "benchmark": { "suite": "nonlinear" }
+        })
+        .to_string();
+        let (code, output) = execute_json("run-benchmark", &raw);
+        assert_eq!(code, 1);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "HEADLESS_RUNNER_BENCHMARK_SUITE_UNSUPPORTED"));
+        assert!(output.suite_run.is_none());
+    }
+
+    #[test]
+    fn run_regression_executes_full_nonlinear_inventory_and_matches() {
+        let raw = json!({
+            "request": request(RunnerOperation::RunRegression),
+            "regression": { "suite": "nonlinear" }
+        })
+        .to_string();
+        let (code, output) = execute_json("run-regression", &raw);
+        assert_eq!(code, 0, "{output:#?}");
+        let report = output.suite_run.expect("suite run report present");
+        assert_eq!(report.suite, "nonlinear");
+        assert!(report.whole_suite_default_applied);
+        assert_eq!(report.requested_case_count, 5);
+        assert_eq!(report.executed_and_matched, 5);
+        assert!(report.cases.iter().all(|case| {
+            case.encoded_predicate_result == Some(true) && case.regression_detail.is_some()
+        }));
+        assert!(output.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn run_regression_named_case_reports_recorded_and_observed_outcome() {
+        let raw = json!({
+            "request": request(RunnerOperation::RunRegression),
+            "regression": {
+                "suite": "nonlinear",
+                "cases": ["NL-NONCONVERGENCE-LIMIT-ORIGINAL"]
+            }
+        })
+        .to_string();
+        let (code, output) = execute_json("run-regression", &raw);
+        assert_eq!(code, 0, "{output:#?}");
+        let report = output.suite_run.expect("suite run report present");
+        assert_eq!(report.executed_and_matched, 1);
+        let detail = report.cases[0]
+            .regression_detail
+            .as_ref()
+            .expect("regression detail present");
+        assert_eq!(detail.observed_converged, Some(false));
+        assert_eq!(detail.recorded_converged, false);
+        assert!(!detail.observed_diagnostic_codes.is_empty());
+    }
+
+    #[test]
+    fn run_regression_rejects_benchmark_suites() {
+        let raw = json!({
+            "request": request(RunnerOperation::RunRegression),
+            "regression": { "suite": "mechanics" }
+        })
+        .to_string();
+        let (code, output) = execute_json("run-regression", &raw);
+        assert_eq!(code, 1);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "HEADLESS_RUNNER_REGRESSION_SUITE_UNSUPPORTED"));
     }
 }

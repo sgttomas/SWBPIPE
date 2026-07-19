@@ -1,0 +1,172 @@
+{
+  "artifact": "openpipestress.headless_runner_cli_output",
+  "schema_version": "1.0.0",
+  "deliverable_id": "DEL-10-05",
+  "package_id": "PKG-10",
+  "command": "run-benchmark",
+  "operation": "run_benchmark",
+  "policy": {
+    "policy_ref": "DEC-065",
+    "binary": "openpipestress-runner",
+    "stdout_default": true,
+    "explicit_output_path_only": true,
+    "local_foreground_process": true,
+    "network_allowed": false,
+    "telemetry_allowed": false,
+    "daemon_allowed": false,
+    "hidden_filesystem_mutation_allowed": false,
+    "direct_sql_access_allowed": false
+  },
+  "request_validation": {
+    "diagnostics": []
+  },
+  "result_validation": null,
+  "runner_result": null,
+  "mechanics_envelope": null,
+  "suite_run": {
+    "suite": "stress",
+    "suite_deliverable": "DEL-09-02",
+    "claim_posture": "Per-case match/fail is regression evidence for current solver behavior against the suite crate's recorded comparison values only; release thresholds, final tolerance policy, CI gate policy, and professional reliance remain TBD pending human approval (DEC-046 promotion is owner-gated and untouched).",
+    "comparison_basis": "recorded expected values and encoded comparison predicate reused from validation/benchmarks/stress (DEL-09-02): recorded_comparison_holds internal-assertion basis over public recover_* observed values",
+    "whole_suite_default_applied": false,
+    "requested_case_count": 3,
+    "executed_and_matched": 3,
+    "executed_and_mismatched": 0,
+    "blocked": 0,
+    "cases": [
+      {
+        "fixture_id": "STRESS-AXIAL-NORMAL-ORIGINAL",
+        "family": "AxialNormal",
+        "status": "executed_and_matched",
+        "encoded_predicate": null,
+        "encoded_predicate_result": null,
+        "values": [
+          {
+            "name": "axial_normal",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 10.0,
+            "observed": 10.0,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          }
+        ],
+        "regression_detail": null,
+        "block_reason": null
+      },
+      {
+        "fixture_id": "STRESS-RANGE-MECHANICS-ORIGINAL",
+        "family": "StressRange",
+        "status": "executed_and_matched",
+        "encoded_predicate": null,
+        "encoded_predicate_result": null,
+        "values": [
+          {
+            "name": "axial_normal_range",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 10.0,
+            "observed": 10.0,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "bending_normal_y_range",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 4.0,
+            "observed": 4.0,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "bending_normal_z_range",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 0.0,
+            "observed": 0.0,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "torsional_shear_range",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 1.0,
+            "observed": 1.0,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          }
+        ],
+        "regression_detail": null,
+        "block_reason": null
+      },
+      {
+        "fixture_id": "STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS",
+        "family": "MillToleranceEffectiveWallStress",
+        "status": "executed_and_matched",
+        "encoded_predicate": null,
+        "encoded_predicate_result": null,
+        "values": [
+          {
+            "name": "axial_normal",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 1220104.014886839,
+            "observed": 1220104.014886839,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "bending_normal_y",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 5220935.245513319,
+            "observed": 5220935.245513319,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "bending_normal_z",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": -2088374.0982053275,
+            "observed": -2088374.0982053275,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "torsional_shear",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 652616.9056891649,
+            "observed": 652616.9056891649,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "pressure_hoop",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 28629.62962962963,
+            "observed": 28629.62962962963,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "pressure_longitudinal",
+            "unit": "Pa",
+            "dimension": "stress",
+            "recorded": 14314.814814814816,
+            "observed": 14314.814814814816,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          }
+        ],
+        "regression_detail": null,
+        "block_reason": null
+      }
+    ]
+  },
+  "diagnostics": []
+}
