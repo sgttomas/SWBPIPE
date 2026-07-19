@@ -19,9 +19,21 @@ load-bearing state is re-derived at Step 0.
 
 ## 2. Hand off to the plan
 
-The standing plan is the protocol — read it and do what it says: the newest
-`WORKPLAN_*.md` in this file's directory. Its **Step 0 (Discover)** runs
-before anything else. The plan carries the loop's recorded owner intent,
+The standing plan is the protocol, selected only from committed `HEAD`; an
+untracked, staged-only, or worktree-only filename is never selectable. From
+the repository root, enumerate `HEAD` entries under
+`projects/chirality-piping/loop/`, retain basenames matching
+`^WORKPLAN_.*\.md$`, sort paths bytewise (`LC_ALL=C`), and select the last.
+Require exactly one `HEAD` tree entry for the selected path with mode `100644`
+and type `blob`, then read the plan bytes only with
+`git show "HEAD:$SELECTED_PLAN"`. Do not read or execute the worktree copy.
+If enumeration, regular-blob validation, or committed-byte reading fails,
+stop before Step 0 and report the loader failure. Do not silently select an
+older plan after any failure. A candidate outside `loop/WORKPLAN_*.md` is
+never selectable.
+
+The selected committed plan's **Step 0 (Discover)** runs before anything
+else. The plan carries the loop's recorded owner intent,
 protocol, standing constraints, and pointer indexes ONLY — no status, no
 history. Current state is re-derived from the live sources the plan names
 (registers, profile, git, harness commands); the handoff context (owner

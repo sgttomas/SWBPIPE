@@ -1,0 +1,250 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "version": 10,
+  "run_id": "HELP-HUMAN-PIPING-20260718-DISCRETION-REFINEMENT-R5",
+  "posture": "SERIAL_DRAFT_THEN_PARALLEL_INDEPENDENT_VERIFICATION",
+  "nodes": [
+    {
+      "node_id": "N1_INTEGRATION",
+      "role": "HELPS_HUMANS",
+      "instance_id": "HELPS-HUMANS-PIPING-DISCRETION-REFINEMENT-01",
+      "status": "READY_FOR_DURABLE_LANDING"
+    },
+    {
+      "node_id": "N2_SEMANTIC_REFUTATION",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-SEMANTIC-VERIFIER-01",
+      "dependencies": ["N1_INTEGRATION"],
+      "status": "COMMIT_SAFE",
+      "write_scope": "instances/DISCRETION-SEMANTIC-VERIFIER-01/RETURN.md"
+    },
+    {
+      "node_id": "N3_CARRY_FORWARD_VERIFICATION",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-CARRY-FORWARD-VERIFIER-01",
+      "dependencies": ["N1_INTEGRATION"],
+      "status": "COMMIT_SAFE",
+      "write_scope": "instances/DISCRETION-CARRY-FORWARD-VERIFIER-01/RETURN.md"
+    },
+    {
+      "node_id": "N4_DEC083_S5_SIBLING_REVIEW",
+      "role": "OWNER_MEDIATED_SIBLING_REVIEWER",
+      "dependencies": ["N1_INTEGRATION"],
+      "status": "BLOCK_RETURN_01",
+      "write_scope": "S5_BLOCK_RETURN_01.md"
+    },
+    {
+      "node_id": "N5_S5_CORRECTION",
+      "role": "HELPS_HUMANS",
+      "dependencies": ["N4_DEC083_S5_SIBLING_REVIEW"],
+      "status": "CORRECTION_COMPLETE_VERIFICATION_PENDING",
+      "write_scope": "DECLARED_R5_AND_D54_DEC087_WORKPLAN_SCOPE"
+    },
+    {
+      "node_id": "N6_SEMANTIC_REFUTATION_V2",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-SEMANTIC-VERIFIER-02",
+      "dependencies": ["N5_S5_CORRECTION"],
+      "status": "BLOCK",
+      "write_scope": "instances/DISCRETION-SEMANTIC-VERIFIER-02/RETURN.md"
+    },
+    {
+      "node_id": "N7_CARRY_FORWARD_VERIFICATION_V2",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-CARRY-FORWARD-VERIFIER-02",
+      "dependencies": ["N5_S5_CORRECTION"],
+      "status": "BLOCK_LATE_RETURN_NOT_ADMITTED_TO_ORIGINAL_FANIN",
+      "write_scope": "instances/DISCRETION-CARRY-FORWARD-VERIFIER-02/RETURN.md"
+    },
+    {
+      "node_id": "N8_DEC083_REPEAT_S5",
+      "role": "OWNER_MEDIATED_SIBLING_REVIEWER",
+      "dependencies": [
+        "N6_SEMANTIC_REFUTATION_V2",
+        "N7_CARRY_FORWARD_VERIFICATION_V2"
+      ],
+      "status": "SUPERSEDED_BY_V2_BLOCK",
+      "write_scope": "S5_REVIEW_RETURN_02.md"
+    },
+    {
+      "node_id": "N9_GUARD_UNIQUENESS_CORRECTION",
+      "role": "HELPS_HUMANS",
+      "dependencies": ["N6_SEMANTIC_REFUTATION_V2"],
+      "status": "CORRECTION_COMPLETE_VERIFICATION_PENDING",
+      "write_scope": "DECLARED_R5_AND_D54_DEC087_WORKPLAN_SCOPE"
+    },
+    {
+      "node_id": "N10_SEMANTIC_REFUTATION_V3",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-SEMANTIC-VERIFIER-03",
+      "dependencies": ["N9_GUARD_UNIQUENESS_CORRECTION"],
+      "status": "BLOCK",
+      "write_scope": "instances/DISCRETION-SEMANTIC-VERIFIER-03/RETURN.md"
+    },
+    {
+      "node_id": "N11_CARRY_FORWARD_VERIFICATION_V3",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-CARRY-FORWARD-VERIFIER-03",
+      "dependencies": ["N9_GUARD_UNIQUENESS_CORRECTION"],
+      "status": "INTERRUPTED_NO_RETURN_AT_CORRECTION_CUTOFF",
+      "write_scope": "instances/DISCRETION-CARRY-FORWARD-VERIFIER-03/RETURN.md"
+    },
+    {
+      "node_id": "N12_DEC083_REPEAT_S5",
+      "role": "OWNER_MEDIATED_SIBLING_REVIEWER",
+      "dependencies": [
+        "N10_SEMANTIC_REFUTATION_V3",
+        "N11_CARRY_FORWARD_VERIFICATION_V3"
+      ],
+      "status": "SUPERSEDED_BY_V3_BLOCK",
+      "write_scope": "S5_REVIEW_RETURN_02.md"
+    },
+    {
+      "node_id": "N13_NORMALIZED_FIELD_HISTORY_CORRECTION",
+      "role": "HELPS_HUMANS",
+      "dependencies": ["N10_SEMANTIC_REFUTATION_V3"],
+      "status": "CORRECTION_COMPLETE_VERIFICATION_PENDING",
+      "write_scope": "DECLARED_R5_AND_D54_DEC087_WORKPLAN_SCOPE"
+    },
+    {
+      "node_id": "N14_SEMANTIC_REFUTATION_V4",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-SEMANTIC-VERIFIER-04",
+      "dependencies": ["N13_NORMALIZED_FIELD_HISTORY_CORRECTION"],
+      "status": "INTERRUPTED_NO_RETURN_AT_CORRECTION_CUTOFF",
+      "write_scope": "instances/DISCRETION-SEMANTIC-VERIFIER-04/RETURN.md"
+    },
+    {
+      "node_id": "N15_CARRY_FORWARD_VERIFICATION_V4",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-CARRY-FORWARD-VERIFIER-04",
+      "dependencies": ["N13_NORMALIZED_FIELD_HISTORY_CORRECTION"],
+      "status": "BLOCK",
+      "write_scope": "instances/DISCRETION-CARRY-FORWARD-VERIFIER-04/RETURN.md"
+    },
+    {
+      "node_id": "N16_DEC083_REPEAT_S5",
+      "role": "OWNER_MEDIATED_SIBLING_REVIEWER",
+      "dependencies": [
+        "N14_SEMANTIC_REFUTATION_V4",
+        "N15_CARRY_FORWARD_VERIFICATION_V4"
+      ],
+      "status": "SUPERSEDED_BY_V4_BLOCK",
+      "write_scope": "S5_REVIEW_RETURN_02.md"
+    },
+    {
+      "node_id": "N17_INDEX_HEAD_WORKTREE_CORRECTION",
+      "role": "HELPS_HUMANS",
+      "dependencies": ["N15_CARRY_FORWARD_VERIFICATION_V4"],
+      "status": "CORRECTION_COMPLETE_VERIFICATION_PENDING",
+      "write_scope": "DECLARED_R5_AND_D54_DEC087_WORKPLAN_SCOPE"
+    },
+    {
+      "node_id": "N18_SEMANTIC_REFUTATION_V5",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-SEMANTIC-VERIFIER-05",
+      "dependencies": ["N17_INDEX_HEAD_WORKTREE_CORRECTION"],
+      "status": "BLOCK",
+      "write_scope": "instances/DISCRETION-SEMANTIC-VERIFIER-05/RETURN.md"
+    },
+    {
+      "node_id": "N19_CARRY_FORWARD_VERIFICATION_V5",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-CARRY-FORWARD-VERIFIER-05",
+      "dependencies": ["N17_INDEX_HEAD_WORKTREE_CORRECTION"],
+      "status": "BLOCK_RETURN_DURABLE_FINAL_TOOL_STATUS_ERRORED_NOT_ADMITTED",
+      "write_scope": "instances/DISCRETION-CARRY-FORWARD-VERIFIER-05/RETURN.md"
+    },
+    {
+      "node_id": "N20_DEC083_REPEAT_S5",
+      "role": "OWNER_MEDIATED_SIBLING_REVIEWER",
+      "dependencies": [
+        "N18_SEMANTIC_REFUTATION_V5",
+        "N19_CARRY_FORWARD_VERIFICATION_V5"
+      ],
+      "status": "SUPERSEDED_BY_V5_BLOCK",
+      "write_scope": "S5_REVIEW_RETURN_02.md"
+    },
+    {
+      "node_id": "N21_OBJECT_MODE_FILETYPE_CORRECTION",
+      "role": "HELPS_HUMANS",
+      "dependencies": [
+        "N18_SEMANTIC_REFUTATION_V5",
+        "N19_CARRY_FORWARD_VERIFICATION_V5"
+      ],
+      "status": "CORRECTION_COMPLETE_VERIFICATION_PENDING",
+      "write_scope": "DECLARED_R5_AND_D54_DEC087_WORKPLAN_SCOPE"
+    },
+    {
+      "node_id": "N22_SEMANTIC_REFUTATION_V6",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-SEMANTIC-VERIFIER-06",
+      "dependencies": ["N21_OBJECT_MODE_FILETYPE_CORRECTION"],
+      "status": "OWNER_SUPERSEDED_ARCHITECTURE_INTERRUPTED_NO_RETURN",
+      "write_scope": "instances/DISCRETION-SEMANTIC-VERIFIER-06/RETURN.md"
+    },
+    {
+      "node_id": "N23_CARRY_FORWARD_VERIFICATION_V6",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-CARRY-FORWARD-VERIFIER-06",
+      "dependencies": ["N21_OBJECT_MODE_FILETYPE_CORRECTION"],
+      "status": "OWNER_SUPERSEDED_ARCHITECTURE_INTERRUPTED_NO_RETURN",
+      "write_scope": "instances/DISCRETION-CARRY-FORWARD-VERIFIER-06/RETURN.md"
+    },
+    {
+      "node_id": "N24_DEC083_REPEAT_S5",
+      "role": "OWNER_MEDIATED_SIBLING_REVIEWER",
+      "dependencies": [
+        "N22_SEMANTIC_REFUTATION_V6",
+        "N23_CARRY_FORWARD_VERIFICATION_V6"
+      ],
+      "status": "SUPERSEDED_BY_OWNER_SELECTED_ARCHITECTURE",
+      "write_scope": "S5_REVIEW_RETURN_02.md"
+    },
+    {
+      "node_id": "N25_ARCHITECTURE_MATERIALIZATION",
+      "role": "HELPS_HUMANS",
+      "dependencies": ["N21_OBJECT_MODE_FILETYPE_CORRECTION"],
+      "status": "COMPLETE",
+      "write_scope": "DECLARED_R5_D54_DEC087_CANDIDATE_AND_LOOP_INIT_SCOPE"
+    },
+    {
+      "node_id": "N26_SEMANTIC_REFUTATION_V7",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-SEMANTIC-VERIFIER-07",
+      "dependencies": ["N25_ARCHITECTURE_MATERIALIZATION"],
+      "status": "COMMIT_SAFE",
+      "write_scope": "instances/DISCRETION-SEMANTIC-VERIFIER-07/RETURN.md"
+    },
+    {
+      "node_id": "N27_CARRY_FORWARD_VERIFICATION_V7",
+      "role": "EPHEMERAL_GENERALIST_AGENT_2",
+      "instance_id": "DISCRETION-CARRY-FORWARD-VERIFIER-07",
+      "dependencies": ["N25_ARCHITECTURE_MATERIALIZATION"],
+      "status": "COMMIT_SAFE",
+      "write_scope": "instances/DISCRETION-CARRY-FORWARD-VERIFIER-07/RETURN.md"
+    },
+    {
+      "node_id": "N28_DEC083_REPEAT_S5",
+      "role": "OWNER_MEDIATED_SIBLING_REVIEWER",
+      "dependencies": [
+        "N26_SEMANTIC_REFUTATION_V7",
+        "N27_CARRY_FORWARD_VERIFICATION_V7"
+      ],
+      "status": "OWNER_CURTAILED_NOT_REQUIRED_INTERRUPTED_NO_RETURN",
+      "write_scope": "S5_REPEAT_REVIEW_INTERRUPTION_RECORD.md"
+    },
+    {
+      "node_id": "N29_ACTIVATION_ARCHITECTURE_CLOSEOUT",
+      "role": "HELPS_HUMANS",
+      "dependencies": [
+        "N26_SEMANTIC_REFUTATION_V7",
+        "N27_CARRY_FORWARD_VERIFICATION_V7",
+        "N28_DEC083_REPEAT_S5"
+      ],
+      "status": "READY_FOR_DURABLE_LANDING",
+      "write_scope": "DECLARED_D54_DEC087_R5_LOOP_INIT_AND_FUTURE_ACTIVE_PLAN_SCOPE"
+    }
+  ],
+  "effect": "HELD_READY_FOR_DURABLE_LANDING"
+}
