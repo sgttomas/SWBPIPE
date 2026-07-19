@@ -1,0 +1,19 @@
+{
+  "schema": "chirality.agent_instance_status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R7",
+  "instance_id": "TASK-DEL0904-PREFLIGHT-BLOCK-01",
+  "agent_type": 2,
+  "status": "COMPLETED",
+  "run_status": "SUCCESS",
+  "objective_status": "BLOCKED",
+  "package_return": "BLOCKED",
+  "reproduction_run_id": "REPRO_DEL0904_20260719T023848Z_525ef0903e68",
+  "source_commit": "525ef0903e68b536ff5b22f985263ca737a67986",
+  "prerequisite_error_count": 20,
+  "reproduction_execution_started": false,
+  "bundle_path": "validation/evidence/reproduction/REPRO_DEL0904_20260719T023848Z_525ef0903e68",
+  "checksum_file_sha256": "b6c30b89f28c0c82f1d1e4e85893e058786b6875e6687afddfe821b010ad9bf3",
+  "checksum_verification": "PASS",
+  "completed_utc": "2026-07-19T02:50:57Z",
+  "return_path": "RETURN.md"
+}

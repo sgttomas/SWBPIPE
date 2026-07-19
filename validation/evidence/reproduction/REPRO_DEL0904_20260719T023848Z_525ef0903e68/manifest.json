@@ -1,0 +1,92 @@
+{
+  "schema": "chirality.del0904_reproduction_bundle/v1",
+  "artifact_kind": "del0904.clean_checkout_reproduction_derivative",
+  "derivative_package": true,
+  "authoritative_deliverable_truth": false,
+  "run_id": "REPRO_DEL0904_20260719T023848Z_525ef0903e68",
+  "managed_run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R7",
+  "child_instance_id": "TASK-DEL0904-PREFLIGHT-BLOCK-01",
+  "package_id": "PKG-09",
+  "deliverable_id": "DEL-09-04",
+  "started_utc": "2026-07-19T02:43:00Z",
+  "blocked_utc": "2026-07-19T02:44:47Z",
+  "overall_status": "BLOCKED",
+  "source": {
+    "commit": "525ef0903e68b536ff5b22f985263ca737a67986",
+    "branch": "codex/piping-del0904-clean-repro-20260718-r7",
+    "cleanup_merge": "525ef0903e68b536ff5b22f985263ca737a67986",
+    "cleanup_implementation_ancestor": "946feb629b16472d45f99ef503c11c07667e97b9",
+    "pre_managed_run_status": "clean"
+  },
+  "accepted_basis": {
+    "candidate_brief": "execution/_Coordination/CANDIDATE_BRIEF_2026-07-18_DEL-09-04_CLEAN_REPRODUCTION.md",
+    "candidate_brief_sha256": "72521c0ae90fc04d5d2e22ff3e3d0be5e96561fe3e2d3847b546c4fa26af1951",
+    "procedure": "docs/validation_manual/headless_runner_reproduction.md",
+    "procedure_sha256": "5fee14dd6ed62e4b75ef833af2ad9de2e711a83889be94d10b9a0a7de230418d",
+    "profile": "software-workflow.json",
+    "profile_sha256": "123249634475e87207cd75740dc25e5061c08cc7a1708aa239105b27e30c9c2f",
+    "preflight_implementation": "tools/release/run_evidence_sweep.py",
+    "preflight_implementation_sha256": "ac13dd8c6c590a6caf0b633c2ae50e47b410408feccbca4af697b2285f9309c4",
+    "plan_amendment": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R7/PLAN_AMENDMENT_001.md",
+    "decision_basis": [
+      "DEC-080",
+      "DEC-085"
+    ],
+    "cleanup_handoff": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-CLEANUP-R6/HANDOFF_STATE.md",
+    "r3_handoff_only": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-EXEC-R3/HANDOFF_STATE.md"
+  },
+  "preflight": {
+    "method": "tools/release/run_evidence_sweep.py::preflight_prerequisites(Path.cwd())",
+    "cwd": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "CARGO_NET_OFFLINE": "true"
+    },
+    "invocation_exit_code": 0,
+    "error_count": 20,
+    "status": "BLOCKED",
+    "detail_path": "checks/prerequisite-preflight.json"
+  },
+  "runtime_execution": {
+    "temporary_root_created": false,
+    "checkout_created": false,
+    "generator_run": false,
+    "runner_commands_run": false,
+    "tests_run": false,
+    "registered_profile_checks_run": false,
+    "evidence_sweep_run": false,
+    "sweep_artifact_created": false,
+    "input_hashes": null,
+    "output_hashes": null,
+    "expected_exit_codes": {
+      "generator": 0,
+      "solve": 0,
+      "validate-input": 1,
+      "run-benchmark": 1,
+      "cargo-test": 0,
+      "contract-test": 0
+    },
+    "actual_exit_codes": {
+      "generator": null,
+      "solve": null,
+      "validate-input": null,
+      "run-benchmark": null,
+      "cargo-test": null,
+      "contract-test": null
+    },
+    "not_run_detail_path": "checks/commands-not-run.json"
+  },
+  "preserved_boundaries": {
+    "del0904_status_unchanged": true,
+    "del0904_memory_unchanged": true,
+    "loop_receipts_unchanged": true,
+    "prior_r3_history_untouched": true,
+    "lifecycle_advanced": false,
+    "reproduction_accepted": false,
+    "evidence_promoted": false,
+    "released_or_published": false,
+    "external_effect": false
+  },
+  "qa_detail_path": "checks/prechecksum-qa.json",
+  "rerun_requirement": "Provision the missing locked prerequisites outside the sealed run, then start a new clean managed run with a new run ID and new immutable bundle ID."
+}

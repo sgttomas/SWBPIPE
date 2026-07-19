@@ -1,0 +1,15 @@
+{
+  "schema": "chirality.managed_run_status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R7",
+  "status": "COMPLETED",
+  "phase": "FAN_IN_COMPLETE",
+  "package_id": "PKG-09",
+  "deliverable_id": "DEL-09-04",
+  "source_commit": "525ef0903e68b536ff5b22f985263ca737a67986",
+  "reproduction_run_id": "REPRO_DEL0904_20260719T023848Z_525ef0903e68",
+  "preflight_status": "BLOCKED",
+  "child_count_planned": 1,
+  "child_count_dispatched": 1,
+  "child_count_terminal": 1,
+  "closure_verdict": "BLOCKED"
+}

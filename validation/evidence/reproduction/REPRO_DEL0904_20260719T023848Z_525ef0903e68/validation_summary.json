@@ -1,0 +1,46 @@
+{
+  "schema": "chirality.del0904_reproduction_validation_summary/v1",
+  "run_id": "REPRO_DEL0904_20260719T023848Z_525ef0903e68",
+  "overall_status": "BLOCKED",
+  "preflight": {
+    "status": "BLOCKED",
+    "error_count": 20,
+    "missing_project_local_node_binaries": 4,
+    "incomplete_offline_cargo_manifests": 16,
+    "headless_runner_manifest_blocked": true
+  },
+  "reproduction_predicates": {
+    "generator_determinism": "NOT_RUN",
+    "solve_completed_diagnostic_clean_nonempty_result_refs": "NOT_RUN",
+    "validate_input_expected_diagnostic": "NOT_RUN",
+    "benchmark_stub_expected_diagnostic": "NOT_RUN",
+    "cargo_test": "NOT_RUN",
+    "contract_test": "NOT_RUN"
+  },
+  "profile_surfaces": {
+    "piping-pytest": "NOT_RUN",
+    "evidence-sweep": "NOT_RUN",
+    "harness-pytest": "NOT_RUN",
+    "harness-self-check": "NOT_RUN"
+  },
+  "claim_status": {
+    "internally_verified": false,
+    "reproduction_accepted": false,
+    "lifecycle_advanced": false,
+    "evidence_promoted": false,
+    "release_or_publication": false,
+    "external_effect": false
+  },
+  "prechecksum_qa": {
+    "claims_language": "PASS",
+    "path_anchors": "PASS",
+    "loop_receipts": "PASS",
+    "git_diff_check": "PASS",
+    "change_scope": "PASS",
+    "protected_surfaces_unchanged": "PASS",
+    "new_sweep_artifact_count": 0,
+    "json_parse": "PASS"
+  },
+  "terminal_reason": "Registered local/offline prerequisite errors were nonempty; fail-closed stop occurred before reproduction execution.",
+  "rerun_requirement": "Provision the missing locked prerequisites outside the sealed run and start a new clean run with a new run ID and bundle."
+}
