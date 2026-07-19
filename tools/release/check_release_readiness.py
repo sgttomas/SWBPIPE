@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -147,7 +148,13 @@ def build_plan(profile: str, root: Path = ROOT) -> list[CheckStep]:
             steps.append(
                 CheckStep(
                     name=f"cargo test {manifest.parent.as_posix()}",
-                    command=("cargo", "test", "--manifest-path", manifest.as_posix()),
+                    command=(
+                        "cargo",
+                        "test",
+                        "--offline",
+                        "--manifest-path",
+                        manifest.as_posix(),
+                    ),
                     description="Run crate-local Rust tests without assuming a root workspace.",
                 )
             )
@@ -186,9 +193,11 @@ def print_plan(steps: list[CheckStep], root: Path, execute: bool) -> None:
 
 
 def run_steps(steps: list[CheckStep], root: Path) -> int:
+    env = os.environ.copy()
+    env["CARGO_NET_OFFLINE"] = "true"
     for step in steps:
         print(f"running: {step.name}", flush=True)
-        completed = subprocess.run(step.command, cwd=root, check=False)
+        completed = subprocess.run(step.command, cwd=root, env=env, check=False)
         if completed.returncode != 0:
             print(f"failed: {step.name} exited {completed.returncode}", file=sys.stderr)
             return completed.returncode

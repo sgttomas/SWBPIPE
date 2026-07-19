@@ -72,6 +72,44 @@ def test_cargo_surface_reuses_release_readiness_cargo_profile():
     )
 
 
+def test_run_command_forces_cargo_offline_environment(monkeypatch):
+    sweep = load_module()
+    observed = {}
+
+    class Completed:
+        returncode = 0
+
+    def fake_run(command, cwd=None, env=None, check=False):
+        observed.update(env)
+        return Completed()
+
+    monkeypatch.setattr(sweep.subprocess, "run", fake_run)
+
+    assert sweep.run_command(("npm", "run", "test:desktop"), ROOT) == 0
+    assert observed["CARGO_NET_OFFLINE"] == "true"
+
+
+def test_preflight_rejects_missing_node_dependencies_before_execution(
+    monkeypatch, tmp_path
+):
+    sweep = load_module()
+    monkeypatch.setattr(sweep.shutil, "which", lambda executable: f"/bin/{executable}")
+
+    errors = sweep.preflight_prerequisites(tmp_path)
+
+    assert any("node_modules/.bin/vitest" in error for error in errors)
+    assert any("node_modules/.bin/playwright" in error for error in errors)
+
+
+def test_build_wasm_script_forces_offline_cargo():
+    script = (ROOT / "apps" / "desktop" / "scripts" / "build-wasm-engine.mjs").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'CARGO_NET_OFFLINE: "true"' in script
+    assert '"build",\n  "--offline",' in script
+
+
 def test_summary_binds_commit_hash_and_passes_when_all_surfaces_pass():
     sweep = load_module()
 
@@ -291,6 +329,7 @@ def test_main_execute_writes_summary_and_returns_failure_exit(
     monkeypatch.setattr(
         sweep, "run_command", lambda command, root: 1 if "pytest" in command else 0
     )
+    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root: [])
 
     result = sweep.main(
         [
@@ -309,3 +348,33 @@ def test_main_execute_writes_summary_and_returns_failure_exit(
     parsed = json.loads(summaries[0].read_text(encoding="utf-8"))
     assert parsed["overall_status"] == "fail"
     assert "overall: fail" in captured.out
+
+
+def test_main_preflight_failure_runs_no_surface_and_writes_no_summary(
+    monkeypatch, tmp_path
+):
+    sweep = load_module()
+
+    monkeypatch.setattr(
+        sweep,
+        "preflight_prerequisites",
+        lambda root: ["missing local prerequisite"],
+    )
+
+    def fail_run_sweep(*args, **kwargs):
+        raise AssertionError("preflight failure must stop before surface 1")
+
+    monkeypatch.setattr(sweep, "run_sweep", fail_run_sweep)
+
+    result = sweep.main(
+        [
+            "--execute",
+            "--repo-root",
+            str(ROOT),
+            "--output-dir",
+            str(tmp_path),
+        ]
+    )
+
+    assert result == 1
+    assert list(tmp_path.glob("SWEEP_*.json")) == []

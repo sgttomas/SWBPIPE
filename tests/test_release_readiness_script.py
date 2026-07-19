@@ -86,9 +86,36 @@ def test_all_profile_preserves_current_command_surface():
     assert any("test_coordination_maintenance.py" in command for command in commands)
     assert any("tests/security" in command for command in commands)
     assert any(
-        command == "cargo test --manifest-path core/runner/headless/Cargo.toml"
+        command
+        == "cargo test --offline --manifest-path core/runner/headless/Cargo.toml"
         for command in commands
     )
+
+
+def test_cargo_profile_forces_offline_argv():
+    release = load_module()
+    cargo_steps = release.build_plan("cargo", ROOT)
+
+    assert cargo_steps
+    assert all("--offline" in step.command for step in cargo_steps)
+
+
+def test_run_steps_forces_cargo_offline_environment(monkeypatch):
+    release = load_module()
+    seen = []
+
+    class Completed:
+        returncode = 0
+
+    def fake_run(command, cwd=None, env=None, check=False):
+        seen.append((command, env))
+        return Completed()
+
+    monkeypatch.setattr(release.subprocess, "run", fake_run)
+    result = release.run_steps(release.build_plan("cargo", ROOT)[:1], ROOT)
+
+    assert result == 0
+    assert seen[0][1]["CARGO_NET_OFFLINE"] == "true"
 
 
 def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):

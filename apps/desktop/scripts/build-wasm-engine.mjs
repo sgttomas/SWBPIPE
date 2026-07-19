@@ -45,7 +45,11 @@ function tryRun(command, args) {
   try {
     return {
       ok: true,
-      stdout: execFileSync(command, args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })
+      stdout: execFileSync(command, args, {
+        encoding: "utf8",
+        env: { ...process.env, CARGO_NET_OFFLINE: "true" },
+        stdio: ["ignore", "pipe", "pipe"]
+      })
     };
   } catch (error) {
     return { ok: false, stderr: error?.stderr?.toString?.() ?? String(error) };
@@ -102,9 +106,10 @@ if (bindgenVersion !== PINNED_WASM_BINDGEN_VERSION) {
 }
 
 // 4. Compile the engine to wasm32 with the wasm feature.
-console.log("[build-wasm-engine] cargo build --target wasm32-unknown-unknown --features wasm --release");
+console.log("[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release");
 const build = tryRun("cargo", [
   "build",
+  "--offline",
   "--manifest-path",
   crateManifest,
   "--target",

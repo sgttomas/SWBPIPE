@@ -37,6 +37,8 @@ SCHEMA_VERSION = 2
 ARTIFACT_KIND = "openpipestress.evidence_sweep_summary"
 DECISION_BASIS = "DEC-025"
 DEFAULT_OUTPUT_DIR = "validation/evidence/sweeps"
+PINNED_WASM_BINDGEN_VERSION = "0.2.123"
+REQUIRED_NODE_BINS = ("playwright", "tsc", "vite", "vitest")
 
 BOUNDARY_NOTE = (
     "Local-only development evidence. Not a release claim, professional "
@@ -194,8 +196,116 @@ def collect_runtime_versions(root: Path = ROOT) -> dict:
 
 def run_command(command: tuple[str, ...], root: Path) -> int:
     """Run one evidence command streaming output to the console."""
-    completed = subprocess.run(command, cwd=root, check=False)
+    env = os.environ.copy()
+    env["CARGO_NET_OFFLINE"] = "true"
+    completed = subprocess.run(command, cwd=root, env=env, check=False)
     return completed.returncode
+
+
+def preflight_prerequisites(root: Path) -> list[str]:
+    """Validate the complete local/offline execution environment.
+
+    The sweep never installs or downloads prerequisites.  Every check runs
+    before the first evidence surface, and every Cargo cache probe is forced
+    offline both in argv and environment.
+    """
+    errors: list[str] = []
+    env = os.environ.copy()
+    env["CARGO_NET_OFFLINE"] = "true"
+
+    for executable in ("cargo", "node", "npm", "rustup", "wasm-bindgen"):
+        if shutil.which(executable) is None:
+            errors.append(f"missing executable: {executable}")
+
+    node_bin = root / "node_modules" / ".bin"
+    for executable in REQUIRED_NODE_BINS:
+        if not (node_bin / executable).is_file():
+            errors.append(
+                f"missing local Node prerequisite: node_modules/.bin/{executable} "
+                "(provision from package-lock.json before the sweep)"
+            )
+
+    if shutil.which("rustup") is not None:
+        target_probe = subprocess.run(
+            ("rustup", "target", "list", "--installed"),
+            cwd=root,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        installed = {line.strip() for line in target_probe.stdout.splitlines()}
+        if target_probe.returncode != 0 or "wasm32-unknown-unknown" not in installed:
+            errors.append("missing Rust target: wasm32-unknown-unknown")
+
+    if shutil.which("wasm-bindgen") is not None:
+        bindgen_probe = subprocess.run(
+            ("wasm-bindgen", "--version"),
+            cwd=root,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        version_fields = bindgen_probe.stdout.strip().split()
+        version = version_fields[1] if len(version_fields) > 1 else None
+        if bindgen_probe.returncode != 0 or version != PINNED_WASM_BINDGEN_VERSION:
+            errors.append(
+                "wasm-bindgen version mismatch: expected "
+                f"{PINNED_WASM_BINDGEN_VERSION}, found {version or 'unavailable'}"
+            )
+
+    if shutil.which("node") is not None and (node_bin / "playwright").is_file():
+        browser_probe = subprocess.run(
+            (
+                "node",
+                "-e",
+                "const fs=require('node:fs');"
+                "const {chromium}=require('@playwright/test');"
+                "const p=chromium.executablePath();"
+                "if(!fs.existsSync(p)){console.error(p);process.exit(1)}",
+            ),
+            cwd=root,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if browser_probe.returncode != 0:
+            errors.append(
+                "missing local Playwright Chromium executable "
+                "(provision it before the sweep)"
+            )
+
+    if shutil.which("cargo") is not None:
+        for manifest in sorted(
+            path.relative_to(root)
+            for search_root in (root / "core", root / "validation" / "benchmarks")
+            if search_root.exists()
+            for path in search_root.rglob("Cargo.toml")
+            if "target" not in path.relative_to(root).parts
+        ):
+            cache_probe = subprocess.run(
+                (
+                    "cargo",
+                    "fetch",
+                    "--locked",
+                    "--offline",
+                    "--manifest-path",
+                    manifest.as_posix(),
+                ),
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if cache_probe.returncode != 0:
+                detail = cache_probe.stderr.strip().splitlines()
+                suffix = f": {detail[-1]}" if detail else ""
+                errors.append(f"offline Cargo cache incomplete for {manifest}{suffix}")
+
+    return errors
 
 
 def run_sweep(surfaces: list[Surface], root: Path, runner=None) -> dict:
@@ -359,6 +469,22 @@ def main(argv: list[str] | None = None) -> int:
         for tool in tools:
             print(f"  - {tool}", file=sys.stderr)
         return 1
+
+    os.environ["CARGO_NET_OFFLINE"] = "true"
+    prerequisite_errors = preflight_prerequisites(root)
+    if prerequisite_errors:
+        print(
+            "evidence-sweep prerequisite preflight failed before execution:",
+            file=sys.stderr,
+        )
+        for error in prerequisite_errors:
+            print(f"  - {error}", file=sys.stderr)
+        print(
+            "no prerequisite was installed or downloaded; no evidence surface ran",
+            file=sys.stderr,
+        )
+        return 1
+    print("[evidence-sweep] prerequisite preflight: PASS (local/offline)")
 
     # The Playwright surface runs last, after the cargo + wasm + vitest surfaces
     # have loaded the machine. At Playwright's default worker count (~half the
