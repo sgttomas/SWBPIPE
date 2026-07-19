@@ -1,0 +1,46 @@
+{
+  "package_lock": {
+    "projects/chirality-piping/package-lock.json": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732"
+  },
+  "tracked_cargo_locks_unchanged": {
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": "4ce32b8a3f3999e611fac7379a3c7db384949b39112a175811c373e4ff631865",
+    "projects/chirality-piping/core/gui/viewport_editor/Cargo.lock": "d871a939c3dcc85917be768f3f64a22bb7f5e227fa4b0419ed3d98d0b4aa991c",
+    "projects/chirality-piping/core/library_import/library_import_document/Cargo.lock": "7917e4b0640898de17c923ce5280b24ab833ee9216f4c209a9255b2b41941b93",
+    "projects/chirality-piping/core/loads/stress_recovery/Cargo.lock": "9a3be2f4cf345dcd7622550c60c41b68a1d61bdf015c37c40463dcd702e1e170",
+    "projects/chirality-piping/core/loads/user_loads/Cargo.lock": "7331cbd2e60f8f78c2e13c3e0cbccbde335802e1c51e6545cf99607bc4693dfe",
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock": "2c10cb42fe2a439d804b785ee1e2b3e88684737b018b80e0e02698376c5c6181",
+    "projects/chirality-piping/core/product_physics/Cargo.lock": "36b1eb6477d894b642e615d49c77a7f2b4bc00ba5569ddc80fbc66593356b58a",
+    "projects/chirality-piping/core/reporting/pdf_emitter/Cargo.lock": "3561f4a7a568249c5e680d104e9a49f9ac6a1cd1b27b4e1798ee0402799e0038",
+    "projects/chirality-piping/core/reporting/protected_content_linter/Cargo.lock": "afeb72449b83edbad1673fccae3c838a011ef66237a4e7c5a442d9d7aa159fb9",
+    "projects/chirality-piping/core/reporting/report_package/Cargo.lock": "162db1cd188865cf89ca70eb00581de5353265560d5a0f7b7525d95bf2ef8506",
+    "projects/chirality-piping/core/reporting/report_renderer/Cargo.lock": "73aa0934be155ab49838a5cf85eb1397decccfded2bc2f9ef698f633b2c6cfd8",
+    "projects/chirality-piping/core/reporting/report_sections/Cargo.lock": "e50d6c2e7a3a7325e30c63d6167d6771a200589ec905b25faf5df0789b02c3c4",
+    "projects/chirality-piping/core/rules/expression_evaluator/Cargo.lock": "8c7978aa4f14c5a8c43443a900352c0016c4cd9bece8eb27c0a21bd7848d2cf9",
+    "projects/chirality-piping/core/rules/rule_check_runner/Cargo.lock": "c4ef95b578d017d0774e090ad515f2c7483a73c902f3619bcbdb09d02b6faeff",
+    "projects/chirality-piping/core/rules/rule_pack_document/Cargo.lock": "46565cdb405f9713399fa30b841c849c2fa59a7650551b1ba6bacbb7154da9a8",
+    "projects/chirality-piping/core/serialization/canonical_json/Cargo.lock": "7d0c6b916947c528c80a181bad28b314e306342b3e335cb2cc73ffef9cb35b7c",
+    "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock": "c52dbeacafd93946cd1121643d01d0774d3ec3f2dddb3604b7e02aae400a0f57",
+    "projects/chirality-piping/core/units/Cargo.lock": "5b8d09c07fd129c0bd2fe10a1ec268b13ba0306ff8ae5a9e025cda7d4886556b",
+    "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock": "8e7fb44c6fd280e679a157f83314af8e4bcf54406eb5f98eef67111e5f13f2cd",
+    "projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.lock": "5ee3e1f71a489cbc1c6ff3af0ba77253714d5132f925c716788fa57bf27546f7",
+    "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock": "ba42070a993ef46bb836be0480bc9779c98784513a3bc50f262cf1bb7f97ecd4"
+  },
+  "generated_ignored_cargo_locks": {
+    "projects/chirality-piping/core/loads/load_case_algebra/Cargo.lock": "abad8a64f1329cd12f3f89d2a99a3f720c570597f38860f1be28b3cbd126880e",
+    "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock": "4cc8edcfe1a36df477b0fcb9852ad63926bf75795e60615f1f820d5a7581a854",
+    "projects/chirality-piping/core/reporting/audit_manifest/Cargo.lock": "cf614e760a1b93f35ed11498048c9669205204468d6a5115b6f7ecdc3475c6f2",
+    "projects/chirality-piping/core/reporting/report_generator/Cargo.lock": "2a7409ef9e6e9113df674256155ab2b74a7f9fcca28175a7e8df700d8a82ef09",
+    "projects/chirality-piping/core/reporting/result_export/Cargo.lock": "4ce13b71aecb310c9cadc88ccbca5637ebd9764306cb98b36b6565c69892c075",
+    "projects/chirality-piping/core/rules/completeness_checker/Cargo.lock": "dff3336149333fa815d35e8f6b28b9b628c8eb5114504ccdd1787672133a2c34",
+    "projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock": "6f2dc15a4f90c373ae1d642364af4c6b8fe34cf03f870e206b363c921533425e",
+    "projects/chirality-piping/core/runner/headless/Cargo.lock": "1227ea5b0cc6ea6f6f942ead61106f379eafd0d875c16bfe5e33ec3e0ddbda6b",
+    "projects/chirality-piping/core/solver/curved_bend/Cargo.lock": "673aed6ccd24ed82f89b9f5fd949880eb800641f1975879685712af827620f9c",
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.lock": "e80edc2f981aa904e2146072db14d31eed2680cf5975eea0ea3b8b5a4175ee64",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "projects/chirality-piping/core/solver/linear_supports/Cargo.lock": "5792a728c5b0687e3306a96ace1bc79eac4d0b5be8294e40de34849921c64537",
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock": "8bf2ad74a9b4d415e825c60fbc45bdb2b62b673fc2914e561ffa85c992bc2657",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.lock": "c191d3f5d2ca8cdc6c6237effbc18d5e477cf1362d79bf45c62821486f94ab8b",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+    "projects/chirality-piping/core/solver/straight_pipe/Cargo.lock": "53c41652cf335be092d3eb651d25263a1e2bea87457e4206e0decc00e56e1d7c"
+  }
+}

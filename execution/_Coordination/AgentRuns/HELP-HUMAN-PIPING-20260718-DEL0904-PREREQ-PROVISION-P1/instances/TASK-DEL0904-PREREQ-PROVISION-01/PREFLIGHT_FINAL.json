@@ -1,0 +1,12 @@
+{
+  "error_count": 0,
+  "errors": [],
+  "cwd": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "started_utc": "2026-07-19T03:12:56Z",
+  "ended_utc": "2026-07-19T03:12:58Z",
+  "exit_code": 0
+}

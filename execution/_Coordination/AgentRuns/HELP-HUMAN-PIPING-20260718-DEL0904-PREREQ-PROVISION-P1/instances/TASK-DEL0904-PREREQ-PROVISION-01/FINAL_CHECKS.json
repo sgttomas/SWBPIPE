@@ -1,0 +1,30 @@
+{
+  "terminal_preflight": {"exit_code": 0, "error_count": 0, "errors": []},
+  "git_status": {"exit_code": 0, "only_managed_run_record": true, "ignored_dependency_state_absent_from_porcelain": true},
+  "git_diff_check": {"exit_code": 0},
+  "tracked_tree_unchanged": {"exit_code": 0},
+  "claims_language": {"exit_code": 0, "files_scanned": 262},
+  "path_anchors": {"exit_code": 0, "live_surfaces_scanned": 453},
+  "piping_loop_receipts": {"exit_code": 0},
+  "package_lock_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+  "preflight_implementation_sha256": "ac13dd8c6c590a6caf0b633c2ae50e47b410408feccbca4af697b2285f9309c4",
+  "tracked_cargo_locks_unchanged": true,
+  "cargo_manifests_unchanged": true,
+  "tracked_source_unchanged": true,
+  "protected_paths_unchanged": {
+    "del_09_04_status": true,
+    "del_09_04_memory": true,
+    "loop_receipts": true,
+    "r7_tree": true,
+    "reproduction_evidence": true,
+    "sweep_evidence": true
+  },
+  "ignored_local_state": {
+    "node_modules": "present and ignored by projects/chirality-piping/.gitignore:17",
+    "generated_cargo_locks": 16,
+    "all_generated_cargo_locks_ignored": true,
+    "cargo_cache": "machine-local under the existing Cargo home; modified by authorized cargo fetch",
+    "playwright_cache": "not provisioned or changed by this node",
+    "target_state": "none reported by git status; cargo fetch performed no build/test"
+  }
+}

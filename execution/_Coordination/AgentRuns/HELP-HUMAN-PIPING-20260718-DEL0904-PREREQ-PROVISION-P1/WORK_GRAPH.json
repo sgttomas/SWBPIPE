@@ -1,0 +1,25 @@
+{
+  "schema": "chirality.managed_work_graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1",
+  "orchestration": "serialized_single_agent2",
+  "integration_owner": "TASK-DEL0904-PREREQ-PROVISION-01",
+  "nodes": [
+    {
+      "id": "TASK-DEL0904-PREREQ-PROVISION-01",
+      "agent_type": 2,
+      "construction": "ephemeral_generalist_under_TASK_base_contract",
+      "dependencies": [],
+      "status": "COMPLETED_PASS",
+      "may_delegate": false,
+      "read_scope": [
+        "repository root",
+        "projects/chirality-piping"
+      ],
+      "write_scope": [
+        "ordinary ignored machine-local dependency state",
+        "instances/TASK-DEL0904-PREREQ-PROVISION-01"
+      ],
+      "fan_in_gate": "terminal return plus exact final preflight with zero errors"
+    }
+  ]
+}

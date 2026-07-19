@@ -1,0 +1,13 @@
+{
+  "schema": "chirality.managed_run_status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1",
+  "manager": "ORCHESTRATOR",
+  "status": "COMPLETED",
+  "objective_status": "PASS",
+  "active_node": null,
+  "baseline_head": "9843875fcc0fb5479ad74a0a9f45bcd0b364b1df",
+  "child_count": 1,
+  "completed_child_count": 1,
+  "final_preflight_error_count": 0,
+  "fresh_r8_reproduction_prerequisites_unblocked": true
+}
