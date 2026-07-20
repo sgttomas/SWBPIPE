@@ -883,6 +883,11 @@ pub struct PrimitiveLoad {
     pub target: Option<LoadTarget>,
     pub direction: LoadDirection,
     pub magnitude: Option<LoadQuantity>,
+    /// `None` = whole span (the existing behavior); `Some` = partial
+    /// extent of the target element span. Only
+    /// [`PrimitiveLoad::partial_uniform_element_load`] constructs an
+    /// extent-bearing load.
+    pub extent: Option<LoadExtent>,
 }
 
 impl PrimitiveLoad {
@@ -899,6 +904,7 @@ impl PrimitiveLoad {
             target: Some(LoadTarget::Node(node_index)),
             direction,
             magnitude: Some(magnitude),
+            extent: None,
         }
     }
 
@@ -915,6 +921,27 @@ impl PrimitiveLoad {
             target: Some(LoadTarget::Element(element_index)),
             direction,
             magnitude: Some(magnitude),
+            extent: None,
+        }
+    }
+
+    /// Uniform element load acting on a validated partial extent of the
+    /// element span only. The sole constructor of extent-bearing loads.
+    pub fn partial_uniform_element_load(
+        load_id: impl Into<String>,
+        category: PrimitiveLoadCategory,
+        element_index: usize,
+        direction: LoadDirection,
+        magnitude: LoadQuantity,
+        extent: LoadExtent,
+    ) -> Self {
+        Self {
+            load_id: load_id.into(),
+            category,
+            target: Some(LoadTarget::Element(element_index)),
+            direction,
+            magnitude: Some(magnitude),
+            extent: Some(extent),
         }
     }
 
@@ -930,6 +957,7 @@ impl PrimitiveLoad {
             target: Some(LoadTarget::Support { node_index, dof }),
             direction: LoadDirection::Dof(dof),
             magnitude: Some(magnitude),
+            extent: None,
         }
     }
 
@@ -945,6 +973,7 @@ impl PrimitiveLoad {
             target: None,
             direction,
             magnitude,
+            extent: None,
         }
     }
 }
@@ -1004,6 +1033,10 @@ pub struct ElementUniformLoadContribution {
     pub element_index: usize,
     pub direction: LoadDirection,
     pub magnitude: LoadQuantity,
+    /// `None` = whole span (the existing behavior); `Some` = partial
+    /// extent of the element span, carried through from the source
+    /// [`PrimitiveLoad`].
+    pub extent: Option<LoadExtent>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -1028,6 +1061,63 @@ impl ElementLoadSpan {
             node_j,
             span,
         })
+    }
+}
+
+/// Validated fractional extent `[start_fraction, end_fraction]` of an
+/// element span for partial-extent uniform loads. `None` on the consuming
+/// records means the whole span (the existing behavior).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LoadExtent {
+    pub start_fraction: f64,
+    pub end_fraction: f64,
+}
+
+impl LoadExtent {
+    pub fn new(start_fraction: f64, end_fraction: f64) -> Result<Self, PrimitiveLoadError> {
+        if !start_fraction.is_finite() {
+            return Err(PrimitiveLoadError::NonFiniteInput {
+                name: "extent start_fraction",
+                value: start_fraction,
+            });
+        }
+        if !end_fraction.is_finite() {
+            return Err(PrimitiveLoadError::NonFiniteInput {
+                name: "extent end_fraction",
+                value: end_fraction,
+            });
+        }
+        let extent = Self {
+            start_fraction,
+            end_fraction,
+        };
+        if !extent.has_valid_fractions() {
+            return Err(PrimitiveLoadError::InvalidExtentBounds {
+                start_fraction,
+                end_fraction,
+            });
+        }
+        Ok(extent)
+    }
+
+    /// True when both fractions are finite and `0 <= start < end <= 1`.
+    pub fn has_valid_fractions(self) -> bool {
+        self.start_fraction.is_finite()
+            && self.end_fraction.is_finite()
+            && (0.0..=1.0).contains(&self.start_fraction)
+            && (0.0..=1.0).contains(&self.end_fraction)
+            && self.start_fraction < self.end_fraction
+    }
+
+    /// Covered fraction of the span, `end_fraction - start_fraction`.
+    pub fn covered_fraction(self) -> f64 {
+        self.end_fraction - self.start_fraction
+    }
+
+    /// Centroid fraction of the covered segment,
+    /// `(start_fraction + end_fraction) / 2`.
+    pub fn centroid_fraction(self) -> f64 {
+        0.5 * (self.start_fraction + self.end_fraction)
     }
 }
 
@@ -1532,8 +1622,18 @@ pub fn assemble_solver_load_vector(
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PrimitiveLoadError {
-    NonFiniteInput { name: &'static str, value: f64 },
-    NonPositiveInput { name: &'static str, value: f64 },
+    NonFiniteInput {
+        name: &'static str,
+        value: f64,
+    },
+    NonPositiveInput {
+        name: &'static str,
+        value: f64,
+    },
+    InvalidExtentBounds {
+        start_fraction: f64,
+        end_fraction: f64,
+    },
 }
 
 impl fmt::Display for PrimitiveLoadError {
@@ -1544,6 +1644,15 @@ impl fmt::Display for PrimitiveLoadError {
             }
             Self::NonPositiveInput { name, value } => {
                 write!(f, "{name} must be positive, got {value}")
+            }
+            Self::InvalidExtentBounds {
+                start_fraction,
+                end_fraction,
+            } => {
+                write!(
+                    f,
+                    "load extent fractions must satisfy 0 <= start_fraction < end_fraction <= 1, got start_fraction={start_fraction}, end_fraction={end_fraction}"
+                )
             }
         }
     }
@@ -1730,6 +1839,9 @@ pub struct WindEquivalentStaticBasis {
 pub struct ElementExposedDiameter {
     pub element_index: usize,
     pub exposed_diameter: f64,
+    /// `None` = the whole span is exposed (the existing behavior);
+    /// `Some` = only the marked fraction range of the span is exposed.
+    pub exposed_extent: Option<LoadExtent>,
 }
 
 fn global_axis_label(direction: LoadDirection) -> Option<&'static str> {
@@ -1911,6 +2023,18 @@ pub fn generate_wind_equivalent_static_loads(
                 ),
             ));
         }
+        if let Some(extent) = exposed.exposed_extent {
+            if !extent.has_valid_fractions() {
+                findings.push(LoadFinding::new(
+                    FindingCode::InvalidGenerationInput,
+                    case_ref,
+                    format!(
+                        "element index {} requires a valid exposed extent with finite fractions 0 <= start_fraction < end_fraction <= 1",
+                        exposed.element_index
+                    ),
+                ));
+            }
+        }
     }
     if !findings.is_empty() {
         return (Vec::new(), findings);
@@ -1930,16 +2054,29 @@ pub fn generate_wind_equivalent_static_loads(
             ));
             continue;
         };
-        loads.push(PrimitiveLoad::uniform_element_load(
-            format!(
-                "{case_ref}:generated:wind:{axis}:element-{}",
-                exposed.element_index
-            ),
-            PrimitiveLoadCategory::Wind,
-            exposed.element_index,
-            basis.direction,
-            quantity,
-        ));
+        match exposed.exposed_extent {
+            None => loads.push(PrimitiveLoad::uniform_element_load(
+                format!(
+                    "{case_ref}:generated:wind:{axis}:element-{}",
+                    exposed.element_index
+                ),
+                PrimitiveLoadCategory::Wind,
+                exposed.element_index,
+                basis.direction,
+                quantity,
+            )),
+            Some(extent) => loads.push(PrimitiveLoad::partial_uniform_element_load(
+                format!(
+                    "{case_ref}:generated:wind:{axis}:element-{}:extent-{}-{}",
+                    exposed.element_index, extent.start_fraction, extent.end_fraction
+                ),
+                PrimitiveLoadCategory::Wind,
+                exposed.element_index,
+                basis.direction,
+                quantity,
+                extent,
+            )),
+        }
     }
     if !findings.is_empty() {
         return (Vec::new(), findings);
@@ -2042,8 +2179,24 @@ pub fn prepare_lumped_nodal_loads(
             continue;
         }
 
-        let half_total = magnitude_value * span.span * 0.5;
-        if !half_total.is_finite() {
+        // Statically-equivalent end shares. Whole-span (`None`): the
+        // existing 50/50 half-total lumping. Partial extent (`Some`): the
+        // lever rule on the exposed-segment resultant
+        // `W = w * span * (b - a)` at centroid fraction `c = (a + b) / 2`,
+        // `R_i = W * (1 - c)`, `R_j = W * c` — reducing exactly to the
+        // 50/50 shares at `(0, 1)`.
+        let (value_i, value_j) = match load.extent {
+            None => {
+                let half_total = magnitude_value * span.span * 0.5;
+                (half_total, half_total)
+            }
+            Some(extent) => {
+                let resultant = magnitude_value * span.span * extent.covered_fraction();
+                let centroid = extent.centroid_fraction();
+                (resultant * (1.0 - centroid), resultant * centroid)
+            }
+        };
+        if !value_i.is_finite() || !value_j.is_finite() {
             findings.push(LoadFinding::new(
                 FindingCode::NonFiniteLoadMagnitude,
                 &load.load_id,
@@ -2056,13 +2209,13 @@ pub fn prepare_lumped_nodal_loads(
             load_id: load.load_id.clone(),
             node_index: span.node_i,
             global_dof: span.node_i * DOF_PER_NODE + dof_index,
-            value: half_total,
+            value: value_i,
         });
         nodal_loads.push(NodalLoadContribution {
             load_id: load.load_id.clone(),
             node_index: span.node_j,
             global_dof: span.node_j * DOF_PER_NODE + dof_index,
-            value: half_total,
+            value: value_j,
         });
     }
 
@@ -2334,6 +2487,7 @@ fn prepare_element_load(
         element_index,
         direction: load.direction,
         magnitude,
+        extent: load.extent,
     });
 }
 
@@ -3552,6 +3706,7 @@ mod tests {
                     value: f64::NAN,
                     dimension: LoadDimension::Pressure,
                 }),
+                extent: None,
             },
         ];
 
@@ -3852,10 +4007,12 @@ mod tests {
             ElementExposedDiameter {
                 element_index: 2,
                 exposed_diameter: 0.25,
+                exposed_extent: None,
             },
             ElementExposedDiameter {
                 element_index: 5,
                 exposed_diameter: 0.35,
+                exposed_extent: None,
             },
         ];
 
@@ -3890,6 +4047,7 @@ mod tests {
         let bad_span = [ElementExposedDiameter {
             element_index: 0,
             exposed_diameter: 0.0,
+            exposed_extent: None,
         }];
         let (loads, findings) = generate_wind_equivalent_static_loads(&basis, &bad_span);
         assert!(loads.is_empty());
@@ -3904,12 +4062,206 @@ mod tests {
         let good_span = [ElementExposedDiameter {
             element_index: 0,
             exposed_diameter: 0.25,
+            exposed_extent: None,
         }];
         let (loads, findings) = generate_wind_equivalent_static_loads(&local_direction, &good_span);
         assert!(loads.is_empty());
         assert!(findings
             .iter()
             .any(|finding| finding.code == FindingCode::InvalidGenerationInput));
+    }
+
+    #[test]
+    fn load_extent_constructor_validates_fractions() {
+        let extent = LoadExtent::new(0.2, 0.7).unwrap();
+        assert_eq!(extent.start_fraction, 0.2);
+        assert_eq!(extent.end_fraction, 0.7);
+        assert!((extent.covered_fraction() - 0.5).abs() < 1.0e-15);
+        assert!((extent.centroid_fraction() - 0.45).abs() < 1.0e-15);
+
+        let whole = LoadExtent::new(0.0, 1.0).unwrap();
+        assert_eq!(whole.covered_fraction(), 1.0);
+        assert_eq!(whole.centroid_fraction(), 0.5);
+
+        assert!(matches!(
+            LoadExtent::new(f64::NAN, 0.5),
+            Err(PrimitiveLoadError::NonFiniteInput { .. })
+        ));
+        assert!(matches!(
+            LoadExtent::new(0.0, f64::INFINITY),
+            Err(PrimitiveLoadError::NonFiniteInput { .. })
+        ));
+        assert!(matches!(
+            LoadExtent::new(-0.1, 0.5),
+            Err(PrimitiveLoadError::InvalidExtentBounds { .. })
+        ));
+        assert!(matches!(
+            LoadExtent::new(0.2, 1.1),
+            Err(PrimitiveLoadError::InvalidExtentBounds { .. })
+        ));
+        assert!(matches!(
+            LoadExtent::new(0.7, 0.7),
+            Err(PrimitiveLoadError::InvalidExtentBounds { .. })
+        ));
+        assert!(matches!(
+            LoadExtent::new(0.8, 0.2),
+            Err(PrimitiveLoadError::InvalidExtentBounds { .. })
+        ));
+    }
+
+    #[test]
+    fn wind_generation_emits_deterministic_partial_extent_loads() {
+        let basis = WindEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-WIND".to_string(),
+            pressure: 480.0,
+            shape_factor: 0.7,
+            direction: LoadDirection::GlobalX,
+        };
+        let exposed = [
+            ElementExposedDiameter {
+                element_index: 2,
+                exposed_diameter: 0.25,
+                exposed_extent: Some(LoadExtent::new(0.2, 0.7).unwrap()),
+            },
+            ElementExposedDiameter {
+                element_index: 2,
+                exposed_diameter: 0.25,
+                exposed_extent: Some(LoadExtent::new(0.8, 1.0).unwrap()),
+            },
+            ElementExposedDiameter {
+                element_index: 5,
+                exposed_diameter: 0.35,
+                exposed_extent: None,
+            },
+        ];
+
+        let (loads, findings) = generate_wind_equivalent_static_loads(&basis, &exposed);
+        assert!(findings.is_empty());
+        assert_eq!(loads.len(), 3);
+
+        // Partial loads carry a deterministic, extent-distinct id suffix and
+        // the same uniform intensity as whole-span marking.
+        assert_eq!(
+            loads[0].load_id,
+            "load_case:LC-WIND:generated:wind:global-x:element-2:extent-0.2-0.7"
+        );
+        assert_eq!(loads[0].extent, Some(LoadExtent::new(0.2, 0.7).unwrap()));
+        assert!((loads[0].magnitude.unwrap().value - 480.0 * 0.7 * 0.25).abs() < 1.0e-12);
+        assert_eq!(
+            loads[1].load_id,
+            "load_case:LC-WIND:generated:wind:global-x:element-2:extent-0.8-1"
+        );
+        assert_eq!(loads[1].extent, Some(LoadExtent::new(0.8, 1.0).unwrap()));
+        assert_ne!(loads[0].load_id, loads[1].load_id);
+
+        // Whole-span entries stay byte-identical to the existing behavior.
+        assert_eq!(
+            loads[2].load_id,
+            "load_case:LC-WIND:generated:wind:global-x:element-5"
+        );
+        assert_eq!(loads[2].extent, None);
+
+        // Deterministic across reruns for identical inputs.
+        let (rerun, rerun_findings) = generate_wind_equivalent_static_loads(&basis, &exposed);
+        assert!(rerun_findings.is_empty());
+        assert_eq!(loads, rerun);
+    }
+
+    #[test]
+    fn wind_generation_blocks_on_invalid_partial_extents() {
+        let basis = WindEquivalentStaticBasis {
+            load_case_ref: "load_case:LC-WIND".to_string(),
+            pressure: 480.0,
+            shape_factor: 0.7,
+            direction: LoadDirection::GlobalX,
+        };
+        for invalid in [
+            LoadExtent {
+                start_fraction: 0.7,
+                end_fraction: 0.2,
+            },
+            LoadExtent {
+                start_fraction: -0.1,
+                end_fraction: 0.5,
+            },
+            LoadExtent {
+                start_fraction: 0.2,
+                end_fraction: 1.5,
+            },
+            LoadExtent {
+                start_fraction: f64::NAN,
+                end_fraction: 0.5,
+            },
+            LoadExtent {
+                start_fraction: 0.5,
+                end_fraction: 0.5,
+            },
+        ] {
+            let exposed = [ElementExposedDiameter {
+                element_index: 0,
+                exposed_diameter: 0.25,
+                exposed_extent: Some(invalid),
+            }];
+            let (loads, findings) = generate_wind_equivalent_static_loads(&basis, &exposed);
+            assert!(loads.is_empty());
+            assert!(findings
+                .iter()
+                .any(|finding| finding.code == FindingCode::InvalidGenerationInput));
+        }
+    }
+
+    #[test]
+    fn lumped_conversion_applies_lever_rule_shares_for_partial_extents() {
+        let span = ElementLoadSpan::new(0, 0, 1, 3.0).unwrap();
+        let partial = PrimitiveLoad::partial_uniform_element_load(
+            "wind-partial",
+            PrimitiveLoadCategory::Wind,
+            0,
+            LoadDirection::GlobalY,
+            q(84.0, LoadDimension::ForcePerLength),
+            LoadExtent::new(0.2, 0.7).unwrap(),
+        );
+
+        let prepared = prepare_lumped_nodal_loads(2, 1, &[span], &[partial]);
+        assert!(!prepared.is_blocked());
+        assert_eq!(prepared.nodal_loads.len(), 2);
+        // Hand-calc closed forms (tp_pmm_p3_subspan_wind_exposure.md):
+        // W = 84 * 0.5 * 3 = 126 N at centroid fraction 0.45.
+        assert_eq!(prepared.nodal_loads[0].node_index, 0);
+        assert!((prepared.nodal_loads[0].value - 69.3).abs() < 1.0e-12);
+        assert_eq!(prepared.nodal_loads[1].node_index, 1);
+        assert!((prepared.nodal_loads[1].value - 56.7).abs() < 1.0e-12);
+
+        // The (0, 1) extent reduces exactly to the whole-span 50/50 shares.
+        let full_extent = PrimitiveLoad::partial_uniform_element_load(
+            "wind-full-extent",
+            PrimitiveLoadCategory::Wind,
+            0,
+            LoadDirection::GlobalY,
+            q(84.0, LoadDimension::ForcePerLength),
+            LoadExtent::new(0.0, 1.0).unwrap(),
+        );
+        let whole_span = PrimitiveLoad::uniform_element_load(
+            "wind-whole-span",
+            PrimitiveLoadCategory::Wind,
+            0,
+            LoadDirection::GlobalY,
+            q(84.0, LoadDimension::ForcePerLength),
+        );
+        let prepared_full = prepare_lumped_nodal_loads(2, 1, &[span], &[full_extent]);
+        let prepared_whole = prepare_lumped_nodal_loads(2, 1, &[span], &[whole_span]);
+        assert!(!prepared_full.is_blocked());
+        assert!(!prepared_whole.is_blocked());
+        assert_eq!(prepared_full.nodal_loads[0].value, 126.0);
+        assert_eq!(prepared_full.nodal_loads[1].value, 126.0);
+        assert_eq!(
+            prepared_full.nodal_loads[0].value,
+            prepared_whole.nodal_loads[0].value
+        );
+        assert_eq!(
+            prepared_full.nodal_loads[1].value,
+            prepared_whole.nodal_loads[1].value
+        );
     }
 
     #[test]
@@ -4070,6 +4422,7 @@ mod tests {
                 target: Some(LoadTarget::Node(0)),
                 direction: LoadDirection::GlobalY,
                 magnitude: None,
+                extent: None,
             },
         ];
 
@@ -4099,6 +4452,7 @@ mod tests {
                     value: f64::NAN,
                     dimension: LoadDimension::Force,
                 }),
+                extent: None,
             },
         ];
 

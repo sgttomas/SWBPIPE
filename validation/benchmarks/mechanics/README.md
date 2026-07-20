@@ -45,6 +45,7 @@ The explicit source inventory is the `fixture_inventory()` list in
 | Curved-bend distributed load | `MECH-CURVED-BEND-DISTRIBUTED-FIXED-END` |
 | Curved-bend pressure thrust | `MECH-CURVED-BEND-PRESSURE-THRUST-ARC` |
 | Equivalent-static generation | `MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC` |
+| Equivalent-static generation (sub-span wind) | `MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE` |
 | Constant-effort support | `MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD` |
 
 Hand-calculation notes are in `validation/hand_calcs/mechanics/`.

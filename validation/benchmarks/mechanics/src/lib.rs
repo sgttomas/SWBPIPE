@@ -19,7 +19,7 @@ use open_pipe_stress_primitive_loads::{
     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
     prepare_lumped_nodal_loads, prepare_straight_pipe_axial_effects, ElementAxialEffectProperties,
     ElementExposedDiameter, ElementLoadSpan, ElementMassPerLength, EquivalentStaticAxisFactor,
-    EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadQuantity,
+    EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
     PrimitiveAxialEffectContribution, PrimitiveLoad, PrimitiveLoadCategory,
     SeismicEquivalentStaticBasis, SolverNodalLoadContribution, WindEquivalentStaticBasis,
 };
@@ -545,6 +545,104 @@ pub fn tp_pmm_p3_occloadgen_equivalent_static_fixture() -> MechanicsBenchmark {
     }
 }
 
+/// Invented disjoint partial extents for the sub-span wind exposure
+/// fixture (hand-calc witness `tp_pmm_p3_subspan_wind_exposure.md`).
+const SUBSPAN_WIND_EXTENT_A_START: f64 = 0.2;
+const SUBSPAN_WIND_EXTENT_A_END: f64 = 0.7;
+const SUBSPAN_WIND_EXTENT_B_START: f64 = 0.8;
+const SUBSPAN_WIND_EXTENT_B_END: f64 = 1.0;
+
+fn subspan_wind_lever_rule_shares(start: f64, end: f64) -> (f64, f64) {
+    let intensity =
+        OCCLOADGEN_WIND_PRESSURE * OCCLOADGEN_WIND_SHAPE_FACTOR * occloadgen_exposed_diameter();
+    let resultant = intensity * (end - start) * OCCLOADGEN_SPAN_LENGTH;
+    let centroid = 0.5 * (start + end);
+    (resultant * (1.0 - centroid), resultant * centroid)
+}
+
+pub fn tp_pmm_p3_subspan_wind_exposure_fixture() -> MechanicsBenchmark {
+    let intensity =
+        OCCLOADGEN_WIND_PRESSURE * OCCLOADGEN_WIND_SHAPE_FACTOR * occloadgen_exposed_diameter();
+    let (extent_a_end_i, extent_a_end_j) =
+        subspan_wind_lever_rule_shares(SUBSPAN_WIND_EXTENT_A_START, SUBSPAN_WIND_EXTENT_A_END);
+    let (extent_b_end_i, extent_b_end_j) =
+        subspan_wind_lever_rule_shares(SUBSPAN_WIND_EXTENT_B_START, SUBSPAN_WIND_EXTENT_B_END);
+    MechanicsBenchmark {
+        fixture_id: "MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE",
+        family: BenchmarkFamily::EquivalentStaticGeneration,
+        description: "Sub-span (partial-extent) wind exposure: user-marked fraction ranges of a straight span generate partial uniform wind loads whose statically-equivalent end forces follow the exact lever rule on the exposed-segment resultant, with disjoint extents superposing and the (0, 1) extent reducing exactly to the 50/50 whole-span shares.",
+        assumptions: &[
+            "All generation values are user-entered; no code wind coefficient, exposure category, catalog value, or default is encoded.",
+            "Wind projects onto the exposed diameter (outside diameter plus twice the insulation thickness) of the user-marked fraction range only.",
+            "End forces are the statically-equivalent lever-rule shares of the exposed-segment resultant at the existing preview force-lumping tier; no fixed-end moment is introduced.",
+            "Curved-bend macro-realized spans fail closed for partial extents; this fixture exercises straight-span statics only.",
+            "No dynamics content is encoded; the disposition for dynamics remains with D-12.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md",
+        ),
+        unit_basis: FIXTURE_UNIT_BASIS,
+        expected_values: vec![
+            ExpectedValue {
+                name: "partial_wind_intensity_global_y",
+                value: intensity,
+                unit: "N/m",
+                dimension: "force_per_length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "extent_a_end_force_node_i",
+                value: extent_a_end_i,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "extent_a_end_force_node_j",
+                value: extent_a_end_j,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "extent_b_end_force_node_i",
+                value: extent_b_end_i,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "extent_b_end_force_node_j",
+                value: extent_b_end_j,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "superposed_end_force_node_i",
+                value: extent_a_end_i + extent_b_end_i,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "superposed_end_force_node_j",
+                value: extent_a_end_j + extent_b_end_j,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "whole_span_reduction_end_force",
+                value: intensity * OCCLOADGEN_SPAN_LENGTH / 2.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
 pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
     vec![
         cantilever_tip_force_fixture(),
@@ -569,6 +667,7 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
         curved_bend_distributed_fixed_end_fixture(),
         curved_bend_pressure_thrust_arc_fixture(),
         tp_pmm_p3_occloadgen_equivalent_static_fixture(),
+        tp_pmm_p3_subspan_wind_exposure_fixture(),
         constant_effort_support_applied_load_fixture(),
     ]
 }
@@ -5955,7 +6054,7 @@ mod tests {
     fn inventory_covers_required_mechanics_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 23);
+        assert_eq!(fixtures.len(), 24);
         assert!(fixtures
             .iter()
             .any(|fixture| fixture.fixture_id == "MECH-BRANCH-ASSEMBLY-THREE-MEMBER"));
@@ -6022,6 +6121,7 @@ mod tests {
         let exposed = [ElementExposedDiameter {
             element_index: 0,
             exposed_diameter: occloadgen_exposed_diameter(),
+            exposed_extent: None,
         }];
         let (wind_loads, wind_findings) =
             generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &exposed);
@@ -6056,6 +6156,7 @@ mod tests {
         let exposed = [ElementExposedDiameter {
             element_index: 0,
             exposed_diameter: occloadgen_exposed_diameter(),
+            exposed_extent: None,
         }];
         let (wind_loads, wind_findings) =
             generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &exposed);
@@ -6088,6 +6189,156 @@ mod tests {
         assert!((sum_for(1, UX) - expected_x).abs() <= 1.0e-9);
         assert!((sum_for(0, UY) - expected_y).abs() <= 1.0e-9);
         assert!((sum_for(1, UY) - expected_y).abs() <= 1.0e-9);
+    }
+
+    #[test]
+    fn subspan_wind_generation_and_lumping_match_witness_lever_rule_shares() {
+        let fixture = tp_pmm_p3_subspan_wind_exposure_fixture();
+        let expected = |name: &str| {
+            fixture
+                .expected_values
+                .iter()
+                .find(|value| value.name == name)
+                .unwrap_or_else(|| panic!("missing expected value {name}"))
+                .value
+        };
+
+        let exposed = [
+            ElementExposedDiameter {
+                element_index: 0,
+                exposed_diameter: occloadgen_exposed_diameter(),
+                exposed_extent: Some(
+                    LoadExtent::new(SUBSPAN_WIND_EXTENT_A_START, SUBSPAN_WIND_EXTENT_A_END)
+                        .unwrap(),
+                ),
+            },
+            ElementExposedDiameter {
+                element_index: 0,
+                exposed_diameter: occloadgen_exposed_diameter(),
+                exposed_extent: Some(
+                    LoadExtent::new(SUBSPAN_WIND_EXTENT_B_START, SUBSPAN_WIND_EXTENT_B_END)
+                        .unwrap(),
+                ),
+            },
+        ];
+        let (loads, findings) =
+            generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &exposed);
+        assert!(findings.is_empty());
+        assert_eq!(loads.len(), 2);
+        for load in &loads {
+            assert_eq!(load.category, PrimitiveLoadCategory::Wind);
+            assert!(
+                (load.magnitude.unwrap().value - expected("partial_wind_intensity_global_y")).abs()
+                    <= 1.0e-9
+            );
+        }
+        assert_ne!(loads[0].load_id, loads[1].load_id);
+
+        let basis = EquivalentStaticMechanicsBasis::new(
+            "basis:subspan-wind-equivalent-static",
+            "provenance:user-input",
+        )
+        .unwrap();
+        let application = prepare_equivalent_static_loads(2, 1, &basis, &loads).unwrap();
+        assert!(application.findings.is_empty());
+        assert_eq!(application.element_uniform_loads.len(), 2);
+
+        let span = ElementLoadSpan::new(0, 0, 1, OCCLOADGEN_SPAN_LENGTH).unwrap();
+        let lumped = prepare_lumped_nodal_loads(2, 1, &[span], &loads);
+        assert!(lumped.findings.is_empty());
+        let sum_for = |node_index: usize| -> f64 {
+            lumped
+                .nodal_loads
+                .iter()
+                .filter(|load| load.node_index == node_index && load.global_dof % 6 == UY)
+                .map(|load| load.value)
+                .sum()
+        };
+        assert!((sum_for(0) - expected("superposed_end_force_node_i")).abs() <= 1.0e-9);
+        assert!((sum_for(1) - expected("superposed_end_force_node_j")).abs() <= 1.0e-9);
+
+        let per_load = |load_id: &str, node_index: usize| -> f64 {
+            lumped
+                .nodal_loads
+                .iter()
+                .filter(|load| load.load_id == load_id && load.node_index == node_index)
+                .map(|load| load.value)
+                .sum()
+        };
+        assert!(
+            (per_load(&loads[0].load_id, 0) - expected("extent_a_end_force_node_i")).abs()
+                <= 1.0e-9
+        );
+        assert!(
+            (per_load(&loads[0].load_id, 1) - expected("extent_a_end_force_node_j")).abs()
+                <= 1.0e-9
+        );
+        assert!(
+            (per_load(&loads[1].load_id, 0) - expected("extent_b_end_force_node_i")).abs()
+                <= 1.0e-9
+        );
+        assert!(
+            (per_load(&loads[1].load_id, 1) - expected("extent_b_end_force_node_j")).abs()
+                <= 1.0e-9
+        );
+    }
+
+    #[test]
+    fn subspan_wind_full_extent_reduces_to_whole_span_shares_with_deterministic_ids() {
+        let fixture = tp_pmm_p3_subspan_wind_exposure_fixture();
+        let expected_reduction = fixture
+            .expected_values
+            .iter()
+            .find(|value| value.name == "whole_span_reduction_end_force")
+            .expect("missing whole_span_reduction_end_force")
+            .value;
+
+        let full_extent = [ElementExposedDiameter {
+            element_index: 0,
+            exposed_diameter: occloadgen_exposed_diameter(),
+            exposed_extent: Some(LoadExtent::new(0.0, 1.0).unwrap()),
+        }];
+        let whole_span = [ElementExposedDiameter {
+            element_index: 0,
+            exposed_diameter: occloadgen_exposed_diameter(),
+            exposed_extent: None,
+        }];
+        let (full_loads, full_findings) =
+            generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &full_extent);
+        let (whole_loads, whole_findings) =
+            generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &whole_span);
+        assert!(full_findings.is_empty());
+        assert!(whole_findings.is_empty());
+        assert_eq!(
+            whole_loads[0].load_id,
+            "load_case:LC-OCCLOADGEN:generated:wind:global-y:element-0"
+        );
+        assert_eq!(
+            full_loads[0].load_id,
+            "load_case:LC-OCCLOADGEN:generated:wind:global-y:element-0:extent-0-1"
+        );
+
+        let span = ElementLoadSpan::new(0, 0, 1, OCCLOADGEN_SPAN_LENGTH).unwrap();
+        let full_lumped = prepare_lumped_nodal_loads(2, 1, &[span], &full_loads);
+        let whole_lumped = prepare_lumped_nodal_loads(2, 1, &[span], &whole_loads);
+        assert!(full_lumped.findings.is_empty());
+        assert!(whole_lumped.findings.is_empty());
+        for (full, whole) in full_lumped
+            .nodal_loads
+            .iter()
+            .zip(whole_lumped.nodal_loads.iter())
+        {
+            assert_eq!(full.node_index, whole.node_index);
+            assert_eq!(full.global_dof, whole.global_dof);
+            assert_eq!(full.value, whole.value);
+            assert!((full.value - expected_reduction).abs() <= 1.0e-9);
+        }
+
+        // Deterministic across reruns for identical inputs.
+        let (rerun_loads, rerun_findings) =
+            generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &full_extent);
+        assert!(rerun_findings.is_empty());
+        assert_eq!(full_loads, rerun_loads);
     }
 
     #[test]

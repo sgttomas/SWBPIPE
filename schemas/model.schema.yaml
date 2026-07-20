@@ -632,8 +632,19 @@
       "required": [
         "pressure",
         "shape_factor",
-        "direction",
-        "exposed_element_refs"
+        "direction"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "exposed_element_refs"
+          ]
+        },
+        {
+          "required": [
+            "exposed_spans"
+          ]
+        }
       ],
       "properties": {
         "pressure": {
@@ -650,6 +661,26 @@
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/ElementReference"
+          }
+        },
+        "exposed_spans": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "element_ref",
+              "extent"
+            ],
+            "properties": {
+              "element_ref": {
+                "$ref": "#/$defs/ElementReference"
+              },
+              "extent": {
+                "$ref": "#/$defs/ElementLoadSpan"
+              }
+            }
           }
         }
       }

@@ -631,3 +631,60 @@
 ## D-41 R5 T7 PDU-054 current declaration
 
 Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The primitive-load slice now includes explicit loads and the DEC-068 equivalent-static wind, seismic, and occasional generators. Dynamic loading and code-prescribed generation are outside this bounded slice unless separately implemented and evidenced.
+
+## 2026-07-20 - R14-W2-T4 sub-span (partial-extent) wind exposure
+
+- Executed the governed R14 W2 T4 tranche
+  (`CB-2026-07-20-T4-PKG05-SUBSPAN-WIND-001`, v2 COMMIT-SAFE) closing the
+  sole DEL-05-01 Remaining item: wind marking now extends to sub-span
+  (partial-extent) exposure in occasional-load generation.
+- Sub-span design: one validated fraction type `LoadExtent`
+  (`0 <= start_fraction < end_fraction <= 1`, validating constructor,
+  invalid extents blocking) threaded as `Option` through
+  `ElementExposedDiameter`, `PrimitiveLoad`, and
+  `ElementUniformLoadContribution` (`None` = whole span everywhere, so
+  whole-span loads, ids, diagnostics, and lumping are structurally
+  unchanged). `generate_wind_equivalent_static_loads` emits one load per
+  marked extent with the deterministic id suffix
+  `:extent-{start}-{end}` on the existing id pattern. Both application
+  seams (`prepare_lumped_nodal_loads` and the product-physics
+  `add_uniform_element_loads` straight-span branch) apply the exact
+  lever-rule statically-equivalent end shares `R_i = W(1-c)`,
+  `R_j = W c` of the exposed-segment resultant `W = w L (b-a)` at
+  centroid fraction `c = (a+b)/2`, reducing exactly to the existing
+  `w L / 2` shares at `(0, 1)`; no fixed-end moment is introduced at
+  this tier. The preview input gains a serde-default
+  `wind.exposed_spans` vector (pipe ref + DEC-018-normalized
+  dimensionless fractions); the canonical schema gains an optional
+  `exposed_spans` array reusing `$defs/ElementReference` +
+  `$defs/ElementLoadSpan` with an `anyOf` at-least-one-marking-form
+  rule. Marking rules block via the existing
+  `EQUIVALENT_STATIC_INPUT_MISSING`/`EQUIVALENT_STATIC_INPUT_INVALID`
+  codes: no marking at all, unknown pipe refs, the same pipe in both
+  marking forms, overlapping extents on one pipe (disjoint extents per
+  pipe are allowed, each generating its own load), and invalid
+  fractions.
+- Curved-bend fail-closed boundary: an extent-bearing load targeting a
+  curved-bend macro-realized span is a blocking `LOAD_INPUT_INVALID`
+  diagnostic directing whole-span marking or separate pipes — never a
+  chord approximation, a partial-arc invention, or a drop; extent loads
+  never enter `curved_bend_uniform_intensity_by_pipe` or any bend
+  recovery intensity map. Whole-span wind on macro-realized spans keeps
+  the exact arc-consistent path unchanged; a partial-arc consistent
+  integration remains a possible future lawful selection.
+- Evidence: hand-calc witness
+  `validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md`
+  (written before implementation) and additive fixture
+  `MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE` at the recorded DEC-026
+  analytic-class relative tier; primitive_loads 49 tests,
+  product_physics 94 tests, benchmarks 38 tests, schema/transform
+  pytest 22 tests, headless contract guard, and the five
+  `del1005_payload_binding_*` witnesses byte-identical.
+- GUI-emit follow-on: GUI/operation-applier emission of sub-span
+  marking (DEL-07-02 surface,
+  `equivalent_static.wind.exposed_pipe_refs` precedent) is reported to
+  HELP_HUMAN as a follow-on for a separate lawful selection, not
+  performed here. No dynamics (D-12), no code wind content, no
+  tolerance/threshold creation, no lifecycle transition, and no
+  release-readiness, professional, certification, or code-compliance
+  claim.

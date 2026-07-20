@@ -449,13 +449,28 @@ def check_schema_contract():
     assert set(g_factors["properties"]) == {"x", "y", "z"}
     wind = defs["WindEquivalentStaticInput"]
     assert wind["additionalProperties"] is False
+    # Single authorized replacement (CB-2026-07-20-T4-PKG05-SUBSPAN-WIND-001
+    # section 3.6 v2): the marking form is enforced by anyOf, so
+    # exposed_element_refs is no longer unconditionally required.
     assert {
         "pressure",
         "shape_factor",
         "direction",
-        "exposed_element_refs",
     } <= set(wind["required"])
+    assert wind["anyOf"] == [
+        {"required": ["exposed_element_refs"]},
+        {"required": ["exposed_spans"]},
+    ]
     assert wind["properties"]["exposed_element_refs"]["minItems"] == 1
+    wind_exposed_spans = wind["properties"]["exposed_spans"]
+    assert wind_exposed_spans["minItems"] == 1
+    wind_span_item = wind_exposed_spans["items"]
+    assert wind_span_item["additionalProperties"] is False
+    assert set(wind_span_item["required"]) == {"element_ref", "extent"}
+    assert wind_span_item["properties"]["element_ref"]["$ref"] == (
+        "#/$defs/ElementReference"
+    )
+    assert wind_span_item["properties"]["extent"]["$ref"] == "#/$defs/ElementLoadSpan"
     assert (
         defs["AccelerationQuantity"]["allOf"][1]["properties"]["dimension"]["const"]
         == "acceleration"

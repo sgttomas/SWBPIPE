@@ -33,7 +33,7 @@ use open_pipe_stress_nonlinear_supports::{
 use open_pipe_stress_primitive_loads::{
     generate_seismic_equivalent_static_loads, generate_wind_equivalent_static_loads, prepare_loads,
     ElementExposedDiameter, ElementMassPerLength, EquivalentStaticAxisFactor, LoadDimension,
-    LoadDirection, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
+    LoadDirection, LoadExtent, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
     SeismicEquivalentStaticBasis, WindEquivalentStaticBasis,
 };
 use open_pipe_stress_solver_diagnostics::{
@@ -453,6 +453,26 @@ pub struct WindGenerationInput {
     /// spans only.
     #[serde(default)]
     pub exposed_pipe_refs: Vec<String>,
+    /// User-marked partial-extent exposed spans. Each entry generates its
+    /// own wind load over the marked fraction range of one pipe span only;
+    /// multiple disjoint extents per pipe are allowed, overlapping extents
+    /// block, and a pipe named here must not also appear in
+    /// `exposed_pipe_refs`.
+    #[serde(default)]
+    pub exposed_spans: Vec<WindExposedSpanInput>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct WindExposedSpanInput {
+    /// User-marked pipe id the partial extent applies to.
+    #[serde(default)]
+    pub pipe_ref: Option<String>,
+    /// User-entered dimensionless start fraction of the exposed extent.
+    #[serde(default)]
+    pub start_fraction: Option<Quantity>,
+    /// User-entered dimensionless end fraction of the exposed extent.
+    #[serde(default)]
+    pub end_fraction: Option<Quantity>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -4434,6 +4454,27 @@ fn normalize_model_units(
                     diagnostics,
                 );
             }
+            for (index, span) in wind.exposed_spans.iter_mut().enumerate() {
+                for (label, fraction) in [
+                    ("start_fraction", &mut span.start_fraction),
+                    ("end_fraction", &mut span.end_fraction),
+                ] {
+                    if let Some(fraction) = fraction {
+                        normalize_dimensionless_quantity(
+                            fraction,
+                            &format!(
+                                "diagnostic:unit-conversion:load-case:{}:wind-exposed-span-{index}-{label}",
+                                stable_suffix(&case_id)
+                            ),
+                            vec![
+                                case_id.clone(),
+                                format!("wind.exposed_spans[{index}].{label}"),
+                            ],
+                            diagnostics,
+                        );
+                    }
+                }
+            }
         }
     }
 }
@@ -4919,8 +4960,37 @@ fn append_equivalent_static_generated_loads(
         if wind.direction.is_none() {
             missing.push("direction");
         }
-        if wind.exposed_pipe_refs.is_empty() {
-            missing.push("exposed_pipe_refs");
+        if wind.exposed_pipe_refs.is_empty() && wind.exposed_spans.is_empty() {
+            missing.push("exposed_pipe_refs or exposed_spans");
+        }
+        let mut span_fields_missing = false;
+        for (index, span) in wind.exposed_spans.iter().enumerate() {
+            let mut span_missing = Vec::new();
+            if span.pipe_ref.is_none() {
+                span_missing.push("pipe_ref");
+            }
+            if span.start_fraction.is_none() {
+                span_missing.push("start_fraction");
+            }
+            if span.end_fraction.is_none() {
+                span_missing.push("end_fraction");
+            }
+            if !span_missing.is_empty() {
+                diagnostics.push(diag(
+                    &equivalent_static_diag_id(
+                        case_id,
+                        &format!("wind:exposed-span-{index}:inputs"),
+                    ),
+                    "EQUIVALENT_STATIC_INPUT_MISSING",
+                    "blocking",
+                    format!(
+                        "wind equivalent-static exposed span requires user-entered {}; no value or marked span is defaulted",
+                        span_missing.join(", ")
+                    ),
+                    vec![case_id.to_string()],
+                ));
+                span_fields_missing = true;
+            }
         }
         if !missing.is_empty() {
             diagnostics.push(diag(
@@ -4933,6 +5003,9 @@ fn append_equivalent_static_generated_loads(
                 ),
                 vec![case_id.to_string()],
             ));
+            return;
+        }
+        if span_fields_missing {
             return;
         }
         let direction_value = wind.direction.as_deref().expect("checked above");
@@ -4961,6 +5034,7 @@ fn append_equivalent_static_generated_loads(
             .collect::<HashMap<_, _>>();
         let mut exposed = Vec::new();
         let mut refs_blocked = false;
+        let mut whole_span_pipe_indices = HashSet::new();
         for pipe_ref in &wind.exposed_pipe_refs {
             let Some(&pipe_index) = pipe_map.get(pipe_ref.as_str()) else {
                 diagnostics.push(diag(
@@ -4976,6 +5050,7 @@ fn append_equivalent_static_generated_loads(
                 refs_blocked = true;
                 continue;
             };
+            whole_span_pipe_indices.insert(pipe_index);
             let section = &model.pipe_segments[pipe_index].section;
             let insulation = section
                 .insulation_thickness
@@ -4984,7 +5059,102 @@ fn append_equivalent_static_generated_loads(
             exposed.push(ElementExposedDiameter {
                 element_index: pipe_index,
                 exposed_diameter: section.outside_diameter.value + 2.0 * insulation,
+                exposed_extent: None,
             });
+        }
+        // Partial-extent marking: same pipe-reference resolution and section
+        // basis as whole-span marking; a pipe marked in both forms blocks
+        // (no double exposure), invalid fractions block, and overlapping
+        // extents on one pipe block. Multiple disjoint extents per pipe each
+        // generate their own load.
+        let mut extents_by_pipe: BTreeMap<usize, Vec<LoadExtent>> = BTreeMap::new();
+        for (index, span) in wind.exposed_spans.iter().enumerate() {
+            let pipe_ref = span.pipe_ref.as_ref().expect("checked above");
+            let Some(&pipe_index) = pipe_map.get(pipe_ref.as_str()) else {
+                diagnostics.push(diag(
+                    &equivalent_static_diag_id(
+                        case_id,
+                        &format!("wind:exposed-span-{index}:{}", stable_suffix(pipe_ref)),
+                    ),
+                    "EQUIVALENT_STATIC_INPUT_INVALID",
+                    "blocking",
+                    "wind equivalent-static marked span references a pipe that is not present in the preview model",
+                    vec![case_id.to_string(), pipe_ref.clone()],
+                ));
+                refs_blocked = true;
+                continue;
+            };
+            if whole_span_pipe_indices.contains(&pipe_index) {
+                diagnostics.push(diag(
+                    &equivalent_static_diag_id(
+                        case_id,
+                        &format!("wind:exposed-span-{index}:double-exposure"),
+                    ),
+                    "EQUIVALENT_STATIC_INPUT_INVALID",
+                    "blocking",
+                    "wind equivalent-static marking names the same pipe in exposed_pipe_refs and exposed_spans; mark each pipe with exactly one form",
+                    vec![case_id.to_string(), pipe_ref.clone()],
+                ));
+                refs_blocked = true;
+                continue;
+            }
+            let start = span.start_fraction.as_ref().expect("checked above").value;
+            let end = span.end_fraction.as_ref().expect("checked above").value;
+            let extent = match LoadExtent::new(start, end) {
+                Ok(extent) => extent,
+                Err(error) => {
+                    diagnostics.push(diag(
+                        &equivalent_static_diag_id(
+                            case_id,
+                            &format!("wind:exposed-span-{index}:extent"),
+                        ),
+                        "EQUIVALENT_STATIC_INPUT_INVALID",
+                        "blocking",
+                        format!(
+                            "wind equivalent-static exposed span fractions are invalid: {error}"
+                        ),
+                        vec![case_id.to_string(), pipe_ref.clone()],
+                    ));
+                    refs_blocked = true;
+                    continue;
+                }
+            };
+            extents_by_pipe.entry(pipe_index).or_default().push(extent);
+            let section = &model.pipe_segments[pipe_index].section;
+            let insulation = section
+                .insulation_thickness
+                .as_ref()
+                .map_or(0.0, |q| q.value);
+            exposed.push(ElementExposedDiameter {
+                element_index: pipe_index,
+                exposed_diameter: section.outside_diameter.value + 2.0 * insulation,
+                exposed_extent: Some(extent),
+            });
+        }
+        for (pipe_index, extents) in &extents_by_pipe {
+            let mut sorted = extents.clone();
+            sorted.sort_by(|a, b| {
+                a.start_fraction
+                    .partial_cmp(&b.start_fraction)
+                    .expect("validated finite fractions")
+            });
+            if sorted
+                .windows(2)
+                .any(|pair| pair[1].start_fraction < pair[0].end_fraction)
+            {
+                let pipe_id = model.pipe_segments[*pipe_index].id.as_str();
+                diagnostics.push(diag(
+                    &equivalent_static_diag_id(
+                        case_id,
+                        &format!("wind:exposed-span-overlap:{}", stable_suffix(pipe_id)),
+                    ),
+                    "EQUIVALENT_STATIC_INPUT_INVALID",
+                    "blocking",
+                    "wind equivalent-static exposed spans overlap on one pipe; mark disjoint extents (multiple disjoint extents per pipe are allowed)",
+                    vec![case_id.to_string(), pipe_id.to_string()],
+                ));
+                refs_blocked = true;
+            }
         }
         if refs_blocked {
             return;
@@ -5492,6 +5662,32 @@ fn add_uniform_element_loads(
         // validated translational upstream, so the intensity is a global
         // force per unit arc length along one global axis.
         if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
+            // Partial extents fail closed on macro-realized arcs: the
+            // arc-consistent machinery integrates a full uniform intensity
+            // only, and no partial-arc treatment is invented here. Never a
+            // silent chord approximation or a drop.
+            if load.extent.is_some() {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:curved-bend:{}:{}:partial-extent-load",
+                        stable_suffix(load_case_id),
+                        stable_suffix(&load.load_id)
+                    ),
+                    "LOAD_INPUT_INVALID",
+                    "blocking",
+                    format!(
+                        "partial-extent uniform load {} targets curved-bend macro-realized span {}; partial extents are not supported on realized arcs — mark the whole span or model separate pipes",
+                        load.load_id, bend.pipe_id
+                    ),
+                    vec![
+                        load.load_id.clone(),
+                        bend.pipe_id.clone(),
+                        bend.component_id.clone(),
+                        load_case_id.to_string(),
+                    ],
+                ));
+                continue;
+            }
             let dof = load.direction.dof_index();
             let equivalent = if dof < 3 {
                 let mut intensity = [0.0; 3];
@@ -5546,9 +5742,25 @@ fn add_uniform_element_loads(
             continue;
         };
         let dof = load.direction.dof_index();
-        let share = load.magnitude.value * length / 2.0;
-        force[i * DOF_PER_NODE + dof] += share;
-        force[j * DOF_PER_NODE + dof] += share;
+        // Statically-equivalent end shares. Whole-span (`None`): the
+        // existing 50/50 shares. Partial extent (`Some`): the lever rule on
+        // the exposed-segment resultant `W = w * L * (b - a)` at centroid
+        // fraction `c = (a + b) / 2`, `R_i = W * (1 - c)`, `R_j = W * c` —
+        // reducing exactly to the 50/50 shares at `(0, 1)`. No fixed-end
+        // moment at this tier.
+        match load.extent {
+            None => {
+                let share = load.magnitude.value * length / 2.0;
+                force[i * DOF_PER_NODE + dof] += share;
+                force[j * DOF_PER_NODE + dof] += share;
+            }
+            Some(extent) => {
+                let resultant = load.magnitude.value * length * extent.covered_fraction();
+                let centroid = extent.centroid_fraction();
+                force[i * DOF_PER_NODE + dof] += resultant * (1.0 - centroid);
+                force[j * DOF_PER_NODE + dof] += resultant * centroid;
+            }
+        }
     }
 }
 
@@ -5965,6 +6177,11 @@ fn curved_bend_uniform_intensity_by_pipe(
             continue;
         }
         if !curved_bends_by_pipe.contains_key(&load.element_index) {
+            continue;
+        }
+        // Extent-bearing loads never enter bend intensity maps; the
+        // application seam blocks them on macro-realized spans.
+        if load.extent.is_some() {
             continue;
         }
         let dof = load.direction.dof_index();
@@ -11590,6 +11807,7 @@ mod tests {
                 }),
                 direction: Some("global_z".to_string()),
                 exposed_pipe_refs: vec!["pipe:P-100".to_string()],
+                exposed_spans: Vec::new(),
             }),
             provenance: Some("invented_example_user_input".to_string()),
         });
@@ -11714,6 +11932,7 @@ mod tests {
                 }),
                 direction: Some("global_z".to_string()),
                 exposed_pipe_refs: Vec::new(),
+                exposed_spans: Vec::new(),
             }),
             provenance: Some("invented_example_user_input".to_string()),
         });
@@ -11725,6 +11944,340 @@ mod tests {
             .iter()
             .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_MISSING"
                 && item.message.contains("exposed_pipe_refs")));
+    }
+
+    fn exposed_span_input(pipe: &str, start: f64, end: f64) -> WindExposedSpanInput {
+        WindExposedSpanInput {
+            pipe_ref: Some(pipe.to_string()),
+            start_fraction: Some(Quantity {
+                value: start,
+                unit: "1".to_string(),
+            }),
+            end_fraction: Some(Quantity {
+                value: end,
+                unit: "1".to_string(),
+            }),
+        }
+    }
+
+    fn subspan_wind_request(
+        exposed_pipe_refs: Vec<String>,
+        exposed_spans: Vec<WindExposedSpanInput>,
+    ) -> LinearStaticPreviewRequest {
+        let mut request = equivalent_static_base_request();
+        for pipe in &mut request.model.pipe_segments {
+            pipe.section.insulation_thickness = Some(Quantity {
+                value: 0.025,
+                unit: "m".to_string(),
+            });
+            pipe.section.insulation_density = Some(Quantity {
+                value: 120.0,
+                unit: "kg/m^3".to_string(),
+            });
+        }
+        request.model.load_cases[0].equivalent_static = Some(EquivalentStaticGenerationInput {
+            seismic: None,
+            wind: Some(WindGenerationInput {
+                pressure: Some(Quantity {
+                    value: 480.0,
+                    unit: "Pa".to_string(),
+                }),
+                shape_factor: Some(Quantity {
+                    value: 0.7,
+                    unit: "1".to_string(),
+                }),
+                direction: Some("global_x".to_string()),
+                exposed_pipe_refs,
+                exposed_spans,
+            }),
+            provenance: Some("invented_example_user_input".to_string()),
+        });
+        request
+    }
+
+    fn hand_computed_nodal_force(id: &str, node: &str, value: f64) -> PreviewPrimitiveLoad {
+        PreviewPrimitiveLoad {
+            id: id.to_string(),
+            category: "wind".to_string(),
+            target: LoadTargetInput::Node {
+                node: node.to_string(),
+            },
+            direction: "global_x".to_string(),
+            magnitude: Quantity {
+                value,
+                unit: "N".to_string(),
+            },
+            dimension: "force".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }
+    }
+
+    #[test]
+    fn subspan_wind_generation_matches_hand_computed_lever_rule_nodal_forces() {
+        // Hand-calc witness tp_pmm_p3_subspan_wind_exposure.md, extent A:
+        // w = 480 * 0.7 * (0.2 + 2 * 0.025) = 84 N/m over [0.2, 0.7] of the
+        // 3 m span; W = 126 N at centroid fraction 0.45;
+        // R_i = 69.3 N, R_j = 56.7 N.
+        let generated =
+            subspan_wind_request(Vec::new(), vec![exposed_span_input("pipe:P-100", 0.2, 0.7)]);
+
+        let mut authored = subspan_wind_request(Vec::new(), Vec::new());
+        authored.model.load_cases[0].equivalent_static = None;
+        authored.model.load_cases[0].primitive_loads = vec![
+            hand_computed_nodal_force("load:L-WIND-LEVER-I", "node:N-100", 69.3),
+            hand_computed_nodal_force("load:L-WIND-LEVER-J", "node:N-110", 56.7),
+        ];
+
+        let generated_result = run_linear_static_preview(generated);
+        let authored_result = run_linear_static_preview(authored);
+
+        assert_eq!(generated_result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(authored_result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(!generated_result.results.is_empty());
+        assert_eq!(
+            generated_result.results.len(),
+            authored_result.results.len()
+        );
+        for (left, right) in generated_result
+            .results
+            .iter()
+            .zip(authored_result.results.iter())
+        {
+            assert_eq!(left.id, right.id);
+            assert!(
+                (left.value - right.value).abs() <= 1.0e-9 * right.value.abs().max(1.0),
+                "{}: {} != {}",
+                left.id,
+                left.value,
+                right.value
+            );
+        }
+    }
+
+    #[test]
+    fn subspan_wind_mixed_whole_and_partial_marking_superposes_on_distinct_pipes() {
+        fn two_pipe_request(
+            exposed_pipe_refs: Vec<String>,
+            exposed_spans: Vec<WindExposedSpanInput>,
+        ) -> LinearStaticPreviewRequest {
+            let mut request = subspan_wind_request(exposed_pipe_refs, exposed_spans);
+            let mut node = request.model.nodes[1].clone();
+            node.id = "node:N-120".to_string();
+            node.position = Vec3 {
+                x: 6.0,
+                y: 0.0,
+                z: 0.0,
+            };
+            request.model.nodes.push(node);
+            let mut pipe = request.model.pipe_segments[0].clone();
+            pipe.id = "pipe:P-200".to_string();
+            pipe.from = "node:N-110".to_string();
+            pipe.to = "node:N-120".to_string();
+            request.model.pipe_segments.push(pipe);
+            let mut support = request.model.supports[1].clone();
+            support.id = "support:S-120".to_string();
+            support.node = "node:N-120".to_string();
+            request.model.supports.push(support);
+            request
+        }
+
+        // Whole-span marking on pipe:P-100 (w = 84 N/m over its full 3 m)
+        // plus partial extent [0.5, 1.0] on pipe:P-200: W = 126 N at
+        // centroid fraction 0.75 -> 31.5 N at node:N-110, 94.5 N at
+        // node:N-120 (hand-calc lever rule).
+        let generated = two_pipe_request(
+            vec!["pipe:P-100".to_string()],
+            vec![exposed_span_input("pipe:P-200", 0.5, 1.0)],
+        );
+
+        let mut authored = two_pipe_request(Vec::new(), Vec::new());
+        authored.model.load_cases[0].equivalent_static = None;
+        authored.model.load_cases[0].primitive_loads = vec![
+            PreviewPrimitiveLoad {
+                id: "load:L-WIND-WHOLE-P100".to_string(),
+                category: "wind".to_string(),
+                target: LoadTargetInput::Element {
+                    pipe: "pipe:P-100".to_string(),
+                },
+                direction: "global_x".to_string(),
+                magnitude: Quantity {
+                    value: 84.0,
+                    unit: "N/m".to_string(),
+                },
+                dimension: "force_per_length".to_string(),
+                provenance: Some("invented_example_user_input".to_string()),
+            },
+            hand_computed_nodal_force("load:L-WIND-LEVER-N110", "node:N-110", 31.5),
+            hand_computed_nodal_force("load:L-WIND-LEVER-N120", "node:N-120", 94.5),
+        ];
+
+        let generated_result = run_linear_static_preview(generated);
+        let authored_result = run_linear_static_preview(authored);
+
+        assert_eq!(generated_result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(authored_result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(!generated_result.results.is_empty());
+        assert_eq!(
+            generated_result.results.len(),
+            authored_result.results.len()
+        );
+        for (left, right) in generated_result
+            .results
+            .iter()
+            .zip(authored_result.results.iter())
+        {
+            assert_eq!(left.id, right.id);
+            assert!(
+                (left.value - right.value).abs() <= 1.0e-9 * right.value.abs().max(1.0),
+                "{}: {} != {}",
+                left.id,
+                left.value,
+                right.value
+            );
+        }
+    }
+
+    #[test]
+    fn subspan_wind_missing_span_fields_is_blocking() {
+        let request = subspan_wind_request(
+            Vec::new(),
+            vec![WindExposedSpanInput {
+                pipe_ref: None,
+                start_fraction: None,
+                end_fraction: None,
+            }],
+        );
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.diagnostics.iter().any(|item| item.code
+            == "EQUIVALENT_STATIC_INPUT_MISSING"
+            && item.severity == "blocking"
+            && item.message.contains("pipe_ref")
+            && item.message.contains("start_fraction")
+            && item.message.contains("end_fraction")));
+        assert!(result.results.is_empty());
+    }
+
+    #[test]
+    fn subspan_wind_unknown_pipe_ref_is_blocking() {
+        let request =
+            subspan_wind_request(Vec::new(), vec![exposed_span_input("pipe:P-999", 0.2, 0.7)]);
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_INVALID"
+                && item.severity == "blocking"
+                && item.message.contains("not present in the preview model")));
+        assert!(result.results.is_empty());
+    }
+
+    #[test]
+    fn subspan_wind_double_marking_same_pipe_is_blocking() {
+        let request = subspan_wind_request(
+            vec!["pipe:P-100".to_string()],
+            vec![exposed_span_input("pipe:P-100", 0.2, 0.7)],
+        );
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_INVALID"
+                && item.severity == "blocking"
+                && item.message.contains("exactly one form")));
+        assert!(result.results.is_empty());
+    }
+
+    #[test]
+    fn subspan_wind_overlapping_extents_are_blocking_but_disjoint_extents_solve() {
+        let overlapping = subspan_wind_request(
+            Vec::new(),
+            vec![
+                exposed_span_input("pipe:P-100", 0.2, 0.6),
+                exposed_span_input("pipe:P-100", 0.5, 0.9),
+            ],
+        );
+        let result = run_linear_static_preview(overlapping);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_INVALID"
+                && item.severity == "blocking"
+                && item.message.contains("overlap")));
+        assert!(result.results.is_empty());
+
+        // Disjoint extents on one pipe are allowed, each generating its own
+        // load (touching endpoints have no interior overlap).
+        let disjoint = subspan_wind_request(
+            Vec::new(),
+            vec![
+                exposed_span_input("pipe:P-100", 0.2, 0.5),
+                exposed_span_input("pipe:P-100", 0.5, 0.9),
+            ],
+        );
+        let result = run_linear_static_preview(disjoint);
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(!result
+            .diagnostics
+            .iter()
+            .any(|item| item.code.starts_with("EQUIVALENT_STATIC_INPUT")));
+    }
+
+    #[test]
+    fn subspan_wind_invalid_fractions_are_blocking() {
+        for (start, end) in [(0.7, 0.2), (0.0, 1.5), (-0.1, 0.5), (0.5, 0.5)] {
+            let request = subspan_wind_request(
+                Vec::new(),
+                vec![exposed_span_input("pipe:P-100", start, end)],
+            );
+            let result = run_linear_static_preview(request);
+            assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(result
+                .diagnostics
+                .iter()
+                .any(|item| item.code == "EQUIVALENT_STATIC_INPUT_INVALID"
+                    && item.severity == "blocking"
+                    && item.message.contains("fractions are invalid")));
+            assert!(result.results.is_empty());
+        }
+    }
+
+    #[test]
+    fn subspan_wind_on_curved_bend_macro_span_is_blocking() {
+        let mut request = curved_bend_span_request();
+        request.model.load_cases[0].primitive_loads = Vec::new();
+        request.model.load_cases[0].equivalent_static = Some(EquivalentStaticGenerationInput {
+            seismic: None,
+            wind: Some(WindGenerationInput {
+                pressure: Some(Quantity {
+                    value: 480.0,
+                    unit: "Pa".to_string(),
+                }),
+                shape_factor: Some(Quantity {
+                    value: 0.7,
+                    unit: "1".to_string(),
+                }),
+                direction: Some("global_y".to_string()),
+                exposed_pipe_refs: Vec::new(),
+                exposed_spans: vec![exposed_span_input("pipe:P-100", 0.2, 0.7)],
+            }),
+            provenance: Some("invented_example_user_input".to_string()),
+        });
+
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "LOAD_INPUT_INVALID"
+                && item.severity == "blocking"
+                && item
+                    .message
+                    .contains("partial extents are not supported on realized arcs")));
+        assert!(result.results.is_empty());
     }
 
     #[test]

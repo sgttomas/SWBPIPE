@@ -606,6 +606,90 @@ def test_equivalent_static_generation_rejects_defaulted_or_extra_fields():
     assert rejects(unknown_field)
 
 
+def test_subspan_wind_exposed_spans_survive_transform_and_validate():
+    schema = load_json(MODEL_SCHEMA_PATH)
+    source = physical_model()
+    generation = {
+        "wind": {
+            "pressure": quantity(480.0, "Pa", "pressure"),
+            "shape_factor": quantity(0.7, "1", "dimensionless"),
+            "direction": "X",
+            "exposed_spans": [
+                {
+                    "element_ref": ref("Element", "E-1"),
+                    "extent": {
+                        "start_fraction": quantity(0.2, "1", "dimensionless"),
+                        "end_fraction": quantity(0.7, "1", "dimensionless"),
+                    },
+                }
+            ],
+        },
+        "provenance": provenance("equivalent static generation source"),
+    }
+    source["load_cases"][0]["equivalent_static_generation"] = deepcopy(generation)
+
+    # A spans-only document satisfies the anyOf marking rule with no
+    # exposed_element_refs entry.
+    assert validate_instance(
+        schema_for_definition(schema, "LoadCase"), source["load_cases"][0]
+    )
+
+    result = transform_physical_to_analytical(source)
+    analytical = result.analytical_model
+
+    assert not result.has_blocking_findings
+    load_case = analytical["load_cases"][0]
+    assert load_case["equivalent_static_generation"] == generation
+    assert validate_instance(schema_for_definition(schema, "LoadCase"), load_case)
+
+
+def test_subspan_wind_marking_rules_reject_invalid_documents():
+    schema = load_json(MODEL_SCHEMA_PATH)
+    load_case_schema = schema_for_definition(schema, "LoadCase")
+    source = physical_model()
+    base = {
+        "wind": {
+            "pressure": quantity(480.0, "Pa", "pressure"),
+            "shape_factor": quantity(0.7, "1", "dimensionless"),
+            "direction": "X",
+            "exposed_spans": [
+                {
+                    "element_ref": ref("Element", "E-1"),
+                    "extent": {
+                        "start_fraction": quantity(0.2, "1", "dimensionless"),
+                        "end_fraction": quantity(0.7, "1", "dimensionless"),
+                    },
+                }
+            ],
+        },
+        "provenance": provenance("equivalent static generation source"),
+    }
+
+    def rejects(payload):
+        source["load_cases"][0]["equivalent_static_generation"] = payload
+        try:
+            validate_instance(load_case_schema, source["load_cases"][0])
+        except AssertionError:
+            return True
+        return False
+
+    no_marking_form = deepcopy(base)
+    del no_marking_form["wind"]["exposed_spans"]
+    assert rejects(no_marking_form)
+
+    empty_spans = deepcopy(base)
+    empty_spans["wind"]["exposed_spans"] = []
+    assert rejects(empty_spans)
+
+    missing_extent = deepcopy(base)
+    del missing_extent["wind"]["exposed_spans"][0]["extent"]
+    assert rejects(missing_extent)
+
+    extra_item_field = deepcopy(base)
+    extra_item_field["wind"]["exposed_spans"][0]["code_exposure_category"] = "TBD"
+    assert rejects(extra_item_field)
+
+
 def test_modulus_basis_references_survive_transform_and_validate():
     schema = load_json(MODEL_SCHEMA_PATH)
     source = physical_model()

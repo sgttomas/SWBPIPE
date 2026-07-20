@@ -1,0 +1,34 @@
+{
+  "allowed": [
+    "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-20_T4_PKG05_SUBSPAN_WIND.md",
+    "projects/chirality-piping/core/loads/primitive_loads",
+    "projects/chirality-piping/core/product_physics",
+    "projects/chirality-piping/schemas/model.schema.yaml",
+    "projects/chirality-piping/tests/test_model_schema.py",
+    "projects/chirality-piping/tests/test_physical_to_analytical_transform.py",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md",
+    "projects/chirality-piping/validation/benchmarks/mechanics",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W2/T4"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/loads/primitive_loads/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/schemas/model.schema.yaml",
+    "projects/chirality-piping/tests/test_model_schema.py",
+    "projects/chirality-piping/tests/test_physical_to_analytical_transform.py",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md",
+    "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+    "projects/chirality-piping/validation/benchmarks/mechanics/README.md",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_run_records/WORKING_ITEMS_RUN_2026-07-20_R14_W2_T4_SUBSPAN_WIND.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W2/T4/EXECUTE_RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W2/T4/CHANGE_SCOPE_CONTAINMENT.json"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}
