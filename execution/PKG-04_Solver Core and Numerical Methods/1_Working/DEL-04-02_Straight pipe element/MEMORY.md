@@ -1,5 +1,12 @@
 # MEMORY - DEL-04-02 Straight Pipe Element
 
+## 2026-07-19 - R14-W1-T1 governed producer-path binding
+
+- The governed analysis-run producer now creates the solver-to-envelope integration this deliverable's Remaining row named: `core/runner/headless/src/result_envelope_binding.rs` builds a validated DEL-08-04 result-export envelope document from a completed preview solve (RunnerRequest identity + RunnerResult + MechanicsEnvelope) and `run_preview_in_memory*` attaches it to a new serde-excluded `PreviewRunnerOutput` field, fail-closed on structural production/validation failure (`HEADLESS_RUNNER_RESULT_ENVELOPE_PRODUCTION_FAILED`). Brief `CB-2026-07-19-T1-PKG04-PRODUCER-BINDING-001` v3.
+- Straight-pipe element displacement/rotation/force/moment/stress/reaction rows export as `QuantityResult` values through an enumerated deterministic (kind, unit) mapping table checkable against the accepted D-01 unit classification; element force/moment rows carry their five-field metadata through the validator gate. Out-of-vocabulary rows (user-stiffness review echoes in `N/m`/`N*m/rad`, solver-evidence scalars, residual observations) are disclosed per-row in non-blocking vocabulary-boundary diagnostics — no silent drop, no coerced family/dimension. The DEL-08-04 vocabulary-extension need (stiffness/energy/count-state dimensions) is a reported follow-on for HELP_HUMAN.
+- CLI stdout is byte-stable: the five del1005 witness cases reproduce the committed witnesses and the three tp_runner_015 cases reproduce the pre-tranche baseline captures byte-identically at the implementation head; `CliOutput` and the `headless_preview_runner` witness surface are shape-unchanged.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T1_PRODUCER_BINDING.md`. Lifecycle remains `IN_PROGRESS`; no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-07-12 - D-41 R5 T4 PDU-040 supporting evidence
 
 - The downstream persisted-record report reader preserves governed context but does not bind straight-pipe diagnostics/results into the analysis-run producer.

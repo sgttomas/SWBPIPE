@@ -1,5 +1,12 @@
 # MEMORY - DEL-04-04 Nonlinear Support Active-Set Solver
 
+## 2026-07-19 - R14-W1-T1 nonlinear metadata producer binding
+
+- Direct nonlinear-solver producer binding landed (Remaining item 1; brief `CB-2026-07-19-T1-PKG04-PRODUCER-BINDING-001` v3): the DEL-08-04 envelope document produced by the governed analysis-run path records the product-physics solver and the nonlinear-integration component identity/version crate-constant-derived (new additive accessors `assembled_loop_component_name/version` in `core/solver/nonlinear_integration` and the `nonlinear_assembled_loop_context()` pass-through in `core/product_physics`); the assembled loop's `assembled_loop_assumptions()`/`assembled_loop_limitations()` text rides as non-blocking assumption/limitation diagnostics with provenance naming the source crate, only when the solve exercised nonlinear supports (no false context on linear-only solves); solve diagnostics map with source preserved in provenance.
+- Bounded-coverage boundary recorded truthfully: nonlinear final displacement/reaction and friction-normal-reaction rows export as `QuantityResult` values; count/flag/state-code and residual-observation rows (including the `N*m` free-DOF work residual, an energy quantity) are disclosed per-row in non-blocking vocabulary-boundary diagnostics, never coerced into the closed DEL-08-04 family/dimension enums. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.
+- PDU-035, the friction path-history D-XX gate, and every threshold-promotion hold (DEC-046/DEC-052/DEC-054 lineage) are untouched; solve behavior, assumptions text, and limitations text are unchanged.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T1_PRODUCER_BINDING.md`. Lifecycle remains `IN_PROGRESS`; no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
 ## 2026-07-12 - D-41 R5 T4 PDU-021 supporting evidence
 
 - The downstream report reader preserves solver context, warnings, assumptions, limitations, and provenance when present in canonical run records. Direct nonlinear-solver producer binding and existing PDU-035/threshold holds remain open.

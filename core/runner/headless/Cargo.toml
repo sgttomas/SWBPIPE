@@ -21,6 +21,9 @@ path = "src/bin/headless_preview_runner.rs"
 # OpenPipeStress hash seam (completion-plan hardening row H5).
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
 open_pipe_stress_product_physics = { path = "../../product_physics" }
+# DEL-08-04 result-export vocabulary, consumed read-only through its public
+# API by the governed analysis-run producer binding (R14 W1 T1).
+open_pipe_stress_result_export = { path = "../../reporting/result_export" }
 # DEL-10-05 benchmark/regression payload bindings (CB-2026-07-19-DEL-10-05-
 # RUNNER-PAYLOADS-001): the suite crates remain the single source of fixture
 # identity, recorded comparison values, and encoded comparison predicates.

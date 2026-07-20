@@ -7,6 +7,7 @@
 //! or code-compliance claims.
 
 pub mod benchmark_binding;
+pub mod result_envelope_binding;
 
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{
@@ -670,6 +671,14 @@ fn validate_result_envelope_payload(
 pub struct PreviewRunnerOutput {
     pub runner_result: RunnerResult,
     pub mechanics_envelope: Option<MechanicsEnvelope>,
+    /// DEL-08-04 result-export envelope document produced from the completed
+    /// solve (R14 W1 T1). Library surface only: excluded from serde
+    /// serialization so every existing serialized surface — the
+    /// `headless_preview_runner` DEC-064 witness stdout and the DEC-065
+    /// runner-bin `CliOutput` — stays byte-unchanged. CLI exposure is the
+    /// DEL-10-05 `export-results` follow-on.
+    #[serde(skip_serializing)]
+    pub result_envelope_document: Option<Value>,
 }
 
 /// Map an automatic rule-check status — the `core/rules/rule_check_runner`
@@ -756,6 +765,7 @@ pub fn run_preview_in_memory_with_rule_check(
                 professional_boundary: request.professional_boundary,
             },
             mechanics_envelope: None,
+            result_envelope_document: None,
         };
     }
 
@@ -793,7 +803,7 @@ pub fn run_preview_in_memory_with_rule_check(
         analysis_status.push(status);
     }
 
-    let runner_result = RunnerResult {
+    let mut runner_result = RunnerResult {
         run_id: run_id.clone(),
         job: JobState {
             job_id: format!("job:{}", request.request_id),
@@ -819,14 +829,45 @@ pub fn run_preview_in_memory_with_rule_check(
             ),
         ],
         diagnostics,
-        privacy: request.privacy,
-        provenance: request.provenance,
+        privacy: request.privacy.clone(),
+        provenance: request.provenance.clone(),
         professional_boundary: request.professional_boundary,
     };
+
+    let result_envelope_document =
+        attach_result_envelope_document(&request, &mut runner_result, &mechanics);
 
     PreviewRunnerOutput {
         runner_result,
         mechanics_envelope: Some(mechanics),
+        result_envelope_document,
+    }
+}
+
+/// Produce and attach the DEL-08-04 envelope document for a completed solve
+/// (R14 W1 T1, fail-closed per the governing brief §3.5): on a clean
+/// production (both validators free of blocking diagnostics) the document is
+/// returned for the new library-only `PreviewRunnerOutput` field; on a
+/// STRUCTURAL production or validation failure a blocking runner diagnostic
+/// is appended so the DEC-065 exit policy reports the run as not clean. A
+/// solve that did not reach `MECHANICS_SOLVED` produces no envelope and no
+/// new diagnostic: it is not a completed solve product, and its existing
+/// not-clean signaling (missing result references under `validate_result`)
+/// is preserved byte-for-byte.
+fn attach_result_envelope_document(
+    request: &RunnerRequest,
+    runner_result: &mut RunnerResult,
+    mechanics: &MechanicsEnvelope,
+) -> Option<Value> {
+    if mechanics.status.mechanics != "MECHANICS_SOLVED" {
+        return None;
+    }
+    match result_envelope_binding::build_result_export_document(request, runner_result, mechanics) {
+        Ok(document) => Some(document),
+        Err(diagnostic) => {
+            runner_result.diagnostics.push(diagnostic);
+            None
+        }
     }
 }
 

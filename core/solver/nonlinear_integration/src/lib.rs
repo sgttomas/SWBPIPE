@@ -526,6 +526,19 @@ pub fn assembled_loop_limitations() -> Vec<String> {
     ]
 }
 
+/// Crate-constant component identity of the assembled active-set loop, for
+/// producer-path metadata binding (R14 W1 T1). Derived from the crate
+/// manifest, never hardcoded by consumers.
+pub fn assembled_loop_component_name() -> &'static str {
+    env!("CARGO_PKG_NAME")
+}
+
+/// Crate-constant component version of the assembled active-set loop. See
+/// [`assembled_loop_component_name`].
+pub fn assembled_loop_component_version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
+}
+
 #[derive(Debug, Clone, PartialEq)]
 struct BoundaryState {
     dofs: Vec<usize>,
@@ -1444,6 +1457,28 @@ fn normalize_required_id(
         });
     }
     Ok(trimmed.to_string())
+}
+
+#[cfg(test)]
+mod component_identity_tests {
+    use super::{assembled_loop_component_name, assembled_loop_component_version};
+
+    #[test]
+    fn component_identity_accessors_are_crate_constant_derived() {
+        assert_eq!(
+            assembled_loop_component_name(),
+            "open_pipe_stress_nonlinear_integration"
+        );
+        assert!(!assembled_loop_component_version().trim().is_empty());
+        // Semantic-version shape from the crate manifest, not free text.
+        assert_eq!(
+            assembled_loop_component_version()
+                .split('.')
+                .filter(|part| part.chars().all(|ch| ch.is_ascii_digit()) && !part.is_empty())
+                .count(),
+            3
+        );
+    }
 }
 
 #[cfg(test)]

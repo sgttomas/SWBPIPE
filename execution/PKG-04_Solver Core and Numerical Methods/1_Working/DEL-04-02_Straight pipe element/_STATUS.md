@@ -1,12 +1,12 @@
 # Status: DEL-04-02 Straight pipe element
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-07-19
 
 ## Remaining
-- Bind straight-pipe element diagnostics/results into the governed analysis-run/result-envelope producer path; the T4 persisted-record report reader does not create that solver-to-envelope integration.
 
 ## History
+- 2026-07-19 - R14-W1-T1 (CB-2026-07-19-T1-PKG04-PRODUCER-BINDING-001 v3) bound straight-pipe element results/diagnostics into the governed analysis-run producer: `run_preview_in_memory*` now attaches a validated DEL-08-04 result-export envelope document on completed solves (library surface only; runner CLI stdout byte-stable against the pre-tranche build). Bounded-coverage export: rows inside the enumerated (kind, unit) mapping table export as QuantityResult values; out-of-vocabulary rows are disclosed per-row in non-blocking vocabulary-boundary diagnostics, and the DEL-08-04 vocabulary-extension follow-on (stiffness/energy/count-state dimensions) is reported to HELP_HUMAN, not resolved here. Lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T7 PDU-056 refreshed the three cited setup-era declarations to the implemented straight-pipe slice while preserving final integration/tolerance residuals; cited-claim backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-040 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-04-30 - State set to OPEN (PREPARATION)

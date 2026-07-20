@@ -1,10 +1,9 @@
 # Status: DEL-04-04 Nonlinear support active-set solver
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-07-19
 
 ## Remaining
-- Bind nonlinear solver version, warnings, assumptions, limitations, and diagnostic provenance into the governed analysis-run producer path; the T4 persisted-record report reader does not create that producer integration or alter PDU-035/threshold holds.
 - Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
 - Resolve sliding-direction dependence on the prior iterate (anti-chatter / friction path-history follow-on) (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
 - Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan §3 Phase D D6/D9 rows / DEC-046)
@@ -12,6 +11,7 @@
 - Promote broader multi-DOF/multi-support acceptance thresholds and external validation convergence thresholds (stage-gated: R5 release evidence) (source: PRD plan §3 D9 row / DEC-052/DEC-054 residual list)
 
 ## History
+- 2026-07-19 - R14-W1-T1 (CB-2026-07-19-T1-PKG04-PRODUCER-BINDING-001 v3) bound nonlinear solver version, warnings, assumptions, limitations, and diagnostic provenance into the governed analysis-run producer path: the produced DEL-08-04 envelope's solver-version block records the crate-constant product-physics and nonlinear-integration component identities; the assembled active-set loop's assumptions/limitations ride as non-blocking context diagnostics with provenance naming their source crate, emitted only when the solve exercised nonlinear supports; solve diagnostics (including nonlinear warnings) map with their source preserved in diagnostic provenance. Nonlinear count/flag/state-code and residual-observation rows ride the bounded-coverage vocabulary-boundary disclosure; the DEL-08-04 vocabulary-extension follow-on is reported to HELP_HUMAN. PDU-035 and every threshold hold are untouched; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T4 PDU-021 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T2 recorded the PDU-035 formal-review and dimensional-validation hold; no review disposition or threshold changed.
 - 2026-04-30 - State set to OPEN (PREPARATION)

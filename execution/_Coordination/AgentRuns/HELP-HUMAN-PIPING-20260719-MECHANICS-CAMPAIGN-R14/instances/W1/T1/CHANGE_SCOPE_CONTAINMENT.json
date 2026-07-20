@@ -1,0 +1,36 @@
+{
+  "allowed": [
+    "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-19_T1_PKG04_PRODUCER_BINDING.md",
+    "projects/chirality-piping/core/runner/headless/Cargo.toml",
+    "projects/chirality-piping/core/runner/headless/Cargo.lock",
+    "projects/chirality-piping/core/runner/headless/src/lib.rs",
+    "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+    "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "projects/chirality-piping/core/product_physics/Cargo.lock",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "projects/chirality-piping/schemas/headless_runner.schema.yaml",
+    "projects/chirality-piping/tests/test_headless_runner_contract.py",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T1_PRODUCER_BINDING.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T1_PRODUCER_BINDING.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14"
+  ],
+  "paths": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/ORCHESTRATION_PLAN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T1/CHANGE_SCOPE_CONTAINMENT.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T1/CURRENT_CANDIDATE_RATIONALE.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T1/EXECUTE_RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T1/VERIFY_BRIEF.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T1/VERIFY_BRIEF_V2.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W3/RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-19_T1_PKG04_PRODUCER_BINDING.md"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

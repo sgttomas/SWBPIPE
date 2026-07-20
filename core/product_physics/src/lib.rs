@@ -8193,6 +8193,75 @@ fn round6(value: f64) -> f64 {
     }
 }
 
+/// Crate-constant identity of this product-physics preview solver, for
+/// producer-path metadata binding (R14 W1 T1). Derived from the crate
+/// manifest, never hardcoded by consumers.
+pub fn solver_component_name() -> &'static str {
+    env!("CARGO_PKG_NAME")
+}
+
+/// Crate-constant version of this product-physics preview solver. See
+/// [`solver_component_name`].
+pub fn solver_component_version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
+}
+
+/// Assembled nonlinear active-set loop context for producer consumption
+/// (additive pass-through; R14 W1 T1). Carries the loop component's
+/// crate-constant identity/version and the loop's own assumptions and
+/// limitations text, unchanged, so the governed analysis-run producer can
+/// bind nonlinear metadata without depending on the solver crate directly.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NonlinearAssembledLoopContext {
+    pub component_name: &'static str,
+    pub component_version: &'static str,
+    pub assumptions: Vec<String>,
+    pub limitations: Vec<String>,
+}
+
+/// Pass-through of `core/solver/nonlinear_integration`'s assembled-loop
+/// context. Text and identity come from that crate's public surface; this
+/// function adds nothing and rewrites nothing.
+pub fn nonlinear_assembled_loop_context() -> NonlinearAssembledLoopContext {
+    NonlinearAssembledLoopContext {
+        component_name: open_pipe_stress_nonlinear_integration::assembled_loop_component_name(),
+        component_version: open_pipe_stress_nonlinear_integration::assembled_loop_component_version(
+        ),
+        assumptions: open_pipe_stress_nonlinear_integration::assembled_loop_assumptions(),
+        limitations: open_pipe_stress_nonlinear_integration::assembled_loop_limitations(),
+    }
+}
+
+#[cfg(test)]
+mod nonlinear_context_passthrough_tests {
+    use super::nonlinear_assembled_loop_context;
+
+    #[test]
+    fn assembled_loop_context_is_a_pure_passthrough() {
+        let context = nonlinear_assembled_loop_context();
+        assert_eq!(
+            context.component_name,
+            open_pipe_stress_nonlinear_integration::assembled_loop_component_name()
+        );
+        assert_eq!(
+            context.component_version,
+            open_pipe_stress_nonlinear_integration::assembled_loop_component_version()
+        );
+        assert_eq!(
+            context.assumptions,
+            open_pipe_stress_nonlinear_integration::assembled_loop_assumptions()
+        );
+        assert_eq!(
+            context.limitations,
+            open_pipe_stress_nonlinear_integration::assembled_loop_limitations()
+        );
+        assert!(!context.assumptions.is_empty());
+        assert!(!context.limitations.is_empty());
+        assert!(!context.component_name.trim().is_empty());
+        assert!(!context.component_version.trim().is_empty());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
