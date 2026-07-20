@@ -378,12 +378,16 @@ describe("TP-PMM-GUIEMIT-001 schema binding", () => {
     ]);
 
     const wind = modelDefs.WindEquivalentStaticInput as JsonRecord;
-    expect(wind.required).toEqual(["pressure", "shape_factor", "direction", "exposed_element_refs"]);
+    expect(wind.required).toEqual(["pressure", "shape_factor", "direction"]);
+    const windProps = wind.properties as JsonRecord;
+    expect(windProps).toHaveProperty("exposed_element_refs");
+    expect(windProps).toHaveProperty("exposed_spans");
     // Preview-surface keys: pressure/shape_factor/direction are shared;
-    // exposed_pipe_refs ↔ exposed_element_refs (pipe spans are the
-    // preview's element collection).
+    // exposed_pipe_refs ↔ exposed_element_refs (the canonical whole-element
+    // exposure surface); exposed_spans is the sub-span alternative exposure
+    // surface (landed by R14-W2 T4) with no preview-surface counterpart.
     const previewWindKeys = ["pressure", "shape_factor", "direction", "exposed_pipe_refs"];
-    expect(previewWindKeys.slice(0, 3)).toEqual((wind.required as string[]).slice(0, 3));
+    expect(previewWindKeys.slice(0, 3)).toEqual(wind.required as string[]);
 
     // Every preview global-axis token maps into the canonical
     // ForceDirection axis enum.

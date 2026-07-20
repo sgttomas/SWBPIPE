@@ -1,5 +1,33 @@
 # DEL-07-02 Memory
 
+## 2026-07-20 - R14-W2-XREPAIR-01 wind schema-mirror test repair
+
+- Cross-package repair under disposition `R14-W2-XREPAIR-01`: R14-W2 T4
+  (DEL-05-01 sub-span wind exposure, landed `a854d43a1`) changed
+  `schemas/model.schema.yaml` `WindEquivalentStaticInput` so `required` is
+  `[pressure, shape_factor, direction]` with `exposed_element_refs` and the
+  new `exposed_spans` as alternative exposure properties; this deliverable's
+  mirror assertion in
+  `apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx` still
+  asserted the old four-key required set and truthfully failed the DEC-025
+  evidence sweep.
+- The mirror assertion cluster now asserts the landed schema truth
+  equal-or-stronger: exact new required triple plus existence of both
+  `exposed_element_refs` and `exposed_spans` in `wind.properties`, with the
+  preview-key mapping comment updated (preview `exposed_pipe_refs` maps to
+  canonical `exposed_element_refs`; `exposed_spans` is the sub-span
+  alternative with no preview counterpart). No other line in the file
+  changed.
+- Focused desktop vitest file passed 10/10; registered `evidence-sweep`
+  re-ran PASS with exactly one new sweep JSON
+  (`SWEEP_20260720T055048Z_27110b28074a-dirty.json`).
+- The sub-span GUI-emit follow-on (surfacing `exposed_spans` in the desktop
+  authoring UI) is out of this repair's scope and is recorded on the
+  campaign slate. `_STATUS.md` Remaining is untouched — this repair closes
+  no Remaining row.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-20_R14W2_XREPAIR01.md`.
+
 ## 2026-07-12 - D-41 R5 T1 DEC-074 O2 ownership delegation
 
 - Accepted delegation: `DEL-00-05` owns GUI state/interaction architecture;
