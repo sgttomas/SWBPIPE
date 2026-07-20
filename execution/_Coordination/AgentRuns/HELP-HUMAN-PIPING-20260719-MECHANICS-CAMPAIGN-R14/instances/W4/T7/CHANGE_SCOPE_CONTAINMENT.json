@@ -1,0 +1,21 @@
+{
+  "allowed": [
+    "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-20_T7_DEL-09-04_VALMANUAL_STALE_TEXT.md",
+    "projects/chirality-piping/docs/validation_manual/headless_runner_reproduction.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-20_R14_W4_T7_VALMANUAL_STALE_TEXT.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W4/T7"
+  ],
+  "paths": [
+    "projects/chirality-piping/docs/validation_manual/headless_runner_reproduction.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-20_R14_W4_T7_VALMANUAL_STALE_TEXT.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W4/T7/EXECUTE_RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W4/T7/CHANGE_SCOPE_CONTAINMENT.json"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

@@ -11,6 +11,67 @@ revision: 0.5
 
 # MEMORY - DEL-09-04 Validation Manual Skeleton
 
+## 2026-07-20 - Reproduction-page stale-text refresh (post-R14 waves 1-2) R14-W4 T7
+
+- Under adopted brief `CB-2026-07-20-T7-DEL-09-04-VALMANUAL-STALE-001` (run
+  `HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14` W4/T7, base
+  `db9197a5d`), `docs/validation_manual/headless_runner_reproduction.md`
+  gained two dated 2026-07-20 notes plus one corrected cell, in the R13
+  case-3 precedent form:
+  - **Part 1 case-1 dated historical note** — the committed-witness byte
+    expectation is historical for sources at or after R14-W1 T2
+    (implementation commit `faee4faed`, on main at `581a15b1c`, PR #292,
+    Receipt-61); on such sources the same frozen solve command still exits
+    0 / `COMPLETED` with empty request/result validation diagnostics and
+    non-empty `result_refs`, and the solve result envelope additionally
+    carries one non-blocking `SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED`
+    warning for `support:CE-120` (frozen `restraints: []` — a deliberately
+    non-consuming shape) plus updated sign-convention disclosure text on
+    its two `constant_effort_user_input_review` rows. The case-1
+    expected-evidence cell was corrected in place (all prior predicates
+    retained; the post-T2 envelope-warning statement added). The warning
+    is review evidence about a non-consuming user-entered data shape, not
+    a defect. Head claims were verified by a mandatory live offline run at
+    the execution head before the page write (exit 0; `COMPLETED`; 830
+    `result_refs`; warning at `mechanics_envelope.diagnostics`; regenerated
+    output SHA-256 `b3cd85af8565…` vs committed witness `c406d9c2d8b6…` —
+    no byte-match, matching the preserved W1 T2 chain evidence).
+  - **Part 2 dated currency note** — the pinned R12-head whole-suite
+    figures remain truthful for `60841413a`; at the R14 head
+    (`e315fb840` base) the mechanics suite carries 24 fixtures
+    (readiness assertion `fixtures.len() == 24`; R14 additions
+    `MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD`,
+    `MECH-CURVED-BEND-PRESSURE-THRUST-ARC`,
+    `MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE`) and the committed T6 bundle
+    `validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/`
+    records 24 cases, 11 `executed_and_matched` + 13 `blocked`, exit 1 —
+    regression evidence only; thresholds/tolerances/CI-gate policy stay
+    `TBD` owner-gated; stress and nonlinear pinned figures unchanged.
+- Three routed observations recorded with NO page edit (per brief §2.3-§2.5):
+  (1) the committed fallback fixture
+  `fixtures/product_preview/invented_mechanics_result.json` still carries
+  the superseded "no global constant-effort load…" review-row text (W1 T2
+  VERIFY_IMPL D1) — a pinned earlier-generation committed output outside
+  the docs lane, not referenced by the manual; remains routed for a future
+  code/fixture-lane selection; (2) the `validation.rs`
+  `CONSTANT_EFFORT_USER_DATA_REVIEWED` info-text clause remains literally
+  true of the validation acceptance itself — code surface, observation
+  only; (3) the W2 wind schema required-set text has no surface on this
+  page (verified absent).
+- Rerun consequence restated per the R13 §8 trigger (this tranche IS a
+  "page through another lane" event): any subsequent clean-checkout
+  reproduction executes from a post-refresh source commit under a fresh
+  run ID and a new immutable bundle; completed bundles are never edited.
+- Both `_STATUS.md` Remaining bullets byte-preserved (owner-gated per W3
+  rows 7-8); frozen E1 and del1005 surfaces byte-identical; no
+  reproduction run, no witness/bundle/fixture/code write, no lifecycle
+  change, no receipt append.
+- Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+  This refresh is documentation currency anchored to committed bytes and a
+  live offline run; it makes no validation-acceptance, release-readiness,
+  threshold, professional, certification, sealing, authentication, or
+  code-compliance claim.
+
 ## 2026-07-19 - Validation-manual reproduction page refresh (post-PR #287) R13
 
 - Refreshed `docs/validation_manual/headless_runner_reproduction.md` under

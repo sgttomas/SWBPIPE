@@ -46,7 +46,7 @@ procedure (with a dated historical note on case 3), and the bound per-case
 
 | Case | Input fixture | Expected command | Expected exit | Expected evidence |
 |---|---|---|---:|---|
-| Valid invented preview solve | `validation/witness/inputs/tp_runner_015_final_cli_solve_input.json` | `openpipestress-runner solve --input <fixture> --output <out>` | 0 | `runner_result.job.state` is `COMPLETED`; request/result validation diagnostics are empty; `runner_result.result_refs` is non-empty. |
+| Valid invented preview solve | `validation/witness/inputs/tp_runner_015_final_cli_solve_input.json` | `openpipestress-runner solve --input <fixture> --output <out>` | 0 | `runner_result.job.state` is `COMPLETED`; request/result validation diagnostics are empty; `runner_result.result_refs` is non-empty; on sources at or after R14-W1 T2, the solve result envelope additionally carries one non-blocking `SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED` warning for `support:CE-120`, per the dated 2026-07-20 note below. |
 | Invalid request metadata | `validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json` | `openpipestress-runner validate-input --input <fixture> --output <out>` | 1 | Request validation reports `HEADLESS_RUNNER_LOAD_BASIS_MISSING`; no solver result is emitted. |
 | Benchmark verb on the frozen payload-less input (historical stub case) | `validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json` | `openpipestress-runner run-benchmark --input <fixture> --output <out>` | 1 | On sources at or after PR #287: runner diagnostics report `HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING` (the frozen input carries no `benchmark` payload). Historical, pre-#287 sources: `HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD`, as recorded in the committed witness. |
 
@@ -64,6 +64,25 @@ witness and prior reproduction bundles — including
 — remain truthful for their pinned pre-#287 commits and are not edited. The
 three frozen input fixtures, their generator, and the three committed
 generated witnesses remain byte-identical frozen surfaces.
+
+**Dated note (2026-07-20).** Case 1's committed-witness byte expectation is
+historical for sources at or after R14-W1 T2 (implementation commit
+`faee4faed`, on main at `581a15b1c`, PR #292, Receipt-61). On such sources
+the same frozen solve command still exits 0 with `runner_result.job.state`
+`COMPLETED`, empty request/result validation diagnostics, and non-empty
+`runner_result.result_refs`, and the solve result envelope additionally
+carries one non-blocking warning diagnostic
+`SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED` for `support:CE-120` (whose frozen
+`restraints` list is empty — a deliberately non-consuming shape) plus
+updated sign-convention disclosure text on its two
+`constant_effort_user_input_review` rows; therefore regenerated output no
+longer byte-matches the committed
+`validation/witness/generated/tp_runner_015_final_cli_solve.json` witness,
+which — like the prior reproduction bundles — remains truthful for its
+pinned pre-T2 commits and is not edited. The non-consumption warning is
+review evidence about a non-consuming user-entered constant-effort data
+shape; it is not a defect, not a solve error, and not a new acceptance
+criterion.
 
 The committed generated witness outputs are:
 
@@ -165,6 +184,27 @@ not a defect record and no figure above is a release judgment or an
 acceptance criterion. Release thresholds, final tolerance policy, CI gate
 policy, and professional reliance remain `TBD`, owner-gated (`DEC-046`
 promotion untouched).
+
+**Dated currency note (2026-07-20).** The whole-suite figures above are
+pinned to the R12 implementation head (`60841413a`) and remain truthful for
+that commit. At the R14 head (post-wave-2 main base `e315fb840`) the
+mechanics suite carries 24 fixtures (readiness assertion
+`fixtures.len() == 24`; the three R14 additions are
+`MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD` (W1 T2),
+`MECH-CURVED-BEND-PRESSURE-THRUST-ARC` (W1 T3), and
+`MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE` (W2 T4)), and the committed
+derivative evidence bundle
+`validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/`
+records the head whole-suite `run-benchmark` result: 24 cases, 11
+`executed_and_matched` + 13 `blocked`, exit 1 under the `DEC-065`
+fail-closed policy. That bundle is regression evidence under the recorded
+claim posture; blocked cases are not a defect record, and no figure in this
+note is a release judgment or an acceptance criterion — release thresholds,
+final tolerance policy, and CI gate policy remain `TBD`, owner-gated. The
+stress (12/15 `executed_and_matched` + 3 blocked) and nonlinear (5/5)
+pinned figures are unchanged by the R14 waves (both suites untouched since
+`60841413a`; the five committed `del1005_payload_binding_*` witnesses are
+byte-identical at head).
 
 ## Rerun Consequence
 
