@@ -123,6 +123,7 @@ pub enum BenchmarkFamily {
     CurvedBendExpansionLoop,
     CurvedBendDistributedLoad,
     EquivalentStaticGeneration,
+    ConstantEffortSupport,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -566,6 +567,7 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
         expansion_loop_curved_bend_thermal_fixture(),
         curved_bend_distributed_fixed_end_fixture(),
         tp_pmm_p3_occloadgen_equivalent_static_fixture(),
+        constant_effort_support_applied_load_fixture(),
     ]
 }
 
@@ -674,6 +676,140 @@ pub fn cantilever_tip_force_fixture() -> MechanicsBenchmark {
             },
         ],
     }
+}
+
+/// Solved quantities for the constant-effort support superposition fixture.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ConstantEffortSupportAppliedLoadResult {
+    pub tip_displacement_y_without_support: f64,
+    pub tip_displacement_y_with_support: f64,
+    pub superposition_delta_y: f64,
+    pub fixed_end_reaction_y: f64,
+    pub fixed_end_moment_z: f64,
+}
+
+const CONSTANT_EFFORT_TIP_DOWN_LOAD: f64 = 6.0;
+const CONSTANT_EFFORT_SUPPORT_LOAD: f64 = 9.0;
+
+/// Ideal constant-effort spring-hanger support consumed by the assembled
+/// solve (DEC-049): a constant nodal force of the user-entered magnitude on
+/// the positive axis of the single declared translational restraint DOF
+/// (`UY` here), zero stiffness contribution, no restraint row. The witness
+/// is the classical cantilever superposition identity: the solve with the
+/// support equals the solve without it plus `F L^3 / (3 E I_z)`.
+pub fn constant_effort_support_applied_load_fixture() -> MechanicsBenchmark {
+    let length: f64 = 10.0;
+    let elastic_modulus: f64 = 1200.0;
+    let second_moment_z: f64 = 4.0;
+    let flexibility = length.powi(3) / (3.0 * elastic_modulus * second_moment_z);
+    let net_tip_force = CONSTANT_EFFORT_SUPPORT_LOAD - CONSTANT_EFFORT_TIP_DOWN_LOAD;
+
+    MechanicsBenchmark {
+        fixture_id: "MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD",
+        family: BenchmarkFamily::ConstantEffortSupport,
+        description: "Two-node cantilever with an invented downward tip load and an ideal constant-effort support force applied on the positive UY axis at the tip: constant user-entered nodal force, zero stiffness contribution, no restraint row, verified against the classical superposition identity.",
+        assumptions: &[
+            "Euler-Bernoulli frame stiffness as implemented by the frame kernel.",
+            "Node 0 restrained in all six degrees of freedom; node 1 free.",
+            "The constant-effort support contributes only a constant nodal force of the user-entered magnitude along the positive axis of its single declared translational DOF; no stiffness, restraint row, catalog value, or inferred direction.",
+            "Superposition holds for the linear model: the solve with the support equals the solve without it plus the classical tip point-force solution.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/mechanics/constant_effort_support_applied_load.md",
+        ),
+        unit_basis: FIXTURE_UNIT_BASIS,
+        expected_values: vec![
+            ExpectedValue {
+                name: "tip_displacement_y_without_support",
+                value: -CONSTANT_EFFORT_TIP_DOWN_LOAD * flexibility,
+                unit: "m",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "tip_displacement_y_with_support",
+                value: net_tip_force * flexibility,
+                unit: "m",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "superposition_delta_y",
+                value: CONSTANT_EFFORT_SUPPORT_LOAD * flexibility,
+                unit: "m",
+                dimension: "length",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "fixed_end_reaction_y",
+                value: -net_tip_force,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "fixed_end_moment_z",
+                value: -net_tip_force * length,
+                unit: "N-m",
+                dimension: "moment",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
+/// Dense-solve realization of the constant-effort fixture: the same
+/// two-node cantilever solved twice, without and with the constant support
+/// force added to the assembled load vector (the ideal constant-effort
+/// element treatment).
+pub fn solve_constant_effort_support_applied_load(
+) -> Result<ConstantEffortSupportAppliedLoadResult, FrameKernelError> {
+    let section = benchmark_section()?;
+    let element = FrameElement::new(
+        FrameNode::new(0, [0.0, 0.0, 0.0])?,
+        FrameNode::new(1, [10.0, 0.0, 0.0])?,
+        section,
+        [0.0, 1.0, 0.0],
+    )?;
+    let stiffness = assemble_global_stiffness(2, &[element])?;
+    let base_restraints = [UX, UY, UZ, RX, RY, RZ];
+
+    let solve_tip_uy = |tip_force_y: f64| -> Result<(f64, Vec<f64>), FrameKernelError> {
+        let mut force = vec![0.0; 2 * DOF_PER_NODE];
+        force[DOF_PER_NODE + UY] = tip_force_y;
+        let reduced = reduce_system(&stiffness, &force, &base_restraints)?;
+        let displacement = solve_dense(&reduced.stiffness, &reduced.force)?;
+        let mut full = vec![0.0; 2 * DOF_PER_NODE];
+        for (index, dof) in reduced.free_dofs.iter().enumerate() {
+            full[*dof] = displacement[index];
+        }
+        let reactions = (0..2 * DOF_PER_NODE)
+            .map(|row| {
+                stiffness[row]
+                    .iter()
+                    .zip(full.iter())
+                    .map(|(k, d)| k * d)
+                    .sum::<f64>()
+                    - force[row]
+            })
+            .collect::<Vec<_>>();
+        Ok((full[DOF_PER_NODE + UY], reactions))
+    };
+
+    let (tip_without, _) = solve_tip_uy(-CONSTANT_EFFORT_TIP_DOWN_LOAD)?;
+    // Ideal constant-effort element: the user-entered constant support load
+    // enters the assembled force vector on the positive UY axis at the tip;
+    // the stiffness matrix and restraint set are unchanged.
+    let (tip_with, reactions) =
+        solve_tip_uy(-CONSTANT_EFFORT_TIP_DOWN_LOAD + CONSTANT_EFFORT_SUPPORT_LOAD)?;
+
+    Ok(ConstantEffortSupportAppliedLoadResult {
+        tip_displacement_y_without_support: tip_without,
+        tip_displacement_y_with_support: tip_with,
+        superposition_delta_y: tip_with - tip_without,
+        fixed_end_reaction_y: reactions[UY],
+        fixed_end_moment_z: reactions[RZ],
+    })
 }
 
 pub fn portal_frame_sway_fixture() -> MechanicsBenchmark {
@@ -5504,7 +5640,7 @@ mod tests {
     fn inventory_covers_required_mechanics_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 21);
+        assert_eq!(fixtures.len(), 22);
         assert!(fixtures
             .iter()
             .any(|fixture| fixture.fixture_id == "MECH-BRANCH-ASSEMBLY-THREE-MEMBER"));
@@ -5707,6 +5843,46 @@ mod tests {
         let fixture = cantilever_tip_force_fixture();
         let expected = fixture.expected_values[0].value;
         assert!((solved_tip_displacement - expected).abs() <= INTERNAL_ASSERTION_EPSILON);
+    }
+
+    #[test]
+    fn constant_effort_support_applied_load_matches_superposition_identity() {
+        let fixture = constant_effort_support_applied_load_fixture();
+        let expected = |name: &str| {
+            fixture
+                .expected_values
+                .iter()
+                .find(|value| value.name == name)
+                .unwrap_or_else(|| panic!("missing expected value {name}"))
+                .value
+        };
+        let result = solve_constant_effort_support_applied_load().unwrap();
+
+        assert!(
+            (result.tip_displacement_y_without_support
+                - expected("tip_displacement_y_without_support"))
+            .abs()
+                <= INTERNAL_ASSERTION_EPSILON
+        );
+        assert!(
+            (result.tip_displacement_y_with_support - expected("tip_displacement_y_with_support"))
+                .abs()
+                <= INTERNAL_ASSERTION_EPSILON
+        );
+        // Superposition identity: solve-with minus solve-without equals the
+        // classical closed-form solution for the equivalent tip point force.
+        assert!(
+            (result.superposition_delta_y - expected("superposition_delta_y")).abs()
+                <= INTERNAL_ASSERTION_EPSILON
+        );
+        assert!(
+            (result.fixed_end_reaction_y - expected("fixed_end_reaction_y")).abs()
+                <= INTERNAL_ASSERTION_EPSILON
+        );
+        assert!(
+            (result.fixed_end_moment_z - expected("fixed_end_moment_z")).abs()
+                <= INTERNAL_ASSERTION_EPSILON
+        );
     }
 
     #[test]

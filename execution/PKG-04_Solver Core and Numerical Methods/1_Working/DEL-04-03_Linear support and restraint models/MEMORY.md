@@ -226,3 +226,70 @@ Durable context preserved after PKG-02 grounded finding resolution:
   `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D5-HANGERDATA-001.md`.
   Validation passed product-physics tests 43/43, desktop Vitest 407/407,
   desktop production build, and JSON fixture checks.
+
+## 2026-07-19 - R14-W1-T2 constant-effort assembled-solve consumption
+
+- Executed under sealed brief `CB-2026-07-19-T2-DEL-04-03-CONSTANT-EFFORT-001`
+  (run `HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14`, wave W1, tranche
+  T2; v3 COMMIT-SAFE verifier chain). This is the DEC-049-anticipated deeper
+  assembled-solve tranche for constant-effort supports.
+- Ideal constant-effort element landed in `core/product_physics/src/lib.rs`:
+  a support with `family = constant_effort_support`, no `nonlinear` field,
+  exactly one declared translational restraint DOF, and a finite positive
+  user-entered `hanger.constant_load` contributes a constant nodal force of
+  that magnitude along the positive axis of the declared DOF in every solved
+  load case. The force enters the per-load-case assembled force vector before
+  `reduce_system` — the single seam shared by dense, sparse, and nonlinear
+  active-set solves. Zero stiffness contribution; no restraint row.
+- Consumption is data-driven opt-in: a constant-effort support not meeting
+  the conditions (zero declared translational DOFs — the accepted pinned
+  fixture shape — more than one, an unparseable declared DOF, an unresolvable
+  node, or a missing/non-positive constant load) stays user-data review
+  evidence and the solve emits one non-blocking
+  `SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED` warning naming the unmet condition.
+  No defaulting, no catalog value, no direction inference, and no
+  previously-valid input became blocking (missing/non-positive constant load
+  keeps the pre-existing `CONSTANT_EFFORT_LOAD_MISSING` validation block).
+  A support with a `nonlinear` field keeps the existing nonlinear-path
+  handling.
+- Each consuming support emits a per-load-case
+  `constant_effort_support_applied_load` row (basis cites `dec_ref=DEC-049`,
+  `mechanics_consumption=assembled_solve`, `consumed_dof`; verbatim
+  positive-axis sign convention). The existing
+  `constant_effort_user_input_review` rows are preserved with their
+  sign-convention disclosure updated truthfully to state the landed
+  assembled-solve consumption semantics. User-entered `movement_limit` /
+  `travel_range` are compared per load case against the computed displacement
+  at the support node along the acting DOF; exceedance emits non-blocking
+  `SUPPORT_CONSTANT_EFFORT_USER_LIMIT_EXCEEDED` (user-data comparison only;
+  no software threshold, tolerance, or acceptance criterion).
+- Evidence: new hand-calc witness
+  `validation/hand_calcs/mechanics/constant_effort_support_applied_load.md`
+  (invented, project-original; closed-form superposition values); new suite
+  fixture `MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD` in
+  `validation/benchmarks/mechanics` (registered in `fixture_inventory()`,
+  count assertion 21→22, one additive inventory line in each of the two
+  mirror READMEs, compared at the already-recorded DEC-026 analytic-class
+  `1.0e-9` tier); eight new product-physics unit tests (superposition
+  identity, every non-consumption shape, direction convention, two-load-case
+  application, nonlinear coexistence and nonlinear-field precedence, no-op
+  guard, review-row updates). Product-physics tests 83/83, suite tests
+  34/34, headless tests 23+1+15 all pass; the five
+  `del1005_payload_binding_*` cases remain byte-identical to their committed
+  witnesses; the pinned `tp_runner_015_final_cli_solve_input.json` case
+  keeps exit 0/COMPLETED with output changed only by the new non-consumption
+  warning, the truthful review-row text, and the consequent envelope
+  checksum (before/after SHA-256 digests in the run record).
+- Follow-on for HELP_HUMAN (docs lane; no docs write in this tranche): the
+  reproduction-manual case-1 documented solve expectations
+  (`docs/validation_manual/headless_runner_reproduction.md` Part 1) are
+  stale for post-tranche sources — the same frozen command now also emits
+  the `SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED` warning — and need a dated note
+  through a later docs-lane selection per the R12→R13 case-3 precedent. The
+  committed witnesses remain truthful for their pinned pre-#287 commits and
+  were not edited.
+- Boundaries: catalog sizing, protected/default values, hidden defaults,
+  nonlinear constant-effort behavior (DEL-04-04 owner surface), DEC-046
+  threshold state, and all lifecycle/issuance/release/professional claims
+  remain untouched. Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T2_CONSTANT_EFFORT.md`.

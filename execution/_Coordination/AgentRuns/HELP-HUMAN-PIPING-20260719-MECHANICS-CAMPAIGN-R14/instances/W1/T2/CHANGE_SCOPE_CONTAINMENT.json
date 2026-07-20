@@ -1,0 +1,32 @@
+{
+  "allowed": [
+    "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-19_T2_DEL-04-03_CONSTANT_EFFORT_SOLVE.md",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "projects/chirality-piping/core/product_physics/Cargo.lock",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/constant_effort_support_applied_load.md",
+    "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+    "projects/chirality-piping/validation/benchmarks/mechanics/README.md",
+    "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T2_CONSTANT_EFFORT.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T2"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+    "projects/chirality-piping/validation/benchmarks/mechanics/README.md",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/constant_effort_support_applied_load.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T2_CONSTANT_EFFORT.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T2/EXECUTE_RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T2/CHANGE_SCOPE_CONTAINMENT.json"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

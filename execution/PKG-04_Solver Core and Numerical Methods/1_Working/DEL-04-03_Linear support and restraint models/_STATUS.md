@@ -1,10 +1,9 @@
 # Status: DEL-04-03 Linear support and restraint models
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-07-19
 
 ## Remaining
-- Implement full constant-effort spring-hanger solve behavior beyond the landed user-data slice (catalog sizing and protected/default values stay excluded per DEC-049) (source: PRD plan §3 D5 row / DEC-049)
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -20,3 +19,4 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 4 cited declaration claims to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-07-19 - Constant-effort spring-hanger assembled-solve consumption landed under CB-2026-07-19-T2-DEL-04-03-CONSTANT-EFFORT-001 (R14-W1-T2): data-driven opt-in constant nodal force at the per-load-case force-assembly seam, non-consumption warnings, per-load-case applied-load rows, user-limit warnings, superposition hand-calc witness, and additive MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD suite fixture. The sole Remaining item was struck; catalog sizing and protected/default values remain excluded per DEC-049. No lifecycle, review, threshold, or issuance act.

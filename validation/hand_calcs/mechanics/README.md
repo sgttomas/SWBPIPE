@@ -64,6 +64,7 @@ has an explicit public-original hand-calculation note.
 | `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` | `expansion_loop_curved_bend_thermal.md` |
 | `MECH-CURVED-BEND-DISTRIBUTED-FIXED-END` | `curved_bend_distributed_load_fixed_end.md` |
 | `MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC` | `tp_pmm_p3_occloadgen_equivalent_static.md` |
+| `MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD` | `constant_effort_support_applied_load.md` |
 
 ## Notes
 
