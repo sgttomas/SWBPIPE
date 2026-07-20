@@ -196,7 +196,9 @@ Clone/detach recorded in `source_commit.txt` and `manifest.execution_posture`
 and post-run proofs in `git-status-after.txt` + cmd15–cmd17 (see INFO-1).
 §4.4 contingency recorded as NOT USED (consistently in manifest, README, run
 record, MEMORY). Temporary-root cleanup recorded; the recorded tmp root
-`/var/folders/…/tmp.wbOwuYCu56` no longer exists on disk.
+(`mktemp -d` basename `tmp.wbOwuYCu56` under the system temp dir; full
+machine-absolute prefix redacted post-verification for the portability
+invariant, W5 manager cure) no longer exists on disk.
 
 ### Contradiction hunt — no hit
 
