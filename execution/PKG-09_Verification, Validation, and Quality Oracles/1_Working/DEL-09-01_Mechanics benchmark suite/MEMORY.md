@@ -747,3 +747,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
 
 - Mechanics benchmark verification refreshed: 33 Rust tests passed and the existing inventory still covers 21 project-original fixture/hand-calc families. Dedicated provenance index, runner/release integration, and validation disposition remain open.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+## 2026-07-20 - R14 W4 T6 benchmark-evidence-system bounded construction
+
+- Assembled the derivative, hash-manifested evidence bundle `validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/` (labeled DERIVATIVE EVIDENCE — NON-AUTHORITATIVE) at base `e315fb8406d4`: whole-suite head capture (24 cases: 11 executed_and_matched, 0 executed_and_mismatched, 13 blocked, recorded exit 1 per DEC-065 fail-closed semantics), 24-fixture family/provenance/redistribution index with every witness anchor verified present, deterministic bundle-local assembly script, and a verification refresh record.
+- Current inventory is 24 project-original fixture/hand-calc families/fixtures (21 pre-R14 plus the three R14 additions); 38 Rust tests passed offline at the head. This refresh is project-owned verification evidence only.
+- Preserved holds: the PDU-037 provenance-index standing Remaining row remains open (the index is built as evidence; row closure is judged at the owner's gate); the PDU-013 unit-catalog hold is untouched (fixture-local `PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K` basis recorded as found); tolerance/threshold promotion, runner/release integration, verification-to-validation promotion, and the PDU-060 disposition remain owner-gated TBD.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-20_R14_W4_T6_BENCH_EVIDENCE.md`. Lifecycle remains `IN_PROGRESS`; all four Remaining rows byte-identical.

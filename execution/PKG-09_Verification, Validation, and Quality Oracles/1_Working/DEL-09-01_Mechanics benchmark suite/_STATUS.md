@@ -1,7 +1,7 @@
 # Status: DEL-09-01 Mechanics benchmark suite
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-07-20
 
 ## Remaining
 - Keep PDU-037's dedicated provenance/redistribution index, runner/release integration, and acceptance thresholds open; 21-family inventory and 33-test refresh are project-owned verification only.
@@ -26,3 +26,4 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T2B recorded the PDU-013 project-unit-system gap as a held residual. Existing rights-safe fixture-local evidence was not promoted to project-grain acceptance; no threshold, outcome, disposition, or lifecycle state changed.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-07-20 - R14 W4 T6 benchmark-evidence-system bounded construction assembled the derivative evidence bundle `validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/` (whole-suite head capture 11 matched / 0 mismatched / 13 blocked, recorded exit 1 per DEC-065; 24-fixture family/provenance/redistribution index; 38-test verification refresh). The PRD §16.2 residual Remaining row remains open and is judged at the owner's gate; no lifecycle, tolerance, threshold, promotion, or hold changed.
