@@ -43,6 +43,7 @@ The explicit source inventory is the `fixture_inventory()` list in
 | Stiffness transform | `MECH-INCLINED-MEMBER-TRANSFORM` |
 | Curved-bend expansion loop | `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` |
 | Curved-bend distributed load | `MECH-CURVED-BEND-DISTRIBUTED-FIXED-END` |
+| Curved-bend pressure thrust | `MECH-CURVED-BEND-PRESSURE-THRUST-ARC` |
 | Equivalent-static generation | `MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC` |
 | Constant-effort support | `MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD` |
 

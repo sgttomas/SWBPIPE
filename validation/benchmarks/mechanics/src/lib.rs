@@ -122,6 +122,7 @@ pub enum BenchmarkFamily {
     StiffnessTransform,
     CurvedBendExpansionLoop,
     CurvedBendDistributedLoad,
+    CurvedBendPressureThrust,
     EquivalentStaticGeneration,
     ConstantEffortSupport,
 }
@@ -566,6 +567,7 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
         inclined_member_transform_fixture(),
         expansion_loop_curved_bend_thermal_fixture(),
         curved_bend_distributed_fixed_end_fixture(),
+        curved_bend_pressure_thrust_arc_fixture(),
         tp_pmm_p3_occloadgen_equivalent_static_fixture(),
         constant_effort_support_applied_load_fixture(),
     ]
@@ -2896,6 +2898,319 @@ pub fn curved_bend_distributed_fixed_end_fixture() -> MechanicsBenchmark {
         ],
         provenance: BenchmarkProvenance::public_original(
             "validation/hand_calcs/mechanics/curved_bend_distributed_load_fixed_end.md",
+        ),
+        unit_basis: FIXTURE_UNIT_BASIS,
+        expected_values,
+    }
+}
+
+// --- MECH-CURVED-BEND-PRESSURE-THRUST-ARC ---------------------------------
+// Invented anchored-free quarter-circle arc under the complete
+// self-equilibrated pressure system (end-cap forces along the arc end
+// tangents plus the exact consistent nodal vector of the outward radial
+// wall load). Closed-form witness:
+// validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md.
+
+const CBPT_BEND_RADIUS: f64 = 1.4;
+const CBPT_OUTER_DIAMETER: f64 = 0.2191;
+const CBPT_WALL_THICKNESS: f64 = 0.0081;
+const CBPT_ELASTIC_MODULUS: f64 = 195.0e9;
+const CBPT_SHEAR_MODULUS: f64 = 76.0e9;
+const CBPT_PRESSURE: f64 = 2.5e6; // Pa, invented internal pressure
+pub const CBPT_FLEXIBILITY_FACTORS: [f64; 2] = [1.0, 2.0];
+pub const CBPT_STATION_FRACTIONS: [f64; 3] = [0.25, 0.5, 0.75];
+// DEC-026 analytic-class relative tier already recorded by this suite, with
+// the same fixture-local near-zero absolute floor convention as the other
+// curved-bend fixture for exact-zero targets, scaled to this fixture's
+// ~8.1e4 N thrust: zero targets are held to |residual| <= 1.0e-9 * 1.0
+// (N, N-m, m), about 1e-14 of the load scale — single-ulp closed-form
+// roundoff headroom only.
+const CBPT_RELATIVE_TOLERANCE: f64 = 1.0e-9;
+const CBPT_NEAR_ZERO_SCALE_FLOOR: f64 = 1.0;
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CurvedBendPressureThrustWitnessRow {
+    pub flexibility_factor: f64,
+    /// Free-tip displacement components of the anchored arc (local frame ==
+    /// global frame in this fixture); the membrane closed form is exactly
+    /// independent of the flexibility factor.
+    pub tip_ux: f64,
+    pub tip_uy: f64,
+    /// True member force at the free end B: the end-cap force itself,
+    /// `+F_p t_B = (-F_p, 0, 0)`.
+    pub member_force_b_fx: f64,
+    /// Interior-station axial resultants at the witness fractions: the wall
+    /// tension `+F_p` along the local tangent at every station.
+    pub station_axial: [f64; 3],
+}
+
+// Closed-form membrane values from the hand-calc witness:
+// F_p = p A = 8.083398400998286e4 N and
+// u = (F_p R / (E A_s)) (-(1 - cos Phi), sin Phi, 0) with Phi = pi/2.
+pub const CBPT_WITNESS_ROWS: [CurvedBendPressureThrustWitnessRow; 2] = [
+    CurvedBendPressureThrustWitnessRow {
+        flexibility_factor: 1.0,
+        tip_ux: -1.080861534560850e-4,
+        tip_uy: 1.080861534560850e-4,
+        member_force_b_fx: -8.083398400998286e4,
+        station_axial: [
+            8.083398400998286e4,
+            8.083398400998286e4,
+            8.083398400998286e4,
+        ],
+    },
+    CurvedBendPressureThrustWitnessRow {
+        flexibility_factor: 2.0,
+        tip_ux: -1.080861534560850e-4,
+        tip_uy: 1.080861534560850e-4,
+        member_force_b_fx: -8.083398400998286e4,
+        station_axial: [
+            8.083398400998286e4,
+            8.083398400998286e4,
+            8.083398400998286e4,
+        ],
+    },
+];
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CurvedBendPressureThrustResult {
+    pub flexibility_factor: f64,
+    /// Pressure-thrust magnitude `F_p = p A` (internal area).
+    pub thrust: f64,
+    /// Free-tip displacements of the anchored arc under the complete
+    /// pressure system (all six local DOFs at node B).
+    pub tip_displacements: [f64; 6],
+    /// Support-on-element anchor residual at A: the anchor carries nothing
+    /// because the complete system is self-equilibrated.
+    pub reactions_a: [f64; 6],
+    /// True member force at the free end B (local frame), `K d - p_wall`.
+    pub member_force_b: [f64; 6],
+    /// Interior-station section-frame resultants at the witness fractions.
+    pub stations: [[f64; 6]; 3],
+}
+
+fn cbpt_section_areas() -> (f64, f64) {
+    let outer = CBPT_OUTER_DIAMETER;
+    let inner = outer - 2.0 * CBPT_WALL_THICKNESS;
+    let internal_area = std::f64::consts::PI / 4.0 * inner * inner;
+    let steel_area = std::f64::consts::PI / 4.0 * (outer * outer - inner * inner);
+    (internal_area, steel_area)
+}
+
+fn cbpt_element(flexibility_factor: f64) -> Result<CurvedBendMacroElement, String> {
+    let radius = CBPT_BEND_RADIUS;
+    let node_a = FrameNode::new(0, [radius, 0.0, 0.0]).map_err(|error| error.to_string())?;
+    let node_b = FrameNode::new(1, [0.0, radius, 0.0]).map_err(|error| error.to_string())?;
+    let outer = CBPT_OUTER_DIAMETER;
+    let inner = outer - 2.0 * CBPT_WALL_THICKNESS;
+    let (_, steel_area) = cbpt_section_areas();
+    let second_moment = std::f64::consts::PI / 64.0 * (outer.powi(4) - inner.powi(4));
+    CurvedBendMacroElement::new(
+        node_a,
+        node_b,
+        [0.0, 0.0, 0.0],
+        CBPT_ELASTIC_MODULUS,
+        CBPT_SHEAR_MODULUS,
+        steel_area,
+        second_moment,
+        2.0 * second_moment,
+        flexibility_factor,
+        flexibility_factor,
+    )
+    .map_err(|error| error.to_string())
+}
+
+pub fn solve_curved_bend_pressure_thrust_arc(
+    flexibility_factor: f64,
+) -> Result<CurvedBendPressureThrustResult, String> {
+    let element = cbpt_element(flexibility_factor)?;
+    let (internal_area, _) = cbpt_section_areas();
+    let thrust = CBPT_PRESSURE * internal_area;
+
+    // Complete pressure system: end-cap forces -F_p t_A at A and +F_p t_B
+    // at B plus the exact consistent nodal vector of the outward radial
+    // wall load.
+    let [tangent_a, tangent_b] = element.end_tangents().map_err(|error| error.to_string())?;
+    let wall = element
+        .consistent_radial_pressure_nodal_loads(thrust)
+        .map_err(|error| error.to_string())?;
+    let mut applied = wall;
+    for axis in 0..3 {
+        applied[axis] -= thrust * tangent_a[axis];
+        applied[DOF_PER_NODE + axis] += thrust * tangent_b[axis];
+    }
+
+    // Anchored-at-A free-tip solve under the complete system.
+    let stiffness = element
+        .global_stiffness()
+        .map_err(|error| error.to_string())?;
+    let dense: Vec<Vec<f64>> = stiffness.iter().map(|row| row.to_vec()).collect();
+    let restrained: Vec<usize> = (0..DOF_PER_NODE).collect();
+    let reduced =
+        reduce_system(&dense, &applied, &restrained).map_err(|error| error.to_string())?;
+    let solution =
+        solve_dense(&reduced.stiffness, &reduced.force).map_err(|error| error.to_string())?;
+    let mut tip_displacements = [0.0; DOF_PER_NODE];
+    tip_displacements.copy_from_slice(&solution);
+    let mut displacements = [0.0; ELEMENT_DOF];
+    displacements[DOF_PER_NODE..].copy_from_slice(&solution);
+
+    // True member forces of the wall-loaded arc: K d - p_wall.
+    let mut member_forces = [0.0; ELEMENT_DOF];
+    for (row, member_force) in member_forces.iter_mut().enumerate() {
+        for (col, displacement) in displacements.iter().enumerate() {
+            *member_force += stiffness[row][col] * displacement;
+        }
+        *member_force -= wall[row];
+    }
+    let mut member_force_b = [0.0; DOF_PER_NODE];
+    member_force_b.copy_from_slice(&member_forces[DOF_PER_NODE..]);
+
+    // Anchor residual at A: the support reaction is the member force at A
+    // plus the cap force applied there; self-equilibrium makes it zero.
+    let mut reactions_a = [0.0; DOF_PER_NODE];
+    for dof in 0..DOF_PER_NODE {
+        reactions_a[dof] = member_forces[dof];
+    }
+    for axis in 0..3 {
+        reactions_a[axis] += thrust * tangent_a[axis];
+    }
+
+    // Interior stations from segment equilibrium including the radial wall
+    // load's far-segment actions.
+    let mut stations = [[0.0; 6]; 3];
+    for (station, fraction) in stations.iter_mut().zip(CBPT_STATION_FRACTIONS) {
+        *station = element
+            .arc_section_resultants_with_radial_pressure(fraction, member_force_b, [0.0; 3], thrust)
+            .map_err(|error| error.to_string())?;
+    }
+
+    Ok(CurvedBendPressureThrustResult {
+        flexibility_factor,
+        thrust,
+        tip_displacements,
+        reactions_a,
+        member_force_b,
+        stations,
+    })
+}
+
+/// Maximum deviation of the solved fixture against the witness table,
+/// normalized per compared quantity by the DEC-026 relative+floor pair.
+/// Zero-valued targets (anchor residuals, transverse tip DOFs, station
+/// shear/torsion/bending) use the near-zero absolute floor.
+pub fn curved_bend_pressure_thrust_arc_max_normalized_deviation() -> Result<f64, String> {
+    let mut max_normalized = 0.0_f64;
+    let mut check = |actual: f64, expected: f64| {
+        let scale = expected.abs().max(CBPT_NEAR_ZERO_SCALE_FLOOR);
+        max_normalized = max_normalized.max((actual - expected).abs() / scale);
+    };
+    for row in CBPT_WITNESS_ROWS {
+        let solved = solve_curved_bend_pressure_thrust_arc(row.flexibility_factor)?;
+        check(solved.tip_displacements[UX], row.tip_ux);
+        check(solved.tip_displacements[UY], row.tip_uy);
+        for dof in [UZ, RX, RY, RZ] {
+            check(solved.tip_displacements[dof], 0.0);
+        }
+        check(solved.member_force_b[UX], row.member_force_b_fx);
+        for dof in [UY, UZ, RX, RY, RZ] {
+            check(solved.member_force_b[dof], 0.0);
+        }
+        for reaction in solved.reactions_a {
+            check(reaction, 0.0);
+        }
+        for (station, expected_axial) in solved.stations.iter().zip(row.station_axial) {
+            check(station[0], expected_axial);
+            for slot in 1..6 {
+                check(station[slot], 0.0);
+            }
+        }
+    }
+    Ok(max_normalized)
+}
+
+pub fn validate_curved_bend_pressure_thrust_arc() -> bool {
+    matches!(
+        curved_bend_pressure_thrust_arc_max_normalized_deviation(),
+        Ok(deviation) if deviation <= CBPT_RELATIVE_TOLERANCE
+    )
+}
+
+pub fn curved_bend_pressure_thrust_arc_fixture() -> MechanicsBenchmark {
+    let mut expected_values = Vec::new();
+    for row in CBPT_WITNESS_ROWS {
+        let (label_ux, label_uy, label_fx, labels_axial): (
+            &'static str,
+            &'static str,
+            &'static str,
+            [&'static str; 3],
+        ) = if row.flexibility_factor as u32 == 1 {
+            (
+                "tip_ux_k1",
+                "tip_uy_k1",
+                "member_force_b_fx_k1",
+                [
+                    "station_axial_q1_k1",
+                    "station_axial_mid_k1",
+                    "station_axial_q3_k1",
+                ],
+            )
+        } else {
+            (
+                "tip_ux_k2",
+                "tip_uy_k2",
+                "member_force_b_fx_k2",
+                [
+                    "station_axial_q1_k2",
+                    "station_axial_mid_k2",
+                    "station_axial_q3_k2",
+                ],
+            )
+        };
+        expected_values.push(ExpectedValue {
+            name: label_ux,
+            value: row.tip_ux,
+            unit: "m",
+            dimension: "displacement",
+            tolerance_policy: None,
+        });
+        expected_values.push(ExpectedValue {
+            name: label_uy,
+            value: row.tip_uy,
+            unit: "m",
+            dimension: "displacement",
+            tolerance_policy: None,
+        });
+        expected_values.push(ExpectedValue {
+            name: label_fx,
+            value: row.member_force_b_fx,
+            unit: "N",
+            dimension: "force",
+            tolerance_policy: None,
+        });
+        for (slot, label) in labels_axial.into_iter().enumerate() {
+            expected_values.push(ExpectedValue {
+                name: label,
+                value: row.station_axial[slot],
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            });
+        }
+    }
+    MechanicsBenchmark {
+        fixture_id: "MECH-CURVED-BEND-PRESSURE-THRUST-ARC",
+        family: BenchmarkFamily::CurvedBendPressureThrust,
+        description: "Invented anchored-free quarter-circle arc under the complete self-equilibrated internal-pressure system (end-cap forces along the arc end tangents plus the exact consistent nodal vector of the outward radial wall load), compared for k in {1, 2} against the closed-form membrane witness MECH-CURVED-BEND-PRESSURE-THRUST-ARC: wall tension +pA along the local tangent with zero shear and zero moment at every interior station, zero anchor residual, and the flexibility-independent membrane tip stretch.",
+        assumptions: &[
+            "The arc center sits at the origin with node A at (R, 0, 0) and node B at (0, R, 0); the arc local frame coincides with the global frame.",
+            "Node A is fully anchored and node B free; the loading is the complete pressure system only (cap pair plus consistent radial wall-load vector), so the anchor carries no residual.",
+            "The thrust area is the pipe internal area (p A); the axial rigidity uses the distinct steel section area A_s. Both are invented values.",
+            "The user-entered bending flexibility factor k (opaque number; no code content) applies to both bending planes; the recorded membrane values are exactly independent of it.",
+            "The strain-energy model is Euler-Bernoulli bending + St. Venant torsion + axial stretch, identical on both comparison sides; shear deformation is excluded.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md",
         ),
         unit_basis: FIXTURE_UNIT_BASIS,
         expected_values,
@@ -5640,7 +5955,7 @@ mod tests {
     fn inventory_covers_required_mechanics_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 22);
+        assert_eq!(fixtures.len(), 23);
         assert!(fixtures
             .iter()
             .any(|fixture| fixture.fixture_id == "MECH-BRANCH-ASSEMBLY-THREE-MEMBER"));
@@ -6322,6 +6637,78 @@ mod tests {
             assert!((stations[0][3] + stations[2][3]).abs() <= 1.0e-9 * stations[0][3].abs());
             assert!(stations[1][3].abs() <= 1.0e-6);
             assert!((stations[0][4] - stations[2][4]).abs() <= 1.0e-9 * stations[0][4].abs());
+        }
+    }
+
+    #[test]
+    fn curved_bend_pressure_thrust_fixture_matches_witness_reference_table() {
+        let fixture = curved_bend_pressure_thrust_arc_fixture();
+        assert_eq!(fixture.fixture_id, "MECH-CURVED-BEND-PRESSURE-THRUST-ARC");
+        assert!(fixture.has_dimensioned_expected_values());
+        assert!(fixture.provenance.is_publicly_usable());
+        // Both sides are closed-form; the measured normalized deviation must
+        // sit inside the DEC-026 analytic-class 1.0e-9 relative tier.
+        let deviation = curved_bend_pressure_thrust_arc_max_normalized_deviation().unwrap();
+        eprintln!(
+            "MECH-CURVED-BEND-PRESSURE-THRUST-ARC measured normalized deviation: {deviation:e}"
+        );
+        assert!(
+            deviation <= CBPT_RELATIVE_TOLERANCE,
+            "measured normalized deviation {deviation} exceeds the analytic-class tolerance"
+        );
+        assert!(validate_curved_bend_pressure_thrust_arc());
+    }
+
+    #[test]
+    fn curved_bend_pressure_thrust_complete_system_is_self_equilibrated() {
+        // The applied system (cap pair + consistent radial wall vector)
+        // carries zero net force and zero net moment about an arbitrary
+        // point, so the anchor residual vanishes; and the membrane state is
+        // exactly independent of the user flexibility factor.
+        let element = cbpt_element(1.0).unwrap();
+        let (internal_area, _) = cbpt_section_areas();
+        let thrust = CBPT_PRESSURE * internal_area;
+        let [tangent_a, tangent_b] = element.end_tangents().unwrap();
+        let mut applied = element
+            .consistent_radial_pressure_nodal_loads(thrust)
+            .unwrap();
+        for axis in 0..3 {
+            applied[axis] -= thrust * tangent_a[axis];
+            applied[DOF_PER_NODE + axis] += thrust * tangent_b[axis];
+        }
+        let positions = [[CBPT_BEND_RADIUS, 0.0, 0.0], [0.0, CBPT_BEND_RADIUS, 0.0]];
+        let reference_point = [0.9, -0.4, 0.7];
+        for axis in 0..3 {
+            let net = applied[axis] + applied[DOF_PER_NODE + axis];
+            assert!(net.abs() <= 1.0e-9 * thrust);
+        }
+        let mut net_moment = [0.0; 3];
+        for (node_slot, position) in positions.iter().enumerate() {
+            let base = node_slot * DOF_PER_NODE;
+            let arm = [
+                position[0] - reference_point[0],
+                position[1] - reference_point[1],
+                position[2] - reference_point[2],
+            ];
+            net_moment[0] +=
+                applied[base + 3] + arm[1] * applied[base + 2] - arm[2] * applied[base + 1];
+            net_moment[1] +=
+                applied[base + 4] + arm[2] * applied[base] - arm[0] * applied[base + 2];
+            net_moment[2] +=
+                applied[base + 5] + arm[0] * applied[base + 1] - arm[1] * applied[base];
+        }
+        for net in net_moment {
+            assert!(net.abs() <= 1.0e-9 * thrust * CBPT_BEND_RADIUS);
+        }
+
+        // Flexibility independence of the membrane response.
+        let stiff = solve_curved_bend_pressure_thrust_arc(1.0).unwrap();
+        let flexible = solve_curved_bend_pressure_thrust_arc(2.0).unwrap();
+        for dof in 0..DOF_PER_NODE {
+            assert!(
+                (stiff.tip_displacements[dof] - flexible.tip_displacements[dof]).abs()
+                    <= 1.0e-9 * stiff.tip_displacements[UX].abs()
+            );
         }
     }
 

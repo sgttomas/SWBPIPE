@@ -448,6 +448,174 @@ impl CurvedBendMacroElement {
         ])
     }
 
+    /// Global unit tangents of the arc at node `i` and node `j`, oriented
+    /// i -> j, ordered `[tangent_i, tangent_j]`, derived from the validated
+    /// arc geometry (no new geometry source): in the local frame
+    /// `t(theta) = (-sin theta, cos theta, 0)` with node `i` at arc angle 0
+    /// and node `j` at the included angle.
+    pub fn end_tangents(&self) -> Result<[[f64; 3]; 2], CurvedBendError> {
+        let geometry = self.geometry()?;
+        let tangent_i = rotate_to_global(&geometry.local_axes, [0.0, 1.0, 0.0]);
+        let tangent_j = rotate_to_global(
+            &geometry.local_axes,
+            [
+                -geometry.included_angle.sin(),
+                geometry.included_angle.cos(),
+                0.0,
+            ],
+        );
+        Ok([tangent_i, tangent_j])
+    }
+
+    /// Consistent equivalent nodal loads, in global coordinates ordered
+    /// [node i; node j], for the outward radial pressure-imbalance wall load
+    /// `q(theta) = (thrust / R) n(theta)` (force per unit arc length, with
+    /// `thrust = p A` the pressure-thrust magnitude and `n` the outward
+    /// radial unit vector).
+    ///
+    /// The derivation mirrors `consistent_uniform_nodal_loads` exactly: the
+    /// free-tip deflection under the wall load is integrated in closed form
+    /// (the rotating radial intensity's internal actions lie in the plain
+    /// {1, cos, sin} basis, so the plain trig Gram integrates them exactly),
+    /// the clamped-tip redundant follows from compatibility with the element
+    /// end flexibility, and the node-i share follows from rigid equilibrium
+    /// with the wall-load resultant `thrust (t_i - t_j)` and its node-i
+    /// moment `thrust R (cos phi - 1) z`. Together with the end-cap force
+    /// pair `{-thrust t_i, +thrust t_j}` applied at the nodes, this vector
+    /// completes the exactly self-equilibrated pressure system of the arc
+    /// span; a statics-only nodal lumping of that complete system cancels to
+    /// zero, so this work-equivalent vector is what carries the wall load's
+    /// deformation effect.
+    pub fn consistent_radial_pressure_nodal_loads(
+        &self,
+        thrust: f64,
+    ) -> Result<[f64; ELEMENT_DOF], CurvedBendError> {
+        if !thrust.is_finite() {
+            return Err(FrameKernelError::NonFiniteInput {
+                name: "radial_pressure_thrust",
+                value: thrust,
+            }
+            .into());
+        }
+        let geometry = self.geometry()?;
+        let tip_deflection = self.tip_deflection_under_radial_pressure(&geometry, thrust);
+        let flexibility = self.end_flexibility()?;
+        let tip_stiffness = invert_symmetric6(&flexibility)?;
+
+        // Clamped-tip redundant (support-on-element force at node j in the
+        // both-ends-clamped state): X = -K_jj * delta0.
+        let mut clamped_tip_force = [0.0; DOF_PER_NODE];
+        for row in 0..DOF_PER_NODE {
+            for col in 0..DOF_PER_NODE {
+                clamped_tip_force[row] -= tip_stiffness[row][col] * tip_deflection[col];
+            }
+        }
+
+        // Wall-load resultant about node i in the local frame: force
+        // thrust (sin phi, 1 - cos phi, 0) and moment thrust R (cos phi - 1)
+        // about local z (closed-form arc integrals of the radial intensity).
+        let radius = geometry.radius;
+        let included_angle = geometry.included_angle;
+        let mut load_resultant_at_i = [0.0; DOF_PER_NODE];
+        load_resultant_at_i[0] = thrust * included_angle.sin();
+        load_resultant_at_i[1] = thrust * (1.0 - included_angle.cos());
+        load_resultant_at_i[5] = thrust * radius * (included_angle.cos() - 1.0);
+
+        // Equivalent nodal loads: p_j = -X and p_i = H X + W_i, with H the
+        // rigid transfer of node-j forces to node i over the chord.
+        let chord_local = [
+            radius * (included_angle.cos() - 1.0),
+            radius * included_angle.sin(),
+            0.0,
+        ];
+        let transfer = equilibrium_transfer(chord_local);
+        let mut local_loads = [0.0; ELEMENT_DOF];
+        for row in 0..DOF_PER_NODE {
+            let mut transferred = 0.0;
+            for col in 0..DOF_PER_NODE {
+                transferred += transfer[row][col] * clamped_tip_force[col];
+            }
+            local_loads[row] = transferred + load_resultant_at_i[row];
+            local_loads[DOF_PER_NODE + row] = -clamped_tip_force[row];
+        }
+
+        let mut global_loads = [0.0; ELEMENT_DOF];
+        for block in 0..(ELEMENT_DOF / 3) {
+            let local_block = [
+                local_loads[3 * block],
+                local_loads[3 * block + 1],
+                local_loads[3 * block + 2],
+            ];
+            let global_block = rotate_to_global(&geometry.local_axes, local_block);
+            global_loads[3 * block] = global_block[0];
+            global_loads[3 * block + 1] = global_block[1];
+            global_loads[3 * block + 2] = global_block[2];
+        }
+        Ok(global_loads)
+    }
+
+    /// Section resultants at arc fraction `fraction` including, in addition
+    /// to every `arc_section_resultants` term, the far-segment contribution
+    /// of the outward radial pressure-imbalance wall load
+    /// `q(theta) = (radial_pressure_thrust / R) n(theta)`. The added terms
+    /// are the closed-form segment-equilibrium actions of the wall load on
+    /// `[theta, phi]`: axial `thrust (1 - cos(phi - theta))`, in-plane shear
+    /// `-thrust sin(phi - theta)`, in-plane bending
+    /// `thrust R (cos(phi - theta) - 1)`; the out-of-plane terms are
+    /// identically zero because the load lies in the bend plane. With
+    /// `radial_pressure_thrust = 0` this reduces exactly to
+    /// `arc_section_resultants`.
+    pub fn arc_section_resultants_with_radial_pressure(
+        &self,
+        fraction: f64,
+        node_j_force_global: [f64; DOF_PER_NODE],
+        intensity_global: [f64; 3],
+        radial_pressure_thrust: f64,
+    ) -> Result<[f64; DOF_PER_NODE], CurvedBendError> {
+        if !radial_pressure_thrust.is_finite() {
+            return Err(FrameKernelError::NonFiniteInput {
+                name: "radial_pressure_thrust",
+                value: radial_pressure_thrust,
+            }
+            .into());
+        }
+        let mut resultants =
+            self.arc_section_resultants(fraction, node_j_force_global, intensity_global)?;
+        let geometry = self.geometry()?;
+        let remaining_angle = (1.0 - fraction) * geometry.included_angle;
+        resultants[0] += radial_pressure_thrust * (1.0 - remaining_angle.cos());
+        resultants[1] -= radial_pressure_thrust * remaining_angle.sin();
+        resultants[5] += radial_pressure_thrust * geometry.radius * (remaining_angle.cos() - 1.0);
+        Ok(resultants)
+    }
+
+    // Free-tip (node i clamped) deflection at node j under the outward
+    // radial wall load, local frame, by the unit-load theorem with the same
+    // strain-energy weights as `end_flexibility`. The wall load's
+    // out-of-plane bending and torsion actions are identically zero, so only
+    // the in-plane bending and axial terms contribute.
+    fn tip_deflection_under_radial_pressure(
+        &self,
+        geometry: &ArcGeometry,
+        thrust: f64,
+    ) -> [f64; DOF_PER_NODE] {
+        let gram = trig_gram(geometry.included_angle);
+        let cases = unit_load_actions(geometry.radius, geometry.included_angle);
+        let load = radial_pressure_load_actions(geometry.radius, geometry.included_angle, thrust);
+        let bending_rigidity = self.elastic_modulus * self.second_moment;
+        let axial_rigidity = self.elastic_modulus * self.area;
+
+        let mut deflection = [0.0; DOF_PER_NODE];
+        for (row, case) in cases.iter().enumerate() {
+            deflection[row] = geometry.radius
+                * (self.in_plane_flexibility_factor
+                    * quad(&gram, case.in_plane_moment, load.in_plane_moment)
+                    / bending_rigidity
+                    + quad(&gram, case.axial, load.axial) / axial_rigidity);
+        }
+        deflection
+    }
+
     // Free-tip (node i clamped) deflection at node j under the uniform load,
     // local frame, by the unit-load theorem with the same strain-energy
     // weights as `end_flexibility`.
@@ -620,6 +788,35 @@ fn distributed_load_actions(
         out_of_plane_moment,
         torsion,
         axial,
+    }
+}
+
+// Internal actions at arc angle theta of the outward radial wall load
+// q = (thrust / R) n(theta) on the free segment [theta, phi], from segment
+// equilibrium (same section convention as `unit_load_actions`): axial
+// f . t = thrust (1 - cos(phi - theta)); in-plane bending m . z
+// = thrust R (cos(phi - theta) - 1); out-of-plane bending and torsion are
+// identically zero because the load lies in the bend plane. Both actions
+// expand over the plain {1, cos theta, sin theta} basis.
+struct RadialPressureLoadActions {
+    in_plane_moment: TrigSeries,
+    axial: TrigSeries,
+}
+
+fn radial_pressure_load_actions(
+    radius: f64,
+    included_angle: f64,
+    thrust: f64,
+) -> RadialPressureLoadActions {
+    let sin_end = included_angle.sin();
+    let cos_end = included_angle.cos();
+    RadialPressureLoadActions {
+        in_plane_moment: [
+            -thrust * radius,
+            thrust * radius * cos_end,
+            thrust * radius * sin_end,
+        ],
+        axial: [thrust, -thrust * cos_end, -thrust * sin_end],
     }
 }
 
@@ -1837,6 +2034,358 @@ mod tests {
         assert!(matches!(
             build([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [f64::NAN, 0.0, 0.0]).unwrap_err(),
             CurvedBendError::Kernel(FrameKernelError::NonFiniteInput { name: "center", .. })
+        ));
+    }
+
+    // --- Arc pressure-thrust system (end-cap pair + consistent radial
+    // wall load); closed-form witnesses in
+    // validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md ---
+
+    const PRESSURE_THRUST: f64 = 5200.0;
+
+    // Cap force pair of the complete pressure system, 12-slot global vector.
+    fn cap_pair_vector(element: &CurvedBendMacroElement, thrust: f64) -> [f64; ELEMENT_DOF] {
+        let [tangent_i, tangent_j] = element.end_tangents().unwrap();
+        let mut caps = [0.0; ELEMENT_DOF];
+        for axis in 0..3 {
+            caps[axis] = -thrust * tangent_i[axis];
+            caps[DOF_PER_NODE + axis] = thrust * tangent_j[axis];
+        }
+        caps
+    }
+
+    #[test]
+    fn end_tangents_match_arc_frame() {
+        // Quarter circle with local frame == global frame: t_i = (0, 1, 0),
+        // t_j = (-1, 0, 0).
+        let element = quarter_circle_element(1.0, 1.0);
+        let [tangent_i, tangent_j] = element.end_tangents().unwrap();
+        for (actual, expected) in tangent_i.iter().zip([0.0, 1.0, 0.0]) {
+            assert_close(*actual, expected);
+        }
+        for (actual, expected) in tangent_j.iter().zip([-1.0, 0.0, 0.0]) {
+            assert_close(*actual, expected);
+        }
+
+        // General placement: unit tangents perpendicular to their end
+        // radials and to the bend-plane normal, oriented i -> j.
+        let shifted = CurvedBendMacroElement::new(
+            FrameNode::new(0, [RADIUS + 0.4, 0.7, -0.3]).unwrap(),
+            FrameNode::new(1, [0.4, 0.7 + RADIUS, -0.3]).unwrap(),
+            [0.4, 0.7, -0.3],
+            ELASTIC_MODULUS,
+            SHEAR_MODULUS,
+            AREA,
+            SECOND_MOMENT,
+            TORSION_CONSTANT,
+            2.5,
+            1.75,
+        )
+        .unwrap();
+        let geometry = shifted.geometry().unwrap();
+        let [tangent_i, tangent_j] = shifted.end_tangents().unwrap();
+        let radial_i = subtract(shifted.node_i.coordinates, shifted.center);
+        let radial_j = subtract(shifted.node_j.coordinates, shifted.center);
+        for tangent in [tangent_i, tangent_j] {
+            assert_close(norm(tangent), 1.0);
+            assert_close(dot(tangent, geometry.local_axes[2]), 0.0);
+        }
+        assert_close(dot(tangent_i, radial_i), 0.0);
+        assert_close(dot(tangent_j, radial_j), 0.0);
+        // i -> j orientation: each tangent has positive component along the
+        // chord direction for an included angle below pi.
+        let chord = subtract(shifted.node_j.coordinates, shifted.node_i.coordinates);
+        assert!(dot(tangent_i, chord) > 0.0);
+        assert!(dot(tangent_j, chord) > 0.0);
+    }
+
+    // Hand-calc identities: the consistent vector carries exactly the wall
+    // load's resultant thrust (t_i - t_j) and zero total moment about the
+    // arc center, on the axis-aligned and the shifted arc.
+    #[test]
+    fn consistent_radial_pressure_load_satisfies_rigid_equilibrium() {
+        let base = quarter_circle_element(2.5, 1.75);
+        let shifted = CurvedBendMacroElement::new(
+            FrameNode::new(0, [RADIUS + 0.4, 0.7, -0.3]).unwrap(),
+            FrameNode::new(1, [0.4, 0.7 + RADIUS, -0.3]).unwrap(),
+            [0.4, 0.7, -0.3],
+            ELASTIC_MODULUS,
+            SHEAR_MODULUS,
+            AREA,
+            SECOND_MOMENT,
+            TORSION_CONSTANT,
+            2.5,
+            1.75,
+        )
+        .unwrap();
+        for element in [base, shifted] {
+            let loads = element
+                .consistent_radial_pressure_nodal_loads(PRESSURE_THRUST)
+                .unwrap();
+            let [tangent_i, tangent_j] = element.end_tangents().unwrap();
+            for axis in 0..3 {
+                let force_sum = loads[axis] + loads[DOF_PER_NODE + axis];
+                let expected = PRESSURE_THRUST * (tangent_i[axis] - tangent_j[axis]);
+                assert_close_tolerance(force_sum, expected, 1.0e-9);
+            }
+            // Total moment about the arc center must vanish (r x q = 0
+            // pointwise for the radial load).
+            let arm_i = subtract(element.node_i.coordinates, element.center);
+            let arm_j = subtract(element.node_j.coordinates, element.center);
+            let moment_i = cross(arm_i, [loads[0], loads[1], loads[2]]);
+            let moment_j = cross(arm_j, [loads[6], loads[7], loads[8]]);
+            for axis in 0..3 {
+                let total = loads[3 + axis]
+                    + loads[DOF_PER_NODE + 3 + axis]
+                    + moment_i[axis]
+                    + moment_j[axis];
+                assert_close_tolerance(total / (PRESSURE_THRUST * RADIUS), 0.0, 1.0e-12);
+            }
+        }
+    }
+
+    // The complete pressure system (cap pair + consistent wall vector) is
+    // exactly self-equilibrated: zero net force and zero net moment about an
+    // arbitrary point; and the canonical statics-only nodal lumping of the
+    // wall load cancels the cap pair node-by-node.
+    #[test]
+    fn cap_pair_plus_consistent_radial_load_is_self_equilibrated() {
+        let element = quarter_circle_element(2.5, 1.75);
+        let caps = cap_pair_vector(&element, PRESSURE_THRUST);
+        let wall = element
+            .consistent_radial_pressure_nodal_loads(PRESSURE_THRUST)
+            .unwrap();
+        let mut complete = [0.0; ELEMENT_DOF];
+        for (slot, entry) in complete.iter_mut().enumerate() {
+            *entry = caps[slot] + wall[slot];
+        }
+
+        let force_scale = PRESSURE_THRUST;
+        let moment_scale = PRESSURE_THRUST * RADIUS;
+        let mut net_force = [0.0; 3];
+        for axis in 0..3 {
+            net_force[axis] = complete[axis] + complete[DOF_PER_NODE + axis];
+            assert_close_tolerance(net_force[axis] / force_scale, 0.0, 1.0e-12);
+        }
+        // Net moment about an arbitrary off-arc point.
+        let reference_point = [1.9, -0.8, 0.6];
+        let arm_i = subtract(element.node_i.coordinates, reference_point);
+        let arm_j = subtract(element.node_j.coordinates, reference_point);
+        let moment_i = cross(arm_i, [complete[0], complete[1], complete[2]]);
+        let moment_j = cross(arm_j, [complete[6], complete[7], complete[8]]);
+        for axis in 0..3 {
+            let total = complete[3 + axis]
+                + complete[DOF_PER_NODE + 3 + axis]
+                + moment_i[axis]
+                + moment_j[axis];
+            assert_close_tolerance(total / moment_scale, 0.0, 1.0e-12);
+        }
+
+        // Zero static lumping (hand-calc Section 4): the canonical
+        // segment-equilibrium lumping of the wall load, +thrust t_i at i and
+        // -thrust t_j at j, cancels the cap pair exactly at each node.
+        let [tangent_i, tangent_j] = element.end_tangents().unwrap();
+        for axis in 0..3 {
+            assert_close(caps[axis] + PRESSURE_THRUST * tangent_i[axis], 0.0);
+            assert_close(
+                caps[DOF_PER_NODE + axis] - PRESSURE_THRUST * tangent_j[axis],
+                0.0,
+            );
+        }
+    }
+
+    // Membrane state of the completely loaded arc (hand-calc Sections 6 and
+    // 8): anchored at i under cap-at-j plus the consistent wall vector, the
+    // true end forces are +thrust t_j at j and -thrust t_i at i, the tip
+    // displacement matches the closed form -(F R / EA)(1 - cos phi) /
+    // +(F R / EA) sin phi independent of the flexibility factors, and every
+    // interior station shows axial +thrust with zero shear and zero moment.
+    #[test]
+    fn anchored_arc_under_complete_pressure_system_reaches_membrane_state() {
+        for (k_in, k_out) in [(1.0, 1.0), (2.5, 1.75)] {
+            let element = quarter_circle_element(k_in, k_out);
+            let wall = element
+                .consistent_radial_pressure_nodal_loads(PRESSURE_THRUST)
+                .unwrap();
+            let caps = cap_pair_vector(&element, PRESSURE_THRUST);
+            let mut force = [0.0; ELEMENT_DOF];
+            for (slot, entry) in force.iter_mut().enumerate() {
+                *entry = caps[slot] + wall[slot];
+            }
+            let displacements = anchored_solution(&element, &force);
+            let true_forces = end_forces(&element, &displacements, &wall);
+
+            let [tangent_i, tangent_j] = element.end_tangents().unwrap();
+            for axis in 0..3 {
+                assert_close_tolerance(
+                    true_forces[axis] / PRESSURE_THRUST,
+                    -tangent_i[axis],
+                    1.0e-9,
+                );
+                assert_close_tolerance(
+                    true_forces[DOF_PER_NODE + axis] / PRESSURE_THRUST,
+                    tangent_j[axis],
+                    1.0e-9,
+                );
+            }
+            for axis in 3..DOF_PER_NODE {
+                assert_close_tolerance(true_forces[axis] / (PRESSURE_THRUST * RADIUS), 0.0, 1.0e-9);
+                assert_close_tolerance(
+                    true_forces[DOF_PER_NODE + axis] / (PRESSURE_THRUST * RADIUS),
+                    0.0,
+                    1.0e-9,
+                );
+            }
+
+            // Closed-form membrane tip displacement, independent of k.
+            let stretch = PRESSURE_THRUST / (ELASTIC_MODULUS * AREA);
+            let phi = element.included_angle().unwrap();
+            let expected_tip = [
+                -stretch * RADIUS * (1.0 - phi.cos()),
+                stretch * RADIUS * phi.sin(),
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+            ];
+            for dof in 0..DOF_PER_NODE {
+                assert_close_tolerance(
+                    displacements[DOF_PER_NODE + dof] / (stretch * RADIUS),
+                    expected_tip[dof] / (stretch * RADIUS),
+                    1.0e-9,
+                );
+            }
+
+            // Interior stations: pure membrane state +thrust along the local
+            // tangent, zero shear, zero torsion, zero bending.
+            let node_j_force = [
+                true_forces[6],
+                true_forces[7],
+                true_forces[8],
+                true_forces[9],
+                true_forces[10],
+                true_forces[11],
+            ];
+            for fraction in [0.25, 0.5, 0.75] {
+                let station = element
+                    .arc_section_resultants_with_radial_pressure(
+                        fraction,
+                        node_j_force,
+                        [0.0; 3],
+                        PRESSURE_THRUST,
+                    )
+                    .unwrap();
+                assert_close_tolerance(station[0] / PRESSURE_THRUST, 1.0, 1.0e-9);
+                assert_close_tolerance(station[1] / PRESSURE_THRUST, 0.0, 1.0e-9);
+                assert_close_tolerance(station[2] / PRESSURE_THRUST, 0.0, 1.0e-9);
+                for slot in 3..DOF_PER_NODE {
+                    assert_close_tolerance(station[slot] / (PRESSURE_THRUST * RADIUS), 0.0, 1.0e-9);
+                }
+            }
+        }
+    }
+
+    // With zero thrust the station path reduces exactly to
+    // `arc_section_resultants`.
+    #[test]
+    fn zero_thrust_station_resultants_match_plain_arc_section_resultants() {
+        let element = quarter_circle_element(2.0, 1.75);
+        let node_j_force = [410.0, -170.0, 90.0, 35.0, -21.0, 12.0];
+        let intensity = [4.0, -13.0, -9.0];
+        for fraction in [0.0, 0.25, 0.5, 0.75, 1.0] {
+            let plain = element
+                .arc_section_resultants(fraction, node_j_force, intensity)
+                .unwrap();
+            let with_zero = element
+                .arc_section_resultants_with_radial_pressure(fraction, node_j_force, intensity, 0.0)
+                .unwrap();
+            for slot in 0..DOF_PER_NODE {
+                assert_close(with_zero[slot], plain[slot]);
+            }
+        }
+    }
+
+    // Small-angle reduction (hand-calc Section 7): the cap pair converges to
+    // the straight chord pair and the consistent wall vector vanishes as
+    // O(included_angle).
+    #[test]
+    fn radial_pressure_system_reduces_to_chord_pair_at_small_angle() {
+        let chord_length = 2.0;
+        let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(1, [chord_length, 0.0, 0.0]).unwrap();
+        let build = |included_angle: f64| -> CurvedBendMacroElement {
+            let radius = chord_length / (2.0 * (included_angle / 2.0).sin());
+            let sagitta_offset = (radius * radius - 0.25 * chord_length * chord_length).sqrt();
+            let center = [0.5 * chord_length, -sagitta_offset, 0.0];
+            CurvedBendMacroElement::new(
+                node_i,
+                node_j,
+                center,
+                ELASTIC_MODULUS,
+                SHEAR_MODULUS,
+                AREA,
+                SECOND_MOMENT,
+                TORSION_CONSTANT,
+                1.0,
+                1.0,
+            )
+            .unwrap()
+        };
+
+        let tangent_deviation = |included_angle: f64| -> f64 {
+            let [tangent_i, tangent_j] = build(included_angle).end_tangents().unwrap();
+            let chord_unit = [1.0, 0.0, 0.0];
+            let mut worst = 0.0_f64;
+            for tangent in [tangent_i, tangent_j] {
+                for axis in 0..3 {
+                    worst = worst.max((tangent[axis] - chord_unit[axis]).abs());
+                }
+            }
+            worst
+        };
+        let wall_magnitude = |included_angle: f64| -> f64 {
+            let loads = build(included_angle)
+                .consistent_radial_pressure_nodal_loads(PRESSURE_THRUST)
+                .unwrap();
+            loads
+                .iter()
+                .fold(0.0_f64, |max, value| max.max(value.abs()))
+                / PRESSURE_THRUST
+        };
+
+        // Both deviations are O(included_angle): small at 1e-3 rad and
+        // shrinking from 1e-2 rad.
+        assert!(tangent_deviation(1.0e-3) <= 1.0e-3);
+        assert!(tangent_deviation(1.0e-3) < tangent_deviation(1.0e-2));
+        assert!(wall_magnitude(1.0e-3) <= 2.0e-3);
+        assert!(wall_magnitude(1.0e-3) < wall_magnitude(1.0e-2));
+    }
+
+    #[test]
+    fn radial_pressure_inputs_rejected_when_non_finite() {
+        let element = quarter_circle_element(1.0, 1.0);
+        assert!(matches!(
+            element
+                .consistent_radial_pressure_nodal_loads(f64::NAN)
+                .unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput {
+                name: "radial_pressure_thrust",
+                ..
+            })
+        ));
+        assert!(matches!(
+            element
+                .arc_section_resultants_with_radial_pressure(
+                    0.5,
+                    [0.0; DOF_PER_NODE],
+                    [0.0; 3],
+                    f64::INFINITY,
+                )
+                .unwrap_err(),
+            CurvedBendError::Kernel(FrameKernelError::NonFiniteInput {
+                name: "radial_pressure_thrust",
+                ..
+            })
         ));
     }
 }

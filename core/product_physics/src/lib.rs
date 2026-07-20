@@ -1137,10 +1137,18 @@ fn solve_load_case(
         &load_case.id,
         diagnostics,
     );
-    // Pressure thrust keeps the straight-element treatment on macro spans:
-    // equal/opposite axial end forces along the chord direction (decision
-    // recorded in the curved-bend review-row basis).
-    add_pressure_thrust_loads(&mut force, &pressure_thrust_loads, &built.pipes);
+    // Pressure thrust on macro-realized bend spans applies the complete
+    // self-equilibrated arc system: end-cap forces along the validated arc
+    // end tangents plus the exact work-equivalent consistent nodal vector of
+    // the outward radial wall load (decision recorded in the curved-bend
+    // review-row basis). Straight spans keep the equal/opposite chord-axial
+    // end forces unchanged.
+    add_pressure_thrust_loads(
+        &mut force,
+        &pressure_thrust_loads,
+        &built.pipes,
+        &curved_bends_by_pipe,
+    );
     add_thermal_equivalent_loads(
         &mut force,
         &thermal_loads,
@@ -1344,6 +1352,7 @@ fn solve_load_case(
                 pipe,
                 &corrected_local_forces,
                 uniform_intensity,
+                pressure_thrust_for_pipe(pipe_index, &pressure_thrust_loads),
             ) {
                 Ok(stations) => stations.to_vec(),
                 Err(message) => {
@@ -5695,8 +5704,13 @@ fn add_pressure_thrust_loads(
     force: &mut [f64],
     pressure_loads: &[PressureThrustLoad],
     pipes: &[StraightPipeElement],
+    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
 ) {
     for load in pressure_loads {
+        if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
+            add_curved_bend_pressure_thrust_load(force, bend, load.axial_load);
+            continue;
+        }
         let Some(pipe) = pipes.get(load.element_index) else {
             continue;
         };
@@ -5713,6 +5727,44 @@ fn add_pressure_thrust_loads(
             force[i_base + axis] -= load.axial_load * local_x[axis];
             force[j_base + axis] += load.axial_load * local_x[axis];
         }
+    }
+}
+
+// Complete self-equilibrated arc pressure system for a macro-realized bend
+// span: end-cap forces -pA t_i at node i and +pA t_j at node j (unit end
+// tangents from the build-time validated macro element, the single geometry
+// source) PLUS the exact work-equivalent consistent nodal vector of the
+// outward radial wall load q(theta) = (pA / R) n(theta) (closed form in the
+// curved-bend crate). The cap pair and wall load together carry zero net
+// force and zero net moment, and segment equilibrium of the completely
+// loaded arc yields wall tension +pA along the local tangent at every
+// station (see validation/hand_calcs/mechanics/
+// curved_bend_pressure_thrust_arc.md). The build-time validated geometry
+// makes the crate calls infallible on this path; a failure would only
+// repeat a validation already enforced at model build.
+fn add_curved_bend_pressure_thrust_load(
+    force: &mut [f64],
+    bend: &CurvedBendMacroBuild,
+    axial_load: f64,
+) {
+    let Ok([tangent_i, tangent_j]) = bend.macro_element.end_tangents() else {
+        return;
+    };
+    let Ok(wall_loads) = bend
+        .macro_element
+        .consistent_radial_pressure_nodal_loads(axial_load)
+    else {
+        return;
+    };
+    let i_base = bend.node_i * DOF_PER_NODE;
+    let j_base = bend.node_j * DOF_PER_NODE;
+    for axis in 0..3 {
+        force[i_base + axis] -= axial_load * tangent_i[axis];
+        force[j_base + axis] += axial_load * tangent_j[axis];
+    }
+    let dof_map = element_dof_map(bend.node_i, bend.node_j);
+    for (local_slot, &global_slot) in dof_map.iter().enumerate() {
+        force[global_slot] += wall_loads[local_slot];
     }
 }
 
@@ -5803,14 +5855,18 @@ fn corrected_local_forces_for_axial_effects(
 }
 
 // Macro-span recovery: end forces are K_macro * (d - u_free) minus the
-// arc-consistent distributed equivalent loads, in global coordinates — the
-// exact free-expansion correction mirrors
+// arc-consistent distributed equivalent loads and minus the consistent
+// radial pressure wall-load vector, in global coordinates — the exact
+// free-expansion correction mirrors
 // `corrected_local_forces_for_axial_effects` so recovered forces exclude the
-// self-equilibrated thermal part, and the equivalent-load subtraction turns
+// self-equilibrated thermal part, and the equivalent-load subtractions turn
 // the nodal solve response into the true node-on-element end forces of the
 // continuously loaded arc — then rotated to the chord frame of the replaced
 // straight span so the existing result rows keep their convention. Pressure
-// thrust keeps the straight-element equal/opposite chord-axial correction.
+// thrust is the complete arc system (cap pair + consistent wall vector), so
+// the closed-end wall tension pA emerges along the local tangent through
+// equilibrium with no ad-hoc chord correction; the former straight-element
+// chord-UX correction is retired for macro spans.
 fn recover_curved_bend_local_forces(
     bend: &CurvedBendMacroBuild,
     pipe: &StraightPipeElement,
@@ -5861,6 +5917,16 @@ fn recover_curved_bend_local_forces(
             *force -= load;
         }
     }
+    let pressure_axial_load = pressure_thrust_for_pipe(bend.pipe_index, pressure_loads);
+    if pressure_axial_load != 0.0 {
+        let equivalent = bend
+            .macro_element
+            .consistent_radial_pressure_nodal_loads(pressure_axial_load)
+            .map_err(|error| error.to_string())?;
+        for (force, load) in global_forces.iter_mut().zip(equivalent.iter()) {
+            *force -= load;
+        }
+    }
 
     let frame_element = pipe.frame_element().map_err(|error| error.to_string())?;
     let orientation = frame_element
@@ -5872,12 +5938,6 @@ fn recover_curved_bend_local_forces(
         for (col, global_force) in global_forces.iter().enumerate() {
             *local_force += transform[row][col] * global_force;
         }
-    }
-
-    let pressure_axial_load = pressure_thrust_for_pipe(bend.pipe_index, pressure_loads);
-    if pressure_axial_load != 0.0 {
-        local_forces[UX] += pressure_axial_load;
-        local_forces[DOF_PER_NODE + UX] -= pressure_axial_load;
     }
     Ok(local_forces)
 }
@@ -5921,15 +5981,19 @@ fn curved_bend_uniform_intensity_by_pipe(
 // Arc interior stations from the assembled macro-element: rotate the
 // recovered chord-frame end-j force back to global and evaluate section
 // resultants along the arc by segment equilibrium (closed form in the
-// curved-bend crate). The recovered end forces already exclude the
-// self-equilibrated thermal free-expansion part and carry the recorded
-// chord-axial pressure-thrust treatment, so the stations inherit both
-// recovery decisions; the station grid mirrors the straight-span fractions.
+// curved-bend crate), treating the radial pressure wall load like the other
+// distributed loads: its far-segment actions enter the station equilibrium
+// directly, so the completely pressure-loaded arc reports wall tension +pA
+// along the local tangent with zero shear and zero moment at every station.
+// The recovered end forces already exclude the self-equilibrated thermal
+// free-expansion part and the distributed equivalent loads; the station
+// grid mirrors the straight-span fractions.
 fn curved_bend_station_resultants(
     bend: &CurvedBendMacroBuild,
     pipe: &StraightPipeElement,
     corrected_local_forces: &[f64],
     uniform_intensity: [f64; 3],
+    pressure_thrust: f64,
 ) -> Result<[StationResultants; 3], String> {
     if corrected_local_forces.len() < ELEMENT_DOF {
         return Err(format!(
@@ -5976,7 +6040,12 @@ fn curved_bend_station_resultants(
         station.location = location;
         station.resultants = bend
             .macro_element
-            .arc_section_resultants(fraction, node_j_force, uniform_intensity)
+            .arc_section_resultants_with_radial_pressure(
+                fraction,
+                node_j_force,
+                uniform_intensity,
+                pressure_thrust,
+            )
             .map_err(|error| error.to_string())?;
     }
     Ok(stations)
@@ -6893,7 +6962,7 @@ fn append_curved_bend_macro_element_results(
                 coordinate_system: "component_local_preview".to_string(),
                 location: element.pipe_id.clone(),
                 basis: format!(
-                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=straight_chord_axial_end_forces;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
+                    "component_family=bend;user_entered_flexibility={};flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m={};arc_included_angle_rad={};arc_length_m={};arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source={};solver_consumption={};macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=arc_end_cap_tangent_pair_plus_consistent_radial_wall_load;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
                     rounded_scalar(element.flexibility_factor),
                     rounded_scalar(element.bend_radius),
                     rounded_scalar(element.included_angle),
@@ -12947,7 +13016,10 @@ mod tests {
         assert!(metadata
             .basis
             .contains("distributed_load_treatment=arc_consistent_fixed_end_integration"));
-        assert!(metadata
+        assert!(metadata.basis.contains(
+            "pressure_thrust_treatment=arc_end_cap_tangent_pair_plus_consistent_radial_wall_load"
+        ));
+        assert!(!metadata
             .basis
             .contains("pressure_thrust_treatment=straight_chord_axial_end_forces"));
         assert!(metadata
@@ -13412,6 +13484,356 @@ mod tests {
         assert!(
             (nonlinear_uy_mm - round6(expected_tip[UY] * 1000.0)).abs() <= 1.0e-6,
             "nonlinear loop tip displacement {nonlinear_uy_mm} mm must match the direct macro-element solve"
+        );
+    }
+
+    fn curved_bend_pressure_load() -> PreviewPrimitiveLoad {
+        PreviewPrimitiveLoad {
+            id: "load:L-100-P".to_string(),
+            category: "pressure".to_string(),
+            target: LoadTargetInput::Element {
+                pipe: "pipe:P-100".to_string(),
+            },
+            direction: "global_x".to_string(),
+            magnitude: Quantity {
+                value: 2.0e6,
+                unit: "Pa".to_string(),
+            },
+            dimension: "pressure".to_string(),
+            provenance: Some("invented_example_user_input".to_string()),
+        }
+    }
+
+    // The invented arc as a CurvedBendMacroBuild, mirroring the assembly of
+    // `build_curved_bend_macro_elements` for the direct oracle element.
+    fn curved_bend_direct_build() -> CurvedBendMacroBuild {
+        let element = curved_bend_direct_element();
+        let geometry = element.geometry().unwrap();
+        CurvedBendMacroBuild {
+            component_id: "component:C-110".to_string(),
+            pipe_id: "pipe:P-100".to_string(),
+            pipe_index: 0,
+            node_i: 0,
+            node_j: 1,
+            chord: [CURVED_BEND_TEST_CHORD_M, 0.0, 0.0],
+            global_stiffness: element.global_stiffness().unwrap(),
+            arc_length: geometry.radius * geometry.included_angle,
+            included_angle: geometry.included_angle,
+            bend_radius: geometry.radius,
+            flexibility_factor: CURVED_BEND_TEST_FLEXIBILITY,
+            source_reference: "invented_example_user_input".to_string(),
+            macro_element: element,
+        }
+    }
+
+    // Predicate: the pressure-thrust contribution assembled for a
+    // macro-realized span is the complete self-equilibrated arc system —
+    // end-cap forces along the validated end tangents plus the exact
+    // consistent radial wall-load vector — for the pipe-internal-area and
+    // expansion-joint effective-area sources alike, with zero net force and
+    // zero net moment about an arbitrary point at floating-point precision.
+    #[test]
+    fn pressure_thrust_on_macro_span_assembles_complete_self_equilibrated_arc_system() {
+        let build = curved_bend_direct_build();
+        let pipe_thrust = 4321.0;
+        let joint_thrust = 1234.5;
+        let loads = vec![
+            PressureThrustLoad {
+                element_index: 0,
+                axial_load: pipe_thrust,
+                source_load_id: "load:L-100-P".to_string(),
+                source: PressureThrustSource::PipeInternalArea,
+            },
+            PressureThrustLoad {
+                element_index: 0,
+                axial_load: joint_thrust,
+                source_load_id: "load:L-100-P".to_string(),
+                source: PressureThrustSource::ExpansionJointEffectiveArea(
+                    ExpansionJointPressureThrustInput {
+                        component_id: "component:EJ-1".to_string(),
+                        pipe_id: "pipe:P-100".to_string(),
+                        effective_area: 6.0e-4,
+                        pressure_thrust_reference: "invented".to_string(),
+                        source_reference: "invented".to_string(),
+                        solver_consumption: "mechanics_geometry_and_user_flexibility".to_string(),
+                    },
+                ),
+            },
+        ];
+        let bends_by_pipe: HashMap<usize, &CurvedBendMacroBuild> =
+            [(0usize, &build)].into_iter().collect();
+        let mut force = vec![0.0; 2 * DOF_PER_NODE];
+        add_pressure_thrust_loads(&mut force, &loads, &[], &bends_by_pipe);
+
+        // Both sources receive the identical arc treatment: the assembled
+        // vector is linear in the thrust, so it equals cap pair plus
+        // consistent wall vector at the summed thrust.
+        let total_thrust = pipe_thrust + joint_thrust;
+        let [tangent_i, tangent_j] = build.macro_element.end_tangents().unwrap();
+        let wall = build
+            .macro_element
+            .consistent_radial_pressure_nodal_loads(total_thrust)
+            .unwrap();
+        for axis in 0..3 {
+            let expected_i = -total_thrust * tangent_i[axis] + wall[axis];
+            let expected_j = total_thrust * tangent_j[axis] + wall[DOF_PER_NODE + axis];
+            assert!((force[axis] - expected_i).abs() <= 1.0e-9 * total_thrust);
+            assert!((force[DOF_PER_NODE + axis] - expected_j).abs() <= 1.0e-9 * total_thrust);
+            let expected_moment_i = wall[3 + axis];
+            let expected_moment_j = wall[DOF_PER_NODE + 3 + axis];
+            assert!((force[3 + axis] - expected_moment_i).abs() <= 1.0e-9 * total_thrust);
+            assert!(
+                (force[DOF_PER_NODE + 3 + axis] - expected_moment_j).abs() <= 1.0e-9 * total_thrust
+            );
+        }
+
+        // Self-equilibrium of the assembled system: zero net force, zero net
+        // moment about an arbitrary off-arc point.
+        let positions = [[0.0, 0.0, 0.0], [CURVED_BEND_TEST_CHORD_M, 0.0, 0.0]];
+        let reference_point = [0.7, -1.3, 0.4];
+        let force_scale = total_thrust;
+        let moment_scale = total_thrust * CURVED_BEND_TEST_RADIUS_M;
+        for axis in 0..3 {
+            let net = force[axis] + force[DOF_PER_NODE + axis];
+            assert!(
+                net.abs() <= 1.0e-12 * force_scale,
+                "net pressure force component {axis} is {net}, expected zero"
+            );
+        }
+        let mut net_moment = [0.0; 3];
+        for (node_slot, position) in positions.iter().enumerate() {
+            let base = node_slot * DOF_PER_NODE;
+            let arm = [
+                position[0] - reference_point[0],
+                position[1] - reference_point[1],
+                position[2] - reference_point[2],
+            ];
+            let nodal_force = [force[base], force[base + 1], force[base + 2]];
+            net_moment[0] += force[base + 3] + arm[1] * nodal_force[2] - arm[2] * nodal_force[1];
+            net_moment[1] += force[base + 4] + arm[2] * nodal_force[0] - arm[0] * nodal_force[2];
+            net_moment[2] += force[base + 5] + arm[0] * nodal_force[1] - arm[1] * nodal_force[0];
+        }
+        for (axis, net) in net_moment.iter().enumerate() {
+            assert!(
+                net.abs() <= 1.0e-12 * moment_scale,
+                "net pressure moment component {axis} is {net}, expected zero"
+            );
+        }
+
+        // No-pressure invariance: an empty pressure-load list leaves the
+        // assembled vector untouched on the same macro span.
+        let mut untouched = vec![0.0; 2 * DOF_PER_NODE];
+        add_pressure_thrust_loads(&mut untouched, &[], &[], &bends_by_pipe);
+        assert!(untouched.iter().all(|value| *value == 0.0));
+    }
+
+    // THE SHARP CHECK (brief predicate 3): an invented end-supported
+    // pressurized arc with no other load is in the pure membrane state — at
+    // every tested interior station the recovered axial force equals +pA
+    // along the local tangent with zero shear and zero internal moment, the
+    // recovered end forces are the cap forces themselves, and the tip
+    // displacement matches the closed-form membrane stretch, all within the
+    // recorded DEC-026 analytic tier. The `include_pressure_longitudinal`
+    // gating semantics are preserved on the macro span.
+    #[test]
+    fn curved_bend_macro_span_pressure_shows_membrane_station_state() {
+        let mut request = curved_bend_span_request();
+        request.model.load_cases[0].primitive_loads = vec![curved_bend_pressure_load()];
+        let section = derive_pipe_section(
+            &request.model.pipe_segments[0].section,
+            "pipe:P-100",
+            &mut Vec::new(),
+        )
+        .unwrap();
+        let thrust = 2.0e6 * section.internal_area;
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+
+        // Membrane end forces: -pA t_i at end i and +pA t_j at end j. The
+        // replaced chord frame coincides with the global frame in this
+        // fixture, so the chord-frame rows carry the tangent components
+        // directly.
+        let element = curved_bend_direct_element();
+        let [tangent_i, tangent_j] = element.end_tangents().unwrap();
+        let force_rows = [
+            ("result:force:pipe-P-100:axial", -thrust * tangent_i[0]),
+            ("result:force:pipe-P-100:shear-y", -thrust * tangent_i[1]),
+            ("result:force:pipe-P-100:shear-z", -thrust * tangent_i[2]),
+            ("result:force:pipe-P-100:axial:end-j", thrust * tangent_j[0]),
+            (
+                "result:force:pipe-P-100:shear-y:end-j",
+                thrust * tangent_j[1],
+            ),
+            (
+                "result:force:pipe-P-100:shear-z:end-j",
+                thrust * tangent_j[2],
+            ),
+            ("result:moment:pipe-P-100:torsion", 0.0),
+            ("result:moment:pipe-P-100:bending-y", 0.0),
+            ("result:moment:pipe-P-100:bending-z", 0.0),
+            ("result:moment:pipe-P-100:torsion:end-j", 0.0),
+            ("result:moment:pipe-P-100:bending-y:end-j", 0.0),
+            ("result:moment:pipe-P-100:bending-z:end-j", 0.0),
+        ];
+        for (row_id, expected) in force_rows {
+            let value = result_value(&result, row_id);
+            assert!(
+                (value - round6(expected)).abs() <= 1.0e-9 * thrust.max(1.0),
+                "end-force row {row_id} value {value} must match the membrane cap force {expected}"
+            );
+        }
+
+        // Interior stations: axial +pA along the local tangent, zero shear,
+        // zero torsion, zero bending at every tested station.
+        for station in ["quarter-1", "midspan", "quarter-3"] {
+            let axial = result_value(&result, &format!("result:force:pipe-P-100:{station}:axial"));
+            assert!(
+                (axial - round6(thrust)).abs() <= 1.0e-9 * thrust,
+                "station {station} axial {axial} must equal the wall tension {thrust}"
+            );
+            for row_id in [
+                format!("result:force:pipe-P-100:{station}:shear-y"),
+                format!("result:force:pipe-P-100:{station}:shear-z"),
+                format!("result:moment:pipe-P-100:{station}:torsion"),
+                format!("result:moment:pipe-P-100:{station}:bending-y"),
+                format!("result:moment:pipe-P-100:{station}:bending-z"),
+            ] {
+                let value = result_value(&result, &row_id);
+                assert!(
+                    value.abs() <= 1.0e-9 * thrust,
+                    "membrane station row {row_id} must vanish, got {value}"
+                );
+            }
+            let station_stress = result_value(
+                &result,
+                &format!("result:stress:pipe-P-100:{station}:axial-normal"),
+            );
+            let expected_stress = round6(thrust / section.area / 1_000_000.0);
+            assert!(
+                (station_stress - expected_stress).abs() <= 1.0e-6,
+                "station {station} axial stress {station_stress} must equal pA / A_s = {expected_stress}"
+            );
+        }
+
+        // Tip displacement: closed-form membrane stretch (independent of the
+        // flexibility factor) and the direct macro-element oracle under the
+        // same complete load system agree with the assembled solve.
+        let material = &invented_materials()[0];
+        let stretch = thrust / (material.elastic_modulus.value * section.area);
+        let expected_ux_mm = round6(stretch * CURVED_BEND_TEST_CHORD_M * 1000.0);
+        let ux_mm = result_value(&result, "result:disp:node-N-110:ux");
+        let uy_mm = result_value(&result, "result:disp:node-N-110:uy");
+        assert!(
+            (ux_mm - expected_ux_mm).abs() <= 1.0e-6,
+            "membrane tip stretch {ux_mm} mm must match the closed form {expected_ux_mm} mm"
+        );
+        assert!(
+            uy_mm.abs() <= 1.0e-6,
+            "membrane state produces no transverse tip displacement, got {uy_mm} mm"
+        );
+        let wall = element
+            .consistent_radial_pressure_nodal_loads(thrust)
+            .unwrap();
+        let mut complete = wall;
+        for axis in 0..3 {
+            complete[axis] -= thrust * tangent_i[axis];
+            complete[DOF_PER_NODE + axis] += thrust * tangent_j[axis];
+        }
+        let oracle = curved_bend_direct_solution(&complete);
+        assert!(
+            (ux_mm - round6(oracle[DOF_PER_NODE + UX] * 1000.0)).abs() <= 1.0e-6,
+            "assembled tip displacement must match the direct oracle under the complete system"
+        );
+
+        // Pressure gating semantics preserved: the active thrust suppresses
+        // the separate longitudinal-pressure stress row while the hoop row
+        // remains.
+        let result_ids = result
+            .results
+            .iter()
+            .map(|item| item.id.as_str())
+            .collect::<HashSet<_>>();
+        assert!(result_ids.contains("result:stress:pipe-P-100:end-i:pressure-hoop"));
+        assert!(!result_ids.contains("result:stress:pipe-P-100:end-i:pressure-longitudinal"));
+        assert!(!result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "PRESSURE_LOAD_NOT_APPLIED_TO_FRAME_VECTOR"));
+    }
+
+    // Nonlinear parity: the same assembled force vector (complete arc
+    // pressure system included) reaches the active-set loop, so the
+    // released nonlinear solve reproduces the linear macro-span solve of
+    // the identical pressurized model exactly.
+    #[test]
+    fn curved_bend_macro_span_pressure_reaches_nonlinear_loop_with_same_vector() {
+        let mut request = curved_bend_span_request();
+        request.model.load_cases[0]
+            .primitive_loads
+            .push(curved_bend_pressure_load());
+        request.model.supports.push({
+            let mut support = request.model.supports[0].clone();
+            support.id = "support:S-110".to_string();
+            support.node = "node:N-110".to_string();
+            support.restraints = vec![];
+            support.nonlinear = Some(NonlinearSupportInput {
+                behavior: "one_way".to_string(),
+                dof: "UY".to_string(),
+                initial_state: Some("inactive".to_string()),
+                active_when: Some("positive".to_string()),
+                contact_when: None,
+                closes_when: None,
+                gap: None,
+                friction_coefficient: None,
+                normal_reaction: None,
+                normal_reaction_source: None,
+            });
+            support
+        });
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|item| item.code == "NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:converged-flag"),
+            1.0
+        );
+        let linear_uy_mm = result_value(&result, "result:disp:node-N-110:uy");
+        let nonlinear_uy_mm = result_value(
+            &result,
+            "result:nonlinear-support:support-S-110:uy-displacement",
+        );
+        assert!(
+            (nonlinear_uy_mm - linear_uy_mm).abs() <= 1.0e-6,
+            "nonlinear loop tip displacement {nonlinear_uy_mm} mm must match the linear pressurized macro-span solve {linear_uy_mm} mm"
+        );
+
+        // Independent oracle for the combined tip force + complete pressure
+        // system on the direct macro element.
+        let section = derive_pipe_section(
+            &curved_bend_span_request().model.pipe_segments[0].section,
+            "pipe:P-100",
+            &mut Vec::new(),
+        )
+        .unwrap();
+        let thrust = 2.0e6 * section.internal_area;
+        let element = curved_bend_direct_element();
+        let [tangent_i, tangent_j] = element.end_tangents().unwrap();
+        let mut complete = element
+            .consistent_radial_pressure_nodal_loads(thrust)
+            .unwrap();
+        for axis in 0..3 {
+            complete[axis] -= thrust * tangent_i[axis];
+            complete[DOF_PER_NODE + axis] += thrust * tangent_j[axis];
+        }
+        complete[DOF_PER_NODE + UY] += 1000.0;
+        let oracle = curved_bend_direct_solution(&complete);
+        assert!(
+            (linear_uy_mm - round6(oracle[DOF_PER_NODE + UY] * 1000.0)).abs() <= 1.0e-6,
+            "pressurized macro-span solve must match the direct oracle"
         );
     }
 

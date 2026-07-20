@@ -1,0 +1,31 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/product_physics/",
+    "projects/chirality-piping/core/solver/curved_bend/",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md",
+    "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+    "projects/chirality-piping/validation/benchmarks/mechanics/README.md",
+    "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T3_ARC_PRESSURE_THRUST.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T3/"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/solver/curved_bend/src/lib.rs",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md",
+    "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+    "projects/chirality-piping/validation/benchmarks/mechanics/README.md",
+    "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T3_ARC_PRESSURE_THRUST.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T3/EXECUTE_RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14/instances/W1/T3/CHANGE_SCOPE_CONTAINMENT.json"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

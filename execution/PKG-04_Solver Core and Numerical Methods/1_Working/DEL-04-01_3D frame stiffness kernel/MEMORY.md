@@ -409,3 +409,52 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, code-compliance claim, protected
   standards content, public defaults, or private data was introduced.
+
+## 2026-07-19 - R14-W1-T3 arc pressure-thrust complete self-equilibrated system
+
+- The recorded straight-chord axial pressure-thrust treatment on
+  macro-realized bend spans is replaced by the complete self-equilibrated
+  arc system: end-cap forces `-pA t_i` at node i and `+pA t_j` at node j
+  (unit end tangents from the build-time validated
+  `CurvedBendMacroElement`, single geometry source) PLUS the exact
+  work-equivalent consistent nodal vector of the outward radial wall load
+  `q(theta) = (pA/R) n(theta)`. New additive crate methods in
+  `core/solver/curved_bend`: `end_tangents`,
+  `consistent_radial_pressure_nodal_loads` (force method on the plain
+  `{1, cos, sin}` sub-basis of the existing exact trig machinery), and
+  `arc_section_resultants_with_radial_pressure` (far-segment wall actions:
+  axial `pA (1 - cos(phi - theta))`, in-plane shear `-pA sin(phi - theta)`,
+  in-plane bending `pA R (cos(phi - theta) - 1)`).
+- `core/product_physics`: `add_pressure_thrust_loads` branches on
+  macro-realized spans (both thrust sources — pipe internal area and
+  expansion-joint effective area — get the identical arc treatment; straight
+  spans bit-for-bit unchanged); recovery subtracts the consistent radial
+  wall vector so end forces are true member forces (the ad-hoc chord `UX`
+  pressure correction is retired for macro spans); stations include the wall
+  load's far-segment actions; the `include_pressure_longitudinal` gating
+  semantics are preserved. Review-row basis now records
+  `pressure_thrust_treatment=arc_end_cap_tangent_pair_plus_consistent_radial_wall_load`.
+- Sharp check (unit tests + benchmark): an invented end-supported
+  pressurized arc with no other load is in the pure MEMBRANE state — axial
+  `+pA` along the local tangent, zero shear, zero internal moment at every
+  tested station — with zero anchor residual and the flexibility-independent
+  membrane tip stretch. Witness
+  `validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md`
+  (cap/wall decomposition, worked integrals `int q ds = pA (t_i - t_j)`,
+  zero wall center moment, per-cap moments `-/+ pA R` cancelling only as a
+  pair, zero static lumping, small-angle chord reduction) plus fixture
+  `MECH-CURVED-BEND-PRESSURE-THRUST-ARC` at the DEC-026 analytic-class
+  1.0e-9 relative tier (fixture-local 1.0 N near-zero floor; measured
+  normalized deviation ~1.5e-11). Fixture count 22 -> 23; one additive
+  inventory line in each mirror README.
+- The v1 pair-only design (end tangents without the wall load) was refuted
+  by the fresh-context verifier as the wall load's equilibrant, not its
+  equivalent; the landed complete-load design adopts the verifier's worked
+  integration (`instances/W1/T3/VERIFY_BRIEF.md`, `VERIFY_BRIEF_V2.md`).
+- Pinned tp_runner_015 solve output unchanged (its bend is not
+  macro-realized); del1005 five-case witnesses byte-identical. D-38
+  temperature semantics untouched; DEC-046/tolerance state untouched; the
+  owner-gated G1/G2/G4+M2/M3 row untouched.
+- No lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards content, public defaults, or private data was introduced.
