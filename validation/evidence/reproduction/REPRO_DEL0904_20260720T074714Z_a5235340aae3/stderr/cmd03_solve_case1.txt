@@ -1,0 +1,69 @@
+     Locking 41 packages to latest compatible versions
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling version_check v0.9.5
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling proc-macro2 v1.0.107
+   Compiling typenum v1.20.1
+   Compiling serde_json v1.0.150
+   Compiling libc v0.2.186
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/solver/linear_supports)
+   Compiling generic-array v0.14.7
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling cfg-if v1.0.4
+   Compiling serde v1.0.229
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_user_loads v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/loads/user_loads)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/units)
+   Compiling ryu v1.0.23
+   Compiling open_pipe_stress_nonlinear_benchmarks v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/validation/benchmarks/nonlinear)
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling syn v3.0.0
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_result_export v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_stress_benchmarks v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/validation/benchmarks/stress)
+   Compiling open_pipe_stress_mechanics_benchmarks v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/validation/benchmarks/mechanics)
+   Compiling serde_derive v1.0.229
+warning: unused imports: `ElementExposedDiameter`, `ElementMassPerLength`, `EquivalentStaticMechanicsBasis`, `LoadExtent`, `generate_seismic_equivalent_static_loads`, `generate_wind_equivalent_static_loads`, and `prepare_equivalent_static_loads`
+  --> /private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:18:34
+   |
+18 |     assemble_solver_load_vector, generate_seismic_equivalent_static_loads,
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 |     prepare_lumped_nodal_loads, prepare_straight_pipe_axial_effects, ElementAxialEffectProperties,
+21 |     ElementExposedDiameter, ElementLoadSpan, ElementMassPerLength, EquivalentStaticAxisFactor,
+   |     ^^^^^^^^^^^^^^^^^^^^^^                   ^^^^^^^^^^^^^^^^^^^^
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                ^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `cbdfe_close` is never used
+    --> /private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:2784:4
+     |
+2784 | fn cbdfe_close(actual: f64, expected: f64) -> bool {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 2 warnings (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_headless_runner v0.1.0 (/private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/core/runner/headless)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.73s
+     Running `/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target/debug/openpipestress-runner solve --input validation/witness/inputs/tp_runner_015_final_cli_solve_input.json --output /var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/tp_runner_015_solve.json`

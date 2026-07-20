@@ -1,0 +1,105 @@
+{
+  "artifact": "openpipestress.headless_runner_cli_output",
+  "schema_version": "1.0.0",
+  "deliverable_id": "DEL-10-05",
+  "package_id": "PKG-10",
+  "command": "run-benchmark",
+  "operation": "run_benchmark",
+  "policy": {
+    "policy_ref": "DEC-065",
+    "binary": "openpipestress-runner",
+    "stdout_default": true,
+    "explicit_output_path_only": true,
+    "local_foreground_process": true,
+    "network_allowed": false,
+    "telemetry_allowed": false,
+    "daemon_allowed": false,
+    "hidden_filesystem_mutation_allowed": false,
+    "direct_sql_access_allowed": false
+  },
+  "request_validation": {
+    "diagnostics": []
+  },
+  "result_validation": null,
+  "runner_result": null,
+  "mechanics_envelope": null,
+  "suite_run": {
+    "suite": "mechanics",
+    "suite_deliverable": "DEL-09-01",
+    "claim_posture": "Per-case match/fail is regression evidence for current solver behavior against the suite crate's recorded comparison values only; release thresholds, final tolerance policy, CI gate policy, and professional reliance remain TBD pending human approval (DEC-046 promotion is owner-gated and untouched).",
+    "comparison_basis": "recorded expected values and encoded comparison predicates reused from validation/benchmarks/mechanics (DEL-09-01): recorded_comparison_holds internal-assertion basis plus public validate_* predicates",
+    "whole_suite_default_applied": false,
+    "requested_case_count": 1,
+    "executed_and_matched": 1,
+    "executed_and_mismatched": 0,
+    "blocked": 0,
+    "cases": [
+      {
+        "fixture_id": "MECH-TP-PHYS-004-LOAD-TO-RESULTANT",
+        "family": "LoadToResultantIntegration",
+        "status": "executed_and_matched",
+        "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_004_load_to_resultant_integration",
+        "encoded_predicate_result": true,
+        "values": [
+          {
+            "name": "node_1_uy_displacement",
+            "unit": "m",
+            "dimension": "displacement",
+            "recorded": -0.04533333333333334,
+            "observed": -0.04533333333333334,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "node_1_rz_rotation",
+            "unit": "rad",
+            "dimension": "rotation",
+            "recorded": -0.014666666666666668,
+            "observed": -0.014666666666666668,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "assembled_node_0_uy_force",
+            "unit": "N",
+            "dimension": "force",
+            "recorded": -6.0,
+            "observed": -6.0,
+            "delta": 0.0,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "assembled_node_0_rz_moment",
+            "unit": "N-m",
+            "dimension": "moment",
+            "recorded": -4.666666666666667,
+            "observed": -4.666666666666668,
+            "delta": -8.881784197001252e-16,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "midspan_shear_y",
+            "unit": "N",
+            "dimension": "force",
+            "recorded": 4.0,
+            "observed": 3.9999999999999982,
+            "delta": -1.7763568394002505e-15,
+            "within_recorded_basis": true
+          },
+          {
+            "name": "midspan_bending_z",
+            "unit": "N-m",
+            "dimension": "moment",
+            "recorded": 4.0,
+            "observed": 4.0000000000000036,
+            "delta": 3.552713678800501e-15,
+            "within_recorded_basis": true
+          }
+        ],
+        "regression_detail": null,
+        "block_reason": null
+      }
+    ]
+  },
+  "diagnostics": []
+}

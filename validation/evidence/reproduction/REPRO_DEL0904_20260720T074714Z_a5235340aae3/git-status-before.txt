@@ -1,0 +1,8 @@
+# Pre-run cleanliness proofs (clean local-only clone, before first documented command)
+# Recorded 2026-07-20T07:47:39Z (interactive executor step, before driver start)
+$ git rev-parse HEAD
+a5235340aae3c41cf227f5617e593b268936f6b3
+$ git status --porcelain=v1 --untracked-files=all   # exit 0
+(empty output)
+$ git diff --exit-code                              # exit 0
+$ git diff --cached --exit-code                     # exit 0

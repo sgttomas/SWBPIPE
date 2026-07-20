@@ -1,0 +1,3 @@
+# one-file delta proof (before/after ls of validation/evidence/sweeps/)
+291a292
+> SWEEP_20260720T075521Z_a5235340aae3-dirty.json

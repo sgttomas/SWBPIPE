@@ -1,0 +1,5 @@
+# Post-run cleanliness proofs (after last documented command; see commands.jsonl cmd15-cmd17)
+$ git status --porcelain=v1 --untracked-files=all   # exit 0
+(empty output)
+$ git diff --exit-code                              # exit 0
+$ git diff --cached --exit-code                     # exit 0
