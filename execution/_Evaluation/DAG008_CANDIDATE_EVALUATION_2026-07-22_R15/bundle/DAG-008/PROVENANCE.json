@@ -1,0 +1,41 @@
+{
+  "candidate_id": "DAG-008",
+  "generated": "2026-07-22",
+  "status": "PROPOSAL_NON_ACTIVATED",
+  "frozen_git_base": "aeace2ac39cb0039f2076dadcfce980c9e327a86",
+  "approved_parent": {
+    "path": "execution/_DAG/DAG-007/",
+    "dependency_edges_sha256": "0397302ca68ecfb4dd59af619278e368973ea4bc1c7bb6c5db3c9e09d624a2e9",
+    "nodes_sha256": "6e5050c4e578f6ff9819ee7a11dbb395b3f0a163b4fb0c48e88c3d084d9b0732",
+    "dag_json_sha256": "aa82b5eb2668828d9f645afd9ba97cfa5af3c37605541da3e56d5f8ff5917971"
+  },
+  "refreshed_local_registers": [
+    {
+      "path": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/Dependencies.csv",
+      "sha256": "14b7e0e281861a0cf1c6001071fb3e9b3378fe613d6b3ef869315b5aa59abc1d"
+    },
+    {
+      "path": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/Dependencies.csv",
+      "sha256": "9d2a4e09cf49bb1a37a04e9496e768271eb6adf0fd7152f8c1ce711dd6e2b3ae"
+    }
+  ],
+  "accepted_audit": "execution/_Evaluation/DEPENDENCY_READINESS_AUDIT_2026-07-21_R15/",
+  "changed_dependency_ids": [
+    "DAG-002-E0522",
+    "DAG-002-E0523",
+    "DAG-002-E0524",
+    "DAG-002-E0525",
+    "DAG-002-E0526",
+    "DAG-002-E0527",
+    "DAG-002-E0528",
+    "DEP-10-05-E003",
+    "DEP-10-05-E004",
+    "DEP-10-05-E005",
+    "DEP-10-05-E006",
+    "DEP-10-05-E007",
+    "DEP-10-05-E008"
+  ],
+  "transformation": "Preserve DAG-007 rows and extension columns; for 13 IDs copy matching refreshed local core fields; rename candidate identity and proposal metadata; recompute audit/topology/cycle and manifests.",
+  "meaning_scope_decomposition_change": false,
+  "activation_effect": false
+}

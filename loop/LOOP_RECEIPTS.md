@@ -1545,3 +1545,30 @@
     Receipt-65 and the evidence-only cached-diff disposition remain unchanged.
     No product, dependency, deliverable state, lifecycle, stage, release,
     issuance, acceptance, publication, or professional/legal/security effect.
+
+- **2026-07-22 — Receipt 67** (DAG-008 non-active proposal materialization).
+  - Receipt-ID: `Receipt-67`
+  - Examined-Through: `aeace2ac39cb0039f2076dadcfce980c9e327a86`
+  - Parent-Receipt: `Receipt-66`
+  - Pointers: six PROJECT_SETUP refresh paths and exact application map under
+    `execution/_Evaluation/DAG008_CANDIDATE_EVALUATION_2026-07-22_R15/`;
+    non-active proposal `execution/_DAG/DAG-008/`; owner packet
+    `execution/_DAG/DAG-008/DAG-008_APPROVAL_REVIEW_PACKET.md`; CHANGE record
+    `execution/_Change/2026-07-22_DAG008_PROPOSAL_MATERIALIZATION_CLOSEOUT.md`.
+  - Checks: source/target hashes and manifests, exact 13-row delta,
+    local-register equivalence, dependency schema, strict canonical DAG audit,
+    JSON, topology/cycle/waves, proposal/placeholder semantics, claims, path
+    anchors, containment, self-check, harness pytest, receipt validation, and
+    diff checks pass.
+  - Model-Attribution: HELP_HUMAN, PROJECT_SETUP, EVALUATION, CHANGE, and the
+    fresh read-only CHANGE verifiers used inherited Codex runtime capability
+    without override or mid-task substitution; exact model strings were not
+    exposed. Parentage and returns are represented by the cited handoff,
+    evaluation package, refresh run records, and CHANGE record.
+  - Gate-Outcome: `EXECUTED` — `PROPOSAL_MATERIALIZED_NON_ACTIVE`: DAG-008 is
+    present only as an immutable owner-review proposal; DAG-007 and the root
+    pointer remain authoritative and byte-identical. No DAG acceptance, pointer
+    activation, dependency-based selection, implementation dispatch,
+    deliverable lifecycle/stage change, D-45 disposition, release, issuance,
+    publication, or professional/legal acceptance effect occurred. Owner
+    acceptance and separate pointer authorization remain open.
