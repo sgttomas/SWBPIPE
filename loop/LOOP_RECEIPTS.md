@@ -1520,3 +1520,28 @@
     passed independent refutation and DEL-12-02-only W3 closeout; lifecycle
     remains `IN_PROGRESS`; no non-DEL-12-02 state, stage, release, issuance,
     professional-acceptance, or legal/security-sufficiency effect.
+
+- **2026-07-22 — Receipt 66** (Receipt-65 model-attribution correction).
+  - Receipt-ID: `Receipt-66`
+  - Examined-Through: `d22c5183a5ef9781d1a8e26d9df29c72874cdc5b`
+  - Parent-Receipt: `Receipt-65`
+  - Pointers: Receipt-65; R15 managed run
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/`;
+    CHANGE cached-diff disposition
+    `execution/_Change/2026-07-22_DEL1202_R15_CACHED_DIFF_EXCEPTION.json`;
+    implementation commit `9457565c2cc53e9f157c46211d8d3d3a577d19f3`;
+    PR #307 merge `d22c5183a5ef9781d1a8e26d9df29c72874cdc5b`.
+  - Checks: receipt structure and semantic continuity, claims, path anchors,
+    JSON, self-check, and cached diff-check pass.
+  - Model-Attribution: HELP_HUMAN, the WORKING_ITEMS manager, R15 N1–N5H
+    specialists, and CHANGE with its two read-only closeout auditors used
+    inherited Codex runtime capability without override or mid-task
+    substitution; exact model strings were not exposed. Roles and returns are
+    recorded under the cited R15 managed run; CHANGE scope disposition and Git
+    effects are recorded by the cited manifest, commit, and PR.
+  - Gate-Outcome: `EXECUTED` — `CORRECTED_METADATA_ONLY`: this append-only
+    successor adds only Receipt-65's missing mandatory semantic
+    Model-Attribution record;
+    Receipt-65 and the evidence-only cached-diff disposition remain unchanged.
+    No product, dependency, deliverable state, lifecycle, stage, release,
+    issuance, acceptance, publication, or professional/legal/security effect.
