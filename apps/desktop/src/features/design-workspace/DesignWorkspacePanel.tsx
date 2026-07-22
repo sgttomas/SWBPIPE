@@ -48,7 +48,7 @@ export function DesignWorkspacePanel({
         Design Workspace
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="design-workspace-export-link"
           download={`openpipestress-preview-design-workspace-${safeFileToken(model.project.id)}.json`}
@@ -56,7 +56,7 @@ export function DesignWorkspacePanel({
         >
           <Download size={14} aria-hidden="true" />
           Workspace JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="design-workspace-summary">
           knowledge={packet.summary.current_design_knowledge_record_count}; states=
           {packet.summary.current_model_state_count}; runs={packet.summary.current_analysis_run_count}; comparisons=
@@ -364,3 +364,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

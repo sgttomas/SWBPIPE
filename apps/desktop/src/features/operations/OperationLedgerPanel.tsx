@@ -40,7 +40,7 @@ export function OperationLedgerPanel({
       {hasRecords ? (
         <>
           <div className="report-actions">
-            <a
+        <ControlledExportLink
               className="report-export-link"
               data-testid="operation-ledger-export-link"
               download={`openpipestress-preview-operation-ledger-${safeFileToken(ledger.project_ref)}.json`}
@@ -48,7 +48,7 @@ export function OperationLedgerPanel({
             >
               <Download size={14} aria-hidden="true" />
               Local ledger JSON
-            </a>
+        </ControlledExportLink>
             <span data-testid="operation-ledger-export-summary">
               {ledger.records.length} review {ledger.records.length === 1 ? "record" : "records"};{" "}
               {ledger.decision_counts.held_for_user_acceptance} held; no accepted-state mutation
@@ -449,3 +449,4 @@ function safeRefToken(value: string): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

@@ -44,7 +44,7 @@ export function TelemetryBoundaryPanel({
             ? "Telemetry review requested — remains off"
             : "Request telemetry enablement review"}
         </button>
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="telemetry-boundary-export-link"
           download={`openpipestress-preview-telemetry-boundary-${safeFileToken(model.project.id)}.json`}
@@ -52,7 +52,7 @@ export function TelemetryBoundaryPanel({
         >
           <Download size={14} aria-hidden="true" />
           Telemetry JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="telemetry-boundary-summary">
           disabled={String(!packet.summary.telemetry_enabled)}; config={packet.summary.config_resolution};
           blocked={packet.summary.blocked_event_count}; payload={String(packet.summary.payload_constructed)};
@@ -300,3 +300,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

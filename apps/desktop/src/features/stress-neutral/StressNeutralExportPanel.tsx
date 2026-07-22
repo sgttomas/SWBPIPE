@@ -94,7 +94,7 @@ export function StressNeutralExportPanel({
       {packet ? (
         <>
           <div className="report-actions">
-            <a
+        <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-export-link"
               download={`openpipestress-preview-stress-neutral-${safeFileToken(packet.source_result_ref.ref)}.json`}
@@ -102,8 +102,8 @@ export function StressNeutralExportPanel({
             >
               <Download size={14} aria-hidden="true" />
               Package JSON
-            </a>
-            <a
+        </ControlledExportLink>
+        <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-csv-link"
               download={`openpipestress-preview-stress-neutral-${safeFileToken(packet.source_result_ref.ref)}.csv`}
@@ -111,7 +111,7 @@ export function StressNeutralExportPanel({
             >
               <Download size={14} aria-hidden="true" />
               CSV
-            </a>
+        </ControlledExportLink>
             <span data-testid="stress-neutral-summary">
               available; rows={packet.result_rows.length}; csv_columns={packet.export_profile.csv_columns.length};
               diagnostics={packet.diagnostics.length}
@@ -571,3 +571,4 @@ function csvDataHref(csvText: string): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

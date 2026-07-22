@@ -480,35 +480,11 @@ def test_privacy_and_authority_boundary_diagnostics_block_public_package():
 def test_writer_outputs_all_manifest_members_with_matching_hashes(tmp_path):
     package = build_from_source()
 
-    write_caepipe_mbf_export_package(tmp_path, package)
+    controlled = write_caepipe_mbf_export_package(tmp_path, package)
 
-    members = package["manifest"]["package_members"]
-    expected_paths = {member["path"] for member in members}
-    written_paths = {str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*") if path.is_file()}
-    assert written_paths == expected_paths
-
-    declared_checksums = package["manifest"]["checksums"]
-    for member in members:
-        role = member["member_role"]
-        path = tmp_path / member["path"]
-        assert path.exists()
-        assert member["hash"] in declared_checksums
-
-        if role == "manifest":
-            assert load_json(path) == package["manifest"]
-            continue
-        if member["content_kind"] == "text/plain":
-            text = path.read_text(encoding="ascii")
-            assert text == package[role]
-            assert member["hash"]["canonicalization"] == "normalized_ascii_lf_text"
-            assert sha256_value(canonical_text(text)) == member["hash"]["value"]
-        else:
-            text = path.read_text(encoding="utf-8")
-            parsed = json.loads(text)
-            assert parsed == package[role]
-            assert text == canonical_json(package[role]) + "\n"
-            assert member["hash"]["canonicalization"] == "JCS_compatible_json_payload_hash"
-            assert sha256_value(canonical_json(parsed)) == member["hash"]["value"]
+    assert controlled.blocked is True
+    assert controlled.summary["materialization_withheld"] is True
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_fixture_contains_no_private_or_protected_payload_text():

@@ -141,6 +141,56 @@ Acceptance, professional judgment, and any certification, sealing, or
 code-compliance determination remain with the responsible engineer and
 project authority.
 
+## Final-Sink Route Binding
+
+The DEL-12-02 breadth tranche applies the contract at every frozen final
+exposure route. Each binding returns an observable controlled envelope before
+creating a download, preview, print action, stdout value, output file, or
+downstream handoff:
+
+```text
+ControlledExport<T> = {
+  payload: T | null,
+  decisions: RedactionDecision[],
+  findings: RedactionFinding[],
+  blocked: boolean,
+  summary: RedactionSummary
+}
+```
+
+The route projector deep-copies the source, assigns explicit metadata to each
+value-bearing leaf, removes top-level and nested `local_private_intent`,
+`explicit_local_private_intent`, and `user_intent`, and supplies only the
+route's fixed context and wrapper-owned intent. Source-carried intent therefore
+cannot grant export authority. The projector materializes only the controlled
+copy and preserves the source object byte/deep-equal.
+
+The frozen route set covers Python JSON/downstream/specialized-format writers,
+both Rust headless runners, report DOM/JSON/render-IPC/HTML/save/print/lint,
+and all other desktop download panels. Structured routes may emit a sanitized
+payload. Lossless specialized formats are withheld if any destructive action
+would corrupt their meaning. Local-private routes expose known private values
+only after their own explicit-intent control is selected, with
+`warning_only` evidence; unresolved local values remain unknown and
+warning-only.
+
+Desktop download links use `ControlledExportLink`. Reports are controlled
+before DOM construction and before the Tauri render IPC call; blocked reports
+have no raw DOM, iframe, JSON link, save link, print action, renderer call, or
+browser fallback. Renderer and protected-content-lint diagnostics are composed
+with the route findings when a sanitized report proceeds. The Python writers
+and downstream workflow expose the same envelope and create no directory or
+file on block. The Rust runners emit the same controlled shape, accept
+wrapper-owned `--explicit-local-private-intent`, and write no output on block;
+their mirror is pinned to the same invented parity corpus as Python and
+TypeScript.
+
+The protected-content lint CLI remains a separately governed DEC-058/DEC-059
+diagnostic used only by the release scan and public-source exporter; it is not
+a product report/model/result route and this tranche does not change it. No
+plugin runtime/loader or bug/crash-report egress exists. Any future such route
+must consume this controlled-export boundary before it can expose a payload.
+
 ## Source Data
 
 The implementation copies the export/report representation before applying
@@ -160,6 +210,13 @@ DEL-12-02 should be checked for:
   cloud/network references, direct SQL/raw SQLite access, storage bypass
   markers, and concrete path indicators;
 - explicit local/private intent before retaining private values;
+- source-carried intent ignored at every final route and wrapper intent tested;
+- observable decisions, findings, blocked state, and summary before exposure;
+- no output directory/file, DOM, IPC, iframe, save, print, stdout payload, or
+  browser fallback when blocking findings exist;
+- canonical Python, TypeScript, and bounded Rust parity-corpus agreement;
+- continued absence of plugin and bug-report egress and release-tool-only use
+  of the protected-content diagnostic CLI;
 - no cloud transmission, secret handling, source mutation, protected standards
   content, non-invented private payloads, concrete user paths, direct
   SQL/storage bypass, or professional-authority assertions.

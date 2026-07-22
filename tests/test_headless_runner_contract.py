@@ -3,10 +3,17 @@
 
 import json
 from pathlib import Path
+import subprocess
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "headless_runner.schema.yaml"
+FINAL_RUNNER_PATH = ROOT / "core" / "runner" / "headless" / "src" / "bin" / "openpipestress-runner.rs"
+COMPAT_RUNNER_PATH = ROOT / "core" / "runner" / "headless" / "src" / "bin" / "headless_preview_runner.rs"
+HEADLESS_CRATE = ROOT / "core" / "runner" / "headless"
+PREVIEW_FIXTURE = ROOT / "fixtures" / "product_preview" / "invented_preview_model.json"
 
 REQUIRED_ROOT = {
     "schema_version",
@@ -137,6 +144,9 @@ def main():
     )
     assert runner_status["final_cli_command_syntax"]["const"].startswith(
         "openpipestress-runner <solve|validate-input|export-results|"
+    )
+    assert runner_status["final_cli_command_syntax"]["const"].endswith(
+        "[--explicit-local-private-intent]"
     )
     assert runner_status["package_scripts"]["const"] == "dev_test_convenience_only"
     assert runner_status["process_invocation"]["const"] == (
@@ -278,6 +288,248 @@ def main():
 
 def test_headless_runner_contract():
     main()
+
+
+def test_both_runner_exposure_paths_are_controlled_before_stdout_or_file_write():
+    final_source = FINAL_RUNNER_PATH.read_text(encoding="utf-8")
+    compat_source = COMPAT_RUNNER_PATH.read_text(encoding="utf-8")
+
+    assert final_source.index("control_local_private(") < final_source.index(
+        'println!("{rendered}")'
+    )
+    assert final_source.index("control_local_private(") < final_source.index(
+        "std::fs::write(output_path"
+    )
+    assert "if !controlled.blocked" in final_source
+    assert "args.explicit_local_private_intent" in final_source
+    assert "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD" in final_source
+
+    assert compat_source.index("control_local_private(") < compat_source.index(
+        'println!("{rendered}")'
+    )
+    assert "[--explicit-local-private-intent]" in compat_source
+    assert "clean && !controlled.blocked" in compat_source
+
+
+@pytest.fixture(scope="module")
+def runner_binaries():
+    build = subprocess.run(
+        ["cargo", "build", "--quiet", "--bins"],
+        cwd=HEADLESS_CRATE,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert build.returncode == 0, build.stderr
+    target = HEADLESS_CRATE / "target" / "debug"
+    final = target / "openpipestress-runner"
+    compat = target / "headless_preview_runner"
+    assert final.is_file()
+    assert compat.is_file()
+    return final, compat
+
+
+def final_runner_request(operation):
+    return {
+        "request_id": f"subprocess-{operation.replace('_', '-')}",
+        "operation": operation,
+        "operation_ref": {"ref_type": "api_operation", "ref_id": operation},
+        "project_ref": {"ref_type": "project", "ref_id": "invented-project"},
+        "model_ref": {"ref_type": "model", "ref_id": "invented-model"},
+        "unit_system_ref": {"ref_type": "unit_system", "ref_id": "invented-si"},
+        "load_basis_refs": [{"ref_type": "load_case", "ref_id": "LC1"}],
+        "input_manifest_ref": {"ref_type": "audit_manifest", "ref_id": "manifest-1"},
+        "requested_outputs": ["result_envelope", "audit_manifest", "diagnostics"],
+        "privacy": {
+            "local_only": True,
+            "telemetry_allowed": False,
+            "private_payload_redacted": True,
+            "classification": "public_metadata",
+        },
+        "provenance": {
+            "source_name": "invented subprocess fixture",
+            "source_location": "tests/test_headless_runner_contract.py",
+            "source_license": "project invented",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "invented non-engineering example",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "accepted",
+        },
+        "professional_boundary": {
+            "human_review_required": True,
+            "software_makes_compliance_claim": False,
+            "software_makes_certification_claim": False,
+            "software_makes_sealing_claim": False,
+            "software_makes_approval_claim": False,
+            "software_makes_authentication_claim": False,
+        },
+        "tbd_decisions": {
+            "final_cli_command_syntax": "SETTLED_DEC_065",
+            "package_scripts": "SETTLED_DEC_065",
+            "process_invocation": "SETTLED_DEC_065",
+            "network_access": "SETTLED_DEC_065",
+            "filesystem_mutation_policy": "SETTLED_DEC_065",
+            "ci_provider": "TBD",
+            "release_matrix": "TBD",
+            "public_transport_protocol": "TBD",
+            "external_adapter_formats": "TBD",
+            "physical_project_container": "TBD",
+        },
+    }
+
+
+def run_final(binary, verb, body, *args):
+    return subprocess.run(
+        [str(binary), verb, *args],
+        input=json.dumps(body),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def active_final_runner_cases():
+    preview_model = json.loads(PREVIEW_FIXTURE.read_text(encoding="utf-8"))
+    return [
+        ("validate-input", "validate_input", {}),
+        (
+            "solve",
+            "solve",
+            {"solve": {"preview_model": {"model": preview_model, "materials": []}}},
+        ),
+        (
+            "run-benchmark",
+            "run_benchmark",
+            {
+                "benchmark": {
+                    "suite": "mechanics",
+                    "cases": ["MECH-TP-PHYS-004-LOAD-TO-RESULTANT"],
+                }
+            },
+        ),
+        (
+            "run-regression",
+            "run_regression",
+            {
+                "regression": {
+                    "suite": "nonlinear",
+                    "cases": ["NL-NONCONVERGENCE-LIMIT-ORIGINAL"],
+                }
+            },
+        ),
+    ]
+
+
+def test_final_runner_subprocess_covers_every_active_verb_and_stdout(runner_binaries):
+    final, _ = runner_binaries
+    for verb, operation, extra in active_final_runner_cases():
+        body = {"request": final_runner_request(operation), **extra}
+        completed = run_final(final, verb, body, "--explicit-local-private-intent")
+        assert completed.returncode == 0, (verb, completed.stderr, completed.stdout)
+        controlled = json.loads(completed.stdout)
+        assert controlled["blocked"] is False
+        assert controlled["payload"]["command"] == verb
+        assert controlled["payload"]["operation"] == operation
+
+
+def test_final_runner_subprocess_output_file_matches_stdout(runner_binaries, tmp_path):
+    final, _ = runner_binaries
+    output_path = tmp_path / "controlled-output.json"
+    body = {"request": final_runner_request("validate_input")}
+    completed = run_final(
+        final,
+        "validate-input",
+        body,
+        "--output",
+        str(output_path),
+        "--explicit-local-private-intent",
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert output_path.is_file()
+    assert json.loads(output_path.read_text(encoding="utf-8")) == json.loads(completed.stdout)
+
+
+def test_final_runner_subprocess_blocking_exit_one_writes_no_file(runner_binaries, tmp_path):
+    final, _ = runner_binaries
+    output_path = tmp_path / "must-not-exist.json"
+    preview_model = json.loads(PREVIEW_FIXTURE.read_text(encoding="utf-8"))
+    body = {
+        "request": final_runner_request("solve"),
+        "solve": {"preview_model": {"model": preview_model, "materials": []}},
+    }
+    completed = run_final(final, "solve", body, "--output", str(output_path))
+    assert completed.returncode == 1
+    controlled = json.loads(completed.stdout)
+    assert controlled["blocked"] is True
+    assert controlled["payload"] is None
+    assert not output_path.exists()
+
+
+def test_final_runner_subprocess_preserves_export_results_stub(runner_binaries):
+    final, _ = runner_binaries
+    body = {"request": final_runner_request("export_results")}
+    completed = run_final(final, "export-results", body, "--explicit-local-private-intent")
+    assert completed.returncode == 1
+    controlled = json.loads(completed.stdout)
+    assert controlled["blocked"] is False
+    assert any(
+        diagnostic["code"] == "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD"
+        for diagnostic in controlled["payload"]["diagnostics"]
+    )
+
+
+def test_final_runner_subprocess_malformed_input_exits_two(runner_binaries):
+    final, _ = runner_binaries
+    completed = subprocess.run(
+        [str(final), "validate-input", "--explicit-local-private-intent"],
+        input="{",
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 2
+    controlled = json.loads(completed.stdout)
+    assert controlled["payload"]["command"] == "validate-input"
+    assert any(
+        diagnostic["code"] == "HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID"
+        for diagnostic in controlled["payload"]["diagnostics"]
+    )
+
+
+def test_compatibility_runner_subprocess_controlled_stdout_and_exits(runner_binaries):
+    _, compat = runner_binaries
+    allowed = subprocess.run(
+        [str(compat), str(PREVIEW_FIXTURE), "--explicit-local-private-intent"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert allowed.returncode == 0, (allowed.stderr, allowed.stdout)
+    allowed_controlled = json.loads(allowed.stdout)
+    assert allowed_controlled["blocked"] is False
+    assert "runner_result" in allowed_controlled["payload"]
+
+    blocked = subprocess.run(
+        [str(compat), str(PREVIEW_FIXTURE)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert blocked.returncode == 1
+    blocked_controlled = json.loads(blocked.stdout)
+    assert blocked_controlled["blocked"] is True
+    assert blocked_controlled["payload"] is None
+    assert "runner_result" not in blocked_controlled
+
+    usage = subprocess.run(
+        [str(compat)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert usage.returncode == 2
+    assert usage.stdout == ""
+    assert "usage (PROVISIONAL" in usage.stderr
 
 
 if __name__ == "__main__":

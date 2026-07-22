@@ -7,8 +7,10 @@ from copy import deepcopy
 import json
 from pathlib import Path
 import sys
+from unittest.mock import patch
 
 from jsonschema import Draft202012Validator
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,6 +22,7 @@ from core.handoff.exporter import (  # noqa: E402
     canonical_json,
 )
 from core.handoff.target_mapping import build_target_mapping_contract  # noqa: E402
+from core.security.redaction.route_control import control_route_export  # noqa: E402
 
 
 FIXTURE_PATH = (
@@ -85,7 +88,18 @@ def checksum(payload_ref: dict[str, str], scope: str, value: str) -> dict[str, o
     }
 
 
+def redacted_checksum() -> dict[str, object]:
+    return {
+        "algorithm": "[REDACTED]",
+        "canonicalization": "[REDACTED]",
+        "payload_ref": {"object_type": "[REDACTED]", "ref": "[REDACTED]"},
+        "payload_scope": "[REDACTED]",
+        "value": "[REDACTED]",
+    }
+
+
 MODEL_HASH = checksum(ref("Model", "model:invented-del-15-03"), "model_hash", "sha256:invented-model")
+MISSING = object()
 
 
 def test_supplied_checksum_uses_narrow_label_and_is_carried_without_jcs_claim():
@@ -99,7 +113,18 @@ def test_supplied_checksum_uses_narrow_label_and_is_carried_without_jcs_claim():
     assert MODEL_HASH["canonicalization"] == (
         "deterministic_sorted_compact_json_payload_hash"
     )
-    assert workflow["export_payload"]["model_hash"] == MODEL_HASH
+    assert package["handoff_package_manifest"]["model_hash"] == MODEL_HASH
+    assert workflow["export_payload"]["model_hash"] == redacted_checksum()
+    checksum_decisions = [
+        item
+        for item in workflow.decisions
+        if ".__route_key__model_hash." in item.path
+    ]
+    assert checksum_decisions
+    assert all(item.action == "redact_value" for item in checksum_decisions)
+    assert {
+        item.privacy_classification for item in checksum_decisions
+    } <= {"unknown", "private_project_data"}
     assert "JCS" not in canonical_json(workflow)
 
 
@@ -371,15 +396,32 @@ def test_export_workflow_is_deterministic_and_preserves_required_context():
 
     assert canonical_json(first) == canonical_json(second)
     payload = first["export_payload"]
-    assert payload["model_hash"] == package["handoff_package_manifest"]["model_hash"]
-    assert payload["units_manifest"] == package["handoff_package_manifest"]["units_manifest"]
-    assert payload["entity_ids"] == package["handoff_package_manifest"]["entity_ids"]
-    assert payload["library_refs"] == package["handoff_package_manifest"]["library_refs"]
-    assert payload["rule_pack_refs"] == package["handoff_package_manifest"]["rule_pack_refs"]
-    assert payload["target_mapping_metadata"] == package["handoff_package_manifest"]["target_mapping_metadata"]
-    assert payload["unresolved_assumptions"] == package["handoff_package_manifest"]["unresolved_assumptions"]
-    assert payload["warnings"] == package["handoff_package_manifest"]["warnings"]
-    assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
+    source_manifest = package["handoff_package_manifest"]
+    assert source_manifest["model_hash"] == MODEL_HASH
+    assert payload["model_hash"] == redacted_checksum()
+    assert payload["units_manifest"]["unit_system_ref"] == {
+        "object_type": "[REDACTED]",
+        "ref": "[REDACTED]",
+    }
+    assert payload["units_manifest"]["coordinate_unit"] == "[REDACTED]"
+    assert payload["units_manifest"]["hash_refs"] == [redacted_checksum()]
+    assert payload["units_manifest"]["provenance"] == source_manifest["units_manifest"]["provenance"]
+    assert payload["entity_ids"]["component_ids"] == ["[REDACTED]"]
+    assert source_manifest["entity_ids"]["component_ids"] == ["component:pipe-1"]
+    assert payload["library_refs"][0]["library_kind"] == "component"
+    assert payload["library_refs"][0]["library_ref"]["ref"] == "[REDACTED]"
+    assert payload["library_refs"][0]["checksum"] == redacted_checksum()
+    assert source_manifest["library_refs"][0]["library_ref"]["ref"] != "[REDACTED]"
+    assert payload["rule_pack_refs"][0]["rule_pack_id"] == "rule-pack:invented-public"
+    assert payload["rule_pack_refs"][0]["checksum"] == redacted_checksum()
+    assert payload["target_mapping_metadata"]["target_system_kind"] == "[REDACTED]"
+    assert payload["target_mapping_metadata"]["target_mapping_refs"][0]["ref"] == "[REDACTED]"
+    assert payload["target_mapping_metadata"]["provenance"] == source_manifest["target_mapping_metadata"]["provenance"]
+    assert payload["unresolved_assumptions"][0]["assumption_id"] == "[REDACTED]"
+    assert payload["unresolved_assumptions"][0]["provenance"] == source_manifest["unresolved_assumptions"][0]["provenance"]
+    assert payload["warnings"][0]["code"] == "[REDACTED]"
+    assert payload["warnings"][0]["provenance"] == source_manifest["warnings"][0]["provenance"]
+    assert first["diagnostics"] == []
 
 
 def test_unsupported_and_approximate_target_behavior_is_explicit():
@@ -391,16 +433,23 @@ def test_unsupported_and_approximate_target_behavior_is_explicit():
         target_fixture=target_fixture(),
     )
     records = export["export_payload"]["unsupported_target_records"]
-    record_ids = {item["record_id"] for item in records}
-
-    assert {
+    assert len(records) == 4
+    assert {item["record_id"] for item in records} == {"[REDACTED]"}
+    assert all(item["human_review_required"] == "[REDACTED]" for item in records)
+    assert all(item["affected_refs"] for item in records)
+    assert all(
+        affected["ref"] == "[REDACTED]"
+        for item in records
+        for affected in item["affected_refs"]
+    )
+    controlled_text = canonical_json(export)
+    for raw_record_id in (
         "unsupported:external-solver-not-invoked",
         "unsupported:mesh",
         "approximate:target-field",
         "capability:external-solver",
-    } <= record_ids
-    assert all(item["human_review_required"] is True for item in records)
-    assert all(item["affected_refs"] for item in records)
+    ):
+        assert raw_record_id not in controlled_text
 
 
 def test_unit_bearing_mapping_without_unit_metadata_is_blocked():
@@ -408,16 +457,172 @@ def test_unit_bearing_mapping_without_unit_metadata_is_blocked():
     mapping = target_mapping(package)
     mapping["mapping_records"][0]["unit_metadata"] = None
 
-    export = build_handoff_export_workflow(
-        export_workflow_id="export:bad-unit",
-        handoff_package=package,
-        target_mapping_contract=mapping,
-        target_fixture=target_fixture(),
+    with patch(
+        "core.security.redaction.route_control._materialize",
+        side_effect=AssertionError(
+            "blocked source diagnostics must not reach materialization"
+        ),
+    ) as materialize:
+        export = build_handoff_export_workflow(
+            export_workflow_id="export:bad-unit",
+            handoff_package=package,
+            target_mapping_contract=mapping,
+            target_fixture=target_fixture(),
+        )
+
+    assert export.blocked is True
+    assert export.payload is None
+    materialize.assert_not_called()
+    assert export.summary["source_finding_count"] == 1
+    assert export.summary["source_blocking_count"] == 1
+    assert export.summary["redaction_blocking_count"] == 0
+    assert export.summary["exposure_blocking_count"] == 1
+    assert export.decisions
+    assert export.findings
+    assert any(
+        ".__route_key__diagnostics[0].__route_key__code" in item.path
+        and item.action == "redact_value"
+        for item in export.decisions
+    )
+    assert any(
+        ".__route_key__diagnostics[0].__route_key__severity" in item.path
+        and item.action == "redact_value"
+        for item in export.decisions
+    )
+    assert "EXP-UNIT-METADATA-MISSING" not in canonical_json(export)
+
+
+@pytest.mark.parametrize(
+    ("input_name", "expected_code"),
+    (
+        ("target_mapping_contract", "EXP-TARGET-MAPPING-MISSING"),
+        ("target_fixture", "EXP-TARGET-FIXTURE-MISSING"),
+        ("units_manifest", "EXP-HANDOFF-MANIFEST-FIELD-MISSING"),
+    ),
+)
+@pytest.mark.parametrize(
+    "invalid_value",
+    (MISSING, None, []),
+    ids=("missing", "null", "non-mapping"),
+)
+def test_invalid_mapping_inputs_are_controlled_source_blocks(
+    input_name, expected_code, invalid_value
+):
+    package = handoff_package()
+    kwargs = {
+        "export_workflow_id": f"export:invalid-{input_name}",
+        "handoff_package": package,
+        "target_mapping_contract": target_mapping(package),
+        "target_fixture": target_fixture(),
+    }
+    if input_name == "units_manifest":
+        manifest = package["handoff_package_manifest"]
+        if invalid_value is MISSING:
+            manifest.pop("units_manifest")
+        else:
+            manifest["units_manifest"] = invalid_value
+    elif invalid_value is MISSING:
+        kwargs.pop(input_name)
+    else:
+        kwargs[input_name] = invalid_value
+
+    source_findings = []
+
+    def capture_source_findings(*args, **control_kwargs):
+        source_findings.extend(deepcopy(control_kwargs["source_findings"]))
+        return control_route_export(*args, **control_kwargs)
+
+    with patch(
+        "core.handoff.exporter.workflow.control_route_export",
+        side_effect=capture_source_findings,
+    ), patch(
+        "core.security.redaction.route_control._materialize",
+        side_effect=AssertionError(
+            "invalid source inputs must not reach materialization"
+        ),
+    ) as materialize:
+        export = build_handoff_export_workflow(**kwargs)
+
+    assert [
+        item["code"]
+        for item in source_findings
+        if item["severity"].casefold() == "blocking"
+    ] == [expected_code]
+    assert export.blocked is True
+    assert export.payload is None
+    materialize.assert_not_called()
+    assert export.summary["source_finding_count"] == 1
+    assert export.summary["source_blocking_count"] == 1
+    assert export.summary["redaction_blocking_count"] == 0
+    assert export.summary["lossless_blocking_count"] == 0
+    assert export.summary["exposure_blocking_count"] == 1
+    assert export.decisions
+    assert export.findings
+    assert expected_code not in canonical_json(export)
+
+
+def test_empty_units_manifest_with_matching_null_source_ref_is_blocked():
+    package = handoff_package()
+    mapping = target_mapping(package)
+    package["handoff_package_manifest"]["units_manifest"] = {}
+    mapping["source_context"]["units_manifest_ref"] = None
+    source_findings = []
+
+    def capture_source_findings(*args, **control_kwargs):
+        source_findings.extend(deepcopy(control_kwargs["source_findings"]))
+        return control_route_export(*args, **control_kwargs)
+
+    with patch(
+        "core.handoff.exporter.workflow.control_route_export",
+        side_effect=capture_source_findings,
+    ), patch(
+        "core.security.redaction.route_control._materialize",
+        side_effect=AssertionError(
+            "an empty units manifest must not reach materialization"
+        ),
+    ) as materialize:
+        export = build_handoff_export_workflow(
+            export_workflow_id="export:empty-units-manifest",
+            handoff_package=package,
+            target_mapping_contract=mapping,
+            target_fixture=target_fixture(),
+        )
+
+    assert [
+        item["code"]
+        for item in source_findings
+        if item["severity"].casefold() == "blocking"
+    ] == ["EXP-HANDOFF-MANIFEST-FIELD-MISSING"]
+    assert export.blocked is True
+    assert export.payload is None
+    materialize.assert_not_called()
+    assert export.summary["source_finding_count"] == 1
+    assert export.summary["source_blocking_count"] == 1
+    assert export.summary["redaction_blocking_count"] == 0
+    assert export.summary["lossless_blocking_count"] == 0
+    assert export.summary["exposure_blocking_count"] == 1
+    assert export.decisions
+    assert export.findings
+    assert "EXP-HANDOFF-MANIFEST-FIELD-MISSING" not in canonical_json(export)
+
+
+def test_lossless_only_withholding_counts_its_exposure_blocker():
+    export = control_route_export(
+        {"value": "invented private payload"},
+        route_id="REXC-LOSSLESS-COUNT-TEST",
+        export_context="downstream_tool",
+        require_lossless_materialization=True,
     )
 
-    codes = {item["code"] for item in export["diagnostics"]}
-    assert "EXP-UNIT-METADATA-MISSING" in codes
-    assert any(item["severity"] == "blocking" for item in export["diagnostics"])
+    assert export.blocked is True
+    assert export.payload is None
+    assert export.summary["source_blocking_count"] == 0
+    assert export.summary["redaction_blocking_count"] == 0
+    assert export.summary["lossless_blocking_count"] == 1
+    assert export.summary["exposure_blocking_count"] == 1
+    assert export.summary["materialization_withheld"] is True
+    assert export.decisions
+    assert export.findings
 
 
 def test_mapping_hash_and_units_mismatch_are_blocked_not_defaulted():
@@ -433,8 +638,14 @@ def test_mapping_hash_and_units_mismatch_are_blocked_not_defaulted():
         target_fixture=target_fixture(),
     )
 
-    codes = {item["code"] for item in export["diagnostics"]}
-    assert {"EXP-MODEL-HASH-MISMATCH", "EXP-UNITS-MANIFEST-MISMATCH"} <= codes
+    assert export.blocked is True
+    assert export.payload is None
+    assert export.summary["source_finding_count"] == 2
+    assert export.summary["source_blocking_count"] == 2
+    assert export.summary["exposure_blocking_count"] == 2
+    controlled_text = canonical_json(export)
+    assert "EXP-MODEL-HASH-MISMATCH" not in controlled_text
+    assert "EXP-UNITS-MANIFEST-MISMATCH" not in controlled_text
 
 
 def test_target_fixture_authority_metadata_is_blocking_boundary_diagnostic():
@@ -451,10 +662,12 @@ def test_target_fixture_authority_metadata_is_blocking_boundary_diagnostic():
         target_fixture=fixture,
     )
 
-    codes = {item["code"] for item in export["diagnostics"]}
-    assert "EXP-PROHIBITED-AUTHORITY-TERM" in codes
-    assert any(item["severity"] == "blocking" for item in export["diagnostics"])
-    assert export["export_payload"]["diagnostics"] == export["diagnostics"]
+    assert export.blocked is True
+    assert export.payload is None
+    assert export.summary["source_finding_count"] == 3
+    assert export.summary["source_blocking_count"] == 3
+    assert export.summary["exposure_blocking_count"] == 3
+    assert "EXP-PROHIBITED-AUTHORITY-TERM" not in canonical_json(export)
 
 
 def test_export_output_contains_no_prohibited_authority_claims():
@@ -469,7 +682,8 @@ def test_export_output_contains_no_prohibited_authority_claims():
 
     for forbidden in FORBIDDEN_CLAIMS:
         assert forbidden not in text
-    assert export["professional_boundary"]["software_makes_compliance_claim"] is False
+    assert set(export["professional_boundary"].values()) == {"[REDACTED]"}
+    assert export["professional_boundary"]["software_makes_compliance_claim"] == "[REDACTED]"
 
 
 def main():

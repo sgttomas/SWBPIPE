@@ -3,7 +3,7 @@ import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, Previ
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
 const HEADLESS_FINAL_CLI =
-  "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>]";
+  "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent]";
 const HEADLESS_SETTLED = "SETTLED_DEC_065";
 
 export function HeadlessRunnerPanel({
@@ -26,7 +26,7 @@ export function HeadlessRunnerPanel({
         Headless Runner
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="headless-runner-export-link"
           download={`openpipestress-preview-headless-runner-${safeFileToken(packet.request.request_id)}.json`}
@@ -34,7 +34,7 @@ export function HeadlessRunnerPanel({
         >
           <Download size={14} aria-hidden="true" />
           Runner JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="headless-runner-summary">
           available; job={packet.result.job.state}; outputs={packet.request.requested_outputs.length}; result_refs=
           {packet.result.result_refs.length}
@@ -411,3 +411,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

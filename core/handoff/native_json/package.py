@@ -17,6 +17,7 @@ from typing import Any, Mapping
 from core.handoff.external_prover.authority_boundary import (
     contains_prohibited_authority_term,
 )
+from core.security.redaction import ControlledExport, control_route_export
 
 
 NATIVE_JSON_EXPORT_VERSION = "0.1.0"
@@ -317,10 +318,18 @@ def canonical_json(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
-def write_native_json_export_package(path: str | Path, package: Mapping[str, Any]) -> None:
-    """Write a native JSON export package using the canonical JSON byte basis."""
+def write_native_json_export_package(
+    path: str | Path, package: Mapping[str, Any]
+) -> ControlledExport:
+    """Write only the controlled shared-model package."""
 
-    Path(path).write_text(canonical_json(package) + "\n", encoding="utf-8")
+    controlled = control_route_export(
+        package, route_id="REXC-CORE-002", export_context="shared_model"
+    )
+    if controlled.blocked:
+        return controlled
+    Path(path).write_text(canonical_json(controlled.payload) + "\n", encoding="utf-8")
+    return controlled
 
 
 def _export_profile(profile: Mapping[str, Any] | None, boundary_notes: list[str]) -> dict[str, Any]:

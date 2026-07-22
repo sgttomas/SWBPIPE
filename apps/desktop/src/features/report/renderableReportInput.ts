@@ -78,9 +78,9 @@ function sessionProvenance(model: PreviewModel) {
     contributor: "OpenPipeStress",
     contributor_certification:
       "Invented preview or user-local non-engineering data only; no protected standards content.",
-    redistribution_status: "invented_non_engineering_example",
-    review_status: "accepted",
-    privacy_classification: "invented_public_example"
+    redistribution_status: "private_only",
+    review_status: "pending",
+    privacy_classification: "private_project_data"
   };
 }
 
@@ -128,50 +128,21 @@ function componentSourceLocation(component: PreviewComponent): string {
   return refs.join("; ") || "component provenance missing";
 }
 
-function componentProvenancePosture(component: PreviewComponent) {
-  const normalized = componentSourceLocation(component).toLowerCase();
-  if (normalized.includes("protected")) {
-    return {
-      source_license: "protected_suspected",
-      redistribution_status: "protected_suspected",
-      review_status: "pending",
-      privacy_classification: "protected_suspected"
-    };
-  }
-  if (normalized.includes("invented") || normalized.includes("cleared")) {
-    return {
-      source_license: "project_fixture",
-      redistribution_status: "invented_non_engineering_example",
-      review_status: "accepted",
-      privacy_classification: "invented_public_example"
-    };
-  }
-  return {
-    source_license: "user_supplied_or_private",
-    redistribution_status: "private_only",
-    review_status: "pending",
-    privacy_classification: "private_project_data"
-  };
-}
-
 function componentProvenanceRecord(
   component: PreviewComponent,
   base: ReturnType<typeof sessionProvenance>
 ) {
-  const posture = componentProvenancePosture(component);
   const label = component.label?.trim() || component.id;
   return {
     source_name: `${label} component provenance`,
     source_location: componentSourceLocation(component),
-    source_license: posture.source_license,
+    source_license: "user_supplied_or_private",
     contributor: base.contributor,
     contributor_certification:
-      posture.redistribution_status === "invented_non_engineering_example"
-        ? "Invented component metadata only; no protected standards tables, code-derived factors, or catalog defaults bundled."
-        : "User-local component provenance metadata; redistribution remains private or pending until separately cleared.",
-    redistribution_status: posture.redistribution_status,
-    review_status: posture.review_status,
-    privacy_classification: posture.privacy_classification
+      "User-local component provenance metadata; redistribution remains private or pending until separately cleared.",
+    redistribution_status: "private_only",
+    review_status: "pending",
+    privacy_classification: "private_project_data"
   };
 }
 
@@ -241,19 +212,16 @@ function springHangerProvenanceRecord(
   support: PreviewModel["supports"][number],
   base: ReturnType<typeof sessionProvenance>
 ) {
-  const normalized = springHangerSourceLocation(support).toLowerCase();
-  const invented = normalized.includes("invented") || normalized.includes("cleared");
   return {
     source_name: `${support.label || support.id} spring-hanger provenance`,
     source_location: springHangerSourceLocation(support),
-    source_license: invented ? "project_fixture" : "user_supplied_or_private",
+    source_license: "user_supplied_or_private",
     contributor: base.contributor,
-    contributor_certification: invented
-      ? "Invented spring-hanger metadata only; no protected standards tables or manufacturer catalog defaults bundled."
-      : "User-local spring-hanger provenance metadata; redistribution remains private or pending until separately cleared.",
-    redistribution_status: invented ? "invented_non_engineering_example" : "private_only",
-    review_status: invented ? "accepted" : "pending",
-    privacy_classification: invented ? "invented_public_example" : "private_project_data"
+    contributor_certification:
+      "User-local spring-hanger provenance metadata; redistribution remains private or pending until separately cleared.",
+    redistribution_status: "private_only",
+    review_status: "pending",
+    privacy_classification: "private_project_data"
   };
 }
 

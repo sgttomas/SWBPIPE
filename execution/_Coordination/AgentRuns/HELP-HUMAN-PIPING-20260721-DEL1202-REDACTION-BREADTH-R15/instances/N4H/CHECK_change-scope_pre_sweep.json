@@ -1,0 +1,23 @@
+{
+  "schema": "chirality-n4h-change-scope/v1",
+  "status": "PASS",
+  "phase": "pre_sweep",
+  "inherited_candidate_fence": {
+    "basis": "N5G terminal 260-path verification plus N5G_FAN_IN.md, REMEDIATION_AUTHORIZATION_N4H.md, and the N4H sealed brief",
+    "terminal_dirty_paths_before_n4h_execution": 263,
+    "violations": 0
+  },
+  "n4h_write_fence": {
+    "validator": "python3 tools/software_workflow/validate_change_scope.py",
+    "product_test_paths": [
+      "projects/chirality-piping/core/handoff/exporter/workflow.py",
+      "projects/chirality-piping/tests/test_handoff_export_workflow.py"
+    ],
+    "evidence_root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4H",
+    "paths_enumerated_before_this_record": 16,
+    "violations": 0
+  },
+  "expected_terminal_pre_sweep_dirty_path_count": 279,
+  "test_results_files": 0,
+  "staged_paths": 0
+}

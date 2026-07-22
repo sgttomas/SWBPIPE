@@ -19,6 +19,7 @@ from typing import Any, Mapping
 from core.handoff.external_prover.authority_boundary import (
     contains_prohibited_authority_term,
 )
+from core.security.redaction import ControlledExport, control_route_export
 
 
 CAEPIPE_EXTERNAL_RUN_VERSION = "0.1.0"
@@ -450,8 +451,23 @@ def canonical_csv(value: str) -> str:
     return "\n".join(rows) + "\n"
 
 
-def write_caepipe_external_run_package(directory: str | Path, package: Mapping[str, Any]) -> None:
-    """Write run-evidence package members deterministically."""
+def write_caepipe_external_run_package(
+    directory: str | Path,
+    package: Mapping[str, Any],
+    *,
+    explicit_local_private_intent: bool,
+) -> ControlledExport:
+    """Write local-private run evidence only with wrapper-owned intent."""
+
+    controlled = control_route_export(
+        package,
+        route_id="REXC-CORE-007",
+        export_context="local_private",
+        explicit_local_private_intent=explicit_local_private_intent,
+    )
+    if controlled.blocked:
+        return controlled
+    package = controlled.payload
 
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
@@ -466,6 +482,7 @@ def write_caepipe_external_run_package(directory: str | Path, package: Mapping[s
         else:
             value = package[key]
         (root / filename).write_text(canonical_json(value) + "\n", encoding="utf-8")
+    return controlled
 
 
 def _executable_config(value: Mapping[str, Any]) -> dict[str, Any]:

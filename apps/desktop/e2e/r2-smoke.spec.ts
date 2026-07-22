@@ -536,24 +536,11 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   await openWorkspaceSection(page, "report");
   const report = page.getByLabel("Report packet");
-  await expect(report).toContainText("run:preview-linear-static-001");
-  await expect(report.getByTestId("report-unit-system")).toContainText(
-    "unit-system:dec-018-si-dual-display"
+  await expect(report.getByTestId("report-redaction-blocked")).toContainText(
+    "Raw report DOM suppressed by redaction controls"
   );
-  await expect(report.getByTestId("report-unit-system")).toContainText("length=m");
-  await expect(report.getByTestId("report-unit-system")).toContainText("conversion=false");
-  const reportHref = await report.getByTestId("report-export-link").getAttribute("href");
-  expect(reportHref).toBeTruthy();
-  const reportPacket = JSON.parse(decodeURIComponent(reportHref!.split(",", 2)[1]));
-  expect(reportPacket.document_kind).toBe("openpipestress.technical_preview.report_packet_export");
-  expect(reportPacket.run_audit.analysis_run_ref.ref).toBe("run:preview-linear-static-001");
-  expect(reportPacket.unit_system_disclosure.unit_system_ref.ref_id).toBe(
-    "unit-system:dec-018-si-dual-display"
-  );
-  expect(reportPacket.unit_system_disclosure.conversion_performed).toBe(false);
-  expect(reportPacket.private_payload_included).toBe(false);
-  expect(reportPacket.protected_content_included).toBe(false);
-  expect(reportPacket.release_or_professional_claim).toBe(false);
+  await expect(report.getByTestId("report-export-link")).toHaveAttribute("href", /data:application\/json/);
+  await expect(report.getByTestId("report-packet-body")).toHaveCount(0);
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
     "unit_system=unit-system:dec-018-si-dual-display"
   );
@@ -569,106 +556,21 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   const lintHref = await reportLint.getByTestId("report-lint-export-link").getAttribute("href");
   expect(lintHref).toBeTruthy();
   const lintPacket = JSON.parse(decodeURIComponent(lintHref!.split(",", 2)[1]));
-  expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(44);
-  expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
-  expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
-  expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
-  expect(lintPacket.unit_policy_evidence.target_refs).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
-        unit_policy_surface_id: "project-validation-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
-        unit_policy_surface_id: "native-package-unit-witnesses"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
-        unit_policy_surface_id: "operation-diff-unit-witnesses"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
-        unit_policy_surface_id: "operation-apply-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
-        unit_policy_surface_id: "operation-ledger-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/report/RenderedReportPanel.tsx",
-        unit_policy_surface_id: "rendered-report-unit-basis"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/results/ResultsPanel.tsx",
-        unit_policy_surface_id: "result-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/comparison/ComparisonPanel.tsx",
-        unit_policy_surface_id: "comparison-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
-        unit_policy_surface_id: "knowledge-unit-context"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
-        unit_policy_surface_id: "run-audit-units"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/solve/SolvePanel.tsx",
-        unit_policy_surface_id: "solve-job-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx",
-        unit_policy_surface_id: "rule-pack-declarations-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
-        unit_policy_surface_id: "rule-pack-expression-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/library/LibraryManagerPanel.tsx",
-        unit_policy_surface_id: "library-unit-helper-surfaces"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
-        unit_policy_surface_id: "load-manager-unit-validation-surface"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
-        unit_policy_surface_id: "property-inspector-unit-validation-surface"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
-        unit_policy_surface_id: "diagnostic-unit-context"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
-        unit_policy_surface_id: "rule-check-unit-binding-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
-        unit_policy_surface_id: "rule-completeness-unit-policy"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
-        unit_policy_surface_id: "result-export-unit-witnesses"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
-        unit_policy_surface_id: "headless-runner-unit-witnesses"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
-        unit_policy_surface_id: "adapter-framework-units"
-      }),
-      expect.objectContaining({
-        source_path: "apps/desktop/src/features/handoff/HandoffPanel.tsx",
-        unit_policy_surface_id: "handoff-unit-witnesses"
-      })
-    ])
-  );
+  expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe("[REDACTED]");
+  expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe("[REDACTED]");
+  expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe("[REDACTED]");
+  expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe("[REDACTED]");
+  expect(
+    lintPacket.unit_policy_evidence.target_refs.every(
+      (item: { source_path: string }) => item.source_path === "[REDACTED]"
+    )
+  ).toBe(true);
+  expect(lintPacket.unit_policy_evidence.target_refs).toHaveLength(44);
+  expect(
+    lintPacket.unit_policy_evidence.target_refs.every(
+      (item: { unit_policy_surface_id: string }) => item.unit_policy_surface_id === "[REDACTED]"
+    )
+  ).toBe(true);
   const pcfExport = page.getByLabel("Conservative PCF export");
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
@@ -1004,7 +906,9 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=none");
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
   await page.getByTestId("rendered-report-render").click();
-  await expect(page.getByTestId("rendered-report-route")).toContainText("REPORT-RENDERER-DESKTOP-ONLY");
+  await expect(page.getByTestId("rendered-report-redaction-summary")).toContainText("blocked=true");
+  await expect(page.getByTestId("rendered-report-route")).toHaveCount(0);
+  await expect(page.getByTestId("rendered-report-preview")).toHaveCount(0);
 });
 
 test("diagnostic detail exposes linked result unit context", async ({ page }) => {

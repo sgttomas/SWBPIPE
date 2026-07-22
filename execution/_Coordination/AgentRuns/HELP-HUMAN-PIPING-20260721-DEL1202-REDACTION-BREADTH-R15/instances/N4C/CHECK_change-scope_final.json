@@ -1,0 +1,21 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/security/redaction/route_control.py",
+    "projects/chirality-piping/apps/desktop/src/features/redaction-controls/redactionExportControls.ts",
+    "projects/chirality-piping/tests/security/test_redaction_export_controls.py",
+    "projects/chirality-piping/apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C",
+    "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260722T065603Z_0c066652cd52-dirty.json"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/security/redaction/route_control.py",
+    "projects/chirality-piping/apps/desktop/src/features/redaction-controls/redactionExportControls.ts",
+    "projects/chirality-piping/tests/security/test_redaction_export_controls.py",
+    "projects/chirality-piping/apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C",
+    "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260722T065603Z_0c066652cd52-dirty.json"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

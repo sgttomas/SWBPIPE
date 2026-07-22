@@ -1,0 +1,24 @@
+{
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "project_root": "projects/chirality-piping",
+  "results": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 71.346,
+      "exit_code": 1,
+      "id": "desktop-test",
+      "status": "FAIL",
+      "stderr": "\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af Failed Tests 1 \u23af\u23af\u23af\u23af\u23af\u23af\u23af\n\n FAIL  src/App.test.tsx > OpenPipeStress desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context\nAssertionError: expected [ 'SOW-046', 'SOW-074' ] to deeply equal [ '[REDACTED]', '[REDACTED]' ]\n\n- Expected\n+ Received\n\n  [\n-   \"[REDACTED]\",\n-   \"[REDACTED]\",\n+   \"SOW-046\",\n+   \"SOW-074\",\n  ]\n\n \u276f src/App.test.tsx:9681:45\n    9679|     expect(stressNeutralPacket.deliverable_id).toBe(\"DEL-17-06\");\n    9680|     expect(stressNeutralPacket.package_id).toBe(\"PKG-17\");\n    9681|     expect(stressNeutralPacket.scope_items).toEqual([\n       |                                             ^\n    9682|       \"[REDACTED]\",\n    9683|       \"[REDACTED]\",\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/1]\u23af\n\nnpm error Lifecycle script `test` failed with error:\nnpm error code 1\nnpm error path {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error workspace @openpipestress/desktop@0.1.0\nnpm error location {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error command failed\nnpm error command sh -c vitest run\n",
+      "stdout": "\n> openpipestress-workspace@0.1.0 test:desktop\n> npm test --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.7 {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\n\n \u276f src/App.test.tsx (58 tests | 1 failed) 68777ms\n     \u00d7 shows computed mechanics diagnostics in results, knowledge, and review-only proposal context 2619ms\n\n Test Files  1 failed | 23 passed (24)\n      Tests  1 failed | 482 passed (483)\n   Start at  00:39:43\n   Duration  70.92s (transform 3.54s, setup 1.61s, import 6.14s, tests 124.47s, environment 8.52s)\n\n",
+      "timeout_seconds": 1800.0
+    }
+  ],
+  "schema": "chirality-software-check-evidence/v1",
+  "status": "FAIL",
+  "workspace_root": "."
+}

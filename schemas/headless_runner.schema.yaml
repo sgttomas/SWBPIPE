@@ -631,7 +631,7 @@
           "$ref": "#/$defs/PhysicalProjectContainer"
         },
         "final_cli_command_syntax": {
-          "const": "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>]"
+          "const": "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent]"
         },
         "package_scripts": {
           "const": "dev_test_convenience_only"

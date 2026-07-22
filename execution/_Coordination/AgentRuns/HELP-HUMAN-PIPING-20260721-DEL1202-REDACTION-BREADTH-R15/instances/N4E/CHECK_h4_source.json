@@ -1,0 +1,21 @@
+{
+  "schema": "chirality-n4e-h4-evidence/v1",
+  "lane": "source",
+  "status": "FAIL",
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "command": [
+    "PLAYWRIGHT_WORKERS=1",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/r2-smoke.spec.ts",
+    "--grep",
+    "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+    "--output={EXTERNAL_TMP}/chirality-n4e-h4.baFcIr/source"
+  ],
+  "exit_code": 1,
+  "result": "2 failed",
+  "failure": "e2e/r2-smoke.spec.ts:566 expected raw unit_policy_target_count=44; controlled output was [REDACTED] in both browsers",
+  "output_location": "{EXTERNAL_TMP}/chirality-n4e-h4.baFcIr/source",
+  "attempt_5_sweep_count": 0
+}

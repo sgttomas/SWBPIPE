@@ -1,0 +1,26 @@
+{
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "project_root": "projects/chirality-piping",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/practitioner_harness"
+      ],
+      "cwd": ".",
+      "duration_seconds": 101.494,
+      "exit_code": 1,
+      "id": "harness-pytest",
+      "status": "FAIL",
+      "stderr": "",
+      "stdout": "........................................................................ [ 23%]\n.......................................F................................ [ 46%]\n........................................................................ [ 69%]\n........................................................................ [ 92%]\n.......................                                                  [100%]\n=================================== FAILURES ===================================\n________________ test_live_gen8_semantic_portability_invariants ________________\n\n    @live\n    def test_live_gen8_semantic_portability_invariants():\n        report, _ = cmd_self_check.run_self_check(LIVE_REPO)\n>       assert [f for f in report.findings if f.code in {\n            \"ABS_PATH_IN_PROJECT_SURFACE\",\n            \"ABS_PATH_IN_UNCLASSIFIED_SURFACE\",\n        }] == []\nE       AssertionError: assert [Finding(seve...', caveat='')] == []\nE         \nE         Left contains one more item: Finding(severity=<Severity.REVIEW: 'REVIEW'>, code='ABS_PATH_IN_UNCLASSIFIED_SURFACE', dimension='path-anchoring', mes...-R15/instances/N4B/CHECK_h4_dist.json', source_line=9, invariant='SPEC-0.2.4', invariant_ratification='N_A', caveat='')\nE         Use -v to get more diff\n\ntools/practitioner_harness/test_live_baseline.py:227: AssertionError\n=========================== short test summary info ============================\nFAILED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants\n1 failed, 310 passed in 101.32s (0:01:41)\n",
+      "timeout_seconds": 1800.0
+    }
+  ],
+  "schema": "chirality-software-check-evidence/v1",
+  "status": "FAIL",
+  "workspace_root": "."
+}

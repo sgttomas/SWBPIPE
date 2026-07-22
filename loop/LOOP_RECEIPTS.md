@@ -1496,3 +1496,27 @@
   - Checks: brief and implementation independent-verifier suites, executor reproduction suite with single-sweep one-file-delta proof, closeout piping-pytest, harness-pytest (first attempt truthfully failed on a machine-absolute path in a run artifact, cured and preserved), harness-self-check, and receipt validator pass.
   - Model-Attribution: HELP_HUMAN parent, W5 manager, and all W5 child nodes ran on Claude Fable 5 (`claude-fable-5`) via the session harness Agent facility without override or mid-task substitution.
   - Gate-Outcome: `EXECUTED` — the actor-neutral clean-checkout reproduction of the current documented procedure at the campaign head is `INTERNALLY_VERIFIED`; the R11 bundle stays immutable; DEL-09-04 Remaining and lifecycle unchanged (both surviving bullets owner-gated); no owner acceptance, evidence-posture promotion, lifecycle/stage change, threshold content, release, or publication; self-merge under the Receipt-61 transcribed session grant.
+
+- **2026-07-22 — Receipt 65** (DEL-12-02 redaction breadth).
+  - Receipt-ID: `Receipt-65`
+  - Examined-Through: `0c066652cd527eb1559f715e914262d2bda42602`
+  - Parent-Receipt: `Receipt-64`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — “You may also self-merge your PRs.”
+  - Pointers: adopted candidate v6
+    `execution/_Coordination/CANDIDATE_BRIEF_2026-07-21_DEL-12-02_REDACTION_BREADTH.md`;
+    managed implementation, preserved attempt history, N5H `COMMIT-SAFE`,
+    and handoff under
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/`;
+    final deliverable run record under DEL-12-02 `_run_records/`; admitted
+    attempt-8 DEC-025 sweep `SWEEP_20260722T101717Z_0c066652cd52-dirty.json`;
+    CHANGE cached-diff disposition
+    `execution/_Change/2026-07-22_DEL1202_R15_CACHED_DIFF_EXCEPTION.json`.
+  - Checks: focused and registered work-type checks pass; DEC-025 evidence
+    sweep pass; harness pytest and self-check pass; claims, path, containment,
+    and receipt validation pass; cached diff-check passes for every staged
+    non-excepted path, with the exact immutable R15 evidence-only whitespace
+    warnings enumerated and preserved under the cited CHANGE disposition.
+  - Gate-Outcome: `EXECUTED` — the frozen 31-route redaction-breadth tranche
+    passed independent refutation and DEL-12-02-only W3 closeout; lifecycle
+    remains `IN_PROGRESS`; no non-DEL-12-02 state, stage, release, issuance,
+    professional-acceptance, or legal/security-sufficiency effect.

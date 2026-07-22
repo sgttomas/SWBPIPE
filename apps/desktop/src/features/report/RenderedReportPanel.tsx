@@ -11,6 +11,8 @@ import {
   type RenderReportRoute
 } from "../../services/reportRenderService";
 import { buildRenderableReportInput, buildUnitDisplaySummary } from "./renderableReportInput";
+import { controlReportRendererInput } from "./reportRedactionProjector";
+import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
 
 // DEC-021 (A7): rendered FR-016 calculation report. The Rust renderer crate
 // composes, gates, and hashes the document; this panel only requests a
@@ -34,6 +36,7 @@ export function RenderedReportPanel({
   const [rendering, setRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [printRequested, setPrintRequested] = useState(false);
+  const [redaction, setRedaction] = useState<ControlledRouteExport | null>(null);
 
   const canRender = Boolean(result && analysisRun) && !rendering;
   const outcome = route?.route === "tauri_renderer" ? route.outcome : null;
@@ -60,7 +63,13 @@ export function RenderedReportPanel({
         analysisRun,
         projectSummary
       });
-      setRoute(await renderCalculationReport(input));
+      const controlled = controlReportRendererInput(input);
+      setRedaction(controlled);
+      if (controlled.blocked || controlled.payload === null) {
+        setRoute(null);
+        return;
+      }
+      setRoute(await renderCalculationReport(controlled));
     } catch (error) {
       setRoute(null);
       setRenderError(error instanceof Error ? error.message : String(error));
@@ -109,7 +118,16 @@ export function RenderedReportPanel({
       {renderError ? (
         <p data-testid="rendered-report-error">Render failed: {renderError}</p>
       ) : null}
+      {redaction ? (
+        <p data-testid="rendered-report-redaction-summary">
+          decisions={redaction.summary.decision_count}; findings={redaction.summary.finding_count}; blocked=
+          {String(redaction.blocked)}
+        </p>
+      ) : null}
       {route?.route === "unavailable_browser_preview" ? (
+        <p data-testid="rendered-report-route">{route.diagnostic}</p>
+      ) : null}
+      {route?.route === "redaction_blocked" ? (
         <p data-testid="rendered-report-route">{route.diagnostic}</p>
       ) : null}
       {outcome ? (
@@ -135,13 +153,13 @@ export function RenderedReportPanel({
             </ul>
           ) : (
             <div className="report-actions">
-              <a
+        <ControlledExportLink
                 data-testid="rendered-report-save"
                 download={`openpipestress-report-${outcome.sha256_hex.slice(0, 12)}.html`}
                 href={`data:text/html;charset=utf-8,${encodeURIComponent(outcome.html)}`}
               >
                 Save canonical HTML
-              </a>
+        </ControlledExportLink>
               <button
                 type="button"
                 data-testid="rendered-report-print"
@@ -152,13 +170,15 @@ export function RenderedReportPanel({
               </button>
             </div>
           )}
-          <iframe
-            title="Rendered calculation report preview"
-            data-testid="rendered-report-preview"
-            sandbox=""
-            srcDoc={outcome.html}
-            style={{ width: "100%", height: "20rem", border: "1px solid #888" }}
-          />
+          {!outcome.export_blocked ? (
+            <iframe
+              title="Rendered calculation report preview"
+              data-testid="rendered-report-preview"
+              sandbox=""
+              srcDoc={outcome.html}
+              style={{ width: "100%", height: "20rem", border: "1px solid #888" }}
+            />
+          ) : null}
           {printRequested && !outcome.export_blocked ? (
             <iframe
               title="Derived print view"
@@ -185,3 +205,4 @@ function formatModelUnits(modelUnits: Record<string, string>): string {
       .join(",") || "none"
   );
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

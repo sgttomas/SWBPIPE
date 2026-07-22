@@ -50,7 +50,7 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
         Rule-Check Completeness
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="rule-check-export-link"
           download={`openpipestress-preview-rule-completeness-${safeFileToken(model.project.id)}.json`}
@@ -58,7 +58,7 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
         >
           <Download size={14} aria-hidden="true" />
           Local completeness JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="rule-check-summary">
           {review.summary.finding_count} review findings; rule_check_blocked=
           {String(review.summary.rule_check_blocked)}; mechanics_reviewable=
@@ -439,3 +439,4 @@ function safeFileToken(value: string): string {
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

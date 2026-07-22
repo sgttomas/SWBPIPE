@@ -1,0 +1,51 @@
+{
+  "schema": "chirality-n4f-validator-evidence/v1",
+  "status": "PASS",
+  "phase": "pre_sweep",
+  "checks": {
+    "terminal_verification": {
+      "status": "PASS",
+      "focused_workflow": "7 passed",
+      "piping_pytest": "523 passed",
+      "desktop_vitest": "24 files / 492 passed",
+      "desktop_build": "PASS",
+      "h4_source": "2 passed",
+      "h4_production_dist": "1 passed",
+      "headless_rust": "44 passed",
+      "practitioner_harness": "311 passed",
+      "harness_self_check": "PASS"
+    },
+    "failed_intermediate_evidence": {
+      "h4_source_initial": "0 passed / 2 failed; A3-dependent post-click assertions removed with the prohibited click",
+      "json_validator_initial": "operational command-quoting SyntaxError; corrected read-only invocation passed"
+    },
+    "change_scope_complete_dirty_inventory": {
+      "status": "PASS",
+      "evidence": "CHECK_change-scope_pre_sweep.json",
+      "terminal_dirty_paths_expected_after_pre_sweep_records": 232,
+      "violations": 0,
+      "test_results_files": 0
+    },
+    "claims_language": {"status": "PASS", "files_scanned": 264},
+    "path_anchors": {"status": "PASS", "live_surfaces_scanned": 855, "findings": 0},
+    "piping_loop_receipts": {"status": "PASS", "frozen_through": "Receipt-44"},
+    "dirty_json_jsonl_parse": {"status": "PASS", "json_files": 83, "jsonl_files": 1, "jsonl_records": 46},
+    "git_diff_check": {"status": "PASS"},
+    "protected_release_state_receipt_no_change": {
+      "status": "PASS",
+      "base": "0c066652cd527eb1559f715e914262d2bda42602",
+      "branch": "codex/piping-pkg12-redaction",
+      "head": "0c066652cd527eb1559f715e914262d2bda42602",
+      "staged_paths": 0
+    },
+    "prior_sweep_hashes": {
+      "status": "PASS",
+      "attempt_1": "10fbc3c4e54b69df2856cb5dd42240dc87b35d4c3762df9664e6036cf7b3cd63",
+      "attempt_2": "d1620f2f25264400be6a68e6931982c13b7c17fe52a14381fe70c673f045ca72",
+      "attempt_3": "b2e89383c1e8a61ebfea8d52809358be53d23c56160315497f17d1d01844f4b6",
+      "attempt_4": "67fe4d2042469ba2ec2950c717b823bb4ad2a6ad66324889a13e6e354be2a29d",
+      "attempt_5": "3838165eae833faf04a5b2612f42e102224911582580bcab06bef4aa5757a12b"
+    },
+    "attempt_6_sweep_count": 0
+  }
+}

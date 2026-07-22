@@ -95,7 +95,7 @@ export function NativePackagePanel({
       {packet ? (
         <>
           <div className="report-actions">
-            <a
+        <ControlledExportLink
               className="report-export-link"
               data-testid="native-package-link"
               download={`openpipestress-preview-native-package-${safeFileToken(model.project.id)}.json`}
@@ -103,7 +103,7 @@ export function NativePackagePanel({
             >
               <Download size={14} aria-hidden="true" />
               Export JSON
-            </a>
+        </ControlledExportLink>
             <span data-testid="native-package-summary">
               ready; members={packet.manifest.package_members.length}; entities=
               {packet.stable_id_map.entity_ref_count}; results=
@@ -987,3 +987,4 @@ function safeFileToken(value: string): string {
 function round(value: number): number {
   return Number(value.toFixed(6));
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

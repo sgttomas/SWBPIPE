@@ -418,6 +418,43 @@ def test_premature_tbd_resolution_is_rejected():
     assert "ADAPTER_DECISION_PREMATURE" in codes(result)
 
 
+def test_protected_content_lint_cli_remains_release_tool_only():
+    """REXC-LINT-001 stays a governed diagnostic, not a product export."""
+
+    cli = (
+        ROOT
+        / "core"
+        / "reporting"
+        / "protected_content_linter"
+        / "src"
+        / "bin"
+        / "protected_content_lint_cli.rs"
+    )
+    release_consumers = {
+        ROOT / "tools" / "release" / "run_release_candidate_scan.py",
+        ROOT / "tools" / "release" / "export_public_openpipestress.py",
+    }
+    assert cli.is_file()
+    assert all(path.is_file() for path in release_consumers)
+    assert all(
+        "protected_content_lint_cli" in path.read_text(encoding="utf-8")
+        for path in release_consumers
+    )
+
+    unexpected = []
+    for root in (ROOT / "apps", ROOT / "core", ROOT / "tools"):
+        for path in root.rglob("*"):
+            if not path.is_file() or path.suffix not in {".py", ".rs", ".ts", ".tsx"}:
+                continue
+            if "target" in path.parts or path == cli or path in release_consumers:
+                continue
+            if "protected_content_lint_cli" in path.read_text(
+                encoding="utf-8", errors="ignore"
+            ):
+                unexpected.append(path.relative_to(ROOT).as_posix())
+    assert unexpected == []
+
+
 if __name__ == "__main__":
     test_schema_contract_shape_and_traceability()
     test_schema_keeps_runtime_and_format_decisions_tbd()
@@ -433,3 +470,4 @@ if __name__ == "__main__":
     test_operation_result_builder_preserves_boundaries()
     test_schema_and_fixture_do_not_contain_forbidden_status_terms()
     test_premature_tbd_resolution_is_rejected()
+    test_protected_content_lint_cli_remains_release_tool_only()

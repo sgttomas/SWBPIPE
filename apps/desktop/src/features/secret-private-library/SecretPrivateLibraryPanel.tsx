@@ -60,7 +60,7 @@ export function SecretPrivateLibraryPanel({
         Secret & Private Libraries
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="secret-private-library-export-link"
           download={`openpipestress-preview-secret-private-library-${safeFileToken(model.project.id)}.json`}
@@ -68,7 +68,7 @@ export function SecretPrivateLibraryPanel({
         >
           <Download size={14} aria-hidden="true" />
           Secret/private JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="secret-private-library-summary">
           records={packet.summary.reference_count}; metadata_only={String(packet.summary.metadata_only)};
           public_fixture_blocked={packet.summary.public_fixture_block_count}; secrets=
@@ -435,3 +435,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

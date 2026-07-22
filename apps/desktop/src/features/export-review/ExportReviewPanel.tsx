@@ -15,7 +15,7 @@ import type {
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
 
 const HEADLESS_FINAL_CLI =
-  "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>]";
+  "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent]";
 
 export function ExportReviewPanel({
   model,
@@ -63,7 +63,7 @@ export function ExportReviewPanel({
         Export Safety Review
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="export-review-link"
           download={`openpipestress-preview-export-review-${safeFileToken(model.project.id)}.json`}
@@ -71,7 +71,7 @@ export function ExportReviewPanel({
         >
           <Download size={14} aria-hidden="true" />
           Local manifest JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="export-review-summary">
           {manifest.summary.available_count} of {manifest.summary.export_count} local exports ready; no private/protected
           payloads
@@ -1280,3 +1280,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

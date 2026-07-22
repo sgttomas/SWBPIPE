@@ -20,7 +20,7 @@ export function ResultExportPanel({
       {packet ? (
         <>
           <div className="report-actions">
-            <a
+        <ControlledExportLink
               className="report-export-link"
               data-testid="result-export-link"
               download={`openpipestress-preview-results-${safeFileToken(packet.result_envelope.run_ref.ref_id)}.json`}
@@ -28,7 +28,7 @@ export function ResultExportPanel({
             >
               <Download size={14} aria-hidden="true" />
               Local result JSON
-            </a>
+        </ControlledExportLink>
             <span data-testid="result-export-summary">
               available; rows={packet.result_envelope.result_sets[0]?.values.length ?? 0}; sets=
               {packet.result_envelope.result_sets.length}; diagnostics={packet.result_envelope.diagnostics.length}
@@ -365,3 +365,4 @@ function safeFileToken(value: string): string {
 function safeRefToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9:_-]+/g, "-").replace(/^-+|-+$/g, "") || "ref";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

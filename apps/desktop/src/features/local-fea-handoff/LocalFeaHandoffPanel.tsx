@@ -58,7 +58,7 @@ export function LocalFeaHandoffPanel({
       {packet ? (
         <>
           <div className="report-actions">
-            <a
+        <ControlledExportLink
               className="report-export-link"
               data-testid="local-fea-export-link"
               download={`openpipestress-preview-local-fea-handoff-${safeFileToken(packet.handoff_package.handoff_id)}.json`}
@@ -66,7 +66,7 @@ export function LocalFeaHandoffPanel({
             >
               <Download size={14} aria-hidden="true" />
               Handoff JSON
-            </a>
+        </ControlledExportLink>
             <span data-testid="local-fea-summary">
               available; labels={packet.handoff_package.guidance_assessment.labels.length}; flags=
               {packet.handoff_package.unsupported_behavior_flags.length}; diagnostics=
@@ -586,3 +586,4 @@ function safeRefToken(value: string): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

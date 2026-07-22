@@ -67,7 +67,7 @@ export function ReviewGeometryPanel({
         Review Geometry Export
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="review-geometry-export-link"
           download={`openpipestress-preview-review-geometry-${safeFileToken(model.project.id)}.gltf.json`}
@@ -75,7 +75,7 @@ export function ReviewGeometryPanel({
         >
           <Download size={14} aria-hidden="true" />
           glTF JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="review-geometry-summary">
           available; format={packet.review_geometry_profile.target_artifact}; segments=
           {packet.geometry_summary.pipe_segment_count}; nodes={packet.geometry_summary.node_count}; stable_ids=
@@ -773,3 +773,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

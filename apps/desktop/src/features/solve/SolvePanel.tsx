@@ -37,7 +37,7 @@ export function SolvePanel({
         ))}
       </section>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="solve-job-export-link"
           download={`openpipestress-preview-solve-job-${safeFileToken(model.project.id)}.json`}
@@ -45,7 +45,7 @@ export function SolvePanel({
         >
           <Download size={14} aria-hidden="true" />
           Solve job JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="solve-job-summary">
           state={packet.summary.job_state}; events={packet.summary.event_count}; result_rows=
           {packet.summary.result_row_count}; cancellation_requested={String(packet.summary.cancellation_requested)}
@@ -406,3 +406,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

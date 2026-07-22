@@ -48,7 +48,7 @@ export function ProjectStorageAuditPanel({
         Project Storage Audit
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="project-storage-export-link"
           download={`openpipestress-preview-storage-audit-${safeFileToken(model.project.id)}.json`}
@@ -56,7 +56,7 @@ export function ProjectStorageAuditPanel({
         >
           <Download size={14} aria-hidden="true" />
           Local storage JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="project-storage-summary">
           operation={packet.summary.last_operation}; pending operations={packet.summary.pending_operation_count};
           proposals={packet.summary.proposal_operation_count}; accepted_state_mutated=
@@ -344,3 +344,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

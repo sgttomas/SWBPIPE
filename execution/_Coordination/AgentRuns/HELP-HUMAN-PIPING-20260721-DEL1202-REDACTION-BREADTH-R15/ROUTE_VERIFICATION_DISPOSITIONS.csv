@@ -1,0 +1,6 @@
+Disposition,RouteIDs,RequiredVerification
+IMPLEMENT_CONTROLLED_SINK,"REXC-CORE-001;REXC-CORE-002;REXC-CORE-003;REXC-CORE-004;REXC-CORE-005;REXC-CORE-006;REXC-CORE-007;REXC-CORE-008;REXC-CLI-001;REXC-CLI-002;DREP-UI-001;DREP-JSON-002;DREP-IPC-003;DREP-HTML-PREVIEW-004;DREP-HTML-SAVE-005;DREP-PRINT-006;DREP-LINT-JSON-007;DOTH-JSON-001;DOTH-HANDOFF-002;DOTH-FORMAT-003;DOTH-CAEPIPE-LOCAL-006;DOTH-PRIVATE-004",Focused allow redact block explicit-intent and no-exposure tests plus full route trace
+CALLER_GATE_TRACE,"REXC-CORE-011;REXC-CORE-012",Prove every frozen final caller is in IMPLEMENT_CONTROLLED_SINK and no independent final sink exists
+PRESERVE_NO_EGRESS,"REXC-CORE-009;REXC-CORE-010;DREP-BROWSER-NONE-008;BUG-REPORT-001",Negative assertion preserves deny-only or absent route and forbids new product surface
+PRESERVE_EXISTING_CONTROL,DOTH-CONTROL-005,Shared parity and existing panel behavior remain exact
+SEPARATE_GOVERNANCE_NO_CHANGE,"REXC-LINT-001;REXC-REL-001",Prove files unchanged and consumers remain the recorded DEC-058/DEC-059 diagnostic and public-source pipelines

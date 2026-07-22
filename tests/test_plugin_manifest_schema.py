@@ -173,9 +173,33 @@ def test_plugin_manifest_fixture_preserves_no_bypass_defaults():
     check_plugin_manifest_fixture()
 
 
+def test_future_plugin_and_bug_report_routes_remain_absent():
+    """Future egress must add a controlled-export boundary, not appear silently."""
+
+    forbidden_names = {
+        "plugin_loader",
+        "plugin_runtime",
+        "bug_report",
+        "bug_reporter",
+        "crash_report",
+        "crash_reporter",
+    }
+    discovered = []
+    for root in (ROOT / "apps", ROOT / "core", ROOT / "tools"):
+        for path in root.rglob("*"):
+            if "node_modules" in path.parts or "target" in path.parts:
+                continue
+            normalized = path.name.lower().replace("-", "_")
+            stem = Path(normalized).stem
+            if stem in forbidden_names or normalized in forbidden_names:
+                discovered.append(path.relative_to(ROOT).as_posix())
+    assert discovered == []
+
+
 def main():
     check_schema_contract()
     check_plugin_manifest_fixture()
+    test_future_plugin_and_bug_report_routes_remain_absent()
 
 
 if __name__ == "__main__":

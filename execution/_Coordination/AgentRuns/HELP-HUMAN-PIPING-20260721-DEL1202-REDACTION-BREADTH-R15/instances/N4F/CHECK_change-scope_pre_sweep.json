@@ -1,0 +1,25 @@
+{
+  "schema": "chirality-n4f-change-scope/v1",
+  "status": "PASS",
+  "phase": "pre_sweep",
+  "inherited_candidate_fence": {
+    "validator": "python3 tools/software_workflow/validate_change_scope.py",
+    "paths_enumerated_before_this_record": 230,
+    "violations": 0
+  },
+  "n4f_write_fence": {
+    "product_test_paths": [
+      "projects/chirality-piping/core/handoff/exporter/workflow.py",
+      "projects/chirality-piping/core/security/redaction/route_control.py",
+      "projects/chirality-piping/tests/test_handoff_export_workflow.py",
+      "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"
+    ],
+    "evidence_root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F",
+    "violations": 0
+  },
+  "launch_dirty_path_count": 217,
+  "expected_new_n4f_evidence_paths_after_this_record": 15,
+  "expected_terminal_pre_sweep_dirty_path_count": 232,
+  "test_results_files": 0,
+  "staged_paths": 0
+}

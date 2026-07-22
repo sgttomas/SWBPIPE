@@ -1,0 +1,10 @@
+{
+  "schema": "chirality-n4h-check-evidence/v1",
+  "status": "FAIL",
+  "command": ["python3", "-m", "pytest", "-q", "tests/test_handoff_export_workflow.py"],
+  "cwd": "projects/chirality-piping",
+  "exit_code": 1,
+  "result": "1 failed, 17 passed in 0.42s",
+  "failure": "Test fixture constructed target_mapping after replacing units_manifest with an empty mapping, so the fixture helper raised KeyError before the public workflow call.",
+  "remediation": "Construct the valid mapping first, then set the manifest empty and its copied source reference to null for the exact public-workflow regression."
+}

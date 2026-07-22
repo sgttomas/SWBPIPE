@@ -1,0 +1,61 @@
+{
+  "schema": "chirality-n4d-validator-evidence/v1",
+  "status": "PASS",
+  "phase": "post_sweep_final",
+  "checks": {
+    "change_scope_complete_dirty_inventory": {
+      "status": "PASS",
+      "evidence": "CHECK_change-scope_final.json",
+      "dirty_paths_enumerated": 180,
+      "violations": 0,
+      "test_results_dirty_paths": 0
+    },
+    "claims_language": {
+      "status": "PASS",
+      "files_scanned": 264
+    },
+    "path_anchors": {
+      "status": "PASS",
+      "live_surfaces_scanned": 808
+    },
+    "piping_loop_receipts": {
+      "status": "PASS",
+      "frozen_through": "Receipt-44"
+    },
+    "dirty_json_jsonl_parse": {
+      "status": "PASS",
+      "json_files": 53,
+      "jsonl_files": 1,
+      "jsonl_records": 33
+    },
+    "git_diff_check": {
+      "status": "PASS"
+    },
+    "protected_release_state_receipt_no_change": {
+      "status": "PASS",
+      "base": "0c066652cd527eb1559f715e914262d2bda42602"
+    },
+    "sweep_invocation_count": 1,
+    "acceptance_eligible_sweep": {
+      "attempt": 4,
+      "status": "PASS",
+      "artifact": "validation/evidence/sweeps/SWEEP_20260722T073143Z_0c066652cd52-dirty.json",
+      "sha256": "67fe4d2042469ba2ec2950c717b823bb4ad2a6ad66324889a13e6e354be2a29d",
+      "registered_duration_seconds": 224.379,
+      "artifact_duration_seconds": 221.193,
+      "sweep_dirty_paths": 77,
+      "sweep_test_results_paths": 0
+    },
+    "prior_sweep_hashes": {
+      "status": "PASS",
+      "attempt_1": "10fbc3c4e54b69df2856cb5dd42240dc87b35d4c3762df9664e6036cf7b3cd63",
+      "attempt_2": "d1620f2f25264400be6a68e6931982c13b7c17fe52a14381fe70c673f045ca72",
+      "attempt_3": "b2e89383c1e8a61ebfea8d52809358be53d23c56160315497f17d1d01844f4b6"
+    },
+    "historical_portability_override": {
+      "status": "PASS",
+      "artifact": "instances/N4B/CHECK_h4_dist.json",
+      "sha256": "26abe58c3f5eb6e021112d606984b9deda52069b42e9dbf385468afbed01f6af"
+    }
+  }
+}

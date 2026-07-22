@@ -355,7 +355,10 @@ def test_attempted_external_run_requires_del_17_04_binding_and_user_acknowledgem
 def test_writer_outputs_run_metadata_and_sidecars(tmp_path):
     package = parser_only_package()
 
-    write_caepipe_external_run_package(tmp_path, package)
+    controlled = write_caepipe_external_run_package(
+        tmp_path, package, explicit_local_private_intent=True
+    )
+    assert controlled.blocked is False
 
     metadata = load_json(tmp_path / "run_metadata.json")
     assert metadata["run_id"] == package["run_id"]
@@ -363,6 +366,16 @@ def test_writer_outputs_run_metadata_and_sidecars(tmp_path):
     assert load_json(tmp_path / "parsed_csv.json") == package["parsed_csv"]
     assert load_json(tmp_path / "diagnostics.json") == package["diagnostics"]
     assert load_json(tmp_path / "checksums.json") == package["checksums"]
+
+
+def test_writer_creates_no_directory_without_wrapper_owned_intent(tmp_path):
+    output = tmp_path / "blocked-run"
+    controlled = write_caepipe_external_run_package(
+        output, parser_only_package(), explicit_local_private_intent=False
+    )
+
+    assert controlled.blocked is True
+    assert not output.exists()
 
 
 def test_fixtures_contain_no_private_or_protected_payload_text():

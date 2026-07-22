@@ -25,7 +25,7 @@ export function BuildReadinessPanel({ model }: { model: PreviewModel }) {
         Build/Package Readiness
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="build-readiness-export-link"
           download={`openpipestress-preview-build-readiness-${safeFileToken(model.project.id)}.json`}
@@ -33,7 +33,7 @@ export function BuildReadinessPanel({ model }: { model: PreviewModel }) {
         >
           <Download size={14} aria-hidden="true" />
           Readiness JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="build-readiness-summary">
           available; scripts={packet.summary.script_count}; tauri={packet.summary.tauri_shell_status};
           bundle_active={String(packet.summary.bundle_active)}; diagnostics={packet.diagnostics.length}
@@ -267,3 +267,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

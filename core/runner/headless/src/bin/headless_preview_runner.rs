@@ -20,8 +20,9 @@
 use std::process::ExitCode;
 
 use open_pipe_stress_headless_runner::{
-    run_preview_in_memory, validate_result, JobStateKind, PrivacyContext, ProfessionalBoundary,
-    Provenance, RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
+    redaction_binding::control_local_private, run_preview_in_memory, validate_result, JobStateKind,
+    PrivacyContext, ProfessionalBoundary, Provenance, RedistributionStatus, Reference,
+    RunnerOperation, RunnerRequest, TbdDecisions,
 };
 use open_pipe_stress_product_physics::LinearStaticPreviewRequest;
 
@@ -63,9 +64,19 @@ fn main() -> ExitCode {
         );
         return ExitCode::from(2);
     };
+    let explicit_local_private_intent = match args.next().as_deref() {
+        None => false,
+        Some("--explicit-local-private-intent") => true,
+        Some(_) => {
+            eprintln!(
+                "usage (PROVISIONAL, not final CLI syntax): headless_preview_runner <preview-model.json> [--explicit-local-private-intent]"
+            );
+            return ExitCode::from(2);
+        }
+    };
     if args.next().is_some() {
         eprintln!(
-            "usage (PROVISIONAL, not final CLI syntax): headless_preview_runner <preview-model.json>"
+            "usage (PROVISIONAL, not final CLI syntax): headless_preview_runner <preview-model.json> [--explicit-local-private-intent]"
         );
         return ExitCode::from(2);
     }
@@ -92,14 +103,18 @@ fn main() -> ExitCode {
     let output = run_preview_in_memory(provisional_request(&model_path), preview_request);
     let validation = validate_result(&output.runner_result);
 
-    let rendered =
-        serde_json::to_string_pretty(&output).expect("PreviewRunnerOutput always serializes");
+    let controlled = control_local_private(
+        serde_json::to_value(&output).expect("PreviewRunnerOutput always serializes"),
+        explicit_local_private_intent,
+    );
+    let rendered = serde_json::to_string_pretty(&controlled)
+        .expect("controlled PreviewRunnerOutput always serializes");
     println!("{rendered}");
 
     let clean = output.runner_result.job.state == JobStateKind::Completed
         && output.runner_result.diagnostics.is_empty()
         && !validation.has_blocking_diagnostics();
-    if clean {
+    if clean && !controlled.blocked {
         ExitCode::SUCCESS
     } else {
         ExitCode::from(1)

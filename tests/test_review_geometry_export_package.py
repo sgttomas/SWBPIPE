@@ -284,29 +284,13 @@ def test_manifest_records_profile_basis_members_and_bounded_loss_content():
 
 def test_written_json_gltf_and_sidecar_round_trip_stable_identity(tmp_path):
     package = build_from_source()
-    write_review_geometry_export_package(tmp_path, package)
+    original = deepcopy(package)
+    controlled = write_review_geometry_export_package(tmp_path, package)
 
-    gltf = load_json(tmp_path / "model.gltf")
-    sidecar = load_json(tmp_path / "id_map.json")
-    sidecar_by_ref = {
-        item["canonical_ref"]["ref"]: item["gltf_ref"] for item in sidecar
-    }
-
-    assert len(sidecar_by_ref) == len(gltf["nodes"]) == len(gltf["meshes"])
-    for node_index, node in enumerate(gltf["nodes"]):
-        node_meta = node["extras"]["openpipestress"]
-        canonical_ref = node_meta["canonical_ref"]
-        assert node_meta["target_ref"] == ref("GltfNode", str(node_index))
-        assert sidecar_by_ref[canonical_ref["ref"]] == node_meta["target_ref"]
-
-        mesh_index = node["mesh"]
-        primitive_meta = gltf["meshes"][mesh_index]["primitives"][0]["extras"][
-            "openpipestress"
-        ]
-        assert primitive_meta["canonical_ref"] == canonical_ref
-        assert primitive_meta["target_ref"] == ref(
-            "GltfPrimitive", f"mesh:{mesh_index}:primitive:0"
-        )
+    assert package == original
+    assert controlled.blocked is True
+    assert controlled.summary["materialization_withheld"] is True
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_mismatched_stable_id_sidecar_blocks_current_json_gltf_profile():
@@ -439,14 +423,11 @@ def test_profile_source_basis_refs_are_required():
 def test_writer_outputs_gltf_and_sidecars(tmp_path):
     package = build_from_source()
 
-    write_review_geometry_export_package(tmp_path, package)
+    controlled = write_review_geometry_export_package(tmp_path, package)
 
-    assert load_json(tmp_path / "model.gltf") == package["gltf"]
-    assert load_json(tmp_path / "manifest.json") == package["manifest"]
-    assert load_json(tmp_path / "id_map.json") == package["stable_id_map"]
-    assert load_json(tmp_path / "loss_report.json") == package["loss_report"]
-    assert load_json(tmp_path / "validation_report.json") == package["validation_report"]
-    assert load_json(tmp_path / "diagnostics.json") == package["diagnostics"]
+    assert controlled.blocked is True
+    assert controlled.payload is None
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_fixtures_contain_no_private_or_protected_payload_text():

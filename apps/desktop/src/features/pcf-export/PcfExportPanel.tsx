@@ -86,7 +86,7 @@ export function PcfExportPanel({
         Conservative PCF Export
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-export-link"
           download={`openpipestress-preview-pcf-package-${safeFileToken(model.project.id)}.json`}
@@ -94,8 +94,8 @@ export function PcfExportPanel({
         >
           <Download size={14} aria-hidden="true" />
           Package JSON
-        </a>
-        <a
+        </ControlledExportLink>
+        <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-text-link"
           download={`openpipestress-preview-${safeFileToken(model.project.id)}.pcf`}
@@ -103,7 +103,7 @@ export function PcfExportPanel({
         >
           <Download size={14} aria-hidden="true" />
           PCF text
-        </a>
+        </ControlledExportLink>
         <span data-testid="pcf-export-summary">
           available; segments={packet.pcf_payload.pipe_segments.length}; nodes={packet.pcf_payload.nodes.length};
           validation={packet.validation_report.validation_status}; losses={packet.loss_report.length}
@@ -790,3 +790,4 @@ function safePcfToken(value: string): string {
     .replace(/^-+|-+$/g, "")
     .toUpperCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

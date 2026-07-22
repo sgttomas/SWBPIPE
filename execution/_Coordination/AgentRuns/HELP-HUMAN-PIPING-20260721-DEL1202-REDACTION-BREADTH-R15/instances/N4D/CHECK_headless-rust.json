@@ -1,0 +1,17 @@
+{
+  "schema": "chirality-n4d-rust-evidence/v1",
+  "status": "PASS",
+  "cwd": "projects/chirality-piping/core/runner/headless",
+  "command": ["cargo", "test"],
+  "exit_code": 0,
+  "result": {
+    "library": "28 passed",
+    "headless_preview_runner": "1 passed",
+    "openpipestress_runner": "15 passed",
+    "doc_tests": "0 failed",
+    "total": "44 passed"
+  },
+  "warnings": [
+    "Pre-existing mechanics benchmark unused-import and dead-code compiler warnings were emitted; no failures occurred."
+  ]
+}

@@ -8,6 +8,7 @@ from .controls import (
     classify_export_item,
     redact_export_payload,
 )
+from .route_control import ControlledExport, control_route_export
 
 __all__ = [
     "REDACTED_VALUE",
@@ -16,4 +17,6 @@ __all__ = [
     "RedactionResult",
     "classify_export_item",
     "redact_export_payload",
+    "ControlledExport",
+    "control_route_export",
 ]

@@ -1,0 +1,10 @@
+{
+  "schema": "chirality-n4h-check-evidence/v1",
+  "status": "FAIL",
+  "command": ["PLAYWRIGHT_WORKERS=1", "npx", "playwright", "test", "e2e/r2-smoke.spec.ts", "--grep", "R2 desktop preview smoke covers solve, results, report, and viewport overlay", "--output={EXTERNAL_TMP}/chirality-n4h-h4-source"],
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "exit_code": 1,
+  "result": "1 passed; chromium-compact failed before test execution because the launched Chrome process was closed",
+  "classification": "environmental browser-launch failure; no test assertion failed",
+  "external_output": "{EXTERNAL_TMP}/chirality-n4h-h4-source"
+}

@@ -46,7 +46,7 @@ export function DiffPreviewPanel({
       {hasRows ? (
         <>
           <div className="report-actions">
-            <a
+        <ControlledExportLink
               className="report-export-link"
               data-testid="diff-preview-export-link"
               download={`openpipestress-preview-operation-diff-${safeFileToken(model.project.id)}.json`}
@@ -54,7 +54,7 @@ export function DiffPreviewPanel({
             >
               <Download size={14} aria-hidden="true" />
               Local diff JSON
-            </a>
+        </ControlledExportLink>
             <span data-testid="diff-preview-summary">
               {packet.summary.operation_count} operations; {packet.summary.diff_row_count} diff rows; accepted_state_mutated=
               {String(packet.summary.accepted_model_state_mutated)}
@@ -381,3 +381,4 @@ function safeFileToken(value: string): string {
 function reference(objectType: string, ref: string) {
   return { object_type: objectType, ref };
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

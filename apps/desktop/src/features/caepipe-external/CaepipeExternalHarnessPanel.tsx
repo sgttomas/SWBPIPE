@@ -48,7 +48,7 @@ export function CaepipeExternalHarnessPanel({
         CAEPIPE External Harness
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-export-link"
           download={`openpipestress-preview-caepipe-external-${safeFileToken(model.project.id)}.json`}
@@ -56,8 +56,8 @@ export function CaepipeExternalHarnessPanel({
         >
           <Download size={14} aria-hidden="true" />
           Harness JSON
-        </a>
-        <a
+        </ControlledExportLink>
+        <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-csv-link"
           download={`openpipestress-preview-caepipe-external-${safeFileToken(model.project.id)}.csv`}
@@ -65,7 +65,7 @@ export function CaepipeExternalHarnessPanel({
         >
           <Download size={14} aria-hidden="true" />
           Parser CSV
-        </a>
+        </ControlledExportLink>
         <span data-testid="caepipe-external-summary">
           available; status={packet.package_status}; rows={packet.parsed_csv.row_count}; sections=
           {packet.parser_coverage.length}; external_invoked={String(packet.execution_result.attempted)};
@@ -541,3 +541,4 @@ function textDataHref(text: string): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

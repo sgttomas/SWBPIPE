@@ -1,0 +1,9 @@
+{
+  "schema": "chirality-n4h-check-evidence/v1",
+  "status": "FAIL",
+  "command": ["python3", "tools/software_workflow/run_registered_checks.py", "projects/chirality-piping/software-workflow.json", "--check", "harness-pytest", "--output", "instances/N4H/CHECK_harness-pytest.json", "--timeout-seconds", "1800"],
+  "exit_code": 1,
+  "result": "310 passed, 1 failed in 83.39s",
+  "failure": "test_live_gen8_semantic_portability_invariants found three ABS_PATH_IN_UNCLASSIFIED_SURFACE findings in newly written N4H H4 evidence.",
+  "remediation": "Normalize external-output evidence to the {EXTERNAL_TMP} token used by prior attempts, then rerun the registered harness check."
+}

@@ -100,6 +100,13 @@ export type RedactionRunResult = {
   summary: RedactionSummary;
 };
 
+export type ControlledRouteExport = RedactionRunResult & {
+  summary: RedactionSummary & {
+    route_id: string;
+    materialization_withheld: boolean;
+  };
+};
+
 export const EXPORT_CONTEXTS: RedactionExportContext[] = [
   "public_report",
   "public_example",
@@ -602,5 +609,278 @@ export function redactExportPayload(
     findings,
     blocked: decisions.some((decision) => decision.action === "block_export"),
     summary: summarize(decisions, findings)
+  };
+}
+
+const ROUTE_INTENT_KEYS = new Set([
+  "local_private_intent",
+  "explicit_local_private_intent",
+  "user_intent"
+]);
+const ROUTE_KEY_PREFIX = "__route_key__";
+
+const PRIVATE_ROUTE_TOKENS = [
+  "component",
+  "content",
+  "coordinate",
+  "design_basis",
+  "displacement",
+  "force",
+  "free_metadata",
+  "geometry",
+  "diameter",
+  "material",
+  "moment",
+  "owner",
+  "path",
+  "pipe_segment",
+  "project_name",
+  "project_ref",
+  "project_id",
+  "result_value",
+  "rotation",
+  "rule_detail",
+  "stress",
+  "text",
+  "thickness",
+  "value"
+];
+type StructuralProjection = "pcf_export" | "caepipe_mbf_export";
+
+const PCF_STRUCTURAL_PUBLIC_PATHS = new Set([
+  "$.scope_items[]",
+  "$.export_profile.profile_id",
+  "$.export_profile.profile_version",
+  "$.export_profile.target_family",
+  "$.export_profile.target_profile_version_basis",
+  "$.export_profile.artifact_format",
+  "$.export_profile.subset_scope",
+  "$.export_profile.unit_policy",
+  "$.export_profile.coordinate_policy",
+  "$.export_profile.identity_policy",
+  "$.export_profile.loss_report_policy",
+  "$.export_profile.translator_default_policy",
+  "$.export_profile.support_restraint_policy",
+  "$.export_profile.source_basis_refs[].object_type",
+  "$.export_profile.source_basis_refs[].ref",
+  "$.export_profile.boundary_notes[]",
+  "$.conversion_witnesses[].witness_id",
+  "$.conversion_witnesses[].target_quantity.target_field",
+  "$.conversion_witnesses[].conversion_factor_to_target"
+]);
+
+const CAEPIPE_MBF_STRUCTURAL_PUBLIC_PATHS = new Set([
+  "$.scope_items[]",
+  "$.export_profile.profile_id",
+  "$.export_profile.profile_version",
+  "$.export_profile.target_family",
+  "$.export_profile.target_version_basis",
+  "$.export_profile.record_subset_basis",
+  "$.export_profile.stable_id_policy",
+  "$.export_profile.unit_policy",
+  "$.export_profile.loss_report_policy",
+  "$.export_profile.external_execution_policy",
+  "$.export_profile.source_basis_refs[].object_type",
+  "$.export_profile.source_basis_refs[].ref",
+  "$.export_profile.carried_tbd_refs[]",
+  "$.export_profile.boundary_notes[]",
+  "$.conversion_witnesses[].witness_id",
+  "$.conversion_witnesses[].target_quantity.target_field",
+  "$.conversion_witnesses[].conversion_factor_to_target"
+]);
+
+function isExactStructuralPublicPath(
+  structuralProjection: StructuralProjection | null,
+  path: string
+): boolean {
+  if (structuralProjection === null) return false;
+  const normalizedPath = path.replace(/\[\d+\]/g, "[]");
+  const allowlist =
+    structuralProjection === "pcf_export"
+      ? PCF_STRUCTURAL_PUBLIC_PATHS
+      : CAEPIPE_MBF_STRUCTURAL_PUBLIC_PATHS;
+  return allowlist.has(normalizedPath);
+}
+
+function structuralProjectionFor(payload: unknown, routeId: string): StructuralProjection | null {
+  if (
+    routeId !== "DOTH-FORMAT-003" ||
+    !isPlainObject(payload) ||
+    !Array.isArray(payload.scope_items) ||
+    !isPlainObject(payload.export_profile) ||
+    !Array.isArray(payload.conversion_witnesses)
+  ) {
+    return null;
+  }
+  if (
+    payload.document_kind ===
+      "openpipestress.technical_preview.conservative_pcf_export_package" &&
+    payload.deliverable_id === "DEL-17-07"
+  ) {
+    return "pcf_export";
+  }
+  if (
+    payload.document_kind ===
+      "openpipestress.technical_preview.caepipe_mbf_export_package" &&
+    payload.deliverable_id === "DEL-17-04"
+  ) {
+    return "caepipe_mbf_export";
+  }
+  return null;
+}
+
+function stripRouteIntent(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stripRouteIntent);
+  if (!isPlainObject(value)) return structuredClone(value);
+  const output: PlainObject = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (ROUTE_INTENT_KEYS.has(key)) continue;
+    if (key === "export_policy" && isPlainObject(item)) {
+      output[key] = Object.fromEntries(
+        Object.entries(item)
+          .filter(([policyKey]) => !ROUTE_INTENT_KEYS.has(policyKey))
+          .map(([policyKey, policyValue]) => [policyKey, stripRouteIntent(policyValue)])
+      );
+    } else {
+      output[key] = stripRouteIntent(item);
+    }
+  }
+  return output;
+}
+
+function projectRouteValue(
+  value: unknown,
+  args: {
+    routeId: string;
+    path: string;
+    publicBasis: boolean;
+    structuralProjection: StructuralProjection | null;
+  }
+): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item, index) =>
+      projectRouteValue(item, { ...args, path: `${args.path}[${index}]`, publicBasis: false })
+    );
+  }
+  if (isPlainObject(value)) {
+    if (
+      "value" in value &&
+      !isPlainObject(value.value) &&
+      !Array.isArray(value.value) &&
+      hasExplicitMetadata(value)
+    ) {
+      return structuredClone(value);
+    }
+    const directPrivacy = value.privacy_classification ?? value.classification;
+    const boundedPublicBasis =
+      ["public", "public_metadata", "invented_public_example"].includes(String(directPrivacy)) &&
+        ["public_permissive", "invented_non_engineering_example"].includes(
+          String(value.redistribution_status)
+        );
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        `${ROUTE_KEY_PREFIX}${key}`,
+        projectRouteValue(item, {
+          ...args,
+          path: `${args.path}.${key}`,
+          publicBasis: boundedPublicBasis
+        })
+      ])
+    );
+  }
+
+  const lowered = args.path.toLowerCase().replaceAll("-", "_");
+  const unknown = value === null || value === undefined || value === "TBD" || lowered.includes("tbd");
+  const pathSegments = lowered.replaceAll("[", ".").replaceAll("]", "").split(".");
+  const leafSegment = pathSegments.at(-1) ?? "unknown";
+  const checksumValue =
+    leafSegment === "value" && (lowered.includes("checksum") || lowered.includes("hash"));
+  const unitMapLeaf =
+    lowered.includes(".model_units.") || lowered.includes(".target_export_units.");
+  const privateValueLeaf =
+    !checksumValue &&
+    !unitMapLeaf &&
+    PRIVATE_ROUTE_TOKENS.some(
+      (token) => leafSegment === token || leafSegment.endsWith(`_${token}`)
+    );
+  const safePublicValue =
+    !privateValueLeaf && isExactStructuralPublicPath(args.structuralProjection, args.path);
+  const privateValue =
+    privateValueLeaf ||
+    (!safePublicValue && PRIVATE_ROUTE_TOKENS.some((token) => lowered.includes(token)));
+  const privacy = unknown
+    ? "unknown"
+    : privateValue
+      ? "private_project_data"
+      : args.publicBasis || safePublicValue
+        ? "public_metadata"
+        : "unknown";
+  const redistribution = unknown
+    ? "unknown"
+    : privateValue
+      ? "private_only"
+      : args.publicBasis || safePublicValue
+        ? "public_permissive"
+        : "unknown";
+  return {
+    field_id: `${args.routeId}:${args.path}`,
+    field_class: args.path.split(".").at(-1)?.split("[")[0] || "unknown",
+    privacy_classification: privacy,
+    redistribution_status: redistribution,
+    review_status:
+      unknown || (!privateValue && !args.publicBasis && !safePublicValue) ? "pending" : "accepted",
+    value: structuredClone(value),
+    _route_projected_leaf: true
+  };
+}
+
+function materializeRouteValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(materializeRouteValue);
+  if (!isPlainObject(value)) return structuredClone(value);
+  if (value._route_projected_leaf === true) return structuredClone(value.value);
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => key !== "_route_projected_leaf")
+      .map(([key, item]) => [
+        key.startsWith(ROUTE_KEY_PREFIX) ? key.slice(ROUTE_KEY_PREFIX.length) : key,
+        materializeRouteValue(item)
+      ])
+  );
+}
+
+export function controlRouteExport(
+  payload: unknown,
+  options: {
+    routeId: string;
+    exportContext: RedactionExportContext;
+    explicitLocalPrivateIntent?: boolean;
+    requireLosslessMaterialization?: boolean;
+  }
+): ControlledRouteExport {
+  const structuralProjection = structuralProjectionFor(payload, options.routeId);
+  const projected = projectRouteValue(stripRouteIntent(payload), {
+    routeId: options.routeId,
+    path: "$",
+    publicBasis: false,
+    structuralProjection
+  });
+  const controlled = redactExportPayload(projected, {
+    exportContext: options.exportContext,
+    explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false
+  });
+  const destructive = controlled.decisions.some((decision) =>
+    ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
+  );
+  const materializationWithheld = Boolean(options.requireLosslessMaterialization && destructive);
+  const blocked = controlled.blocked || materializationWithheld;
+  return {
+    ...controlled,
+    payload: blocked ? null : materializeRouteValue(controlled.payload),
+    blocked,
+    summary: {
+      ...controlled.summary,
+      route_id: options.routeId,
+      materialization_withheld: materializationWithheld
+    }
   };
 }

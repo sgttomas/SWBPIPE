@@ -1,0 +1,9 @@
+{
+  "schema": "chirality-n4f-check-evidence/v1",
+  "status": "PASS",
+  "command": ["cargo", "test"],
+  "cwd": "projects/chirality-piping/core/runner/headless",
+  "exit_code": 0,
+  "result": "44 passed; 0 failed",
+  "warnings": "Pre-existing unused-import and dead-code warnings in mechanics benchmark dependency."
+}

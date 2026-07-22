@@ -20,6 +20,7 @@ from typing import Any, Mapping
 from core.handoff.external_prover.authority_boundary import (
     contains_prohibited_authority_term,
 )
+from core.security.redaction import ControlledExport, control_route_export
 
 
 STRESS_NEUTRAL_EXPORT_VERSION = "0.1.0"
@@ -424,8 +425,20 @@ def canonical_csv(value: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-def write_stress_neutral_export_package(directory: str | Path, package: Mapping[str, Any]) -> None:
-    """Write CSV plus JSON sidecars using deterministic encodings."""
+def write_stress_neutral_export_package(
+    directory: str | Path, package: Mapping[str, Any]
+) -> ControlledExport:
+    """Write CSV members only when redaction is lossless for the format."""
+
+    controlled = control_route_export(
+        package,
+        route_id="REXC-CORE-005",
+        export_context="downstream_tool",
+        require_lossless_materialization=True,
+    )
+    if controlled.blocked:
+        return controlled
+    package = controlled.payload
 
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
@@ -439,6 +452,7 @@ def write_stress_neutral_export_package(directory: str | Path, package: Mapping[
         ("diagnostics", "diagnostics.json"),
     ):
         (root / filename).write_text(canonical_json(package[key]) + "\n", encoding="utf-8")
+    return controlled
 
 
 def _export_profile(profile: Mapping[str, Any] | None, boundary_notes: list[str]) -> dict[str, Any]:

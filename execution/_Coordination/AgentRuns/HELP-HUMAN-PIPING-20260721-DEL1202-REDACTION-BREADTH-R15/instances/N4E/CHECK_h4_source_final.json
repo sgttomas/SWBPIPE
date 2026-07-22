@@ -1,0 +1,20 @@
+{
+  "schema": "chirality-n4e-h4-evidence/v1",
+  "lane": "source",
+  "status": "PASS",
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "command": [
+    "PLAYWRIGHT_WORKERS=1",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/r2-smoke.spec.ts",
+    "--grep",
+    "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+    "--output={EXTERNAL_TMP}/chirality-n4e-h4.baFcIr/source-final"
+  ],
+  "exit_code": 0,
+  "result": "2 passed",
+  "output_location": "{EXTERNAL_TMP}/chirality-n4e-h4.baFcIr/source-final",
+  "attempt_5_sweep_count": 0
+}

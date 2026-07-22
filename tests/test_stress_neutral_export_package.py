@@ -361,15 +361,11 @@ def test_source_basis_refs_cover_result_export_run_and_comparison_contracts():
 def test_writer_outputs_csv_and_sidecars(tmp_path):
     package = build_from_source()
 
-    write_stress_neutral_export_package(tmp_path, package)
+    controlled = write_stress_neutral_export_package(tmp_path, package)
 
-    assert (tmp_path / "stress_neutral_results.csv").read_text(encoding="ascii") == package["csv_text"]
-    assert load_json(tmp_path / "manifest.json") == package["manifest"]
-    assert load_json(tmp_path / "result_rows.json") == package["result_rows"]
-    assert load_json(tmp_path / "stable_id_map.json") == package["stable_id_map"]
-    assert load_json(tmp_path / "loss_report.json") == package["loss_report"]
-    assert load_json(tmp_path / "validation_report.json") == package["validation_report"]
-    assert load_json(tmp_path / "diagnostics.json") == package["diagnostics"]
+    assert controlled.blocked is True
+    assert controlled.summary["materialization_withheld"] is True
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_fixtures_contain_no_private_or_protected_payload_text():

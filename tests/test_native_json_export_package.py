@@ -293,9 +293,33 @@ def test_writer_uses_canonical_json(tmp_path):
     package = build_from_fixture()
     output_path = tmp_path / "native-package.json"
 
-    write_native_json_export_package(output_path, package)
+    original = deepcopy(package)
+    controlled = write_native_json_export_package(output_path, package)
 
-    assert output_path.read_text(encoding="utf-8") == canonical_json(package) + "\n"
+    assert package == original
+    assert controlled.blocked is False
+    assert controlled.findings
+    assert output_path.read_text(encoding="utf-8") == canonical_json(controlled.payload) + "\n"
+
+
+def test_writer_creates_no_file_when_control_contract_blocks(tmp_path):
+    output_path = tmp_path / "blocked-native-package.json"
+    controlled = write_native_json_export_package(
+        output_path,
+        {
+            "blocked_leaf": {
+                "field_id": "native.protected",
+                "field_class": "native_package",
+                "privacy_classification": "protected_suspected",
+                "redistribution_status": "unknown",
+                "review_status": "quarantined",
+                "value": "invented placeholder",
+            }
+        },
+    )
+
+    assert controlled.blocked is True
+    assert not output_path.exists()
 
 
 def test_fixture_contains_no_private_or_protected_payload_text():

@@ -78,7 +78,7 @@ export function HandoffPanel({
       {handoffPackage ? (
         <>
           <div className="report-actions">
-            <a
+        <ControlledExportLink
               className="report-export-link"
               data-testid="handoff-export-link"
               download={`openpipestress-preview-handoff-${safeFileToken(handoffPackage.analysis_run_ref.ref)}.json`}
@@ -86,7 +86,7 @@ export function HandoffPanel({
             >
               <Download size={14} aria-hidden="true" />
               Local package JSON
-            </a>
+        </ControlledExportLink>
             <span data-testid="handoff-export-summary">
               {handoffPackage.stable_id_map.entity_ref_count} entities; {handoffPackage.diagnostic_refs.length} diagnostics;{" "}
               {handoffPackage.loss_report.unsupported_behavior_refs.length} loss notes; no private payload
@@ -389,3 +389,4 @@ function safeRefToken(value: string): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

@@ -21,6 +21,7 @@ from core.handoff.pcf_export import (  # noqa: E402
     build_pcf_export_package,
     canonical_json,
     render_pcf_text,
+    write_pcf_export_package,
 )
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
@@ -207,6 +208,14 @@ def test_no_prohibited_professional_or_external_compatibility_language():
     assert boundary["software_makes_solver_validation_claim"] is False
     assert boundary["software_makes_code_compliance_claim"] is False
     assert boundary["software_creates_professional_reliance_record"] is False
+
+
+def test_writer_creates_no_directory_when_lossless_format_is_withheld(tmp_path):
+    controlled = write_pcf_export_package(tmp_path / "withheld", build_from_source())
+
+    assert controlled.blocked is True
+    assert controlled.summary["materialization_withheld"] is True
+    assert not (tmp_path / "withheld").exists()
 
 
 if __name__ == "__main__":

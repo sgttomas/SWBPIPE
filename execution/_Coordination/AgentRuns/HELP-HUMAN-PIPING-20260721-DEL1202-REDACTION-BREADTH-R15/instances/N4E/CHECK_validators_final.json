@@ -1,0 +1,67 @@
+{
+  "schema": "chirality-n4e-validator-evidence/v1",
+  "status": "PASS",
+  "phase": "post_sweep_final",
+  "checks": {
+    "change_scope_complete_dirty_inventory": {
+      "status": "PASS",
+      "evidence": "CHECK_change-scope_final.json",
+      "dirty_paths_enumerated": 210,
+      "violations": 0,
+      "test_results_dirty_paths": 0
+    },
+    "ignored_generated_test_output": {
+      "status": "PASS",
+      "removed_after_sweep": "apps/desktop/test-results/.last-run.json",
+      "removed_content_status": "passed",
+      "repository_test_results_files": 0
+    },
+    "claims_language": {
+      "status": "PASS",
+      "files_scanned": 264
+    },
+    "path_anchors": {
+      "status": "PASS",
+      "live_surfaces_scanned": 835,
+      "findings": 0
+    },
+    "piping_loop_receipts": {
+      "status": "PASS",
+      "frozen_through": "Receipt-44"
+    },
+    "dirty_json_jsonl_parse": {
+      "status": "PASS",
+      "json_files": 70,
+      "jsonl_files": 1,
+      "jsonl_records": 41
+    },
+    "git_diff_check": {
+      "status": "PASS"
+    },
+    "protected_release_state_receipt_no_change": {
+      "status": "PASS",
+      "base": "0c066652cd527eb1559f715e914262d2bda42602",
+      "branch": "codex/piping-pkg12-redaction",
+      "head": "0c066652cd527eb1559f715e914262d2bda42602",
+      "staged_paths": 0
+    },
+    "sweep_invocation_count": 1,
+    "acceptance_eligible_sweep": {
+      "attempt": 5,
+      "status": "PASS",
+      "artifact": "validation/evidence/sweeps/SWEEP_20260722T083801Z_0c066652cd52-dirty.json",
+      "sha256": "3838165eae833faf04a5b2612f42e102224911582580bcab06bef4aa5757a12b",
+      "registered_duration_seconds": 237.191,
+      "artifact_duration_seconds": 234.123,
+      "sweep_dirty_paths": 78,
+      "sweep_test_results_paths": 0
+    },
+    "prior_sweep_hashes": {
+      "status": "PASS",
+      "attempt_1": "10fbc3c4e54b69df2856cb5dd42240dc87b35d4c3762df9664e6036cf7b3cd63",
+      "attempt_2": "d1620f2f25264400be6a68e6931982c13b7c17fe52a14381fe70c673f045ca72",
+      "attempt_3": "b2e89383c1e8a61ebfea8d52809358be53d23c56160315497f17d1d01844f4b6",
+      "attempt_4": "67fe4d2042469ba2ec2950c717b823bb4ad2a6ad66324889a13e6e354be2a29d"
+    }
+  }
+}

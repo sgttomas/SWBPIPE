@@ -21,7 +21,7 @@ export function ReportLintPanel({
         Report Content Lint
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="report-lint-export-link"
           download={`openpipestress-preview-report-lint-${safeFileToken(model.project.id)}.json`}
@@ -29,7 +29,7 @@ export function ReportLintPanel({
         >
           <Download size={14} aria-hidden="true" />
           Lint JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="report-lint-summary">
           available; targets={packet.lint_run.summary.scanned_target_count}; findings=
           {packet.lint_run.summary.finding_count}; blocking={packet.lint_run.summary.blocking_finding_count}
@@ -980,3 +980,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

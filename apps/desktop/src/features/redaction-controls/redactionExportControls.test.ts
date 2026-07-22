@@ -11,6 +11,7 @@ import { describe, expect, it } from "vitest";
 import {
   REDACTED_VALUE,
   classifyExportItem,
+  controlRouteExport,
   redactExportPayload,
   type RedactionAction,
   type RedactionExportContext,
@@ -171,5 +172,311 @@ describe("redactExportPayload walk behavior", () => {
     expect(() =>
       redactExportPayload({}, { exportContext: "cloud_sync" as RedactionExportContext })
     ).toThrowError(/unsupported export_context/);
+  });
+});
+
+describe("route projection", () => {
+  it("does not promote an opaque sibling from public envelope metadata", () => {
+    const payload = {
+      privacy: {
+        privacy_classification: "public_metadata",
+        redistribution_status: "public_permissive"
+      },
+      provenance: {
+        privacy_classification: "invented_public_example",
+        redistribution_status: "invented_non_engineering_example"
+      },
+      opaque_sibling: "Invented value without leaf metadata"
+    };
+
+    for (const exportContext of ["public_report", "shared_model", "downstream_tool"] as const) {
+      const controlled = controlRouteExport(payload, {
+        routeId: "DOTH-HANDOFF-002",
+        exportContext
+      });
+      const decision = controlled.decisions.find((item) => item.path.endsWith("opaque_sibling"));
+
+      expect(decision).toMatchObject({
+        privacy_classification: "unknown",
+        redistribution_status: "unknown",
+        review_status: "pending",
+        action: "redact_value",
+        reason_code: "REDISTRIBUTION_STATUS_UNKNOWN"
+      });
+      expect((controlled.payload as { opaque_sibling: string }).opaque_sibling).toBe(REDACTED_VALUE);
+    }
+
+    const local = controlRouteExport(payload, {
+      routeId: "DOTH-HANDOFF-002",
+      exportContext: "local_private"
+    });
+    const localDecision = local.decisions.find((item) => item.path.endsWith("opaque_sibling"));
+    expect(localDecision).toMatchObject({
+      privacy_classification: "unknown",
+      redistribution_status: "unknown",
+      review_status: "pending",
+      action: "warning_only",
+      reason_code: "REDISTRIBUTION_STATUS_UNKNOWN"
+    });
+    expect((local.payload as { opaque_sibling: string }).opaque_sibling).toBe(payload.opaque_sibling);
+  });
+
+  it("keeps public basis exact-record-local across nested records and collections", () => {
+    const payload = {
+      public_record: {
+        privacy_classification: "public_metadata",
+        redistribution_status: "public_permissive",
+        direct_leaf: "Direct record metadata",
+        nested_record: { opaque_leaf: "Nested record without its own metadata" },
+        nested_list: [{ opaque_leaf: "Nested collection record without metadata" }]
+      }
+    };
+
+    for (const exportContext of ["public_report", "shared_model", "downstream_tool"] as const) {
+      const controlled = controlRouteExport(payload, {
+        routeId: "DOTH-HANDOFF-002",
+        exportContext
+      });
+      const direct = controlled.decisions.find((item) => item.path.endsWith("direct_leaf"));
+      const nested = controlled.decisions.filter((item) => item.path.endsWith("opaque_leaf"));
+
+      expect(direct).toMatchObject({
+        privacy_classification: "public_metadata",
+        redistribution_status: "public_permissive",
+        review_status: "accepted",
+        action: "include"
+      });
+      expect(nested).toHaveLength(2);
+      for (const decision of nested) {
+        expect(decision).toMatchObject({
+          privacy_classification: "unknown",
+          redistribution_status: "unknown",
+          review_status: "pending",
+          action: "redact_value",
+          reason_code: "REDISTRIBUTION_STATUS_UNKNOWN"
+        });
+      }
+      expect(controlled.payload).toMatchObject({
+        public_record: {
+          nested_record: { opaque_leaf: REDACTED_VALUE },
+          nested_list: [{ opaque_leaf: REDACTED_VALUE }]
+        }
+      });
+    }
+
+    const local = controlRouteExport(payload, {
+      routeId: "DOTH-HANDOFF-002",
+      exportContext: "local_private"
+    });
+    const nestedLocal = local.decisions.filter((item) => item.path.endsWith("opaque_leaf"));
+    expect(nestedLocal).toHaveLength(2);
+    for (const decision of nestedLocal) {
+      expect(decision).toMatchObject({
+        privacy_classification: "unknown",
+        redistribution_status: "unknown",
+        review_status: "pending",
+        action: "warning_only",
+        reason_code: "REDISTRIBUTION_STATUS_UNKNOWN"
+      });
+    }
+    expect(local.payload).toMatchObject({
+      public_record: {
+        nested_record: { opaque_leaf: payload.public_record.nested_record.opaque_leaf },
+        nested_list: [{ opaque_leaf: payload.public_record.nested_list[0].opaque_leaf }]
+      }
+    });
+  });
+
+  it.each([
+    {
+      documentKind: "openpipestress.technical_preview.conservative_pcf_export_package",
+      deliverableId: "DEL-17-07",
+      profileId: "ops.pcf.conservative_subset"
+    },
+    {
+      documentKind: "openpipestress.technical_preview.caepipe_mbf_export_package",
+      deliverableId: "DEL-17-04",
+      profileId: "ops.caepipe_mbf.smoke_tbd"
+    }
+  ])("uses exact $deliverableId structural paths without descendant promotion", ({
+    documentKind,
+    deliverableId,
+    profileId
+  }) => {
+    const payload = {
+      document_kind: documentKind,
+      deliverable_id: deliverableId,
+      scope_items: ["SOW-030"],
+      export_profile: { profile_id: profileId },
+      conversion_witnesses: [
+        {
+          witness_id: "conversion:witness:1",
+          target_quantity: { target_field: "target.expected" },
+          conversion_factor_to_target: 1000
+        }
+      ],
+      opaque_descendants: {
+        scope_items: ["opaque scope"],
+        export_profile: { profile_id: "opaque profile" },
+        conversion_witnesses: [
+          {
+            witness_id: "opaque witness",
+            target_quantity: { target_field: "opaque target" },
+            conversion_factor_to_target: 7
+          }
+        ]
+      }
+    };
+
+    const controlled = controlRouteExport(payload, {
+      routeId: "DOTH-FORMAT-003",
+      exportContext: "downstream_tool"
+    });
+    const expectedStructural = controlled.decisions.filter(
+      (item) =>
+        !item.path.includes("opaque_descendants") &&
+        (item.path.endsWith("scope_items[0]") ||
+          item.path.endsWith("profile_id") ||
+          item.path.endsWith("witness_id") ||
+          item.path.endsWith("target_field") ||
+          item.path.endsWith("conversion_factor_to_target"))
+    );
+    const opaque = controlled.decisions.filter((item) => item.path.includes("opaque_descendants"));
+
+    expect(expectedStructural).toHaveLength(5);
+    expect(expectedStructural.every((item) => item.action === "include")).toBe(true);
+    expect(opaque).toHaveLength(5);
+    expect(opaque.every((item) => item.privacy_classification === "unknown")).toBe(true);
+    expect(opaque.every((item) => item.redistribution_status === "unknown")).toBe(true);
+    expect(opaque.every((item) => item.action === "redact_value")).toBe(true);
+    expect(controlled.payload).toMatchObject({
+      opaque_descendants: {
+        scope_items: [REDACTED_VALUE],
+        export_profile: { profile_id: REDACTED_VALUE },
+        conversion_witnesses: [
+          {
+            witness_id: REDACTED_VALUE,
+            target_quantity: { target_field: REDACTED_VALUE },
+            conversion_factor_to_target: REDACTED_VALUE
+          }
+        ]
+      }
+    });
+  });
+
+  it("keeps safe-token names, suffix lookalikes, and opaque descendants unknown", () => {
+    const payload = {
+      document_kind: "openpipestress.technical_preview.conservative_pcf_export_package",
+      deliverable_id: "DEL-17-07",
+      scope_items: ["SOW-030"],
+      export_profile: {
+        profile_id: "ops.pcf.conservative_subset",
+        target_family: "pcf"
+      },
+      conversion_witnesses: [],
+      schema: "opaque root schema",
+      nested_deliverable_id: "DEL-99-99",
+      opaque: {
+        target_family: "opaque target",
+        schema_version: "opaque version",
+        target_family_status: "opaque status",
+        nested: { deliverable_id: "opaque nested deliverable" }
+      }
+    };
+    const controlled = controlRouteExport(payload, {
+      routeId: "DOTH-FORMAT-003",
+      exportContext: "downstream_tool"
+    });
+    const adversarial = controlled.decisions.filter(
+      (decision) =>
+        decision.path.endsWith("schema") ||
+        decision.path.endsWith("nested_deliverable_id") ||
+        decision.path.includes("opaque")
+    );
+
+    expect(adversarial).toHaveLength(6);
+    expect(adversarial.every((decision) => decision.privacy_classification === "unknown")).toBe(true);
+    expect(adversarial.every((decision) => decision.redistribution_status === "unknown")).toBe(true);
+    expect(adversarial.every((decision) => decision.review_status === "pending")).toBe(true);
+    expect(adversarial.every((decision) => decision.action === "redact_value")).toBe(true);
+    expect(controlled.payload).toMatchObject({
+      schema: REDACTED_VALUE,
+      nested_deliverable_id: REDACTED_VALUE,
+      opaque: {
+        target_family: REDACTED_VALUE,
+        schema_version: REDACTED_VALUE,
+        target_family_status: REDACTED_VALUE,
+        nested: { deliverable_id: REDACTED_VALUE }
+      }
+    });
+  });
+
+  it.each([
+    { routeId: "DOTH-HANDOFF-002", deliverableId: "DEL-17-07" },
+    { routeId: "DOTH-FORMAT-003", deliverableId: "DEL-99-99" }
+  ])("does not apply PCF structural authority for $routeId / $deliverableId", ({ routeId, deliverableId }) => {
+    const controlled = controlRouteExport(
+      {
+        document_kind: "openpipestress.technical_preview.conservative_pcf_export_package",
+        deliverable_id: deliverableId,
+        scope_items: ["SOW-030"],
+        export_profile: { profile_id: "ops.pcf.conservative_subset", target_family: "pcf" },
+        conversion_witnesses: []
+      },
+      { routeId, exportContext: "downstream_tool" }
+    );
+    const structuralLookalikes = controlled.decisions.filter(
+      (decision) =>
+        decision.path.endsWith("scope_items[0]") ||
+        decision.path.endsWith("export_profile.__route_key__profile_id") ||
+        decision.path.endsWith("export_profile.__route_key__target_family")
+    );
+
+    expect(structuralLookalikes).toHaveLength(3);
+    expect(structuralLookalikes.every((decision) => decision.privacy_classification === "unknown")).toBe(true);
+    expect(structuralLookalikes.every((decision) => decision.action === "redact_value")).toBe(true);
+  });
+
+  it("keeps an arbitrary unmetadataed leaf unknown despite false payload screening flags", () => {
+    const controlled = controlRouteExport(
+      {
+        private_payload_included: false,
+        protected_content_included: false,
+        opaque_leaf: "Invented value without leaf metadata"
+      },
+      {
+        routeId: "DOTH-HANDOFF-002",
+        exportContext: "downstream_tool"
+      }
+    );
+    const opaqueDecision = controlled.decisions.find((decision) => decision.path.endsWith("opaque_leaf"));
+
+    expect(opaqueDecision).toMatchObject({
+      privacy_classification: "unknown",
+      redistribution_status: "unknown",
+      review_status: "pending",
+      action: "redact_value",
+      reason_code: "REDISTRIBUTION_STATUS_UNKNOWN"
+    });
+    expect((controlled.payload as { opaque_leaf: string }).opaque_leaf).toBe(REDACTED_VALUE);
+  });
+
+  it("does not infer public unit metadata from unmetadataed key names", () => {
+    const source = {
+      unit_policy_evidence: {
+        source_quantity: { value: 42, unit: "N", dimension: "force" }
+      }
+    };
+    const original = structuredClone(source);
+    const controlled = controlRouteExport(source, {
+      routeId: "DOTH-HANDOFF-002",
+      exportContext: "downstream_tool"
+    });
+    expect(source).toEqual(original);
+    expect(controlled.payload).toEqual({
+      unit_policy_evidence: {
+        source_quantity: { value: REDACTED_VALUE, unit: REDACTED_VALUE, dimension: REDACTED_VALUE }
+      }
+    });
   });
 });

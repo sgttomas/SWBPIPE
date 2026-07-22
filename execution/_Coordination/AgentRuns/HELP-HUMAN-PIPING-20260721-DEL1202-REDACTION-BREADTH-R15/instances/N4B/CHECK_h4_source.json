@@ -1,0 +1,24 @@
+{
+  "schema": "chirality-n4b-h4-evidence/v1",
+  "mode": "source",
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/r2-smoke.spec.ts",
+    "--grep",
+    "R2 desktop preview smoke covers solve, results, report, and viewport overlay"
+  ],
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "exit_code": 0,
+  "status": "PASS",
+  "tests": {
+    "passed": 2,
+    "failed": 0,
+    "projects": [
+      "chromium-desktop",
+      "chromium-compact"
+    ]
+  },
+  "duration_seconds": 29.1
+}

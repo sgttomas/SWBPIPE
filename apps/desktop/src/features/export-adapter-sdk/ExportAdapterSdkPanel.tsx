@@ -62,7 +62,7 @@ export function ExportAdapterSdkPanel({
         Export Adapter SDK
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="export-adapter-sdk-export-link"
           download={`openpipestress-preview-export-adapter-sdk-${safeFileToken(model.project.id)}.json`}
@@ -70,7 +70,7 @@ export function ExportAdapterSdkPanel({
         >
           <Download size={14} aria-hidden="true" />
           Registry JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="export-adapter-sdk-summary">
           available; targets={packet.target_registry.targets.length}; capabilities=
           {packet.sdk_contract.capabilities.length}; validation={packet.validation_report.validation_status};
@@ -530,3 +530,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

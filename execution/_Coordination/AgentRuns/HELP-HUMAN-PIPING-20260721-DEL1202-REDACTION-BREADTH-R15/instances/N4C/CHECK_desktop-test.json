@@ -1,0 +1,24 @@
+{
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "project_root": "projects/chirality-piping",
+  "results": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 78.38,
+      "exit_code": 1,
+      "id": "desktop-test",
+      "status": "FAIL",
+      "stderr": "\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af Failed Tests 1 \u23af\u23af\u23af\u23af\u23af\u23af\u23af\n\n FAIL  src/App.test.tsx > OpenPipeStress desktop preview > renders the engineering workspace from invented local fixtures\nAssertionError: expected [ '[REDACTED]', '[REDACTED]' ] to include 'SOW-030'\n \u276f src/App.test.tsx:1019:35\n    1017|     expect(pcfPacket.deliverable_id).toBe(\"DEL-17-07\");\n    1018|     expect(pcfPacket.package_id).toBe(\"PKG-17\");\n    1019|     expect(pcfPacket.scope_items).toContain(\"SOW-030\");\n       |                                   ^\n    1020|     expect(pcfPacket.scope_items).toContain(\"SOW-074\");\n    1021|     expect(pcfPacket.objectives).toContain(\"OBJ-009\");\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/1]\u23af\n\nnpm error Lifecycle script `test` failed with error:\nnpm error code 1\nnpm error path {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error workspace @openpipestress/desktop@0.1.0\nnpm error location {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error command failed\nnpm error command sh -c vitest run\n",
+      "stdout": "\n> openpipestress-workspace@0.1.0 test:desktop\n> npm test --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.7 {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\n\n \u276f src/App.test.tsx (58 tests | 1 failed) 75171ms\n     \u00d7 renders the engineering workspace from invented local fixtures 1332ms\n\n Test Files  1 failed | 23 passed (24)\n      Tests  1 failed | 482 passed (483)\n   Start at  00:32:49\n   Duration  77.87s (transform 4.08s, setup 2.18s, import 7.91s, tests 134.04s, environment 10.84s)\n\n",
+      "timeout_seconds": 1800.0
+    }
+  ],
+  "schema": "chirality-software-check-evidence/v1",
+  "status": "FAIL",
+  "workspace_root": "."
+}

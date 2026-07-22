@@ -15,6 +15,7 @@ from typing import Any, Mapping
 from core.handoff.external_prover.authority_boundary import (
     contains_prohibited_authority_term,
 )
+from core.security.redaction import ControlledExport, control_route_export
 
 
 EXPORT_WORKFLOW_VERSION = "0.1.0"
@@ -57,20 +58,26 @@ def build_handoff_export_workflow(
     *,
     export_workflow_id: str,
     handoff_package: Mapping[str, Any],
-    target_mapping_contract: Mapping[str, Any],
-    target_fixture: Mapping[str, Any],
+    target_mapping_contract: Mapping[str, Any] | None = None,
+    target_fixture: Mapping[str, Any] | None = None,
     adapter_contract: Mapping[str, Any] | None = None,
     local_fea_contract: Mapping[str, Any] | None = None,
     redaction_contract: Mapping[str, Any] | None = None,
     transform_contract: Mapping[str, Any] | None = None,
     comparison_contract: Mapping[str, Any] | None = None,
     provenance: Mapping[str, Any] | None = None,
-) -> dict[str, Any]:
-    """Build a deterministic provider-neutral export workflow envelope."""
+) -> ControlledExport:
+    """Build and execute the controlled provider-neutral export workflow."""
 
     manifest = _manifest(handoff_package)
-    mapping_records = _list(target_mapping_contract.get("mapping_records"))
-    unsupported_records = _unsupported_records(manifest, target_mapping_contract, target_fixture)
+    mapping_contract = (
+        target_mapping_contract
+        if isinstance(target_mapping_contract, Mapping)
+        else {}
+    )
+    fixture = target_fixture if isinstance(target_fixture, Mapping) else {}
+    mapping_records = _list(mapping_contract.get("mapping_records"))
+    unsupported_records = _unsupported_records(manifest, mapping_contract, fixture)
     payload = {
         "schema_version": EXPORT_WORKFLOW_VERSION,
         "deliverable_id": "DEL-15-03",
@@ -79,10 +86,18 @@ def build_handoff_export_workflow(
         "objectives": ["OBJ-017"],
         "export_workflow_id": str(export_workflow_id),
         "workflow_status": "provider_neutral_export_package",
-        "target_fixture": _target_fixture(target_fixture),
+        "target_fixture": (
+            _target_fixture(target_fixture)
+            if isinstance(target_fixture, Mapping)
+            else deepcopy(target_fixture)
+        ),
         "source_handoff_package": deepcopy(dict(handoff_package)),
-        "target_mapping_contract": deepcopy(dict(target_mapping_contract)),
-        "preserved_context": _preserved_context(manifest, target_mapping_contract),
+        "target_mapping_contract": (
+            deepcopy(dict(target_mapping_contract))
+            if isinstance(target_mapping_contract, Mapping)
+            else deepcopy(target_mapping_contract)
+        ),
+        "preserved_context": _preserved_context(manifest, mapping_contract),
         "export_payload": {
             "package_identity": deepcopy(manifest.get("package_identity")),
             "model_hash": deepcopy(manifest.get("model_hash")),
@@ -96,7 +111,7 @@ def build_handoff_export_workflow(
             "unresolved_assumptions": deepcopy(_list(manifest.get("unresolved_assumptions"))),
             "warnings": deepcopy(_list(manifest.get("warnings"))),
             "diagnostics": [],
-            "provenance_references": _provenance_references(manifest, target_mapping_contract),
+            "provenance_references": _provenance_references(manifest, mapping_contract),
             "data_contracts": _data_contracts(
                 adapter_contract=adapter_contract,
                 local_fea_contract=local_fea_contract,
@@ -111,7 +126,12 @@ def build_handoff_export_workflow(
     }
     payload["diagnostics"] = diagnostics_for_export_workflow(payload)
     payload["export_payload"]["diagnostics"] = deepcopy(payload["diagnostics"])
-    return _sort_workflow(payload)
+    return control_route_export(
+        _sort_workflow(payload),
+        route_id="REXC-CORE-001",
+        export_context="downstream_tool",
+        source_findings=payload["diagnostics"],
+    )
 
 
 def diagnostics_for_export_workflow(workflow: Mapping[str, Any]) -> list[dict[str, Any]]:
@@ -121,7 +141,8 @@ def diagnostics_for_export_workflow(workflow: Mapping[str, Any]) -> list[dict[st
     handoff_package = workflow.get("source_handoff_package")
     manifest = _manifest(handoff_package if isinstance(handoff_package, Mapping) else {})
     target_mapping = workflow.get("target_mapping_contract")
-    if not isinstance(target_mapping, Mapping):
+    target_mapping_is_mapping = isinstance(target_mapping, Mapping)
+    if not target_mapping_is_mapping:
         diagnostics.append(
             _diagnostic(
                 "EXP-TARGET-MAPPING-MISSING",
@@ -135,7 +156,8 @@ def diagnostics_for_export_workflow(workflow: Mapping[str, Any]) -> list[dict[st
         target_mapping = {}
 
     diagnostics.extend(_handoff_diagnostics(workflow, manifest))
-    diagnostics.extend(_mapping_diagnostics(manifest, target_mapping))
+    if target_mapping_is_mapping:
+        diagnostics.extend(_mapping_diagnostics(manifest, target_mapping))
     diagnostics.extend(_target_fixture_diagnostics(workflow.get("target_fixture"), target_mapping))
     diagnostics.extend(_privacy_diagnostics(workflow.get("privacy")))
 
@@ -159,7 +181,8 @@ def diagnostics_for_export_workflow(workflow: Mapping[str, Any]) -> list[dict[st
 
 def canonical_json(value: Any) -> str:
     """Serialize an export workflow with stable key ordering."""
-
+    if isinstance(value, ControlledExport):
+        value = value.as_dict()
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
@@ -342,7 +365,12 @@ def _handoff_diagnostics(workflow: Mapping[str, Any], manifest: Mapping[str, Any
         "provenance",
         "professional_boundary",
     ):
-        if not manifest.get(field):
+        field_value = manifest.get(field)
+        if (
+            not isinstance(field_value, Mapping) or not field_value
+            if field == "units_manifest"
+            else not field_value
+        ):
             diagnostics.append(
                 _diagnostic(
                     "EXP-HANDOFF-MANIFEST-FIELD-MISSING",
@@ -397,8 +425,11 @@ def _mapping_diagnostics(
                 [_affected("TargetMapping", "source_context.model_hash")],
             )
         )
-    units_ref = manifest.get("units_manifest", {}).get("unit_system_ref")
-    if source_context.get("units_manifest_ref") != units_ref:
+    units_manifest = manifest.get("units_manifest")
+    if isinstance(units_manifest, Mapping) and (
+        source_context.get("units_manifest_ref")
+        != units_manifest.get("unit_system_ref")
+    ):
         diagnostics.append(
             _diagnostic(
                 "EXP-UNITS-MANIFEST-MISMATCH",
@@ -439,7 +470,8 @@ def _target_fixture_diagnostics(
                 [_affected("ExternalReference", str(target_kind))],
             )
         )
-    if target_kind != target_mapping_contract.get("target_system_kind"):
+    mapping_target_kind = target_mapping_contract.get("target_system_kind")
+    if mapping_target_kind is not None and target_kind != mapping_target_kind:
         diagnostics.append(
             _diagnostic(
                 "EXP-TARGET-KIND-MISMATCH",

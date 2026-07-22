@@ -10,6 +10,7 @@ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../t
 import { renderCalculationReport } from "../../services/reportRenderService";
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { RenderedReportPanel } from "./RenderedReportPanel";
+import * as reportRedactionProjector from "./reportRedactionProjector";
 
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
@@ -188,13 +189,28 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.restoreAllMocks();
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
 describe("reportRenderService", () => {
-  it("reports an explicit desktop-only route in browser preview without invoking", async () => {
+  it("rejects a raw renderer input before browser/native routing", async () => {
     const route = await renderCalculationReport({ any: "input" });
 
+    expect(route.route).toBe("redaction_blocked");
+    if (route.route === "redaction_blocked") {
+      expect(route.diagnostic).toContain("REPORT-REDACTION-CONTROL-REQUIRED");
+    }
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("preserves the explicit desktop-only route for controlled browser input", async () => {
+    const route = await renderCalculationReport({
+      payload: { report_title: "invented" },
+      findings: [],
+      blocked: false,
+      summary: { route_id: "DREP-IPC-003" }
+    });
     expect(route.route).toBe("unavailable_browser_preview");
     if (route.route === "unavailable_browser_preview") {
       expect(route.diagnostic).toContain("REPORT-RENDERER-DESKTOP-ONLY");
@@ -206,7 +222,12 @@ describe("reportRenderService", () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockResolvedValue(unblockedOutcome());
 
-    const route = await renderCalculationReport({ report_title: "invented" });
+    const route = await renderCalculationReport({
+      payload: { report_title: "invented" },
+      findings: [],
+      blocked: false,
+      summary: { route_id: "DREP-IPC-003" }
+    });
 
     expect(invokeMock).toHaveBeenCalledWith("render_calculation_report", {
       input: { report_title: "invented" }
@@ -257,9 +278,9 @@ describe("buildRenderableReportInput", () => {
         value_category: "component_provenance:bend",
         source: { ref_type: "component", ref_id: "component:C-110" },
         quantity: null,
-        privacy_classification: "invented_public_example",
+        privacy_classification: "private_project_data",
         required_for: ["reporting", "human_review"],
-        review_status: "accepted",
+        review_status: "pending",
         missing_data_finding: false
       }),
       expect.objectContaining({
@@ -314,6 +335,63 @@ describe("buildRenderableReportInput", () => {
     ).toBe(true);
   });
 
+  it("does not infer public classification from user-controlled invented or cleared provenance text", async () => {
+    const model = inventedModel();
+    model.components[0].provenance = "invented cleared user-controlled component text";
+    model.components[0].geometry = {
+      bend_geometry_source_reference: "cleared-looking user-controlled reference"
+    };
+    model.supports = [
+      {
+        id: "support:SH-TEXT",
+        label: "Text-controlled spring hanger",
+        node: "node:N-110",
+        family: "variable_spring_hanger",
+        restraints: [],
+        provenance: "invented and cleared user-controlled support text",
+        hanger: {
+          hanger_type: "variable_spring_hanger",
+          source_reference: "cleared-looking user-controlled hanger reference",
+          stiffness: { dof: "UY", value: { value: 1, unit: "N/m" } }
+        }
+      }
+    ];
+
+    const input = await buildRenderableReportInput({
+      model,
+      result: inventedResult(),
+      analysisRun: inventedRun(),
+      projectSummary: null
+    });
+    const component = input.report_sections.user_supplied_values.find(
+      (item) => item.value_id === "component-provenance:component:C-110"
+    );
+    const spring = input.report_sections.user_supplied_values.find(
+      (item) => item.value_id === "spring-hanger:support:SH-TEXT"
+    );
+
+    expect(component).toMatchObject({
+      privacy_classification: "private_project_data",
+      review_status: "pending"
+    });
+    expect(component?.provenance).toMatchObject({
+      source_license: "user_supplied_or_private",
+      redistribution_status: "private_only",
+      privacy_classification: "private_project_data",
+      review_status: "pending"
+    });
+    expect(spring).toMatchObject({
+      privacy_classification: "private_project_data",
+      review_status: "pending"
+    });
+    expect(spring?.provenance).toMatchObject({
+      source_license: "user_supplied_or_private",
+      redistribution_status: "private_only",
+      privacy_classification: "private_project_data",
+      review_status: "pending"
+    });
+  });
+
   it("uses the saved project persistence reference when a project summary exists", async () => {
     const input = await buildRenderableReportInput({
       model: inventedModel(),
@@ -343,7 +421,7 @@ describe("RenderedReportPanel", () => {
     expect(screen.getByTestId("rendered-report-precondition")).toBeInTheDocument();
   });
 
-  it("shows the canonical hash and save/print actions for an unblocked render", async () => {
+  it("blocks restored user-local report data before native IPC or exposure", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockResolvedValue(unblockedOutcome());
     render(
@@ -365,19 +443,35 @@ describe("RenderedReportPanel", () => {
     fireEvent.click(screen.getByTestId("rendered-report-render"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("rendered-report-hash")).toHaveTextContent("a".repeat(64));
+      expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=true");
     });
-    expect(screen.getByTestId("rendered-report-gate")).toHaveTextContent("export gates passed");
-    expect(screen.getByTestId("rendered-report-save")).toHaveAttribute(
-      "download",
-      `openpipestress-report-${"a".repeat(12)}.html`
-    );
-    expect(screen.getByTestId("rendered-report-print")).toBeInTheDocument();
-    expect(screen.getByTestId("rendered-report-preview")).toBeInTheDocument();
+    expect(invokeMock).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("rendered-report-hash")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-save")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-print")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
   });
 
-  it("refuses save and print while export is blocked and lists the reasons", async () => {
+  it("suppresses iframe, save, and print for an unmasked renderer-blocked outcome", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const projectorSpy = vi.spyOn(reportRedactionProjector, "controlReportRendererInput").mockReturnValue({
+      payload: { report_title: "Invented renderer-blocked fixture" },
+      decisions: [],
+      findings: [],
+      blocked: false,
+      summary: {
+        decision_count: 0,
+        finding_count: 0,
+        redacted_count: 0,
+        omitted_count: 0,
+        warning_count: 0,
+        blocking_count: 0,
+        cloud_transmission_attempted: false,
+        professional_claims_made: false,
+        route_id: "DREP-IPC-003",
+        materialization_withheld: false
+      }
+    });
     invokeMock.mockResolvedValue({
       ...unblockedOutcome(),
       export_blocked: true,
@@ -395,16 +489,20 @@ describe("RenderedReportPanel", () => {
     fireEvent.click(screen.getByTestId("rendered-report-render"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("rendered-report-gate")).toHaveTextContent("EXPORT BLOCKED");
+      expect(invokeMock).toHaveBeenCalledWith("render_calculation_report", {
+        input: { report_title: "Invented renderer-blocked fixture" }
+      });
     });
-    expect(screen.getByTestId("rendered-report-blocking-reasons")).toHaveTextContent(
-      "ProhibitedProfessionalClaim"
-    );
+    expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=false");
+    expect(screen.getByTestId("rendered-report-gate")).toHaveTextContent("EXPORT BLOCKED");
     expect(screen.queryByTestId("rendered-report-save")).not.toBeInTheDocument();
     expect(screen.queryByTestId("rendered-report-print")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-print-frame")).not.toBeInTheDocument();
+    projectorSpy.mockRestore();
   });
 
-  it("surfaces the explicit desktop-only diagnostic in browser preview", async () => {
+  it("surfaces redaction evidence before considering the browser-only route", async () => {
     render(
       <RenderedReportPanel
         model={inventedModel()}
@@ -417,10 +515,9 @@ describe("RenderedReportPanel", () => {
     fireEvent.click(screen.getByTestId("rendered-report-render"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("rendered-report-route")).toHaveTextContent(
-        "REPORT-RENDERER-DESKTOP-ONLY"
-      );
+      expect(screen.getByTestId("rendered-report-redaction-summary")).toHaveTextContent("blocked=true");
     });
+    expect(screen.queryByTestId("rendered-report-route")).not.toBeInTheDocument();
     expect(invokeMock).not.toHaveBeenCalled();
   });
 });

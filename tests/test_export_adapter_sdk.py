@@ -22,6 +22,7 @@ from core.handoff.export_adapter_sdk import (  # noqa: E402
     CANONICALIZATION_LABEL,
     build_export_adapter_sdk_package,
     canonical_json,
+    write_export_adapter_sdk_package,
 )
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
@@ -260,6 +261,26 @@ def test_no_prohibited_professional_or_target_claim_language():
     assert "release readiness" not in text
     assert "code compliance" not in text
     assert "professional acceptance" not in text
+
+
+def test_writer_creates_no_file_when_control_contract_blocks(tmp_path):
+    output = tmp_path / "adapter-sdk.json"
+    controlled = write_export_adapter_sdk_package(
+        output,
+        {
+            "blocked_leaf": {
+                "field_id": "adapter.protected",
+                "field_class": "adapter",
+                "privacy_classification": "protected_suspected",
+                "redistribution_status": "unknown",
+                "review_status": "quarantined",
+                "value": "invented placeholder",
+            }
+        },
+    )
+
+    assert controlled.blocked is True
+    assert not output.exists()
 
 
 if __name__ == "__main__":

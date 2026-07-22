@@ -1,0 +1,1824 @@
+{
+  "schema": "chirality-change-cached-diff-exception/v1",
+  "session_id": "2026-07-22_DEL1202_R15_CLOSEOUT",
+  "basis_sha": "0c066652cd527eb1559f715e914262d2bda42602",
+  "branch": "codex/piping-pkg12-redaction",
+  "status": "PASS_WITH_IMMUTABLE_EVIDENCE_EXCEPTION",
+  "authority": "HELP_HUMAN narrow disposition after staging exposed warnings in previously untracked immutable R15 evidence",
+  "exception_scope": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/**",
+    "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-21_DEL-12-02_REDACTION_BREADTH.md",
+    "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL-12-02_REDACTION-BREADTH-R15.md"
+  ],
+  "preservation_rule": "Enumerated evidence is retained byte-identical; exception covers whitespace warnings only and no product, test, schema, documentation, validation, sweep, receipt, or other staged path.",
+  "staged_path_count_after_manifest": 292,
+  "warning_count": 359,
+  "warning_path_count": 79,
+  "category_counts": {
+    "blank_line_at_eof": 69,
+    "trailing_whitespace": 290
+  },
+  "outside_exception_count": 0,
+  "non_exception_cached_diff_check": {
+    "status": "PASS",
+    "command": "git diff --cached --check -- . ':(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/**' ':(exclude)projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-21_DEL-12-02_REDACTION_BREADTH.md' ':(exclude)projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL-12-02_REDACTION-BREADTH-R15.md'"
+  },
+  "warning_enumeration_sha256": "054fe37442e7c4725beef0c1f7cd6e1099ee998d810ed7ce7f30c58f3e356775",
+  "warnings": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL-12-02_REDACTION-BREADTH-R15.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL-12-02_REDACTION-BREADTH-R15.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL-12-02_REDACTION-BREADTH-R15.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL-12-02_REDACTION-BREADTH-R15.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL-12-02_REDACTION-BREADTH-R15.md",
+      "line": 49,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/AMENDMENT_V2.md",
+      "line": 16,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/AMENDMENT_V3.md",
+      "line": 14,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/AMENDMENT_V4.md",
+      "line": 17,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/AMENDMENT_V5.md",
+      "line": 17,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/AMENDMENT_V6.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 72,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 73,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 74,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 75,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 76,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 77,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 78,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 79,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/CURRENT_CANDIDATE_RATIONALE.md",
+      "line": 122,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/FAN_IN.md",
+      "line": 51,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/HANDOFF_STATE.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/HANDOFF_STATE.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/HANDOFF_STATE.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/HANDOFF_STATE.md",
+      "line": 33,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N4B_FAN_IN.md",
+      "line": 24,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N4C_FAN_IN.md",
+      "line": 26,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N4D_FAN_IN.md",
+      "line": 29,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N4E_FAN_IN.md",
+      "line": 27,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N4F_FAN_IN.md",
+      "line": 25,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N4G_FAN_IN.md",
+      "line": 21,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N4H_FAN_IN.md",
+      "line": 11,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N4_FAN_IN.md",
+      "line": 21,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N5D_FAN_IN.md",
+      "line": 25,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N5E_FAN_IN.md",
+      "line": 23,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N5F_FAN_IN.md",
+      "line": 23,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N5G_FAN_IN.md",
+      "line": 16,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/N5H_FAN_IN.md",
+      "line": 11,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/OWNER_GATE_3_DECISION.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/OWNER_GATE_3_DECISION.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/OWNER_GATE_3_DECISION.md",
+      "line": 23,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4B.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4B.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4B.md",
+      "line": 29,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4C.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4C.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4C.md",
+      "line": 27,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4D.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4D.md",
+      "line": 25,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4E.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4E.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4E.md",
+      "line": 36,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4F.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4F.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4F.md",
+      "line": 30,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4G.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4G.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4G.md",
+      "line": 24,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/REMEDIATION_AUTHORIZATION_N4H.md",
+      "line": 11,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/VALIDATION.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/VALIDATION.md",
+      "line": 32,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 13,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 14,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 15,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 16,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 17,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/BRIEF.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N1/RETURN.md",
+      "line": 28,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 13,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 14,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 15,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 16,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 17,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/BRIEF.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N2/RETURN.md",
+      "line": 28,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3/RETURN.md",
+      "line": 23,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 13,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 14,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 15,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 16,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 17,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/BRIEF.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3B/RETURN.md",
+      "line": 28,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 13,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 14,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 15,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 16,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 17,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/BRIEF.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3C/RETURN.md",
+      "line": 31,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 13,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 14,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 15,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 16,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 17,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/BRIEF.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3D/RETURN.md",
+      "line": 22,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 13,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 14,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 15,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 16,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 17,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/BRIEF.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3E/RETURN.md",
+      "line": 27,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 13,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 14,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 15,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 16,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 17,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/BRIEF.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N3F/RETURN.md",
+      "line": 29,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/BRIEF.md",
+      "line": 77,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/RETURN.md",
+      "line": 41,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/BRIEF.md",
+      "line": 58,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/BRIEF.md",
+      "line": 50,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4C/RETURN.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/BRIEF.md",
+      "line": 52,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4D/RETURN.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A1.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A1.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A1.md",
+      "line": 21,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A2.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A2.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A2.md",
+      "line": 19,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A3.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A3.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/BRIEF_AMENDMENT_A3.md",
+      "line": 21,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/CHECK_change-scope_final.json",
+      "line": 259,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/CHECK_change-scope_pre_sweep.json",
+      "line": 251,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4E/RETURN.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/BRIEF.md",
+      "line": 78,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4F/RETURN.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/BRIEF.md",
+      "line": 55,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4G/RETURN.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4H/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4H/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4H/BRIEF.md",
+      "line": 25,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4H/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4H/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4H/RETURN.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 12,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/BRIEF.md",
+      "line": 63,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5/RETURN.md",
+      "line": 42,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 10,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 11,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/BRIEF.md",
+      "line": 55,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/RETURN.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/RETURN.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5B/RETURN.md",
+      "line": 32,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/BRIEF.md",
+      "line": 48,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5C/RETURN.md",
+      "line": 26,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5D/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5D/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5D/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5D/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5D/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5D/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5D/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5D/BRIEF.md",
+      "line": 63,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5E/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5E/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5E/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5E/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5E/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5E/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5E/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5E/BRIEF.md",
+      "line": 64,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5F/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5F/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5F/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5F/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5F/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5F/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5F/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5F/BRIEF.md",
+      "line": 54,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5G/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5G/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5G/BRIEF.md",
+      "line": 5,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5G/BRIEF.md",
+      "line": 6,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5G/BRIEF.md",
+      "line": 7,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5G/BRIEF.md",
+      "line": 8,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5G/BRIEF.md",
+      "line": 9,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5G/BRIEF.md",
+      "line": 43,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5H/BRIEF.md",
+      "line": 3,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5H/BRIEF.md",
+      "line": 4,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N5H/BRIEF.md",
+      "line": 18,
+      "category": "blank_line_at_eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-21_DEL-12-02_REDACTION_BREADTH.md",
+      "line": 15,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-21_DEL-12-02_REDACTION_BREADTH.md",
+      "line": 19,
+      "category": "trailing_whitespace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-21_DEL-12-02_REDACTION_BREADTH.md",
+      "line": 20,
+      "category": "trailing_whitespace"
+    }
+  ]
+}

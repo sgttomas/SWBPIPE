@@ -1,0 +1,9 @@
+{
+  "schema": "chirality-n4f-check-evidence/v1",
+  "status": "FAIL",
+  "command": ["PLAYWRIGHT_WORKERS=1", "npx", "playwright", "test", "e2e/r2-smoke.spec.ts", "--grep", "R2 desktop preview smoke covers solve, results, report, and viewport overlay", "--output={EXTERNAL_TMP}/chirality-n4f-h4-source"],
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "exit_code": 1,
+  "result": "0 passed / 2 failed",
+  "failure": "The A3-dependent rendered-report-redaction-summary assertion was unreachable after restoring the pre-A3 no-click flow. The assertion and its directly dependent preview/save/print assertions were removed; the pre-A3-flow lint redacted-leaf assertions remain."
+}

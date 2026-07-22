@@ -42,7 +42,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
         Missing Data Blocking
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="missing-data-export-link"
           download={`openpipestress-preview-missing-data-${safeFileToken(model.project.id)}.json`}
@@ -50,7 +50,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
         >
           <Download size={14} aria-hidden="true" />
           Warning JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="missing-data-summary">
           available; classes={packet.summary.warning_class_count}; active=
           {packet.summary.active_warning_count}; solve_blocked=
@@ -554,3 +554,4 @@ function safeRefToken(value: string): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

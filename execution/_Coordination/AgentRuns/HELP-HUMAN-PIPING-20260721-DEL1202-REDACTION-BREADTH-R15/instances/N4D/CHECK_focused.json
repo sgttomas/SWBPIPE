@@ -1,0 +1,40 @@
+{
+  "schema": "chirality-n4d-focused-evidence/v1",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "python-nested-exact-record-basis",
+      "cwd": "projects/chirality-piping",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/security/test_redaction_export_controls.py"
+      ],
+      "exit_code": 0,
+      "result": "13 passed"
+    },
+    {
+      "id": "typescript-nested-structural-report-projection",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "src/features/redaction-controls/redactionExportControls.test.ts",
+        "src/features/report/renderedReport.test.tsx"
+      ],
+      "exit_code": 0,
+      "result": "2 files / 44 passed"
+    }
+  ],
+  "coverage": [
+    "Python and TypeScript exact-record public basis is not inherited into nested records or collections",
+    "outward nested unknowns redact; local-private nested unknowns remain unknown warning_only",
+    "PCF DEL-17-07 and CAEPIPE MBF DEL-17-04 use exact path-and-shape allowlists",
+    "matching-looking opaque descendants remain unknown and redact",
+    "user-controlled invented/cleared component and spring-hanger provenance text cannot produce public classification"
+  ],
+  "attempt_4_sweep_count_at_checkpoint": 0
+}

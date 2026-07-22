@@ -1,0 +1,25 @@
+{
+  "schema": "chirality-n4c-h4-evidence/v1",
+  "mode": "production-dist",
+  "command": [
+    "PLAYWRIGHT_WORKERS=1",
+    "npx",
+    "playwright",
+    "test",
+    "--config",
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4/playwright.redaction-dist.config.mjs",
+    "--grep",
+    "R2 desktop preview smoke covers solve, results, report, and viewport overlay"
+  ],
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "exit_code": 0,
+  "status": "PASS",
+  "tests": {
+    "passed": 1,
+    "failed": 0,
+    "projects": [
+      "chromium-desktop-dist"
+    ]
+  },
+  "duration_seconds": 13.7
+}

@@ -18,6 +18,7 @@ from typing import Any, Mapping
 from core.handoff.external_prover.authority_boundary import (
     contains_prohibited_authority_term,
 )
+from core.security.redaction import ControlledExport, control_route_export
 
 
 PCF_EXPORT_VERSION = "0.1.0"
@@ -459,8 +460,20 @@ def canonical_json(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
-def write_pcf_export_package(directory: str | Path, package: Mapping[str, Any]) -> None:
-    """Write PCF text and JSON sidecars using deterministic encodings."""
+def write_pcf_export_package(
+    directory: str | Path, package: Mapping[str, Any]
+) -> ControlledExport:
+    """Write PCF members only when redaction is lossless for the format."""
+
+    controlled = control_route_export(
+        package,
+        route_id="REXC-CORE-003",
+        export_context="downstream_tool",
+        require_lossless_materialization=True,
+    )
+    if controlled.blocked:
+        return controlled
+    package = controlled.payload
 
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
@@ -473,6 +486,7 @@ def write_pcf_export_package(directory: str | Path, package: Mapping[str, Any]) 
         ("diagnostics", "diagnostics.json"),
     ):
         (root / filename).write_text(canonical_json(package[key]) + "\n", encoding="utf-8")
+    return controlled
 
 
 def _pcf_payload(pcf_payload: Mapping[str, Any], provenance: Mapping[str, Any]) -> dict[str, Any]:

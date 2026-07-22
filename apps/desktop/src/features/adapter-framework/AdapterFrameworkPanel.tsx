@@ -20,7 +20,7 @@ export function AdapterFrameworkPanel({
         Adapter Framework
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="adapter-framework-export-link"
           download={`openpipestress-preview-adapter-framework-${safeFileToken(packet.adapter_declaration.adapter_id)}.json`}
@@ -28,7 +28,7 @@ export function AdapterFrameworkPanel({
         >
           <Download size={14} aria-hidden="true" />
           Adapter JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="adapter-framework-summary">
           available; capabilities={packet.adapter_declaration.capabilities.length}; parse=
           {packet.operation_result.parse_status}; diagnostics={packet.operation_result.diagnostics.length}
@@ -350,3 +350,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

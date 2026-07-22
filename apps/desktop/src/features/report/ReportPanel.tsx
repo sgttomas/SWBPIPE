@@ -13,6 +13,7 @@ import type {
   SelectedReviewTarget
 } from "../../types";
 import { buildUnitDisplaySummary, DEC018_UNIT_SYSTEM_REF } from "./renderableReportInput";
+import { controlReportDomAndJson } from "./reportRedactionProjector";
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
 
 export function ReportPanel({
@@ -83,30 +84,37 @@ export function ReportPanel({
 	        diagnostics
 	      })
     : null;
+  const controlledReport = exportPacket ? controlReportDomAndJson(exportPacket) : null;
   return (
     <section className="panel report-panel" aria-label="Report packet" data-testid="report-panel">
       <div className="panel-title">
         <FileText size={16} />
         Report Packet
       </div>
-      {result ? (
+      {result && controlledReport && !controlledReport.blocked ? (
         <>
           <div className="report-actions">
-            <a
+        <ControlledExportLink
               className="report-export-link"
               data-testid="report-export-link"
               download={`openpipestress-preview-report-${safeFileToken(result.run_id)}.json`}
-              href={exportPacket ? jsonDataHref(exportPacket) : "#"}
+              href={jsonDataHref(controlledReport.payload)}
             >
               <Download size={14} aria-hidden="true" />
               Local JSON
-            </a>
+        </ControlledExportLink>
             <span data-testid="report-export-summary">
               {exportPacket
                 ? `${exportPacket.selected_result_refs.length} refs; ${exportPacket.diagnostic_refs.length} diagnostics; no private payload`
                 : "not available"}
             </span>
           </div>
+          {controlledReport.summary.redacted_count > 0 ? (
+            <p className="muted" data-testid="report-redaction-blocked">
+              Raw report DOM suppressed by redaction controls; the sanitized JSON packet is available above (
+              {controlledReport.summary.redacted_count} redacted values).
+            </p>
+          ) : (
           <div className="report-list" data-testid="report-packet-body">
             <ReportLine label="Model" value={result.model_ref} />
             {unitSystemDisclosure ? (
@@ -255,10 +263,13 @@ export function ReportPanel({
               value="human review remains required; acceptance stays with the responsible engineer"
             />
           </div>
+          )}
         </>
       ) : (
-        <p className="muted">
-          Run the bounded preview mechanics path to assemble a report packet from computed result and diagnostic IDs.
+        <p className="muted" data-testid="report-redaction-blocked">
+          {result && controlledReport?.blocked
+            ? `Report exposure blocked by redaction controls (${controlledReport.summary.finding_count} findings).`
+            : "Run the bounded preview mechanics path to assemble a report packet from computed result and diagnostic IDs."}
         </p>
       )}
       <small className="report-note">
@@ -1074,3 +1085,4 @@ function jsonDataHref(value: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

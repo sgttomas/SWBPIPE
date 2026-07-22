@@ -9,6 +9,28 @@ package_id: PKG-12
 
 # MEMORY - DEL-12-02
 
+## 2026-07-22 - R15 current export-surface redaction breadth
+
+- Closed the named REXC-REQ-012 `Remaining` item for the owner-adopted current
+  31-route inventory. Core handoffs/adapters, runner/CLI outputs, desktop
+  preview/export links, and report render/export surfaces now bind to the same
+  redaction-control contract at final exposure boundaries.
+- Controls preserve explicit wrapper-owned context and independent local-private
+  intent, unknown-default handling, source non-mutation, sanitized decisions/
+  findings/summary before exposure, payload withholding on blocking source,
+  redaction, and lossless gates, and Python/TypeScript classification parity.
+- CAEPIPE Parser CSV owns independent intent; exact PCF/MBF structural public
+  authority is route/document/deliverable/root/path bounded; opaque descendants
+  remain unknown; report claim posture is never inferred from user text.
+- Verification and all immutable attempt history are recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL-12-02_REDACTION-BREADTH-R15.md`
+  and the managed R15 run root. N5H returned `COMMIT-SAFE`; the final attempt-8
+  sweep hash is `3b08deb6b9a87dbeb3c7715266a072a3d1a3ebb97898dab0ff4556922013076c`.
+- Boundaries preserved: no bug-report feature was invented; future bug-report
+  egress remains subject to the route contract. No real native save/print
+  automation claim, lifecycle transition, release/issuance, professional
+  approval, receipt, or Git closeout is made. State remains `IN_PROGRESS`.
+
 ## 2026-07-10 - TP-E4-REDACTION-001 app-side redaction/export-controls binding
 
 - Primary role for completion-plan row E4: the core metadata-only redaction

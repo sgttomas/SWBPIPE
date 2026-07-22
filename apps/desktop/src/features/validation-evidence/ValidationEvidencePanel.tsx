@@ -59,7 +59,7 @@ export function ValidationEvidencePanel({ model }: { model: PreviewModel }) {
         Validation Evidence
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="validation-evidence-export-link"
           download={`openpipestress-preview-validation-evidence-${safeFileToken(model.project.id)}.json`}
@@ -67,7 +67,7 @@ export function ValidationEvidencePanel({ model }: { model: PreviewModel }) {
         >
           <Download size={14} aria-hidden="true" />
           Evidence JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="validation-evidence-summary">
           manual={packet.summary.manual_section_count}; evidence=
           {packet.summary.evidence_area_count}; profiles=
@@ -371,3 +371,4 @@ function safeFileToken(value: string): string {
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

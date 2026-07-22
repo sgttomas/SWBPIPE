@@ -81,7 +81,7 @@ export function ProjectValidationPanel({
         Project Validation Preflight
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="project-validation-export-link"
           download={`openpipestress-preview-validation-${safeFileToken(model.project.id)}.json`}
@@ -89,7 +89,7 @@ export function ProjectValidationPanel({
         >
           <Download size={14} aria-hidden="true" />
           Validation JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="project-validation-summary">
           validation={packet.summary.validation_status}; version=
           {packet.summary.version_check_status}; migration=
@@ -955,3 +955,4 @@ function safeFileToken(value: string): string {
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

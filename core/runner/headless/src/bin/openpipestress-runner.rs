@@ -10,6 +10,7 @@ use std::process::ExitCode;
 
 use open_pipe_stress_headless_runner::{
     benchmark_binding::{self, SuiteRunReport},
+    redaction_binding::control_local_private,
     run_preview_in_memory_with_rule_check, validate_request, validate_result, Diagnostic,
     JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult, RunnerValidation,
 };
@@ -26,6 +27,7 @@ struct CliArgs {
     verb: String,
     input_path: Option<String>,
     output_path: Option<String>,
+    explicit_local_private_intent: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -107,18 +109,30 @@ fn main() -> ExitCode {
     };
 
     let (code, output) = execute_json(&args.verb, &input);
-    let rendered =
-        serde_json::to_string_pretty(&output).expect("CLI output must serialize as JSON");
+    let controlled = control_local_private(
+        serde_json::to_value(output).expect("CLI output must serialize as JSON"),
+        args.explicit_local_private_intent,
+    );
+    let rendered = serde_json::to_string_pretty(&controlled)
+        .expect("controlled CLI output must serialize as JSON");
     println!("{rendered}");
 
-    if let Some(output_path) = args.output_path.as_deref() {
-        if let Err(error) = std::fs::write(output_path, format!("{rendered}\n")) {
-            eprintln!("openpipestress-runner: cannot write {output_path}: {error}");
-            return ExitCode::from(2);
+    if !controlled.blocked {
+        if let Some(output_path) = args.output_path.as_deref() {
+            if let Err(error) = std::fs::write(output_path, format!("{rendered}\n")) {
+                eprintln!("openpipestress-runner: cannot write {output_path}: {error}");
+                return ExitCode::from(2);
+            }
         }
     }
 
-    ExitCode::from(code)
+    ExitCode::from(if code == 2 {
+        2
+    } else if controlled.blocked {
+        1
+    } else {
+        code
+    })
 }
 
 fn parse_args<I>(args: I) -> Result<CliArgs, String>
@@ -135,6 +149,7 @@ where
 
     let mut input_path = None;
     let mut output_path = None;
+    let mut explicit_local_private_intent = false;
     while let Some(arg) = iter.next() {
         match arg.as_str() {
             "--input" => {
@@ -149,6 +164,9 @@ where
                 };
                 output_path = Some(value);
             }
+            "--explicit-local-private-intent" => {
+                explicit_local_private_intent = true;
+            }
             _ => return Err(format!("openpipestress-runner: unsupported argument {arg}")),
         }
     }
@@ -157,11 +175,12 @@ where
         verb,
         input_path,
         output_path,
+        explicit_local_private_intent,
     })
 }
 
 fn usage() -> &'static str {
-    "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>]"
+    "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent]"
 }
 
 fn read_input(input_path: Option<&str>) -> Result<String, String> {

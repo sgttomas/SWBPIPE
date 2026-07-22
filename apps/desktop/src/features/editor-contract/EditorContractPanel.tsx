@@ -52,7 +52,7 @@ export function EditorContractPanel({
         Editor Contract
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="editor-contract-export-link"
           download={`openpipestress-preview-editor-contract-${safeFileToken(model.project.id)}.json`}
@@ -60,7 +60,7 @@ export function EditorContractPanel({
         >
           <Download size={14} aria-hidden="true" />
           Editor JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="editor-contract-summary">
           available; editors={packet.summary.editor_count}; surfaces=
           {packet.summary.surface_count}; diagnostics=
@@ -674,3 +674,4 @@ function safeRefToken(value: string): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

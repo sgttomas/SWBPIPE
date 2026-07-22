@@ -1,0 +1,8 @@
+{
+  "schema": "chirality-n4g-check-evidence/v1",
+  "status": "PASS",
+  "command": ["python3", "-m", "pytest", "-q", "tests/test_handoff_export_workflow.py"],
+  "cwd": "projects/chirality-piping",
+  "exit_code": 0,
+  "result": "17 passed in 0.45s"
+}

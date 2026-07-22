@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 from core.security.redaction import (  # noqa: E402
     REDACTED_VALUE,
     classify_export_item,
+    control_route_export,
     redact_export_payload,
 )
 
@@ -434,6 +435,182 @@ def test_missing_metadata_does_not_silently_export_value_bearing_record():
 
     assert result.payload["unclassified"]["value"] == REDACTED_VALUE
     assert "MISSING_METADATA_REDACTED" in finding_codes(result)
+
+
+def test_route_public_envelope_does_not_promote_opaque_sibling():
+    payload = {
+        "privacy": {
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+        },
+        "provenance": {
+            "privacy_classification": "invented_public_example",
+            "redistribution_status": "invented_non_engineering_example",
+        },
+        "opaque_sibling": "Invented value without leaf metadata",
+    }
+
+    for export_context in ("public_report", "shared_model", "downstream_tool"):
+        controlled = control_route_export(
+            payload,
+            route_id="DOTH-HANDOFF-002",
+            export_context=export_context,
+        )
+        decision = next(
+            item
+            for item in controlled.decisions
+            if item.path.endswith("opaque_sibling")
+        )
+
+        assert decision.privacy_classification == "unknown"
+        assert decision.redistribution_status == "unknown"
+        assert decision.review_status == "pending"
+        assert decision.action == "redact_value"
+        assert decision.reason_code == "REDISTRIBUTION_STATUS_UNKNOWN"
+        assert controlled.payload["opaque_sibling"] == REDACTED_VALUE
+
+    local = control_route_export(
+        payload,
+        route_id="DOTH-HANDOFF-002",
+        export_context="local_private",
+    )
+    local_decision = next(
+        item for item in local.decisions if item.path.endswith("opaque_sibling")
+    )
+    assert local_decision.privacy_classification == "unknown"
+    assert local_decision.redistribution_status == "unknown"
+    assert local_decision.review_status == "pending"
+    assert local_decision.action == "warning_only"
+    assert local_decision.reason_code == "REDISTRIBUTION_STATUS_UNKNOWN"
+    assert local.payload["opaque_sibling"] == payload["opaque_sibling"]
+
+
+def test_route_public_basis_is_exact_record_local_and_never_inherited():
+    payload = {
+        "public_record": {
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "direct_leaf": "Direct record metadata",
+            "nested_record": {
+                "opaque_leaf": "Nested record without its own metadata",
+            },
+            "nested_list": [
+                {"opaque_leaf": "Nested collection record without metadata"},
+            ],
+        }
+    }
+
+    for export_context in ("public_report", "shared_model", "downstream_tool"):
+        controlled = control_route_export(
+            payload,
+            route_id="DOTH-HANDOFF-002",
+            export_context=export_context,
+        )
+        direct = next(
+            item for item in controlled.decisions if item.path.endswith("direct_leaf")
+        )
+        nested = [
+            item
+            for item in controlled.decisions
+            if item.path.endswith("opaque_leaf")
+        ]
+
+        assert direct.action == "include"
+        assert direct.privacy_classification == "public_metadata"
+        assert len(nested) == 2
+        assert all(item.privacy_classification == "unknown" for item in nested)
+        assert all(item.redistribution_status == "unknown" for item in nested)
+        assert all(item.review_status == "pending" for item in nested)
+        assert all(item.action == "redact_value" for item in nested)
+        assert (
+            controlled.payload["public_record"]["nested_record"]["opaque_leaf"]
+            == REDACTED_VALUE
+        )
+        assert (
+            controlled.payload["public_record"]["nested_list"][0]["opaque_leaf"]
+            == REDACTED_VALUE
+        )
+
+    local = control_route_export(
+        payload,
+        route_id="DOTH-HANDOFF-002",
+        export_context="local_private",
+    )
+    nested_local = [
+        item for item in local.decisions if item.path.endswith("opaque_leaf")
+    ]
+    assert len(nested_local) == 2
+    assert all(item.privacy_classification == "unknown" for item in nested_local)
+    assert all(item.redistribution_status == "unknown" for item in nested_local)
+    assert all(item.review_status == "pending" for item in nested_local)
+    assert all(item.action == "warning_only" for item in nested_local)
+    assert all(
+        item.reason_code == "REDISTRIBUTION_STATUS_UNKNOWN"
+        for item in nested_local
+    )
+    assert local.payload["public_record"]["nested_record"]["opaque_leaf"] == (
+        payload["public_record"]["nested_record"]["opaque_leaf"]
+    )
+    assert local.payload["public_record"]["nested_list"][0]["opaque_leaf"] == (
+        payload["public_record"]["nested_list"][0]["opaque_leaf"]
+    )
+
+
+def test_route_key_names_and_lookalikes_never_authorize_public_classification():
+    payloads = (
+        {
+            "document_kind": "openpipestress.technical_preview.conservative_pcf_export_package",
+            "deliverable_id": "DEL-17-07",
+            "schema": "opaque schema",
+            "nested_deliverable_id": "DEL-99-99",
+            "target_family": "opaque target",
+            "nested": {
+                "schema_version": "opaque version",
+                "target_mapping_refs": ["opaque mapping"],
+                "deliverable_id_status": "opaque status",
+            },
+        },
+        {
+            "document_kind": "openpipestress.technical_preview.conservative_pcf_export_package",
+            "deliverable_id": "DEL-99-99",
+            "schema": "wrong deliverable schema",
+            "nested_deliverable_id": "wrong deliverable",
+            "target_family": "wrong deliverable target",
+        },
+    )
+
+    for route_id in ("DOTH-FORMAT-003", "DOTH-HANDOFF-002"):
+        for payload in payloads:
+            controlled = control_route_export(
+                payload,
+                route_id=route_id,
+                export_context="downstream_tool",
+            )
+            adversarial = [
+                decision
+                for decision in controlled.decisions
+                if any(
+                    token in decision.path
+                    for token in (
+                        "schema",
+                        "nested_deliverable_id",
+                        "target_family",
+                        "target_mapping_refs",
+                        "deliverable_id_status",
+                    )
+                )
+            ]
+            assert adversarial
+            assert all(
+                decision.privacy_classification == "unknown"
+                for decision in adversarial
+            )
+            assert all(
+                decision.redistribution_status == "unknown"
+                for decision in adversarial
+            )
+            assert all(decision.review_status == "pending" for decision in adversarial)
+            assert all(decision.action == "redact_value" for decision in adversarial)
 
 
 def test_shared_parity_fixture_matches_core_decisions():

@@ -1,0 +1,71 @@
+{
+  "schema": "chirality-n4c-validator-evidence/v1",
+  "status": "PASS",
+  "checks": {
+    "change_scope_pre_sweep": {
+      "status": "PASS",
+      "violations": 0,
+      "evidence": "CHECK_change-scope.json"
+    },
+    "change_scope_post_sweep": {
+      "status": "PASS",
+      "violations": 0,
+      "evidence": "CHECK_change-scope_final.json"
+    },
+    "claims_language": {
+      "status": "PASS",
+      "files_scanned": 264
+    },
+    "path_anchors": {
+      "status": "PASS",
+      "live_surfaces_scanned": 781
+    },
+    "piping_loop_receipts": {
+      "status": "PASS",
+      "frozen_through": "Receipt-44"
+    },
+    "n4c_json_parse": {
+      "status": "PASS"
+    },
+    "git_diff_check": {
+      "status": "PASS"
+    },
+    "protected_and_release_no_change_from_frozen_base": {
+      "status": "PASS",
+      "base": "0c066652cd527eb1559f715e914262d2bda42602",
+      "paths": [
+        "projects/chirality-piping/core/reporting/protected_content_linter",
+        "tools/release/run_release_candidate_scan.py",
+        "tools/release/export_public_openpipestress.py"
+      ]
+    },
+    "historical_portability_override": {
+      "status": "PASS",
+      "artifact": "instances/N4B/CHECK_h4_dist.json",
+      "sha256": "26abe58c3f5eb6e021112d606984b9deda52069b42e9dbf385468afbed01f6af",
+      "artifact_modified": false
+    }
+  },
+  "prior_sweeps": [
+    {
+      "attempt": 1,
+      "disposition": "superseded_non_acceptance",
+      "artifact": "validation/evidence/sweeps/SWEEP_20260722T052931Z_0c066652cd52-dirty.json",
+      "sha256": "10fbc3c4e54b69df2856cb5dd42240dc87b35d4c3762df9664e6036cf7b3cd63"
+    },
+    {
+      "attempt": 2,
+      "disposition": "superseded_non_acceptance",
+      "artifact": "validation/evidence/sweeps/SWEEP_20260722T061039Z_0c066652cd52-dirty.json",
+      "sha256": "d1620f2f25264400be6a68e6931982c13b7c17fe52a14381fe70c673f045ca72"
+    }
+  ],
+  "acceptance_eligible_sweep": {
+    "attempt": 3,
+    "disposition": "acceptance_eligible_pending_fresh_verification",
+    "artifact": "validation/evidence/sweeps/SWEEP_20260722T065603Z_0c066652cd52-dirty.json",
+    "sha256": "b2e89383c1e8a61ebfea8d52809358be53d23c56160315497f17d1d01844f4b6",
+    "status": "PASS",
+    "registered_duration_seconds": 212.066
+  }
+}

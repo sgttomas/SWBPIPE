@@ -15,7 +15,7 @@ export function AccessibilityBaselinePanel({ model }: { model: PreviewModel }) {
         Accessibility Baseline
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="accessibility-baseline-export-link"
           download={`openpipestress-preview-accessibility-baseline-${safeFileToken(model.project.id)}.json`}
@@ -23,7 +23,7 @@ export function AccessibilityBaselinePanel({ model }: { model: PreviewModel }) {
         >
           <Download size={14} aria-hidden="true" />
           Accessibility JSON
-        </a>
+        </ControlledExportLink>
         <span data-testid="accessibility-baseline-summary">
           surfaces={packet.summary.source_surface_count}; findings={packet.summary.total_findings};
           warnings={packet.summary.warning_count}; target={packet.summary.accessibility_target_status}
@@ -230,3 +230,4 @@ function jsonDataHref(payload: unknown): string {
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

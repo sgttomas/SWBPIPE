@@ -33,6 +33,14 @@
       "role": "EVIDENCE",
       "reason": "Immutable P1 capture proving the repaired prerequisite state and its execution directory.",
       "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/CHECK_h4_dist.json",
+      "sha256": "26abe58c3f5eb6e021112d606984b9deda52069b42e9dbf385468afbed01f6af",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable N4B production-distribution H4 verification capture records the machine-local Playwright configuration path used for the adopted DEL-12-02 execution.",
+      "authority": "Owner adopted DEL-12-02 candidate v6; HELP_HUMAN explicitly authorized this exact classification-only repair."
     }
   ],
   "control_path_exceptions": [

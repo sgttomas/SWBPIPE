@@ -112,10 +112,11 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
     expect(within(panel).getByTestId("local-fea-summary").textContent).toContain("diagnostics=5");
 
     const packet = exportedPacket();
-    expect(packet).toContain("LOCAL-FEA-RESULT-SUMMARY-REF-MISSING");
-    expect(packet).toContain("summary.max_open_formula_stress.location_ref");
-    expect(packet).toContain("summary.max_displacement.location_ref");
-    expect(packet).toContain("no substitute entity references are invented");
+    expect(packet).toContain("[REDACTED]");
+    expect(packet).not.toContain("LOCAL-FEA-RESULT-SUMMARY-REF-MISSING");
+    expect(packet).not.toContain("summary.max_open_formula_stress.location_ref");
+    expect(packet).not.toContain("summary.max_displacement.location_ref");
+    expect(packet).not.toContain("no substitute entity references are invented");
     // The former fixture fallbacks must not appear anywhere in the package.
     expect(packet).not.toContain("pipe:P-120");
     expect(packet).not.toContain("node:N-140");
@@ -193,26 +194,27 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
     expect(within(panel).getByTestId("local-fea-unit-witnesses").textContent).toContain("conversion=false");
 
     const packet = JSON.parse(exportedPacket());
-    expect(packet.handoff_package.unit_witness_policy).toBe(
-      "preserve_source_result_units_for_referenced_transfer_results"
-    );
+    expect(packet.handoff_package.unit_witness_policy).toBe("[REDACTED]");
     expect(packet.handoff_package.unit_preservation_witnesses).toHaveLength(3);
     expect(
       packet.handoff_package.unit_preservation_witnesses.map(
         (item: { target_field_path: string }) => item.target_field_path
       )
     ).toEqual([
-      "handoff_package.transfer_basis.displacement_result_refs[]",
-      "handoff_package.transfer_basis.force_result_refs[]",
-      "handoff_package.transfer_basis.moment_result_refs[]"
+      "[REDACTED]",
+      "[REDACTED]",
+      "[REDACTED]"
     ]);
 
-    const forceWitness = packet.handoff_package.unit_preservation_witnesses.find(
-      (item: { source_result_ref: { locator: string } }) =>
-        item.source_result_ref.locator === "result:force:pipe-P-120:axial"
-    );
-    expect(forceWitness.source_quantity).toEqual({ value: 25, unit: "N", dimension: "force" });
-    expect(forceWitness.target_quantity_policy).toBe("referenced_result_value_and_unit_preserved_by_source_ref");
-    expect(forceWitness.conversion_performed).toBe(false);
+    for (const witness of packet.handoff_package.unit_preservation_witnesses) {
+      expect(witness.source_result_ref.locator).toBe("[REDACTED]");
+      expect(witness.source_quantity).toEqual({
+        value: "[REDACTED]",
+        unit: "[REDACTED]",
+        dimension: "[REDACTED]"
+      });
+      expect(witness.target_quantity_policy).toBe("[REDACTED]");
+      expect(witness.conversion_performed).toBe("[REDACTED]");
+    }
   });
 });

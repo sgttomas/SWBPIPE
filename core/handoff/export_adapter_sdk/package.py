@@ -17,6 +17,7 @@ from typing import Any, Mapping
 from core.handoff.external_prover.authority_boundary import (
     contains_prohibited_authority_term,
 )
+from core.security.redaction import ControlledExport, control_route_export
 
 
 EXPORT_ADAPTER_SDK_VERSION = "0.1.0"
@@ -453,10 +454,18 @@ def canonical_json(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
-def write_export_adapter_sdk_package(path: str | Path, package: Mapping[str, Any]) -> None:
-    """Write an adapter SDK package using the canonical JSON byte basis."""
+def write_export_adapter_sdk_package(
+    path: str | Path, package: Mapping[str, Any]
+) -> ControlledExport:
+    """Write only the controlled downstream-tool SDK package."""
 
-    Path(path).write_text(canonical_json(package) + "\n", encoding="utf-8")
+    controlled = control_route_export(
+        package, route_id="REXC-CORE-008", export_context="downstream_tool"
+    )
+    if controlled.blocked:
+        return controlled
+    Path(path).write_text(canonical_json(controlled.payload) + "\n", encoding="utf-8")
+    return controlled
 
 
 def _adapter_contract(

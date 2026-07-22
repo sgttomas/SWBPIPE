@@ -70,7 +70,7 @@ export function CaepipeMbfExportPanel({
         CAEPIPE MBF Export
       </div>
       <div className="report-actions">
-        <a
+        <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-mbf-export-link"
           download={`openpipestress-preview-caepipe-mbf-package-${safeFileToken(model.project.id)}.json`}
@@ -78,8 +78,8 @@ export function CaepipeMbfExportPanel({
         >
           <Download size={14} aria-hidden="true" />
           Package JSON
-        </a>
-        <a
+        </ControlledExportLink>
+        <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-mbf-text-link"
           download={`openpipestress-preview-${safeFileToken(model.project.id)}.mbf`}
@@ -87,7 +87,7 @@ export function CaepipeMbfExportPanel({
         >
           <Download size={14} aria-hidden="true" />
           MBF text
-        </a>
+        </ControlledExportLink>
         <span data-testid="caepipe-mbf-summary">
           available; nodes={packet.model_payload.nodes.length}; pipes={packet.model_payload.elements.length};
           supports={packet.model_payload.supports.length}; validation={packet.validation_report.validation_status};
@@ -762,3 +762,4 @@ function formatNumber(value: number): string {
 function isAscii(value: string): boolean {
   return /^[\x00-\x7F]*$/.test(value);
 }
+import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
