@@ -1,11 +1,13 @@
 # Latest DAG Pointer
 
-- Latest DAG artifact: `DAG-007`
-- Latest DAG artifact path: `execution/_DAG/DAG-007/`
-- Latest DAG artifact created: 2026-06-16
+- Latest DAG artifact: `DAG-008`
+- Latest DAG artifact path: `execution/_DAG/DAG-008/`
+- Latest DAG artifact created: 2026-07-22
 - Latest DAG artifact status: approved_active_graph_authority
-- Approved graph authority: `execution/_DAG/DAG-007/`
-- Approved graph record: `execution/_DAG/DAG-007/APPROVAL_RECORD.md`
+- Approved graph authority: `execution/_DAG/DAG-008/`
+- Approved graph record: `execution/_DAG/DAG-008/APPROVAL_RECORD.md`
+- Superseded approved graph: `execution/_DAG/DAG-007/` revision `0.7` canonical dependency type-system authority
+- Superseded approved graph record: `execution/_DAG/DAG-007/APPROVAL_RECORD.md`
 - Superseded approved graph: `execution/_DAG/DAG-006/` revision `0.7` lifecycle-metadata normalization
 - Superseded approved graph record: `execution/_DAG/DAG-006/APPROVAL_RECORD.md`
 - Superseded approved graph: `execution/_DAG/DAG-005/` revision `0.7` + SCA-004 export-interoperability graph extension
@@ -18,5 +20,5 @@
 - Historical approved graph record: `execution/_DAG/DAG-002/APPROVAL_RECORD.md`
 - Historical approved graph: `execution/_DAG/DAG-001/` revision `0.4` evidence
 - Historical approval record: `execution/_DAG/DAG-001/APPROVAL_RECORD.md`
-- Basis scope change: `DAG-007` canonicalizes the dependency type system from refreshed deliverable-local registers, keeps candidate rows outside the canonical current edge register, and supersedes `DAG-006` as graph coordination authority.
-- Approval boundary: approval applies to the canonical dependency type-system rectification package and current graph pointer only; lifecycle changes, Type 2 dispatch, candidate promotion, release-readiness claims, professional approval, certification, sealing, authentication, and code-compliance claims remain separate guarded workflow steps.
+- Basis scope change: `DAG-008` is the accepted satisfaction-currency successor to `DAG-007`; it copies 13 governed DEL-08-01 and DEL-10-05 closure updates while preserving graph meaning, membership, nodes, topology, lifecycle status, and decomposition revision `0.7`.
+- Approval boundary: owner acceptance and root-pointer authorization apply to DAG-008 dependency authority only. Deliverable lifecycle, work selection, brief adoption, implementation dispatch, D-45, and release remain separate governed acts. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

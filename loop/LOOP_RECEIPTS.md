@@ -1572,3 +1572,27 @@
     deliverable lifecycle/stage change, D-45 disposition, release, issuance,
     publication, or professional/legal acceptance effect occurred. Owner
     acceptance and separate pointer authorization remain open.
+
+- **2026-07-22 — Receipt 68** (DAG-008 owner acceptance and activation).
+  - Receipt-ID: `Receipt-68`
+  - Examined-Through: `751a880b43c34d8342730ca559ec3c91a6ba9251`
+  - Parent-Receipt: `Receipt-67`
+  - Pointers: owner ruling and accepted basis
+    `execution/_DAG/DAG-008/APPROVAL_RECORD.md`; approved local pointer
+    `execution/_DAG/DAG-008/_LATEST.md`; activated root pointer
+    `execution/_DAG/_LATEST.md`; CHANGE record
+    `execution/_Change/2026-07-22_DAG008_ACTIVATION_CLOSEOUT.md`.
+  - Checks: pointer currency, DAG-008 manifest, dependency schema, strict
+    canonical DAG audit, JSON, topology/cycle/waves, immutable graph guard,
+    status enumeration, claims, path anchors, self-check, harness pytest,
+    receipt validation, containment, and diff checks pass.
+  - Model-Attribution: HELP_HUMAN and CHANGE used inherited Codex runtime
+    capability without override or mid-task substitution; exact model strings
+    were not exposed. Authority, file-state effects, and validation are recorded
+    by the cited approval and CHANGE records.
+  - Gate-Outcome: `EXECUTED` — `OWNER_ACCEPTED_AND_ACTIVATED`: the owner accepted
+    DAG-008 as immutable successor to DAG-007 and separately authorized the root
+    pointer move; DAG-008 is now dependency authority. No implementation
+    dispatch, work-selection edit, lifecycle/stage change, D-45 disposition,
+    release, issuance, publication, or professional/legal acceptance effect was
+    performed by this activation closeout.

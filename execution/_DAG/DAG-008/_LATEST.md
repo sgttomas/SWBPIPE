@@ -1,7 +1,10 @@
-# DAG-008 Local Proposal Pointer
+# DAG-008 Local Pointer
 
 - DAG artifact: `DAG-008`
-- Status: `proposed_pending_human_approval`
-- Approved graph authority: none conferred by this local file; root `execution/_DAG/_LATEST.md` remains on `DAG-007`.
-- Approval record: placeholder only at `execution/_DAG/DAG-008/APPROVAL_RECORD.md`.
-- Activation requires owner acceptance plus separate root pointer authorization.
+- Status: `approved_active_graph_authority`
+- Created: 2026-07-22
+- Approved: 2026-07-22
+- Basis: accepted satisfaction-currency successor to DAG-007 from the governed DEL-08-01 and DEL-10-05 local dependency refreshes.
+- Approval record: `execution/_DAG/DAG-008/APPROVAL_RECORD.md`.
+- Root activation: separately authorized by the owner on 2026-07-22 and recorded at `execution/_DAG/_LATEST.md`.
+- Candidate rows remain non-gating and outside the canonical current edge register.
