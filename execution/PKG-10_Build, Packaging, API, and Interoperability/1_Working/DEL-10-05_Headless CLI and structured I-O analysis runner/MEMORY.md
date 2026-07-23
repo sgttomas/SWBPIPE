@@ -1,5 +1,54 @@
 # MEMORY - DEL-10-05 Headless CLI and structured I/O analysis runner
 
+## 2026-07-23 - Export-results report-package binding (CB-2026-07-23-DEL-10-05-EXPORT-RESULTS-001 v2/v3, run R17)
+
+- The owner-adopted v2 scope moved the existing report-package wire DTO and
+  checked conversions into the PKG-08-owned shared adapter and retained the
+  desktop Tauri bridge as a thin compatibility wrapper. Desktop and runner
+  callers supply the linked solver identity to the same conversion path;
+  shared use does not transfer package or deliverable ownership.
+- `openpipestress-runner export-results` now consumes the verb-named
+  `export_results` payload, validates the runner/model/input-manifest/unit/load-
+  basis/audit/run cross-bindings, invokes the existing report-package producer,
+  and returns a bounded `report_package` projection containing exact container
+  bytes plus package identity, container hash, and six-member summary evidence.
+  Missing payload, cross-binding mismatch, invalid DTO/conversion, and
+  producer-blocked outcomes fail closed with operation-specific structured
+  diagnostics and no report-package payload or output file.
+- The existing `local_private` controller classifies the exact aggregate
+  `$.report_package` subtree once. Without explicit local-private intent it
+  blocks exposure with one decision/finding and no file; with explicit intent
+  it retains the exact subtree with one warning decision/finding. Runner
+  `--output` remains only the caller-named controlled structured-JSON result;
+  it does not become a desktop `.opsproj` picker or atomic-save route.
+- Fresh N5 initially returned `BLOCK` because malformed but present
+  `export_results` DTOs were rejected by the outer CLI parser. The sealed,
+  owner-authorized v3 remediation keeps a present member as raw JSON until the
+  operation handler, where malformed DTOs now return exit 1 with
+  `HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID`, the stable
+  `REPORT-PACKAGE-WIRE-INCOMPLETE` prefix, no package payload, and no output
+  file. Missing-required-field, malformed-type, and explicit-null cases are
+  covered.
+- Evidence passed for report-package 16/16, runner 46/46, focused Python 17/17,
+  desktop Vitest 516/516 and production build, piping pytest 548, practitioner
+  harness pytest 311, repository self-check, formatting, claims language, path
+  anchors, receipt validation, JSON parsing, diff/staging, exact containment,
+  deterministic witnesses, native runner ZIP/hash/member checks, native-size
+  constant-cardinality redaction, and packaged-native desktop cancel/new-save/
+  replace behavior. The initial and owner-authorized replacement DEC-025
+  sweeps both passed; fresh N5-V3 returned `COMMIT-SAFE` with zero tranche-local
+  findings.
+- Boundaries preserved: no package-member/schema/encoding change, runner-verb
+  change, benchmark/regression change, desktop TypeScript/picker/atomic-save
+  change, dependency/decomposition change, lifecycle transition, stage,
+  release, issuance, publication, or professional-reliance effect. The frozen
+  desktop Rust 74/75 stale-notice residual is unchanged from the frozen basis,
+  remains outside this scope, and is not waived.
+- Durable evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-07-23_DEL1005_EXPORT_RESULTS_R17.md`
+  and managed run
+  `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260723-DEL1005-EXPORT-RESULTS-R17/`.
+
 ## 2026-07-19 - Benchmark/regression payload bindings (CB-2026-07-19-DEL-10-05-RUNNER-PAYLOADS-001, run R12)
 
 - Bound `run-benchmark` (suites `mechanics` = DEL-09-01, `stress` = DEL-09-02)

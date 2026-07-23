@@ -1,0 +1,61 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260723-DEL1005-EXPORT-RESULTS-R17",
+  "version": 1,
+  "selection_authority": "HUMAN",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "package_id": "PKG-10",
+  "deliverables": [
+    "DEL-10-05"
+  ],
+  "frozen_sha": "1f2ecc1d06375c01a409041b8380e4d65b2a9f9a",
+  "nodes": [
+    {
+      "id": "N1",
+      "kind": "serial_reconnaissance",
+      "depends_on": []
+    },
+    {
+      "id": "W1",
+      "kind": "manager_candidate_synthesis",
+      "depends_on": [
+        "N1"
+      ]
+    },
+    {
+      "id": "N3",
+      "kind": "independent_refutation",
+      "depends_on": [
+        "W1"
+      ]
+    },
+    {
+      "id": "G1",
+      "kind": "owner_adoption_gate",
+      "depends_on": [
+        "N3"
+      ]
+    },
+    {
+      "id": "N4",
+      "kind": "serialized_implementation",
+      "depends_on": [
+        "G1"
+      ]
+    },
+    {
+      "id": "N5",
+      "kind": "fresh_verification",
+      "depends_on": [
+        "N4"
+      ]
+    },
+    {
+      "id": "W3",
+      "kind": "deliverable_closeout",
+      "depends_on": [
+        "N5"
+      ]
+    }
+  ]
+}

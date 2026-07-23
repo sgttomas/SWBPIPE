@@ -1,0 +1,127 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 6
+  },
+  "counts": {
+    "category": {
+      "closeout": 2,
+      "dispatch": 1,
+      "fan_in": 3,
+      "focused_validation": 2,
+      "implementation": 4,
+      "native_validation": 1,
+      "registered_pre_sweep": 1,
+      "v3_pre_sweep": 1,
+      "verification": 4,
+      "verification_remediation": 1
+    },
+    "event_type": {
+      "CHECK": 2,
+      "FINISH": 6,
+      "MILESTONE": 5,
+      "REMEDIATION": 1,
+      "START": 6
+    },
+    "outcome": {
+      "BLOCKED": 1,
+      "INFO": 2,
+      "PASS": 10,
+      "STARTED": 7
+    },
+    "reason_code": {
+      "ACCEPTED_FOR_CHANGE_CLOSEOUT": 2,
+      "COMMIT_SAFE_ZERO_FINDINGS": 1,
+      "COMPILES_FOCUSED_PROGRESS": 1,
+      "EXACT_THREE_PATH_CLOSEOUT_PASS": 1,
+      "FINAL_POST_EDIT_UNION_GREEN": 1,
+      "MALFORMED_DTO_DIAGNOSTIC_BYPASS": 1,
+      "N4_SEALED_SWEEP_PASS": 1,
+      "N4_SOLE_OWNER": 1,
+      "N5V3_COMMIT_SAFE": 1,
+      "OWNER_ADOPTED_V2": 1,
+      "OWNER_ADOPTED_V3": 1,
+      "PACKAGED_NATIVE_PROOF_PASS": 1,
+      "SEALED_READY_FOR_N5": 1,
+      "SEALED_V3_TWO_FILE_SCOPE": 1,
+      "V3_ALL_GATES_GREEN": 1,
+      "V3_SEALED_REPLACEMENT_SWEEP_PASS": 2,
+      "V3_TWO_FILE_FOCUSED_GREEN": 1,
+      "W3_RETURN_ACCEPTED": 1
+    }
+  },
+  "events": 20,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 2768.096,
+      "events": 6,
+      "final_outcome": "PASS",
+      "instance_id": "N4",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "AGENT2_INTEGRATION_OWNER",
+      "session_id": "R17-N4-A1"
+    },
+    {
+      "duration_seconds": 882.401,
+      "events": 5,
+      "final_outcome": "PASS",
+      "instance_id": "N4",
+      "package_id": "PKG-10",
+      "remediations": 1,
+      "retries": 0,
+      "role": "AGENT2_INTEGRATION_OWNER",
+      "session_id": "R17-N4-A2"
+    },
+    {
+      "duration_seconds": 457.85,
+      "events": 2,
+      "final_outcome": "BLOCKED",
+      "instance_id": "N5",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "AGENT2_FRESH_VERIFIER",
+      "session_id": "R17-N5-A1"
+    },
+    {
+      "duration_seconds": 400.743,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N5-V3",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "AGENT2_FRESH_VERIFIER",
+      "session_id": "R17-N5V3-A1"
+    },
+    {
+      "duration_seconds": 311.611,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "W3",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "AGENT2_DELIVERABLE_CLOSEOUT",
+      "session_id": "R17-W3-A1"
+    },
+    {
+      "duration_seconds": 45.586,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "W-PKG10",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "R17-WPKG10-FANIN"
+    }
+  ],
+  "sessions": 6,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

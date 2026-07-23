@@ -46,6 +46,8 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+pub mod wire;
+
 // ---------------------------------------------------------------------------
 // Ruled naming and fixed member vocabulary.
 // ---------------------------------------------------------------------------

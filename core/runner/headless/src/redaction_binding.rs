@@ -404,6 +404,46 @@ fn walk(
     decisions: &mut Vec<RedactionDecision>,
     findings: &mut Vec<RedactionFinding>,
 ) {
+    if path == "$.report_package" {
+        let (action, reason, severity) = if explicit_intent {
+            (
+                "warning_only",
+                "PRIVATE_LOCAL_ALLOWED_WITH_WARNING",
+                "WARNING",
+            )
+        } else {
+            ("block_export", "LOCAL_PRIVATE_INTENT_REQUIRED", "BLOCKING")
+        };
+        decisions.push(RedactionDecision {
+            decision_id: format!("REDC-DEC-{:04}", decisions.len() + 1),
+            path: path.to_string(),
+            field_class: "report_package".to_string(),
+            privacy_classification: "private_project_data".to_string(),
+            redistribution_status: "private_only".to_string(),
+            review_status: "accepted".to_string(),
+            export_context: "local_private",
+            action,
+            reason_code: reason,
+            source_metadata_present: true,
+        });
+        findings.push(RedactionFinding {
+            finding_id: format!("REDC-FND-{:04}", findings.len() + 1),
+            code: reason,
+            class: "PRIVATE_DATA_WARNING",
+            severity,
+            path: path.to_string(),
+            action,
+            message: if action == "block_export" {
+                "Export is blocked until wrapper-owned local-private intent is explicit."
+            } else {
+                "Export retained the value in a local/private context with an explicit warning."
+            },
+            remediation:
+                "Use the runner's explicit local-private intent flag for known private values.",
+        });
+        return;
+    }
+
     match value {
         Value::Object(object) => {
             for (key, item) in object {
@@ -567,6 +607,59 @@ mod tests {
             .findings
             .iter()
             .any(|finding| finding.code == "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"));
+    }
+
+    #[test]
+    fn report_package_is_classified_once_without_scalar_descent_at_all_sizes() {
+        for size in [0, 1, 4096, 3_189_621] {
+            let bytes = vec![42_u8; size];
+            let payload = json!({"report_package": {"container_bytes": bytes}});
+            let controlled = control_local_private(payload.clone(), true);
+            assert!(!controlled.blocked);
+            assert_eq!(controlled.payload, Some(payload));
+            assert_eq!(
+                controlled
+                    .decisions
+                    .iter()
+                    .filter(|decision| decision.path == "$.report_package")
+                    .count(),
+                1
+            );
+            assert_eq!(
+                controlled
+                    .findings
+                    .iter()
+                    .filter(|finding| finding.path == "$.report_package")
+                    .count(),
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn report_package_without_intent_blocks_once_and_withholds_payload() {
+        let controlled = control_local_private(
+            json!({"report_package": {"container_bytes": vec![7_u8; 3_189_621]}}),
+            false,
+        );
+        assert!(controlled.blocked);
+        assert_eq!(controlled.payload, None);
+        assert_eq!(
+            controlled
+                .decisions
+                .iter()
+                .filter(|decision| decision.path == "$.report_package")
+                .count(),
+            1
+        );
+        assert_eq!(
+            controlled
+                .findings
+                .iter()
+                .filter(|finding| finding.path == "$.report_package")
+                .count(),
+            1
+        );
     }
 
     #[test]

@@ -2,8 +2,11 @@
 """Stdlib checks for the headless runner contract."""
 
 import json
+import hashlib
+import io
 from pathlib import Path
 import subprocess
+import zipfile
 
 import pytest
 
@@ -14,6 +17,18 @@ FINAL_RUNNER_PATH = ROOT / "core" / "runner" / "headless" / "src" / "bin" / "ope
 COMPAT_RUNNER_PATH = ROOT / "core" / "runner" / "headless" / "src" / "bin" / "headless_preview_runner.rs"
 HEADLESS_CRATE = ROOT / "core" / "runner" / "headless"
 PREVIEW_FIXTURE = ROOT / "fixtures" / "product_preview" / "invented_preview_model.json"
+EXPORT_SUCCESS_INPUT = (
+    ROOT / "validation/witness/inputs/del1005_export_results_success_input.json"
+)
+EXPORT_MISSING_INPUT = (
+    ROOT / "validation/witness/inputs/del1005_export_results_missing_payload_input.json"
+)
+EXPORT_MISMATCH_INPUT = (
+    ROOT / "validation/witness/inputs/del1005_export_results_binding_mismatch_input.json"
+)
+EXPORT_BLOCKED_INPUT = (
+    ROOT / "validation/witness/inputs/del1005_export_results_producer_blocked_input.json"
+)
 
 REQUIRED_ROOT = {
     "schema_version",
@@ -300,9 +315,11 @@ def test_both_runner_exposure_paths_are_controlled_before_stdout_or_file_write()
     assert final_source.index("control_local_private(") < final_source.index(
         "std::fs::write(output_path"
     )
-    assert "if !controlled.blocked" in final_source
+    assert 'args.verb != "export-results" || code == 0' in final_source
+    assert "&& !controlled.blocked" in final_source
     assert "args.explicit_local_private_intent" in final_source
-    assert "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD" in final_source
+    assert "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING" in final_source
+    assert "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD" not in final_source
 
     assert compat_source.index("control_local_private(") < compat_source.index(
         'println!("{rendered}")'
@@ -465,16 +482,218 @@ def test_final_runner_subprocess_blocking_exit_one_writes_no_file(runner_binarie
     assert not output_path.exists()
 
 
-def test_final_runner_subprocess_preserves_export_results_stub(runner_binaries):
+def test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact(
+    runner_binaries,
+):
     final, _ = runner_binaries
-    body = {"request": final_runner_request("export_results")}
-    completed = run_final(final, "export-results", body, "--explicit-local-private-intent")
+    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+    first = run_final(
+        final, "export-results", body, "--explicit-local-private-intent"
+    )
+    second = run_final(
+        final, "export-results", body, "--explicit-local-private-intent"
+    )
+    assert first.returncode == second.returncode == 0, (first.stderr, second.stderr)
+    assert first.stdout == second.stdout
+    controlled = json.loads(first.stdout)
+    assert controlled["blocked"] is False
+    package = controlled["payload"]["report_package"]
+    package_bytes = bytes(package["container_bytes"])
+    assert hashlib.sha256(package_bytes).hexdigest() == package["container_sha256_hex"]
+    assert len(
+        [
+            decision
+            for decision in controlled["decisions"]
+            if decision["path"] == "$.report_package"
+        ]
+    ) == 1
+    assert len(
+        [
+            finding
+            for finding in controlled["findings"]
+            if finding["path"] == "$.report_package"
+        ]
+    ) == 1
+    with zipfile.ZipFile(io.BytesIO(package_bytes)) as archive:
+        assert archive.namelist() == [member["file_name"] for member in package["members"]]
+        for member in package["members"]:
+            member_bytes = archive.read(member["file_name"])
+            assert len(member_bytes) == member["byte_length"]
+            assert hashlib.sha256(member_bytes).hexdigest() == member["sha256_hex"]
+
+
+def test_final_runner_export_results_output_is_only_named_json_file(
+    runner_binaries, tmp_path
+):
+    final, _ = runner_binaries
+    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+    output = tmp_path / "runner-result.json"
+    completed = run_final(
+        final,
+        "export-results",
+        body,
+        "--output",
+        str(output),
+        "--explicit-local-private-intent",
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert [path.name for path in tmp_path.iterdir()] == ["runner-result.json"]
+    assert json.loads(output.read_text(encoding="utf-8")) == json.loads(completed.stdout)
+
+
+@pytest.mark.parametrize(
+    ("input_path", "diagnostic_code"),
+    [
+        (EXPORT_MISSING_INPUT, "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING"),
+        (EXPORT_MISMATCH_INPUT, "HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH"),
+        (EXPORT_BLOCKED_INPUT, "HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED"),
+    ],
+)
+def test_final_runner_export_results_failures_have_no_payload_or_file(
+    runner_binaries, tmp_path, input_path, diagnostic_code
+):
+    final, _ = runner_binaries
+    output = tmp_path / "must-not-exist.json"
+    body = json.loads(input_path.read_text(encoding="utf-8"))
+    completed = run_final(
+        final,
+        "export-results",
+        body,
+        "--output",
+        str(output),
+        "--explicit-local-private-intent",
+    )
     assert completed.returncode == 1
     controlled = json.loads(completed.stdout)
-    assert controlled["blocked"] is False
+    assert "report_package" not in controlled["payload"]
     assert any(
-        diagnostic["code"] == "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD"
+        diagnostic["code"] == diagnostic_code
         for diagnostic in controlled["payload"]["diagnostics"]
+    )
+    assert not output.exists()
+
+
+def test_final_runner_export_results_requires_intent_once_and_writes_no_file(
+    runner_binaries, tmp_path
+):
+    final, _ = runner_binaries
+    output = tmp_path / "must-not-exist.json"
+    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+    completed = run_final(
+        final, "export-results", body, "--output", str(output)
+    )
+    assert completed.returncode == 1
+    controlled = json.loads(completed.stdout)
+    assert controlled["blocked"] is True
+    assert controlled["payload"] is None
+    package_decisions = [
+        decision
+        for decision in controlled["decisions"]
+        if decision["path"] == "$.report_package"
+    ]
+    package_findings = [
+        finding
+        for finding in controlled["findings"]
+        if finding["path"] == "$.report_package"
+    ]
+    assert len(package_decisions) == len(package_findings) == 1
+    assert package_decisions[0]["reason_code"] == "LOCAL_PRIVATE_INTENT_REQUIRED"
+    assert not output.exists()
+
+
+def test_final_runner_export_results_invalid_wire_payload_preserves_report_code(
+    runner_binaries,
+):
+    final, _ = runner_binaries
+    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+    body["export_results"]["audit_manifest"]["model_hash"]["value"] = "ABC"
+    completed = run_final(
+        final, "export-results", body, "--explicit-local-private-intent"
+    )
+    assert completed.returncode == 1
+    controlled = json.loads(completed.stdout)
+    assert "report_package" not in controlled["payload"]
+    diagnostic = next(
+        item
+        for item in controlled["payload"]["diagnostics"]
+        if item["code"] == "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID"
+    )
+    assert "REPORT-PACKAGE-SHA256-INVALID" in diagnostic["message"]
+
+
+@pytest.mark.parametrize(
+    ("mutate", "serde_detail"),
+    [
+        (
+            lambda payload: payload["export_results"].pop("package_id"),
+            "missing field `package_id`",
+        ),
+        (
+            lambda payload: payload["export_results"].__setitem__(
+                "source_basis_refs", "not-an-array"
+            ),
+            "invalid type: string",
+        ),
+    ],
+)
+def test_final_runner_export_results_wire_deserialization_failures_exit_one(
+    runner_binaries, tmp_path, mutate, serde_detail
+):
+    final, _ = runner_binaries
+    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+    mutate(body)
+    output = tmp_path / "must-not-exist.json"
+    completed = run_final(
+        final,
+        "export-results",
+        body,
+        "--output",
+        str(output),
+        "--explicit-local-private-intent",
+    )
+    assert completed.returncode == 1
+    controlled = json.loads(completed.stdout)
+    assert "report_package" not in controlled["payload"]
+    diagnostic = next(
+        item
+        for item in controlled["payload"]["diagnostics"]
+        if item["code"] == "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID"
+    )
+    assert diagnostic["message"].startswith("REPORT-PACKAGE-WIRE-INCOMPLETE: ")
+    assert serde_detail in diagnostic["message"]
+    assert not output.exists()
+
+
+def test_final_runner_export_results_native_size_is_exact_with_constant_cardinality(
+    runner_binaries,
+):
+    final, _ = runner_binaries
+    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+    body["export_results"]["state_comparison_handoff_records"][0][
+        "invented_padding"
+    ] = "x" * 3_200_000
+    completed = run_final(
+        final, "export-results", body, "--explicit-local-private-intent"
+    )
+    assert completed.returncode == 0, completed.stderr
+    controlled = json.loads(completed.stdout)
+    package = controlled["payload"]["report_package"]
+    package_bytes = bytes(package["container_bytes"])
+    assert len(package_bytes) >= 3_189_621
+    assert hashlib.sha256(package_bytes).hexdigest() == package["container_sha256_hex"]
+    assert (
+        sum(
+            decision["path"] == "$.report_package"
+            for decision in controlled["decisions"]
+        )
+        == 1
+    )
+    assert (
+        sum(
+            finding["path"] == "$.report_package"
+            for finding in controlled["findings"]
+        )
+        == 1
     )
 
 

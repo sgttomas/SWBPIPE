@@ -1,0 +1,88 @@
+{
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "project_root": "projects/chirality-piping",
+  "results": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 75.158,
+      "exit_code": 0,
+      "id": "desktop-test",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "\n> openpipestress-workspace@0.1.0 test:desktop\n> npm test --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.7 {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\n\n\n Test Files  29 passed (29)\n      Tests  516 passed (516)\n   Start at  03:17:14\n   Duration  74.62s (transform 3.88s, setup 2.27s, import 6.43s, tests 121.73s, environment 9.24s)\n\n",
+      "timeout_seconds": 1800.0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 4.464,
+      "exit_code": 0,
+      "id": "desktop-build",
+      "status": "PASS",
+      "stderr": "\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n",
+      "stdout": "\n> openpipestress-workspace@0.1.0 build:desktop\n> npm run build --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 build\n> tsc -b && vite build\n\nvite v7.3.3 building client environment for production...\ntransforming...\n\u2713 1666 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                                      1.16 kB \u2502 gzip:   0.56 kB\ndist/assets/index-2SxukrJY.css                      44.62 kB \u2502 gzip:   7.95 kB\ndist/assets/vendor-tauri-DlQNAQKj.js                 0.09 kB \u2502 gzip:   0.11 kB\ndist/assets/invented_design_knowledge-H12r-oKQ.js    1.66 kB \u2502 gzip:   0.76 kB\ndist/assets/invented_agent_proposal-Bm57LVt-.js      1.82 kB \u2502 gzip:   0.85 kB\ndist/assets/vendor-7OC5HNn7.js                       3.61 kB \u2502 gzip:   1.58 kB\ndist/assets/invented_demo_rule_pack-dhX9tvT1.js     10.86 kB \u2502 gzip:   2.60 kB\ndist/assets/invented_preview_model-pJA3_nB8.js      12.67 kB \u2502 gzip:   3.06 kB\ndist/assets/vendor-icons-NIB71rxH.js                16.64 kB \u2502 gzip:   5.53 kB\ndist/assets/vendor-react-BT_8sX57.js               188.74 kB \u2502 gzip:  58.94 kB\ndist/assets/invented_mechanics_result-DftuaeNr.js  458.28 kB \u2502 gzip:  21.63 kB\ndist/assets/vendor-three-C7YCSTwK.js               525.97 kB \u2502 gzip: 134.13 kB\ndist/assets/index-CXdBpJ1L.js                      947.89 kB \u2502 gzip: 223.64 kB\n\u2713 built in 1.48s\n",
+      "timeout_seconds": 1800.0
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 25.022,
+      "exit_code": 0,
+      "id": "piping-pytest",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "........................................................................ [ 13%]\n........................................................................ [ 26%]\n........................................................................ [ 39%]\n........................................................................ [ 52%]\n........................................................................ [ 66%]\n........................................................................ [ 79%]\n........................................................................ [ 92%]\n.........................................                                [100%]\n545 passed in 24.78s\n",
+      "timeout_seconds": 1800.0
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/practitioner_harness"
+      ],
+      "cwd": ".",
+      "duration_seconds": 89.724,
+      "exit_code": 0,
+      "id": "harness-pytest",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "........................................................................ [ 23%]\n........................................................................ [ 46%]\n........................................................................ [ 69%]\n........................................................................ [ 92%]\n.......................                                                  [100%]\n311 passed in 89.56s (0:01:29)\n",
+      "timeout_seconds": 1800.0
+    },
+    {
+      "command": [
+        "python3",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "cwd": ".",
+      "duration_seconds": 8.001,
+      "exit_code": 0,
+      "id": "harness-self-check",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "> **Generated view \u2014 not authority.** Produced by tools/practitioner_harness (command: self-check).\n> Sources cited per finding; on any disagreement the cited source files govern.\n> Regenerate from project files; safe to delete. Structural checks are not approval,\n> issue, authentication, or acceptance of residual risk (K-AUTH-1; D-GOV-01).\n\n# Self-check \u2014 consistency audit\n\nScope: `projects/chirality-app-dev`, `projects/chirality-piping`, `projects/pec`, `_DomainEngines`, `docs/governance_harness`\n\n## Root governance status (self-declared; INFO facts)\n\n- `docs/DIRECTIVE.md` (line 3): > **Status: RATIFIED \u2014 owner ratification 2026-07-11 (`CONTRACT.md` / K-AUTH-1).** Owner direction of record (2026-07-11, in-session, Ryan Tufts): \"You can now take all the `docs/` out of the DRAFT state, making them aut \u2026[truncated]\n- `docs/CONTRACT.md` (line 3): > **Status: RATIFIED \u2014 owner ratification 2026-07-11 (K-AUTH-1).** Owner direction of record (2026-07-11, in-session, Ryan Tufts): \"You can now take all the `docs/` out of the DRAFT state, making them authoritative.\" Thi \u2026[truncated]\n- `docs/SPEC.md` (line 3): > **Status: RATIFIED \u2014 owner ratification 2026-07-11 (`CONTRACT.md` / K-AUTH-1).** Owner direction of record (2026-07-11, in-session, Ryan Tufts): \"You can now take all the `docs/` out of the DRAFT state, making them aut \u2026[truncated]\n- `docs/TYPES.md` (line 3): > **Status: RATIFIED \u2014 owner ratification 2026-07-11 (`CONTRACT.md` / K-AUTH-1).** Owner direction of record (2026-07-11, in-session, Ryan Tufts): \"You can now take all the `docs/` out of the DRAFT state, making them aut \u2026[truncated]\n\n## Findings\n\n| Severity | Code | Dimension | Source | Invariant (ratification) | Message |\n|---|---|---|---|---|---|\n| REVIEW | STALE_RULING_ANNOTATION | staleness | `_DomainEngines/_DECISIONS/D-T0-06_profile_adoption_lifecycle.md:1` | K-CONFLICT-1 (RATIFIED) | Line carries a '(PROPOSAL; HumanRuling = TBD)'-form annotation while the decision register title declares RULED; sources conflict \u2014 human review required. |\n| REVIEW | TITLE_CONTRADICTS_RULING | staleness | `_DomainEngines/_DECISIONS/D-T0-06_profile_adoption_lifecycle.md:1` | K-CONFLICT-1 (RATIFIED) | Title line carries a PROPOSAL/TBD tag while a body line records a ruling attributed to 'Ryan Tufts' (allowlisted); sources conflict \u2014 human review required. |\n| REVIEW | STALE_DRAFT_DIRECTIVE | staleness | `_DomainEngines/RULINGS_PUBLISHED.md:20` | K-CONFLICT-1 (RATIFIED) | Prose directs to 'Update the DRAFT profile' while the profile declares profile_status ADOPTED; sources conflict \u2014 human review required. |\n| INFO | ABS_PATH_IN_EVIDENCE | path-anchoring | `_DomainEngines/profiles/_validation/open_pipe_stress.validation.json:5` | SPEC-0.2.4 (N_A) | Machine-absolute path in a run-record/evidence artifact (permitted by SPEC \u00a70.2.4; noted for portability awareness). |\n| INFO | ABS_PATH_IN_EVIDENCE | path-anchoring | `_DomainEngines/profiles/_validation/pec.validation.json:5` | SPEC-0.2.4 (N_A) | Machine-absolute path in a run-record/evidence artifact (permitted by SPEC \u00a70.2.4; noted for portability awareness). |\n| WARN | UNRESOLVED_SOURCE_REF | provenance | `_DomainEngines/_DECISIONS/D-T0-06_profile_adoption_lifecycle.md:7` | K-PROV-1 (RATIFIED) | Reference `profiles/open_pipe_stress.DRAFT.yaml` does not resolve to an existing repo path (checked repo-root-relative and file-relative). |\n| WARN | UNRESOLVED_SOURCE_REF | provenance | `_DomainEngines/_DECISIONS/D-T0-11_pec_registration_shape.md:29` | K-PROV-1 (RATIFIED) | Reference `_DomainEngines/pec/profile/pec.DRAFT.yaml` does not resolve to an existing repo path (checked repo-root-relative and file-relative). |\n| WARN | UNRESOLVED_SOURCE_REF | provenance | `_DomainEngines/_DECISIONS/D-T0-12_pec_profile_lifecycle.md:20` | K-PROV-1 (RATIFIED) | Reference `_DomainEngines/pec/profile/pec.DRAFT.yaml` does not resolve to an existing repo path (checked repo-root-relative and file-relative). |\n| WARN | UNRESOLVED_SOURCE_REF | provenance | `_DomainEngines/_DECISIONS/D-T0-12_pec_profile_lifecycle.md:20` | K-PROV-1 (RATIFIED) | Reference `_DomainEngines/pec/profile/pec.DRAFT.yaml` does not resolve to an existing repo path (checked repo-root-relative and file-relative). |\n| WARN | UNRESOLVED_SOURCE_REF | provenance | `_DomainEngines/_DECISIONS/D-T0-15_pec_loop_goal_fences.md:17` | K-PROV-1 (RATIFIED) | Reference `_DomainEngines/pec/WORKPLAN_2026-07-04_pec_loop.md` does not resolve to an existing repo path (checked repo-root-relative and file-relative). |\n| WARN | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/FOUR_DOCUMENT_CONSUMER_INVENTORY.md:46` | K-PROV-1 (RATIFIED) | Reference `agents/AGENT_ORCHESTRATOR.md` does not resolve to an existing repo path (checked repo-root-relative and file-relative). |\n| WARN | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/_DECISIONS/D-GOV-07_domain_gate_sha_binding.md:26` | K-PROV-1 (RATIFIED) | Reference `gate_snapshots/_LATEST_GATE6.md` does not resolve to an existing repo path (checked repo-root-relative and file-relative). |\n| WARN | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/_DECISIONS/D-GOV-18_agent_index_redisposition.md:28` | K-PROV-1 (RATIFIED) | Reference `agents/AGENT_ORCHESTRATOR.md` does not resolve to an existing repo path (checked repo-root-relative and file-relative). |\n| INFO | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/briefs/TRB-chirality-app-dev-DEL-03-01-2026-07-03.md:103` | K-PROV-1 (RATIFIED) | Reference `_harness_generated/briefs/TRB-chirality-app-dev-DEL-03-01-2026-07-03.md` is under the declared generated root `_harness_generated/`; generated artifacts are rebuildable and may be absent in fresh checkouts/worktrees. |\n| INFO | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/briefs/TRB-chirality-app-dev-DEL-03-01-2026-07-03.md:104` | K-PROV-1 (RATIFIED) | Reference `_harness_generated/briefs/TRB-chirality-app-dev-DEL-03-01-2026-07-03.json` is under the declared generated root `_harness_generated/`; generated artifacts are rebuildable and may be absent in fresh checkouts/worktrees. |\n| INFO | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/briefs/TRB-chirality-app-dev-DEL-10-01-2026-07-02.md:88` | K-PROV-1 (RATIFIED) | Reference `_harness_generated/briefs/TRB-chirality-app-dev-DEL-10-01-2026-07-02.md` is under the declared generated root `_harness_generated/`; generated artifacts are rebuildable and may be absent in fresh checkouts/worktrees. |\n| INFO | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/briefs/TRB-chirality-app-dev-DEL-10-01-2026-07-02.md:89` | K-PROV-1 (RATIFIED) | Reference `_harness_generated/briefs/TRB-chirality-app-dev-DEL-10-01-2026-07-02.json` is under the declared generated root `_harness_generated/`; generated artifacts are rebuildable and may be absent in fresh checkouts/worktrees. |\n| INFO | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/briefs/TRB-chirality-app-dev-DEL-10-03-2026-07-02.md:90` | K-PROV-1 (RATIFIED) | Reference `_harness_generated/briefs/TRB-chirality-app-dev-DEL-10-03-2026-07-02.md` is under the declared generated root `_harness_generated/`; generated artifacts are rebuildable and may be absent in fresh checkouts/worktrees. |\n| INFO | UNRESOLVED_SOURCE_REF | provenance | `docs/governance_harness/briefs/TRB-chirality-app-dev-DEL-10-03-2026-07-02.md:91` | K-PROV-1 (RATIFIED) | Reference `_harness_generated/briefs/TRB-chirality-app-dev-DEL-10-03-2026-07-02.json` is under the declared generated root `_harness_generated/`; generated artifacts are rebuildable and may be absent in fresh checkouts/worktrees. |\n| INFO | DRAFT_BASIS_RULED_CLOSED | provenance | `docs/governance_harness/_DECISIONS/D-GOV-01_substrate_authority.md:7` | K-CLAIM-1 (RATIFIED) | Cited basis self-declares 'merged plan of record candidate \u00b7 PROPOSAL, pending D-GOV-01' pending D-GOV-01; D-GOV-01 is RULED per docs/governance_harness/_DECISIONS/D-GOV-01_substrate_authority.md \u2014 closure recorded; sources govern on disagreement. |\n| INFO | DRAFT_BASIS_RULED_CLOSED | provenance | `docs/governance_harness/_DECISIONS/D-GOV-02_verifier_severity_and_override.md:7` | K-CLAIM-1 (RATIFIED) | Cited basis self-declares 'merged plan of record candidate \u00b7 PROPOSAL, pending D-GOV-01' pending D-GOV-01; D-GOV-01 is RULED per docs/governance_harness/_DECISIONS/D-GOV-01_substrate_authority.md \u2014 closure recorded; sources govern on disagreement. |\n| INFO | DRAFT_BASIS_RULED_CLOSED | provenance | `docs/governance_harness/_DECISIONS/D-GOV-03_pilot_scope.md:7` | K-CLAIM-1 (RATIFIED) | Cited basis self-declares 'merged plan of record candidate \u00b7 PROPOSAL, pending D-GOV-01' pending D-GOV-01; D-GOV-01 is RULED per docs/governance_harness/_DECISIONS/D-GOV-01_substrate_authority.md \u2014 closure recorded; sources govern on disagreement. |\n| INFO | DRAFT_BASIS_RULED_CLOSED | provenance | `docs/governance_harness/_DECISIONS/D-GOV-04_human_actor_identity.md:7` | K-CLAIM-1 (RATIFIED) | Cited basis self-declares 'merged plan of record candidate \u00b7 PROPOSAL, pending D-GOV-01' pending D-GOV-01; D-GOV-01 is RULED per docs/governance_harness/_DECISIONS/D-GOV-01_substrate_authority.md \u2014 closure recorded; sources govern on disagreement. |\n| INFO | DRAFT_BASIS_RULED_CLOSED | provenance | `docs/governance_harness/_DECISIONS/D-GOV-05_minimal_governance_basis.md:7` | K-CLAIM-1 (RATIFIED) | Cited basis self-declares 'merged plan of record candidate \u00b7 PROPOSAL, pending D-GOV-01' pending D-GOV-01; D-GOV-01 is RULED per docs/governance_harness/_DECISIONS/D-GOV-01_substrate_authority.md \u2014 closure recorded; sources govern on disagreement. |\n| INFO | DRAFT_BASIS_RULED_CLOSED | provenance | `docs/governance_harness/_DECISIONS/D-GOV-06_domain_profile_current_truth.md:7` | K-CLAIM-1 (RATIFIED) | Cited basis self-declares 'merged plan of record candidate \u00b7 PROPOSAL, pending D-GOV-01' pending D-GOV-01; D-GOV-01 is RULED per docs/governance_harness/_DECISIONS/D-GOV-01_substrate_authority.md \u2014 closure recorded; sources govern on disagreement. |\n| INFO | DRAFT_BASIS_RULED_CLOSED | provenance | `docs/governance_harness/_DECISIONS/D-GOV-07_domain_gate_sha_binding.md:7` | K-CLAIM-1 (RATIFIED) | Cited basis self-declares 'merged plan of record candidate \u00b7 PROPOSAL, pending D-GOV-01' pending D-GOV-01; D-GOV-01 is RULED per docs/governance_harness/_DECISIONS/D-GOV-01_substrate_authority.md \u2014 closure recorded; sources govern on disagreement. |\n| NOT_APPLICABLE | POINTER_CHECK_NOT_APPLICABLE | staleness | `projects/pec` | K-STALE-2 (RATIFIED) | No `_LATEST*` pointer files under this root; pointer-currency check skipped (preconditions absent). |\n| NOT_APPLICABLE | POINTER_CHECK_NOT_APPLICABLE | staleness | `docs/governance_harness` | K-STALE-2 (RATIFIED) | No `_LATEST*` pointer files under this root; pointer-currency check skipped (preconditions absent). |\n\n## Summary\n\nFinding severities: INFO=15, NOT_APPLICABLE=2, REVIEW=3, WARN=8\n- scope: ['projects/chirality-app-dev', 'projects/chirality-piping', 'projects/pec', '_DomainEngines', 'docs/governance_harness']\n- pointer_files_scanned: 25\n- checks_run: DE-1..8 (domain-engine surfaces incl. stale open issues vs later rulings), GEN-1 (abs-path), GEN-2 (ruling-SHA TBD), GEN-3 (generated labeling), GEN-4 (root governance status facts), GEN-5 (unresolved refs; control files only in v1), GEN-6 (draft-basis-used-as-binding; control files only in v1), GEN-7 (_LATEST pointer currency: target resolution outside .archive + newest-same-class-sibling by date-in-filename), GEN-8 (active-surface portability: structural roles + hash-bound historical exceptions + semantic invariants), GEN-9 (agent-registry currency: AGENTS.md file tokens vs live agents/ files, both directions), GEN-10 (bridge receipt labels + parked-lane carry-forward), GEN-11 (D-44 piping receipt contract), GEN-12 (D-APP-57 app-dev receipt contract), GEN-13 (claims-language DEC-081)\n",
+      "timeout_seconds": 1800.0
+    }
+  ],
+  "schema": "chirality-software-check-evidence/v1",
+  "status": "PASS",
+  "workspace_root": "."
+}

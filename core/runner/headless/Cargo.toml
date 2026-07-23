@@ -21,6 +21,7 @@ path = "src/bin/headless_preview_runner.rs"
 # OpenPipeStress hash seam (completion-plan hardening row H5).
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
 open_pipe_stress_product_physics = { path = "../../product_physics" }
+open_pipe_stress_report_package = { path = "../../reporting/report_package" }
 # DEL-08-04 result-export vocabulary, consumed read-only through its public
 # API by the governed analysis-run producer binding (R14 W1 T1).
 open_pipe_stress_result_export = { path = "../../reporting/result_export" }

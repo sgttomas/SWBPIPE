@@ -14,8 +14,13 @@ use open_pipe_stress_headless_runner::{
     run_preview_in_memory_with_rule_check, validate_request, validate_result, Diagnostic,
     JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult, RunnerValidation,
 };
+use open_pipe_stress_product_physics::{solver_component_name, solver_component_version};
 use open_pipe_stress_product_physics::{LinearStaticPreviewRequest, MechanicsEnvelope};
-use serde::{Deserialize, Serialize};
+use open_pipe_stress_report_package::{
+    wire::{assemble_wire_request, LinkedSolverIdentity, ReportPackageRequest},
+    ReportPackageContainerOutcome,
+};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
 const ARTIFACT: &str = "openpipestress.headless_runner_cli_output";
@@ -41,6 +46,15 @@ struct CliInput {
     benchmark: Option<SuitePayload>,
     #[serde(default)]
     regression: Option<SuitePayload>,
+    #[serde(default, deserialize_with = "deserialize_present_json")]
+    export_results: Option<Value>,
+}
+
+fn deserialize_present_json<'de, D>(deserializer: D) -> Result<Option<Value>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Value::deserialize(deserializer).map(Some)
 }
 
 #[derive(Debug, Deserialize)]
@@ -87,7 +101,30 @@ struct CliOutput {
     runner_result: Option<RunnerResult>,
     mechanics_envelope: Option<MechanicsEnvelope>,
     suite_run: Option<SuiteRunReport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    report_package: Option<ReportPackageProjection>,
     diagnostics: Vec<Diagnostic>,
+}
+
+#[derive(Debug, Serialize)]
+struct ReportPackageProjection {
+    container_file_name: String,
+    document_kind: String,
+    package_identity_sha256_hex: String,
+    container_sha256_hex: String,
+    container_bytes: Vec<u8>,
+    members: Vec<ReportPackageMemberProjection>,
+}
+
+#[derive(Debug, Serialize)]
+struct ReportPackageMemberProjection {
+    role: String,
+    file_name: String,
+    media_type: String,
+    hash_basis: String,
+    sha256_hex: String,
+    byte_length: usize,
+    carries_canonical_identity: bool,
 }
 
 fn main() -> ExitCode {
@@ -117,7 +154,7 @@ fn main() -> ExitCode {
         .expect("controlled CLI output must serialize as JSON");
     println!("{rendered}");
 
-    if !controlled.blocked {
+    if (args.verb != "export-results" || code == 0) && !controlled.blocked {
         if let Some(output_path) = args.output_path.as_deref() {
             if let Err(error) = std::fs::write(output_path, format!("{rendered}\n")) {
                 eprintln!("openpipestress-runner: cannot write {output_path}: {error}");
@@ -285,25 +322,293 @@ fn execute_json(verb: &str, raw_input: &str) -> (u8, CliOutput) {
             diagnostics,
         ),
         RunnerOperation::ExportResults => {
+            execute_export_results(verb, input, request_validation, diagnostics)
+        }
+        RunnerOperation::Tbd => unreachable!("TBD is not mapped from a stable CLI verb"),
+    }
+}
+
+fn execute_export_results(
+    verb: &str,
+    input: CliInput,
+    request_validation: RunnerValidation,
+    mut diagnostics: Vec<Diagnostic>,
+) -> (u8, CliOutput) {
+    let Some(raw_payload) = input.export_results else {
+        diagnostics.push(blocking(
+            "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING",
+            "runner_operation",
+            "export_results",
+            "export-results requires the export_results report-package payload",
+        ));
+        return (
+            1,
+            base_output(
+                verb,
+                Some(RunnerOperation::ExportResults),
+                Some(request_validation),
+                None,
+                None,
+                diagnostics,
+            ),
+        );
+    };
+
+    let payload: ReportPackageRequest = match serde_json::from_value(raw_payload) {
+        Ok(payload) => payload,
+        Err(error) => {
             diagnostics.push(blocking(
-                "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD",
+                "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID",
                 "runner_operation",
-                operation_token(operation),
-                "operation verb is stable under DEC-065, but this tranche only implements the validated preview solve path; downstream payload binding must be supplied in a later bounded tranche",
+                "export_results",
+                format!("REPORT-PACKAGE-WIRE-INCOMPLETE: {error}"),
             ));
-            (
+            return (
                 1,
                 base_output(
                     verb,
-                    Some(operation),
+                    Some(RunnerOperation::ExportResults),
                     Some(request_validation),
                     None,
                     None,
                     diagnostics,
                 ),
-            )
+            );
         }
-        RunnerOperation::Tbd => unreachable!("TBD is not mapped from a stable CLI verb"),
+    };
+
+    if request_validation.has_blocking_diagnostics() || has_blocking(&diagnostics) {
+        return (
+            1,
+            base_output(
+                verb,
+                Some(RunnerOperation::ExportResults),
+                Some(request_validation),
+                None,
+                None,
+                diagnostics,
+            ),
+        );
+    }
+
+    if let Err(message) = validate_export_results_bindings(&input.request, &payload) {
+        diagnostics.push(blocking(
+            "HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH",
+            "runner_operation",
+            "export_results",
+            message,
+        ));
+        return (
+            1,
+            base_output(
+                verb,
+                Some(RunnerOperation::ExportResults),
+                Some(request_validation),
+                None,
+                None,
+                diagnostics,
+            ),
+        );
+    }
+
+    let solver_name = solver_component_name();
+    let solver_version = solver_component_version();
+    let solver_build_ref = format!("{solver_name}@{solver_version}");
+    let outcome = match assemble_wire_request(
+        payload,
+        &LinkedSolverIdentity {
+            solver_name,
+            solver_version,
+            solver_build_ref: &solver_build_ref,
+        },
+    ) {
+        Ok(outcome) => outcome,
+        Err(error) => {
+            diagnostics.push(blocking(
+                "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID",
+                "runner_operation",
+                "export_results",
+                format!("export_results payload is invalid: {error}"),
+            ));
+            return (
+                1,
+                base_output(
+                    verb,
+                    Some(RunnerOperation::ExportResults),
+                    Some(request_validation),
+                    None,
+                    None,
+                    diagnostics,
+                ),
+            );
+        }
+    };
+
+    if outcome.export_blocked {
+        diagnostics.push(blocking(
+            "HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED",
+            "runner_operation",
+            "export_results",
+            format!(
+                "report-package producer blocked export: {}",
+                outcome.blocking_reasons.join("; ")
+            ),
+        ));
+        return (
+            1,
+            base_output(
+                verb,
+                Some(RunnerOperation::ExportResults),
+                Some(request_validation),
+                None,
+                None,
+                diagnostics,
+            ),
+        );
+    }
+
+    let mut output = base_output(
+        verb,
+        Some(RunnerOperation::ExportResults),
+        Some(request_validation),
+        None,
+        None,
+        diagnostics,
+    );
+    output.report_package = Some(project_report_package(outcome));
+    (0, output)
+}
+
+fn validate_export_results_bindings(
+    runner: &RunnerRequest,
+    package: &ReportPackageRequest,
+) -> Result<(), String> {
+    fn complete(label: &str, value: &str) -> Result<(), String> {
+        if value.trim().is_empty() || value.trim().eq_ignore_ascii_case("TBD") {
+            Err(format!("{label} is missing or TBD"))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn ref_key(reference: &open_pipe_stress_report_package::wire::ReferenceDto) -> String {
+        format!("{}\u{0}{}", reference.ref_type, reference.ref_id)
+    }
+
+    complete("runner model_ref.ref_id", &runner.model_ref.ref_id)?;
+    complete(
+        "package source_model_ref.ref_id",
+        &package.source_model_ref.ref_id,
+    )?;
+    if runner.model_ref.ref_type != package.source_model_ref.ref_type
+        || runner.model_ref.ref_id != package.source_model_ref.ref_id
+    {
+        return Err("runner model_ref does not equal package source_model_ref".to_string());
+    }
+
+    let audit_model = package
+        .audit_manifest
+        .model_hash
+        .as_ref()
+        .ok_or_else(|| "audit model_hash is missing".to_string())?;
+    if runner.model_ref.ref_id != audit_model.payload_ref {
+        return Err("runner model_ref does not equal audit model-hash payload_ref".to_string());
+    }
+    let input_manifest = package
+        .audit_manifest
+        .input_manifest_hash
+        .as_ref()
+        .ok_or_else(|| "audit input_manifest_hash is missing".to_string())?;
+    if runner.input_manifest_ref.ref_id != input_manifest.payload_ref {
+        return Err(
+            "runner input_manifest_ref does not equal audit input-manifest payload_ref".to_string(),
+        );
+    }
+    if runner.unit_system_ref.ref_id != package.audit_manifest.unit_system_ref {
+        return Err("runner unit_system_ref does not equal audit unit_system_ref".to_string());
+    }
+
+    let mut source_basis = std::collections::BTreeSet::new();
+    for reference in &package.source_basis_refs {
+        complete("package source_basis_ref.ref_type", &reference.ref_type)?;
+        complete("package source_basis_ref.ref_id", &reference.ref_id)?;
+        if !source_basis.insert(ref_key(reference)) {
+            return Err("package source_basis_refs contains a duplicate".to_string());
+        }
+    }
+    let runner_loads: std::collections::BTreeSet<_> = runner
+        .load_basis_refs
+        .iter()
+        .map(|reference| format!("{}\u{0}{}", reference.ref_type, reference.ref_id))
+        .collect();
+    if runner_loads.len() != runner.load_basis_refs.len() {
+        return Err("runner load_basis_refs contains a duplicate".to_string());
+    }
+
+    for envelope in &package.result_envelopes {
+        if envelope.model_ref.ref_type != runner.model_ref.ref_type
+            || envelope.model_ref.ref_id != runner.model_ref.ref_id
+            || envelope.reproducibility.model_hash.payload_ref.ref_type != runner.model_ref.ref_type
+            || envelope.reproducibility.model_hash.payload_ref.ref_id != runner.model_ref.ref_id
+        {
+            return Err(
+                "result-envelope model binding does not equal runner model_ref".to_string(),
+            );
+        }
+        if envelope.unit_system_ref.ref_id != runner.unit_system_ref.ref_id {
+            return Err(
+                "result-envelope unit-system binding does not equal runner unit_system_ref"
+                    .to_string(),
+            );
+        }
+        let envelope_loads: std::collections::BTreeSet<_> =
+            envelope.load_basis_refs.iter().map(ref_key).collect();
+        if envelope_loads.len() != envelope.load_basis_refs.len() || envelope_loads != runner_loads
+        {
+            return Err(
+                "result-envelope load-basis set does not equal runner load_basis_refs".to_string(),
+            );
+        }
+        if envelope
+            .load_basis_refs
+            .iter()
+            .any(|reference| !source_basis.contains(&ref_key(reference)))
+        {
+            return Err("result-envelope load basis is absent from source_basis_refs".to_string());
+        }
+        if envelope.reproducibility.audit_manifest_ref.ref_id != package.audit_manifest.manifest_id
+        {
+            return Err(
+                "result-envelope audit-manifest ref does not equal supplied manifest".to_string(),
+            );
+        }
+        if !source_basis.contains(&ref_key(&envelope.run_ref)) {
+            return Err("result-envelope run_ref is absent from source_basis_refs".to_string());
+        }
+    }
+    Ok(())
+}
+
+fn project_report_package(outcome: ReportPackageContainerOutcome) -> ReportPackageProjection {
+    ReportPackageProjection {
+        container_file_name: outcome.container_file_name,
+        document_kind: outcome.document_kind,
+        package_identity_sha256_hex: outcome.package_identity_sha256_hex,
+        container_sha256_hex: outcome.container_sha256_hex,
+        container_bytes: outcome.container_bytes,
+        members: outcome
+            .members
+            .into_iter()
+            .map(|member| ReportPackageMemberProjection {
+                role: member.role,
+                file_name: member.file_name,
+                media_type: member.media_type,
+                hash_basis: member.hash_basis,
+                sha256_hex: member.sha256_hex,
+                byte_length: member.byte_length,
+                carries_canonical_identity: member.carries_canonical_identity,
+            })
+            .collect(),
     }
 }
 
@@ -509,6 +814,7 @@ fn base_output(
         runner_result,
         mechanics_envelope,
         suite_run: None,
+        report_package: None,
         diagnostics,
     }
 }
@@ -666,15 +972,14 @@ mod tests {
     }
 
     #[test]
-    fn downstream_operation_verbs_are_stable_but_stubbed() {
-        // Only export-results remains stubbed after the DEL-10-05
-        // benchmark/regression payload-binding tranche.
+    fn export_results_blocks_when_its_payload_is_missing() {
         let raw = json!({ "request": request(RunnerOperation::ExportResults) }).to_string();
         let (code, output) = execute_json("export-results", &raw);
         assert_eq!(code, 1);
         assert!(output.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD"
+            diagnostic.code == "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING"
         }));
+        assert!(output.report_package.is_none());
     }
 
     #[test]
@@ -686,9 +991,6 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| diagnostic.code == "HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING"));
-        assert!(!output.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD"
-        }));
         assert!(output.suite_run.is_none());
     }
 
