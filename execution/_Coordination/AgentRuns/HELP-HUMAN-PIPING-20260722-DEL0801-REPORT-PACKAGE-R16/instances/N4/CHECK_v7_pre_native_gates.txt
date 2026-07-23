@@ -1,0 +1,55 @@
+R16 candidate v7 — N4 pre-native gate record
+Date: 2026-07-22
+Frozen basis: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+Implementation owner: N4 (sole serialized)
+
+Scope
+-----
+This record supersedes no historical evidence. It records the v7 replacement
+implementation gates after slices R16-SLICE-01 through R16-SLICE-04 and before
+the final packaged-native cancel/new-save/replace proof.
+
+Product and contract gates
+--------------------------
+- Focused input-manifest service Vitest: PASS, 4/4.
+- Focused preview/analysis-run desktop Vitest: PASS, 17/17.
+- Focused Python analysis-run records: PASS, 12/12.
+- Analysis-run schema and JSON validation: PASS.
+- Rust result_export: PASS, 13/13.
+- Results-schema pytest: PASS, 3/3.
+- Focused report request / manifest / dimension / privacy tests: PASS, 18/18.
+- Full App Vitest: PASS, 60/60.
+- Rust report-package bridge: PASS, 3/3.
+- Source H4 report-package route: PASS, 2/2 (desktop and compact).
+- Production-dist H4: PASS, 2/2 (report-package dist and WASM dist).
+- Desktop production build: PASS.
+
+Broad gates
+-----------
+- Full desktop Vitest: PASS, 29 files / 510 tests.
+- Full piping pytest: PASS, 537/537.
+- Full practitioner-harness pytest: PASS, 311/311.
+- Practitioner-harness repository self-check: PASS (exit 0; standing
+  informational findings only).
+- Focused Rust report package: PASS, 12/12.
+- Focused Rust PDF emitter: PASS, 8/8.
+- Focused Rust report renderer: PASS, 8/8.
+- Focused Rust result exporter: PASS, 13/13.
+- Focused Rust desktop report bridge: PASS, 3/3.
+- Unstaged and staged git diff whitespace validation: PASS.
+
+Known frozen-base residual
+--------------------------
+The extra, non-binding full desktop Rust run returned 73/74. The sole failure,
+`validate_rule_pack_command_reports_example_pack_clean_and_draft_findings`,
+is the frozen-base rule-pack notice assertion already preserved in
+`CHECK_clean_base_rule_notice.txt`. All focused native report/package/atomic
+save tests are green. No excluded rule-pack surface was changed.
+
+Sweep state
+-----------
+The v6 DEC-025 sweep
+`SWEEP_20260723T012151Z_8698b0338ac8-dirty.json` remains immutable superseded
+evidence. Candidate v7 authorizes exactly one replacement sweep only after the
+packaged-native proof, evidence records, and remaining static gates are sealed.
+No v7 replacement sweep has been invoked at this checkpoint.

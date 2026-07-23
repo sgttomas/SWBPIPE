@@ -1,0 +1,205 @@
+{
+  "schema": "chirality-change-cached-diff-exception/v1",
+  "session_id": "2026-07-23_DEL0801_R16_CLOSEOUT",
+  "basis_sha": "8698b0338ac82556fee583dd3f85bb62d0b74f85",
+  "branch": "codex/piping-pkg08-report-package",
+  "status": "PASS_WITH_IMMUTABLE_EVIDENCE_EXCEPTION",
+  "authority": "HELP_HUMAN narrow disposition after exact staging exposed warnings in previously untracked sealed R16 Markdown evidence",
+  "rationale": "Preserve sealed run evidence byte-for-byte. The exception is non-product and covers only the exact enumerated Markdown whitespace findings; it does not waive a finding in product, test, schema, Cargo, sweep, deliverable status/memory, or any other staged path.",
+  "staged_path_count_before_manifest": 100,
+  "staged_path_count_after_manifest": 101,
+  "warning_count": 42,
+  "warning_path_count": 24,
+  "category_counts": {
+    "trailing_whitespace": 27,
+    "blank_line_at_eof": 15
+  },
+  "warning_enumeration_sha256": "227cb1c9062c5c08a8729574efaf489effec17b24e4836e4242a11f4217c655a",
+  "product_test_schema_cargo_finding_count": 0,
+  "non_exception_cached_diff_check": {
+    "status": "PASS",
+    "exit_code": 0,
+    "command_argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--check",
+      "--",
+      ".",
+      ":(exclude)projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL0801_REPORT_PACKAGE_R16.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V2.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V3.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V4.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V5.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V6.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V7.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V8.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V9.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/ORCHESTRATION_PLAN.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/OWNER_ADOPTION.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N1/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N2/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3/INTERRUPTION.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3B/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3C/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3D/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3E/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3F/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N4/LAUNCH_BRIEF.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N5-V9/RETURN.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/W3/RETURN.md",
+      ":(exclude)projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-22_DEL-08-01_REPORT_PACKAGE_SEAM.md"
+    ]
+  },
+  "warnings": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL0801_REPORT_PACKAGE_R16.md",
+      "findings": {
+        "trailing_whitespace": [3, 4, 5, 6, 7, 8]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V2.md",
+      "findings": {
+        "trailing_whitespace": [3],
+        "blank_line_at_eof": [15]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V3.md",
+      "findings": {
+        "trailing_whitespace": [3],
+        "blank_line_at_eof": [19]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V4.md",
+      "findings": {
+        "trailing_whitespace": [3],
+        "blank_line_at_eof": [17]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V5.md",
+      "findings": {
+        "trailing_whitespace": [3],
+        "blank_line_at_eof": [16]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V6.md",
+      "findings": {
+        "trailing_whitespace": [4]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V7.md",
+      "findings": {
+        "trailing_whitespace": [3, 4, 5]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V8.md",
+      "findings": {
+        "trailing_whitespace": [3, 4]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/AMENDMENT_V9.md",
+      "findings": {
+        "trailing_whitespace": [3, 4]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/ORCHESTRATION_PLAN.md",
+      "findings": {
+        "blank_line_at_eof": [62]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/OWNER_ADOPTION.md",
+      "findings": {
+        "trailing_whitespace": [3, 4]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N1/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [40]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N2/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [40]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3/INTERRUPTION.md",
+      "findings": {
+        "blank_line_at_eof": [7]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [63]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3B/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [34]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3C/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [28]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3D/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [22]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3E/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [26]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N3F/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [22]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N4/LAUNCH_BRIEF.md",
+      "findings": {
+        "blank_line_at_eof": [73]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/N5-V9/RETURN.md",
+      "findings": {
+        "trailing_whitespace": [3, 4, 5]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/instances/W3/RETURN.md",
+      "findings": {
+        "trailing_whitespace": [3, 4]
+      }
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-22_DEL-08-01_REPORT_PACKAGE_SEAM.md",
+      "findings": {
+        "trailing_whitespace": [14, 15]
+      }
+    }
+  ]
+}

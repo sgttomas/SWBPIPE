@@ -351,9 +351,13 @@ def main():
         "section_property",
     }
     assert "metadata" in quantity_condition["then"]["required"]
-    assert {"area", "section_modulus", "second_moment_area"} <= enum_at(
-        schema, "DimensionId"
-    )
+    assert {
+        "area",
+        "section_modulus",
+        "second_moment_area",
+        "linear_stiffness",
+        "rotational_stiffness",
+    } <= enum_at(schema, "DimensionId")
     assert REQUIRED_FAMILIES <= enum_at(schema, "ResultFamily")
     assert {
         "mechanics",

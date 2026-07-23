@@ -46,6 +46,34 @@ def analysis_run_schema():
     return json.loads(ANALYSIS_RUN_SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
+def manifest_evidence():
+    payload = {
+        "schema_version": "1.0.0",
+        "document_kind": "openpipestress.current_session_input_manifest",
+        "model_ref": "project:invented-loop-01",
+        "solver_mode": "sparse_interactive",
+        "test_basis": "invented-del-14-02-focused-evidence",
+    }
+    digest = sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+    return (
+        {
+            "object_type": "InputManifest",
+            "ref": f"input-manifest:project-invented-loop-01:{digest}",
+        },
+        digest,
+    )
+
+
+def build_run(result=None, **kwargs):
+    manifest_ref, manifest_hash = manifest_evidence()
+    return build_preview_analysis_run_envelope(
+        result or preview_result(),
+        input_manifest_ref=manifest_ref,
+        input_manifest_hash=manifest_hash,
+        **kwargs,
+    )
+
+
 def _skip_or_note_missing_jsonschema(exc):
     if "pytest" in sys.modules:
         import pytest
@@ -55,8 +83,8 @@ def _skip_or_note_missing_jsonschema(exc):
 
 
 def test_preview_result_builds_deterministic_immutable_run_record():
-    first = build_preview_analysis_run_envelope(preview_result())
-    second = build_preview_analysis_run_envelope(preview_result())
+    first = build_run()
+    second = build_run()
 
     assert canonical_json(first) == canonical_json(second)
     assert first["deliverable_id"] == "DEL-14-02"
@@ -84,7 +112,7 @@ def test_sorted_compact_json_has_exact_bytes_and_stable_hash_without_jcs_claim()
         "9fe3dcafeafda5780fb9062a482c657fdd139cb98c1d4e4356e7123b64665753"
     )
 
-    envelope = build_preview_analysis_run_envelope(preview_result())
+    envelope = build_run()
     checksums = envelope["analysis_run"]["hashes"] + [
         checksum
         for result_ref in envelope["analysis_run"]["result_refs"]
@@ -93,11 +121,14 @@ def test_sorted_compact_json_has_exact_bytes_and_stable_hash_without_jcs_claim()
     assert {item["canonicalization"] for item in checksums} == {
         "SORTED_COMPACT_JSON"
     }
-    assert "JCS" not in canonical_json(envelope)
+    assert "JCS" not in canonical_json(checksums)
+    assert envelope["analysis_run"]["reproducibility"]["input_manifest_hashes"][
+        0
+    ]["canonicalization"] == "JCS"
 
 
 def test_generated_analysis_run_envelope_validates_against_schema():
-    envelope = build_preview_analysis_run_envelope(preview_result())
+    envelope = build_run()
     schema = analysis_run_schema()
 
     try:
@@ -122,8 +153,7 @@ def test_generated_run_binds_run_basis_diagnostics_and_boundary_fields():
     ]
     build_ref = {"object_type": "ExternalReference", "ref": "build:del-14-02-evidence"}
 
-    envelope = build_preview_analysis_run_envelope(
-        preview_result(),
+    envelope = build_run(
         model_state_ref=state_ref,
         settings_ref=settings_ref,
         unit_system_ref=unit_ref,
@@ -160,7 +190,7 @@ def test_generated_run_binds_run_basis_diagnostics_and_boundary_fields():
 
 
 def test_run_contract_status_uses_sca_003_local_project_store():
-    envelope = build_preview_analysis_run_envelope(preview_result())
+    envelope = build_run()
     contract = envelope["run_contract_status"]
     physical = contract["physical_project_container"]
 
@@ -196,7 +226,7 @@ def test_analysis_run_schema_binds_physical_container_to_sca_003_profile():
 
 
 def test_result_refs_bind_computed_result_ids_to_hashes():
-    envelope = build_preview_analysis_run_envelope(preview_result())
+    envelope = build_run()
     run = envelope["analysis_run"]
     refs = {item["result_ref"]["ref"]: item for item in run["result_refs"]}
 
@@ -263,6 +293,124 @@ def test_result_refs_bind_computed_result_ids_to_hashes():
     assert any(item["payload_scope"] == "analysis_run_record" for item in run["hashes"])
 
 
+def test_run_binds_distinct_exact_input_manifest_and_explicit_source_dimensions():
+    envelope = build_run()
+    run = envelope["analysis_run"]
+    manifest_ref, manifest_hash = manifest_evidence()
+    result_envelope_hash = next(
+        item["value"]
+        for item in run["hashes"]
+        if item["payload_scope"] == "result_envelope"
+    )
+    dimensions = {
+        item["result_ref"]["ref"]: item["source_dimension"]
+        for item in run["result_refs"]
+    }
+
+    assert run["reproducibility"]["input_manifest_refs"] == [manifest_ref]
+    assert run["reproducibility"]["input_manifest_hashes"] == [
+        {
+            "algorithm": "sha256",
+            "canonicalization": "JCS",
+            "payload_ref": manifest_ref,
+            "payload_scope": "input_manifest",
+            "value": manifest_hash,
+        }
+    ]
+    assert manifest_hash != result_envelope_hash
+    assert dimensions["result:component-stiffness:component-C-150:axial"] == (
+        "linear_stiffness"
+    )
+    assert dimensions["result:component-stiffness:component-C-150:lateral"] == (
+        "linear_stiffness"
+    )
+    assert dimensions["result:component-stiffness:component-C-150:angular"] == (
+        "rotational_stiffness"
+    )
+    assert dimensions["result:component-stiffness:component-C-150:torsional"] == (
+        "rotational_stiffness"
+    )
+
+
+def test_result_family_uses_exact_kind_and_dimension_not_deceptive_unit_text():
+    deceptive = preview_result()
+    target = next(
+        item
+        for item in deceptive["results"]
+        if item["kind"] == "element_local_axial_force"
+    )
+    target["unit"] = "MPa"
+    run = build_run(deceptive)["analysis_run"]
+    bound = next(
+        item
+        for item in run["result_refs"]
+        if item["result_ref"]["ref"] == target["id"]
+    )
+    assert bound["source_dimension"] == "force"
+    assert bound["result_family"] == "force"
+
+
+def test_explicit_result_dimension_mismatch_blocks_instead_of_inferring():
+    mismatched = preview_result()
+    target = next(
+        item
+        for item in mismatched["results"]
+        if item["kind"] == "element_local_axial_force"
+    )
+    target["dimension"] = "stress"
+    try:
+        build_run(mismatched)
+    except ValueError as exc:
+        assert "ANALYSIS_RUN_RESULT_DIMENSION_MISMATCH" in str(exc)
+    else:
+        raise AssertionError("contradictory explicit result dimension was accepted")
+
+
+def test_missing_or_invalid_manifest_evidence_blocks_without_result_substitution():
+    missing = build_preview_analysis_run_envelope(preview_result())
+    run = missing["analysis_run"]
+    assert run["reproducibility"]["input_manifest_refs"] == []
+    assert run["reproducibility"]["input_manifest_hashes"] == []
+    assert {
+        item["code"] for item in validate_analysis_run_envelope(missing)
+    } >= {"ANALYSIS_RUN_INPUT_MANIFEST_MISSING"}
+
+    manifest_ref, manifest_hash = manifest_evidence()
+    invalid_hash = manifest_hash.upper()
+    try:
+        build_preview_analysis_run_envelope(
+            preview_result(),
+            input_manifest_ref=manifest_ref,
+            input_manifest_hash=invalid_hash,
+        )
+    except ValueError as exc:
+        assert "ANALYSIS_RUN_INPUT_MANIFEST_INVALID" in str(exc)
+    else:
+        raise AssertionError("uppercase manifest SHA-256 was accepted")
+
+    wrong_prefix = {
+        "object_type": "InputManifest",
+        "ref": f"result-envelope:project-invented-loop-01:{manifest_hash}",
+    }
+    wrong_model = {
+        "object_type": "InputManifest",
+        "ref": f"input-manifest:project-different:{manifest_hash}",
+    }
+    for invalid_ref in (wrong_prefix, wrong_model):
+        try:
+            build_preview_analysis_run_envelope(
+                preview_result(),
+                input_manifest_ref=invalid_ref,
+                input_manifest_hash=manifest_hash,
+            )
+        except ValueError as exc:
+            assert "ANALYSIS_RUN_INPUT_MANIFEST_INVALID" in str(exc)
+        else:
+            raise AssertionError(
+                "wrong-prefix/model manifest ref with a valid digest was accepted"
+            )
+
+
 def test_result_mutation_changes_corresponding_result_hash():
     base = preview_result()
     changed = deepcopy(base)
@@ -270,8 +418,8 @@ def test_result_mutation_changes_corresponding_result_hash():
         if item["id"] == "result:force:pipe-P-120:axial":
             item["value"] = item["value"] + 1.0
 
-    base_run = build_preview_analysis_run_envelope(base)["analysis_run"]
-    changed_run = build_preview_analysis_run_envelope(changed)["analysis_run"]
+    base_run = build_run(base)["analysis_run"]
+    changed_run = build_run(changed)["analysis_run"]
 
     def result_hash(run):
         for item in run["result_refs"]:
@@ -283,14 +431,17 @@ def test_result_mutation_changes_corresponding_result_hash():
 
 
 def test_persistence_history_preserves_analysis_run_basis_after_model_change():
-    analysis_run = build_preview_analysis_run_envelope(
-        preview_result(),
+    analysis_run = build_run(
         model_state_ref={"object_type": "ModelState", "ref": "state:original-accepted"},
         settings_ref={"object_type": "SolverSettings", "ref": "settings:original-solve"},
         unit_system_ref={"object_type": "UnitSystem", "ref": "unit-system:original-si"},
         load_basis_refs=[{"object_type": "LoadCase", "ref": "load:L-100"}],
     )
-    result_envelope_ref = analysis_run["analysis_run"]["reproducibility"]["input_manifest_refs"][0]
+    result_envelope_ref = next(
+        item["payload_ref"]
+        for item in analysis_run["analysis_run"]["hashes"]
+        if item["payload_scope"] == "result_envelope"
+    )
 
     def persisted_project(model_revision):
         return build_project_persistence_envelope(
@@ -344,7 +495,7 @@ def test_persistence_history_preserves_analysis_run_basis_after_model_change():
 
 
 def test_validation_blocks_missing_review_boundary_and_result_hashes():
-    envelope = build_preview_analysis_run_envelope(preview_result())
+    envelope = build_run()
     run = envelope["analysis_run"]
     run["analysis_status"] = ["MECHANICS_SOLVED"]
     run["professional_boundary"]["software_makes_compliance_claim"] = True

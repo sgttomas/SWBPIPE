@@ -52,6 +52,8 @@ pub enum DimensionId {
     Time,
     Temperature,
     Pressure,
+    LinearStiffness,
+    RotationalStiffness,
     Tbd,
 }
 
@@ -705,6 +707,8 @@ fn dimension_json(dimension: DimensionId) -> &'static str {
         DimensionId::Time => "time",
         DimensionId::Temperature => "temperature",
         DimensionId::Pressure => "pressure",
+        DimensionId::LinearStiffness => "linear_stiffness",
+        DimensionId::RotationalStiffness => "rotational_stiffness",
         DimensionId::Tbd => "TBD",
     }
 }
@@ -1632,6 +1636,18 @@ mod tests {
                 "reaction-1",
                 "stress-1"
             ]
+        );
+    }
+
+    #[test]
+    fn stiffness_dimensions_serialize_as_explicit_contract_identifiers() {
+        assert_eq!(
+            dimension_json(DimensionId::LinearStiffness),
+            "linear_stiffness"
+        );
+        assert_eq!(
+            dimension_json(DimensionId::RotationalStiffness),
+            "rotational_stiffness"
         );
     }
 }

@@ -1,0 +1,69 @@
+CHECK: R16 candidate v9 fresh packaged-native terminal proof
+STATUS: PASS
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+VERIFICATION_EXECUTOR: N4 (sole serialized under AMENDMENT_V9)
+
+Bundle and isolated destination
+-------------------------------
+- Fresh packaged debug app:
+  `apps/desktop/src-tauri/target/debug/bundle/macos/OpenPipeStress Technical Preview.app`
+- Packaged executable SHA-256:
+  `49ca370ed7ce54970f0f50356569296777440bbbad87ac69eaf6b93ba8a6d51a`
+- Packaged executable byte length: `41809848`.
+- Fresh non-repository test root:
+  `/tmp/openpipestress-r16-v9-native-K2u5x9`
+- A fresh app restart reached `MECHANICS_SOLVED`, then opened Report through
+  the native View menu. Local-private retention was observed off by default
+  and enabled explicitly only for this invented local test package.
+
+Cancel, new save, and replacement
+---------------------------------
+- Cancel: `REPORT-PACKAGE-SAVE-CANCELLED`, `outcome=cancelled`, `bytes=0`,
+  `replacement=false`, `durability=not_applicable`.
+- New save: `REPORT-PACKAGE-SAVED`, `replacement=false`,
+  `durability=durable`, `bytes=3518303`.
+- The same-path save traversed the real macOS existing-file confirmation,
+  naming `openpipestress-r16-v9-native-K2u5x9`, then returned
+  `REPORT-PACKAGE-SAVED`, `replacement=true`, `durability=durable`.
+- Both container SHA-256 values:
+  `e0145a9fb7d377034c7876a92336581ecdeb5d737fe223c5b39d560adfc42cc7`.
+- Both package identities:
+  `fb81914e2d9654876eb9421634f1d4ab1e7a14f2fa056b52fe6eb330d19b125a`.
+- Replacement changed the destination inode from `160744815` to `160744889`
+  while preserving deterministic bytes and identity.
+- The destination directory contained only the final package after each save;
+  no `.openpipestress-report-package-*.tmp` residue remained.
+
+Archive, identity, and spring-hanger semantics
+----------------------------------------------
+- ZIP integrity passed with the established six-member vocabulary.
+- The canonical package-manifest bytes hash to the UI package identity.
+- Every manifest-declared member matched its byte length and SHA-256:
+  - HTML `391774` /
+    `716a559d4a7180d4d05d0d37acf37186195080b40ab316cfff31d1fbfa3094bb`;
+  - PDF `982777` /
+    `e88e7b2e3d9a2a4c9b6e8417c15759d7ae685c67f6dd1820298e281fe80d9d68`;
+  - audit manifest `1176` /
+    `80d0b2f19103e3d970bc2b6a58c311ae7cea227b4c61c4b387ca7bcbd594e480`;
+  - result export `1127925` /
+    `05bae94667e049fc079da786f03c3312d13d788e4e37c0ea346de1e51662b209`;
+  - state-comparison handoff `1009753` /
+    `83d68cc553eb1eb098a674798905702ecd82263c62f13bfe72e083661858a40e`.
+- The audit manifest carries the exact solved-model-bound InputManifest
+  identity
+  `input-manifest:project-invented-loop-01:e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4`.
+- The native result export carries SH-140 hot load as exact
+  `{magnitude: 390, unit: "N", dimension: "force"}`; the rendered HTML exposes
+  `390 N [Force]` for `spring-hanger:support:SH-140`.
+- The focused runtime proof in `CHECK_v9_full_gates.txt` separately covers all
+  four precedence branches, exact `required_for`, and missing-force behavior.
+- Redaction route `DREP-PACKAGE-SAVE-009`, professional-boundary notices,
+  units, diagnostics, and the no-portable-replay posture remained intact.
+
+Boundary
+--------
+This is invented local technical-preview verification evidence. It is not
+issuance, release readiness, lifecycle acceptance, professional approval,
+certification, sealing, authentication, or a code-compliance claim. Fresh N5
+verification and manager acceptance remain separate.

@@ -9728,3 +9728,123 @@ notes:
   proprietary benchmark model, private data, network path, telemetry feature,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## DEL-08-01 report-package native save seam - PASSED (`R16-N4`, 2026-07-22)
+
+- Scope: final packaged-debug native smoke for the adopted DEL-08-01 report
+  package seam at frozen SHA `8698b0338ac82556fee583dd3f85bb62d0b74f85`.
+  N4 used Computer Use against the packaged macOS app with the invented utility
+  loop model; no browser-only substitute was accepted for this check.
+- Workflow: load the invented model, run mechanics to `MECHANICS_SOLVED`, open
+  Report through the native View menu, confirm local-private retention is off
+  by default, explicitly enable it, then invoke File > Save Report Package.
+- Cancellation: the native save sheet was cancelled before any write. The app
+  returned `REPORT-PACKAGE-SAVE-CANCELLED`, `outcome=cancelled`, `bytes=0`,
+  `replacement=false`, and `durability=not_applicable`; the designated smoke
+  directory remained empty.
+- New save: the native save sheet wrote
+  `desktop-report-run-preview-linear-static-001.opsproj` to the designated
+  smoke directory. The receipt returned `REPORT-PACKAGE-SAVED`,
+  `outcome=saved`, `replacement=false`, `durability=durable`, `bytes=3189621`,
+  container SHA-256
+  `4416c53b68a1e71cda0445408ca24d15e56023ab879c435cfd30b86387bb2cb7`,
+  and package identity
+  `39628d597b9d09b0f9aa1d9899190f3fd90bb31600495b03bd997317f38f8bff`.
+- Replacement: saving the same basename again traversed the native macOS
+  replacement-confirmation sheet and returned `replacement=true` with the same
+  byte count, container hash, package identity, and `durability=durable`. The
+  target inode changed from `160542015` to `160542328`, evidencing same-parent
+  temporary-file/write/rename replacement rather than in-place mutation.
+- Package verification: ZIP integrity passed. The canonical members matched
+  the manifest byte lengths and SHA-256 values: HTML `391716` /
+  `ce1ceaa6029d4ac6d99d41594805dddcf69f8b4d094cab547c3eb681dbf40cf2`;
+  PDF `982680` /
+  `d5a9aeb7fae0483ab0ea3e7a9235821d6acfe487d3078fd2f7c62a2fedb66fa6`;
+  audit manifest `1117` /
+  `e5e305d31a5ef1feac684bc86106ec3e112c87e792b755a37e89df5d73d0ee68`;
+  result export `1127924` /
+  `b193ffff58b44107b3e87a5f1f609085fbac058364423279cd00be8e4d56cded`;
+  state-comparison handoff `681287` /
+  `eadb1afd72b53a1018f769680c643843f2db4205bbf7a69b4a19379312446e87`.
+- Redaction and cleanup: the visible receipt reported route
+  `DREP-PACKAGE-SAVE-009`, `decisions=59851`, `findings=59835`, `blocking=0`,
+  and `blocked=false`. No `.openpipestress-report-package-*.tmp` residue
+  remained after cancel, new save, or replacement.
+- Durability boundary: a successful bounded parent-directory sync reports
+  `durable`; an error, timeout, disconnect, or already-active sync worker
+  reports `saved_durability_uncertain` after the committed rename and never
+  claims rollback. Static symlink checks and same-parent create/rename remain
+  best-effort against a non-adversarial parent/destination; at most one detached
+  directory-sync worker may remain after a timeout.
+- Boundary: this is invented local technical-preview evidence only. It is not
+  package issuance, release readiness, lifecycle acceptance, professional
+  approval, certification, sealing, authentication, or a code-compliance
+  claim. N5 independent verification and manager closeout remain separate.
+
+## DEL-08-01 v7 exact-manifest replacement proof - PASSED (`R16-N4-v7`, 2026-07-22)
+
+- Scope: replacement packaged-debug macOS proof after the accepted v7
+  cross-package remediation, still bound to frozen SHA
+  `8698b0338ac82556fee583dd3f85bb62d0b74f85`. Packaged app SHA-256 was
+  `59f281ff17f9d76b6344327f7c668edf1097982c25ef8e283aebef017dddc83a`.
+- Workflow: with the invented utility-loop session solved to
+  `MECHANICS_SOLVED`, N4 opened Report, observed private retention off by
+  default, explicitly enabled it, cancelled once, saved a new package, then
+  saved the same basename through the real macOS replacement confirmation.
+- Cancellation returned `REPORT-PACKAGE-SAVE-CANCELLED`, `bytes=0`,
+  `replacement=false`, and `durability=not_applicable`, with no artifact or
+  package-temporary residue.
+- New save and replacement both returned `REPORT-PACKAGE-SAVED`,
+  `bytes=3518675`, `durability=durable`, container SHA-256
+  `6a02201b9626156d1833e3a9566c96c1b744ab527f0d24f4c5b30a7caa86ecfd`,
+  and package identity
+  `f23abdf7303673feaa602d4a702676a4098bb924416134f1b0ab7a8b891833a5`.
+  The second receipt reported `replacement=true`.
+- Atomic-replacement witness: the target inode changed from `160629227` to
+  `160633120` while deterministic package bytes and identities stayed
+  identical. No `.openpipestress-report-package-*.tmp` residue remained.
+- Archive reinspection: ZIP integrity, all five manifest-declared member
+  lengths/hashes, exact lowercase SHA-256 values, exact current-session
+  InputManifest binding, private-only copied provenance, and explicit
+  linear/rotational stiffness dimensions all passed. The package retained the
+  established six-member vocabulary; it contains no InputManifest member and
+  makes no portable-replay claim.
+- Boundary: this is local technical-preview verification evidence. Fresh N5
+  verification and manager acceptance remain separate.
+
+## DEL-08-01 v8 exact-identity and random-temp proof - PASSED (`R16-N4-v8`, 2026-07-22)
+
+- Scope: fresh packaged-debug macOS proof after the adopted v8 three-finding
+  remediation, bound to frozen SHA
+  `8698b0338ac82556fee583dd3f85bb62d0b74f85`. Packaged executable SHA-256 was
+  `cd09000a9655bc706675d623d6436a1611f2ce7aad4f58116023414b9ae228d1`.
+- Workflow: N4 restarted the packaged app, ran the invented utility-loop
+  session to `MECHANICS_SOLVED`, opened Report through the native View menu,
+  observed local-private retention off by default, enabled it explicitly,
+  cancelled once, saved to a fresh v8 temp root, and saved the same basename
+  through the real macOS replacement alert.
+- Cancellation returned `REPORT-PACKAGE-SAVE-CANCELLED`, `bytes=0`,
+  `replacement=false`, and `durability=not_applicable`.
+- New save and replacement both returned `REPORT-PACKAGE-SAVED`,
+  `bytes=3518303`, `durability=durable`, container SHA-256
+  `e0145a9fb7d377034c7876a92336581ecdeb5d737fe223c5b39d560adfc42cc7`,
+  and package identity
+  `fb81914e2d9654876eb9421634f1d4ab1e7a14f2fa056b52fe6eb330d19b125a`.
+  Replacement reported `replacement=true`; the inode changed from 160685423 to
+  160685542 while deterministic package bytes stayed identical.
+- Archive reinspection passed ZIP integrity and all five manifest-declared
+  member lengths/hashes. The package-manifest canonical bytes hash to the
+  receipt identity. The audit manifest carries exact InputManifest ref
+  `input-manifest:project-invented-loop-01:e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4`,
+  exactly binding the solved model token and manifest digest.
+- Result semantics remained explicit: the inspected axial row is
+  `family=force`, `dimension=force`, `unit=N`; the nonlinear iteration row is
+  `family=ratio`, `dimension=dimensionless`, `unit=count`. Focused deceptive
+  unit and mismatch tests prove unit text cannot select a different family.
+- Temp allocation uses direct `getrandom = "0.3"` with 16 OS-random bytes,
+  32-hex encoding, and `create_new`. Focused injected failure tests prove
+  write/flush/temp-sync/rename preservation and cleanup. No
+  `.openpipestress-report-package-*.tmp` residue remained after native cancel,
+  new save, or replacement.
+- Boundary: invented local technical-preview verification only. Fresh N5
+  verification and manager acceptance remain separate.

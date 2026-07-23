@@ -23,6 +23,7 @@ REQUIRED_DEFS = {
     "AnalysisStatus",
     "Checksum",
     "Diagnostic",
+    "DimensionId",
     "Id",
     "ImmutabilityPolicy",
     "LibraryRef",
@@ -200,6 +201,7 @@ def main():
         "load_basis",
         "result_envelope",
         "result_value",
+        "input_manifest",
         "audit_manifest",
     } <= set(defs["Checksum"]["properties"]["payload_scope"]["enum"])
 
@@ -213,18 +215,45 @@ def main():
 
     assert {
         "input_manifest_refs",
+        "input_manifest_hashes",
         "environment_refs",
         "determinism_notes",
         "unresolved_tbd",
     } <= required_at(schema, "Reproducibility")
-    assert "Result" in set(defs["Reference"]["properties"]["object_type"]["enum"])
+    reproducibility = defs["Reproducibility"]["properties"]
+    manifest_ref_constraint = (
+        reproducibility["input_manifest_refs"]["items"]["allOf"][1][
+            "properties"
+        ]
+    )
+    assert manifest_ref_constraint["object_type"]["const"] == "InputManifest"
+    assert manifest_ref_constraint["ref"]["pattern"] == (
+        "^input-manifest:[A-Za-z0-9._-]+:[0-9a-f]{64}$"
+    )
+    manifest_hash_constraint = (
+        reproducibility["input_manifest_hashes"]["items"]["allOf"][1][
+            "properties"
+        ]
+    )
+    assert manifest_hash_constraint["algorithm"]["const"] == "sha256"
+    assert manifest_hash_constraint["payload_scope"]["const"] == "input_manifest"
+    assert manifest_hash_constraint["value"]["pattern"] == "^[0-9a-f]{64}$"
+    assert {
+        "Result",
+        "InputManifest",
+    } <= set(defs["Reference"]["properties"]["object_type"]["enum"])
     assert {
         "result_ref",
         "result_family",
+        "source_dimension",
         "hash_refs",
         "privacy_classification",
         "provenance",
     } <= required_at(schema, "ResultRef")
+    assert {
+        "linear_stiffness",
+        "rotational_stiffness",
+    } <= enum_at(schema, "DimensionId")
     assert {
         "rule_pack_id",
         "version",

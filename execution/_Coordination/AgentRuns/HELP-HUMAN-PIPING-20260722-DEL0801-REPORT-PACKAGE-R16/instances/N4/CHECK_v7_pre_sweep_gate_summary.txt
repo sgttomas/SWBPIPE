@@ -1,0 +1,72 @@
+CHECK: R16 candidate v7 terminal pre-sweep fan-in
+STATUS: PASS_AWAITING_MANAGER_SWEEP_RELEASE
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+
+Implementation and focused gates
+--------------------------------
+- R16-SLICE-01 through R16-SLICE-05: complete within the accepted v7
+  WRITE_MATRIX.
+- Focused desktop manifest/run/report-package tests: PASS.
+- Focused Python analysis-run/schema/result tests: PASS.
+- Focused Rust report package, PDF, renderer, result exporter, and desktop
+  bridge: PASS, 44/44.
+- Source and production-dist H4: PASS, 4/4.
+- Desktop production build: PASS.
+
+Broad gates
+-----------
+- Full desktop Vitest: PASS, 29 files / 510 tests.
+- Full piping pytest: PASS, 537/537.
+- Practitioner-harness pytest: PASS, 311/311.
+- Practitioner-harness self-check: PASS.
+- Extra full desktop Rust: 73/74; the sole rule-pack notice assertion is a
+  reproduced frozen-base residual preserved in
+  `CHECK_clean_base_rule_notice.txt`. All focused report/package/native tests
+  are green and the excluded rule-pack surface was not edited.
+
+Packaged-native gate
+--------------------
+- Fresh packaged debug app SHA-256:
+  59f281ff17f9d76b6344327f7c668edf1097982c25ef8e283aebef017dddc83a
+- Cancel: PASS, bytes=0, no artifact/temp.
+- New save: PASS, bytes=3518675, replacement=false, durability=durable.
+- Same-path save traversed the real macOS replacement confirmation: PASS.
+- Replacement receipt: replacement=true, durability=durable.
+- Both saved container SHA-256 values:
+  6a02201b9626156d1833e3a9566c96c1b744ab527f0d24f4c5b30a7caa86ecfd
+- Both package identities:
+  f23abdf7303673feaa602d4a702676a4098bb924416134f1b0ab7a8b891833a5
+- Inode changed from 160629227 to 160633120.
+- ZIP integrity, manifest member sizes/hashes, exact SHA-256 values,
+  InputManifest/result distinction, private copied provenance, explicit
+  stiffness dimensions, and no-temp cleanup: PASS after replacement.
+
+Final static and record validations
+-----------------------------------
+- Claims-language validation: PASS, 268 files.
+- Path-anchor validation: PASS, 950 live surfaces, zero findings.
+- Piping loop-receipt validation: PASS, frozen through Receipt-44.
+- R16 JSON parse: PASS, 3 files.
+- R16 JSONL parse: PASS, zero applicable files.
+- N4 UTF-8 / CR / trailing-whitespace evidence check: PASS, 15 files including
+  this terminal summary.
+- Accepted WRITE_MATRIX containment: PASS, 84 dirty paths and zero violations.
+  The dirty set comprises 22 tracked modifications and 62 untracked paths,
+  with zero staged paths. The validator was
+  supplied both working-root-relative and repository-root-relative forms
+  because the shared Git root reports tracked and untracked paths in those two
+  representations.
+- `git diff --check`: PASS.
+- `git diff --cached --check`: PASS.
+- Staged path count: 0.
+
+Sweep state
+-----------
+The v6 sweep remains immutable superseded evidence. N4 has not invoked the
+single v7 replacement DEC-025 sweep. Candidate v7 requires the manager to
+validate this pre-sweep fan-in and containment before release. After release,
+N4 may invoke the one replacement sweep and must make no subsequent filesystem
+edit.
+
+N4 does not claim COMMIT-SAFE. Fresh N5 verification remains a separate gate.

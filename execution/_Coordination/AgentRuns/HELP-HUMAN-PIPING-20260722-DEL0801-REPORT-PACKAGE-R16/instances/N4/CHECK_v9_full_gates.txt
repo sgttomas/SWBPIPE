@@ -1,0 +1,59 @@
+CHECK: R16 candidate v9 verification-only full gates
+STATUS: PASS_WITH_RECORDED_FROZEN_BASE_RESIDUAL
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+VERIFICATION_EXECUTOR: N4 (sole serialized under AMENDMENT_V9)
+
+Authority and unchanged-product proof
+-------------------------------------
+- Candidate v9 authorized verification only. N4 made no product, test, schema,
+  decomposition, dependency, or Cargo change.
+- Canonical dirty-product hash before and after the v9 gates, excluding
+  coordination evidence and sweep artifacts:
+  - 34 files excluding `apps/desktop/SMOKE.md`:
+    `0c73787560e06d6d07393f16d8d215f484d6d3fc9801ff9a3f76bae938e04ff4`
+  - 35 files including `apps/desktop/SMOKE.md`:
+    `e7eec87ab4630f8cc22c94de4987515b2fc2b4f284790bd2833da4ab1908d3ae`
+
+Spring-hanger focused verification
+----------------------------------
+- Desktop report/request Vitest: PASS, 15/15.
+- Analysis-run/result/state-comparison Python tests: PASS, 28/28.
+- Rust report-package/PDF/renderer/result-export/desktop-bridge/atomic-save
+  focused union: PASS, 56/56.
+- An in-memory, read-only TypeScript runtime probe imported the production
+  helpers without writing a transformed source file and proved:
+  - force precedence is exactly
+    `constant_load -> hot_load -> cold_load -> installed_load`;
+  - the selected report quantity is exactly
+    `{magnitude, unit, dimension: "force"}`;
+  - `required_for` is exactly `["reporting", "human_review"]`;
+  - a support carrying none of those force values returns no quantity and
+    reports missing data.
+
+Full verification union
+-----------------------
+- Full desktop Vitest: PASS, 29 files / 516 tests.
+- Desktop production build/typecheck: PASS.
+- Full piping pytest: PASS, 539/539.
+- Full practitioner-harness pytest: PASS, 311/311.
+- Practitioner-harness repository self-check: PASS, with standing findings
+  only (INFO=15, NA=2, REVIEW=3, WARN=8).
+- Full release Cargo profile: PASS, all 36 discovered manifests.
+- Full source H4 Playwright: PASS, 20/20 across desktop and compact viewports.
+- Full production-dist H4 Playwright: PASS, 2/2.
+
+Recorded frozen-base residual
+-----------------------------
+The extra full desktop-native Rust run returned 77/78. Its sole failure was
+`validate_rule_pack_command_reports_example_pack_clean_and_draft_findings`,
+which asserts the retired notice substring `No professional`. This exact
+failure was previously reproduced at the frozen base and is preserved in
+`CHECK_clean_base_rule_notice.txt`. Candidate v9 authorizes no rule-pack or
+notice-language change; every touched native report/package/atomic test is
+green.
+
+Sweep state
+-----------
+V6, v7, and v8 sweep artifacts remain immutable superseded evidence. No v9
+sweep was invoked during these gates.

@@ -284,6 +284,7 @@ export type MechanicsResult = {
     kind: string;
     value: number;
     unit: string;
+    dimension?: CanonicalResultDimension;
     entity_ref: string;
     basis_ref?: ResultBasisRef;
     source_result_refs?: string[];
@@ -297,6 +298,23 @@ export type MechanicsResult = {
   }>;
   diagnostics: Diagnostic[];
 };
+
+export type CanonicalResultDimension =
+  | "dimensionless"
+  | "length"
+  | "angle"
+  | "force"
+  | "moment"
+  | "stress"
+  | "area"
+  | "section_modulus"
+  | "second_moment_area"
+  | "ratio"
+  | "time"
+  | "temperature"
+  | "pressure"
+  | "linear_stiffness"
+  | "rotational_stiffness";
 
 export type ResultBasisRef = {
   ref_type: "load_case" | "combination" | string;
@@ -394,6 +412,7 @@ export type AnalysisRunEnvelope = {
     result_refs: Array<{
       result_ref: ObjectRef;
       result_family: string;
+      source_dimension: CanonicalResultDimension;
       hash_refs: Array<{
         algorithm: "sha256";
         canonicalization: string;
@@ -413,6 +432,13 @@ export type AnalysisRunEnvelope = {
     analysis_status: string[];
     reproducibility: {
       input_manifest_refs: ObjectRef[];
+      input_manifest_hashes: Array<{
+        algorithm: "sha256";
+        canonicalization: "rfc8785_jcs";
+        payload_ref: ObjectRef;
+        payload_scope: "input_manifest";
+        value: string;
+      }>;
       determinism_notes: string[];
       unresolved_tbd: string[];
     };

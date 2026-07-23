@@ -1,4 +1,6 @@
+mod atomic_report_package_save;
 mod model_document_migration;
+mod report_package_bridge;
 
 use model_document_migration::{
     evaluate_model_document, migration_ledger_record, model_document_migrations,
@@ -23,9 +25,201 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 use tauri::menu::{MenuBuilder, SubmenuBuilder};
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Manager};
+use tauri_plugin_dialog::DialogExt;
 
 const PROJECT_STORE_FILE: &str = "openpipestress-projects.sqlite3";
+
+#[derive(Debug, Deserialize)]
+struct ReportPackageRedactionEvidence {
+    route_id: String,
+    decision_count: usize,
+    finding_count: usize,
+    blocking_count: usize,
+}
+
+#[derive(Debug, Serialize)]
+struct ReportPackageMemberSummary {
+    role: String,
+    file_name: String,
+    sha256_hex: String,
+    byte_length: usize,
+}
+
+#[derive(Debug, Serialize)]
+struct ReportPackageSaveReceipt {
+    outcome: String,
+    stage: String,
+    code: String,
+    container_file_name: String,
+    byte_count: usize,
+    package_identity_sha256_hex: String,
+    container_sha256_hex: String,
+    members: Vec<ReportPackageMemberSummary>,
+    replaced_existing: bool,
+    durability: String,
+    redaction_route_id: String,
+    redaction_decision_count: usize,
+    redaction_finding_count: usize,
+    redaction_blocking_count: usize,
+    selected_basename: String,
+    path_containment: String,
+    limitation: String,
+}
+
+#[derive(Debug, Serialize)]
+struct ReportPackageSaveCommandError {
+    code: String,
+    stage: String,
+    message: String,
+    os_error_kind: Option<String>,
+    os_error_code: Option<i32>,
+    cleanup_code: Option<String>,
+    cleanup_message: Option<String>,
+    selected_basename: String,
+    path_containment: String,
+    limitation: String,
+}
+
+impl ReportPackageSaveCommandError {
+    fn bridge(message: String) -> Self {
+        Self {
+            code: message
+                .split(':')
+                .next()
+                .unwrap_or("REPORT-PACKAGE-BRIDGE-FAILED")
+                .to_string(),
+            stage: "assemble".to_string(),
+            message,
+            os_error_kind: None,
+            os_error_code: None,
+            cleanup_code: None,
+            cleanup_message: None,
+            selected_basename: String::new(),
+            path_containment: atomic_report_package_save::PATH_CONTAINMENT.to_string(),
+            limitation: atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
+        }
+    }
+}
+
+impl From<atomic_report_package_save::AtomicSaveError> for ReportPackageSaveCommandError {
+    fn from(value: atomic_report_package_save::AtomicSaveError) -> Self {
+        Self {
+            code: value.code,
+            stage: value.stage,
+            message: value.message,
+            os_error_kind: value.os_error_kind,
+            os_error_code: value.os_error_code,
+            cleanup_code: value.cleanup_code,
+            cleanup_message: value.cleanup_message,
+            selected_basename: value.selected_basename,
+            path_containment: value.path_containment,
+            limitation: value.limitation,
+        }
+    }
+}
+
+#[tauri::command]
+// `blocking_save_file` may not execute on Tauri's main thread. Keeping the
+// command async places the blocking dialog call on the async command runtime
+// and leaves the native modal responsive.
+async fn save_report_package(
+    app: AppHandle,
+    request: report_package_bridge::ReportPackageRequest,
+    redaction_evidence: ReportPackageRedactionEvidence,
+) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    if redaction_evidence.route_id != "DREP-PACKAGE-SAVE-009"
+        || redaction_evidence.blocking_count != 0
+    {
+        return Err(ReportPackageSaveCommandError::bridge(
+            "REPORT-PACKAGE-REDACTION-EVIDENCE-INVALID: controlled route evidence is missing or blocked".to_string(),
+        ));
+    }
+    let package = report_package_bridge::assemble_request(request)
+        .map_err(ReportPackageSaveCommandError::bridge)?;
+    if package.export_blocked {
+        return Err(ReportPackageSaveCommandError::bridge(format!(
+            "REPORT-PACKAGE-PRODUCER-BLOCKED: {}",
+            package.blocking_reasons.join(" | ")
+        )));
+    }
+
+    let selected = app
+        .dialog()
+        .file()
+        .set_file_name(&package.container_file_name)
+        .add_filter("OpenPipeStress Project Package", &["opsproj"])
+        .blocking_save_file();
+    let Some(selected) = selected else {
+        return Ok(ReportPackageSaveReceipt {
+            outcome: "cancelled".to_string(),
+            stage: "picker".to_string(),
+            code: "REPORT-PACKAGE-SAVE-CANCELLED".to_string(),
+            container_file_name: package.container_file_name,
+            byte_count: 0,
+            package_identity_sha256_hex: package.package_identity_sha256_hex,
+            container_sha256_hex: package.container_sha256_hex,
+            members: package
+                .members
+                .into_iter()
+                .map(|member| ReportPackageMemberSummary {
+                    role: member.role,
+                    file_name: member.file_name,
+                    sha256_hex: member.sha256_hex,
+                    byte_length: member.byte_length,
+                })
+                .collect(),
+            replaced_existing: false,
+            durability: "not_applicable".to_string(),
+            redaction_route_id: redaction_evidence.route_id,
+            redaction_decision_count: redaction_evidence.decision_count,
+            redaction_finding_count: redaction_evidence.finding_count,
+            redaction_blocking_count: redaction_evidence.blocking_count,
+            selected_basename: String::new(),
+            path_containment: atomic_report_package_save::PATH_CONTAINMENT.to_string(),
+            limitation: atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
+        });
+    };
+    let destination = selected.into_path().map_err(|error| {
+        ReportPackageSaveCommandError::bridge(format!(
+            "REPORT-PACKAGE-PICKER-PATH-INVALID: {error}"
+        ))
+    })?;
+    let save =
+        atomic_report_package_save::atomic_save_bytes(&destination, &package.container_bytes)?;
+    Ok(ReportPackageSaveReceipt {
+        outcome: "saved".to_string(),
+        stage: "complete".to_string(),
+        code: if save.durability == "durable" {
+            "REPORT-PACKAGE-SAVED".to_string()
+        } else {
+            "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN".to_string()
+        },
+        container_file_name: package.container_file_name,
+        byte_count: package.container_bytes.len(),
+        package_identity_sha256_hex: package.package_identity_sha256_hex,
+        container_sha256_hex: package.container_sha256_hex,
+        members: package
+            .members
+            .into_iter()
+            .map(|member| ReportPackageMemberSummary {
+                role: member.role,
+                file_name: member.file_name,
+                sha256_hex: member.sha256_hex,
+                byte_length: member.byte_length,
+            })
+            .collect(),
+        replaced_existing: save.replaced_existing,
+        durability: save.durability,
+        redaction_route_id: redaction_evidence.route_id,
+        redaction_decision_count: redaction_evidence.decision_count,
+        redaction_finding_count: redaction_evidence.finding_count,
+        redaction_blocking_count: redaction_evidence.blocking_count,
+        selected_basename: save.selected_basename,
+        path_containment: save.path_containment,
+        limitation: save.limitation,
+    })
+}
 
 fn fixture_path(file_name: &str) -> Result<PathBuf, String> {
     let cwd = std::env::current_dir().map_err(|error| error.to_string())?;
@@ -3228,9 +3422,29 @@ fn delete_local_library(
     })
 }
 
+const NATIVE_MENU_DOM_EVENT: &str = "openpipestress-native-menu-command";
+
+fn native_menu_dispatch_script(command_id: &str) -> String {
+    let command_json = serde_json::to_string(command_id)
+        .expect("serializing a native menu command id to JSON cannot fail");
+    format!(
+        "window.dispatchEvent(new CustomEvent('{NATIVE_MENU_DOM_EVENT}', {{ detail: {command_json} }}));"
+    )
+}
+
+fn dispatch_native_menu_command<R: tauri::Runtime>(app: &tauri::AppHandle<R>, command_id: &str) {
+    let Some(webview) = app.get_webview_window("main") else {
+        eprintln!("native menu command dropped: main webview is unavailable");
+        return;
+    };
+    if let Err(error) = webview.eval(&native_menu_dispatch_script(command_id)) {
+        eprintln!("native menu command dispatch failed: {error}");
+    }
+}
+
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
-// command id the in-DOM menu uses; on click we forward it to the webview via a
-// `native-menu-command` event, where the React command sink dispatches it.
+// command id the in-DOM menu uses; on click the backend injects one typed DOM
+// event into the main webview, where the React command sink dispatches it.
 fn build_app_menu<R: tauri::Runtime>(
     handle: &tauri::AppHandle<R>,
 ) -> tauri::Result<tauri::menu::Menu<R>> {
@@ -3248,6 +3462,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .text("file.list-local", "List Local Projects")
         .separator()
         .text("file.save-local", "Save Local Project")
+        .text("file.save-report-package", "Save Report Package…")
         .build()?;
 
     let edit = SubmenuBuilder::new(handle, "Edit")
@@ -3309,10 +3524,11 @@ fn build_app_menu<R: tauri::Runtime>(
 
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .manage(SolveJobRegistry::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
-            let _ = app.emit("native-menu-command", event.id().0.clone());
+            dispatch_native_menu_command(app, &event.id().0);
         })
         .invoke_handler(tauri::generate_handler![
             load_preview_model,
@@ -3344,7 +3560,8 @@ pub fn run() {
             open_local_library,
             list_local_libraries,
             delete_local_library,
-            render_calculation_report
+            render_calculation_report,
+            save_report_package
         ])
         .run(tauri::generate_context!())
         .expect("error while running OpenPipeStress technical preview");
@@ -3354,6 +3571,16 @@ pub fn run() {
 mod tests {
     use super::*;
     use std::collections::BTreeSet;
+
+    #[test]
+    fn native_menu_dispatch_script_targets_the_main_dom_command_event() {
+        assert_eq!(
+            native_menu_dispatch_script("view.section.report"),
+            "window.dispatchEvent(new CustomEvent('openpipestress-native-menu-command', { detail: \"view.section.report\" }));"
+        );
+        let escaped = native_menu_dispatch_script("view.section.\"report\"");
+        assert!(escaped.contains("view.section.\\\"report\\\""));
+    }
 
     fn unit_entry<'a>(catalog: &'a UnitCatalogResponse, unit_id: &str) -> &'a UnitCatalogEntry {
         catalog

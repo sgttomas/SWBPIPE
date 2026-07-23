@@ -273,3 +273,49 @@ Durable context preserved after reconciliation review:
   content, private data, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-07-22 - R16 report-package desktop binding and native atomic save
+
+- Authority and ownership: managed run
+  `HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16` consumed frozen SHA
+  `8698b0338ac82556fee583dd3f85bb62d0b74f85`, active `DAG-008`, the
+  owner-accepted sealed candidate v9 authority, and its exact 42-data-row
+  `WRITE_MATRIX.csv`. N4 remained the sole serialized implementation and
+  verification owner through the one v9 sweep; fresh N5 independently returned
+  `COMMIT-SAFE` before this DEL-08-01-only closeout.
+- Implemented boundary: the desktop File menu now binds the existing
+  report-package producer to the current-session report surface. The caller
+  owns native atomic persistence using an OS-random, same-parent `create_new`
+  temporary file followed by write, flush, temporary-file sync, rename,
+  cleanup, and bounded parent-directory durability reporting. Packaged-native
+  proof covers cancellation with zero bytes and no filesystem effect, a new
+  save, and same-path replacement with inode change and no temporary residue.
+- Evidence binding: the package carries the exact current-session
+  `InputManifest` reference and SHA-256 as input identity, distinct from result
+  member hashes and result semantics. Results carry explicit source dimensions,
+  including `linear_stiffness` and `rotational_stiffness`; package-owned
+  projections are current-private, source-nonmutating copies. TypeScript,
+  Python, and Rust boundaries enforce exact SHA-256 syntax and model-bound
+  manifest identity. Existing redaction routing, manifest/member evidence,
+  provenance, units, diagnostics, report controls, and professional-boundary
+  notice are preserved.
+- Fresh native evidence: container SHA-256
+  `e0145a9fb7d377034c7876a92336581ecdeb5d737fe223c5b39d560adfc42cc7`;
+  package identity
+  `fb81914e2d9654876eb9421634f1d4ab1e7a14f2fa056b52fe6eb330d19b125a`.
+  The sole v9 replacement sweep artifact is
+  `validation/evidence/sweeps/SWEEP_20260723T054036Z_8698b0338ac8-dirty.json`,
+  SHA-256
+  `9f876f998e6f52ce4473efa72879f5f48a2ed900c6b4249539ef1e8ae2af7374`;
+  all five surfaces passed.
+- Accepted residuals: the package is current-session evidence and makes no
+  portable-replay claim; parent-directory durability is intentionally bounded
+  and fail-honest; the unrelated full desktop-native frozen-base rule-pack
+  notice assertion remains reproduced and isolated. The cross-layer
+  TypeScript-to-Rust component-provenance hardening test and the `.opsproj`
+  compatibility-window/versioning policy beyond schema version `1.0.0` remain
+  open.
+- Boundary preserved: this R16 record does not transition lifecycle, authorize
+  release or publication, add or change a runner verb or payload binding,
+  change DEL-10/DEL-10-05, edit a DAG or decomposition, or make a professional
+  approval, certification, sealing, authentication, or code-compliance claim.

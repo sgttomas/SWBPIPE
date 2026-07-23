@@ -1,0 +1,103 @@
+CHECK: R16 candidate v7 packaged-native cancel/new-save/replace
+STATUS: PASS
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+PACKAGED_APP_SHA256: 59f281ff17f9d76b6344327f7c668edf1097982c25ef8e283aebef017dddc83a
+
+Method
+------
+N4 used Computer Use/Sky against the freshly rebuilt packaged debug macOS app,
+not a browser substitute. The app loaded the invented utility-loop session,
+ran mechanics to MECHANICS_SOLVED, opened Report, observed private retention
+off by default, explicitly enabled it, and exercised the native save sheet.
+The smoke target was a fresh system temporary directory. This evidence uses
+the basename only and does not treat the temporary absolute path as a product
+or public-evidence surface.
+
+Cancellation
+------------
+- outcome: cancelled
+- code: REPORT-PACKAGE-SAVE-CANCELLED
+- bytes: 0
+- replacement: false
+- durability: not_applicable
+- redaction route: DREP-PACKAGE-SAVE-009
+- filesystem result: no package and no
+  `.openpipestress-report-package-*.tmp` residue
+
+New save
+--------
+- file: desktop-report-run-preview-linear-static-001.opsproj
+- outcome: saved
+- code: REPORT-PACKAGE-SAVED
+- bytes: 3518675
+- container SHA-256:
+  6a02201b9626156d1833e3a9566c96c1b744ab527f0d24f4c5b30a7caa86ecfd
+- package identity:
+  f23abdf7303673feaa602d4a702676a4098bb924416134f1b0ab7a8b891833a5
+- replacement: false
+- durability: durable
+- initial inode: 160629227
+
+Same-path replacement
+---------------------
+N4 invoked the same native save route with the same basename. The real macOS
+sheet displayed the existing-file warning and N4 selected Replace under the
+owner-authorized native replacement proof.
+
+- outcome: saved
+- code: REPORT-PACKAGE-SAVED
+- bytes: 3518675
+- container SHA-256:
+  6a02201b9626156d1833e3a9566c96c1b744ab527f0d24f4c5b30a7caa86ecfd
+- package identity:
+  f23abdf7303673feaa602d4a702676a4098bb924416134f1b0ab7a8b891833a5
+- replacement: true
+- durability: durable
+- replacement inode: 160633120
+- atomic witness: target inode changed from 160629227 to 160633120 while the
+  deterministic byte count, container SHA-256, and package identity remained
+  identical
+- cleanup: no `.openpipestress-report-package-*.tmp` residue
+
+Post-replacement archive verification
+-------------------------------------
+- ZIP integrity: PASS
+- archive byte count/container SHA-256: PASS against the receipt
+- manifest member byte lengths and declared hash bases: PASS
+- HTML: 391774 bytes /
+  716a559d4a7180d4d05d0d37acf37186195080b40ab316cfff31d1fbfa3094bb
+- PDF: 982777 bytes /
+  e88e7b2e3d9a2a4c9b6e8417c15759d7ae685c67f6dd1820298e281fe80d9d68
+- audit manifest: 1176 bytes /
+  80d0b2f19103e3d970bc2b6a58c311ae7cea227b4c61c4b387ca7bcbd594e480
+- result export: 1127925 bytes /
+  05bae94667e049fc079da786f03c3312d13d788e4e37c0ea346de1e51662b209
+- state-comparison handoff: 1010125 bytes /
+  7e491f7beab99ad46cb73298e30844a28046cd33b69d265f0373399179988342
+
+Post-replacement v7 semantic invariants
+---------------------------------------
+- InputManifest ref:
+  input-manifest:project-invented-loop-01:e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4
+- InputManifest SHA-256:
+  e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4
+- model SHA-256:
+  b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3
+- InputManifest and result-value hashes are distinct; the first result-value
+  hash is
+  3b77eee7599d3403653fc61b5e5869a043004e5ba0b99e6b1cbaa064978d5165.
+- Every JSON object declaring `algorithm=sha256` carries a bare lowercase
+  64-hex value: PASS, zero malformed values.
+- Current-session package-owned provenance is user-local,
+  private-project/private-only, and pending: PASS.
+- `invented_public_example` is absent from package-owned JSON records: PASS.
+- Explicit stiffness dimensions are preserved without unit-text inference:
+  linear_stiffness uses N/m and rotational_stiffness uses N*m/rad.
+- The package has the established six members only; no InputManifest member or
+  portable-replay claim was introduced.
+
+Boundary
+--------
+This is local technical-preview verification evidence. Acceptance remains with
+the fresh N5 verifier and the manager.

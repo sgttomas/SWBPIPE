@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
 from pathlib import Path
 import sys
 
@@ -33,6 +34,15 @@ FORBIDDEN_OUTPUT_PHRASES = {
     "external " + "validation",
     "engineering " + "acceptance",
 }
+
+
+def test_desktop_shared_parity_fixture_is_generated_by_authoritative_engine():
+    fixture_path = ROOT / "fixtures/reports/invented/state_comparison_handoff_desktop_parity.json"
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+
+    actual = build_state_comparison_handoff_report_sections(**fixture["inputs"])
+
+    assert actual == fixture["expected"]
 
 
 def ref(object_type: str, value: str) -> dict[str, str]:

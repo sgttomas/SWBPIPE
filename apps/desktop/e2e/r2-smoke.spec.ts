@@ -547,6 +547,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("model=angle=rad,force=N,length=m");
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("N*m/rad,N/m");
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
+  await expect(page.getByTestId("report-package-private-intent")).not.toBeChecked();
+  await page.getByTestId("report-package-save").click();
+  await expect(page.getByTestId("report-package-save-status")).toContainText(
+    "REPORT-PACKAGE-REDACTION-BLOCKED"
+  );
+  await page.getByTestId("report-package-private-intent").check();
+  await page.getByTestId("report-package-save").click();
+  await expect(page.getByTestId("report-package-redaction-summary")).toContainText(
+    "route=DREP-PACKAGE-SAVE-009"
+  );
+  await expect(page.getByTestId("report-package-redaction-summary")).toContainText("blocked=false");
+  await expect(page.getByTestId("report-package-save-status")).toContainText(
+    "REPORT-PACKAGE-SAVE-DESKTOP-ONLY"
+  );
   const reportLint = page.getByLabel("Report content lint");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=44");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(

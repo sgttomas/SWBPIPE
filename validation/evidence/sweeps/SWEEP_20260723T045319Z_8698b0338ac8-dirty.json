@@ -1,0 +1,174 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 2,
+  "decision_basis": "DEC-025",
+  "boundary_note": "Local-only development evidence. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "8698b0338ac82556fee583dd3f85bb62d0b74f85",
+    "branch": "codex/piping-pkg08-report-package",
+    "status_capture_failed": false,
+    "working_tree_dirty": true,
+    "dirty_paths": [
+      "projects/chirality-piping/apps/desktop/SMOKE.md",
+      "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts",
+      "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/atomic_report_package_save.rs",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/report_package_bridge.rs",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/report/RenderedReportPanel.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "projects/chirality-piping/apps/desktop/src/features/report/reportRedactionProjector.test.ts",
+      "projects/chirality-piping/apps/desktop/src/features/report/reportRedactionProjector.ts",
+      "projects/chirality-piping/apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts",
+      "projects/chirality-piping/apps/desktop/src/features/report/stateComparisonHandoffSections.ts",
+      "projects/chirality-piping/apps/desktop/src/services/inputManifestService.test.ts",
+      "projects/chirality-piping/apps/desktop/src/services/inputManifestService.ts",
+      "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.test.ts",
+      "projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.ts",
+      "projects/chirality-piping/apps/desktop/src/types.ts",
+      "projects/chirality-piping/core/analysis_runs/records.py",
+      "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/",
+      "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-22_DEL-08-01_REPORT_PACKAGE_SEAM.md",
+      "projects/chirality-piping/fixtures/reports/invented/state_comparison_handoff_desktop_parity.json",
+      "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "projects/chirality-piping/schemas/results.schema.yaml",
+      "projects/chirality-piping/tests/test_analysis_run_records.py",
+      "projects/chirality-piping/tests/test_analysis_run_schema.py",
+      "projects/chirality-piping/tests/test_release_readiness_script.py",
+      "projects/chirality-piping/tests/test_results_schema.py",
+      "projects/chirality-piping/tests/test_state_comparison_handoff_report_sections.py",
+      "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260723T012151Z_8698b0338ac8-dirty.json",
+      "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260723T040026Z_8698b0338ac8-dirty.json"
+    ]
+  },
+  "runtime": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.7",
+    "node": "v24.5.0",
+    "npm": "11.5.2",
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)"
+  },
+  "started_utc": "2026-07-23T04:53:19+00:00",
+  "finished_utc": "2026-07-23T04:58:31+00:00",
+  "duration_seconds": 311.596,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "commands": [
+        {
+          "argv": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 15.581
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "commands": [
+        {
+          "argv": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 25.734
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.445
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 91.779
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_playwright_e2e",
+      "description": "Playwright end-to-end smoke in a real Chrome browser: dev-server lane, then production-dist lane via vite preview (TP-APP-R2-WASMPKG-001).",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 151.638
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:dist:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 19.774
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 5,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 6.645
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "overall_status": "pass"
+}

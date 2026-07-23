@@ -1,0 +1,72 @@
+CHECK: R16 N4 terminal pre-sweep gate summary
+STATUS: PASS_READY_FOR_SINGLE_SWEEP
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+
+Affected-check selection:
+  desktop-build
+  desktop-test
+  evidence-sweep
+  harness-pytest
+  harness-self-check
+  piping-pytest
+
+Initial registered pre-sweep invocation
+(preserved in CHECK_registered_pre_sweep.json):
+  - desktop-test: FAIL, 1 failed / 501 passed;
+  - desktop-build: PASS;
+  - piping-pytest: FAIL, 4 failed / 531 passed;
+  - harness-pytest: PASS;
+  - harness-self-check: PASS.
+
+Desktop-test triage:
+  - failing test: App.test.tsx, straight-pipe endpoint viewport picker;
+  - immediate focused rerun: PASS 1/1;
+  - complete registered desktop-test rerun: PASS, 28 files / 502 tests;
+  - persisted rerun: CHECK_registered_desktop_test_rerun.json;
+  - classification: flaky/non-reproducible; initial failure remains preserved.
+
+Piping-test triage:
+  - clean archive of exact frozen SHA reproduced the identical four
+    tests/test_release_readiness_script.py failures, 6 passed / 4 failed;
+  - frozen DAG authority is DAG-008 while the four tests hard-code DAG-007;
+  - persisted evidence: CHECK_frozen_base_release_readiness.txt;
+  - classification: exact frozen-base test drift outside N4 WRITE_MATRIX;
+  - no repair performed.
+
+Other broad/static gates:
+  - focused implementation checks: PASS as itemized in RETURN.md;
+  - packaged-native cancel/new-save/replace: PASS;
+  - claims-language: PASS, 267 files scanned;
+  - path anchors: PASS, 947 live surfaces, zero findings;
+  - piping loop receipts: PASS, frozen through Receipt-44;
+  - JSON parse: PASS for parity fixture, R16 WORK_GRAPH, and both registered
+    check evidence files;
+  - JSONL parse: PASS, zero applicable R16 JSONL files/records;
+  - raw N4 evidence: PASS UTF-8, no CR bytes, no trailing spaces/tabs;
+  - WRITE_MATRIX change-scope containment: PASS, zero violations;
+  - git diff --check and git diff --cached --check: PASS;
+  - no staged paths.
+
+Historical manager disposition before v6:
+  - the frozen-base exception does not release the acceptance-eligible sweep;
+  - candidate section 7 requires green piping pytest and the sweep would
+    deterministically encounter the same four failures;
+  - preserve the sole-sweep budget for an acceptance-eligible attempt after an
+    authorized unblock.
+
+Terminal N4 gate state:
+  - the owner adopted v6 and authorized only
+    tests/test_release_readiness_script.py for active DAG-008 expectation
+    correction;
+  - N4 changed only four exact DAG-007 expected paths/strings to DAG-008,
+    preserving assertion structure and intent;
+  - focused release-readiness tests passed 10/10;
+  - full piping pytest passed 535/535;
+  - product implementation remains IMPLEMENTED and every pre-sweep gate is now
+    green;
+  - DEC-025 sweep has not yet run at this sealed pre-sweep point; count is 0;
+  - exactly one acceptance-eligible sweep is authorized next, after which no
+    filesystem edit may occur;
+  - N4 makes no COMMIT-SAFE, acceptance, closeout, lifecycle, release, issuance,
+    or merge claim.

@@ -1,0 +1,119 @@
+CHECK: R16 N4 packaged-native blocker reclassification and contained repairs
+STATUS: TERMINAL NATIVE SAVE/REPLACE EVIDENCE PASSED
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+
+Reclassification basis supplied by owner/HELP_HUMAN after manual unlock:
+  - AX activation of custom View > Model Tree and View > Report dismissed the
+    native menu but caused no React state change.
+  - The same AX path activated built-in View > Enter Full Screen and Exit Full
+    Screen successfully.
+  - Therefore the prior N4 tooling-block classification was superseded for the
+    custom-menu path: native AX activation worked, while the custom event bridge
+    did not.
+
+Contained defect 1 — custom native-menu event bridge:
+  - Existing backend custom items emitted through the frontend Tauri event
+    subscription, which was unavailable in the packaged capability set.
+  - Repair: the authorized Rust shell injects one JSON-escaped DOM CustomEvent
+    into the main webview; App validates its string detail against the closed
+    MenuCommandId set and dispatches it through the existing shared command
+    sink.
+  - Invalid `view.section.*` detail is tested as no-effect.
+  - Focused React bridge test: 1/1 passed.
+  - Focused Rust dispatch-script test: 1/1 passed.
+  - Packaged observation after repair: native View > Report opened the Report
+    dock; private intent was visibly default-off and could be explicitly
+    enabled.
+
+Contained defect 2 — report-sections hanger DTO:
+  - Repaired native File > Save reached checked assembly and returned
+    `REPORT-PACKAGE-REPORT-DTO-INVALID: missing field magnitude` before picker
+    or filesystem effect.
+  - Cause: the current report adapter emitted spring-hanger quantity as
+    `{value,unit}` and an unsupported `required_for` token, not the accepted
+    report-sections Quantity contract.
+  - Repair: bind each hanger record to an actual current-session force field
+    (variable-hanger hot load or constant-effort load), preserving magnitude
+    and unit with `dimension=force`, and emit only `reporting` and
+    `human_review` required-for tokens.
+  - Focused request/redaction/parity/render tests: 15/15 passed.
+  - Cargo bridge check: passed.
+  - Before the correction, the designated native-smoke directory remained
+    empty and no package basename was present under the checked local trees.
+
+Contained defect 3 — picker invoked on main thread:
+  - After the DTO correction, the native picker opened but was unresponsive and
+    App remained `Saving...`.
+  - tauri-plugin-dialog 2.7.2 requires `blocking_save_file` not to execute on
+    the main thread; the command was synchronous.
+  - Repair: make `save_report_package` async so the blocking picker runs on the
+    async command runtime.
+  - Packaged observation after repair: the picker was responsive; Escape
+    returned a structured `REPORT-PACKAGE-SAVE-CANCELLED` receipt with bytes=0
+    and the designated directory remained empty.
+
+Contained defect 4 — unbounded post-rename parent-directory durability:
+  - Root sample of the packaged process placed the active worker inside
+    `atomic_save_bytes` at `File::open(parent)` during post-rename directory
+    durability handling; the process remained `Saving...`.
+  - Intended smoke directory was empty and the exact suggested basename was
+    absent under the checked local trees, so that attempt is not accepted as a
+    save observation.
+  - Repair: run directory open+sync on one bounded worker with a two-second
+    wait. Success reports `durable`; open/sync error, timeout, disconnect, or an
+    already-active prior worker reports `saved_durability_uncertain` after the
+    committed rename and never claims rollback.
+  - Accumulation guard: a process-wide active-worker guard permits at most one
+    directory-sync worker. If it remains blocked after timeout, later saves do
+    not spawn additional workers until it exits. The receipt limitation records
+    this bounded non-adversarial residual.
+  - Runtime diagnosis logs selected basename, coarse parent class, and opaque
+    16-hex parent hash only; no absolute selected path is persisted.
+  - Atomic regression tests: 8/8 passed, including exact new/replacement bytes,
+    no-temp cleanup, directory-sync error, timeout, and worker non-accumulation.
+
+Terminal native smoke on the final guarded bundle:
+  - loaded the invented utility-loop model and reached MECHANICS_SOLVED;
+  - native View > Report opened the Report dock;
+  - local-private retention was visibly off by default and was then explicitly
+    enabled for this local package;
+  - cancel returned REPORT-PACKAGE-SAVE-CANCELLED with outcome=cancelled,
+    bytes=0, replacement=false, and durability=not_applicable; the designated
+    smoke directory remained empty;
+  - new save returned REPORT-PACKAGE-SAVED with outcome=saved,
+    replacement=false, durability=durable, bytes=3189621,
+    container_sha256=4416c53b68a1e71cda0445408ca24d15e56023ab879c435cfd30b86387bb2cb7,
+    and package_identity=39628d597b9d09b0f9aa1d9899190f3fd90bb31600495b03bd997317f38f8bff;
+  - redaction receipt: route=DREP-PACKAGE-SAVE-009, decisions=59851,
+    findings=59835, blocking=0, blocked=false;
+  - same-path save traversed the native macOS replacement-confirmation sheet
+    and returned replacement=true, durability=durable, and the same byte count
+    and hashes;
+  - target inode changed from 160542015 to 160542328, evidencing atomic
+    replacement rather than in-place mutation;
+  - archive integrity passed; package_manifest.json identity and every member
+    size/hash matched the package manifest;
+  - no .openpipestress-report-package-*.tmp residue remained after cancel, new
+    save, or replacement.
+
+Verified canonical identities:
+  - package_manifest.json:
+    39628d597b9d09b0f9aa1d9899190f3fd90bb31600495b03bd997317f38f8bff
+  - calculation_report.html (391716 bytes):
+    ce1ceaa6029d4ac6d99d41594805dddcf69f8b4d094cab547c3eb681dbf40cf2
+  - calculation_report.pdf (982680 bytes):
+    d5a9aeb7fae0483ab0ea3e7a9235821d6acfe487d3078fd2f7c62a2fedb66fa6
+  - audit_manifest.json (1117 bytes):
+    e5e305d31a5ef1feac684bc86106ec3e112c87e792b755a37e89df5d73d0ee68
+  - result export (1127924 bytes):
+    b193ffff58b44107b3e87a5f1f609085fbac058364423279cd00be8e4d56cded
+  - state-comparison handoff (681287 bytes):
+    eadb1afd72b53a1018f769680c643843f2db4205bbf7a69b4a19379312446e87
+
+Held follow-on gates at N4 return:
+  - broad registered gates: not begun by direction;
+  - DEC-025 sweep count: exactly 0;
+  - N5/W3: not launched by N4;
+  - the non-repository temporary package is retained transiently for fresh N5
+    inspection; N5 or the manager may remove it after independent verification.

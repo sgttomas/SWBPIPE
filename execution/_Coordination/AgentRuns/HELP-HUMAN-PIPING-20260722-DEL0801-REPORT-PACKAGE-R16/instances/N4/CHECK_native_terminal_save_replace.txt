@@ -1,0 +1,91 @@
+CHECK: R16 N4 final packaged-native report-package save/replace
+STATUS: PASS
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+ACTOR: N4 through Computer Use/Sky against the packaged debug macOS app
+DATA: invented utility-loop preview only
+
+Sequence observed:
+  1. Load invented model and solve to MECHANICS_SOLVED.
+  2. Native View > Report opens the Report dock.
+  3. Local-private retention is visibly off by default; enable it explicitly.
+  4. Native File > Save Report Package opens the macOS save sheet.
+  5. Cancel returns REPORT-PACKAGE-SAVE-CANCELLED with bytes=0,
+     replacement=false, durability=not_applicable, and no filesystem effect.
+  6. Save the suggested basename in the designated temporary smoke directory.
+  7. Verify the archive, package manifest identity, member sizes/hashes, and
+     absence of temporary-save residue.
+  8. Save the same basename again and traverse the native macOS replacement
+     confirmation sheet.
+  9. Verify replacement receipt, changed inode, unchanged deterministic bytes,
+     archive integrity, member hashes, and absence of temporary-save residue.
+
+Suggested and saved basename:
+  desktop-report-run-preview-linear-static-001.opsproj
+
+Cancel receipt:
+  outcome=cancelled
+  code=REPORT-PACKAGE-SAVE-CANCELLED
+  bytes=0
+  replacement=false
+  durability=not_applicable
+  redaction_route=DREP-PACKAGE-SAVE-009
+
+New-save receipt:
+  outcome=saved
+  code=REPORT-PACKAGE-SAVED
+  bytes=3189621
+  replacement=false
+  durability=durable
+  container_sha256=4416c53b68a1e71cda0445408ca24d15e56023ab879c435cfd30b86387bb2cb7
+  package_identity=39628d597b9d09b0f9aa1d9899190f3fd90bb31600495b03bd997317f38f8bff
+  redaction_route=DREP-PACKAGE-SAVE-009
+  redaction_decisions=59851
+  redaction_findings=59835
+  blocking=0
+  blocked=false
+  inode=160542015
+
+Replacement receipt:
+  outcome=saved
+  code=REPORT-PACKAGE-SAVED
+  bytes=3189621
+  replacement=true
+  durability=durable
+  container_sha256=4416c53b68a1e71cda0445408ca24d15e56023ab879c435cfd30b86387bb2cb7
+  package_identity=39628d597b9d09b0f9aa1d9899190f3fd90bb31600495b03bd997317f38f8bff
+  inode=160542328
+
+Archive/member verification after replacement:
+  package_manifest.json identity:
+    39628d597b9d09b0f9aa1d9899190f3fd90bb31600495b03bd997317f38f8bff
+  calculation_report.html, 391716 bytes:
+    ce1ceaa6029d4ac6d99d41594805dddcf69f8b4d094cab547c3eb681dbf40cf2
+  calculation_report.pdf, 982680 bytes:
+    d5a9aeb7fae0483ab0ea3e7a9235821d6acfe487d3078fd2f7c62a2fedb66fa6
+  audit_manifest.json, 1117 bytes:
+    e5e305d31a5ef1feac684bc86106ec3e112c87e792b755a37e89df5d73d0ee68
+  result_export_result-envelope-run-preview-linear-static-001.json,
+  1127924 bytes:
+    b193ffff58b44107b3e87a5f1f609085fbac058364423279cd00be8e4d56cded
+  state_comparison_handoff_sections_desktop-current-session-run-preview-linear-static-001.json,
+  681287 bytes:
+    eadb1afd72b53a1018f769680c643843f2db4205bbf7a69b4a19379312446e87
+
+Filesystem verification:
+  - new-save inode 160542015 changed to replacement inode 160542328;
+  - final container byte count and SHA-256 match the replacement receipt;
+  - ZIP integrity check passed for all six members;
+  - no .openpipestress-report-package-*.tmp residue remained after cancel, new
+    save, or replacement.
+
+Retention:
+  - the non-repository temporary package is retained transiently for fresh N5
+    inspection;
+  - N5 or the manager may remove it after independent verification;
+  - no absolute temporary path is persisted in this evidence record.
+
+Held gates:
+  - broad registered gates were not begun;
+  - DEC-025 evidence sweep count remains exactly 0;
+  - N4 makes no COMMIT-SAFE claim.

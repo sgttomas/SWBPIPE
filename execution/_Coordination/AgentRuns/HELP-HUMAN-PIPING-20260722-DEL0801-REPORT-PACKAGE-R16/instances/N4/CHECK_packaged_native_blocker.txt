@@ -1,0 +1,70 @@
+CHECK: DEL-08-01 packaged-native verification gate
+STATUS: BLOCKED
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+
+Packaged app exercised:
+  apps/desktop/src-tauri/target/debug/bundle/macos/
+  OpenPipeStress Technical Preview.app
+
+Observed working packaged behavior:
+  - packaged debug build completed successfully;
+  - the invented utility-loop model loaded;
+  - the packaged UI completed the mechanics preview and reported
+    MECHANICS_SOLVED.
+
+Native-menu activation attempt 1 (Computer Use/Sky direct AX item):
+  1. Sky returned the native File menu and these items:
+       New Local Project
+       New Blank Project
+       Open Local Project...
+       List Local Projects
+       Save Local Project
+       Save Report Package...
+  2. `sky.click` targeted the enumerated `List Local Projects` menu item as a
+     known-visible control.
+  3. The call returned no explicit result (`undefined`), the File menu closed,
+     and the React accessibility tree remained unchanged: project summary was
+     still `Local project store not opened` and no project list appeared.
+  4. The same direct AX method against View -> Report likewise produced no
+     React accessibility-tree change.
+
+Native-menu activation attempt 2 (Computer Use/Sky keyboard route):
+  1. Sky opened the enumerated native File menu.
+  2. `Down` key presses followed by `Return` were issued through Sky.
+  3. The native File menu remained open and the known-visible command did not
+     execute. The equivalent View-menu keyboard attempt also produced no React
+     accessibility-tree change.
+
+Explicit-result fallback requested by the parent:
+  Command:
+    osascript -e 'tell application "System Events" to tell process
+    "OpenPipeStress Technical Preview" to get name of every menu item of menu 1
+    of menu bar item "File" of menu bar 1'
+  Exit: 1
+  stderr:
+    91:95: execution error: System Events got an error: osascript is not
+    allowed assistive access. (-1719)
+
+Classification:
+  The available compliant automation paths cannot activate a native menu item.
+  Because even the known-visible List Local Projects command cannot be invoked,
+  this evidence does not establish a product native-menu defect. It establishes
+  a verification-environment/access blocker. Candidate v5 requires native
+  cancel/save/replace proof and does not permit browser or unit evidence as a
+  substitute.
+
+Consequences:
+  - packaged-native cancel/save/replace: NOT OBSERVED;
+  - packaged-native bridge end-to-end assembly: NOT OBSERVED;
+  - broad registered gates: NOT BEGUN;
+  - DEC-025 evidence sweep count: 0;
+  - all N4 product changes: PROVISIONAL / UNACCEPTED;
+  - N4 terminal result: BLOCKED.
+
+Unblock condition:
+  Provide an authorized mechanism that can press native macOS menu items for
+  the packaged process (for example, grant assistive access to the System
+  Events/osascript caller), then rerun the native default-off intent,
+  cancellation, save, replacement, cleanup, receipt, and digest sequence before
+  any broad gate or evidence sweep.

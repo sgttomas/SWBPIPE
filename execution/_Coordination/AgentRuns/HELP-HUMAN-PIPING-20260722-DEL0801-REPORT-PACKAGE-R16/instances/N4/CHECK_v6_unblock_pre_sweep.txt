@@ -1,0 +1,40 @@
+CHECK: R16 N4 v6 one-file verification unblock
+STATUS: PASS_READY_FOR_SINGLE_SWEEP
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+
+Authority:
+  - owner-adopted candidate v6;
+  - AMENDMENT_V6.md;
+  - OWNER_ADOPTION.md v6 authorization;
+  - exact WRITE_MATRIX.csv row for tests/test_release_readiness_script.py.
+
+Change:
+  - only tests/test_release_readiness_script.py was modified under v6;
+  - four exact stale DAG-007 expected paths/strings were changed to DAG-008;
+  - assertion structure and intent are unchanged;
+  - no release script, DAG artifact, pointer, product, runner, or unrelated
+    test behavior changed.
+
+Focused gate:
+  command: python3 -m pytest -q tests/test_release_readiness_script.py
+  result: PASS
+  count: 10 passed
+  duration: 0.91s
+
+Full piping gate:
+  command: python3 -m pytest -q tests
+  result: PASS
+  count: 535 passed
+  duration: 22.69s
+
+Sweep posture:
+  - all candidate section 7 pre-sweep gates are now green, including the
+    desktop 502/502 rerun and full piping 535/535;
+  - prior frozen-base reproduction remains preserved as historical evidence of
+    the exact v6 unblock basis;
+  - exactly one acceptance-eligible DEC-025 sweep is authorized next;
+  - after the sweep invocation, N4 will make no filesystem edits of any kind;
+  - sweep status, artifact path, and SHA-256 will be returned by live message
+    only;
+  - N5 and W3 remain held.

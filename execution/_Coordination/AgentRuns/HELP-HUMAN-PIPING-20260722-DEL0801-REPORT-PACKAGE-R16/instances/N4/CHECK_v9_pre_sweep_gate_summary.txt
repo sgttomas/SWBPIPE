@@ -1,0 +1,71 @@
+CHECK: R16 candidate v9 terminal pre-sweep fan-in
+STATUS: PASS_AWAITING_MANAGER_SWEEP_RELEASE
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+
+Verification-only posture
+-------------------------
+- Candidate v9 introduced no implementation, product, test, schema,
+  dependency, decomposition, or Cargo change.
+- The canonical 34-file product hash remained
+  `0c73787560e06d6d07393f16d8d215f484d6d3fc9801ff9a3f76bae938e04ff4`.
+- The canonical 35-file hash including unchanged `apps/desktop/SMOKE.md`
+  remained
+  `e7eec87ab4630f8cc22c94de4987515b2fc2b4f284790bd2833da4ab1908d3ae`.
+
+Verification
+------------
+- Spring-hanger focused desktop/Python/Rust gates: PASS, 15 + 28 + 56 tests.
+- Read-only runtime probe: PASS for exact four-field force precedence, exact
+  force quantity, reporting plus human-review requirements, and no-force
+  missing state.
+- Full desktop Vitest: PASS, 516/516.
+- Full piping pytest: PASS, 539/539.
+- Full practitioner-harness pytest: PASS, 311/311.
+- Desktop build, 36-manifest Cargo profile, repository self-check: PASS.
+- Full source H4: PASS, 20/20.
+- Full production-dist H4: PASS, 2/2.
+- Extra full desktop Rust: 77/78; the sole failure is the already-recorded
+  frozen-base rule-pack notice assertion. All report/package/native save tests
+  are green.
+
+Fresh packaged-native proof
+---------------------------
+- Packaged executable SHA-256:
+  `49ca370ed7ce54970f0f50356569296777440bbbad87ac69eaf6b93ba8a6d51a`.
+- Default-off private intent, explicit enablement, cancel, new save, and real
+  macOS same-path replacement: PASS.
+- New and replacement receipts: 3518303 bytes, durable, container SHA-256
+  `e0145a9fb7d377034c7876a92336581ecdeb5d737fe223c5b39d560adfc42cc7`,
+  package identity
+  `fb81914e2d9654876eb9421634f1d4ab1e7a14f2fa056b52fe6eb330d19b125a`.
+- Replacement inode: `160744815 -> 160744889`.
+- Member hashes/lengths, exact InputManifest identity, native SH-140
+  `390 N` force semantics, and no-temp cleanup: PASS.
+
+Static and record validation
+----------------------------
+- Claims-language validation: PASS, 268 files.
+- Path-anchor validation: PASS, 952 live surfaces, zero findings.
+- Piping loop-receipt validation: PASS, frozen through Receipt-44.
+- R16 JSON parse: PASS, 3 files; JSONL: zero applicable files.
+- N4 UTF-8 / CR / trailing-whitespace evidence check: PASS, 21 files including
+  this summary.
+- Accepted WRITE_MATRIX containment: PASS, 94 dirty paths and zero violations.
+- `git diff --check` and `git diff --cached --check`: PASS.
+- Staged path count: 0.
+- Post-evidence product hashes remained exact at
+  `0c73787560e06d6d07393f16d8d215f484d6d3fc9801ff9a3f76bae938e04ff4`
+  excluding SMOKE and
+  `e7eec87ab4630f8cc22c94de4987515b2fc2b4f284790bd2833da4ab1908d3ae`
+  including it.
+
+Sweep state
+-----------
+V6, v7, and v8 sweep artifacts remain immutable superseded evidence. N4 has
+not invoked the single v9 DEC-025 sweep. The manager must validate this terminal
+fan-in and containment before releasing that invocation. After the v9 sweep,
+N4 will make no filesystem edit and will report the artifact/status by live
+message only.
+
+N4 does not claim COMMIT-SAFE. Fresh N5 verification remains a separate gate.

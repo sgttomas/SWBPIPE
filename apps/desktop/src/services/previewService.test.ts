@@ -6,6 +6,10 @@ import {
   loadPreviewModel,
   runPreviewMechanics,
 } from "./previewService";
+import {
+  buildCurrentSessionInputManifest,
+  type CurrentSessionInputManifestEvidence,
+} from "./inputManifestService";
 
 function cloneModel(model: PreviewModel): PreviewModel {
   return JSON.parse(JSON.stringify(model)) as PreviewModel;
@@ -28,6 +32,39 @@ const solvedResultStub = {
   results: [],
   diagnostics: [],
 } as unknown as MechanicsResult;
+
+async function manifestFor(
+  result: MechanicsResult,
+): Promise<CurrentSessionInputManifestEvidence> {
+  const model = cloneModel(await loadPreviewModel());
+  model.project.id = result.model_ref;
+  return buildCurrentSessionInputManifest({
+    model,
+    solver: {
+      solver_name: "open_pipe_stress_product_physics",
+      solver_version: "0.1.0",
+      solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
+      solver_mode: "sparse_interactive",
+      settings: {
+        nonlinear_iteration_policy:
+          "DEC-046-CV-B-product-preview-active-set-count-v1",
+        sparse_evidence_lane: true,
+      },
+    },
+    active_rule_packs: [],
+    external_assets: [],
+  });
+}
+
+async function buildRun(
+  result: MechanicsResult,
+  ruleCheckAggregate?: string | null,
+) {
+  return buildAnalysisRunPreview(result, {
+    inputManifest: await manifestFor(result),
+    ruleCheckAggregate,
+  });
+}
 
 function hashByScope(
   env: Awaited<ReturnType<typeof buildAnalysisRunPreview>>,
@@ -57,7 +94,7 @@ describe("previewService mechanics browser fallback", () => {
 
   it("surfaces nonlinear support loop evidence rows and diagnostics", async () => {
     const result = await runPreviewMechanics();
-    const run = await buildAnalysisRunPreview(result);
+    const run = await buildRun(result);
 
     expect(
       result.results.find(
@@ -145,7 +182,7 @@ describe("previewService mechanics browser fallback", () => {
         (item) =>
           item.result_ref.ref === "result:nonlinear-support:iteration-count",
       )?.result_family,
-    ).toBe("nonlinear_support");
+    ).toBe("ratio");
   });
 
   it("blocks edited-model fixture reuse instead of publishing stale result rows", async () => {
@@ -210,7 +247,7 @@ describe("appliedRuleCheckStatus (TP-C4-APPAGG-001)", () => {
 
 describe("buildAnalysisRunPreview rule-check aggregate (TP-C4-APPAGG-001)", () => {
   it("defaults to the solve envelope rule_check when no aggregate is supplied", async () => {
-    const env = await buildAnalysisRunPreview(solvedResultStub);
+    const env = await buildRun(solvedResultStub);
     expect(env.analysis_run.analysis_status).toContain(
       "RULE_INPUTS_INCOMPLETE",
     );
@@ -218,11 +255,8 @@ describe("buildAnalysisRunPreview rule-check aggregate (TP-C4-APPAGG-001)", () =
   });
 
   it("drives a recognized aggregate into analysis_status and the run-record hash, leaving the solve-envelope hash byte-stable", async () => {
-    const base = await buildAnalysisRunPreview(solvedResultStub);
-    const withFail = await buildAnalysisRunPreview(
-      solvedResultStub,
-      "USER_RULE_FAILED",
-    );
+    const base = await buildRun(solvedResultStub);
+    const withFail = await buildRun(solvedResultStub, "USER_RULE_FAILED");
 
     expect(withFail.analysis_run.analysis_status).toContain("USER_RULE_FAILED");
     expect(withFail.analysis_run.analysis_status).not.toContain(
@@ -239,10 +273,7 @@ describe("buildAnalysisRunPreview rule-check aggregate (TP-C4-APPAGG-001)", () =
   });
 
   it("records a USER_RULE_CHECKED aggregate likewise", async () => {
-    const env = await buildAnalysisRunPreview(
-      solvedResultStub,
-      "USER_RULE_CHECKED",
-    );
+    const env = await buildRun(solvedResultStub, "USER_RULE_CHECKED");
     expect(env.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
     expect(env.analysis_run.analysis_status).not.toContain(
       "RULE_INPUTS_INCOMPLETE",
@@ -250,8 +281,8 @@ describe("buildAnalysisRunPreview rule-check aggregate (TP-C4-APPAGG-001)", () =
   });
 
   it("ignores an unrecognized aggregate, reproducing the no-aggregate envelope exactly (no false pass)", async () => {
-    const base = await buildAnalysisRunPreview(solvedResultStub);
-    const bogus = await buildAnalysisRunPreview(
+    const base = await buildRun(solvedResultStub);
+    const bogus = await buildRun(
       solvedResultStub,
       "HUMAN_APPROVED_FOR_PROJECT",
     );
@@ -264,5 +295,117 @@ describe("buildAnalysisRunPreview rule-check aggregate (TP-C4-APPAGG-001)", () =
     expect(hashByScope(bogus, "analysis_run_record")).toBe(
       hashByScope(base, "analysis_run_record"),
     );
+  });
+});
+
+describe("analysis-run input-manifest and source-dimension binding", () => {
+  it("binds the exact manifest independently from the result envelope and declares stiffness dimensions", async () => {
+    const result = await runPreviewMechanics();
+    const manifest = await manifestFor(result);
+    const env = await buildAnalysisRunPreview(result, {
+      inputManifest: manifest,
+    });
+    const resultEnvelopeHash = hashByScope(env, "result_envelope");
+    const byId = new Map(
+      env.analysis_run.result_refs.map((item) => [
+        item.result_ref.ref,
+        item.source_dimension,
+      ]),
+    );
+
+    expect(env.analysis_run.reproducibility.input_manifest_refs).toEqual([
+      manifest.manifest_ref,
+    ]);
+    expect(
+      env.analysis_run.reproducibility.input_manifest_hashes,
+    ).toEqual([
+      expect.objectContaining({
+        payload_ref: manifest.manifest_ref,
+        payload_scope: "input_manifest",
+        value: manifest.manifest_sha256,
+      }),
+    ]);
+    expect(manifest.manifest_sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(manifest.manifest_sha256).not.toBe(resultEnvelopeHash);
+    expect(
+      byId.get(
+        "result:component-stiffness:component-C-150:axial",
+      ),
+    ).toBe("linear_stiffness");
+    expect(
+      byId.get(
+        "result:component-stiffness:component-C-150:torsional",
+      ),
+    ).toBe("rotational_stiffness");
+  });
+
+  it("blocks manifest evidence for a different model", async () => {
+    const result = await runPreviewMechanics();
+    const manifest = await manifestFor(result);
+    const mismatched = structuredClone(result);
+    mismatched.model_ref = "project:different-model";
+
+    await expect(
+      buildAnalysisRunPreview(mismatched, { inputManifest: manifest }),
+    ).rejects.toThrow("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
+  });
+
+  it("blocks transformed manifest evidence until its ref and hash are recomputed", async () => {
+    const result = await runPreviewMechanics();
+    const manifest = await manifestFor(result);
+    manifest.manifest.solver_basis.settings.sparse_evidence_lane = false;
+
+    await expect(
+      buildAnalysisRunPreview(result, { inputManifest: manifest }),
+    ).rejects.toThrow("INPUT-MANIFEST-HASH-MISMATCH");
+  });
+
+  it("blocks wrong-prefix and wrong-model manifest refs with a valid digest", async () => {
+    const result = await runPreviewMechanics();
+    const manifest = await manifestFor(result);
+    for (const refValue of [
+      `result-envelope:project-invented-loop-01:${manifest.manifest_sha256}`,
+      `input-manifest:project-different:${manifest.manifest_sha256}`,
+    ]) {
+      const invalid = structuredClone(manifest);
+      invalid.manifest_ref.ref = refValue;
+      await expect(
+        buildAnalysisRunPreview(result, { inputManifest: invalid }),
+      ).rejects.toThrow("INPUT-MANIFEST-HASH-MISMATCH");
+    }
+  });
+
+  it("keeps family and dimension bound to exact kind semantics when unit text is deceptive", async () => {
+    const result = structuredClone(await runPreviewMechanics());
+    const target = result.results.find(
+      (item) => item.kind === "element_local_axial_force",
+    );
+    expect(target).toBeDefined();
+    target!.unit = "MPa";
+    const env = await buildAnalysisRunPreview(result, {
+      inputManifest: await manifestFor(result),
+    });
+    const bound = env.analysis_run.result_refs.find(
+      (item) => item.result_ref.ref === target!.id,
+    );
+    expect(bound).toMatchObject({
+      result_family: "force",
+      source_dimension: "force",
+    });
+  });
+
+  it("blocks an explicit dimension that contradicts exact result kind semantics", async () => {
+    const result = structuredClone(await runPreviewMechanics());
+    const target = result.results.find(
+      (item) => item.kind === "element_local_axial_force",
+    );
+    expect(target).toBeDefined();
+    target!.dimension = "stress";
+
+    await expect(
+      buildAnalysisRunPreview(result, {
+        inputManifest: await manifestFor(result),
+      }),
+    ).rejects.toThrow("ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH");
   });
 });

@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -21,6 +22,7 @@ import {
   loadPreviewModel,
   runPreviewMechanics,
 } from "./services/previewService";
+import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
 import type { EditorOperationIntent, MechanicsResult } from "./types";
 
 function deformationResultRows(
@@ -51,6 +53,7 @@ function displacementMagnitudeRow(
     kind: "displacement_magnitude",
     value: valueMm,
     unit: "mm",
+    dimension: "length",
     entity_ref: nodeId,
     basis_ref: { ref_type: "load_case", ref_id: "load:L-100" },
   };
@@ -67,6 +70,7 @@ function displacementComponentRows(
     kind: `global_nodal_displacement_${axis}`,
     value: vector[axis],
     unit: "mm",
+    dimension: "length" as const,
     entity_ref: nodeId,
     basis_ref: { ref_type: "load_case", ref_id: basisRefId },
     metadata: {
@@ -133,6 +137,7 @@ describe("OpenPipeStress desktop preview", () => {
           kind: "user_rule_governing_ratio",
           value: 0.75,
           unit: "1",
+          dimension: "ratio",
           entity_ref: "pipe:P-120"
         }
       ]
@@ -163,7 +168,21 @@ describe("OpenPipeStress desktop preview", () => {
   it("records comparison workspace unit policy evidence without conversion", async () => {
     const model = await loadPreviewModel();
     const result = await runPreviewMechanics(model);
-    const analysisRun = await buildAnalysisRunPreview(result);
+    const inputManifest = await buildCurrentSessionInputManifest({
+      model,
+      solver: {
+        solver_name: "open_pipe_stress_product_physics",
+        solver_version: "0.1.0",
+        solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
+        solver_mode: "sparse_interactive",
+        settings: { sparse_evidence_lane: true }
+      },
+      active_rule_packs: [],
+      external_assets: []
+    });
+    const analysisRun = await buildAnalysisRunPreview(result, {
+      inputManifest
+    });
     const comparisonPacket = buildPreviewComparison({ result, analysisRun });
 
     expect(comparisonPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
@@ -3650,6 +3669,82 @@ describe("OpenPipeStress desktop preview", () => {
     expect(boundary.textContent).toContain(
       "technical_preview_requires_human_engineering_review",
     );
+  });
+
+  it("dispatches packaged native-menu DOM events through the shared command sink", async () => {
+    render(<App />);
+
+    expect(await screen.findByTestId("desktop-preview-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("workspace-dock").className).toContain("collapsed");
+    expect(screen.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent("openpipestress-native-menu-command", {
+          detail: "view.section.not-a-real-section"
+        })
+      );
+    });
+    expect(screen.getByTestId("workspace-dock").className).toContain("collapsed");
+    expect(screen.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent("openpipestress-native-menu-command", {
+          detail: "view.section.report"
+        })
+      );
+    });
+    expect(screen.getByTestId("workspace-section-report").className).toBe(
+      "workspace-dock-section"
+    );
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent("openpipestress-native-menu-command", {
+          detail: "view.tree"
+        })
+      );
+    });
+    expect(screen.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("routes both File-menu report-package attempts through App-owned intent and the honest browser no-effect result", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+
+    fireEvent.click(screen.getByTestId("menu-file"));
+    expect(screen.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("app-menu-backdrop"));
+
+    fireEvent.click(screen.getByTestId("run-mechanics-preview"));
+    await waitFor(() => {
+      expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("computed result rows");
+    });
+    fireEvent.click(screen.getByTestId("menu-file"));
+    expect(screen.getByTestId("menu-item-file.save-report-package")).toBeEnabled();
+    fireEvent.click(screen.getByTestId("menu-item-file.save-report-package"));
+    await waitFor(() => {
+      expect(screen.getByTestId("report-package-save-status")).toHaveTextContent(
+        "REPORT-PACKAGE-REDACTION-BLOCKED"
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.section.report"));
+    fireEvent.click(screen.getByTestId("report-package-private-intent"));
+    fireEvent.click(screen.getByTestId("menu-file"));
+    fireEvent.click(screen.getByTestId("menu-item-file.save-report-package"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("report-package-redaction-summary")).toHaveTextContent(
+        "route=DREP-PACKAGE-SAVE-009"
+      );
+      expect(screen.getByTestId("report-package-redaction-summary")).toHaveTextContent("blocked=false");
+      expect(screen.getByTestId("report-package-save-status")).toHaveTextContent(
+        "REPORT-PACKAGE-SAVE-DESKTOP-ONLY"
+      );
+    });
   });
 
   it("records viewport editor intents without direct persisted-project mutation", async () => {
@@ -8430,32 +8525,33 @@ describe("OpenPipeStress desktop preview", () => {
     await waitFor(
       () => {
         expect(screen.getByTestId("solve-job-summary").textContent).toContain(
-          "state=completed",
+          "state=failed",
         );
         expect(screen.getByTestId("solve-job-summary").textContent).toContain(
           "result_rows=0",
         );
-        expect(
-          screen.getByTestId("status-pill-mechanics").textContent,
-        ).toContain("MODEL_INCOMPLETE");
       },
       { timeout: 10000 },
     );
-    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
-    const diagnostics = await screen.findByLabelText("Diagnostics");
-    expect(diagnostics.textContent).toContain(
-      "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL",
-    );
+    fireEvent.click(screen.getByTestId("menu-file"));
+    expect(
+      screen.getByTestId("menu-item-file.save-report-package"),
+    ).toBeDisabled();
+    fireEvent.click(screen.getByTestId("app-menu-backdrop"));
     const resultsPanel = await screen.findByTestId("results-panel");
     expect(
-      within(resultsPanel).getByTestId("result-filter-summary").textContent,
-    ).toContain("0 of 0 results match filter");
+      within(resultsPanel).getByText(
+        "Run the bounded preview mechanics path to populate result summaries.",
+      ),
+    ).toBeInTheDocument();
     const reportPanel = await screen.findByTestId("report-panel");
     expect(
       within(reportPanel).getByTestId("report-redaction-blocked").textContent,
-    ).toContain("Raw report DOM suppressed by redaction controls");
+    ).toContain(
+      "Run the bounded preview mechanics path to assemble a report packet",
+    );
     expect(within(reportPanel).queryByTestId("report-packet-body")).not.toBeInTheDocument();
-    expect(within(reportPanel).getByTestId("report-export-link")).toBeInTheDocument();
+    expect(within(reportPanel).queryByTestId("report-export-link")).not.toBeInTheDocument();
     // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
     // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
   });
@@ -9797,8 +9893,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(headlessPacket.objectives).toContain("OBJ-012");
     expect(headlessPacket.request.operation).toBe("solve");
     expect(headlessPacket.request.load_basis_refs.length).toBeGreaterThan(0);
-    expect(headlessPacket.request.input_manifest_ref.ref_id).toBe(
-      "result-envelope:run:preview-linear-static-001",
+    expect(headlessPacket.request.input_manifest_ref.ref_id).toMatch(
+      /^input-manifest:project-invented-loop-01:[0-9a-f]{64}$/,
     );
     expect(headlessPacket.result.run_id).toBe("run:preview-linear-static-001");
     expect(headlessPacket.result.job.state).toBe("COMPLETED");
@@ -10653,7 +10749,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("conversion=false");
     expect(
       within(runAudit).getByTestId("run-audit-input-manifest").textContent,
-    ).toContain("ResultEnvelope:result-envelope:run:preview-linear-static-001");
+    ).toMatch(
+      /InputManifest:input-manifest:project-invented-loop-01:[0-9a-f]{64}/,
+    );
     expect(
       within(runAudit).getByTestId("run-audit-reproducibility").textContent,
     ).toContain("physical project container");

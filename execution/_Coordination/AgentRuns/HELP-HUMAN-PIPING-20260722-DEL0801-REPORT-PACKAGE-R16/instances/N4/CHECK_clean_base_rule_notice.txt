@@ -1,0 +1,9 @@
+CHECK: frozen-SHA clean-base reproduction of unrelated native rule-pack notice assertion
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+METHOD: git archive of the frozen SHA into {TEMP_ARCHIVE}; no working-tree files copied
+COMMAND: cargo test --manifest-path {TEMP_ARCHIVE}/projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml validate_rule_pack_command_reports_example_pack_clean_and_draft_findings -- --nocapture
+RESULT: FAILED (reproduced on clean frozen source)
+ASSERTION: src/lib.rs:5872: notice.contains("No professional")
+TEST_COUNTS: 0 passed; 1 failed; 61 filtered out
+CLASSIFICATION: pre-existing baseline failure; the DEL-08-01 diff does not authorize or modify the rule-pack notice/test surface
+NOTE: the wrapper's attempt to assign zsh reserved variable `status` produced a secondary shell error after Cargo had already emitted the complete reproduced test failure; it does not alter the Cargo result.

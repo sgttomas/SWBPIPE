@@ -1,0 +1,45 @@
+CHECK: R16 N4 clean frozen-base release-readiness test reproduction
+STATUS: REPRODUCED_BASELINE_FAILURE
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+
+Method:
+  - exported the exact frozen SHA to a non-repository temporary directory;
+  - ran only tests/test_release_readiness_script.py from that clean archive;
+  - made no source, test, governance, or repository-state changes.
+
+Result:
+  - 6 passed;
+  - 4 failed;
+  - duration 0.06s.
+
+The same four failures observed in the live full piping suite reproduced:
+  1. test_latest_dag_dependency_edges_uses_approved_graph_pointer
+  2. test_skeleton_plan_uses_local_commands_only
+  3. test_all_profile_preserves_current_command_surface
+  4. test_main_dry_run_prints_plan_without_executing
+
+Exact cause:
+  - the frozen SHA's execution/_DAG/_LATEST.md names DAG-008 as the approved
+    graph authority;
+  - the four frozen tests still hard-code execution/_DAG/DAG-007/DependencyEdges.csv;
+  - the implementation correctly resolves the approved pointer to
+    execution/_DAG/DAG-008/DependencyEdges.csv;
+  - the assertions therefore fail unchanged at the exact adopted basis.
+
+Classification:
+  - exact frozen-base test drift, not caused by the DEL-08-01 tranche;
+  - tests/test_release_readiness_script.py is outside N4 WRITE_MATRIX authority;
+  - N4 made no repair and does not soften or hide the four failures;
+  - candidate section 7 still requires piping pytest, so this reproduction does
+    not turn that gate green.
+
+Required unblock:
+  - a separate owner-authorized correction of the frozen DAG-007 expectations,
+    or an explicit owner amendment to the verification acceptance rule;
+  - then rerun full piping pytest before invoking the sole acceptance-eligible
+    DEC-025 sweep.
+
+Sweep disposition:
+  - not run;
+  - count remains exactly 0.

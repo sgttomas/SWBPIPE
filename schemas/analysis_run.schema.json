@@ -222,6 +222,7 @@
             "load_basis",
             "result_envelope",
             "result_value",
+            "input_manifest",
             "audit_manifest",
             "external_reference",
             "TBD"
@@ -297,6 +298,27 @@
       "type": "string",
       "minLength": 1,
       "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "DimensionId": {
+      "type": "string",
+      "description": "Explicit source dimension declared by the result producer. Consumers must not infer this value from unit text.",
+      "enum": [
+        "dimensionless",
+        "length",
+        "angle",
+        "force",
+        "moment",
+        "stress",
+        "area",
+        "section_modulus",
+        "second_moment_area",
+        "ratio",
+        "time",
+        "temperature",
+        "pressure",
+        "linear_stiffness",
+        "rotational_stiffness"
+      ]
     },
     "ImmutabilityPolicy": {
       "type": "object",
@@ -527,6 +549,7 @@
             "LoadCombination",
             "Result",
             "ResultEnvelope",
+            "InputManifest",
             "RulePack",
             "Library",
             "AuditManifest",
@@ -549,6 +572,7 @@
       "additionalProperties": false,
       "required": [
         "input_manifest_refs",
+        "input_manifest_hashes",
         "environment_refs",
         "determinism_notes",
         "unresolved_tbd"
@@ -557,7 +581,61 @@
         "input_manifest_refs": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Reference"
+            "allOf": [
+              {
+                "$ref": "#/$defs/Reference"
+              },
+              {
+                "properties": {
+                  "object_type": {
+                    "const": "InputManifest"
+                  },
+                  "ref": {
+                    "pattern": "^input-manifest:[A-Za-z0-9._-]+:[0-9a-f]{64}$"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "input_manifest_hashes": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/Checksum"
+              },
+              {
+                "properties": {
+                  "algorithm": {
+                    "const": "sha256"
+                  },
+                  "payload_ref": {
+                    "allOf": [
+                      {
+                        "$ref": "#/$defs/Reference"
+                      },
+                      {
+                        "properties": {
+                          "object_type": {
+                            "const": "InputManifest"
+                          },
+                          "ref": {
+                            "pattern": "^input-manifest:[A-Za-z0-9._-]+:[0-9a-f]{64}$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "payload_scope": {
+                    "const": "input_manifest"
+                  },
+                  "value": {
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              }
+            ]
           }
         },
         "environment_refs": {
@@ -586,6 +664,7 @@
       "required": [
         "result_ref",
         "result_family",
+        "source_dimension",
         "hash_refs",
         "privacy_classification",
         "provenance"
@@ -608,6 +687,9 @@
             "diagnostic",
             "TBD"
           ]
+        },
+        "source_dimension": {
+          "$ref": "#/$defs/DimensionId"
         },
         "hash_refs": {
           "type": "array",

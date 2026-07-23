@@ -50,6 +50,8 @@ import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
 import { ReportPanel } from "./features/report/ReportPanel";
 import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
+import { buildReportPackageRequest } from "./features/report/reportPackageRequest";
+import { controlReportPackageRequest } from "./features/report/reportRedactionProjector";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { resolveDiagnosticEntitySelection, resolveEntitySelection } from "./features/results/resultInterpretation";
@@ -99,7 +101,16 @@ import {
   saveLocalProject
 } from "./services/projectService";
 import { computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
-import { isTauriRuntime, listenToNativeMenu } from "./services/nativeMenu";
+import { isTauriRuntime } from "./services/nativeMenu";
+import {
+  saveReportPackage,
+  type ReportPackageSaveRoute
+} from "./services/reportPackageSaveService";
+import {
+  buildCurrentSessionInputManifest,
+  type CurrentSessionInputManifestEvidence
+} from "./services/inputManifestService";
+import type { ControlledRouteExport } from "./features/redaction-controls/redactionExportControls";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -166,6 +177,7 @@ type MenuCommandId =
   | "file.open-local"
   | "file.list-local"
   | "file.save-local"
+  | "file.save-report-package"
   | "edit.undo"
   | "edit.redo"
   | "view.tree"
@@ -242,6 +254,47 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
   }
 ];
 
+const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
+  "file.new-local",
+  "file.new-blank",
+  "file.open-local",
+  "file.list-local",
+  "file.save-local",
+  "file.save-report-package",
+  "edit.undo",
+  "edit.redo",
+  "view.tree",
+  "view.inspector",
+  "view.issues",
+  "view.audit",
+  "view.close-panels",
+  ...WORKSPACE_SECTIONS.map((section) => `view.section.${section.id}`),
+  "insert.node",
+  "insert.pipe",
+  "insert.support",
+  "insert.component",
+  "insert.load",
+  "analyze.run",
+  "analyze.cancel",
+  "analyze.rule-checks"
+]);
+
+function isMenuCommandId(value: string): value is MenuCommandId {
+  return NATIVE_MENU_COMMAND_IDS.has(value);
+}
+
+function formatPackageSaveError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object") {
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return "REPORT-PACKAGE-SAVE-FAILED: native error was not serializable";
+    }
+  }
+  return String(error);
+}
+
 type R3JourneyEvent =
   | "library_template_loaded"
   | "library_validate_requested"
@@ -273,6 +326,8 @@ export function App() {
   const [selection, setSelection] = useState<EntityRef | null>(null);
   const [result, setResult] = useState<MechanicsResult | null>(null);
   const [analysisRun, setAnalysisRun] = useState<AnalysisRunEnvelope | null>(null);
+  const [inputManifest, setInputManifest] =
+    useState<CurrentSessionInputManifestEvidence | null>(null);
   // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
   const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
@@ -295,6 +350,10 @@ export function App() {
   const [running, setRunning] = useState(false);
   const [solverMode, setSolverMode] = useState<PreviewSolverMode>("sparse_interactive");
   const [projectBusy, setProjectBusy] = useState(false);
+  const [reportPackagePrivateIntent, setReportPackagePrivateIntent] = useState(false);
+  const [reportPackageBusy, setReportPackageBusy] = useState(false);
+  const [reportPackageRedaction, setReportPackageRedaction] = useState<ControlledRouteExport | null>(null);
+  const [reportPackageRoute, setReportPackageRoute] = useState<ReportPackageSaveRoute | null>(null);
   const [operationOutcomes, setOperationOutcomes] = useState<Record<string, OperationOutcome>>({});
   const [appliedOperations, setAppliedOperations] = useState<AppliedOperationReceipt[]>([]);
   const [undoStack, setUndoStack] = useState<SessionModelCheckpoint[]>([]);
@@ -372,9 +431,15 @@ export function App() {
   async function handleRun() {
     setRunning(true);
     setAnalysisRun(null);
+    setInputManifest(null);
     // A fresh solve invalidates any prior rule-check run against the old result.
     setRuleCheckAggregate(null);
     try {
+      if (!model) {
+        throw new Error(
+          "INPUT-MANIFEST-MODEL-INCOMPLETE: a current session model is required before solve."
+        );
+      }
       const startReceipt = await startPreviewMechanicsJob(model, solverMode);
       setSolveJob(startSolveJob(model, startReceipt));
       let output: MechanicsResult;
@@ -393,11 +458,30 @@ export function App() {
       } else {
         output = await runPreviewMechanics(model, solverMode);
       }
-      const runRecord = await buildAnalysisRunPreview(output);
+      const manifest = await buildCurrentSessionInputManifest({
+        model,
+        solver: {
+          solver_name: "open_pipe_stress_product_physics",
+          solver_version: "0.1.0",
+          solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
+          solver_mode: solverMode,
+          settings: {
+            nonlinear_iteration_policy:
+              "DEC-046-CV-B-product-preview-active-set-count-v1",
+            sparse_evidence_lane: solverMode === "sparse_interactive"
+          }
+        },
+        active_rule_packs: [],
+        external_assets: []
+      });
+      const runRecord = await buildAnalysisRunPreview(output, {
+        inputManifest: manifest
+      });
       setSolveJob((current) => completeSolveJob(current, output, runRecord));
       setResult(output);
       setSelectedReviewTarget(null);
       setProposal(null);
+      setInputManifest(manifest);
       setAnalysisRun(runRecord);
     } catch (error) {
       setSolveJob((current) => failSolveJob(current, error));
@@ -415,9 +499,14 @@ export function App() {
   async function handleRuleCheckAggregate(aggregate: RuleCheckStatus | null) {
     if (aggregate === ruleCheckAggregate) return;
     setRuleCheckAggregate(aggregate);
-    if (!result) return;
+    if (!result || !inputManifest) return;
     try {
-      setAnalysisRun(await buildAnalysisRunPreview(result, aggregate));
+      setAnalysisRun(
+        await buildAnalysisRunPreview(result, {
+          inputManifest,
+          ruleCheckAggregate: aggregate
+        })
+      );
     } catch {
       // Recording the aggregate failed (e.g. hashing unavailable); keep the
       // solve-time analysis-run envelope rather than surfacing a false outcome.
@@ -536,6 +625,7 @@ export function App() {
       // keeping it visible would overstate what was computed.
       setResult(null);
       setAnalysisRun(null);
+      setInputManifest(null);
       setRuleCheckAggregate(null);
       setProposal(null);
       setSelectedReviewTarget(null);
@@ -607,6 +697,7 @@ export function App() {
   function clearComputedModelState(nextSolveJob: SolveJobAuditState) {
     setResult(null);
     setAnalysisRun(null);
+    setInputManifest(null);
     setRuleCheckAggregate(null);
     setProposal(null);
     setSelectedReviewTarget(null);
@@ -685,6 +776,7 @@ export function App() {
       setOperationMessage(null);
       setResult(null);
       setAnalysisRun(null);
+      setInputManifest(null);
       setRuleCheckAggregate(null);
       setProposal(null);
       setEditorIntents(created.editor_intents ?? []);
@@ -727,6 +819,10 @@ export function App() {
       setAppliedOperations([]);
       setResult(restoredResult);
       setAnalysisRun(restoredAnalysisRun);
+      // Persisted analysis-run refs do not include the exact current-session
+      // manifest payload needed to recompute its hash. A new solve is required
+      // before report-package save can become ready.
+      setInputManifest(null);
       setRuleCheckAggregate(null);
       setProposal(opened.proposal ?? null);
       setEditorIntents(opened.editor_intents ?? []);
@@ -864,6 +960,41 @@ export function App() {
     }
   }
 
+  async function handleSaveReportPackage() {
+    if (!model || !result || !analysisRun || !inputManifest || running || reportPackageBusy) return;
+    setReportPackageBusy(true);
+    setReportPackageRoute(null);
+    try {
+      const request = await buildReportPackageRequest({
+        model,
+        result,
+        analysisRun,
+        inputManifest,
+        projectSummary,
+        comparison,
+        ruleCheckAggregate
+      });
+      const controlled = controlReportPackageRequest(request, reportPackagePrivateIntent);
+      setReportPackageRedaction(controlled);
+      if (controlled.blocked || controlled.payload === null) {
+        setReportPackageRoute({
+          route: "redaction_blocked",
+          diagnostic: `REPORT-PACKAGE-REDACTION-BLOCKED: ${controlled.findings.length} finding(s) prevent package assembly or persistence.`
+        });
+        return;
+      }
+      setReportPackageRoute(await saveReportPackage(controlled));
+    } catch (error) {
+      setReportPackageRedaction(null);
+      setReportPackageRoute({
+        route: "redaction_blocked",
+        diagnostic: formatPackageSaveError(error)
+      });
+    } finally {
+      setReportPackageBusy(false);
+    }
+  }
+
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
   // sections and toggle the tree/inspector rails; the spatial core (tree |
@@ -886,6 +1017,9 @@ export function App() {
         break;
       case "file.save-local":
         void handleSaveProject();
+        break;
+      case "file.save-report-package":
+        void handleSaveReportPackage();
         break;
       case "edit.undo":
         handleUndoSessionModelEdit();
@@ -944,22 +1078,26 @@ export function App() {
   }
 
   // Latest-closure ref so native menu events (registered once) always dispatch
-  // against current state rather than the first render.
+  // against current state rather than the first render. The Rust menu handler
+  // injects this DOM event directly into the main webview; this avoids relying
+  // on a frontend Tauri event subscription that is not available in the
+  // packaged capability set.
   const runMenuCommandRef = useRef(runMenuCommand);
   runMenuCommandRef.current = runMenuCommand;
   useEffect(() => {
-    let unlisten = () => {};
-    let cancelled = false;
-    listenToNativeMenu((command) => runMenuCommandRef.current(command as MenuCommandId)).then((dispose) => {
-      if (cancelled) {
-        dispose();
+    const handleNativeMenuCommand = (event: Event) => {
+      if (
+        !(event instanceof CustomEvent) ||
+        typeof event.detail !== "string" ||
+        !isMenuCommandId(event.detail)
+      ) {
         return;
       }
-      unlisten = dispose;
-    });
+      runMenuCommandRef.current(event.detail);
+    };
+    window.addEventListener("openpipestress-native-menu-command", handleNativeMenuCommand);
     return () => {
-      cancelled = true;
-      unlisten();
+      window.removeEventListener("openpipestress-native-menu-command", handleNativeMenuCommand);
     };
   }, []);
 
@@ -1039,6 +1177,7 @@ export function App() {
           issuesOpen={issuesDrawerOpen}
           openMenu={openMenu}
           projectBusy={projectBusy}
+          reportPackageReady={Boolean(result && analysisRun && inputManifest) && !running && !reportPackageBusy}
           running={running}
           treeCollapsed={treeCollapsed}
           armedCreationTool={armedCreationTool}
@@ -1301,6 +1440,12 @@ export function App() {
                 result={result}
                 analysisRun={analysisRun}
                 projectSummary={projectSummary}
+                packagePrivateIntent={reportPackagePrivateIntent}
+                packageBusy={reportPackageBusy}
+                packageRedaction={reportPackageRedaction}
+                packageRoute={reportPackageRoute}
+                onPackagePrivateIntentChange={setReportPackagePrivateIntent}
+                onSaveReportPackage={() => void handleSaveReportPackage()}
               />
               <ReportPanel
                 model={model}
@@ -1477,6 +1622,7 @@ function MenuBar({
   issuesOpen,
   openMenu,
   projectBusy,
+  reportPackageReady,
   running,
   treeCollapsed,
   armedCreationTool,
@@ -1491,6 +1637,7 @@ function MenuBar({
   issuesOpen: boolean;
   openMenu: MenuId | null;
   projectBusy: boolean;
+  reportPackageReady: boolean;
   running: boolean;
   treeCollapsed: boolean;
   armedCreationTool: CreationTool | null;
@@ -1508,7 +1655,8 @@ function MenuBar({
         { kind: "command", id: "file.open-local", label: "Open Local Project…", disabled: projectBusy },
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },
-        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy }
+        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy },
+        { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }
       ]
     },
     {

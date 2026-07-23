@@ -73,11 +73,10 @@ export function buildUnitDisplaySummary(model: PreviewModel, result: MechanicsRe
 function sessionProvenance(model: PreviewModel) {
   return {
     source_name: `OpenPipeStress desktop session (${model.project.name})`,
-    source_location: "local desktop session (invented preview / user-local data)",
-    source_license: "project_fixture",
-    contributor: "OpenPipeStress",
-    contributor_certification:
-      "Invented preview or user-local non-engineering data only; no protected standards content.",
+    source_location: "local desktop session",
+    source_license: "user_supplied_or_private",
+    contributor: "user_local_session",
+    contributor_certification: "not_asserted",
     redistribution_status: "private_only",
     review_status: "pending",
     privacy_classification: "private_project_data"
@@ -225,19 +224,36 @@ function springHangerProvenanceRecord(
   };
 }
 
+function springHangerReportQuantity(support: PreviewModel["supports"][number]) {
+  const force =
+    support.hanger?.constant_load ??
+    support.hanger?.hot_load ??
+    support.hanger?.cold_load ??
+    support.hanger?.installed_load ??
+    null;
+  if (!force) return null;
+  return {
+    magnitude: force.value,
+    unit: force.unit,
+    dimension: "force" as const
+  };
+}
+
 function springHangerValues(model: PreviewModel, provenance: ReturnType<typeof sessionProvenance>) {
   return springHangerSupports(model).map((support) => {
     const record = springHangerProvenanceRecord(support, provenance);
+    const quantity = springHangerReportQuantity(support);
     return {
       value_id: `spring-hanger:${support.id}`,
       value_category: `spring_hanger:${support.hanger?.hanger_type || support.family || "TBD"}`,
       source: { ref_type: "support", ref_id: support.id },
-      quantity: support.hanger?.stiffness?.value ?? support.stiffness?.value ?? support.hanger?.constant_load ?? null,
+      quantity,
       provenance: record,
       privacy_classification: record.privacy_classification,
-      required_for: ["reporting", "human_review", "support_boundary_review"],
+      required_for: ["reporting", "human_review"],
       review_status: record.review_status,
-      missing_data_finding: !support.provenance?.trim() || !support.hanger?.source_reference?.trim()
+      missing_data_finding:
+        !support.provenance?.trim() || !support.hanger?.source_reference?.trim() || quantity === null
     };
   });
 }
@@ -359,7 +375,7 @@ export async function buildRenderableReportInput({
     ref,
     schema_ref: { ref_type: "schema", ref_id: schemaId },
     checksum: checksum(ref, checksumValue),
-    privacy_classification: "invented_public_example",
+    privacy_classification: "private_project_data",
     provenance
   });
 
@@ -431,7 +447,7 @@ export async function buildRenderableReportInput({
     analysis_status: analysisStatus,
     professional_boundary: PROFESSIONAL_BOUNDARY,
     provenance,
-    privacy_classification: "invented_public_example",
+    privacy_classification: "private_project_data",
     unresolved_runtime_tbds: run.reproducibility.unresolved_tbd.map((description, index) => ({
       tbd_id: `tbd:${result.run_id}:${index + 1}`,
       topic: "analysis run reproducibility",

@@ -1,0 +1,57 @@
+CHECK: R16 candidate v8 implementation and pre-native gates
+STATUS: PASS
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+IMPLEMENTATION_OWNER: N4 (sole serialized)
+
+Authorized finding closure
+--------------------------
+- Exact InputManifest identity: the ref is derived as
+  `input-manifest:{sanitized-solved-model-ref}:{canonical-manifest-sha256}` and
+  must equal that value in full. Wrong-prefix and wrong-model-token refs carrying
+  a valid digest block at manifest, analysis-run, preview, and report-request
+  boundaries.
+- Result-family derivation: unit-text inference is removed from the
+  TypeScript/Python analysis-run and report-package paths. Exact result kind and
+  its DEL-14-02 source dimension govern; deceptive unit text does not reclassify
+  a result and source-dimension mismatches block.
+- Atomic save: same-parent temp names use 16 OS-random bytes from direct
+  `getrandom = "0.3"`, encoded as 32 lowercase hex characters, with
+  `create_new`. Deterministic injected write, flush, temp-sync, and rename
+  failures preserve the prior destination bytes and inode, clean the temp, and
+  retain primary diagnostics when cleanup also reports failure.
+- Cargo.lock already contained `getrandom 0.3.4` transitively. The causal v8
+  resolver delta is only the new direct `openpipestress-desktop` root dependency
+  entry.
+
+Focused gates
+-------------
+- InputManifest/preview/report-package Vitest: PASS, 26/26.
+- Analysis-run records/schema pytest: PASS, 14/14.
+- Atomic-save Rust tests: PASS, 12/12.
+- Rust report package/PDF/renderer/result exporter/desktop bridge/atomic union:
+  PASS, 56/56.
+- `cargo fmt --check`: PASS after repository-native formatting.
+- Analysis-run schema JSON parse: PASS.
+
+Broad gates
+-----------
+- Desktop production build/typecheck: PASS.
+- Full desktop Vitest: PASS, 29 files / 516 tests.
+- Full piping pytest: PASS, 539/539.
+- Full practitioner-harness pytest: PASS, 311/311.
+- Practitioner-harness repository self-check: PASS (standing informational,
+  warning, and review findings only).
+- Source H4 report workflow: PASS, 2/2 (desktop and compact).
+- Complete production-dist H4: PASS, 2/2 (report-package route and WASM
+  new-blank route).
+- Extra full desktop Rust: 77/78. The sole failure is the reproduced frozen-base
+  rule-pack notice assertion
+  `validate_rule_pack_command_reports_example_pack_clean_and_draft_findings`,
+  already preserved in `CHECK_clean_base_rule_notice.txt`; no rule-pack surface
+  is in the v8 write set.
+
+Sweep state
+-----------
+The v6 and v7 sweep artifacts remain immutable superseded evidence. No v8
+replacement sweep was invoked during implementation or these gates.

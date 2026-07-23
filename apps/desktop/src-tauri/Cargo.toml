@@ -17,10 +17,15 @@ open_pipe_stress_product_physics = { path = "../../../core/product_physics" }
 open_pipe_stress_operation_applier = { path = "../../../core/model_operations/operation_applier" }
 open_pipe_stress_library_import_document = { path = "../../../core/library_import/library_import_document" }
 open_pipe_stress_report_renderer = { path = "../../../core/reporting/report_renderer" }
+open_pipe_stress_report_package = { path = "../../../core/reporting/report_package" }
+open_pipe_stress_audit_manifest = { path = "../../../core/reporting/audit_manifest" }
+open_pipe_stress_result_export = { path = "../../../core/reporting/result_export" }
 open_pipe_stress_rule_pack_document = { path = "../../../core/rules/rule_pack_document" }
 open_pipe_stress_rule_check_runner = { path = "../../../core/rules/rule_check_runner" }
 open_pipe_stress_units = { path = "../../../core/units" }
 rusqlite = { version = "0.32", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+getrandom = "0.3"
 tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"

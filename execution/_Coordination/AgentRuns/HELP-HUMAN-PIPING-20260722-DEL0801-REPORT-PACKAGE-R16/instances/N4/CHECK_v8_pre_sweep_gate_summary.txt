@@ -1,0 +1,67 @@
+CHECK: R16 candidate v8 terminal pre-sweep fan-in
+STATUS: PASS_AWAITING_MANAGER_SWEEP_RELEASE
+DATE: 2026-07-22
+FROZEN_SHA: 8698b0338ac82556fee583dd3f85bb62d0b74f85
+
+Implementation
+--------------
+- Exact solved-model-bound InputManifest full equality: implemented.
+- Exact kind/source-dimension result-family derivation with no unit-text
+  inference: implemented.
+- Direct OS-random same-parent temp naming plus deterministic injected atomic
+  failure coverage: implemented.
+- The direct `getrandom 0.3.4` desktop root entry is the only v8-causal
+  Cargo.lock change; the package was already present transitively.
+
+Verification
+------------
+- Focused desktop InputManifest/run/report tests: PASS, 26/26.
+- Focused Python analysis-run/schema tests: PASS, 14/14.
+- Focused Rust report-package/PDF/renderer/result-export/bridge/atomic union:
+  PASS, 56/56.
+- Desktop production build/typecheck: PASS.
+- Full desktop Vitest: PASS, 29 files / 516 tests.
+- Full piping pytest: PASS, 539/539.
+- Full practitioner-harness pytest: PASS, 311/311.
+- Practitioner-harness self-check: PASS.
+- Source H4: PASS, 2/2.
+- Complete production-dist H4: PASS, 2/2.
+- Extra full desktop Rust: 77/78; the sole rule-pack notice assertion is the
+  reproduced frozen-base residual preserved in
+  `CHECK_clean_base_rule_notice.txt`. All v8-touched native tests are green.
+
+Fresh packaged-native proof
+---------------------------
+- Packaged executable SHA-256:
+  `cd09000a9655bc706675d623d6436a1611f2ce7aad4f58116023414b9ae228d1`.
+- Default-off private intent, cancel, new save, and real macOS same-path
+  replacement: PASS.
+- New and replacement receipts: 3518303 bytes, durable, container SHA-256
+  `e0145a9fb7d377034c7876a92336581ecdeb5d737fe223c5b39d560adfc42cc7`,
+  package identity
+  `fb81914e2d9654876eb9421634f1d4ab1e7a14f2fa056b52fe6eb330d19b125a`.
+- Replacement inode: 160685423 -> 160685542.
+- ZIP integrity, manifest member hashes/lengths, exact InputManifest identity,
+  explicit result family/dimension semantics, and no-temp cleanup: PASS.
+
+Static and record validation
+----------------------------
+- Claims-language validation: PASS, 268 files.
+- Path-anchor validation: PASS, 951 live surfaces, zero findings.
+- Piping loop-receipt validation: PASS, frozen through Receipt-44.
+- R16 JSON parse: PASS, 3 files; JSONL: zero applicable files.
+- N4 UTF-8 / CR / trailing-whitespace evidence check: PASS, 18 files including
+  this summary.
+- Accepted WRITE_MATRIX containment: PASS, 89 dirty paths and zero violations.
+- `git diff --check` and `git diff --cached --check`: PASS.
+- Staged path count: 0.
+
+Sweep state
+-----------
+V6 and v7 sweep artifacts remain immutable superseded evidence. N4 has not
+invoked the single v8 replacement DEC-025 sweep. The manager must validate this
+terminal fan-in and containment before releasing that invocation. After the
+v8 sweep, N4 will make no filesystem edit and will report the artifact/status
+by live message only.
+
+N4 does not claim COMMIT-SAFE. Fresh N5 verification remains a separate gate.

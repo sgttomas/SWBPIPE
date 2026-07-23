@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
+  CanonicalResultDimension,
   DesignKnowledge,
   MechanicsResult,
   ObjectRef,
@@ -9,6 +10,10 @@ import type {
   PreviewComparison,
   SelectedReviewTarget,
 } from "../types";
+import {
+  verifyCurrentSessionInputManifest,
+  type CurrentSessionInputManifestEvidence,
+} from "./inputManifestService";
 
 async function invokeOrFixture<T>(
   command: string,
@@ -37,11 +42,12 @@ export async function runPreviewMechanics(
   model?: PreviewModel | null,
   solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<MechanicsResult> {
-  return invokeOrFixture(
+  const result = await invokeOrFixture(
     "run_preview_mechanics_with_solver_mode",
     () => runBrowserPreviewMechanics(model),
     model ? { model, solverMode } : { solverMode },
   );
+  return bindSourceResultDimensions(result);
 }
 
 export type PreviewSolverMode = "sparse_interactive" | "dense_scrutiny";
@@ -147,8 +153,21 @@ export function appliedRuleCheckStatus(
 // reproduces the prior behavior byte-for-byte.
 export async function buildAnalysisRunPreview(
   result: MechanicsResult,
-  ruleCheckAggregate?: string | null,
+  {
+    inputManifest,
+    ruleCheckAggregate,
+  }: {
+    inputManifest: CurrentSessionInputManifestEvidence;
+    ruleCheckAggregate?: string | null;
+  },
 ): Promise<AnalysisRunEnvelope> {
+  result = bindSourceResultDimensions(result);
+  await verifyCurrentSessionInputManifest(inputManifest);
+  if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) {
+    throw new Error(
+      "ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH: manifest model ref must match the solved result.",
+    );
+  }
   const runRef = ref("AnalysisRun", result.run_id);
   const effectiveRuleCheck = appliedRuleCheckStatus(
     result.status.rule_check,
@@ -161,13 +180,24 @@ export async function buildAnalysisRunPreview(
     "ResultEnvelope",
     `result-envelope:${result.run_id}`,
   );
+  const resultEnvelopeHash = await sha256(canonicalJson(result));
+  if (inputManifest.manifest_sha256 === resultEnvelopeHash) {
+    throw new Error(
+      "ANALYSIS-RUN-INPUT-MANIFEST-RESULT-SUBSTITUTION: input manifest identity must be distinct from result-envelope evidence.",
+    );
+  }
   const resultRefs = await Promise.all(
     result.results
       .slice()
       .sort((left, right) => left.id.localeCompare(right.id))
       .map(async (item) => ({
         result_ref: ref("Result", item.id),
-        result_family: resultFamily(item),
+        result_family: resultFamily(
+          item,
+          item.dimension ?? declaredSourceResultDimension(item),
+        ),
+        source_dimension:
+          item.dimension ?? declaredSourceResultDimension(item),
         hash_refs: [
           {
             algorithm: "sha256" as const,
@@ -227,6 +257,17 @@ export async function buildAnalysisRunPreview(
               load_basis_refs: loadBasisRefs,
               result_ids: resultIds,
               diagnostic_ids: diagnosticIds,
+              input_manifest_ref: inputManifest.manifest_ref,
+              input_manifest_sha256: inputManifest.manifest_sha256,
+              result_dimensions: result.results
+                .map((item) => ({
+                  result_id: item.id,
+                  dimension:
+                    item.dimension ?? declaredSourceResultDimension(item),
+                }))
+                .sort((left, right) =>
+                  left.result_id.localeCompare(right.result_id),
+                ),
             }),
           ),
         },
@@ -235,15 +276,24 @@ export async function buildAnalysisRunPreview(
           canonicalization: "rfc8785_jcs",
           payload_ref: resultEnvelopeRef,
           payload_scope: "result_envelope",
-          value: await sha256(canonicalJson(result)),
+          value: resultEnvelopeHash,
         },
       ],
       analysis_status: Array.from(status).sort(),
       reproducibility: {
-        input_manifest_refs: [resultEnvelopeRef],
+        input_manifest_refs: [inputManifest.manifest_ref],
+        input_manifest_hashes: [
+          {
+            algorithm: "sha256",
+            canonicalization: "rfc8785_jcs",
+            payload_ref: inputManifest.manifest_ref,
+            payload_scope: "input_manifest",
+            value: inputManifest.manifest_sha256,
+          },
+        ],
         determinism_notes: [
-          "analysis run record was generated from an already computed invented preview mechanics result",
-          "canonical hashes use stable JSON key ordering",
+          "analysis run binds the exact current-session input-manifest ref and SHA-256",
+          "source result dimensions are explicit declarations, not inferred from unit text",
         ],
         unresolved_tbd: [
           "physical project container",
@@ -266,6 +316,110 @@ export async function buildAnalysisRunPreview(
       },
     },
   };
+}
+
+function bindSourceResultDimensions(
+  result: MechanicsResult,
+): MechanicsResult {
+  return {
+    ...result,
+    results: result.results.map((item) => {
+      const declared = declaredSourceResultDimension(item);
+      if (item.dimension && item.dimension !== declared) {
+        throw new Error(
+          `ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: ${item.id} declares ${item.dimension}; exact kind semantics require ${declared}.`,
+        );
+      }
+      return {
+        ...item,
+        dimension: declared,
+      };
+    }),
+  };
+}
+
+export function declaredSourceResultDimension(
+  item: Omit<MechanicsResult["results"][number], "dimension"> &
+    Partial<Pick<MechanicsResult["results"][number], "dimension">>,
+): CanonicalResultDimension {
+  const kind = item.kind;
+  const component = item.metadata?.component;
+  if (kind === "component_user_stiffness_macro_element_review") {
+    if (
+      component === "axial_user_stiffness" ||
+      component === "lateral_user_stiffness"
+    ) {
+      return "linear_stiffness";
+    }
+    if (
+      component === "angular_user_stiffness" ||
+      component === "torsional_user_stiffness"
+    ) {
+      return "rotational_stiffness";
+    }
+  }
+  if (kind === "constant_effort_user_input_review") {
+    if (component === "constant_effort_support_constant_load") return "force";
+    if (component === "constant_effort_support_travel_range") return "length";
+  }
+  if (kind === "spring_hanger_user_input_review") {
+    if (component === "variable_spring_hanger_stiffness")
+      return "linear_stiffness";
+    if (
+      component === "variable_spring_hanger_installed_load" ||
+      component === "variable_spring_hanger_cold_load" ||
+      component === "variable_spring_hanger_hot_load"
+    ) {
+      return "force";
+    }
+    if (component === "variable_spring_hanger_travel_range") return "length";
+  }
+  const declarations: Record<string, CanonicalResultDimension> = {
+    component_user_stress_multiplier_review: "stress",
+    displacement_magnitude: "length",
+    element_local_axial_force: "force",
+    element_local_axial_normal_stress: "stress",
+    element_local_bending_moment_y: "moment",
+    element_local_bending_moment_z: "moment",
+    element_local_bending_normal_stress_y: "stress",
+    element_local_bending_normal_stress_z: "stress",
+    element_local_shear_force_y: "force",
+    element_local_shear_force_z: "force",
+    element_local_torsional_moment: "moment",
+    element_local_torsional_shear_stress: "stress",
+    expansion_joint_pressure_thrust_load_review: "force",
+    global_nodal_displacement_x: "length",
+    global_nodal_displacement_y: "length",
+    global_nodal_displacement_z: "length",
+    global_nodal_rotation_x: "angle",
+    global_nodal_rotation_y: "angle",
+    global_nodal_rotation_z: "angle",
+    linear_solver_mode_basis: "dimensionless",
+    nonlinear_support_active_set_converged_flag: "dimensionless",
+    nonlinear_support_active_set_final_residual_count: "dimensionless",
+    nonlinear_support_active_set_iteration_count: "dimensionless",
+    nonlinear_support_active_set_state_code: "dimensionless",
+    nonlinear_support_final_displacement: "length",
+    nonlinear_support_final_reaction: "force",
+    nonlinear_support_free_dof_work_residual: "moment",
+    nonlinear_support_friction_normal_reaction_derived: "force",
+    nonlinear_support_observed_free_dof_force_residual: "force",
+    nonlinear_support_observed_free_dof_moment_residual: "moment",
+    nonlinear_support_observed_max_force_reaction_delta: "force",
+    nonlinear_support_observed_max_moment_reaction_delta: "moment",
+    nonlinear_support_observed_max_rotation_delta: "angle",
+    nonlinear_support_observed_max_translation_delta: "length",
+    open_formula_stress_summary: "stress",
+    pipe_section_pressure_hoop_stress: "stress",
+    reaction_resultant: "force",
+  };
+  const declared = declarations[kind];
+  if (!declared) {
+    throw new Error(
+      `ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED: ${item.id} (${item.kind}) has no source dimension declaration.`,
+    );
+  }
+  return declared;
 }
 
 export function buildPreviewComparison({
@@ -310,7 +464,11 @@ export function buildPreviewComparison({
           left_result_id: leftResult.id,
           right_result_id: rightResult.id,
           entity_ref: rightResult.entity_ref,
-          result_family: resultFamily(rightResult),
+          result_family: resultFamily(
+            rightResult,
+            rightResult.dimension ??
+              declaredSourceResultDimension(rightResult),
+          ),
           component: rightResult.metadata?.component ?? rightResult.kind,
           location: rightResult.metadata?.location ?? "summary",
           unit: rightResult.unit,
@@ -560,19 +718,44 @@ function ref(objectType: string, value: string): ObjectRef {
   return { object_type: objectType, ref: value };
 }
 
-function resultFamily(result: MechanicsResult["results"][number]): string {
-  const kind = result.kind.toLowerCase();
-  const id = result.id.toLowerCase();
-  if (kind.includes("displacement") || id.includes("disp"))
-    return "displacement";
-  if (kind.includes("reaction") || id.includes("reaction")) return "reaction";
-  if (kind.includes("force") || id.includes("force")) return "force";
-  if (kind.includes("moment") || id.includes("moment")) return "moment";
-  if (kind.includes("stress") || id.includes("stress")) return "stress";
-  if (kind.includes("nonlinear_support") || id.includes("nonlinear-support"))
-    return "nonlinear_support";
-  if (kind.includes("ratio") || id.includes("ratio")) return "ratio";
-  return "TBD";
+function resultFamily(
+  result: MechanicsResult["results"][number],
+  sourceDimension: CanonicalResultDimension,
+): string {
+  const expectedDimension = declaredSourceResultDimension(result);
+  if (sourceDimension !== expectedDimension) {
+    throw new Error(
+      `ANALYSIS-RUN-RESULT-FAMILY-DIMENSION-MISMATCH: ${result.id} declares ${sourceDimension}; exact kind semantics require ${expectedDimension}.`,
+    );
+  }
+  if (
+    sourceDimension === "force" &&
+    (
+      result.kind === "reaction_resultant" ||
+      result.kind === "nonlinear_support_final_reaction" ||
+      result.kind === "nonlinear_support_friction_normal_reaction_derived" ||
+      result.kind === "nonlinear_support_observed_max_force_reaction_delta"
+    )
+  ) {
+    return "reaction";
+  }
+  if (
+    sourceDimension === "moment" &&
+    result.kind === "nonlinear_support_observed_max_moment_reaction_delta"
+  ) {
+    return "reaction";
+  }
+  const families: Partial<Record<CanonicalResultDimension, string>> = {
+    length: "displacement",
+    angle: "rotation",
+    force: "force",
+    moment: "moment",
+    stress: "stress",
+    pressure: "stress",
+    ratio: "ratio",
+    dimensionless: "ratio",
+  };
+  return families[sourceDimension] ?? "TBD";
 }
 
 function canonicalJson(value: unknown): string {

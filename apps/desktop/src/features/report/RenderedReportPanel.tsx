@@ -13,6 +13,7 @@ import {
 import { buildRenderableReportInput, buildUnitDisplaySummary } from "./renderableReportInput";
 import { controlReportRendererInput } from "./reportRedactionProjector";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
+import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 
 // DEC-021 (A7): rendered FR-016 calculation report. The Rust renderer crate
 // composes, gates, and hashes the document; this panel only requests a
@@ -25,12 +26,24 @@ export function RenderedReportPanel({
   model,
   result,
   analysisRun,
-  projectSummary
+  projectSummary,
+  packagePrivateIntent = false,
+  packageBusy = false,
+  packageRedaction = null,
+  packageRoute = null,
+  onPackagePrivateIntentChange,
+  onSaveReportPackage
 }: {
   model: PreviewModel;
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
   projectSummary: LocalProjectSummary | null;
+  packagePrivateIntent?: boolean;
+  packageBusy?: boolean;
+  packageRedaction?: ControlledRouteExport | null;
+  packageRoute?: ReportPackageSaveRoute | null;
+  onPackagePrivateIntentChange?: (value: boolean) => void;
+  onSaveReportPackage?: () => void;
 }) {
   const [route, setRoute] = useState<RenderReportRoute | null>(null);
   const [rendering, setRendering] = useState(false);
@@ -110,6 +123,61 @@ export function RenderedReportPanel({
           </span>
         ) : null}
       </div>
+      {onSaveReportPackage ? (
+        <div className="report-actions" data-testid="report-package-controls">
+          <label>
+            <input
+              type="checkbox"
+              data-testid="report-package-private-intent"
+              checked={packagePrivateIntent}
+              disabled={packageBusy}
+              onChange={(event) => onPackagePrivateIntentChange?.(event.currentTarget.checked)}
+            />
+            Include known private values in this local package
+          </label>
+          <button
+            type="button"
+            data-testid="report-package-save"
+            disabled={!result || !analysisRun || packageBusy}
+            title={!result || !analysisRun ? "Solve first: report-package save needs the current mechanics result and analysis-run record." : undefined}
+            onClick={onSaveReportPackage}
+          >
+            {packageBusy ? "Saving report package…" : "Save Report Package…"}
+          </button>
+        </div>
+      ) : null}
+      {packageRedaction ? (
+        <p data-testid="report-package-redaction-summary">
+          route={packageRedaction.summary.route_id}; decisions={packageRedaction.summary.decision_count}; findings=
+          {packageRedaction.summary.finding_count}; blocking={packageRedaction.summary.blocking_count}; blocked=
+          {String(packageRedaction.blocked)}
+        </p>
+      ) : null}
+      {packageRoute?.route === "unavailable_browser" ? (
+        <p data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
+      ) : null}
+      {packageRoute?.route === "redaction_blocked" ? (
+        <p data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
+      ) : null}
+      {packageRoute?.route === "tauri_report_package_save" ? (
+        <div className="report-list" data-testid="report-package-save-status">
+          <span>
+            outcome={packageRoute.receipt.outcome}; code={packageRoute.receipt.code}; file=
+            {packageRoute.receipt.selected_basename || packageRoute.receipt.container_file_name}
+          </span>
+          <span>
+            bytes={packageRoute.receipt.byte_count}; container_sha256={packageRoute.receipt.container_sha256_hex}; package_identity=
+            {packageRoute.receipt.package_identity_sha256_hex}
+          </span>
+          <span>
+            replacement={String(packageRoute.receipt.replaced_existing)}; durability={packageRoute.receipt.durability}; redaction_route=
+            {packageRoute.receipt.redaction_route_id}
+          </span>
+          <span>
+            path_containment={packageRoute.receipt.path_containment}; limitation={packageRoute.receipt.limitation}
+          </span>
+        </div>
+      ) : null}
       {unitBasisText ? (
         <div className="report-list">
           <span data-testid="rendered-report-unit-basis">{unitBasisText}</span>

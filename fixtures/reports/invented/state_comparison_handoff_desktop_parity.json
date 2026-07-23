@@ -1,0 +1,82 @@
+{
+  "inputs": {
+    "analysis_run_comparisons": [],
+    "analysis_runs": [],
+    "export_workflows": [],
+    "external_prover_metadata": [],
+    "handoff_packages": [],
+    "model_state_comparisons": [],
+    "model_states": [],
+    "provenance": {
+      "contributor": "test fixture",
+      "contributor_certification": "not_asserted",
+      "privacy_classification": "invented_public_example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "pending",
+      "source_license": "invented-non-engineering",
+      "source_location": "fixtures/reports/invented/state_comparison_handoff_desktop_parity.json",
+      "source_name": "Invented desktop parity fixture"
+    },
+    "section_set_id": "desktop-parity-invented",
+    "source_notes": ["Invented parity fixture; no engineering data."]
+  },
+  "expected": {
+    "deliverable_id": "DEL-08-06",
+    "diagnostics": [],
+    "limitations": [
+      {
+        "human_review_required": true,
+        "limitation_id": "DEL-08-06-LIMIT-BACKEND-SECTIONS-ONLY",
+        "statement": "Report sections are backend records for human review; final layout, transport, solver execution, and external-tool execution are out of scope."
+      }
+    ],
+    "objectives": ["OBJ-007", "OBJ-016", "OBJ-017", "OBJ-018"],
+    "package_id": "PKG-08",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_creates_external_validation_record": false,
+      "software_creates_professional_reliance_record": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "test fixture",
+      "contributor_certification": "not_asserted",
+      "privacy_classification": "invented_public_example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "pending",
+      "source_license": "invented-non-engineering",
+      "source_location": "fixtures/reports/invented/state_comparison_handoff_desktop_parity.json",
+      "source_name": "Invented desktop parity fixture"
+    },
+    "schema_version": "0.1.0",
+    "scope_item": "SOW-024",
+    "section_contract_status": "backend_report_section_records_only",
+    "section_set_id": "desktop-parity-invented",
+    "sections": {
+      "comparison_sections": [],
+      "handoff_sections": [],
+      "state_run_sections": []
+    },
+    "source_notes": ["Invented parity fixture; no engineering data."],
+    "sow_024_coverage": {
+      "assumptions": "TBD",
+      "inputs": "TBD",
+      "limitations": "represented_by_limitations_and_unresolved_tbds",
+      "results": "TBD",
+      "rule_pack_checksums": "TBD",
+      "sources": "TBD",
+      "warnings": "TBD"
+    },
+    "unresolved_tbds": [
+      {
+        "description": "Final report styling, layout, transport, and release thresholds remain outside this deliverable.",
+        "review_needed": true,
+        "tbd_id": "DEL-08-06-TBD-FINAL-LAYOUT"
+      }
+    ]
+  }
+}

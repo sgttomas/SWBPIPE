@@ -317,6 +317,8 @@
         "time",
         "temperature",
         "pressure",
+        "linear_stiffness",
+        "rotational_stiffness",
         "TBD"
       ]
     },
