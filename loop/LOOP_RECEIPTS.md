@@ -1596,3 +1596,54 @@
     dispatch, work-selection edit, lifecycle/stage change, D-45 disposition,
     release, issuance, publication, or professional/legal acceptance effect was
     performed by this activation closeout.
+
+- **2026-07-23 — Receipt 69** (delayed closeout backfill: DEL-08-01 report-package seam R16).
+  - Receipt-ID: `Receipt-69`
+  - Examined-Through: `8698b0338ac82556fee583dd3f85bb62d0b74f85`
+  - Parent-Receipt: `Receipt-68`
+  - Pointers: R16 managed run and terminal handoff
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260722-DEL0801-REPORT-PACKAGE-R16/HANDOFF_STATE.md`;
+    `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_run_records/WORKING_ITEMS_RUN_2026-07-22_DEL0801_REPORT_PACKAGE_R16.md`;
+    admitted terminal sweep
+    `validation/evidence/sweeps/SWEEP_20260723T054036Z_8698b0338ac8-dirty.json`;
+    implementation commit `d2d8975efb7a6905bdd096e95120198e0ffc7c0c`;
+    PR #316 merge `1f2ecc1d06375c01a409041b8380e4d65b2a9f9a`.
+  - Checks: focused and full work-type gates, packaged-native proof, admitted
+    DEC-025 sweep, fresh N5-v9 verification, harness pytest, self-check,
+    claims, path, containment, JSON, receipt, and closeout diff checks pass.
+  - Model-Attribution: HELP_HUMAN, WORKING_ITEMS, SOFTWARE_DECOMP, the managed
+    R16 specialists, and CHANGE used inherited Codex runtime capability
+    without override or mid-task substitution; exact model strings were not
+    exposed. Roles and returns are recorded under the cited managed run.
+  - Gate-Outcome: `EXECUTED` — `DELAYED_CLOSEOUT_BACKFILL`: the adopted
+    DEL-08-01 report-package seam landed and its targeted Remaining row was
+    removed; DEL-08-01 remains `IN_PROGRESS`. No other deliverable-state,
+    dependency, lifecycle, stage, release, issuance, publication, or
+    professional/legal acceptance effect occurred.
+
+- **2026-07-23 — Receipt 70** (delayed closeout backfill: DEL-10-05 export-results seam R17).
+  - Receipt-ID: `Receipt-70`
+  - Examined-Through: `1f2ecc1d06375c01a409041b8380e4d65b2a9f9a`
+  - Parent-Receipt: `Receipt-69`
+  - Pointers: R17 managed run and terminal handoff
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260723-DEL1005-EXPORT-RESULTS-R17/HANDOFF_STATE.md`;
+    `execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_run_records/WORKING_ITEMS_RUN_2026-07-23_DEL1005_EXPORT_RESULTS_R17.md`;
+    preserved initial sweep
+    `validation/evidence/sweeps/SWEEP_20260723T093917Z_1f2ecc1d0637-dirty.json`;
+    admitted replacement sweep
+    `validation/evidence/sweeps/SWEEP_20260723T100430Z_1f2ecc1d0637-dirty.json`;
+    implementation commit `f82bb28e25230a2ae0d2a5ccfe7967a1e443397b`;
+    PR #319 merge `72f6cbd6822b38cdcc288d16489d54c3e4705dd8`.
+  - Checks: focused and full work-type gates, packaged-native proof, admitted
+    replacement DEC-025 sweep, fresh N5-V3 verification, harness pytest,
+    self-check, claims, path, containment, JSON/JSONL, receipt, and closeout
+    diff checks pass.
+  - Model-Attribution: HELP_HUMAN, WORKING_ITEMS, the managed R17 specialists,
+    and CHANGE used inherited Codex runtime capability without override or
+    mid-task substitution; exact model strings were not exposed. Roles and
+    returns are recorded under the cited managed run.
+  - Gate-Outcome: `EXECUTED` — `DELAYED_CLOSEOUT_BACKFILL`: the adopted
+    DEL-10-05 export-results seam landed; DEL-10-05 has an empty
+    `## Remaining` section and remains `IN_PROGRESS`. No other
+    deliverable-state, dependency, lifecycle, stage, release, issuance,
+    publication, or professional/legal acceptance effect occurred.
