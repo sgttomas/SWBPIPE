@@ -13,8 +13,9 @@ scope_item: SOW-033
 This guide is the initial user-facing structure for OpenPipeStress. It is
 grounded in the current repository surfaces: schema contracts, bounded core
 modules, invented examples, policy documents, and draft workflow contracts.
-Current guide authority is `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.7` with approved `execution/_DAG/DAG-007/` coordination authority.
+Current guide authority is the accepted decomposition surface at
+`execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved dependency
+graph selected by `execution/_DAG/_LATEST.md`.
 
 OpenPipeStress is decision-support software for open, auditable piping
 mechanics. Users supply project data, private libraries, rule packs, owner
@@ -54,22 +55,26 @@ The guide should refer to these current surfaces when explaining behavior:
 |---|---|---|
 | Model and units | `schemas/model.schema.yaml`, `schemas/units.schema.yaml`, `schemas/project_persistence.schema.yaml` | Project, model, unit, provenance, persistence, migration, and hash fields are schema-first. SCA-003 selects a local SQLite-backed project store/index; canonical JSON/JCS-compatible payload bytes remain the domain and interchange truth. |
 | Analysis status | `schemas/analysis_status.schema.yaml`, `schemas/analysis_boundary.schema.yaml`, `docs/architecture/analysis_status_semantics.md` | Mechanics, user-rule, and human-review statuses remain separate. |
-| Solver mechanics | `core/solver/frame_kernel`, `core/solver/straight_pipe`, `core/solver/linear_supports`, `core/solver/nonlinear_supports`, `core/solver/diagnostics`, `core/solver/performance_harness` | Current modules are bounded mechanics and diagnostics surfaces. Production sparse-solver choices, final tolerances, and full workflow integration remain `TBD`. |
+| Solver mechanics | `core/solver/frame_kernel`, `core/solver/straight_pipe`, `core/solver/linear_supports`, `core/solver/nonlinear_supports`, `core/solver/diagnostics`, `core/solver/sparse_direct`, `core/solver/performance_harness` | Current modules are bounded mechanics and diagnostics surfaces. The in-repository sparse skyline solver is selected and the bounded interactive preview/render path uses it by default while retaining dense scrutiny. Unmeasured tolerance entries, release-quality performance thresholds, and full workflow integration remain `TBD`. |
 | Loads and stress recovery | `core/loads/primitive_loads`, `core/loads/user_loads`, `core/loads/load_case_algebra`, `core/loads/stress_recovery` | Loads and stress recovery use explicit unit-aware inputs. Code-specific combinations and acceptability checks are user/rule-pack data. |
 | Libraries and provenance | `schemas/material.schema.yaml`, `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `core/library_import/provenance_checker.py`, `core/section_properties/calculator.py` | Materials, sections, and components carry provenance and review status. Public defaults do not include protected tables or proprietary catalog values. |
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
-| GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite desktop shell, package manifest, and bounded runtime navigation now exist alongside the contract/support surfaces. Final packaging, complete journey integration, release screenshots, and release acceptance remain `TBD`. |
-| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. Final styling/layout, preview/export runtime, and release-template integration remain `TBD`. |
+| GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite desktop shell, package manifest, and bounded runtime navigation now exist alongside the contract/support surfaces. Current packaged-journey evidence is bounded; complete journey integration, supported-release acceptance, and broader platform coverage remain `TBD`. |
+| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, desktop preview, and native report-package save path exist. Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
 | Export interoperability | `schemas/native_json_export.schema.json`, `schemas/caepipe_mbf_export.schema.json`, `schemas/caepipe_external_run.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, CAEPIPE MBF package foundations, optional user-owned CAEPIPE run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome; acceptance stays with the responsible engineer. |
 | Interop and local analysis | `schemas/adapter_framework.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/local_fea_handoff.schema.yaml`, `docs/local_analysis/local_fea_handoff_guidance.md`, `core/adapters/framework`, `core/handoff/*` | Public API transport, endpoint syntax, plugin runtime/loading/signing, concrete target field coverage, and local FEA package format remain `TBD`. Adapters cannot bypass units, provenance, privacy, protected-content screening, diagnostics, rule sandboxing, report controls, or human-review boundaries. |
 
 ## 3. Setup And Project Storage
 
-End-user installation, binary packaging, desktop shell packaging, operating
-system storage roots, and release channels remain `TBD`. Do not invent setup
-commands from this guide. Until packaging is decided, use this guide as a map
-of the documented workflow and current repository contracts.
+End-user installation steps, operating-system storage roots, and release
+publication remain `TBD`. The accepted v0.1 packaging policy is a macOS Apple
+Silicon Tauri `.app` bundle distributed as a zip archive with a published
+SHA-256 checksum; the accepted publication target is GitHub Releases on the
+prospective public sanitized-export repository. This is a packaging policy,
+not evidence that a release exists. Do not invent setup commands from this
+guide. Until a release is authorized, use this guide as a map of the documented
+workflow and current repository contracts.
 
 For project storage:
 
@@ -305,25 +310,34 @@ interpretation, rule-check readiness, privacy, or review.
 
 The following remain explicit limitations or open decisions:
 
-- end-user install/package steps and release channels;
+- end-user installation steps and execution of the accepted v0.1 macOS Apple
+  Silicon `.app`-zip and prospective GitHub Releases publication policy;
 - exact dependency versions and final GUI journey integration/packaging;
-- production sparse numerical library, tolerance policy, and release thresholds;
+- unmeasured per-kind and nonlinear-class tolerance entries, release-quality
+  performance thresholds, and sparse-default hardening beyond bounded
+  interactive preview/render evidence;
 - canonical DEC-022 typed-AST rule grammar is fixed; a writable text syntax is
   deferred by DEC-037, while final evaluator/library integration and the
   private rule-pack storage workflow remain `TBD`;
 - operating-system storage roots, product/DB migration tooling, and portable
   project export/copy workflow;
-- public API transport, endpoint syntax, adapter formats, and plugin loader;
+- public API transport, endpoint syntax, plugin loader, and concrete
+  target-field coverage for the accepted adapter/export families;
 - target field coverage, source confirmations, stable-ID carriage, and loss
   taxonomy for export packages where not already accepted;
-- final report styling/layout, report preview/export runtime, and redaction UX;
+- final report styling/layout, deterministic hash-bound PDF policy, portable
+  report-package replay, release-template integration, and redaction UX beyond
+  the bounded export surface;
 - local FEA handoff package format and external-tool execution behavior;
-- CI provider, coverage thresholds, release signing, and maintainer policy
-  details;
-- contributor legal mechanism, maintainer roster/quorum, release authority,
+- activation of the accepted public sanitized-export GitHub Actions path,
+  numeric coverage floors, future signing/notarization after the accepted
+  unsigned v0.1 posture, and remaining maintainer policy details;
+- a contributor legal instrument if external intake is later activated,
   legal-review authority, security contact, release-label vocabulary,
   human-acceptance workflow, and jurisdiction-specific professional-practice
-  wording.
+  wording; external contribution intake remains closed and maintainer quorum
+  and release authority are currently held by the sole human project
+  authority.
 
 Unknowns must remain `TBD` until resolved by the appropriate accepted
 deliverable or human governance record.

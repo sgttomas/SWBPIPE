@@ -1,0 +1,10 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "instance_id": "D06B-TERMINAL-HANDOFF-VERIFIER",
+  "role": "EPHEMERAL_GENERALIST",
+  "parent": "HELPS-HUMANS-R19-INTEGRATION",
+  "status": "COMPLETED_PASS_COMMIT_SAFE",
+  "write_scope": [],
+  "terminal_return_received": true,
+  "terminal_verdict": "PASS_COMMIT_SAFE"
+}

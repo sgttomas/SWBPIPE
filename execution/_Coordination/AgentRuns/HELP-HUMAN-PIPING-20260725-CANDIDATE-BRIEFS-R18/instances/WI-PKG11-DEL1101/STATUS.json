@@ -1,0 +1,39 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "instance_id": "WI-PKG11-DEL1101",
+  "role": "WORKING_ITEMS",
+  "parent": "HELP_HUMAN",
+  "status": "COMPLETED",
+  "plan_version": 2,
+  "node_id": "M1",
+  "package_id": "PKG-11",
+  "deliverable_id": "DEL-11-01",
+  "owner_selection": "R18_S1",
+  "candidate_path": "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-25_DEL-11-01_USER_GUIDE_CURRENTNESS.md",
+  "candidate_status": "PREPARED_VERIFIED_NOT_ADOPTED",
+  "verifier_identity": "/root/working_items_pkg11_microverify/del11_01_s1_final_verifier",
+  "verifier_status": "COMPLETED",
+  "verifier_verdict": "PASS",
+  "verifier_terminal_return": true,
+  "verifier_attempts": [
+    {
+      "mechanism": "followup_task",
+      "target": "/root/working_items_pkg11_microverify/del11_01_currentness_verify",
+      "result": "agent thread limit reached"
+    },
+    {
+      "mechanism": "spawn_agent",
+      "target": "/root/working_items_pkg11_microverify/del11_01_finalbyte_verifier",
+      "result": "agent thread limit reached",
+      "child_created": false
+    },
+    {
+      "mechanism": "spawn_agent",
+      "target": "/root/working_items_pkg11_microverify/del11_01_s1_final_verifier",
+      "result": "PASS",
+      "child_created": true,
+      "terminal_return_accepted": true
+    }
+  ],
+  "fan_in_status": "READY_FOR_I1"
+}

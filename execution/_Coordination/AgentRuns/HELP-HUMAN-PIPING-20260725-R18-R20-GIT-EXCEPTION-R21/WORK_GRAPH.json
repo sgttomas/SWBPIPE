@@ -1,0 +1,14 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-R18-R20-GIT-EXCEPTION-R21",
+  "version": 1,
+  "selection_authority": "HUMAN",
+  "frozen_sha": "2f8d35ceb30da734ca6dff24dcab36dded8c9b35",
+  "integration_owner": "HELPS-HUMANS-R21-INTEGRATION",
+  "nodes": [
+    {"id":"P0","kind":"owner_index_and_exception_binding","owner":"HELPS-HUMANS-R21-INTEGRATION","status":"COMPLETED","depends_on":[]},
+    {"id":"P1","kind":"ruling_register_dec_and_records","owner":"HELPS-HUMANS-R21-INTEGRATION","status":"COMPLETED_AGENT2_COMMIT_SAFE","depends_on":["P0"]},
+    {"id":"V1","kind":"fresh_read_only_terminal_verification","owner":"R21-FINAL-VERIFIER","status":"COMPLETED_PASS_COMMIT_SAFE","depends_on":["P1"],"write_scope":[]},
+    {"id":"I1","kind":"terminal_handoff_and_receipt","owner":"HELPS-HUMANS-R21-INTEGRATION","status":"COMPLETED_TERMINAL_HANDOFF","depends_on":["V1"]}
+  ]
+}

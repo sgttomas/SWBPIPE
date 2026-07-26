@@ -1,0 +1,11 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "instance_id": "D06B-FINAL-VERIFIER",
+  "role": "EPHEMERAL_GENERALIST",
+  "parent": "HELPS-HUMANS-R19-INTEGRATION",
+  "status": "COMPLETED_BLOCK_PRESERVED",
+  "write_scope": [],
+  "terminal_return_received": true,
+  "terminal_verdict": "BLOCK",
+  "correction_scope": "PACKET_GF_TOKEN_AND_R19_HASH_RECORDS_ONLY"
+}

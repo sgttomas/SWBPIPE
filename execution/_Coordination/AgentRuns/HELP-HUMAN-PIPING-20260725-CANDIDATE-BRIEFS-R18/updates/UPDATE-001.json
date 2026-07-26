@@ -1,0 +1,33 @@
+{
+  "schema": "chirality-agent-update/v1",
+  "update_id": "UPDATE-001",
+  "run_id": "HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18",
+  "plan_version": 2,
+  "selection_authority": "HUMAN",
+  "classification": "NON_CONSEQUENTIAL_FAILURE_ISOLATION",
+  "blocked_node": "V0",
+  "block_reason": "AGENT_THREAD_LIMIT_REACHED",
+  "block_isolation": [
+    "M1",
+    "M2",
+    "M3",
+    "I1"
+  ],
+  "released_nodes": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "final_integration_depends_on": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "preserved": [
+    "D56_CANDIDATE",
+    "D56_AWAITING_RULING",
+    "HUMAN_SELECTION_AUTHORITY",
+    "EXACT_WRITE_SCOPES",
+    "OWNER_GATES"
+  ]
+}

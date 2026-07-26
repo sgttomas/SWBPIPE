@@ -1,0 +1,17 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20",
+  "version": 1,
+  "selection_authority": "HUMAN",
+  "frozen_sha": "2f8d35ceb30da734ca6dff24dcab36dded8c9b35",
+  "integration_owner": "HELPS-HUMANS-R20-INTEGRATION",
+  "nodes": [
+    {"id":"P0","kind":"owner_binding_and_plan","owner":"HELPS-HUMANS-R20-INTEGRATION","status":"COMPLETED","depends_on":[]},
+    {"id":"P1","kind":"ruling_register_and_dec_codification","owner":"HELPS-HUMANS-R20-INTEGRATION","status":"COMPLETED_AGENT2_COMMIT_SAFE","depends_on":["P0"]},
+    {"id":"X1","kind":"bounded_external_app_id_registration","owner":"HELP_HUMAN","status":"COMPLETED_SUCCESS_OBSERVED","depends_on":["P0"],"external_write_scope":["Apple Developer one Explicit App ID"]},
+    {"id":"P2","kind":"external_result_recording","owner":"HELPS-HUMANS-R20-INTEGRATION","status":"COMPLETED_AGENT2_COMMIT_SAFE","depends_on":["X1"]},
+    {"id":"V1","kind":"fresh_read_only_terminal_verification","owner":"D06B-OB-FINAL-VERIFIER","status":"COMPLETED_PASS_COMMIT_SAFE","depends_on":["P1","P2"],"write_scope":[]},
+    {"id":"I1","kind":"terminal_r20_fan_in_no_receipt","owner":"HELPS-HUMANS-R20-INTEGRATION","status":"COMPLETED_TERMINAL_HANDOFF","depends_on":["V1"]}
+  ]
+}
+

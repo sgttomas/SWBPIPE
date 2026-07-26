@@ -1,0 +1,21 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-D06B-PACKET-R19",
+  "instance_id": "HELPS-HUMANS-R19-INTEGRATION",
+  "role": "HELPS_HUMANS",
+  "parent": "HELP_HUMAN",
+  "status": "D06B_PACKET_PREPARED_NOT_RULED_TERMINAL_HANDOFF_VERIFIED",
+  "phase": "TERMINAL_V6",
+  "frozen_sha": "2f8d35ceb30da734ca6dff24dcab36dded8c9b35",
+  "write_fence": "EXACT_FOUR_TARGETS",
+  "receipt_append_authorized": true,
+  "receipt_append_completed": true,
+  "receipt_id": "Receipt-73",
+  "receipt_sha256": "94577b97ff75e44ab8ada7ea9cd8d413d2a8a0dea689af149444996b86dc5f7c",
+  "first_verifier_verdict": "BLOCK",
+  "correction": "PACKET_GF_TOKEN_ONLY",
+  "final_verifier_verdict": "PASS_COMMIT_SAFE",
+  "owner_gate": "AWAITING_RULING",
+  "handoff_title_correction": "PRE_RECEIPT_TO_TERMINAL",
+  "terminal_semantic_audit": "PASS_COMMIT_SAFE"
+}

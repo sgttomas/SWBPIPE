@@ -1,0 +1,15 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "instance_id": "D56-VERIFIER",
+  "role": "EPHEMERAL_GENERALIST",
+  "parent": "HELPS-HUMANS-R18-INTEGRATION",
+  "status": "COMPLETED",
+  "owner_selection": "R18_S1",
+  "expected_packet_sha256": "88cb4f1038a2accc8a680b25ee9eada4e5a27ae94ad5bcd05ddaeb31ffec22c2",
+  "dispatch_target": "/root/helps_humans_r18_integration/d56_s1_final_verifier",
+  "dispatch_result": "COMMIT-SAFE",
+  "child_created": true,
+  "terminal_return_accepted": true,
+  "verdict": "COMMIT-SAFE",
+  "write_scope": []
+}

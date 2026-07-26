@@ -1,0 +1,11 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-R18-R20-GIT-EXCEPTION-R21",
+  "instance_id": "R21-TERMINAL-VERIFIER",
+  "role": "EPHEMERAL_GENERALIST_AGENT_2",
+  "parent": "HELPS-HUMANS-R21-INTEGRATION",
+  "status": "COMPLETED_PASS_COMMIT_SAFE",
+  "write_scope": [],
+  "verdict": "PASS_COMMIT_SAFE",
+  "closeout_gate": "PASS_WITH_OWNER_EXCEPTION_DEC_090"
+}

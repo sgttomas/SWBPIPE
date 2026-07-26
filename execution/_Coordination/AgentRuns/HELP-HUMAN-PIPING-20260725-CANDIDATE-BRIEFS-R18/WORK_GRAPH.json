@@ -1,0 +1,27 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18",
+  "version": 6,
+  "selection_authority": "HUMAN",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "frozen_sha": "2f8d35ceb30da734ca6dff24dcab36dded8c9b35",
+  "branch": "codex/piping-candidate-briefs-20260725",
+  "integration_owner": "HELPS-HUMANS-R18-INTEGRATION",
+  "nodes": [
+    {"id":"I0","kind":"shared_scaffold_and_D56","owner":"HELPS-HUMANS-R18-INTEGRATION","status":"COMPLETED","depends_on":[]},
+    {"id":"V0","kind":"fresh_read_only_refutation","owner":"D56-VERIFIER","status":"COMPLETED_AGENT2_COMMIT_SAFE","depends_on":["I0"],"write_scope":[]},
+    {"id":"M1","kind":"manager_candidate","owner":"WI-PKG11-DEL1101","status":"COMPLETED_AGENT2_PASS","package_id":"PKG-11","deliverable_id":"DEL-11-01","depends_on":["I0"],"output":"execution/_Coordination/CANDIDATE_BRIEF_2026-07-25_DEL-11-01_USER_GUIDE_CURRENTNESS.md","requires_fresh_read_only_verifier":true},
+    {"id":"M2","kind":"manager_candidate","owner":"WI-PKG07-DEL0706","status":"COMPLETED_AGENT2_PASS","package_id":"PKG-07","deliverable_id":"DEL-07-06","depends_on":["I0"],"output":"execution/_Coordination/CANDIDATE_BRIEF_2026-07-25_DEL-07-06_PACKAGED_EDITED_LOAD_SMOKE.md","requires_fresh_read_only_verifier":true},
+    {"id":"M3","kind":"manager_candidate","owner":"WI-PKG08-DEL0801","status":"COMPLETED_AGENT2_PASS_HOLD_FOR_ACCEPTED_TRANSFORMATION","package_id":"PKG-08","deliverable_id":"DEL-08-01","depends_on":["I0"],"output":"execution/_Coordination/CANDIDATE_BRIEF_2026-07-25_DEL-08-01_COMPPROV_CROSS_LAYER.md","requires_fresh_read_only_verifier":true},
+    {"id":"I1","kind":"shared_fan_in","owner":"HELPS-HUMANS-R18-INTEGRATION","status":"COMPLETE_VALIDATED_FAN_IN","depends_on":["V0","M1","M2","M3"]},
+    {"id":"G1","kind":"owner_gate","owner":"HUMAN","status":"COMPLETED_OWNER_SLATE_RECORDED","depends_on":["I1"],"output":"OWNER_DECISIONS.md"},
+    {"id":"R1","kind":"d56_o_b_ruling_application","owner":"HELPS-HUMANS-R18-INTEGRATION","status":"COMPLETED_DETERMINISTIC_CHECKS_PASS","depends_on":["G1"],"write_scope":["execution/_Coordination/_DECISIONS/D-56_RULING_2026-07-25.md","AGENTS.md","execution/_Coordination/_DECISIONS/_REGISTER.md","execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/**"]},
+    {"id":"V1","kind":"fresh_read_only_d56_ruling_verification","owner":"D56-RULING-VERIFIER","status":"COMPLETED_AGENT2_COMMIT_SAFE","depends_on":["R1"],"write_scope":[],"replacement_allowed":false},
+    {"id":"P11","kind":"adopted_package_execution","owner":"WI-PKG11-DEL1101-EXECUTION","status":"EXECUTED_PASS_COMMIT_SAFE","depends_on":["G1"],"brief":"instances/WI-PKG11-DEL1101-EXECUTION/LAUNCH_BRIEF.md","return":"instances/WI-PKG11-DEL1101-EXECUTION/RETURN.md","write_ownership":"EXACT_CANDIDATE_FOUR_PATH_FENCE","registered_checks":"PASS_311_TESTS_AND_SELF_CHECK","residual":"DEL-11-01-REM-001_SATISFIED","deliverable_state":"IN_PROGRESS"},
+    {"id":"P07","kind":"adopted_package_hold","owner":"WI-PKG07-DEL0706-EXECUTION","status":"ADOPTED_HOLD_NO_EXECUTION_RELEASE","depends_on":["G1"],"brief":"instances/WI-PKG07-DEL0706-EXECUTION/LAUNCH_BRIEF.md","return":"instances/WI-PKG07-DEL0706-EXECUTION/RETURN.md","write_ownership":"NONE_WHILE_HELD","verifier":"PASS"},
+    {"id":"P08","kind":"proposal_only_design","owner":"WI-PKG08-DEL0801-TRANSFORMATION-DESIGN","status":"DESIGN_PROPOSAL_COMPLETE_AWAITING_OWNER_NO_IMPLEMENTATION","depends_on":["G1"],"brief":"instances/WI-PKG08-DEL0801-TRANSFORMATION-DESIGN/LAUNCH_BRIEF.md","return":"instances/WI-PKG08-DEL0801-TRANSFORMATION-DESIGN/RETURN.md","output":"instances/WI-PKG08-DEL0801-TRANSFORMATION-DESIGN/TRANSFORMATION_DESIGN_PROPOSAL.md","write_ownership":"UNIQUE_R18_INSTANCE_SUBTREE_ONLY","verifier":"PASS"},
+    {"id":"I2","kind":"terminal_package_fan_in","owner":"HELPS-HUMANS-R18-INTEGRATION","status":"COMPLETE_TERMINAL_PACKAGE_EVIDENCE","depends_on":["V1","P11","P07","P08"],"write_scope":["execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/**","loop/LOOP_RECEIPTS.md"],"receipt":"Receipt-72"},
+    {"id":"G2","kind":"owner_gate_lane_b_meaning_and_acceptance_contract","owner":"HUMAN","status":"AWAITING_OWNER","depends_on":["P08","I2"],"write_scope":[]},
+    {"id":"C0","kind":"git_closeout","owner":"CHANGE","status":"DEFERRED_BY_OWNER","depends_on":["G1"],"write_scope":[]}
+  ]
+}

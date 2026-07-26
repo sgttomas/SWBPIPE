@@ -1,0 +1,11 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20",
+  "instance_id": "D06B-OB-TERMINAL-LABEL-VERIFIER",
+  "role": "EPHEMERAL_GENERALIST_AGENT_2",
+  "parent": "HELPS-HUMANS-R20-TERMINAL-NORMALIZE",
+  "status": "COMPLETED_BLOCK",
+  "write_scope": [],
+  "verdict": "BLOCK_NOT_COMMIT_SAFE",
+  "blocking_finding": "WORK_GRAPH_TERMINAL_STATE_STALE"
+}

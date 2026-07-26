@@ -1,0 +1,17 @@
+{
+  "schema": "chirality-agent-update/v1",
+  "update_id": "UPDATE-004",
+  "run_id": "HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18",
+  "plan_version": 5,
+  "selection_authority": "HUMAN",
+  "owner_message_sha256": "1ebd357db2b184494b17f31128219d49551482b8f5a22273b6e4c9fa0477acfa",
+  "d56_selection": "O-B",
+  "package_nodes": {
+    "P11": "RELEASED_TO_HELP_HUMAN_NO_EXECUTION_THIS_RUN",
+    "P07": "ADOPTED_HELD_ENVIRONMENT_OPERATOR",
+    "P08": "RELEASED_PROPOSAL_ONLY_NO_IMPLEMENTATION"
+  },
+  "d56_ruling_application": "COMPLETED_DETERMINISTIC_CHECKS_PASS",
+  "d56_ruling_verifier": "COMPLETED_AGENT2_COMMIT_SAFE",
+  "git_closeout": "DEFERRED_BY_OWNER"
+}
