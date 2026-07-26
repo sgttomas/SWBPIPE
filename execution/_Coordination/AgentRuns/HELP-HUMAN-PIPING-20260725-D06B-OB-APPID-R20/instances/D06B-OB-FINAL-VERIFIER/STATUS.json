@@ -1,0 +1,10 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20",
+  "instance_id": "D06B-OB-FINAL-VERIFIER",
+  "role": "EPHEMERAL_GENERALIST_AGENT_2",
+  "parent": "HELPS-HUMANS-R20-INTEGRATION",
+  "status": "COMPLETED_PASS_COMMIT_SAFE",
+  "write_scope": [],
+  "verdict": "PASS_COMMIT_SAFE"
+}

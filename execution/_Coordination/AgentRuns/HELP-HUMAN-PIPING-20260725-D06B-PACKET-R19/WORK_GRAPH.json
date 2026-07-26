@@ -1,0 +1,18 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-D06B-PACKET-R19",
+  "version": 6,
+  "selection_authority": "HUMAN",
+  "frozen_sha": "2f8d35ceb30da734ca6dff24dcab36dded8c9b35",
+  "integration_owner": "HELPS-HUMANS-R19-INTEGRATION",
+  "nodes": [
+    {"id":"P0","kind":"owner_binding_and_plan","owner":"HELPS-HUMANS-R19-INTEGRATION","status":"COMPLETED","depends_on":[]},
+    {"id":"P1","kind":"packet_and_register_preparation","owner":"HELPS-HUMANS-R19-INTEGRATION","status":"COMPLETED_AWAITING_VERIFICATION","depends_on":["P0"]},
+    {"id":"V1","kind":"fresh_read_only_final_verification","owner":"D06B-FINAL-VERIFIER","status":"COMPLETED_BLOCK_PRESERVED","depends_on":["P1"],"write_scope":[]},
+    {"id":"C1","kind":"bounded_packet_correction","owner":"HELPS-HUMANS-R19-INTEGRATION","status":"COMPLETED_GF_TOKEN_ONLY","depends_on":["V1"]},
+    {"id":"V2","kind":"fresh_read_only_final_verification","owner":"D06B-FINAL-VERIFIER-2","status":"COMPLETED_PASS_COMMIT_SAFE","depends_on":["C1"],"write_scope":[]},
+    {"id":"I1","kind":"receipt_and_terminal_fan_in","owner":"HELPS-HUMANS-R19-INTEGRATION","status":"COMPLETED_AWAITING_OWNER","depends_on":["V2"],"receipt":"Receipt-73","receipt_sha256":"94577b97ff75e44ab8ada7ea9cd8d413d2a8a0dea689af149444996b86dc5f7c"},
+    {"id":"C2","kind":"terminal_handoff_title_correction","owner":"HELPS-HUMANS-R19-INTEGRATION","status":"COMPLETED_TITLE_ONLY","depends_on":["I1"]},
+    {"id":"V3","kind":"fresh_read_only_terminal_semantic_audit","owner":"D06B-TERMINAL-HANDOFF-VERIFIER","status":"COMPLETED_PASS_COMMIT_SAFE","depends_on":["C2"],"write_scope":[]}
+  ]
+}

@@ -50,9 +50,12 @@ and owner gates below.
 Dependency-register work is governed by the canonical v3.1 type system. New or
 refreshed dependency rows must emit only canonical core enum values; legacy
 labels from historical DAGs are read-only migration inputs and must be preserved
-as provenance notes rather than re-emitted. `DAG-007` is the current approved
-canonical type-system rectification graph authority; `DAG-001` through
-`DAG-006` remain immutable historical snapshots.
+as provenance notes rather than re-emitted. The current approved dependency
+graph authority is the immutable snapshot named by
+`execution/_DAG/_LATEST.md`; consumers must resolve that committed pointer
+rather than pinning a DAG identifier in this instruction. At this packet's
+2026-07-25 basis, the pointer names `DAG-008`; earlier DAGs remain immutable
+historical or superseded snapshots.
 
 Agents may write inside the selected tranche scope, required evidence and
 coordination artifacts, and project-local plans created under the issue-plan

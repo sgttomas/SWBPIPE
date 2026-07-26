@@ -1,0 +1,16 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20",
+  "instance_id": "HELPS-HUMANS-R20-INTEGRATION",
+  "role": "HELPS_HUMANS",
+  "parent": "HELP_HUMAN",
+  "status": "D06B_OB_CODIFIED_APP_ID_RESULT_VERIFIED_COMMIT_SAFE",
+  "phase": "TERMINAL",
+  "frozen_sha": "2f8d35ceb30da734ca6dff24dcab36dded8c9b35",
+  "write_fence": "RULING_ONE_REGISTER_ROW_DEC_089_R20_ONLY",
+  "external_action_actor": "HELP_HUMAN",
+  "external_action_result": "SUCCESS_RELAYED",
+  "receipt_append_authorized": false,
+  "receipt_append_completed": false,
+  "verifier_verdict": "PASS_COMMIT_SAFE"
+}

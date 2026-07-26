@@ -1647,3 +1647,171 @@
     `## Remaining` section and remains `IN_PROGRESS`. No other
     deliverable-state, dependency, lifecycle, stage, release, issuance,
     publication, or professional/legal acceptance effect occurred.
+
+- **2026-07-25 — Receipt 71** (R18 proposal-only candidate-brief fan-in hold).
+  - Receipt-ID: `Receipt-71`
+  - Examined-Through: `2f8d35ceb30da734ca6dff24dcab36dded8c9b35`
+  - Parent-Receipt: `Receipt-70`
+  - Pointers: PKG-11 / DEL-11-01 candidate
+    `execution/_Coordination/CANDIDATE_BRIEF_2026-07-25_DEL-11-01_USER_GUIDE_CURRENTNESS.md`;
+    PKG-07 / DEL-07-06 candidate
+    `execution/_Coordination/CANDIDATE_BRIEF_2026-07-25_DEL-07-06_PACKAGED_EDITED_LOAD_SMOKE.md`;
+    PKG-08 / DEL-08-01 candidate
+    `execution/_Coordination/CANDIDATE_BRIEF_2026-07-25_DEL-08-01_COMPPROV_CROSS_LAYER.md`;
+    D-56 proposal
+    `execution/_Coordination/_DECISIONS/D-56_dag_authority_currentness_repair.md`;
+    D-56 register
+    `execution/_Coordination/_DECISIONS/_REGISTER.md`;
+    R18 terminal handoff
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/HANDOFF_STATE.md`.
+  - Checks: JSON parse, D-56 register cardinality validation, receipt validation,
+    claims-language validation, path-anchor validation, harness self-check,
+    diff check, and exact changed-path containment pass.
+  - Model-Attribution: HELP_HUMAN, HELPS_HUMANS, and the three WORKING_ITEMS
+    managers used inherited Codex runtime capability. PKG-07's Agent 2
+    returned `PASS`; PKG-11 and PKG-08 have no final-byte Agent 2 verdict
+    because restart was blocked by the agent thread limit. No override or
+    mid-task substitution was recorded; exact model strings were not exposed.
+  - Gate-Outcome: `AWAITING_OWNER` —
+    `INCOMPLETE_FAN_IN_AWAITING_OWNER`; all three briefs remain candidates and
+    D-56 remains `AWAITING_RULING`. No implementation, adoption, activation,
+    project `AGENTS.md`, product, deliverable, lifecycle, DAG, ruling, Git,
+    network, or external effect occurred.
+
+- **2026-07-25 — Receipt 72** (R18 terminal package fan-in).
+  - Receipt-ID: `Receipt-72`
+  - Examined-Through: `2f8d35ceb30da734ca6dff24dcab36dded8c9b35`
+  - Parent-Receipt: `Receipt-71`
+  - Pointers: owner decisions
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/OWNER_DECISIONS.md`;
+    D-56 ruling/application
+    `execution/_Coordination/_DECISIONS/D-56_RULING_2026-07-25.md`,
+    `AGENTS.md`, and
+    `execution/_Coordination/_DECISIONS/_REGISTER.md`;
+    M1 run record, checks, and status
+    `execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-25_DEL-11-01_USER_GUIDE_CURRENTNESS.md`,
+    `execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-25_DEL-11-01_USER_GUIDE_CURRENTNESS_CHECKS.json`, and
+    `execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/_STATUS.md`;
+    M2 adoption/hold
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/instances/WI-PKG07-DEL0706-EXECUTION/OWNER_ADOPTION.md`,
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/instances/WI-PKG07-DEL0706-EXECUTION/RETURN.md`, and
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/instances/WI-PKG07-DEL0706-EXECUTION/STATUS.json`;
+    M3 transformation proposal
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/instances/WI-PKG08-DEL0801-TRANSFORMATION-DESIGN/TRANSFORMATION_DESIGN_PROPOSAL.md`;
+    terminal R18 handoff
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18/HANDOFF_STATE.md`.
+  - Checks: D-56 Agent 2 `COMMIT-SAFE`; M1 final fresh verifier
+    `PASS / COMMIT-SAFE`, exact four-path containment, 311-test pytest and
+    self-check `PASS`; M2 adoption-hold verifier `PASS` with no prerequisite
+    falsely cleared; M3 researcher return accepted and final verifier `PASS`
+    on proposal-only bytes; R18 JSON, instruction, claims, path-anchor,
+    receipt, whitespace, diff, containment, and protected-surface checks pass.
+  - Model-Attribution: HELP_HUMAN, HELPS_HUMANS, the three WORKING_ITEMS
+    managers, and their Agent 2 executor, researcher, check-recovery, and
+    verifier roles used inherited Codex runtime capability without override
+    or mid-task substitution; exact model strings were not exposed. Exact
+    identities and returns are recorded under the cited R18 run.
+  - Gate-Outcome: `AWAITING_OWNER` —
+    `D56_RULED_APPLIED / M1_EXECUTED / M2_ADOPTED_HOLD /
+    M3_DESIGN_PROPOSAL_COMPLETE_AWAITING_OWNER / GIT_DEFERRED`. M3 remains
+    proposal-only and requires owner selection of Lane B meaning and its
+    acceptance contract; O-0 is recommended only for an owner-redefined
+    local-private package-eligibility lane, while standalone public
+    eligibility remains held. No lifecycle, release, DAG, publication,
+    network, Git-closeout, or other external effect occurred.
+
+- **2026-07-25 — Receipt 73** (D-06b preparation-only packet).
+  - Receipt-ID: `Receipt-73`
+  - Examined-Through: `2f8d35ceb30da734ca6dff24dcab36dded8c9b35`
+  - Parent-Receipt: `Receipt-72`
+  - Pointers: D-06b proposal
+    `execution/_Coordination/_DECISIONS/D-06b_signing_notarization_redecision.md`;
+    single prepared register row
+    `execution/_Coordination/_DECISIONS/_REGISTER.md`;
+    owner direction and R19 handoff
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-PACKET-R19/OWNER_DIRECTION.md` and
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-PACKET-R19/HANDOFF_STATE.md`;
+    preserved V1 `BLOCK`, exact correction, and fresh final
+    `PASS / COMMIT-SAFE`
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-PACKET-R19/instances/D06B-FINAL-VERIFIER/RETURN.md`,
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-PACKET-R19/CORRECTION_RECORD.md`, and
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-PACKET-R19/instances/D06B-FINAL-VERIFIER-2/RETURN.md`.
+  - Checks: V1 `BLOCK` on GF-TOKEN wording preserved; only that packet sentence
+    corrected. Fresh V2 independently returned `PASS / COMMIT-SAFE` on the
+    151-byte owner binding, packet and register hashes, single-row transition,
+    protected source and R18 manifests, JSON, whitespace, diff, exact
+    four-target containment, frozen HEAD, and prohibited-effect checks.
+    Receipt-contract validation passes after this append.
+  - Model-Attribution: HELP_HUMAN, HELPS_HUMANS, and the two fresh read-only
+    Agent 2 verifier instances used inherited Codex runtime capability without
+    override or mid-task substitution; exact model strings were not exposed.
+    Identities and terminal returns are recorded under the cited R19 run.
+  - Gate-Outcome: `AWAITING_OWNER` —
+    `D06B_PACKET_PREPARED_NOT_RULED`. The D-06b row is
+    `AWAITING_RULING`; O-A is a non-binding recommendation only. No ruling,
+    `DEC` codification, successor row, documentation/status candidate,
+    enrollment, spend, credential, signing/notarization, implementation,
+    lifecycle, DAG, release, publication, Git, network, or external effect
+    occurred. The packet records the applicable governance fence.
+
+- **2026-07-25 — Receipt 74** (D-06b O-B ruling, codification, and bounded Apple Developer App ID registration).
+  - Receipt-ID: `Receipt-74`
+  - Examined-Through: `2f8d35ceb30da734ca6dff24dcab36dded8c9b35`
+  - Parent-Receipt: `Receipt-73`
+  - Pointers: D-06b ruling
+    `execution/_Coordination/_DECISIONS/D-06b_RULING_2026-07-25.md`;
+    ruled register row
+    `execution/_Coordination/_DECISIONS/_REGISTER.md`;
+    `DEC-089` codification
+    `execution/_Decomposition/SOFTWARE_DECOMP.md`;
+    exact owner direction, bounded action brief, and externally observed result
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20/OWNER_DIRECTION.md`,
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20/EXTERNAL_ACTION_BRIEF.md`, and
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20/EXTERNAL_ACTION_RESULT.md`;
+    fresh verifier return and terminal handoff
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20/instances/D06B-OB-FINAL-VERIFIER/RETURN.md` and
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-D06B-OB-APPID-R20/HANDOFF_STATE.md`.
+  - Checks: exact 238-byte owner direction and 675-byte external observation
+    hashes verified; the single D-06b row records O-B with the dated ruling and
+    `DEC-089` pointers; `DEC-089` follows `DEC-088`; the proposal packet and
+    protected R19 aggregate remain unchanged; the exact Explicit App ID
+    `OpenPipeStress Technical Preview` /
+    `org.openpipestress.technical-preview` is externally observed registered
+    under team `8A7JL35U4S`; all selectable capabilities were off and the
+    disabled In-App Purchase baseline was not operator-selected. Fresh
+    read-only Agent 2 returned `PASS / COMMIT-SAFE`; R20 JSON, whitespace,
+    diff, containment, protected-hash, frozen-HEAD, staged-empty, and
+    prohibited-effect checks pass.
+  - Model-Attribution: HELP_HUMAN, HELPS_HUMANS, and the fresh read-only
+    Agent 2 verifier used inherited Codex runtime capability without override
+    or mid-task substitution; exact model strings were not exposed. Identities
+    and terminal returns are recorded under the cited R20 run.
+  - Gate-Outcome: `EXECUTED` — D-06b O-B is ruled and codified, and the exact
+    App ID registration is complete; signing/notarization gates remain open
+    and Git closeout remains deferred. O-B establishes only the future policy
+    target; the current artifact remains unsigned. No
+    certificate, provisioning profile, key, signing, notarization,
+    implementation, build, packaging, publication, release, lifecycle, DAG,
+    product/configuration, Git, or broader external effect occurred.
+
+- **2026-07-25 — Receipt 75** (R18–R20 staged-whitespace closeout exception).
+  - Receipt-ID: `Receipt-75`
+  - Examined-Through: `2f8d35ceb30da734ca6dff24dcab36dded8c9b35`
+  - Parent-Receipt: `Receipt-74`
+  - Pointers: D-57 ruling
+    `execution/_Coordination/_DECISIONS/D-57_r18_r20_staged_whitespace_exception.md`;
+    `DEC-090` in `execution/_Decomposition/SOFTWARE_DECOMP.md`;
+    exact staged path, finding, and affected-blob bindings plus terminal return
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260725-R18-R20-GIT-EXCEPTION-R21/`.
+  - Checks: fresh read-only Agent 2 `PASS / COMMIT-SAFE`; exact exception
+    predicates, receipt contract, JSON, claims/path, protected hashes, and
+    hidden-effect checks pass. The cached whitespace command remains exit 2.
+  - Model-Attribution: HELP_HUMAN, HELPS_HUMANS, CHANGE, and the fresh
+    read-only Agent 2 verifier used inherited Codex runtime capability without
+    override or mid-task substitution; exact model strings were not exposed.
+  - Gate-Outcome: `EXECUTED` —
+    `PASS_WITH_OWNER_EXCEPTION_DEC_090 / READY_FOR_COMMIT`. The exception is
+    one-off and nonprecedential; the 26 affected staged blobs remain
+    byte-identical. No product/configuration, deliverable lifecycle, DAG,
+    build, packaging, signing, notarization, publication, release, push,
+    merge, network, or external effect occurred.

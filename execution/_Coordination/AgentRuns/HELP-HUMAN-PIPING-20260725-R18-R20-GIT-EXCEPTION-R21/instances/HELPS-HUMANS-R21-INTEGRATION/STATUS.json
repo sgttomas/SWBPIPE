@@ -1,0 +1,14 @@
+{
+  "schema": "chirality-agent-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260725-R18-R20-GIT-EXCEPTION-R21",
+  "instance_id": "HELPS-HUMANS-R21-INTEGRATION",
+  "role": "HELPS_HUMANS",
+  "parent": "HELP_HUMAN",
+  "status": "TERMINAL_PASS_COMMIT_SAFE",
+  "phase": "TERMINAL",
+  "frozen_sha": "2f8d35ceb30da734ca6dff24dcab36dded8c9b35",
+  "closeout_gate": "PASS_WITH_OWNER_EXCEPTION_DEC_090",
+  "receipt": "Receipt-75",
+  "push_authorized": false,
+  "merge_authorized": false
+}

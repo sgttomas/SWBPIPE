@@ -1,0 +1,17 @@
+{
+  "schema": "chirality-agent-update/v1",
+  "update_id": "UPDATE-005",
+  "run_id": "HELP-HUMAN-PIPING-20260725-CANDIDATE-BRIEFS-R18",
+  "plan_version": 6,
+  "selection_authority": "HUMAN",
+  "fan_in": "COMPLETE_TERMINAL_PACKAGE_EVIDENCE",
+  "gate_outcomes": {
+    "D56": "RULED_APPLIED_AGENT2_COMMIT_SAFE",
+    "P11": "EXECUTED_PASS_COMMIT_SAFE",
+    "P07": "ADOPTED_HOLD_NO_EXECUTION_RELEASE",
+    "P08": "DESIGN_PROPOSAL_COMPLETE_AWAITING_OWNER_NO_IMPLEMENTATION",
+    "C0": "DEFERRED_BY_OWNER"
+  },
+  "remaining_owner_gate": "P08_LANE_B_MEANING_AND_ACCEPTANCE_CONTRACT",
+  "receipt": "Receipt-72"
+}
