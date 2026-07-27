@@ -3,7 +3,7 @@ doc_id: OPS-SOFTWARE-DECOMP
 package_role: working_surface
 doc_kind: decomposition.software
 status: current_basis
-revision: 0.9
+revision: 0.10
 created: 2026-04-30
 refs:
   - rel: depends_on

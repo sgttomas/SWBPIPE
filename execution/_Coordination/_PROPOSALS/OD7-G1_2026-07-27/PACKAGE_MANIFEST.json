@@ -1,0 +1,25 @@
+{
+  "schema": "chirality.piping-coordination-proposal/v1",
+  "proposal_id": "OD7-G1-PIPING",
+  "status": "CANDIDATE_NOT_APPROVED_NOT_APPLIED",
+  "basis_commit": "fb16e32ed60bb4f384cf1e07a83c4a14ff63bbae",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/_PROPOSALS/OD7-G1_2026-07-27/",
+  "authoritative_changes": [],
+  "candidates": [
+    "OD7-G1-C03",
+    "OD7-G1-C04",
+    "OD7-G1-C06"
+  ],
+  "artifacts": [
+    "PACKET.md",
+    "PIPING_C03_C04.patch",
+    "PROPOSED_NOTICE_2026-07-27_d30_contract_mismatch_and_root_runtime_context.md",
+    "PROPOSED_PIPING_RECEIPT_76.md",
+    "DIRECT_WRITE_MAP.csv",
+    "VALIDATION.md",
+    "HANDOFF.md",
+    "PACKAGE_MANIFEST.json",
+    "ARTIFACT_HASHES.sha256"
+  ],
+  "hash_manifest_rule": "ARTIFACT_HASHES.sha256 covers every package artifact except itself"
+}
