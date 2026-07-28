@@ -1,11 +1,11 @@
 # D-59 — SCA-008 / DAG-008 revalidation acceptance
 
-**Status:** RULED AND EFFECTIVE ON MERGE  
-**Date:** 2026-07-28  
-**Decision ID:** D-59  
-**Examined basis:** `main@4cd25b348196f7e6dfa925d8c7938184924cb383`  
-**Derivative:** `execution/_Evaluation/DepClosure/CLOSURE_SCA008_DAG008_REV011_REVALIDATION_2026-07-28_0901/`  
-**Derivative manifest SHA-256:** `62c5565561159faa2c41bacacd4b394a642c53a5da2f75f5e100aceb46a05f61`
+**Status:** RULED AND EFFECTIVE ON MERGE
+**Date:** 2026-07-28
+**Decision ID:** D-59
+**Examined basis:** `main@4cd25b348196f7e6dfa925d8c7938184924cb383`
+**Derivative:** `execution/_Evaluation/DepClosure/CLOSURE_SCA008_DAG008_REV011_REVALIDATION_2026-07-28_0901/`
+**Derivative manifest SHA-256:** `3be1e5a5d5f629b39be656799a7e100cd7fe7a615e6188cd78198ae81e3876f0`
 
 ## Owner direction of record
 

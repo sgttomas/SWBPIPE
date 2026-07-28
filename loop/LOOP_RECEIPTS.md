@@ -1895,7 +1895,7 @@
   - Pointers: D-59 ruling; immutable
     `execution/_Evaluation/DepClosure/CLOSURE_SCA008_DAG008_REV011_REVALIDATION_2026-07-28_0901/`
     at `MANIFEST.sha256`
-    `62c5565561159faa2c41bacacd4b394a642c53a5da2f75f5e100aceb46a05f61`;
+    `3be1e5a5d5f629b39be656799a7e100cd7fe7a615e6188cd78198ae81e3876f0`;
     updated `execution/_Evaluation/DepClosure/_LATEST.md`; D-60 activation
     ruling.
   - Checks: derivative manifest validation passes; compatibility verdict is

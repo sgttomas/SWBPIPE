@@ -1,12 +1,12 @@
 # D-60 — SCA-008 current-effect reconciliation activation
 
-**Status:** RULED AND EFFECTIVE ON MERGE  
-**Date:** 2026-07-28  
-**Decision ID:** D-60  
-**Activation basis:** `main@4cd25b348196f7e6dfa925d8c7938184924cb383`  
+**Status:** RULED AND EFFECTIVE ON MERGE
+**Date:** 2026-07-28
+**Decision ID:** D-60
+**Activation basis:** `main@4cd25b348196f7e6dfa925d8c7938184924cb383`
 **Method:** `docs/DELIVERABLE_CONCORDANCE_METHOD.md` revision 1,
-SHA-256 `abf3e78fce606c4557d61cdbfbdb7292a3d858838f6526da6b433d1bcd0ef627`  
-**Manager:** `RECONCILIATION`  
+SHA-256 `abf3e78fce606c4557d61cdbfbdb7292a3d858838f6526da6b433d1bcd0ef627`
+**Manager:** `RECONCILIATION`
 **RunID:** `SCOPED_SCA008_DEC091_DEL1604_CURRENT_EFFECT_2026-07-28`
 
 ## Owner direction of record
