@@ -2,11 +2,12 @@
 
 |Field|Value|
 |---|---|
-|AmendmentID|SCA-007|
-|Snapshot|`execution/_ScopeChange/SCA-007_2026-07-16_2026/`|
+|AmendmentID|SCA-008|
+|Snapshot|`execution/_ScopeChange/SCA-008_2026-07-27_2301/`|
 |Status|accepted|
-|Created|2026-07-16|
-|Summary|D-47 / DEC-080 ruling executed as SCA-007: adopted PRD amended v0.2 → v0.3 (actor-neutral clean-checkout §24 R6 reproduction exit criterion; §22.5 retitled — external-prover correlation is the principal validation posture, activation owner-gated on lawful tool access; §22.1 verification-philosophy paragraph; independent third-party reproduction re-homed to the D-05b publication-era gates) and relocated to `docs/PRD.md` with the v0.1 text archived at `docs/_history/PRD_v0.1.md` and a redirect stub at `docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md`; citation-resolution rule adopted (pre-amendment `docs/PRD.md` references resolve against the archived v0.1 plus the D-21 Annex A crosswalk); packet §5 propagation into impacted deliverables and live pointer surfaces; evidence-bundle home ruled `validation/evidence/reproduction/<run-id>/`; SOFTWARE_DECOMP advanced to revision v0.10. No scope item, dependency, requirement, package membership, lifecycle, stage, release, prover-activation, reproduction-acceptance, or professional claim is created.|
+|Created|2026-07-27|
+|Summary|D-58 / DEC-091 current-effect reconciliation: preserve D-30, D-31, D-58, DEC-041, and DEC-063 as historical acts; retire current reliance on the App-era D-APP-48 / D-30 synchronized-consumption mechanism; leave the automation-condition mechanism unresolved; preserve PRD R7, Piping's non-client posture, every existing stable ID, topology, and dependency edge; advance SOFTWARE_DECOMP to revision v0.11; correct one DEL-16-04 current-gate sentence without lifecycle change; and establish a complete active SCA-008 snapshot. No successor mechanism, repin, implementation, lifecycle, release, professional-reliance, dependency, estimate, or schedule effect is created.|
 
-Note: SCA-006 executed under `D-43` as SOFTWARE_DECOMP revision v0.9 without a
-snapshot folder; this pointer previously sat stale at SCA-005.
+Historical residue: SCA-007 remains immutable and incomplete under its own
+snapshot contract. SCA-008 replaces it only as the active current snapshot;
+it does not rewrite SCA-007 or its historical closure claims.

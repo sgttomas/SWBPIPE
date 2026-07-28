@@ -1,0 +1,45 @@
+{
+  "run_label": "SCA008_FINAL_LIVE_PASS1",
+  "timestamp": "2026-07-28",
+  "decomp_variant": "SOFTWARE",
+  "expected_source_snapshot": "7b0be4d8772a16e5a4774a17988479587d00acca",
+  "expected_handoff_phase": "SCA-008 final live-state pass 1",
+  "decomposition_path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+  "decomposition_revision": "0.11",
+  "scope": "ALL",
+  "partitions_declared": 18,
+  "partitions_found": 18,
+  "production_units_declared": 101,
+  "production_units_found": 101,
+  "forward_coverage_partitions_pct": 100,
+  "forward_coverage_production_units_pct": 100,
+  "reverse_coverage_pct": 100,
+  "context_fidelity_pct": 100,
+  "artifact_presence_pct": 5.02,
+  "objective_coverage_pct": 100,
+  "package_shape_conformance": "WARN",
+  "derivative_package_status": "SKIPPED",
+  "active_snapshot_status": "PASS",
+  "handoff_state_status": "PASS",
+  "objective_evidence_integrity": "PASS",
+  "issues_blocker": 0,
+  "issues_warning": 229,
+  "issues_info": 1,
+  "check_count": 12,
+  "lifecycle_distribution": {
+    "IN_PROGRESS": 100,
+    "ISSUED": 1
+  },
+  "production_format_distribution": {
+    "NOT_APPLICABLE_ARCHITECTURE_REFERENCE": 8,
+    "SOW_V1": 93
+  },
+  "overall_status": "WARNINGS",
+  "closure_readiness": "WARN",
+  "prior_active_snapshot_blockers_cleared": true,
+  "live_mirror_state": "APPLIED_PENDING_FINAL_AUDIT",
+  "concrete_labels": {
+    "partition": "Package",
+    "production_unit": "Deliverable"
+  }
+}
