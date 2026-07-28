@@ -1934,3 +1934,24 @@
     runtime, client, dependency, DAG, implementation, lifecycle, repin,
     release, estimate, schedule, selectable-work, or professional-reliance
     effect is created.
+
+- **2026-07-28 — Receipt 81** (D-61 effective-state closeout).
+  - Receipt-ID: `Receipt-81`
+  - Examined-Through: `058b294c49fa2ddc760a520fe6b8a45dc82e7189`
+  - Parent-Receipt: `Receipt-80`
+  - Pointers: D-61 effective-state closeout; PR #404 merge
+    `ecfddf92a945d6f5b83b9bddc28bc2b42f65fdbc` is an ancestor of the
+    terminal evaluation basis.
+  - Checks: D-61 acceptance bytes, the 11-entry derivative manifest,
+    validator result, merge ancestry, and exact closeout pointer reproduce
+    without findings.
+  - Model-Attribution: OpenAI Codex supervising Agent 0 applying the Piping
+    record-currency recommendation; exact runtime model string was not
+    exposed.
+  - Gate-Outcome: `EXECUTED` — additive effective-state evidence only;
+    `CURRENT_EFFECT_RECONCILED / CLOSED_WITH_RELIANCE_HOLD`, DEC-063 history,
+    DEC-091 current effect, DEL-16-04 `IN_PROGRESS`, three Remaining items,
+    and Piping's non-client posture are preserved. No product, runtime,
+    client, dependency, DAG, implementation, lifecycle, repin, release,
+    estimate, schedule, selectable-work, or professional-reliance authority
+    is created.
