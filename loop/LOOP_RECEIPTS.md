@@ -1839,3 +1839,24 @@
     D-30's current synchronized-consumption claim remains non-reliable; no
     repin, successor, client scope, SCOPE_CHANGE, product, lifecycle, release,
     or professional-reliance effect occurs.
+
+- **2026-07-27 — Receipt 77** (D-58 effective-state closeout).
+  - Receipt-ID: `Receipt-77`
+  - Examined-Through: `2979e3ff85a3bc8bc106c4cd01c63c5a2c7b4bc1`
+  - Parent-Receipt: `Receipt-76`
+  - Pointers: D-58 ruling and additive closeout
+    `execution/_Coordination/_DECISIONS/{D-58_RULING_2026-07-27.md,D-58_EFFECTIVE_STATE_CLOSEOUT_2026-07-27.md}`;
+    corrected D-58 register row; PR #378 merge
+    `2979e3ff85a3bc8bc106c4cd01c63c5a2c7b4bc1`.
+  - Checks: first-publication/application and merge ancestry; exact
+    three-path Piping containment; accepted-proposal and original-ruling
+    hashes; one-row register diff; receipt, path, containment, and whitespace
+    checks pass.
+  - Model-Attribution: OpenAI Codex HELPS_HUMANS managed by HELP_HUMAN;
+    exact runtime model build not exposed.
+  - Gate-Outcome: `EXECUTED` — only after explicit owner approval and CHANGE
+    integration, D-58's already merged effective state is recorded.
+    D-30/D-31 and DEC-041/DEC-063 remain historical; Piping remains outside
+    the Root-runtime and App-harness client sets; no PRD, decomposition,
+    SCA-008, DEC-091, product, runtime, lifecycle, release, or
+    professional-reliance effect occurs.
