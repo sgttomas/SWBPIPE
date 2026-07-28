@@ -1860,3 +1860,54 @@
     the Root-runtime and App-harness client sets; no PRD, decomposition,
     SCA-008, DEC-091, product, runtime, lifecycle, release, or
     professional-reliance effect occurs.
+
+- **2026-07-28 — Receipt 78** (SCA-008 effective-state closeout).
+  - Receipt-ID: `Receipt-78`
+  - Examined-Through: `404e47c16a88e7ffdc6d1fc5fac61ebb6864211e`
+  - Parent-Receipt: `Receipt-77`
+  - Pointers: immutable SCA-008 snapshot
+    `execution/_ScopeChange/SCA-008_2026-07-27_2301/`; additive closeout
+    `execution/_ScopeChange/SCA-008_EFFECTIVE_STATE_CLOSEOUT_2026-07-28.md`;
+    current-state-corrected D-58 register row; PR #390 application commit
+    `9b52076701c218f69255afbedcfc52025bd47fa3` and merge commit
+    `380ea2a794588075b83fe8cc0108ab7ce74b6b33`.
+  - Checks: basis-to-application, application-to-merge, and
+    merge-to-current ancestry pass; the accepted twenty-path manifest at
+    SHA-256
+    `093265a1853b814778adc9cb58e045c49712c64c934cf17f4b5c8d3cd1fc7290`
+    reproduces at the application, merge, and examined-current bases; all
+    thirteen immutable snapshot members and the scope-change pointer reproduce
+    their accepted hashes; the D-58 correction changes only current-state
+    reporting.
+  - Model-Attribution: OpenAI Codex Piping Agent 1 with three read-only
+    specialist probes; exact runtime model strings were not exposed.
+  - Gate-Outcome: `EXECUTED` — SCA-008 is durably Git-effective through
+    PR #390 and remains `CLOSED_FOR_SCOPE_CHANGE_ONLY`. The additive closeout
+    creates no new authority, successor mechanism, client status, PRD or
+    decomposition amendment, dependency edge, deliverable state,
+    implementation, repin, lifecycle, release, professional-reliance,
+    estimate, or schedule effect.
+
+- **2026-07-28 — Receipt 79** (D-59 DAG revalidation acceptance and D-60 scoped-reconciliation activation).
+  - Receipt-ID: `Receipt-79`
+  - Examined-Through: `4cd25b348196f7e6dfa925d8c7938184924cb383`
+  - Parent-Receipt: `Receipt-78`
+  - Pointers: D-59 ruling; immutable
+    `execution/_Evaluation/DepClosure/CLOSURE_SCA008_DAG008_REV011_REVALIDATION_2026-07-28_0901/`
+    at `MANIFEST.sha256`
+    `62c5565561159faa2c41bacacd4b394a642c53a5da2f75f5e100aceb46a05f61`;
+    updated `execution/_Evaluation/DepClosure/_LATEST.md`; D-60 activation
+    ruling.
+  - Checks: derivative manifest validation passes; compatibility verdict is
+    `PASS / CURRENT_BY_REVALIDATION`; SCA-008 changed no dependency or DAG
+    path; no Piping path changed between derivative basis `404e47c16` and the
+    examined basis; D-59/D-60 are next-free and uniquely registered.
+  - Model-Attribution: OpenAI Codex supervising Agent 0 applying Piping Agent
+    1 recommendations under the owner's standing completion direction; exact
+    runtime model strings were not exposed.
+  - Gate-Outcome: `EXECUTED` — effective only on durable merge. D-59 accepts
+    only the DAG-008 revalidation. D-60 activates only the scoped
+    DEC-063/DEC-091/DEL-16-04 reconciliation after durable merge. No product,
+    implementation, runtime, client, dependency, DAG, lifecycle, repin,
+    release, estimate, schedule, professional-reliance, or other authority is
+    created.

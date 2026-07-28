@@ -1,0 +1,20 @@
+{
+  "total_files": 93,
+  "total_rows": 1480,
+  "anchor_rows": 378,
+  "execution_rows": 1102,
+  "schema_valid": 93,
+  "schema_invalid": 0,
+  "implements_node_present": 93,
+  "implements_node_missing": 0,
+  "evidence_populated": 1480,
+  "evidence_total": 1480,
+  "graph_nodes": 101,
+  "graph_edges": 972,
+  "orphan_count": 0,
+  "scc_count": 0,
+  "scc_sizes": [],
+  "hub_count": 20,
+  "bidirectional_pair_count": 0,
+  "normalization_count": 0
+}

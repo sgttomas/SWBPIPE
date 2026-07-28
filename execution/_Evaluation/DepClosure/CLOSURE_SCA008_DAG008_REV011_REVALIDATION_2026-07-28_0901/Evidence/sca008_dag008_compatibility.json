@@ -1,0 +1,431 @@
+{
+  "basis": {
+    "examined_basis": "404e47c16a88e7ffdc6d1fc5fac61ebb6864211e",
+    "sca_application": "9b52076701c218f69255afbedcfc52025bd47fa3",
+    "sca_basis": "7b0be4d8772a16e5a4774a17988479587d00acca",
+    "sca_merge": "380ea2a794588075b83fe8cc0108ab7ce74b6b33"
+  },
+  "checks": {
+    "active_directed_edge_sets_equal": true,
+    "aggregate_row_count": 1480,
+    "aggregate_status_counts": {
+      "ACTIVE": 1395,
+      "RETIRED": 85
+    },
+    "aggregate_unique_active_directed_edges": 972,
+    "dag_audit": {
+      "active_graph": {
+        "bidirectional_pair_count": 0,
+        "bidirectional_pairs": [],
+        "duplicate_edge_count": 0,
+        "duplicate_edges": {},
+        "edge_count": 972,
+        "hub_count": 20,
+        "hub_threshold": 20,
+        "hubs": [
+          {
+            "DeliverableID": "DEL-00-06",
+            "InDegree": 93,
+            "OutDegree": 0,
+            "TotalDegree": 93
+          },
+          {
+            "DeliverableID": "DEL-00-08",
+            "InDegree": 92,
+            "OutDegree": 0,
+            "TotalDegree": 92
+          },
+          {
+            "DeliverableID": "DEL-00-01",
+            "InDegree": 91,
+            "OutDegree": 0,
+            "TotalDegree": 91
+          },
+          {
+            "DeliverableID": "DEL-00-02",
+            "InDegree": 91,
+            "OutDegree": 0,
+            "TotalDegree": 91
+          },
+          {
+            "DeliverableID": "DEL-00-07",
+            "InDegree": 72,
+            "OutDegree": 0,
+            "TotalDegree": 72
+          },
+          {
+            "DeliverableID": "DEL-00-03",
+            "InDegree": 71,
+            "OutDegree": 0,
+            "TotalDegree": 71
+          },
+          {
+            "DeliverableID": "DEL-00-04",
+            "InDegree": 59,
+            "OutDegree": 0,
+            "TotalDegree": 59
+          },
+          {
+            "DeliverableID": "DEL-02-02",
+            "InDegree": 36,
+            "OutDegree": 8,
+            "TotalDegree": 44
+          },
+          {
+            "DeliverableID": "DEL-02-05",
+            "InDegree": 22,
+            "OutDegree": 10,
+            "TotalDegree": 32
+          },
+          {
+            "DeliverableID": "DEL-02-01",
+            "InDegree": 24,
+            "OutDegree": 7,
+            "TotalDegree": 31
+          },
+          {
+            "DeliverableID": "DEL-01-02",
+            "InDegree": 21,
+            "OutDegree": 5,
+            "TotalDegree": 26
+          },
+          {
+            "DeliverableID": "DEL-07-08",
+            "InDegree": 0,
+            "OutDegree": 23,
+            "TotalDegree": 23
+          },
+          {
+            "DeliverableID": "DEL-02-03",
+            "InDegree": 14,
+            "OutDegree": 8,
+            "TotalDegree": 22
+          },
+          {
+            "DeliverableID": "DEL-08-04",
+            "InDegree": 11,
+            "OutDegree": 11,
+            "TotalDegree": 22
+          },
+          {
+            "DeliverableID": "DEL-08-06",
+            "InDegree": 0,
+            "OutDegree": 22,
+            "TotalDegree": 22
+          },
+          {
+            "DeliverableID": "DEL-01-04",
+            "InDegree": 16,
+            "OutDegree": 4,
+            "TotalDegree": 20
+          },
+          {
+            "DeliverableID": "DEL-03-02",
+            "InDegree": 10,
+            "OutDegree": 10,
+            "TotalDegree": 20
+          },
+          {
+            "DeliverableID": "DEL-04-01",
+            "InDegree": 12,
+            "OutDegree": 8,
+            "TotalDegree": 20
+          },
+          {
+            "DeliverableID": "DEL-06-01",
+            "InDegree": 8,
+            "OutDegree": 12,
+            "TotalDegree": 20
+          },
+          {
+            "DeliverableID": "DEL-13-04",
+            "InDegree": 5,
+            "OutDegree": 15,
+            "TotalDegree": 20
+          }
+        ],
+        "node_count": 101,
+        "scc_count": 0,
+        "sccs": []
+      },
+      "canonical_finding_count": 0,
+      "endpoint_issue_count": 0
+    },
+    "dag_json_sha256": "f657808890e6e7b663b6ad1be4afe1d63f64b1d8c8fbff156d960132c145e645",
+    "dag_manifest": {
+      "all_pass": true,
+      "entries": 15,
+      "rows": [
+        {
+          "actual": "8d56d157ee1648ceb629d1e7cb7dedcf141d7987c38715032973020a8c139831",
+          "expected": "8d56d157ee1648ceb629d1e7cb7dedcf141d7987c38715032973020a8c139831",
+          "pass": true,
+          "path": "APPROVAL_RECORD.md"
+        },
+        {
+          "actual": "72429ad7dd2ea82036f7cab2823de04d7681d342cbcd2d9174f662acba91ee48",
+          "expected": "72429ad7dd2ea82036f7cab2823de04d7681d342cbcd2d9174f662acba91ee48",
+          "pass": true,
+          "path": "Cycle_Report.md"
+        },
+        {
+          "actual": "a84e56a23bb326f0441e8ed35f8c8aff2746a5df6e0b6fd888ca22a8cbce5fb2",
+          "expected": "a84e56a23bb326f0441e8ed35f8c8aff2746a5df6e0b6fd888ca22a8cbce5fb2",
+          "pass": true,
+          "path": "DAG-008_APPROVAL_REVIEW_PACKET.md"
+        },
+        {
+          "actual": "ad0315fd866fb8581f2dca94ee3ae9776f102f936fbb65769bb34da2e729f7b9",
+          "expected": "ad0315fd866fb8581f2dca94ee3ae9776f102f936fbb65769bb34da2e729f7b9",
+          "pass": true,
+          "path": "DAG-008_CandidateEdgeWorklist.csv"
+        },
+        {
+          "actual": "eb1a3b5c1ddac86c1944864f325476c0474364f1d8e5b62541bc0c639d64eb21",
+          "expected": "eb1a3b5c1ddac86c1944864f325476c0474364f1d8e5b62541bc0c639d64eb21",
+          "pass": true,
+          "path": "DAG-008_DuplicateEdgeWorklist.csv"
+        },
+        {
+          "actual": "f1c7051232b4bcf8a755d11605ffdabb98912475cbf40714d9603b7a5351f767",
+          "expected": "f1c7051232b4bcf8a755d11605ffdabb98912475cbf40714d9603b7a5351f767",
+          "pass": true,
+          "path": "DAG_Audit.json"
+        },
+        {
+          "actual": "a5b377f05afc257464a76dfa15b4055964fba90b9fc23070cad03f4cfcbc0862",
+          "expected": "a5b377f05afc257464a76dfa15b4055964fba90b9fc23070cad03f4cfcbc0862",
+          "pass": true,
+          "path": "DAG_Audit.md"
+        },
+        {
+          "actual": "6e5050c4e578f6ff9819ee7a11dbb395b3f0a163b4fb0c48e88c3d084d9b0732",
+          "expected": "6e5050c4e578f6ff9819ee7a11dbb395b3f0a163b4fb0c48e88c3d084d9b0732",
+          "pass": true,
+          "path": "DeliverableNodes.csv"
+        },
+        {
+          "actual": "dde5d2d0601290d085a30833bccb582ff6518ba7dcdd9adebe6e03ba49719005",
+          "expected": "dde5d2d0601290d085a30833bccb582ff6518ba7dcdd9adebe6e03ba49719005",
+          "pass": true,
+          "path": "DependencyEdges.csv"
+        },
+        {
+          "actual": "7fb889a0d27978184bac4a611f4a86fc4315d6067216cbe2766e4b7023c45ca4",
+          "expected": "7fb889a0d27978184bac4a611f4a86fc4315d6067216cbe2766e4b7023c45ca4",
+          "pass": true,
+          "path": "HANDOFF.md"
+        },
+        {
+          "actual": "bdc81decddeca84aa75b712212bbc4d2c66073e9513338690f0168fb29ad342b",
+          "expected": "bdc81decddeca84aa75b712212bbc4d2c66073e9513338690f0168fb29ad342b",
+          "pass": true,
+          "path": "PROPOSAL_RECORD.md"
+        },
+        {
+          "actual": "dc62bc055c9b3ac975fe7653dcc7181ad39f7f14bed4c4d4c7505fbf470f103f",
+          "expected": "dc62bc055c9b3ac975fe7653dcc7181ad39f7f14bed4c4d4c7505fbf470f103f",
+          "pass": true,
+          "path": "PROVENANCE.json"
+        },
+        {
+          "actual": "7bfbaf40c244d66a7fd6a72d482024a54f7a5e55a7d556dea2e39e6a3e9cc873",
+          "expected": "7bfbaf40c244d66a7fd6a72d482024a54f7a5e55a7d556dea2e39e6a3e9cc873",
+          "pass": true,
+          "path": "TopologicalWaves.md"
+        },
+        {
+          "actual": "fbda7aa4d80ea85d2cf0edaaa1c7b70f4f4b0452a5e354878e32d9c728515d32",
+          "expected": "fbda7aa4d80ea85d2cf0edaaa1c7b70f4f4b0452a5e354878e32d9c728515d32",
+          "pass": true,
+          "path": "_LATEST.md"
+        },
+        {
+          "actual": "f657808890e6e7b663b6ad1be4afe1d63f64b1d8c8fbff156d960132c145e645",
+          "expected": "f657808890e6e7b663b6ad1be4afe1d63f64b1d8c8fbff156d960132c145e645",
+          "pass": true,
+          "path": "dag.json"
+        }
+      ]
+    },
+    "dag_manifest_sha256": "5cab5b1f4f5be1dd0ac06737e5901c5dda844d0af412f3dc5427fef4d9cb6b60",
+    "dag_node_count": 101,
+    "dag_pointer_sha256": "46c162ddd2cd4e10e586f0d977f3fa3fc767453b22970f41756f84925349da78",
+    "deliverable_node_sets_equal": true,
+    "deliverable_nodes_sha256": "6e5050c4e578f6ff9819ee7a11dbb395b3f0a163b4fb0c48e88c3d084d9b0732",
+    "deliverable_register_count": 101,
+    "dependency_edges_sha256": "dde5d2d0601290d085a30833bccb582ff6518ba7dcdd9adebe6e03ba49719005",
+    "dependency_id_sets_equal": true,
+    "examined_basis_matches": true,
+    "expected_duplicate_retirement_count": 30,
+    "local_register_count": 93,
+    "local_row_count": 1480,
+    "local_status_counts": {
+      "ACTIVE": 1425,
+      "RETIRED": 55
+    },
+    "local_unique_active_directed_edges": 972,
+    "non_status_notes_field_mismatch_count": 0,
+    "non_status_notes_field_mismatches": [],
+    "post_merge_changed_dependency_or_dag_paths": [],
+    "sca_changed_dependency_or_dag_paths": [],
+    "status_mismatch_count": 30,
+    "status_mismatches": [
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DAG-002-E0846",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-12-01-E001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-12-01-E002",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-13-04-D001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-13-04-D002",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-14-03-D001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-14-03-D002",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-14-03-D003",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-14-04-D001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-14-04-D002",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-15-02-D001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-15-02-D002",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-16-01-D001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-16-01-D002",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-16-01-D003",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-17-02-D003",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-17-02-D004",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-17-02-D005",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-17-02-D006",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-17-02-E001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-17-03-E001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-17-04-D001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEL-17-04-E001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEP-012-05-009",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEP-012-05-010",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEP-012-05-011",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEP-013-02-006",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEP-08-04-E008",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "DEV-001-STAGE2-DEL-03-07-PKG02-001",
+        "Local": "ACTIVE"
+      },
+      {
+        "Aggregate": "RETIRED",
+        "DependencyID": "TP-DAG-004-DEL-05-01-E001",
+        "Local": "ACTIVE"
+      }
+    ],
+    "status_mismatches_equal_duplicate_retirements": true,
+    "topological_wave_count": 15
+  },
+  "disposition": "CURRENT_BY_REVALIDATION",
+  "run_status": "PASS",
+  "schema": "piping.sca008_dag008_compatibility.v1"
+}
