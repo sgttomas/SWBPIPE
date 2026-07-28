@@ -1911,3 +1911,26 @@
     implementation, runtime, client, dependency, DAG, lifecycle, repin,
     release, estimate, schedule, professional-reliance, or other authority is
     created.
+
+- **2026-07-28 — Receipt 80** (D-61 scoped current-effect reconciliation acceptance).
+  - Receipt-ID: `Receipt-80`
+  - Examined-Through: `21e8e54e1f5648b7d3db29228271aaa8c7d8904f`
+  - Parent-Receipt: `Receipt-79`
+  - Pointers: D-61 ruling; immutable derivative
+    `execution/_Reconciliation/DeliverableConcordance/SCOPED_SCA008_DEC091_DEL1604_CURRENT_EFFECT_2026-07-28/`;
+    artifact manifest SHA-256
+    `d6f5598f087c4d49c3f1ad5406d8c80d02d79be13f59cd6b127323a949a86ea3`;
+    validation result SHA-256
+    `0df4e84c3846abc79e6a3c16669e6e282222eb51107c74deffbe6ae78a759ab1`.
+  - Checks: the derivative artifact manifest and owning validator complete
+    without findings; the authority, claim, source, lifecycle, and
+    remaining-work relationships reproduce from their cited artifacts.
+  - Model-Attribution: OpenAI Codex Piping RECONCILIATION manager with
+    supervising Agent 0 owner-ruling transcription; exact runtime model
+    strings were not exposed.
+  - Gate-Outcome: `EXECUTED` — effective only on durable merge. The scoped
+    derivative is accepted as
+    `CURRENT_EFFECT_RECONCILED / CLOSED_WITH_RELIANCE_HOLD`. No product,
+    runtime, client, dependency, DAG, implementation, lifecycle, repin,
+    release, estimate, schedule, selectable-work, or professional-reliance
+    effect is created.

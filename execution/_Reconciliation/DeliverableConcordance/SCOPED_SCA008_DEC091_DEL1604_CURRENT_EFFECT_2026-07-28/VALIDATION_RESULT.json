@@ -1,0 +1,56 @@
+{
+  "checks": {
+    "activation_application_is_ancestor": true,
+    "activation_register_row_count": 1,
+    "activation_sha256": "8728813764376e7c19c0760178b3b052eed2c819b5f7ccd24dea2873dddccad9",
+    "authority_count": 2,
+    "authority_ids": [
+      "DEC-063",
+      "DEC-091"
+    ],
+    "claim_count": 2,
+    "claim_ids": [
+      "DEL-16-04-DECL-005",
+      "DEL-16-04-REQ-009"
+    ],
+    "dec063_disposition": "NOT_CURRENT_RELIANCE",
+    "dec091_disposition": "GOVERNING_CURRENT_EFFECT",
+    "decl005_tuple": [
+      "ALIGNED",
+      "HIGH",
+      "NO",
+      "NO"
+    ],
+    "evidence_all_pass": true,
+    "evidence_count": 6,
+    "forbidden_worktree_changes": [],
+    "head_matches_source_basis": true,
+    "historical_tracked_count": 294,
+    "historical_tree": "79914bd8b4a9bc183994e5a63746ef0f316ed3a2",
+    "historical_tree_list_sha256": "c547becd5eecae05cd6a2a5c64708223c136aa3c147ea55399f6b8cb8ce64f02",
+    "reconciliation_pointer_sha256": "145edf07b189002df4b78a7e62e5df96c3eb392723c64f8d49fda16e726b5ea7",
+    "remaining_all_nonselectable": true,
+    "remaining_ordinals": [
+      "1",
+      "2",
+      "3"
+    ],
+    "remaining_row_count": 3,
+    "remaining_text_matches_status": true,
+    "req009_tuple": [
+      "PARTIALLY_IMPLEMENTED",
+      "MEDIUM",
+      "OWNER",
+      "NO"
+    ],
+    "source_states": [
+      "21e8e54e1f5648b7d3db29228271aaa8c7d8904f"
+    ],
+    "status_lifecycle_in_progress": true,
+    "status_sha256": "39af5d4b4ebfcf0c0c46b122f29d33f33b0774094be317201ac8a8269572b366"
+  },
+  "closure": "CURRENT_EFFECT_RECONCILED / CLOSED_WITH_RELIANCE_HOLD",
+  "schema": "piping.d60.current_effect_reconciliation.validation.v1",
+  "source_basis": "21e8e54e1f5648b7d3db29228271aaa8c7d8904f",
+  "status": "PASS"
+}
