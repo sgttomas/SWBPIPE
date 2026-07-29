@@ -1955,3 +1955,36 @@
     client, dependency, DAG, implementation, lifecycle, repin, release,
     estimate, schedule, selectable-work, or professional-reliance authority
     is created.
+
+- **2026-07-28 — Receipt 82** (D-62 consolidated current-state ratification candidate).
+  - Receipt-ID: `Receipt-82`
+  - Examined-Through: `85ea0628fa4e57dd6aae53b06139b2b8734a9612`
+  - Parent-Receipt: `Receipt-81`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING. The
+    2026-07-28 standing direction quoted in the D-59, D-60, and D-61 records
+    is the sole authorization those acts carried; it is reproduced there and
+    is not restated as authority here.
+  - Pointers: `D-62_od8_ratification_proposal.md`;
+    `D-62_od8_ratification_acceptance.md`, whose three owner-return fences
+    each carry the same canonical content at SHA-256
+    `d627050083263dee91d678412a1add8043d5de98056713679ae8c4b8fffc7119`;
+    the completed D-62 decision-register row; merge-provenance evidence
+    `MERGE_APPROVAL_MATRIX_2026-07-28_85EA0628` at manifest SHA-256
+    `53844bfdcedaf5bae4396241375deba5dd35cc5b6d483342efac4a28268fccc1`.
+  - Checks: candidate identity is next-free at the frozen basis; the cited
+    commits for pull requests #403 and #404 resolve and reproduce as merge
+    second parents; the piping receipt-contract validator reports the ledger
+    conformant; the candidate touches no ruled record and no reliance hold.
+  - Model-Attribution: Anthropic Claude bounded Agent 2 author under the
+    Piping owning-manager lane of the loop-readiness transition program;
+    exact runtime model string was not exposed to the record.
+  - Gate-Outcome: `EXECUTED` — effective only on durable merge. The owner
+    return transcribed in every fence of the D-62 ruling record ratifies all
+    three enumerated items, so the acceptance record is completed as
+    `RATIFY-ALL-ENUMERATED` and the immutable candidate stays byte-identical
+    at its accepted SHA-256. Ratification adds fresh per-decision owner
+    judgment only: no cure of historical nonconformance, no reliance-hold
+    change, no DEL-16-04 lifecycle change, no successor mechanism, no
+    client-status change, and no product, runtime, dependency, DAG,
+    implementation, repin, release, estimate, schedule, selectable-work, or
+    professional-reliance effect is created.

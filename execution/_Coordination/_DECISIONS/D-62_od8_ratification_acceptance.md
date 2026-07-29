@@ -1,10 +1,10 @@
 ---
 doc_id: D-62-RULING-2026-07-28
 doc_kind: coordination.human_ruling
-status: AWAITING_RULING
+status: RULED
 created: 2026-07-28
 decision_id: D-62
-selected_option: PENDING_OWNER_SESSION
+selected_option: RATIFY-ALL-ENUMERATED
 owner: Ryan Tufts
 ---
 
@@ -39,41 +39,41 @@ an item whose fence still holds its placeholder is unratified.
 ## Verbatim owner ruling — item 1 (D-59, SCA-008 / DAG-008 revalidation acceptance)
 
 <!-- BEGIN OWNER RULING VERBATIM D-62-ITEM-D-59 -->
-<<RULING PLACEHOLDER — OWNER RETURN VERBATIM: D-59>>
+RATIFY D-59, D-60, D-61 AS ENUMERATED IN D-62 PROPOSAL f80dee1a — Ryan Tufts 2026-07-28
 <!-- END OWNER RULING VERBATIM D-62-ITEM-D-59 -->
 
-Canonical byte count and SHA-256 of the exact UTF-8 bytes between these
-markers, excluding marker lines and adjacent delimiter newlines and with no
-trailing newline: **pending the owner session**. The completion commit adds
-that statement here.
+Canonical SHA-256 of the exact 89 UTF-8 bytes between the markers, excluding
+marker lines and adjacent delimiter newlines, with no trailing newline:
+`d627050083263dee91d678412a1add8043d5de98056713679ae8c4b8fffc7119`.
 
 ## Verbatim owner ruling — item 2 (D-60, scoped reconciliation derivative activation)
 
 <!-- BEGIN OWNER RULING VERBATIM D-62-ITEM-D-60 -->
-<<RULING PLACEHOLDER — OWNER RETURN VERBATIM: D-60>>
+RATIFY D-59, D-60, D-61 AS ENUMERATED IN D-62 PROPOSAL f80dee1a — Ryan Tufts 2026-07-28
 <!-- END OWNER RULING VERBATIM D-62-ITEM-D-60 -->
 
-Canonical byte count and SHA-256 of the exact UTF-8 bytes between these
-markers, excluding marker lines and adjacent delimiter newlines and with no
-trailing newline: **pending the owner session**. The completion commit adds
-that statement here.
+Canonical SHA-256 of the exact 89 UTF-8 bytes between the markers, excluding
+marker lines and adjacent delimiter newlines, with no trailing newline:
+`d627050083263dee91d678412a1add8043d5de98056713679ae8c4b8fffc7119`.
 
 ## Verbatim owner ruling — item 3 (D-61, reconciliation acceptance and reliance hold)
 
 <!-- BEGIN OWNER RULING VERBATIM D-62-ITEM-D-61 -->
-<<RULING PLACEHOLDER — OWNER RETURN VERBATIM: D-61>>
+RATIFY D-59, D-60, D-61 AS ENUMERATED IN D-62 PROPOSAL f80dee1a — Ryan Tufts 2026-07-28
 <!-- END OWNER RULING VERBATIM D-62-ITEM-D-61 -->
 
-Canonical byte count and SHA-256 of the exact UTF-8 bytes between these
-markers, excluding marker lines and adjacent delimiter newlines and with no
-trailing newline: **pending the owner session**. The completion commit adds
-that statement here.
+Canonical SHA-256 of the exact 89 UTF-8 bytes between the markers, excluding
+marker lines and adjacent delimiter newlines, with no trailing newline:
+`d627050083263dee91d678412a1add8043d5de98056713679ae8c4b8fffc7119`.
 
 ## Selected effect
 
 The selected effect is determined item by item from the returns transcribed
-above and is **pending completion** until every fence is resolved. When the
-returns exist, the following apply:
+above. Every fence is resolved. Each carries the same 2026-07-28 owner return,
+which ratifies items 1, 2, and 3 as enumerated in the accepted candidate, so
+the selected option is `RATIFY-ALL-ENUMERATED`. Items 1, 2, 3, 5, and 6 below
+therefore apply; item 4 states the decline branch and does not arise, because
+no item was declined. The following apply:
 
 1. A ratifying return on item 1 makes the `D-59` disposition of DAG-008 as
    `CURRENT_BY_REVALIDATION`, together with the boundaries stated in that
