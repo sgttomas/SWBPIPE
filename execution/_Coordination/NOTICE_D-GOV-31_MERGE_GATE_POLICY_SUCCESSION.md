@@ -38,3 +38,26 @@ loop's own corpus-drift checks; this notice exists so detection does not
 depend on that alone. Remaining loop work: repin, adopt, or acknowledge the
 successor policy under the Piping loop's own instruments — or decline. Until
 the loop acts, its stricter local merge discipline remains controlling.
+
+## Update — 2026-07-29 — policy simplified by owner direction
+
+Later on 2026-07-29, before any registered loop acted on this notice, the
+owner directed that the grant mechanism described above be replaced. The
+policy is now: human-gated PRs remain the standing default; beyond that
+default, the owner may direct merge execution — typed by the owner
+directly or executed by an agent as the owner's proxy, identical
+authority either way — with the direction recorded in the loop's
+ordinary closeout evidence, which names the approved source HEAD, the
+owner's direction, and the effective merge SHA. No separate instrument,
+registry, or log exists or is required. K-MERGE-1 is unchanged.
+
+The shared `agents/AGENT_CHANGE.md` was reconciled accordingly in the
+same tranche as this update. Its new SHA-256 is
+`950e96f4cfff13af48b9edd93a4b47356e8b388a430d70977fd528ffbd4120fa`
+(superseding
+`f59e5455e1eeac687f69f091a74974fbfb2fb0a520fcb3bc7db8ab24529a4c77`).
+
+The follow-on for the Piping loop is unchanged: adopt, acknowledge, amend,
+decline, or defer under its own instruments and cadence; until the loop
+acts, its stricter local merge discipline remains controlling. This
+update, like the notice it extends, is coordination, never authority.
