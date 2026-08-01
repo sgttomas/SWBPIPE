@@ -2,7 +2,13 @@
 """Stdlib checks for the analysis status schema."""
 
 import json
+import sys
 from pathlib import Path
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import enum_at, load_schema  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,18 +46,9 @@ FORBIDDEN_AUTOMATIC = {
 }
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def load_json(path):
     with path.open(encoding="utf-8") as json_file:
         return json.load(json_file)
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
 
 
 def assert_no_forbidden_automatic_status_claims(statuses):
@@ -62,7 +59,7 @@ def assert_no_forbidden_automatic_status_claims(statuses):
 
 
 def check_schema_contract():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
 
     vocabulary = enum_at(schema, "AnalysisStatusVocabulary")

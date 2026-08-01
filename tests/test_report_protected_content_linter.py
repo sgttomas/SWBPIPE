@@ -2,7 +2,13 @@
 """Stdlib checks for the report protected-content linter schema and fixtures."""
 
 import json
+import sys
 from pathlib import Path
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import enum_at, required_at, walk_keys  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -82,24 +88,6 @@ FORBIDDEN_FIXTURE_TERMS = {
 def load_json(path):
     with path.open(encoding="utf-8") as json_file:
         return json.load(json_file)
-
-
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
 
 
 def main():
@@ -227,6 +215,10 @@ def main():
     serialized = json.dumps(schema) + json.dumps(fixture)
     assert "DEL-11-04_Invented educational example models" not in serialized
     assert "examples/models/invented" not in serialized
+
+
+def test_report_protected_content_linter_main():
+    main()
 
 
 if __name__ == "__main__":

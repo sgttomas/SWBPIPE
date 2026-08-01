@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 """Stdlib checks for the report sections schema."""
 
-import json
+import sys
 from pathlib import Path
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import (  # noqa: E402
+    enum_at,
+    load_schema,
+    required_at,
+    walk_keys,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -68,31 +78,8 @@ FORBIDDEN_STATUS = {
 }
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
-
-
 def main():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -252,6 +239,10 @@ def main():
     assert boundary["software_makes_sealing_claim"]["const"] is False
     assert boundary["software_makes_approval_claim"]["const"] is False
     assert boundary["software_makes_authentication_claim"]["const"] is False
+
+
+def test_report_sections_contract_main():
+    main()
 
 
 if __name__ == "__main__":

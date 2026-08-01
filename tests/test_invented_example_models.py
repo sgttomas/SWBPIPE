@@ -23,7 +23,7 @@ from core.project_persistence import (  # noqa: E402
     round_trip_project_envelope,
     validate_project_persistence_envelope,
 )
-from schema_validation import validate_instance  # noqa: E402
+from schema_validation import validate_instance, walk_strings  # noqa: E402
 
 EXAMPLE_DIR = ROOT / "examples" / "models" / "invented"
 EXAMPLE_FILES = {
@@ -169,17 +169,6 @@ def format_schema_error(error):
 
 def artifact_ref(ref_kind, ref):
     return {"ref_kind": ref_kind, "ref": ref}
-
-
-def walk_strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for item in value.values():
-            yield from walk_strings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_strings(item)
 
 
 def test_invented_examples_follow_model_contract_shape():

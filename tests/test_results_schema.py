@@ -3,8 +3,8 @@
 
 import json
 from copy import deepcopy
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,9 +14,14 @@ if str(TESTS_DIR) not in sys.path:
 
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
+    _skip_or_note_missing_jsonschema,
+    enum_at,
+    load_schema,
+    required_at,
     schema_for_definition,
     validate_instance,
     validate_schema_document,
+    walk_keys,
 )
 
 SCHEMA_PATH = ROOT / "schemas" / "results.schema.yaml"
@@ -112,11 +117,6 @@ FORBIDDEN_FORMAT_COMMITMENTS = {
 }
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def load_product_preview_result():
     with PRODUCT_PREVIEW_RESULT_PATH.open(encoding="utf-8") as fixture_file:
         return json.load(fixture_file)
@@ -134,26 +134,8 @@ def load_tp_phys_015_section_evidence_envelope():
         return json.load(fixture_file)
 
 
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
-
-
 def main():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -610,7 +592,7 @@ def main():
 
 
 def check_jsonschema_validation():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     fixture = load_tp_phys_015_result_envelope()
     section_fixture = load_tp_phys_015_section_evidence_envelope()
     try:
@@ -631,14 +613,6 @@ def check_jsonschema_validation():
         _skip_or_note_missing_jsonschema(exc)
 
 
-def _skip_or_note_missing_jsonschema(exc):
-    if "pytest" in sys.modules:
-        import pytest
-
-        pytest.skip(str(exc))
-    print(f"SKIP: {exc}")
-
-
 def test_results_schema_contract():
     main()
 
@@ -648,7 +622,7 @@ def test_results_schema_jsonschema_validation_helper():
 
 
 def test_result_trace_link_field_scalar_paths_are_paired():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     definition = schema["$defs"]["ResultTraceLink"]
     assert {"source_field_path", "target_field_path"} <= set(
         definition["properties"]

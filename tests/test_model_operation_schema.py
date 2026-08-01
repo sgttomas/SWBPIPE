@@ -2,15 +2,23 @@
 """Stdlib checks for the structured model operation schema."""
 
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "tests") not in sys.path:
     sys.path.insert(0, str(ROOT / "tests"))
 
-from schema_validation import validate_instance, validate_schema_document  # noqa: E402
+from schema_validation import (  # noqa: E402
+    enum_at,
+    load_schema,
+    required_at,
+    validate_instance,
+    validate_schema_document,
+    walk_keys,
+    walk_strings,
+)
 
 SCHEMA_PATH = ROOT / "schemas" / "model_operation.schema.json"
 FIXTURE_PATH = ROOT / "fixtures" / "model_operations" / "invented_operation_set_valid.json"
@@ -114,47 +122,13 @@ CANONICAL_DIMENSIONS = [
 ]
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def load_fixture():
     with FIXTURE_PATH.open(encoding="utf-8") as fixture_file:
         return json.load(fixture_file)
 
 
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
-
-
-def walk_strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for item in value.values():
-            yield from walk_strings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_strings(item)
-
-
 def main():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
     validate_schema_document(schema, schema_label="model_operation.schema.json")
 
@@ -323,6 +297,10 @@ def main():
             item["payload_scope"] == "model_state_record"
             for item in operation["preconditions"]["required_current_hashes"]
         )
+
+
+def test_model_operation_schema_contract_main():
+    main()
 
 
 if __name__ == "__main__":

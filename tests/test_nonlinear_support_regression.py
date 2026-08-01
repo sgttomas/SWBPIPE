@@ -3,8 +3,11 @@
 
 import json
 import re
+import shutil
 import subprocess
 from pathlib import Path
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -169,6 +172,10 @@ def _normalized_text(text: str) -> str:
     return " ".join(text.split())
 
 
+@pytest.mark.skipif(
+    shutil.which("cargo") is None,
+    reason="cargo toolchain is not installed on this machine",
+)
 def test_nonlinear_benchmark_crate_runs_focused_regressions():
     result = subprocess.run(
         ["cargo", "test", "--quiet"],

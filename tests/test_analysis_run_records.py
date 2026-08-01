@@ -17,6 +17,7 @@ if str(TESTS_DIR) not in sys.path:
 
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
+    _skip_or_note_missing_jsonschema,
     validate_instance,
     validate_schema_document,
 )
@@ -72,14 +73,6 @@ def build_run(result=None, **kwargs):
         input_manifest_hash=manifest_hash,
         **kwargs,
     )
-
-
-def _skip_or_note_missing_jsonschema(exc):
-    if "pytest" in sys.modules:
-        import pytest
-
-        pytest.skip(str(exc))
-    print(f"SKIP: {exc}")
 
 
 def test_preview_result_builds_deterministic_immutable_run_record():

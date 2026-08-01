@@ -23,8 +23,10 @@ from core.handoff.native_json import (  # noqa: E402
 )
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
+    _skip_or_note_missing_jsonschema,
     validate_instance,
     validate_schema_document,
+    walk_strings,
 )
 
 
@@ -62,17 +64,6 @@ def build_from_fixture(fixture: dict[str, object] | None = None) -> dict[str, ob
         privacy=fixture["privacy"],
         provenance=fixture["provenance"],
     )
-
-
-def walk_strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for item in value.values():
-            yield from walk_strings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_strings(item)
 
 
 def walk_mappings(value):
@@ -113,14 +104,6 @@ def check_jsonschema_validation():
         )
     except JsonSchemaDependencyMissing as exc:
         _skip_or_note_missing_jsonschema(exc)
-
-
-def _skip_or_note_missing_jsonschema(exc):
-    if "pytest" in sys.modules:
-        import pytest
-
-        pytest.skip(str(exc))
-    print(f"SKIP: {exc}")
 
 
 def test_fixture_and_builder_validate_against_schema():

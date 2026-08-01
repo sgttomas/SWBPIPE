@@ -3,8 +3,13 @@
 
 import copy
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import enum_at, required_at, walk_keys  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -120,24 +125,6 @@ def current_authority_fixture():
         {key: True for key in REQUIRED_NO_BYPASS}
     )
     return fixture
-
-
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
 
 
 def codes(result):

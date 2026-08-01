@@ -6,6 +6,11 @@ import sys
 from copy import deepcopy
 from pathlib import Path
 
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import load_schema, walk_strings  # noqa: E402
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "rule_pack.schema.yaml"
@@ -125,11 +130,6 @@ FORBIDDEN_SCHEMA_TEXT = {
 }
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def load_example():
     with EXAMPLE_PATH.open(encoding="utf-8") as example_file:
         return json.load(example_file)
@@ -141,17 +141,6 @@ def definition(schema, name):
 
 def required_at(schema, definition_name):
     return set(definition(schema, definition_name)["required"])
-
-
-def walk_strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for item in value.values():
-            yield from walk_strings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_strings(item)
 
 
 EXPRESSION_NODE_KINDS = {
@@ -187,7 +176,7 @@ SEMVER_PATTERN = "^[0-9]+\\.[0-9]+\\.[0-9]+$"
 
 
 def check_schema_contract():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -453,7 +442,7 @@ def check_schema_contract():
 
 
 def check_invented_example_shape():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     example = load_example()
     for property_name in MIN_ITEM_ARRAYS:
         assert example[property_name], property_name
@@ -533,7 +522,7 @@ def check_invented_example_shape():
 
 
 def check_jsonschema_validation():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     example = load_example()
     try:
         from jsonschema import Draft202012Validator
@@ -633,7 +622,7 @@ def test_invented_demo_validates_against_rule_pack_schema():
 
 
 def test_schema_rejects_missing_or_unsafe_hardened_fields():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     example = load_example()
     validator = _validator_or_skip(schema)
     if validator is None:

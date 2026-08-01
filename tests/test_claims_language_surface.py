@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """DEC-081 claims-language surface check (D-48 O-A).
 
-Thin shim: runs the repo-root deterministic validator
-`tools/validation/validate_claims_language.py` against the live tree and
-requires a clean result. The validator itself is unit-tested in
+Thin shim: imports the repo-root deterministic validator
+`tools/validation/validate_claims_language.py` and runs it in-process
+against the live tree, requiring a clean result. This is the single
+repo-wide claims-language enforcement run for the suite; the validator
+itself is unit-tested in
 `tools/validation/test_validate_claims_language.py`.
 """
 
-import subprocess
+import importlib.util
 import sys
 from pathlib import Path
 
@@ -23,27 +25,37 @@ def _repo_root() -> Path:
     )
 
 
+def _load_validator(root: Path):
+    module_path = (
+        root / "tools" / "validation" / "validate_claims_language.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "validate_claims_language", module_path
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_live_tree_has_no_claims_language_findings():
     root = _repo_root()
-    completed = subprocess.run(
-        [
-            sys.executable,
-            str(root / "tools" / "validation" /
-                "validate_claims_language.py"),
-            "--repo-root",
-            str(root),
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
+    validator = _load_validator(root)
+
+    scanned = validator.iter_scanned_files(root)
+    assert scanned, "validator scanned no files; surface wiring is broken"
+
+    findings = validator.validate_claims_language(root)
+    formatted = "\n".join(
+        f"{finding.code} {finding.path}"
+        f"{':' + str(finding.line) if finding.line is not None else ''}: "
+        f"{finding.message}"
+        for finding in findings[:40]
     )
-    output = (completed.stdout + completed.stderr).strip()
-    if len(output) > 4000:
-        output = output[:4000] + " …[truncated]"
-    assert completed.returncode == 0, (
-        "DEC-081 claims-language validator reported findings:\n" + output
+    assert not findings, (
+        "DEC-081 claims-language validator reported findings:\n" + formatted
     )
-    assert output.startswith("VALID ")
 
 
 if __name__ == "__main__":
