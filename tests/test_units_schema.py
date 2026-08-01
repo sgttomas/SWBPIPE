@@ -13,8 +13,13 @@ if str(TESTS_DIR) not in sys.path:
 
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
+    _skip_or_note_missing_jsonschema,
+    load_schema,
+    required_at,
     validate_instance,
     validate_schema_document,
+    walk_keys,
+    walk_strings,
 )
 
 SCHEMA_PATH = ROOT / "schemas" / "units.schema.yaml"
@@ -83,43 +88,13 @@ FORBIDDEN_DEFAULT_TERMS = {
 }
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def load_fixture():
     with FIXTURE_PATH.open(encoding="utf-8") as fixture_file:
         return json.load(fixture_file)
 
 
-def walk_strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for item in value.values():
-            yield from walk_strings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_strings(item)
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
-
-
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
 def check_schema_contract():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -261,7 +236,7 @@ def check_schema_contract():
 
 
 def check_unit_fixture():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     fixture = load_fixture()
 
     assert set(schema["required"]) <= set(fixture)
@@ -316,7 +291,7 @@ def check_unit_fixture():
 
 
 def check_jsonschema_validation():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     fixture = load_fixture()
     try:
         assert validate_schema_document(schema, schema_label=str(SCHEMA_PATH))
@@ -328,14 +303,6 @@ def check_jsonschema_validation():
         )
     except JsonSchemaDependencyMissing as exc:
         _skip_or_note_missing_jsonschema(exc)
-
-
-def _skip_or_note_missing_jsonschema(exc):
-    if "pytest" in sys.modules:
-        import pytest
-
-        pytest.skip(str(exc))
-    print(f"SKIP: {exc}")
 
 
 def test_units_schema_contract():

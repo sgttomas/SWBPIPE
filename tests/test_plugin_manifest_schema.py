@@ -2,7 +2,13 @@
 """Stdlib checks for the plugin manifest schema."""
 
 import json
+import sys
 from pathlib import Path
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import load_schema  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,11 +39,6 @@ REQUIRED_NO_BYPASS = {
 }
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def load_fixture():
     with FIXTURE_PATH.open(encoding="utf-8") as fixture_file:
         return json.load(fixture_file)
@@ -48,7 +49,7 @@ def definition(schema, name):
 
 
 def check_schema_contract():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
 
     assert REQUIRED_TOP_LEVEL <= set(schema["required"])
@@ -135,7 +136,7 @@ def check_schema_contract():
 
 
 def check_plugin_manifest_fixture():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     manifest = load_fixture()
 
     assert REQUIRED_TOP_LEVEL <= set(manifest)

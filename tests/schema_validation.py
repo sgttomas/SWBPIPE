@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import sys
 from copy import deepcopy
 
 
@@ -65,3 +67,48 @@ def _format_error(error):
         else:
             path += f".{part}"
     return f"{path}: {error.message}"
+
+
+# Shared stdlib schema-inspection helpers, consolidated from the per-file
+# copies that the schema/contract tests previously duplicated verbatim.
+
+def load_schema(schema_path):
+    with schema_path.open(encoding="utf-8") as schema_file:
+        return json.load(schema_file)
+
+
+def required_at(schema, definition_name):
+    return set(schema["$defs"][definition_name]["required"])
+
+
+def enum_at(schema, definition_name):
+    return set(schema["$defs"][definition_name]["enum"])
+
+
+def walk_keys(value):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            yield key
+            yield from walk_keys(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from walk_keys(item)
+
+
+def walk_strings(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from walk_strings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from walk_strings(item)
+
+
+def _skip_or_note_missing_jsonschema(exc):
+    if "pytest" in sys.modules:
+        import pytest
+
+        pytest.skip(str(exc))
+    print(f"SKIP: {exc}")

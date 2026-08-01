@@ -3,11 +3,15 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import load_schema  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,13 +30,8 @@ def ref(object_type, value):
     return {"object_type": object_type, "ref": value}
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def validate_contract(contract):
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     Draft202012Validator.check_schema(schema)
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(contract), key=lambda item: item.path)

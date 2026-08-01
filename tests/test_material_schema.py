@@ -2,8 +2,8 @@
 """Stdlib checks for the material library schema."""
 
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,8 +13,13 @@ if str(TESTS_DIR) not in sys.path:
 
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
+    _skip_or_note_missing_jsonschema,
+    enum_at,
+    required_at,
     validate_instance,
     validate_schema_document,
+    walk_keys,
+    walk_strings,
 )
 
 SCHEMA_PATH = ROOT / "schemas" / "material.schema.yaml"
@@ -107,35 +112,6 @@ FORBIDDEN_PUBLIC_DATA_TEXT = {
 def load_json(path):
     with path.open(encoding="utf-8") as handle:
         return json.load(handle)
-
-
-def walk_strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for item in value.values():
-            yield from walk_strings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_strings(item)
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
-
-
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
 
 
 def main():
@@ -276,14 +252,6 @@ def check_jsonschema_validation():
         )
     except JsonSchemaDependencyMissing as exc:
         _skip_or_note_missing_jsonschema(exc)
-
-
-def _skip_or_note_missing_jsonschema(exc):
-    if "pytest" in sys.modules:
-        import pytest
-
-        pytest.skip(str(exc))
-    print(f"SKIP: {exc}")
 
 
 def test_material_schema_contract():

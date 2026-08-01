@@ -6,7 +6,7 @@
     "desktop-build": {"cwd": ".", "command": ["npm", "run", "build:desktop"]},
     "desktop-test": {"cwd": ".", "command": ["npm", "run", "test:desktop"]},
     "evidence-sweep": {"cwd": ".", "command": ["python3", "tools/release/run_evidence_sweep.py", "--execute"]},
-    "piping-pytest": {"cwd": ".", "command": ["python3", "-m", "pytest", "-q", "tests"]},
+    "piping-pytest": {"cwd": ".", "command": ["python3", "-m", "pytest", "-q", "tests", "-n", "auto", "--dist", "loadscope"]},
     "harness-pytest": {"cwd": "../..", "command": ["python3", "-m", "pytest", "-q", "tools/practitioner_harness"]},
     "harness-self-check": {"cwd": "../..", "command": ["python3", "tools/practitioner_harness/harness.py", "self-check"]}
   },

@@ -2,7 +2,13 @@
 """Stdlib checks for the code-neutral analysis boundary schema."""
 
 import json
+import sys
 from pathlib import Path
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import enum_at, load_schema, required_at  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,26 +58,13 @@ REQUIRED_FORBIDDEN_CLAIMS = {
 }
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def load_fixture(name):
     with (FIXTURE_DIR / name).open(encoding="utf-8") as fixture_file:
         return json.load(fixture_file)
 
 
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
-
-
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
 def check_schema_contract():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
 
     assert "authority_model" in schema["required"]
@@ -140,7 +133,7 @@ def check_schema_contract():
 
 
 def check_analysis_boundary_fixtures():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     fixtures = [
         load_fixture("invented_mechanics_solved_rule_inputs_incomplete.json"),
         load_fixture("invented_user_rule_checked.json"),

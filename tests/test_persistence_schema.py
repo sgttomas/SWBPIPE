@@ -2,17 +2,18 @@
 """Stdlib checks for the project persistence schema."""
 
 import json
+import sys
 from pathlib import Path
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import load_schema  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "project_persistence.schema.yaml"
 FIXTURE_PATH = ROOT / "fixtures" / "persistence" / "invented_persisted_preview_project.json"
-
-
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
 
 
 def load_fixture():
@@ -25,7 +26,7 @@ def ref_name(ref):
 
 
 def check_schema_contract():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
     assert schema["additionalProperties"] is False

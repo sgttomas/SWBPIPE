@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 """Stdlib checks for the local FEA handoff contract."""
 
-import json
+import sys
 from pathlib import Path
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from schema_validation import (  # noqa: E402
+    enum_at,
+    load_schema,
+    required_at,
+    walk_keys,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,10 +75,6 @@ REQUIRED_GUIDANCE_LABELS = {
     "TBD",
 }
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
 
 def load_guidance():
     return GUIDANCE_PATH.read_text(encoding="utf-8")
@@ -78,26 +84,8 @@ def normalize_text(value):
     return " ".join(value.split())
 
 
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
-
-
 def main():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     guidance = load_guidance()
     defs = schema["$defs"]
 

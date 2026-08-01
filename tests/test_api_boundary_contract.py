@@ -351,5 +351,9 @@ def main():
         assert phrase in boundary_text
 
 
+def test_api_boundary_contract_main():
+    main()
+
+
 if __name__ == "__main__":
     main()

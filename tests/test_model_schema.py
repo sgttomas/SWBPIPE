@@ -14,9 +14,15 @@ if str(TESTS_DIR) not in sys.path:
 
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
+    _skip_or_note_missing_jsonschema,
+    enum_at,
+    load_schema,
+    required_at,
     schema_for_definition,
     validate_instance,
     validate_schema_document,
+    walk_keys,
+    walk_strings,
 )
 
 SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
@@ -113,11 +119,6 @@ FORBIDDEN_SCHEMA_TEXT = {
 }
 
 
-def load_schema():
-    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
-        return json.load(schema_file)
-
-
 def load_json(path):
     with path.open(encoding="utf-8") as fixture_file:
         return json.load(fixture_file)
@@ -181,41 +182,12 @@ def normalized_physical_fixture_for_current_schema():
     return fixture
 
 
-def walk_strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for item in value.values():
-            yield from walk_strings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_strings(item)
-
-
-def walk_keys(value):
-    if isinstance(value, dict):
-        for key, item in value.items():
-            yield key
-            yield from walk_keys(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from walk_keys(item)
-
-
-def required_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["required"])
-
-
-def enum_at(schema, definition_name):
-    return set(schema["$defs"][definition_name]["enum"])
-
-
 def assert_required_fields(schema, definition_name, record):
     assert required_at(schema, definition_name) <= set(record)
 
 
 def check_schema_contract():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     defs = schema["$defs"]
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -527,7 +499,7 @@ def check_schema_contract():
 
 
 def check_domain_fixtures():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     minimal = load_json(MINIMAL_PROJECT_FIXTURE)
     physical = load_json(PHYSICAL_MODEL_FIXTURE)
 
@@ -569,7 +541,7 @@ def check_domain_fixtures():
 
 
 def check_jsonschema_validation():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     minimal = normalized_minimal_fixture_for_current_schema()
     physical = normalized_physical_fixture_for_current_schema()
     try:
@@ -592,7 +564,7 @@ def check_jsonschema_validation():
 
 
 def check_typed_load_records_and_orientation_validation():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     load_record_schema = schema_for_definition(schema, "LoadRecord")
     element_schema = schema_for_definition(schema, "Element")
 
@@ -690,14 +662,6 @@ def assert_invalid_instance(schema, instance):
     raise AssertionError("instance unexpectedly passed JSON Schema validation")
 
 
-def _skip_or_note_missing_jsonschema(exc):
-    if "pytest" in sys.modules:
-        import pytest
-
-        pytest.skip(str(exc))
-    print(f"SKIP: {exc}")
-
-
 def test_model_schema_contract():
     check_schema_contract()
 
@@ -715,7 +679,7 @@ def test_typed_load_records_and_straight_pipe_orientation_contract():
 
 
 def test_traceability_link_field_scalar_paths_are_paired():
-    schema = load_schema()
+    schema = load_schema(SCHEMA_PATH)
     definition = schema["$defs"]["TraceabilityLink"]
     assert {"source_field_path", "target_field_path"} <= set(
         definition["properties"]

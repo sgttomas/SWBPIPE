@@ -24,6 +24,12 @@ FORMER_PRODUCTION_FILES = (
     "ScopeOfWork.md",
 )
 CONTEXT_NOTICE = "Preserved setup context — superseded for current consumption."
+# Conscious pin update (2026-07-31): SOFTWARE_DECOMP.md advanced 0.9 -> 0.10 ->
+# 0.11 through accepted amendments, most recently SCA-008 (commit 9b5207670,
+# "docs: accept Piping decomposition revision 0.11", with its
+# ACCEPTANCE_RECORD.md). The D-43 reading contract itself is unchanged; only
+# the accepted-revision pin moves.
+EXPECTED_DECOMP_REVISION = "0.11"
 
 
 def _read(path: Path, errors: list[str]) -> str:
@@ -80,8 +86,10 @@ def validate(project_root: Path) -> list[str]:
             f"expected {list(EXPECTED_IDS)}, found {sorted(members)}"
         )
 
-    if "revision: 0.9" not in decomp:
-        errors.append("SOFTWARE_DECOMP.md is not revision 0.9")
+    if f"revision: {EXPECTED_DECOMP_REVISION}" not in decomp:
+        errors.append(
+            f"SOFTWARE_DECOMP.md is not revision {EXPECTED_DECOMP_REVISION}"
+        )
 
     for deliverable_id in EXPECTED_IDS:
         member = members.get(deliverable_id)

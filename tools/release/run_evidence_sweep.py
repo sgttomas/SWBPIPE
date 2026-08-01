@@ -226,56 +226,80 @@ def preflight_prerequisites(root: Path) -> list[str]:
             )
 
     if shutil.which("rustup") is not None:
-        target_probe = subprocess.run(
-            ("rustup", "target", "list", "--installed"),
-            cwd=root,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        installed = {line.strip() for line in target_probe.stdout.splitlines()}
-        if target_probe.returncode != 0 or "wasm32-unknown-unknown" not in installed:
-            errors.append("missing Rust target: wasm32-unknown-unknown")
+        try:
+            target_probe = subprocess.run(
+                ("rustup", "target", "list", "--installed"),
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except FileNotFoundError:
+            # shutil.which can be out of step with the spawn path; report the
+            # tool through the normal missing-dependency channel instead of
+            # crashing the preflight.
+            errors.append("missing executable: rustup")
+        else:
+            installed = {
+                line.strip() for line in target_probe.stdout.splitlines()
+            }
+            if (
+                target_probe.returncode != 0
+                or "wasm32-unknown-unknown" not in installed
+            ):
+                errors.append("missing Rust target: wasm32-unknown-unknown")
 
     if shutil.which("wasm-bindgen") is not None:
-        bindgen_probe = subprocess.run(
-            ("wasm-bindgen", "--version"),
-            cwd=root,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        version_fields = bindgen_probe.stdout.strip().split()
-        version = version_fields[1] if len(version_fields) > 1 else None
-        if bindgen_probe.returncode != 0 or version != PINNED_WASM_BINDGEN_VERSION:
-            errors.append(
-                "wasm-bindgen version mismatch: expected "
-                f"{PINNED_WASM_BINDGEN_VERSION}, found {version or 'unavailable'}"
+        try:
+            bindgen_probe = subprocess.run(
+                ("wasm-bindgen", "--version"),
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
             )
+        except FileNotFoundError:
+            errors.append("missing executable: wasm-bindgen")
+        else:
+            version_fields = bindgen_probe.stdout.strip().split()
+            version = version_fields[1] if len(version_fields) > 1 else None
+            if (
+                bindgen_probe.returncode != 0
+                or version != PINNED_WASM_BINDGEN_VERSION
+            ):
+                errors.append(
+                    "wasm-bindgen version mismatch: expected "
+                    f"{PINNED_WASM_BINDGEN_VERSION}, found "
+                    f"{version or 'unavailable'}"
+                )
 
     if shutil.which("node") is not None and (node_bin / "playwright").is_file():
-        browser_probe = subprocess.run(
-            (
-                "node",
-                "-e",
-                "const fs=require('node:fs');"
-                "const {chromium}=require('@playwright/test');"
-                "const p=chromium.executablePath();"
-                "if(!fs.existsSync(p)){console.error(p);process.exit(1)}",
-            ),
-            cwd=root,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if browser_probe.returncode != 0:
-            errors.append(
-                "missing local Playwright Chromium executable "
-                "(provision it before the sweep)"
+        try:
+            browser_probe = subprocess.run(
+                (
+                    "node",
+                    "-e",
+                    "const fs=require('node:fs');"
+                    "const {chromium}=require('@playwright/test');"
+                    "const p=chromium.executablePath();"
+                    "if(!fs.existsSync(p)){console.error(p);process.exit(1)}",
+                ),
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
             )
+        except FileNotFoundError:
+            errors.append("missing executable: node")
+        else:
+            if browser_probe.returncode != 0:
+                errors.append(
+                    "missing local Playwright Chromium executable "
+                    "(provision it before the sweep)"
+                )
 
     if shutil.which("cargo") is not None:
         for manifest in sorted(
@@ -285,21 +309,25 @@ def preflight_prerequisites(root: Path) -> list[str]:
             for path in search_root.rglob("Cargo.toml")
             if "target" not in path.relative_to(root).parts
         ):
-            cache_probe = subprocess.run(
-                (
-                    "cargo",
-                    "fetch",
-                    "--locked",
-                    "--offline",
-                    "--manifest-path",
-                    manifest.as_posix(),
-                ),
-                cwd=root,
-                env=env,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
+            try:
+                cache_probe = subprocess.run(
+                    (
+                        "cargo",
+                        "fetch",
+                        "--locked",
+                        "--offline",
+                        "--manifest-path",
+                        manifest.as_posix(),
+                    ),
+                    cwd=root,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            except FileNotFoundError:
+                errors.append("missing executable: cargo")
+                break
             if cache_probe.returncode != 0:
                 detail = cache_probe.stderr.strip().splitlines()
                 suffix = f": {detail[-1]}" if detail else ""
