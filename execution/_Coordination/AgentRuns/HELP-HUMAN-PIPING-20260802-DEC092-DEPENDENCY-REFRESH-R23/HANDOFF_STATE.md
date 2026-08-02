@@ -34,6 +34,18 @@ N5 is COMPLETE/PASS. The complete required gate set passes after the
 independent GEN-8 correction, and Receipt-85 is appended and structurally
 valid. N6 CHANGE proposal-only Git closeout is READY.
 
+## Whitespace-disposition correction
+
+N5's tracked-surface `git diff --check` did not include 54 then-untracked R23
+historical run records. Full staging exposed 65 findings across those paths:
+54 `new blank line at EOF` and 11 `trailing whitespace`. The owner authorized
+exact run-local classifications for those 54 literal paths only: 50 disable
+`blank-at-eof`, and four disable both `blank-at-eof` and `blank-at-eol`.
+There are no globs or filename-wide exemptions; all 54 historical files remain
+byte-identical to commit `f37eedcaea75966b4a2503dafae28216f08e4f56`.
+The classified full-candidate whitespace check passes without changing any
+evidence byte or proposal-only authority boundary.
+
 ## Remaining gates
 
 1. N6 CHANGE Git closeout under the existing owner approval.

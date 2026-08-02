@@ -2,7 +2,7 @@
   "run_id": "HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23",
   "basis": "23d15899fd0acf5d1d0513f3fe396438375c9e25",
   "branch": "codex/piping-dec092-dependency-refresh",
-  "phase": "N5_COMPLETE_PASS",
+  "phase": "N6_CORRECTIVE_CLOSEOUT_READY",
   "rerun_head": "81bcd8376066fd0e79811bb2bf3a129fa5d7abaa",
   "incoming_piping_paths": 2,
   "incoming_path_disposition": "TWO_NON_OVERLAPPING_ROOT_NOTICES_ONLY",
@@ -31,7 +31,14 @@
   "n5_practitioner_harness": "349_PASSED",
   "n5_self_check": "EXIT_0",
   "n5_profile_product_probe": "NON_GATING_ENVIRONMENT_FAILURE_453_PASS_16_SKIP_30_FAIL_20_ERROR",
-  "n6_status": "READY",
+  "n5_whitespace_check_scope": "TRACKED_GOVERNED_SURFACES_ONLY",
+  "n6_preclassification_whitespace_findings": 65,
+  "n6_preclassification_whitespace_paths": 54,
+  "n6_run_local_gitattributes_paths": 54,
+  "n6_run_local_blank_at_eof_only_paths": 50,
+  "n6_run_local_blank_at_eof_and_eol_paths": 4,
+  "n6_evidence_hash_preservation": "PASS_AGAINST_F37EEDCAE",
+  "n6_status": "CORRECTIVE_CLOSEOUT_READY",
   "portability_policy_amendment": "PASS",
   "portability_policy_sha256": "f0dacfee06bdd4aac177a962f4710edc99fda0e073e53e965c88fb4d238fade4",
   "preserved_evaluation_inputs": 121,
@@ -45,5 +52,5 @@
   "dag009_started": true,
   "dag009_proposal_materialized": true,
   "receipt_written": true,
-  "git_closeout_started": false
+  "git_closeout_started": true
 }

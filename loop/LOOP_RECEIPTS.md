@@ -2055,8 +2055,14 @@
   - Checks: subject-specific hash/schema/DAG/JSON/manifest/exact-delta checks,
     decomposition SCH, claims/path, focused portability tests, repository
     self-check, full practitioner-harness pytest, receipt validation, profile
-    determination, containment, and whitespace checks pass; the excluded
-    product-test probe's environmental outcome is recorded in the N5 return.
+    determination, and containment pass. N5's tracked-surface whitespace check
+    passed but did not include 54 then-untracked historical R23 run records;
+    full staging exposed 65 findings across those paths. The owner authorized
+    exactly 54 literal run-local classifications (50 disabling only
+    `blank-at-eof`, four disabling `blank-at-eof` and `blank-at-eol`), after
+    which the full-candidate check passes with all 54 historical files
+    byte-identical to commit `f37eedcae`. The excluded product-test probe's
+    environmental outcome is recorded in the N5 return.
   - Model-Attribution: OpenAI Codex PROJECT_SETUP Agent 1 under HELP_HUMAN used
     inherited runtime capability without override or mid-task substitution;
     exact model string was not exposed; no delegation.

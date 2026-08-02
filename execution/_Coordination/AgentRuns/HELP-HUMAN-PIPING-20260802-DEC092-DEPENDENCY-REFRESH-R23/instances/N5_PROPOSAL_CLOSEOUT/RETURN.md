@@ -54,7 +54,25 @@ closeout is READY.
   governed-file change and does not alter this control-plane-only closeout
   disposition. The explicitly excluded DEC-025 evidence sweep was not run.
 - JSON parsing, exact path containment, `git diff --check`, DAG/decomposition
-  guards, and proposal-only authority boundaries: PASS.
+  guards, and proposal-only authority boundaries: PASS for the tracked
+  governed surfaces evaluated by N5. That invocation did not include 54 R23
+  historical run-record paths that were still untracked.
+
+## Post-staging whitespace correction
+
+N6 staging exposed 65 Git whitespace findings across those 54 historical
+run-record paths: 54 `new blank line at EOF` findings and 11 `trailing
+whitespace` findings. No finding affected a dependency file, portability
+policy, EVALUATION bundle, live DAG-009, CHANGE record, or Receipt-85.
+
+The owner authorized a run-local `.gitattributes` with exactly 54 literal
+relative-path classifications: 50 disable only `blank-at-eof`; four disable
+`blank-at-eof` and `blank-at-eol`. No glob or filename-wide exemption is used,
+and every classified historical file remains byte-identical to commit
+`f37eedcaea75966b4a2503dafae28216f08e4f56`. The accurate disposition is:
+tracked governed-surface PASS at N5; pre-classification full-tranche findings
+65/54 at N6; full-candidate PASS under the owner-authorized exact-path
+classifications with historical evidence bytes preserved.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
