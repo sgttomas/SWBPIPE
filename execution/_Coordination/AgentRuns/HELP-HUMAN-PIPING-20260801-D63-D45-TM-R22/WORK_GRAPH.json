@@ -1,0 +1,107 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22",
+  "version": 3,
+  "supersedes_version": 2,
+  "amendment_ref": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/amendments/HELPS-HUMANS-R22-INTEGRATION/V3.md",
+  "selection_authority": "HUMAN",
+  "posture": "MIXED",
+  "frozen_sha": "3c2e816f1072295de15fdcdf924c19b4b66497bc",
+  "branch": "codex/piping-d63-d45-rulings",
+  "integration_owner": "HELPS_HUMANS",
+  "concurrency": "SERIAL_ONLY",
+  "nodes": [
+    {
+      "id": "N1_D63_RECORD",
+      "kind": "d63_option_a_authority_recording",
+      "owner": "HELPS_HUMANS",
+      "status": "COMPLETED",
+      "depends_on": [],
+      "write_scope": [
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/ORCHESTRATION_PLAN.md",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/WORK_GRAPH.json",
+        "execution/_Coordination/_DECISIONS/D-63_RULING_2026-08-01.md",
+        "execution/_Coordination/_DECISIONS/_REGISTER.md",
+        "execution/_Coordination/TM_ADOPTION_PACKET_2026-07-31.md"
+      ],
+      "fan_in_gate": "OPTION_A_RECORDED_F_PIP_5_PASS_NO_SCOPE_EFFECT"
+    },
+    {
+      "id": "N2_TM_REGISTER_MIGRATION",
+      "kind": "task_management_register_mint_and_linked_migration",
+      "owner": "TASK_MANAGEMENT",
+      "status": "COMPLETED",
+      "depends_on": ["N1_D63_RECORD"],
+      "write_scope": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/instances/N2_TM_REGISTER_MIGRATION/**"
+      ],
+      "fan_in_gate": "SCHEMA_1_0_25_COLUMNS_EXACT_LINKED_ROWS_NO_ROOT_WRITE"
+    },
+    {
+      "id": "N3_D45_CODIFICATION",
+      "kind": "d45_option_b_ruling_codification",
+      "owner": "SOFTWARE_DECOMP",
+      "status": "COMPLETED",
+      "depends_on": ["N2_TM_REGISTER_MIGRATION"],
+      "fan_in_gate": "OPTION_B_ONLY_LIVE_INPUTS_REVERIFIED"
+    },
+    {
+      "id": "N4A_TM_D62_PROMOTION",
+      "kind": "owner_directed_decisions_tm_row_promotion",
+      "owner": "TASK_MANAGEMENT",
+      "status": "COMPLETED",
+      "depends_on": ["N3_D45_CODIFICATION"],
+      "write_scope": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/instances/N4A_TM_D62_PROMOTION/**"
+      ],
+      "fan_in_gate": "OWNER_DIRECTED_DECISIONS_ROW_WITH_PROVENANCE_NO_AUTHORITY_EFFECT_NO_DECISION_REGISTER_WRITE"
+    },
+    {
+      "id": "N4B_D62_CURRENCY_REPAIR",
+      "kind": "d62_decision_register_currency_repair",
+      "owner": "HELPS_HUMANS",
+      "status": "COMPLETED",
+      "depends_on": ["N4A_TM_D62_PROMOTION"],
+      "write_scope": [
+        "execution/_Coordination/_DECISIONS/_REGISTER.md",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/instances/N4B_D62_CURRENCY_REPAIR/**"
+      ],
+      "fan_in_gate": "D62_CURRENT_FACTS_ONLY_NO_REOPEN_OR_REINTERPRETATION_NO_TM_REGISTER_WRITE"
+    },
+    {
+      "id": "N5_TM_CLOSURE_NOTICE",
+      "kind": "task_management_closure_and_root_notice",
+      "owner": "TASK_MANAGEMENT",
+      "status": "COMPLETED",
+      "depends_on": ["N4B_D62_CURRENCY_REPAIR"],
+      "fan_in_gate": "EVIDENCE_BOUND_DISPOSITIONS_ORDINARY_NOTICE_NO_ROOT_WRITE"
+    },
+    {
+      "id": "N6_VALIDATE_RECEIPT",
+      "kind": "terminal_validation_and_piping_receipt",
+      "owner": "HELPS_HUMANS",
+      "status": "COMPLETED",
+      "depends_on": ["N5_TM_CLOSURE_NOTICE"],
+      "write_scope": [
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/ORCHESTRATION_PLAN.md",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/WORK_GRAPH.json",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/amendments/HELPS-HUMANS-R22-INTEGRATION/V3.md",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/instances/N6_VALIDATE_RECEIPT/**",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/HANDOFF_STATE.md",
+        "execution/_Coordination/TM_ADOPTION_PACKET_2026-07-31.md",
+        "loop/LOOP_RECEIPTS.md"
+      ],
+      "fan_in_gate": "ALL_REGISTER_GRAPH_PATH_AND_RECEIPT_CHECKS_PASS"
+    },
+    {
+      "id": "N7_GIT_CLOSEOUT",
+      "kind": "git_closeout",
+      "owner": "CHANGE",
+      "status": "READY",
+      "depends_on": ["N6_VALIDATE_RECEIPT"],
+      "fan_in_gate": "CONTAINED_STAGED_TRANCHE_AND_CHANGE_RETURN"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # D-45 - Temperature-Indexed Shear Modulus
 
-**Status:** PROPOSAL  
+**Status:** RULED — Option O-B (2026-08-01)
 **Date prepared:** 2026-07-15  
 **Decision ID:** D-45  
 **Prepared by:** agent, as the governed residual gateway from the bounded
@@ -72,3 +72,25 @@ for `DEC-077`.
 An owner act is required. Until then, base G remains the explicit current
 behavior, D-45 remains `AWAITING_RULING`, and no temperature-indexed G field or
 interpolation may be implemented.
+
+## 6. Owner Ruling And Disposition
+
+**Ruling (2026-08-01, Ryan Tufts, human project authority):** Option **O-B**.
+The owner's exact in-session ruling was:
+
+> 2) D-45 ruling: O-B.
+
+The separate durable ruling record is
+[`D-45_RULING_2026-08-01.md`](D-45_RULING_2026-08-01.md), which binds the
+pre-ruling packet hash and the exact owner-text hash. The ruling is codified as
+`DEC-092` in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 12.
+
+This disposition adds authority for an explicit user-entered
+temperature-point G field and applies the `DEC-077` method to it: exact-id
+selection remains available; linear interpolation occurs only between
+qualifying adjacent user-entered points; two-source and method provenance is
+required; and no extrapolation or hidden base-G fallback is allowed under a
+selected temperature basis. The user-entered base G remains the no-basis
+behavior. The live schema and solver remain unimplemented against this ruling
+until a separately bounded tranche supplies the required evidence. No
+lifecycle, stage, release, or professional-reliance state changes here.

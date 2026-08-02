@@ -1,6 +1,6 @@
 # Task Management Adoption Packet — Piping loop (Stage B, presented 2026-07-31)
 
-Status: `PRESENTED — AWAITING LOOP OWNER RULING`
+Status: `RULED — OPTION A ADOPTED AND EXECUTED; REGISTER/NOTICE CURRENT 2026-08-01`
 Prepared by: Root loop, HELP_HUMAN (Agent 0), per Stage-A workplan step 7.
 This packet is coordination, never authority. Nothing below has effect
 until the Piping loop's owner rules under its own instruments (F-PIP-5).
@@ -49,3 +49,18 @@ duty for any other loop.
 Root register row TM-ROOT-099 closes `RESOLVED_BY_DECISION` citing D-63; the
 deferred rows whose triggers reference this adoption wake for migration
 review at the next root TASK_MANAGEMENT invocation.
+
+## Owner ruling (2026-08-01)
+
+The owner ruled verbatim: `1) D-63 ruling: Option A.`
+
+The durable ruling record is
+[`_DECISIONS/D-63_RULING_2026-08-01.md`](_DECISIONS/D-63_RULING_2026-08-01.md).
+Execution evidence is the current
+[`_TaskManagement/REGISTER.csv`](_TaskManagement/REGISTER.csv) and ordinary
+[`NOTICE_2026-08-01_D63_TASK_MANAGEMENT_ADOPTION_AND_D45_CLOSURE.md`](NOTICE_2026-08-01_D63_TASK_MANAGEMENT_ADOPTION_AND_D45_CLOSURE.md).
+Option A authorizes the register mint, linked migration, and ordinary
+root-loop notice exactly as proposed. Option B is not selected:
+`projects/chirality-piping/loop/LOOP_INIT.md` remains unchanged. This appended
+status and pointer preserve the proposal history above and create no product,
+decomposition, lifecycle, stage, release, or root-register effect.

@@ -2012,3 +2012,29 @@
     and no product, runtime, dependency, DAG, implementation, lifecycle,
     repin, release, estimate, schedule, or professional-reliance effect is
     created.
+
+- **2026-08-01 — Receipt 84** (D-63 Option A, D-45 O-B, and D-62 currency closeout).
+  - Receipt-ID: `Receipt-84`
+  - Examined-Through: `3c2e816f1072295de15fdcdf924c19b4b66497bc`
+  - Parent-Receipt: `Receipt-83`
+  - Pointers: D-63 and D-45 ruling records; `DEC-092`; Piping Task Management
+    register and ordinary root-loop notice; D-62 decision-register currency
+    repair; terminal evidence under
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22/`.
+  - Checks: Task Management validate/temporary scan, decision and register
+    semantic/hash checks, root-register protection, R22 JSON/path containment,
+    DAG-008 deliverable-status listing, repository self-check, full
+    practitioner-harness pytest, receipt validation, profile, and diff checks
+    pass; product implementation tests not triggered.
+  - Model-Attribution: HELP_HUMAN and the R22 Agent 1 manager roles used
+    inherited OpenAI Codex runtime capability without override or mid-task
+    substitution; exact model strings were not exposed. Identities and
+    terminal returns are recorded under the cited R22 run.
+  - Gate-Outcome: `EXECUTED` — on-demand Task Management adoption and linked
+    migration are complete with no entry binding; temperature-indexed shear
+    modulus is ruled and codified but remains unimplemented behind a separate
+    bounded brief/evidence gate; the ratification register row is current
+    without reopening or reinterpretation; the root notice is issued for its
+    owning loop's disposition. No root-register, product implementation,
+    lifecycle, stage, release, publication, professional-reliance, or Git
+    closeout effect occurs.

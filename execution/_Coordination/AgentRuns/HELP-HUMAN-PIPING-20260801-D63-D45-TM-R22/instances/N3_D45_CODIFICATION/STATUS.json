@@ -1,0 +1,14 @@
+{
+  "schema": "chirality-managed-instance-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260801-D63-D45-TM-R22",
+  "instance_id": "N3_D45_CODIFICATION",
+  "role": "SOFTWARE_DECOMP",
+  "node": "N3_D45_CODIFICATION",
+  "status": "COMPLETED",
+  "started": "2026-08-01",
+  "terminal": true,
+  "blockers": [],
+  "completed": "2026-08-01",
+  "verdict": "PASS",
+  "next_owner": "HELPS_HUMANS"
+}

@@ -1,12 +1,13 @@
 # Status: DEL-05-02 Load-case algebra engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-15
+**Last Updated:** 2026-08-01
 
 ## Remaining
-- Decide whether and how to extend temperature indexing to shear modulus, which remains the user-entered base value under either exact-id or interpolated E/alpha bases (gated: D-45) (source: `DEC-077`; TP-PMM-P3-MODULUSBASIS-001 §Boundaries; D-45 packet)
+- Implement D-45 Option O-B / `DEC-092`: add an explicit user-entered temperature-point G field and apply the `DEC-077` exact-id, adjacent-point linear-interpolation, two-source provenance, and no-extrapolation method to G across the governed schema, authoring, operation, solver, fixture, benchmark, and test surfaces. Current live behavior still clones the user-entered base G under exact-id and interpolated E/alpha bases; no implementation evidence exists yet. (source: `D-45_RULING_2026-08-01.md`; `DEC-092`)
 
 ## History
+- 2026-08-01 - The owner ruled D-45 Option O-B, codified as `DEC-092`. The former owner-ruling gate is replaced by explicit unimplemented work for a user-entered temperature-point G field under the `DEC-077` method and evidence bar. State remains IN_PROGRESS; no schema, authoring, operation, solver, fixture, benchmark, test, lifecycle, stage, release, or professional-reliance change was made by codification.
 - 2026-07-15 - DEC-077 implemented declared linear interpolation of user-entered E and alpha between strictly bracketing temperature points, with exact-id selection preserved, explicit two-point provenance, and blocking at/beyond stored range edges. Temperature-indexed shear modulus remains outside the ruling and is routed to D-45. State remains IN_PROGRESS; no lifecycle, release, or professional-reliance claim was made.
 - 2026-07-12 - D-41 R5 T7 PDU-056 refreshed the cited dependency-maturity declaration to the recorded SATISFIED dispositions while preserving the evaluator-interface TBD; cited-claim backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)

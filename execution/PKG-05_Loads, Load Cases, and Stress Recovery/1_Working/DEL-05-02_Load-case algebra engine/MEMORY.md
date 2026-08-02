@@ -479,3 +479,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
   `_run_records/WORKING_ITEMS_RUN_2026-07-15_TP-PMM-P3-TEMPINTERP-001.md`.
   No material catalog, curve, code table, default, lifecycle transition,
   release-readiness claim, or professional/code-compliance claim was added.
+
+## 2026-08-01 - D-45 Option O-B / DEC-092 ruling boundary
+
+- The owner ruled `2) D-45 ruling: O-B.`; the ruling is recorded separately
+  in `execution/_Coordination/_DECISIONS/D-45_RULING_2026-08-01.md` and
+  codified as `DEC-092`.
+- The ruled implementation boundary adds an explicit user-entered
+  temperature-point shear-modulus G field and applies the `DEC-077` method to
+  G: exact-id selection remains available, declared solve temperatures use
+  linear interpolation only between qualifying adjacent user-entered points,
+  derived G provenance names both sources and the method, and no extrapolation
+  or hidden base-G fallback is allowed under a selected temperature basis.
+- Live code at codification still has temperature-point E and alpha fields but
+  no G field, and `materials_for_modulus_basis` still clones the user-entered
+  base G. This is now explicit unimplemented Remaining work, not an
+  owner-ruling gate.
+- This codification changed no schema, authoring, operation, solver, fixture,
+  benchmark, or test. A separately bounded tranche must supply the complete
+  implementation evidence bar before claiming the ruled behavior implemented.
+  DEL-05-02 remains `IN_PROGRESS`; no lifecycle, stage, release-readiness,
+  professional approval, certification, sealing, authentication, or
+  code-compliance state changed.
