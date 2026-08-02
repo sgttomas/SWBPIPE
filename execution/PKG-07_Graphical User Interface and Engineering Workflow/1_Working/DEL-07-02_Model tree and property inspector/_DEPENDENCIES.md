@@ -67,10 +67,13 @@
 ## Run History
 - 2026-06-16: dependency semantic refresh; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; rows 20 total, 20 ACTIVE, 0 RETIRED; warnings 0.
 
+- 2026-08-02: R23 dependency-currency backcheck; seven candidate execution rows held raw-row byte-identical because target maturity did not establish edge-specific consumer integration.
+
 ## Lifecycle Summary
 - ACTIVE rows: 20
 - RETIRED rows: 0
 - Satisfaction status counts: {'NOT_APPLICABLE': 4, 'SATISFIED': 7, 'TBD': 9}
 
 ## Downstream Handoff Notes
+- R23 recorded no row closure for DEL-07-02; DAG-008 remains graph authority and this local backcheck does not update execution/_DAG/_LATEST.md.
 - Consume this register as a deliverable-local semantic refresh shard only. It is not graph authority and does not update `_DAG/_LATEST.md`.

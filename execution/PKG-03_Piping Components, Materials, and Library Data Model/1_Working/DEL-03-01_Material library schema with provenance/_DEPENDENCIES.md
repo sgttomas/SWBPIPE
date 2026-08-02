@@ -42,9 +42,14 @@
 ## Run History
 - 2026-06-16: MODE=UPDATE; STRICTNESS=CONSERVATIVE; semantic refresh for PKG-03 shard; rows added=1; rows retired=0; PKG-00 rows reviewed=6; PKG-00 rows changed=0; warnings=none.
 
+- 2026-08-02: R23 dependency-currency patch; two execution rows closed by independent target-maturity plus consumer-integration evidence; one objective-trace anchor normalized; two candidate execution rows held unchanged.
+
 ## Lifecycle Summary
 - ACTIVE rows: 13
 - RETIRED rows: 0
-- SatisfactionStatus `NOT_APPLICABLE`: 2
-- SatisfactionStatus `SATISFIED`: 6
-- SatisfactionStatus `TBD`: 5
+- SatisfactionStatus `NOT_APPLICABLE`: 3
+- SatisfactionStatus `SATISFIED`: 8
+- SatisfactionStatus `TBD`: 2
+
+## Downstream Handoff Notes
+- R23 is a deliverable-local satisfaction refresh only; DAG-008 remains graph authority and this patch does not update execution/_DAG/_LATEST.md.

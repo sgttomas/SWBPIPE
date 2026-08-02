@@ -1,0 +1,402 @@
+{
+  "edges_path": "execution/_DAG/DAG-009/DependencyEdges.csv",
+  "nodes_path": "execution/_DAG/DAG-009/DeliverableNodes.csv",
+  "canonical_mode": true,
+  "edge_schema": {
+    "valid": true,
+    "required_column_count": 29,
+    "column_count": 31,
+    "missing_columns": [],
+    "extension_columns": [
+      "EstimateImpactClass",
+      "ConsumerHint"
+    ]
+  },
+  "canonical_finding_count": 0,
+  "canonical_findings": [],
+  "node_header_column_count": 17,
+  "edge_row_count": 1480,
+  "node_row_count": 101,
+  "package_count": 18,
+  "status_counts": {
+    "ACTIVE": 1395,
+    "RETIRED": 85
+  },
+  "active_edge_count": 1395,
+  "candidate_edge_count": 0,
+  "active_dependency_type_counts": {
+    "CONSTRAINT": 325,
+    "ENABLES": 7,
+    "HANDOVER": 11,
+    "INTERFACE": 105,
+    "OTHER": 397,
+    "PREREQUISITE": 550
+  },
+  "candidate_dependency_type_counts": {},
+  "endpoint_issue_count": 0,
+  "endpoint_issues": [],
+  "edge_row_width_issue_count": 0,
+  "edge_row_width_issues": [],
+  "node_row_width_issue_count": 0,
+  "node_row_width_issues": [],
+  "active_graph": {
+    "node_count": 101,
+    "edge_count": 972,
+    "scc_count": 0,
+    "sccs": [],
+    "duplicate_edge_count": 0,
+    "duplicate_edges": {},
+    "bidirectional_pair_count": 0,
+    "bidirectional_pairs": [],
+    "hub_threshold": 20,
+    "hub_count": 20,
+    "hubs": [
+      {
+        "DeliverableID": "DEL-00-06",
+        "InDegree": 93,
+        "OutDegree": 0,
+        "TotalDegree": 93
+      },
+      {
+        "DeliverableID": "DEL-00-08",
+        "InDegree": 92,
+        "OutDegree": 0,
+        "TotalDegree": 92
+      },
+      {
+        "DeliverableID": "DEL-00-01",
+        "InDegree": 91,
+        "OutDegree": 0,
+        "TotalDegree": 91
+      },
+      {
+        "DeliverableID": "DEL-00-02",
+        "InDegree": 91,
+        "OutDegree": 0,
+        "TotalDegree": 91
+      },
+      {
+        "DeliverableID": "DEL-00-07",
+        "InDegree": 72,
+        "OutDegree": 0,
+        "TotalDegree": 72
+      },
+      {
+        "DeliverableID": "DEL-00-03",
+        "InDegree": 71,
+        "OutDegree": 0,
+        "TotalDegree": 71
+      },
+      {
+        "DeliverableID": "DEL-00-04",
+        "InDegree": 59,
+        "OutDegree": 0,
+        "TotalDegree": 59
+      },
+      {
+        "DeliverableID": "DEL-02-02",
+        "InDegree": 36,
+        "OutDegree": 8,
+        "TotalDegree": 44
+      },
+      {
+        "DeliverableID": "DEL-02-05",
+        "InDegree": 22,
+        "OutDegree": 10,
+        "TotalDegree": 32
+      },
+      {
+        "DeliverableID": "DEL-02-01",
+        "InDegree": 24,
+        "OutDegree": 7,
+        "TotalDegree": 31
+      },
+      {
+        "DeliverableID": "DEL-01-02",
+        "InDegree": 21,
+        "OutDegree": 5,
+        "TotalDegree": 26
+      },
+      {
+        "DeliverableID": "DEL-07-08",
+        "InDegree": 0,
+        "OutDegree": 23,
+        "TotalDegree": 23
+      },
+      {
+        "DeliverableID": "DEL-02-03",
+        "InDegree": 14,
+        "OutDegree": 8,
+        "TotalDegree": 22
+      },
+      {
+        "DeliverableID": "DEL-08-04",
+        "InDegree": 11,
+        "OutDegree": 11,
+        "TotalDegree": 22
+      },
+      {
+        "DeliverableID": "DEL-08-06",
+        "InDegree": 0,
+        "OutDegree": 22,
+        "TotalDegree": 22
+      },
+      {
+        "DeliverableID": "DEL-01-04",
+        "InDegree": 16,
+        "OutDegree": 4,
+        "TotalDegree": 20
+      },
+      {
+        "DeliverableID": "DEL-03-02",
+        "InDegree": 10,
+        "OutDegree": 10,
+        "TotalDegree": 20
+      },
+      {
+        "DeliverableID": "DEL-04-01",
+        "InDegree": 12,
+        "OutDegree": 8,
+        "TotalDegree": 20
+      },
+      {
+        "DeliverableID": "DEL-06-01",
+        "InDegree": 8,
+        "OutDegree": 12,
+        "TotalDegree": 20
+      },
+      {
+        "DeliverableID": "DEL-13-04",
+        "InDegree": 5,
+        "OutDegree": 15,
+        "TotalDegree": 20
+      }
+    ]
+  },
+  "active_plus_candidate_graph": {
+    "node_count": 101,
+    "edge_count": 972,
+    "scc_count": 0,
+    "sccs": [],
+    "duplicate_edge_count": 0,
+    "duplicate_edges": {},
+    "bidirectional_pair_count": 0,
+    "bidirectional_pairs": [],
+    "hub_threshold": 20,
+    "hub_count": 20,
+    "hubs": [
+      {
+        "DeliverableID": "DEL-00-06",
+        "InDegree": 93,
+        "OutDegree": 0,
+        "TotalDegree": 93
+      },
+      {
+        "DeliverableID": "DEL-00-08",
+        "InDegree": 92,
+        "OutDegree": 0,
+        "TotalDegree": 92
+      },
+      {
+        "DeliverableID": "DEL-00-01",
+        "InDegree": 91,
+        "OutDegree": 0,
+        "TotalDegree": 91
+      },
+      {
+        "DeliverableID": "DEL-00-02",
+        "InDegree": 91,
+        "OutDegree": 0,
+        "TotalDegree": 91
+      },
+      {
+        "DeliverableID": "DEL-00-07",
+        "InDegree": 72,
+        "OutDegree": 0,
+        "TotalDegree": 72
+      },
+      {
+        "DeliverableID": "DEL-00-03",
+        "InDegree": 71,
+        "OutDegree": 0,
+        "TotalDegree": 71
+      },
+      {
+        "DeliverableID": "DEL-00-04",
+        "InDegree": 59,
+        "OutDegree": 0,
+        "TotalDegree": 59
+      },
+      {
+        "DeliverableID": "DEL-02-02",
+        "InDegree": 36,
+        "OutDegree": 8,
+        "TotalDegree": 44
+      },
+      {
+        "DeliverableID": "DEL-02-05",
+        "InDegree": 22,
+        "OutDegree": 10,
+        "TotalDegree": 32
+      },
+      {
+        "DeliverableID": "DEL-02-01",
+        "InDegree": 24,
+        "OutDegree": 7,
+        "TotalDegree": 31
+      },
+      {
+        "DeliverableID": "DEL-01-02",
+        "InDegree": 21,
+        "OutDegree": 5,
+        "TotalDegree": 26
+      },
+      {
+        "DeliverableID": "DEL-07-08",
+        "InDegree": 0,
+        "OutDegree": 23,
+        "TotalDegree": 23
+      },
+      {
+        "DeliverableID": "DEL-02-03",
+        "InDegree": 14,
+        "OutDegree": 8,
+        "TotalDegree": 22
+      },
+      {
+        "DeliverableID": "DEL-08-04",
+        "InDegree": 11,
+        "OutDegree": 11,
+        "TotalDegree": 22
+      },
+      {
+        "DeliverableID": "DEL-08-06",
+        "InDegree": 0,
+        "OutDegree": 22,
+        "TotalDegree": 22
+      },
+      {
+        "DeliverableID": "DEL-01-04",
+        "InDegree": 16,
+        "OutDegree": 4,
+        "TotalDegree": 20
+      },
+      {
+        "DeliverableID": "DEL-03-02",
+        "InDegree": 10,
+        "OutDegree": 10,
+        "TotalDegree": 20
+      },
+      {
+        "DeliverableID": "DEL-04-01",
+        "InDegree": 12,
+        "OutDegree": 8,
+        "TotalDegree": 20
+      },
+      {
+        "DeliverableID": "DEL-06-01",
+        "InDegree": 8,
+        "OutDegree": 12,
+        "TotalDegree": 20
+      },
+      {
+        "DeliverableID": "DEL-13-04",
+        "InDegree": 5,
+        "OutDegree": 15,
+        "TotalDegree": 20
+      }
+    ]
+  },
+  "dev001_projection": {
+    "definition": "Excludes PKG-00 endpoints and ARCHITECTURE_BASIS rows; candidate rows remain non-gating.",
+    "node_count": 93,
+    "edge_row_count": 893,
+    "active_edge_count": 815,
+    "candidate_edge_count": 0,
+    "active_dependency_type_counts": {
+      "CONSTRAINT": 35,
+      "ENABLES": 7,
+      "HANDOVER": 11,
+      "INTERFACE": 96,
+      "OTHER": 386,
+      "PREREQUISITE": 280
+    },
+    "candidate_dependency_type_counts": {},
+    "active_graph": {
+      "node_count": 92,
+      "edge_count": 395,
+      "scc_count": 0,
+      "sccs": [],
+      "duplicate_edge_count": 0,
+      "duplicate_edges": {},
+      "bidirectional_pair_count": 0,
+      "bidirectional_pairs": [],
+      "hub_threshold": 20,
+      "hub_count": 4,
+      "hubs": [
+        {
+          "DeliverableID": "DEL-02-02",
+          "InDegree": 36,
+          "OutDegree": 1,
+          "TotalDegree": 37
+        },
+        {
+          "DeliverableID": "DEL-02-05",
+          "InDegree": 22,
+          "OutDegree": 3,
+          "TotalDegree": 25
+        },
+        {
+          "DeliverableID": "DEL-02-01",
+          "InDegree": 24,
+          "OutDegree": 0,
+          "TotalDegree": 24
+        },
+        {
+          "DeliverableID": "DEL-01-02",
+          "InDegree": 21,
+          "OutDegree": 1,
+          "TotalDegree": 22
+        }
+      ]
+    },
+    "active_plus_candidate_graph": {
+      "node_count": 92,
+      "edge_count": 395,
+      "scc_count": 0,
+      "sccs": [],
+      "duplicate_edge_count": 0,
+      "duplicate_edges": {},
+      "bidirectional_pair_count": 0,
+      "bidirectional_pairs": [],
+      "hub_threshold": 20,
+      "hub_count": 4,
+      "hubs": [
+        {
+          "DeliverableID": "DEL-02-02",
+          "InDegree": 36,
+          "OutDegree": 1,
+          "TotalDegree": 37
+        },
+        {
+          "DeliverableID": "DEL-02-05",
+          "InDegree": 22,
+          "OutDegree": 3,
+          "TotalDegree": 25
+        },
+        {
+          "DeliverableID": "DEL-02-01",
+          "InDegree": 24,
+          "OutDegree": 0,
+          "TotalDegree": 24
+        },
+        {
+          "DeliverableID": "DEL-01-02",
+          "InDegree": 21,
+          "OutDegree": 1,
+          "TotalDegree": 22
+        }
+      ]
+    }
+  }
+}

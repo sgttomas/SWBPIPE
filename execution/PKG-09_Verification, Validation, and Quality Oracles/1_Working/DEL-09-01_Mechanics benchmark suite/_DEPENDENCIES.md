@@ -68,13 +68,18 @@
 - Candidate/non-gating ideas require explicit human approval plus graph revalidation before promotion.
 - RETIRED rows are preserved for provenance and must not be treated as active gating dependencies.
 
+## Downstream Handoff Notes
+- R23 is a deliverable-local satisfaction refresh only; DAG-008 remains graph authority and this patch does not update execution/_DAG/_LATEST.md.
+
 ## Run History
 - 2026-06-16 0000 America/Edmonton: semantic refresh from sealed brief `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Reconciliation/DependencySemanticRefresh/SEMANTIC_REFRESH_2026-06-16/WorkerBriefs/PKG-09_dependency_semantic_refresh.md`; ACTIVE rows=14; RETIRED rows=0; PKG-00 rows reviewed=4; warnings=0.
+
+- 2026-08-02: R23 dependency-currency patch; four execution rows closed by independent target-maturity plus consumer-integration evidence; E0532, E0533, and TP-DAG-004-DEL-09-01-E001 held unchanged.
 
 ## Lifecycle Summary
 - ACTIVE rows: 14
 - RETIRED rows: 0
 - Closure-state breakdown:
 - `NOT_APPLICABLE`: 3
-- `SATISFIED`: 4
-- `TBD`: 7
+- `SATISFIED`: 8
+- `TBD`: 3

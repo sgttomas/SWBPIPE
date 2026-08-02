@@ -63,10 +63,13 @@
 ## Run History
 - 2026-06-16: dependency semantic refresh; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; rows 17 total, 17 ACTIVE, 0 RETIRED; warnings 0.
 
+- 2026-08-02: R23 dependency-currency patch; five execution rows closed by independent target-maturity plus consumer-integration evidence; DAG-002-E0491 held unchanged.
+
 ## Lifecycle Summary
 - ACTIVE rows: 17
 - RETIRED rows: 0
-- Satisfaction status counts: {'NOT_APPLICABLE': 3, 'PENDING': 6, 'SATISFIED': 8}
+- Satisfaction status counts: {'NOT_APPLICABLE': 3, 'PENDING': 1, 'SATISFIED': 13}
 
 ## Downstream Handoff Notes
+- R23 is a deliverable-local satisfaction refresh only; DAG-008 remains graph authority and this patch does not update execution/_DAG/_LATEST.md.
 - Consume this register as a deliverable-local semantic refresh shard only. It is not graph authority and does not update `_DAG/_LATEST.md`.

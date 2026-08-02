@@ -41,6 +41,46 @@
       "role": "EVIDENCE",
       "reason": "Immutable N4B production-distribution H4 verification capture records the machine-local Playwright configuration path used for the adopted DEL-12-02 execution.",
       "authority": "Owner adopted DEL-12-02 candidate v6; HELP_HUMAN explicitly authorized this exact classification-only repair."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2A_DEL0301_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+      "sha256": "1025972bf64f3ba41cbe0d265eb320245a71a0c68e76e71bb41865efa26a3009",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable R23 N2A Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+      "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2B_DEL0702_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+      "sha256": "c8aba880de012bdf3d40fbfaa4d1d67b3fcc556ba1488c4eaf7c6a086152a61a",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable R23 N2B Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+      "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2C_DEL0703_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+      "sha256": "6dd233613e1600ad211af79546c5858ac140c500293391a7497274674404d072",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable R23 N2C Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+      "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2D_DEL0901_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+      "sha256": "8dc4818a204226de2f1ab5823f5adcd7a8baebb112472ba5b661d94d6e8d7daa",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable R23 N2D Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+      "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2E_DEL1602_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+      "sha256": "f76efae6d4e4006c96c25dd4a9e7a5bd1082fafee9dad3d841b0daf716cb3f99",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable R23 N2E Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+      "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
     }
   ],
   "control_path_exceptions": [
@@ -67,6 +107,14 @@
       "role": "CONTROL",
       "reason": "Immutable P1 child brief records the concrete checkout anchors authorized for that completed run.",
       "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/GIT_APPROVAL.md",
+      "sha256": "40b52f1cec09806660fe1f1223b2b57d1a88c4dc153c5824ac6ba39557361648",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "R23 Git approval preserves the owner's machine-absolute checkout and branch direction verbatim; this exception changes classification only, not authorization.",
+      "authority": "Owner-approved R23 portability-classification amendment; the verbatim Git direction and Gate 1 O-A remain unchanged."
     }
   ]
 }

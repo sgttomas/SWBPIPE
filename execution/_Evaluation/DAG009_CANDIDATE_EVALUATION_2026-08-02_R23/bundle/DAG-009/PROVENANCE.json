@@ -1,0 +1,52 @@
+{
+  "candidate_id": "DAG-009",
+  "generated": "2026-08-02",
+  "status": "PROPOSAL_NON_ACTIVATED",
+  "frozen_git_base": "23d15899fd0acf5d1d0513f3fe396438375c9e25",
+  "branch": "codex/piping-dec092-dependency-refresh",
+  "approved_parent": {
+    "path": "execution/_DAG/DAG-008/",
+    "dependency_edges_sha256": "dde5d2d0601290d085a30833bccb582ff6518ba7dcdd9adebe6e03ba49719005",
+    "nodes_sha256": "6e5050c4e578f6ff9819ee7a11dbb395b3f0a163b4fb0c48e88c3d084d9b0732",
+    "dag_json_sha256": "f657808890e6e7b663b6ad1be4afe1d63f64b1d8c8fbff156d960132c145e645",
+    "manifest_sha256": "5cab5b1f4f5be1dd0ac06737e5901c5dda844d0af412f3dc5427fef4d9cb6b60"
+  },
+  "r23_basis": {
+    "owner_ruling": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/OWNER_RULING.md",
+    "owner_amendment": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/OWNER_AMENDMENT.md",
+    "fan_in": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/FAN_IN.md",
+    "target_maturity_evidence": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/TARGET_MATURITY_EVIDENCE.csv"
+  },
+  "refreshed_local_artifacts": [
+    {"path": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Dependencies.csv", "sha256": "a529a9ff4b9590ec5aec4480e2b176b9280601f3cd25bd90a6c552a8b337bb2e"},
+    {"path": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_DEPENDENCIES.md", "sha256": "0dc7c91d6e64080634ef8c65163ccadd317afb231e6f999eecd94bdbb11e726d"},
+    {"path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Dependencies.csv", "sha256": "0a86bb4f7f447ab84d496b7c4390e1c54744764a7a558aa38615504b3a6ff1b6"},
+    {"path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_DEPENDENCIES.md", "sha256": "26d9c9beb14294cd15adfe2d62e1d17cb380357a82bd4ea6f9739602d947498e"},
+    {"path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv", "sha256": "c511f8ea8ec13ac94133d6f5d8c98bbece580a216ace03c269fdfd15ed4c2457"},
+    {"path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md", "sha256": "3c4f690336d4887915eff36de009667b238049f6d657bbdb6c5bf97a3b6e73c8"},
+    {"path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/Dependencies.csv", "sha256": "28e5cd04820392fb605ba07b669195685133783450a3c314ff38a7abf743166e"},
+    {"path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_DEPENDENCIES.md", "sha256": "050d8be1a4540725fdb03a7628834ccaead754ea3cea8b977565425ed68d1e88"},
+    {"path": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Dependencies.csv", "sha256": "32c6177e2912012386cd19de2c0813ac5a22dbd96ba8d5ebb90441e6c6e389a7"},
+    {"path": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_DEPENDENCIES.md", "sha256": "08836c3eec66b6dae4c5e8594e137b3e9a86dde035d3434379bf0d45f0554b05"}
+  ],
+  "changed_dependency_ids": [
+    "DAG-002-E0401",
+    "DAG-002-E0402",
+    "SEMREF-2026-06-16-DEL-03-01-A003",
+    "DAG-002-E0489",
+    "DAG-002-E0490",
+    "DAG-002-E0492",
+    "DAG-002-E0493",
+    "DAG-002-E0494",
+    "DAG-002-E0534",
+    "DAG-002-E0535",
+    "DAG-002-E0536",
+    "TP-DAG-004-DEL-09-01-E002",
+    "DAG-002-E0827"
+  ],
+  "changed_fields": ["SatisfactionStatus", "LastSeen", "Notes"],
+  "transformation": "Preserve approved DAG-008 rows, order, extension columns, nodes, and machine graph; for 12 execution IDs and one anchor ID copy only the accepted local SatisfactionStatus, LastSeen, and Notes fields; rename candidate identity and proposal metadata; recompute audit facts and manifests.",
+  "meaning_scope_decomposition_change": false,
+  "activation_effect": false,
+  "dec092_implementation_effect": false
+}

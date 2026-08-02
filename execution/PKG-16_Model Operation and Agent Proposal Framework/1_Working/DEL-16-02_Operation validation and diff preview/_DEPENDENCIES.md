@@ -36,13 +36,16 @@
 ## Run History
 - 2026-06-16 18:25 - `TASK + dependency-extract`, MODE=UPDATE, STRICTNESS=CONSERVATIVE, decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md` present; warnings: none; ACTIVE rows: 14; RETIRED rows: 0.
 
+- 2026-08-02: R23 dependency-currency patch; DAG-002-E0827 closed by independent target-maturity plus consumer-integration evidence; E0828–E0831 held raw-row byte-identical.
+
 ## Lifecycle Summary
 - **ACTIVE:** 14
 - **RETIRED:** 0
-- **Satisfaction:** NOT_APPLICABLE=2; SATISFIED=7; TBD=5.
+- **Satisfaction:** NOT_APPLICABLE=2; SATISFIED=8; TBD=4.
 - **Closure state:** Register remains open for downstream reconciliation consumption; no row-level closure change was made.
 
 ## Downstream Handoff Notes
+- R23 is a deliverable-local satisfaction refresh only; DAG-008 remains graph authority and this patch does not update execution/_DAG/_LATEST.md.
 - Consumer context: RECONCILIATION.
 - The local register remains source-supported as a semantic dependency surface for DEL-16-02.
 - Candidate or non-gating ideas were not promoted; none were added to the canonical register.

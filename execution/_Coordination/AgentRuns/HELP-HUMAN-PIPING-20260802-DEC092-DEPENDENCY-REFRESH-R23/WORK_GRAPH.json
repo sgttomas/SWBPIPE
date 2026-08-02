@@ -1,0 +1,20 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23",
+  "basis": "23d15899fd0acf5d1d0513f3fe396438375c9e25",
+  "branch": "codex/piping-dec092-dependency-refresh",
+  "selection_authority": "HUMAN_AMENDED_O_A",
+  "nodes": [
+    {"id": "N1_CHANGE_BRANCH", "parent": "HELP_HUMAN", "status": "COMPLETED", "dependencies": []},
+    {"id": "N2A_DEL0301_PATCH", "parent": "PROJECT_SETUP", "status": "COMPLETED", "dependencies": ["N1_CHANGE_BRANCH"]},
+    {"id": "N2B_DEL0702_PATCH", "parent": "PROJECT_SETUP", "status": "COMPLETED", "dependencies": ["N1_CHANGE_BRANCH"]},
+    {"id": "N2C_DEL0703_PATCH", "parent": "PROJECT_SETUP", "status": "COMPLETED", "dependencies": ["N1_CHANGE_BRANCH"]},
+    {"id": "N2D_DEL0901_PATCH", "parent": "PROJECT_SETUP", "status": "COMPLETED", "dependencies": ["N1_CHANGE_BRANCH"]},
+    {"id": "N2E_DEL1602_PATCH", "parent": "PROJECT_SETUP", "status": "COMPLETED", "dependencies": ["N1_CHANGE_BRANCH"]},
+    {"id": "N2_FANIN", "parent": "PROJECT_SETUP", "status": "COMPLETED", "dependencies": ["N2A_DEL0301_PATCH", "N2B_DEL0702_PATCH", "N2C_DEL0703_PATCH", "N2D_DEL0901_PATCH", "N2E_DEL1602_PATCH"]},
+    {"id": "N3_PORTABILITY_POLICY_AMENDMENT", "parent": "PROJECT_SETUP", "status": "COMPLETED", "dependencies": ["N2_FANIN"]},
+    {"id": "N3_EVALUATION_DAG009", "parent": "HELP_HUMAN", "status": "COMPLETED", "dependencies": ["N2_FANIN", "N3_PORTABILITY_POLICY_AMENDMENT"]},
+    {"id": "N4_CHANGE_DAG009_MATERIALIZATION", "parent": "CHANGE", "status": "COMPLETED", "dependencies": ["N3_EVALUATION_DAG009"]},
+    {"id": "N5_PROPOSAL_CLOSEOUT", "parent": "PROJECT_SETUP", "status": "COMPLETED", "dependencies": ["N4_CHANGE_DAG009_MATERIALIZATION"]},
+    {"id": "N6_CHANGE_GIT_CLOSEOUT", "parent": "CHANGE", "status": "READY", "dependencies": ["N5_PROPOSAL_CLOSEOUT"]}
+  ]
+}
