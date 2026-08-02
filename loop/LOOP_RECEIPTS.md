@@ -2072,3 +2072,29 @@
     later owner acts remain required for DAG-009 acceptance and any pointer
     move. No DEC-092 implementation, product, lifecycle, status, memory,
     release, professional-reliance, commit, push, PR, or merge effect occurs.
+
+- **2026-08-02 — Receipt 86** (DAG-009 owner acceptance and pointer activation).
+  - Receipt-ID: `Receipt-86`
+  - Examined-Through: `84a5a1277f3f8bbe2821d131b9a8ba309b1b5aaa`
+  - Parent-Receipt: `Receipt-85`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING. On 2026-08-02,
+    the owner directed: “Merge PR #471 and if DAG-009 is ready to be activated,
+    then I accept this and want you to update all pointers.” The governed
+    approval record records the resulting conditional owner act.
+  - Pointers: `execution/_DAG/DAG-009/APPROVAL_RECORD.md`; DAG-009 local
+    `_LATEST.md`; root `execution/_DAG/_LATEST.md`; CHANGE closeout
+    `execution/_Change/2026-08-02_DAG009_ACTIVATION_CLOSEOUT.md`; proposal head
+    `d6431139384232008d1f73f72f907bc9738db103` and merge
+    `84a5a1277f3f8bbe2821d131b9a8ba309b1b5aaa`.
+  - Checks: activation readiness, immutable proposal bytes, manifest,
+    dependency schema, strict DAG audit, JSON/topology, exact delta, consumer
+    pins, pointer currency, receipts, claims/path anchors, repository
+    self-check, practitioner-harness pytest, containment, and diff checks pass.
+  - Model-Attribution: OpenAI Codex EVALUATION and CHANGE Agent 1 managers
+    under HELP_HUMAN used inherited runtime capability without override or
+    mid-task substitution; exact runtime model strings were not exposed.
+  - Gate-Outcome: `EXECUTED` — the owner's readiness condition passed and
+    DAG-009 is accepted; both live DAG pointer surfaces move to DAG-009 when
+    this activation tranche lands. The 12 candidates and five holds remain;
+    no DEC-092 implementation, product, lifecycle/status/memory, selection,
+    release, or professional-reliance effect is created.
