@@ -1,0 +1,223 @@
+{
+  "base_model": {
+    "document_kind": "openpipestress.product_preview.model",
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "material:M-1",
+        "label": "Invented steel-like material",
+        "provenance": "invented_example",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 77000000000.0
+        },
+        "temperature_points": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "temperature-point:cold",
+            "provenance": "invented_cold_user_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 76000000000.0
+            },
+            "temperature": {
+              "unit": "degC",
+              "value": 20.0
+            }
+          },
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 180000000000.0
+            },
+            "id": "temperature.point:hot",
+            "provenance": "invented_hot_user_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 68000000000.0
+            },
+            "temperature": {
+              "unit": "degC",
+              "value": 200.0
+            }
+          }
+        ]
+      }
+    ],
+    "schema_version": "0.1.0"
+  },
+  "case_id": "accept-set-field-material-temperature-point-shear-modulus",
+  "claimed_model_hash": null,
+  "description": "set_field accepted apply on an existing material temperature point's explicit shear-modulus value, addressed by stable point id.",
+  "expected": {
+    "applied_model": {
+      "document_kind": "openpipestress.product_preview.model",
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:M-1",
+          "label": "Invented steel-like material",
+          "provenance": "invented_example",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 77000000000.0
+          },
+          "temperature_points": [
+            {
+              "elastic_modulus": {
+                "unit": "Pa",
+                "value": 200000000000.0
+              },
+              "id": "temperature-point:cold",
+              "provenance": "invented_cold_user_input",
+              "shear_modulus": {
+                "unit": "Pa",
+                "value": 76000000000.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 20.0
+              }
+            },
+            {
+              "elastic_modulus": {
+                "unit": "Pa",
+                "value": 180000000000.0
+              },
+              "id": "temperature.point:hot",
+              "provenance": "invented_hot_user_input",
+              "shear_modulus": {
+                "unit": "Pa",
+                "value": 65000000000.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            }
+          ]
+        }
+      ],
+      "schema_version": "0.1.0"
+    },
+    "applied_model_canonical_sha256": "sha256:c19083439cf1be2f50959742bf3cbd8c395b808330bbf84f42fa1a8be0abc13a",
+    "outcome": {
+      "acceptance": {
+        "acceptance_basis": "user_initiated_apply_in_local_session",
+        "acceptance_is_professional_approval": false,
+        "persistence_status": "session_state_only_not_yet_saved"
+      },
+      "applied": true,
+      "audit_boundary": {
+        "applied_model_is_new_document": true,
+        "direct_model_mutation_allowed": false,
+        "input_model_mutated_in_place": false,
+        "mutation_route": "structured_operations_only",
+        "requires_user_acceptance": true
+      },
+      "change_id": "change:corpus-accept-material-temperature-point-shear-modulus",
+      "change_kind": "set_field",
+      "deliverable_refs": [
+        "DEL-16-02",
+        "DEL-16-03"
+      ],
+      "diagnostics": [],
+      "diff_preview": [
+        {
+          "after": "65000000000",
+          "before": "68000000000",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "entity_ref": "material:M-1",
+          "field_path": "temperature_points.temperature.point:hot.shear_modulus.value",
+          "object_type": "Material",
+          "unit": "Pa"
+        }
+      ],
+      "document_kind": "openpipestress.desktop.operation_outcome",
+      "input_model_unchanged": true,
+      "mode": "apply",
+      "model_basis": {
+        "backend_canonicalization": "rfc8785_jcs",
+        "backend_model_hash": "sha256:3bc71bcd7cd0b636bdca9a34729f27c69593c2c13685053ccec6e8826311e153",
+        "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+        "claimed_hash_canonicalization": "not_provided",
+        "claimed_model_hash": "not_provided"
+      },
+      "operation_id": "op:corpus-accept-material-temperature-point-shear-modulus",
+      "operation_kind": "modify",
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_approval_claim": false,
+        "software_makes_authentication_claim": false,
+        "software_makes_certification_claim": false,
+        "software_makes_compliance_claim": false,
+        "software_makes_sealing_claim": false
+      },
+      "schema_version": "0.1.0",
+      "target_object_type": "Material",
+      "target_ref": "material:M-1",
+      "validation": {
+        "application_status": "applied_to_session_model",
+        "before_state_validation": "passed",
+        "diff_preview_status": "generated",
+        "reference_validation": "passed",
+        "schema_validation": "passed",
+        "unit_validation": "passed"
+      }
+    }
+  },
+  "intent": {
+    "audit_boundary": {
+      "direct_model_mutation_allowed": false,
+      "mutates_accepted_model_state": false,
+      "mutation_route": "structured_operations_only",
+      "requires_user_acceptance": true
+    },
+    "author_type": "user",
+    "change": {
+      "after": "65000000000",
+      "before": "68000000000",
+      "change_id": "change:corpus-accept-material-temperature-point-shear-modulus",
+      "change_kind": "set_field",
+      "dimension": "stress",
+      "field_label": "temperature point shear modulus",
+      "field_path": "temperature_points.temperature.point:hot.shear_modulus.value",
+      "source_note": "contract_corpus_invented",
+      "unit": "Pa"
+    },
+    "operation_id": "op:corpus-accept-material-temperature-point-shear-modulus",
+    "operation_kind": "modify",
+    "operation_status": "proposed",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "rationale": "invented contract corpus case",
+    "target": {
+      "object_type": "Material",
+      "ref": "material:M-1"
+    },
+    "validation": {
+      "application_status": "not_applied",
+      "constraint_validation": "not_run",
+      "diff_preview_status": "not_generated",
+      "schema_validation": "not_run",
+      "unit_validation": "not_run"
+    }
+  },
+  "mode": "apply"
+}

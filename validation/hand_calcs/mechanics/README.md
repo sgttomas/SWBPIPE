@@ -47,6 +47,7 @@ has an explicit public-original hand-calculation note.
 | `MECH-PORTAL-SWAY-ORIGINAL` | `portal_frame_sway.md` |
 | `MECH-BRANCH-ASSEMBLY-THREE-MEMBER` | `branch_assembly.md` |
 | `MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY` | `straight_pipe_weight_recovery.md` |
+| `MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION` | `tp_dec092_temperature_indexed_shear_modulus_torsion.md` |
 | `MECH-SUPPORT-BOUNDARY-MIXED` | `support_boundary_mixed.md` |
 | `MECH-PRIMITIVE-LOAD-PREP` | `primitive_load_preparation.md` |
 | `MECH-TP-PHYS-002-LINEAR-STATIC-INTEGRATION` | `tp_phys_002_linear_static_integration.md` |
@@ -90,3 +91,6 @@ has an explicit public-original hand-calculation note.
   validation-local canonical solve-result envelope evidence.
 - `branch_assembly.md` records the invented three-member branch topology
   benchmark required by PRD section 16.2.
+- `tp_dec092_temperature_indexed_shear_modulus_torsion.md` records the
+  independent exact-ID and interpolated-G pure-torsion oracle plus its
+  deliberately separated base-G fallback witness.

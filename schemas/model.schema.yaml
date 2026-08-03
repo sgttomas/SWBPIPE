@@ -566,11 +566,11 @@
           "$ref": "#/$defs/EquivalentStaticGeneration"
         },
         "modulus_basis_ref": {
-          "description": "Optional exact modulus basis: the user-assigned temperature-point id whose user-entered elastic modulus and, when present, thermal expansion coefficient this load case solves with. Exact-id selection remains unchanged under DEC-077. This field is mutually exclusive with modulus_basis_temperature.",
+          "description": "Optional exact modulus basis: the user-assigned temperature-point id whose explicit user-entered elastic modulus (E), shear modulus (G), and, when present, thermal expansion coefficient (alpha) this load case solves with. A selected point must provide G; no property value is defaulted or substituted from base material values. Exact-id selection remains available under DEC-077 and DEC-092. This field is mutually exclusive with modulus_basis_temperature.",
           "$ref": "#/$defs/Id"
         },
         "modulus_basis_temperature": {
-          "description": "Optional user-entered absolute solve temperature for DEC-077 linear interpolation of elastic modulus and thermal expansion coefficient between two adjacent user-entered material temperature points. Requests at or beyond stored range edges block; extrapolation and base-value substitution are not performed. This field is mutually exclusive with modulus_basis_ref.",
+          "description": "Optional user-entered absolute solve temperature for DEC-077 and DEC-092 linear interpolation of explicit elastic modulus (E), shear modulus (G), and thermal expansion coefficient (alpha) between two adjacent user-entered material temperature points. Both bracketing points must provide G; requests at or beyond stored range edges block. No property value is defaulted or substituted from base material values, and extrapolation is never performed. This field is mutually exclusive with modulus_basis_ref.",
           "$ref": "#/$defs/QuantityValue"
         },
         "provenance": {

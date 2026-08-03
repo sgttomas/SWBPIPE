@@ -287,6 +287,20 @@ pub struct BranchAssemblyBenchmarkResult {
     pub header_reaction_sum: f64,
 }
 
+/// Independent closed-form and frame-kernel results for the DEC-092
+/// temperature-indexed shear-modulus pure-torsion fixture. The selected
+/// moduli are explicit fixture inputs; this oracle does not resolve a product
+/// material basis or reuse product-physics selection logic.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TemperatureIndexedShearModulusTorsionOracle {
+    pub torsion_constant: f64,
+    pub interpolation_fraction: f64,
+    pub interpolated_shear_modulus: f64,
+    pub exact_id_rotation: f64,
+    pub interpolated_rotation: f64,
+    pub base_fallback_rotation: f64,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct LoadToResultantIntegrationResult {
     pub node_1_uy_displacement: f64,
@@ -649,6 +663,7 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
         portal_frame_sway_fixture(),
         branch_assembly_fixture(),
         straight_pipe_weight_recovery_fixture(),
+        tp_dec092_temperature_indexed_shear_modulus_torsion_fixture(),
         support_boundary_fixture(),
         primitive_load_preparation_fixture(),
         tp_phys_002_linear_static_integration_fixture(),
@@ -1492,6 +1507,117 @@ pub fn straight_pipe_weight_recovery_fixture() -> MechanicsBenchmark {
     }
 }
 
+// --- MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION -----------
+// Invented hollow straight pipe in pure St. Venant torsion. Expected values
+// come only from J = pi/32 (Do^4 - Di^4), linear interpolation of the two
+// explicit point values, and theta = T L / (G J). Product-physics material
+// selection code is deliberately not a dependency of this oracle.
+const DEC092_TORSION_LENGTH: f64 = 4.0;
+const DEC092_TORSION_OUTER_DIAMETER: f64 = 0.12;
+const DEC092_TORSION_INNER_DIAMETER: f64 = 0.10;
+const DEC092_TORSION_TORQUE: f64 = 12_000.0;
+const DEC092_TORSION_BASE_SHEAR_MODULUS: f64 = 80.0e9;
+const DEC092_TORSION_EXACT_ID_SHEAR_MODULUS: f64 = 50.0e9;
+const DEC092_TORSION_LOWER_TEMPERATURE: f64 = 300.0;
+const DEC092_TORSION_LOWER_SHEAR_MODULUS: f64 = 60.0e9;
+const DEC092_TORSION_UPPER_TEMPERATURE: f64 = 500.0;
+const DEC092_TORSION_UPPER_SHEAR_MODULUS: f64 = 40.0e9;
+const DEC092_TORSION_SELECTED_TEMPERATURE: f64 = 425.0;
+// Existing DEC-024/DEC-026 analytic-class relative tier; this fixture selects
+// no new tolerance and leaves every ExpectedValue tolerance_policy unresolved.
+const DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE: f64 = 1.0e-9;
+
+fn dec092_torsion_constant() -> f64 {
+    std::f64::consts::PI / 32.0
+        * (DEC092_TORSION_OUTER_DIAMETER.powi(4) - DEC092_TORSION_INNER_DIAMETER.powi(4))
+}
+
+fn dec092_torsion_rotation(shear_modulus: f64) -> f64 {
+    DEC092_TORSION_TORQUE * DEC092_TORSION_LENGTH / (shear_modulus * dec092_torsion_constant())
+}
+
+pub fn tp_dec092_temperature_indexed_shear_modulus_torsion_oracle(
+) -> TemperatureIndexedShearModulusTorsionOracle {
+    let interpolation_fraction = (DEC092_TORSION_SELECTED_TEMPERATURE
+        - DEC092_TORSION_LOWER_TEMPERATURE)
+        / (DEC092_TORSION_UPPER_TEMPERATURE - DEC092_TORSION_LOWER_TEMPERATURE);
+    let interpolated_shear_modulus = DEC092_TORSION_LOWER_SHEAR_MODULUS
+        + interpolation_fraction
+            * (DEC092_TORSION_UPPER_SHEAR_MODULUS - DEC092_TORSION_LOWER_SHEAR_MODULUS);
+
+    TemperatureIndexedShearModulusTorsionOracle {
+        torsion_constant: dec092_torsion_constant(),
+        interpolation_fraction,
+        interpolated_shear_modulus,
+        exact_id_rotation: dec092_torsion_rotation(DEC092_TORSION_EXACT_ID_SHEAR_MODULUS),
+        interpolated_rotation: dec092_torsion_rotation(interpolated_shear_modulus),
+        base_fallback_rotation: dec092_torsion_rotation(DEC092_TORSION_BASE_SHEAR_MODULUS),
+    }
+}
+
+pub fn tp_dec092_temperature_indexed_shear_modulus_torsion_fixture() -> MechanicsBenchmark {
+    let oracle = tp_dec092_temperature_indexed_shear_modulus_torsion_oracle();
+    MechanicsBenchmark {
+        fixture_id: "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION",
+        family: BenchmarkFamily::StraightPipe,
+        description: "Invented hollow straight-pipe cantilever in pure torsion: exact-ID and linearly interpolated point G values drive theta = T L / (G J), while a deliberately different base G supplies an anti-fallback mutation witness.",
+        assumptions: &[
+            "Small-rotation linear-elastic St. Venant torsion of a uniform circular annulus.",
+            "Node 0 is restrained in all six degrees of freedom and the only applied node-1 load is torque about the pipe axis.",
+            "All temperatures and shear moduli are explicit invented fixture inputs; no catalog, material curve, code value, extrapolation, or default is used.",
+            "Exact-ID and interpolation values are selected inputs to this independent oracle; product material-basis resolution is intentionally outside this crate.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/mechanics/tp_dec092_temperature_indexed_shear_modulus_torsion.md",
+        ),
+        unit_basis: FIXTURE_UNIT_BASIS,
+        expected_values: vec![
+            ExpectedValue {
+                name: "torsion_constant",
+                value: oracle.torsion_constant,
+                unit: "m^4",
+                dimension: "second_moment_area",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "exact_id_shear_modulus",
+                value: DEC092_TORSION_EXACT_ID_SHEAR_MODULUS,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "interpolated_shear_modulus",
+                value: oracle.interpolated_shear_modulus,
+                unit: "Pa",
+                dimension: "stress",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "exact_id_tip_rotation",
+                value: oracle.exact_id_rotation,
+                unit: "rad",
+                dimension: "rotation",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "interpolated_tip_rotation",
+                value: oracle.interpolated_rotation,
+                unit: "rad",
+                dimension: "rotation",
+                tolerance_policy: None,
+            },
+            ExpectedValue {
+                name: "base_g_fallback_tip_rotation",
+                value: oracle.base_fallback_rotation,
+                unit: "rad",
+                dimension: "rotation",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
 pub fn support_boundary_fixture() -> MechanicsBenchmark {
     MechanicsBenchmark {
         fixture_id: "MECH-SUPPORT-BOUNDARY-MIXED",
@@ -2030,6 +2156,41 @@ pub fn solve_cantilever_tip_force() -> Result<f64, FrameKernelError> {
         .iter()
         .position(|&dof| dof == DOF_PER_NODE + UY)
         .expect("tip UY is free in this fixture");
+    Ok(displacement[reduced_index])
+}
+
+/// Solve the independent DEC-092 straight-pipe fixture with an explicitly
+/// supplied G. This exercises the frame kernel's torsional stiffness only; it
+/// does not perform or mirror product material-basis selection.
+pub fn solve_tp_dec092_straight_pipe_torsion(shear_modulus: f64) -> Result<f64, FrameKernelError> {
+    let outer = DEC092_TORSION_OUTER_DIAMETER;
+    let inner = DEC092_TORSION_INNER_DIAMETER;
+    let area = std::f64::consts::PI / 4.0 * (outer.powi(2) - inner.powi(2));
+    let second_moment = std::f64::consts::PI / 64.0 * (outer.powi(4) - inner.powi(4));
+    let section = FrameSection::new(
+        200.0e9,
+        shear_modulus,
+        area,
+        second_moment,
+        second_moment,
+        2.0 * second_moment,
+    )?;
+    let element = FrameElement::new(
+        FrameNode::new(0, [0.0, 0.0, 0.0])?,
+        FrameNode::new(1, [DEC092_TORSION_LENGTH, 0.0, 0.0])?,
+        section,
+        [0.0, 1.0, 0.0],
+    )?;
+    let stiffness = assemble_global_stiffness(2, &[element])?;
+    let mut force = vec![0.0; 2 * DOF_PER_NODE];
+    force[DOF_PER_NODE + RX] = DEC092_TORSION_TORQUE;
+    let reduced = reduce_system(&stiffness, &force, &[UX, UY, UZ, RX, RY, RZ])?;
+    let displacement = solve_dense(&reduced.stiffness, &reduced.force)?;
+    let reduced_index = reduced
+        .free_dofs
+        .iter()
+        .position(|&dof| dof == DOF_PER_NODE + RX)
+        .expect("tip RX is free in the DEC-092 torsion fixture");
     Ok(displacement[reduced_index])
 }
 
@@ -6054,7 +6215,7 @@ mod tests {
     fn inventory_covers_required_mechanics_families() {
         let fixtures = fixture_inventory();
         assert!(missing_required_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 24);
+        assert_eq!(fixtures.len(), 25);
         assert!(fixtures
             .iter()
             .any(|fixture| fixture.fixture_id == "MECH-BRANCH-ASSEMBLY-THREE-MEMBER"));
@@ -6076,6 +6237,9 @@ mod tests {
         assert!(fixtures.iter().any(
             |fixture| fixture.fixture_id == "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE"
         ));
+        assert!(fixtures.iter().any(|fixture| {
+            fixture.fixture_id == "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION"
+        }));
     }
 
     #[test]
@@ -6457,6 +6621,61 @@ mod tests {
         assert_eq!(fixture.expected_values[0].value, 22.5);
         assert_eq!(fixture.expected_values[1].value, 18.0);
         assert!(validate_straight_pipe_boundary());
+    }
+
+    #[test]
+    fn temperature_indexed_shear_modulus_torsion_matches_independent_oracle() {
+        let fixture = tp_dec092_temperature_indexed_shear_modulus_torsion_fixture();
+        let oracle = tp_dec092_temperature_indexed_shear_modulus_torsion_oracle();
+        assert_eq!(
+            fixture.fixture_id,
+            "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION"
+        );
+        assert!(fixture.has_dimensioned_expected_values());
+        assert!(fixture.tolerance_policy_is_unresolved());
+        assert!(fixture.provenance.is_publicly_usable());
+
+        let exact_solved =
+            solve_tp_dec092_straight_pipe_torsion(DEC092_TORSION_EXACT_ID_SHEAR_MODULUS).unwrap();
+        let interpolated_solved =
+            solve_tp_dec092_straight_pipe_torsion(oracle.interpolated_shear_modulus).unwrap();
+        let base_fallback_solved =
+            solve_tp_dec092_straight_pipe_torsion(DEC092_TORSION_BASE_SHEAR_MODULUS).unwrap();
+
+        let relative_error =
+            |actual: f64, expected: f64| (actual - expected).abs() / expected.abs();
+        assert!(
+            relative_error(exact_solved, oracle.exact_id_rotation)
+                <= DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE
+        );
+        assert!(
+            relative_error(interpolated_solved, oracle.interpolated_rotation)
+                <= DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE
+        );
+        assert!(
+            relative_error(base_fallback_solved, oracle.base_fallback_rotation)
+                <= DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE
+        );
+
+        // Anti-fallback mutation witnesses: substituting base G for either
+        // selected point G misses the independent target by 37.5% or 40.625%,
+        // respectively, far outside the existing analytic-class tier.
+        assert!(
+            (relative_error(base_fallback_solved, oracle.exact_id_rotation) - 0.375).abs()
+                <= DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE
+        );
+        assert!(
+            (relative_error(base_fallback_solved, oracle.interpolated_rotation) - 0.40625).abs()
+                <= DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE
+        );
+        assert!(
+            relative_error(base_fallback_solved, oracle.exact_id_rotation)
+                > DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE
+        );
+        assert!(
+            relative_error(base_fallback_solved, oracle.interpolated_rotation)
+                > DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE
+        );
     }
 
     #[test]

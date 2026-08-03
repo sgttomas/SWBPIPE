@@ -24,7 +24,7 @@ running the Rust engine, and the TypeScript engine is held to them.
 | provenance_class | `PUBLIC_DOMAIN_OR_ORIGINAL` |
 | contributor_certification | Nothing in this corpus derives from protected standards content, vendor-proprietary data, or real project data. No code-specific allowables, SIFs, flexibility factors, or load-combination defaults appear anywhere in the corpus; numeric values are arbitrary invented scalars used only to exercise validation mechanics. |
 | engineering_status | Non-engineering test data. The corpus makes no release-readiness, professional-approval, certification, sealing, authentication, or code-compliance claim. |
-| review_status | Cases 01–57: human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12). Cases 58–65 (added by `TP-APP-R2-COMBEXPR-001`): human-reviewed and accepted 2026-06-12 (`DEC-032`, same register). Cases 66–75 (added by `TP-APP-R5-FIELDRULES-001`: component-geometry and load-case optional-slot field rules): blessed from the Rust contract reference on 2026-07-10; **pending their own human review entry**. Future case additions require their own review entry; they do not ride prior acceptances. |
+| review_status | Cases 01–57: human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12). Cases 58–65 (added by `TP-APP-R2-COMBEXPR-001`): human-reviewed and accepted 2026-06-12 (`DEC-032`, same register). Cases 66–75 (added by `TP-APP-R5-FIELDRULES-001`: component-geometry and load-case optional-slot field rules): blessed from the Rust contract reference on 2026-07-10; **pending their own human review entry**. Cases 76–78 (DEC-092 material temperature-point shear-modulus editing): generated from the Rust contract reference in this tranche and **pending their own human review entry**. Future case additions require their own review entry; they do not ride prior acceptances. |
 
 ## Case file format
 
@@ -141,6 +141,10 @@ internal canonicalization, not the operation semantics:
   primitive loads (`OP-PIPE-DELETE-REFERENCED`).
 - Dynamic field paths `primitive_loads.N.magnitude.value` and
   `terms.N.factor` each have at least one accepted and one blocked case.
+- The stable-id dynamic path
+  `temperature_points.<point-id>.shear_modulus.value` has one accepted case,
+  one missing-point block, and one dimensionally invalid-unit block in cases
+  76–78; point IDs may contain dots and are not treated as array indices.
 - Deferred fields stay deferred: the corpus encodes blocked-stays-blocked for
   `Component.kind` and whole-record `Combination.terms` editing.
 
@@ -170,7 +174,7 @@ files); the ambiguity is reported for human ruling instead of being silently
 reconciled. Quarantined cases as of 2026-06-12: none — the TypeScript engine
 reproduces all 57 cases exactly, with no alignment fixes.
 
-## Case inventory (65 cases)
+## Case inventory (78 cases)
 
 Cases 01–57 are the corpus accepted under `DEC-030`. Cases 58–65 were added
 by `TP-APP-R2-COMBEXPR-001` (subtraction/range combination authoring,
@@ -181,6 +185,14 @@ combination-basis set (`mechanics`, `result_state_subtraction`,
 four), operand-reference blocks, and the combination-basis update validation
 behavior change (free-text basis edits are now blocked; previously any
 non-empty text was applied).
+
+Cases 66–75 are the component-geometry and load-case optional-slot field-rule
+cases added by `TP-APP-R5-FIELDRULES-001`; as recorded in Provenance above,
+they were blessed from the Rust contract reference on 2026-07-10 and remain
+pending their own human review entry. Cases 76–78 are fresh DEC-092 operation
+cases for an existing material temperature point's explicit `G` value. They
+record generated Rust-contract expectations only and do not inherit any
+acceptance or human-review claim from cases 01–65 or the blessing of 66–75.
 
 | File | Change kind | Mode | Expected application status | Blocking codes |
 |---|---|---|---|---|
@@ -249,3 +261,16 @@ non-empty text was applied).
 | `case_63_block_create_combination_missing_operand_ref.json` | `create_combination` | apply | blocked | `OP-COMBINATION-OPERAND-LOAD-NOT-FOUND` |
 | `case_64_block_update_combination_basis_unsupported.json` | `update_load` | apply | blocked | `OP-COMBINATION-BASIS-UNSUPPORTED` |
 | `case_65_block_update_combination_basis_shape_mismatch.json` | `update_load` | apply | blocked | `OP-COMBINATION-BASIS-SHAPE-MISMATCH` |
+| `case_66_accept_set_field_component_bend_radius_authoring.json` | `set_field` | apply | applied_to_session_model | — |
+| `case_67_accept_set_field_component_expansion_joint_stiffness.json` | `set_field` | apply | applied_to_session_model | — |
+| `case_68_accept_set_field_element_mill_tolerance_zero.json` | `set_field` | apply | applied_to_session_model | — |
+| `case_69_accept_update_load_modulus_basis_ref.json` | `update_load` | apply | applied_to_session_model | — |
+| `case_70_accept_update_load_wind_exposed_pipe_refs.json` | `update_load` | apply | applied_to_session_model | — |
+| `case_71_accept_update_load_seismic_gravity_authoring.json` | `update_load` | apply | applied_to_session_model | — |
+| `case_72_block_component_bend_pipe_ref_not_found.json` | `set_field` | apply | blocked | `OP-REFERENCE-NOT-FOUND` |
+| `case_73_block_element_mill_tolerance_negative.json` | `set_field` | apply | blocked | `OP-VALUE-NEGATIVE` |
+| `case_74_block_load_modulus_basis_ref_id_pattern.json` | `update_load` | apply | blocked | `OP-ID-PATTERN-INVALID` |
+| `case_75_block_load_wind_direction_enum.json` | `update_load` | apply | blocked | `OP-ENUM-TOKEN-INVALID` |
+| `case_76_accept_set_field_material_temperature_point_shear_modulus.json` | `set_field` | apply | applied_to_session_model | — |
+| `case_77_block_set_field_material_temperature_point_shear_modulus_missing_point.json` | `set_field` | apply | blocked | `OP-MATERIAL-TEMPERATURE-POINT-NOT-FOUND` |
+| `case_78_block_set_field_material_temperature_point_shear_modulus_invalid.json` | `set_field` | apply | blocked | `OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE` |

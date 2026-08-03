@@ -1,0 +1,154 @@
+{
+  "base_model": {
+    "document_kind": "openpipestress.product_preview.model",
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "material:M-1",
+        "label": "Invented steel-like material",
+        "provenance": "invented_example",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 77000000000.0
+        },
+        "temperature_points": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 180000000000.0
+            },
+            "id": "temperature.point:hot",
+            "provenance": "invented_hot_user_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 68000000000.0
+            },
+            "temperature": {
+              "unit": "degC",
+              "value": 200.0
+            }
+          }
+        ]
+      }
+    ],
+    "schema_version": "0.1.0"
+  },
+  "case_id": "block-set-field-material-temperature-point-shear-modulus-missing-point",
+  "claimed_model_hash": null,
+  "description": "set_field blocked because the stable material temperature-point id in the dynamic shear-modulus path does not exist.",
+  "expected": {
+    "applied_model": null,
+    "applied_model_canonical_sha256": null,
+    "outcome": {
+      "acceptance": {
+        "acceptance_basis": "none_validation_only",
+        "acceptance_is_professional_approval": false,
+        "persistence_status": "not_applicable_no_application"
+      },
+      "applied": false,
+      "audit_boundary": {
+        "applied_model_is_new_document": false,
+        "direct_model_mutation_allowed": false,
+        "input_model_mutated_in_place": false,
+        "mutation_route": "structured_operations_only",
+        "requires_user_acceptance": true
+      },
+      "change_id": "change:corpus-block-material-temperature-point-shear-modulus-missing-point",
+      "change_kind": "set_field",
+      "deliverable_refs": [
+        "DEL-16-02",
+        "DEL-16-03"
+      ],
+      "diagnostics": [
+        {
+          "affected_refs": [
+            "material:M-1",
+            "temperature-point:missing"
+          ],
+          "blocking": true,
+          "code": "OP-MATERIAL-TEMPERATURE-POINT-NOT-FOUND",
+          "severity": "blocking"
+        }
+      ],
+      "diff_preview": [],
+      "document_kind": "openpipestress.desktop.operation_outcome",
+      "input_model_unchanged": true,
+      "mode": "apply",
+      "model_basis": {
+        "backend_canonicalization": "rfc8785_jcs",
+        "backend_model_hash": "sha256:d4a5ca06c22c4e0e367819b22ddd09e43344618325207c26dd87d4617e6d0616",
+        "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+        "claimed_hash_canonicalization": "not_provided",
+        "claimed_model_hash": "not_provided"
+      },
+      "operation_id": "op:corpus-block-material-temperature-point-shear-modulus-missing-point",
+      "operation_kind": "modify",
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_approval_claim": false,
+        "software_makes_authentication_claim": false,
+        "software_makes_certification_claim": false,
+        "software_makes_compliance_claim": false,
+        "software_makes_sealing_claim": false
+      },
+      "schema_version": "0.1.0",
+      "target_object_type": "Material",
+      "target_ref": "material:M-1",
+      "validation": {
+        "application_status": "blocked",
+        "before_state_validation": "not_run",
+        "diff_preview_status": "blocked_by_validation",
+        "reference_validation": "blocked",
+        "schema_validation": "passed",
+        "unit_validation": "not_run"
+      }
+    }
+  },
+  "intent": {
+    "audit_boundary": {
+      "direct_model_mutation_allowed": false,
+      "mutates_accepted_model_state": false,
+      "mutation_route": "structured_operations_only",
+      "requires_user_acceptance": true
+    },
+    "author_type": "user",
+    "change": {
+      "after": "65000000000",
+      "before": "68000000000",
+      "change_id": "change:corpus-block-material-temperature-point-shear-modulus-missing-point",
+      "change_kind": "set_field",
+      "dimension": "stress",
+      "field_label": "temperature point shear modulus",
+      "field_path": "temperature_points.temperature-point:missing.shear_modulus.value",
+      "source_note": "contract_corpus_invented",
+      "unit": "Pa"
+    },
+    "operation_id": "op:corpus-block-material-temperature-point-shear-modulus-missing-point",
+    "operation_kind": "modify",
+    "operation_status": "proposed",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "rationale": "invented contract corpus case",
+    "target": {
+      "object_type": "Material",
+      "ref": "material:M-1"
+    },
+    "validation": {
+      "application_status": "not_applied",
+      "constraint_validation": "not_run",
+      "diff_preview_status": "not_generated",
+      "schema_validation": "not_run",
+      "unit_validation": "not_run"
+    }
+  },
+  "mode": "apply"
+}

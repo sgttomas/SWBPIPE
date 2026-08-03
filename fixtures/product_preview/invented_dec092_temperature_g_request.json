@@ -1,0 +1,145 @@
+{
+  "model": {
+    "schema_version": "0.1.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "project": {
+      "id": "project:invented-dec092-temperature-g-torsion"
+    },
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
+    },
+    "nodes": [
+      {
+        "id": "node:N-DEC092-ANCHOR",
+        "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+        "provenance": "invented_dec092_user_geometry"
+      },
+      {
+        "id": "node:N-DEC092-TIP",
+        "position": { "x": 4.0, "y": 0.0, "z": 0.0 },
+        "provenance": "invented_dec092_user_geometry"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe:P-DEC092",
+        "from": "node:N-DEC092-ANCHOR",
+        "to": "node:N-DEC092-TIP",
+        "section": {
+          "outside_diameter": { "value": 0.12, "unit": "m" },
+          "wall_thickness": { "value": 0.01, "unit": "m" }
+        },
+        "material": "material:invented-dec092",
+        "y_reference": { "x": 0.0, "y": 1.0, "z": 0.0 },
+        "provenance": "invented_dec092_user_geometry_no_catalog"
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:S-DEC092-ANCHOR",
+        "node": "node:N-DEC092-ANCHOR",
+        "family": "anchor",
+        "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"],
+        "provenance": "invented_dec092_user_support"
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "load:L-DEC092-EXACT",
+        "modulus_basis_ref": "temperature-point:exact",
+        "primitive_loads": [
+          {
+            "id": "load:L-DEC092-EXACT-TORQUE",
+            "category": "concentrated_moment",
+            "target": { "type": "node", "node": "node:N-DEC092-TIP" },
+            "direction": "RX",
+            "magnitude": { "value": 12000.0, "unit": "N*m" },
+            "dimension": "moment",
+            "provenance": "invented_dec092_user_torque"
+          }
+        ],
+        "provenance": "invented_dec092_exact_point_basis"
+      },
+      {
+        "id": "load:L-DEC092-INTERPOLATED",
+        "modulus_basis_temperature": { "value": 425.0, "unit": "K" },
+        "primitive_loads": [
+          {
+            "id": "load:L-DEC092-INTERPOLATED-TORQUE",
+            "category": "concentrated_moment",
+            "target": { "type": "node", "node": "node:N-DEC092-TIP" },
+            "direction": "RX",
+            "magnitude": { "value": 12000.0, "unit": "N*m" },
+            "dimension": "moment",
+            "provenance": "invented_dec092_user_torque"
+          }
+        ],
+        "provenance": "invented_dec092_declared_temperature_basis"
+      },
+      {
+        "id": "load:L-DEC092-BASE",
+        "primitive_loads": [
+          {
+            "id": "load:L-DEC092-BASE-TORQUE",
+            "category": "concentrated_moment",
+            "target": { "type": "node", "node": "node:N-DEC092-TIP" },
+            "direction": "RX",
+            "magnitude": { "value": 12000.0, "unit": "N*m" },
+            "dimension": "moment",
+            "provenance": "invented_dec092_user_torque"
+          }
+        ],
+        "provenance": "invented_dec092_base_material_basis"
+      }
+    ],
+    "combinations": [
+      {
+        "id": "combination:C-DEC092-RANGE",
+        "basis": "range_envelope",
+        "operand_ids": [
+          "load:L-DEC092-EXACT",
+          "load:L-DEC092-INTERPOLATED",
+          "load:L-DEC092-BASE"
+        ],
+        "mode": "max_abs",
+        "provenance": "invented_dec092_user_range_envelope"
+      }
+    ]
+  },
+  "materials": [
+    {
+      "id": "material:invented-dec092",
+      "elastic_modulus": { "value": 200000.0, "unit": "MPa" },
+      "shear_modulus": { "value": 80000.0, "unit": "MPa" },
+      "thermal_expansion_coefficient": { "value": 0.000012, "unit": "1/K" },
+      "temperature_points": [
+        {
+          "id": "temperature-point:exact",
+          "elastic_modulus": { "value": 190000.0, "unit": "MPa" },
+          "shear_modulus": { "value": 50000.0, "unit": "MPa" },
+          "thermal_expansion_coefficient": { "value": 0.000013, "unit": "1/K" },
+          "provenance": "invented_dec092_exact_user_property_point"
+        },
+        {
+          "id": "temperature-point:lower",
+          "temperature": { "value": 300.0, "unit": "K" },
+          "elastic_modulus": { "value": 200000.0, "unit": "MPa" },
+          "shear_modulus": { "value": 60000.0, "unit": "MPa" },
+          "thermal_expansion_coefficient": { "value": 0.000012, "unit": "1/K" },
+          "provenance": "invented_dec092_lower_user_property_point"
+        },
+        {
+          "id": "temperature-point:upper",
+          "temperature": { "value": 500.0, "unit": "K" },
+          "elastic_modulus": { "value": 180000.0, "unit": "MPa" },
+          "shear_modulus": { "value": 40000.0, "unit": "MPa" },
+          "thermal_expansion_coefficient": { "value": 0.000014, "unit": "1/K" },
+          "provenance": "invented_dec092_upper_user_property_point"
+        }
+      ],
+      "provenance": "invented_dec092_user_material_no_catalog_or_default"
+    }
+  ]
+}

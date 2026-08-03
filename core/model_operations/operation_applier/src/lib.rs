@@ -4756,10 +4756,50 @@ fn resolve_field(
         return None;
     }
 
-    // Dynamic paths: primitive_loads.<index>.magnitude.value and
-    // terms.<index>.factor are existing child fields, not whole-record
-    // creation/editing.
-    let rule_kind = if object_type == "Load" && is_primitive_magnitude_path(field_path) {
+    // Dynamic paths are existing child fields, not whole-record creation or
+    // editing. Material temperature points are addressed by their stable
+    // user-assigned id rather than by an array index so reordering the point
+    // list cannot retarget an already queued operation.
+    let material_temperature_point_id = (object_type == "Material")
+        .then(|| material_temperature_point_shear_modulus_id(field_path))
+        .flatten();
+    let mut dynamic_segments: Option<Vec<String>> = None;
+    let mut pinned_quantity_dimension: Option<&'static str> = None;
+    let rule_kind = if let Some(point_id) = material_temperature_point_id {
+        let point_index = entity
+            .get("temperature_points")
+            .and_then(Value::as_array)
+            .and_then(|points| {
+                points
+                    .iter()
+                    .position(|point| point.get("id").and_then(Value::as_str) == Some(point_id))
+            });
+        let Some(point_index) = point_index else {
+            checker.reference_state = "blocked";
+            checker.push(
+                "OP-MATERIAL-TEMPERATURE-POINT-NOT-FOUND",
+                "blocking",
+                format!(
+                    "Material temperature point `{point_id}` was not found on material `{target_ref}`."
+                ),
+                "Refresh the operation from an existing user-authored material temperature point; points are not created implicitly.",
+                vec![target_ref.to_string(), point_id.to_string()],
+            );
+            return None;
+        };
+        checker.reference_state = "passed";
+        dynamic_segments = Some(vec![
+            "temperature_points".to_string(),
+            point_index.to_string(),
+            "shear_modulus".to_string(),
+            "value".to_string(),
+        ]);
+        pinned_quantity_dimension = Some("stress");
+        Some(FieldKind::Quantity {
+            require_positive: true,
+            unit_source: UnitSource::SiblingUnitField,
+        })
+    } else if object_type == "Load" && is_primitive_magnitude_path(field_path) {
         Some(FieldKind::Quantity {
             require_positive: false,
             unit_source: UnitSource::SiblingUnitField,
@@ -4785,7 +4825,24 @@ fn resolve_field(
         return None;
     };
 
-    let segments: Vec<String> = field_path.split('.').map(str::to_string).collect();
+    let segments: Vec<String> =
+        dynamic_segments.unwrap_or_else(|| field_path.split('.').map(str::to_string).collect());
+
+    if let Some(expected_dimension) = pinned_quantity_dimension {
+        if dimension != expected_dimension {
+            checker.unit_state = "blocked";
+            checker.push(
+                "OP-UNIT-DIMENSION-MISMATCH",
+                "blocking",
+                format!(
+                    "Quantity field `{field_path}` requires dimension `{expected_dimension}`, not `{dimension}`."
+                ),
+                "Use the explicit stress-dimension quantity contract for material temperature-point shear modulus.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+    }
 
     match kind {
         FieldKind::Text => {
@@ -5035,6 +5092,21 @@ fn resolve_field(
                     return None;
                 }
                 Some(stored) => {
+                    if pinned_quantity_dimension.is_some()
+                        && !unit_symbol_matches_dimension(&stored, dimension_enum)
+                    {
+                        checker.unit_state = "blocked";
+                        checker.push(
+                            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                            "blocking",
+                            format!(
+                                "Stored unit `{stored}` is not accepted for dimension `{dimension}` on `{field_path}`."
+                            ),
+                            "Repair the explicit temperature-point quantity unit before editing its value; no hidden fallback unit is supplied.",
+                            vec![target_ref.to_string()],
+                        );
+                        return None;
+                    }
                     let unit_matches_stored = unit == stored;
                     let unit_matches_dimension =
                         unit_symbol_matches_dimension(unit, dimension_enum);
@@ -6106,6 +6178,19 @@ fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> Mo
     }
 }
 
+/// Resolve the stable point id from the exact DEC-092 dynamic edit path:
+/// `temperature_points.<point-id>.shear_modulus.value`.
+///
+/// Prefix/suffix parsing deliberately preserves dots inside schema-valid
+/// point ids; treating the whole path as dot-delimited segments would make a
+/// valid id such as `temperature.point:hot` impossible to address.
+fn material_temperature_point_shear_modulus_id(field_path: &str) -> Option<&str> {
+    let point_id = field_path
+        .strip_prefix("temperature_points.")?
+        .strip_suffix(".shear_modulus.value")?;
+    (!point_id.is_empty()).then_some(point_id)
+}
+
 fn is_primitive_magnitude_path(field_path: &str) -> bool {
     let segments: Vec<&str> = field_path.split('.').collect();
     segments.len() == 4
@@ -6998,6 +7083,27 @@ mod tests {
         })
     }
 
+    fn sample_model_with_temperature_points() -> Value {
+        let mut model = sample_model();
+        model["materials"][0]["temperature_points"] = json!([
+            {
+                "id": "temperature-point:cold",
+                "temperature": { "value": 20.0, "unit": "degC" },
+                "elastic_modulus": { "value": 200000000000.0, "unit": "Pa" },
+                "shear_modulus": { "value": 76000000000.0, "unit": "Pa" },
+                "provenance": "invented_cold_user_input"
+            },
+            {
+                "id": "temperature.point:hot",
+                "temperature": { "value": 200.0, "unit": "degC" },
+                "elastic_modulus": { "value": 180000000000.0, "unit": "Pa" },
+                "shear_modulus": { "value": 68000000000.0, "unit": "Pa" },
+                "provenance": "invented_hot_user_input"
+            }
+        ]);
+        model
+    }
+
     fn codes(outcome: &OperationOutcome) -> Vec<&str> {
         outcome
             .diagnostics
@@ -7083,6 +7189,136 @@ mod tests {
             .applied_model_backend_hash
             .unwrap()
             .starts_with("sha256:"));
+    }
+
+    #[test]
+    fn material_temperature_point_shear_modulus_edit_targets_stable_point_id() {
+        let model = sample_model_with_temperature_points();
+        let before_snapshot = model.clone();
+        let path = "temperature_points.temperature.point:hot.shear_modulus.value";
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            path,
+            "68000000000",
+            "65000000000",
+            "Pa",
+            "stress",
+        );
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(model, before_snapshot, "the input model remains immutable");
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.validation.before_state_validation, "passed");
+        assert_eq!(outcome.diff_preview[0].field_path, path);
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["materials"][0]["temperature_points"][1]["shear_modulus"]["value"],
+            json!(65000000000.0)
+        );
+        let mut expected = before_snapshot;
+        expected["materials"][0]["temperature_points"][1]["shear_modulus"]["value"] =
+            json!(65000000000.0);
+        assert_eq!(applied, expected, "only the named point G may change");
+    }
+
+    #[test]
+    fn material_temperature_point_shear_modulus_edit_blocks_missing_stale_and_invalid() {
+        let model = sample_model_with_temperature_points();
+
+        let missing = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "temperature_points.temperature-point:missing.shear_modulus.value",
+            "68000000000",
+            "65000000000",
+            "Pa",
+            "stress",
+        );
+        let missing_outcome = apply_operation(&model, &missing, None);
+        assert!(codes(&missing_outcome).contains(&"OP-MATERIAL-TEMPERATURE-POINT-NOT-FOUND"));
+        assert_eq!(missing_outcome.validation.reference_validation, "blocked");
+        assert!(missing_outcome.applied_model.is_none());
+
+        let path = "temperature_points.temperature.point:hot.shear_modulus.value";
+        let stale = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            path,
+            "67000000000",
+            "65000000000",
+            "Pa",
+            "stress",
+        );
+        let stale_outcome = apply_operation(&model, &stale, None);
+        assert!(codes(&stale_outcome).contains(&"OP-STALE-BEFORE-VALUE"));
+        assert!(stale_outcome.applied_model.is_none());
+
+        let non_positive = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            path,
+            "68000000000",
+            "0",
+            "Pa",
+            "stress",
+        );
+        let non_positive_outcome = apply_operation(&model, &non_positive, None);
+        assert!(codes(&non_positive_outcome).contains(&"OP-VALUE-NOT-POSITIVE"));
+        assert!(non_positive_outcome.applied_model.is_none());
+
+        let non_finite = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            path,
+            "68000000000",
+            "NaN",
+            "Pa",
+            "stress",
+        );
+        let non_finite_outcome = apply_operation(&model, &non_finite, None);
+        assert!(codes(&non_finite_outcome).contains(&"OP-VALUE-NOT-NUMERIC"));
+        assert!(non_finite_outcome.applied_model.is_none());
+
+        let invalid_unit = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            path,
+            "68000000000",
+            "65000000000",
+            "m",
+            "stress",
+        );
+        let invalid_unit_outcome = apply_operation(&model, &invalid_unit, None);
+        assert!(codes(&invalid_unit_outcome).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+        assert!(invalid_unit_outcome.applied_model.is_none());
+
+        let invalid_dimension = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            path,
+            "68000000000",
+            "65000000000",
+            "Pa",
+            "length",
+        );
+        let invalid_dimension_outcome = apply_operation(&model, &invalid_dimension, None);
+        assert!(codes(&invalid_dimension_outcome).contains(&"OP-UNIT-DIMENSION-MISMATCH"));
+        assert!(invalid_dimension_outcome.applied_model.is_none());
     }
 
     #[test]

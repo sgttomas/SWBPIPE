@@ -39,6 +39,46 @@
             "review_status": "pending"
           },
           "review_status": "pending"
+        },
+        {
+          "property_id": "mat.invented.alpha.shear-modulus.hot",
+          "property_kind": "shear_modulus",
+          "temperature_ref": {
+            "ref_type": "material_temperature_point",
+            "ref_id": "mat.invented.alpha.temperature.hot"
+          },
+          "value": {
+            "magnitude": 123.0,
+            "unit_ref": {
+              "ref_type": "UnitDefinition",
+              "ref_id": "unit.MPa"
+            },
+            "dimension_id": "stress",
+            "quantity_kind": "unit_bearing",
+            "unit_required": true,
+            "missing_unit_behavior": "diagnostic_blocking",
+            "provenance": {
+              "source_name": "OpenPipeStress invented fixture",
+              "source_location": "fixtures/material/invented_material_library_valid.json",
+              "source_license": "project invented public example",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering temperature-point shear modulus",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "value_status": "provided",
+          "required_for": "mechanics_solve",
+          "provenance": {
+            "source_name": "OpenPipeStress invented fixture",
+            "source_location": "fixtures/material/invented_material_library_valid.json",
+            "source_license": "project invented public example",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "invented non-engineering temperature-point shear modulus",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          },
+          "review_status": "pending"
         }
       ],
       "allowables": [
@@ -102,6 +142,15 @@
       "unit_required": true,
       "required_for": "rule_check",
       "public_fixture_policy": "private_values_only",
+      "review_status": "pending"
+    },
+    {
+      "property_kind": "shear_modulus",
+      "dimension_id": "stress",
+      "quantity_kind": "unit_bearing",
+      "unit_required": true,
+      "required_for": "mechanics_solve",
+      "public_fixture_policy": "invented_non_engineering_values_only",
       "review_status": "pending"
     }
   ],

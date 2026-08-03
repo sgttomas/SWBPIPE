@@ -405,6 +405,84 @@ describe("LibraryManagerPanel (browser preview seam)", () => {
     expect(invokeMock).not.toHaveBeenCalled();
   });
 
+  it("binds explicit shear modulus to an existing private temperature-point reference", async () => {
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("library-load-template"));
+
+    const textarea = screen.getByTestId("library-draft-json") as HTMLTextAreaElement;
+    const document = JSON.parse(textarea.value) as Record<string, unknown>;
+    document.material_records = [
+      {
+        material_id: "material:user-alpha",
+        name: "Private user material",
+        properties: [
+          {
+            property_id: "property:elastic-modulus:hot",
+            property_kind: "elastic_modulus",
+            temperature_ref: {
+              ref_type: "material_temperature_point",
+              ref_id: "material:user-alpha:temperature:hot"
+            }
+          }
+        ]
+      }
+    ];
+    fireEvent.change(textarea, { target: { value: JSON.stringify(document) } });
+
+    fireEvent.change(screen.getByTestId("material-property-kind"), {
+      target: { value: "shear_modulus" }
+    });
+    expect((screen.getByTestId("material-property-unit") as HTMLSelectElement).value).toBe(
+      "unit:pascal"
+    );
+    const temperatureRef = screen.getByTestId(
+      "material-property-temperature-ref"
+    ) as HTMLSelectElement;
+    expect(temperatureRef.disabled).toBe(false);
+    expect(Array.from(temperatureRef.options).map((option) => option.value)).toContain(
+      "material:user-alpha:temperature:hot"
+    );
+    fireEvent.change(temperatureRef, {
+      target: { value: "material:user-alpha:temperature:hot" }
+    });
+    fireEvent.change(screen.getByTestId("material-property-value"), {
+      target: { value: "50000000000" }
+    });
+    fireEvent.click(screen.getByTestId("material-property-apply-draft"));
+
+    const updated = JSON.parse(textarea.value) as Record<string, unknown>;
+    const records = updated.material_records as Array<Record<string, unknown>>;
+    const properties = records[0].properties as Array<Record<string, unknown>>;
+    const shearModulus = properties.find((property) => property.property_kind === "shear_modulus");
+    expect(shearModulus).toMatchObject({
+      property_id: "property:shear_modulus:user_draft",
+      property_kind: "shear_modulus",
+      temperature_ref: {
+        ref_type: "material_temperature_point",
+        ref_id: "material:user-alpha:temperature:hot"
+      },
+      value_status: "private_user_supplied",
+      required_for: "mechanics_solve"
+    });
+    expect(shearModulus?.value).toMatchObject({
+      magnitude: 50000000000,
+      unit_ref: { ref_type: "Unit", ref_id: "unit:pascal" },
+      dimension_id: "stress",
+      quantity_kind: "unit_bearing",
+      unit_required: true,
+      missing_unit_behavior: "diagnostic_blocking",
+      provenance: { redistribution_status: "private_only", review_status: "pending" }
+    });
+    expect(shearModulus?.provenance).toMatchObject({
+      redistribution_status: "private_only",
+      review_status: "pending"
+    });
+    expect(screen.getByTestId("library-action-status").textContent).toContain(
+      "temperature_ref=material:user-alpha:temperature:hot"
+    );
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
   it("drafts section quantity units without synthesizing a browser catalog", async () => {
     render(<LibraryManagerPanel model={modelStub} />);
     fireEvent.change(screen.getByTestId("library-kind-select"), { target: { value: "section" } });
@@ -482,7 +560,7 @@ describe("LibraryManagerPanel (desktop backend, mocked invoke)", () => {
 
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
     fireEvent.change(screen.getByTestId("material-property-kind"), {
-      target: { value: "elastic_modulus" }
+      target: { value: "shear_modulus" }
     });
     const unitSelect = screen.getByTestId("material-property-unit") as HTMLSelectElement;
     await waitFor(() =>
@@ -500,6 +578,7 @@ describe("LibraryManagerPanel (desktop backend, mocked invoke)", () => {
     const records = document.material_records as Array<Record<string, unknown>>;
     const property = (records[0].properties as Array<Record<string, unknown>>)[0];
     const value = property.value as Record<string, unknown>;
+    expect(property.property_kind).toBe("shear_modulus");
     expect(value.unit_ref).toMatchObject({ ref_type: "Unit", ref_id: "unit:megapascal" });
     expect(value.dimension_id).toBe("stress");
     expect(screen.getByTestId("material-property-unit-basis").textContent).toContain("unit:megapascal");

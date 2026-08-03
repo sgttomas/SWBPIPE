@@ -76,6 +76,7 @@ type MaterialPropertyDraft = {
   magnitude: string;
   unit: string;
   unitRefId: string;
+  temperatureRefId: string;
 };
 
 type SectionQuantityDraft = {
@@ -146,6 +147,13 @@ const MATERIAL_PROPERTY_SPECS = {
     label: "Elastic modulus",
     requiredFor: "mechanics_solve"
   },
+  shear_modulus: {
+    dimension: "stress",
+    defaultUnit: "Pa",
+    defaultUnitRefId: "unit:pascal",
+    label: "Shear modulus",
+    requiredFor: "mechanics_solve"
+  },
   thermal_expansion_coefficient: {
     dimension: "thermal_expansion_coefficient",
     defaultUnit: "1/degC",
@@ -199,7 +207,8 @@ export function LibraryManagerPanel({
     propertyKind: "density",
     magnitude: "0",
     unit: MATERIAL_PROPERTY_SPECS.density.defaultUnit,
-    unitRefId: MATERIAL_PROPERTY_SPECS.density.defaultUnitRefId
+    unitRefId: MATERIAL_PROPERTY_SPECS.density.defaultUnitRefId,
+    temperatureRefId: ""
   });
   const [sectionQuantityDraft, setSectionQuantityDraft] = useState<SectionQuantityDraft>({
     quantityKind: "outside_diameter",
@@ -226,6 +235,7 @@ export function LibraryManagerPanel({
     materialPropertyDraft.unit,
     materialSpec.dimension
   );
+  const materialTemperatureRefs = materialTemperatureReferenceOptions(draft?.text);
   const sectionSpec = SECTION_QUANTITY_SPECS[sectionQuantityDraft.quantityKind];
   const sectionUnitBasis = describeUnitBasis(
     unitCatalogRoute,
@@ -318,7 +328,8 @@ export function LibraryManagerPanel({
       ...current,
       propertyKind,
       unit: MATERIAL_PROPERTY_SPECS[propertyKind].defaultUnit,
-      unitRefId: MATERIAL_PROPERTY_SPECS[propertyKind].defaultUnitRefId
+      unitRefId: MATERIAL_PROPERTY_SPECS[propertyKind].defaultUnitRefId,
+      temperatureRefId: propertyKind === "shear_modulus" ? current.temperatureRefId : ""
     }));
   }
 
@@ -368,6 +379,15 @@ export function LibraryManagerPanel({
   function handleApplyMaterialPropertyDraft() {
     const document = parseDraft();
     if (!document) return;
+    if (
+      materialPropertyDraft.temperatureRefId &&
+      !materialTemperatureRefs.includes(materialPropertyDraft.temperatureRefId)
+    ) {
+      setActionStatus(
+        "MATERIAL-TEMPERATURE-REF-INVALID: select a temperature-point reference that still exists in the current private draft."
+      );
+      return;
+    }
     const magnitude = Number(materialPropertyDraft.magnitude);
     if (!Number.isFinite(magnitude)) {
       setActionStatus("MATERIAL-PROPERTY-DRAFT-INVALID: property magnitude must be finite.");
@@ -385,6 +405,7 @@ export function LibraryManagerPanel({
     setActionStatus(
       `Material property draft updated: property_kind=${materialPropertyDraft.propertyKind}; ` +
         `dimension=${materialSpec.dimension}; unit=${materialPropertyDraft.unit}; ` +
+        `temperature_ref=${materialPropertyDraft.temperatureRefId || "none"}; ` +
         "private_user_supplied only."
     );
   }
@@ -665,6 +686,36 @@ export function LibraryManagerPanel({
           <small data-testid="material-property-unit-basis">
             dimension={materialSpec.dimension}; {materialUnitBasis.label}; {materialUnitBasis.detail}
           </small>
+          {materialPropertyDraft.propertyKind === "shear_modulus" ? (
+            <>
+              <label htmlFor="material-property-temperature-ref-select">
+                Existing temperature-point reference (optional)
+              </label>
+              <select
+                id="material-property-temperature-ref-select"
+                data-testid="material-property-temperature-ref"
+                value={materialPropertyDraft.temperatureRefId}
+                disabled={inFlight || materialTemperatureRefs.length === 0}
+                onChange={(event) =>
+                  setMaterialPropertyDraft((current) => ({
+                    ...current,
+                    temperatureRefId: event.target.value
+                  }))
+                }
+              >
+                <option value="">No temperature-point binding</option>
+                {materialTemperatureRefs.map((refId) => (
+                  <option key={refId} value={refId}>
+                    {refId}
+                  </option>
+                ))}
+              </select>
+              <small data-testid="material-property-temperature-ref-basis">
+                Selects only a material_temperature_point reference already present in this private
+                user draft; no point, value, or catalog entry is synthesized.
+              </small>
+            </>
+          ) : null}
           <div className="report-actions">
             <button
               type="button"
@@ -1018,6 +1069,40 @@ function materialUnitOptions(
   return options.length ? options : [fallback];
 }
 
+function materialTemperatureReferenceOptions(draftText: string | undefined): string[] {
+  if (!draftText) return [];
+  try {
+    const document: unknown = JSON.parse(draftText);
+    if (typeof document !== "object" || document === null || Array.isArray(document)) return [];
+    const records = (document as Record<string, unknown>).material_records;
+    if (!Array.isArray(records)) return [];
+
+    const refIds = new Set<string>();
+    for (const record of records) {
+      if (typeof record !== "object" || record === null || Array.isArray(record)) continue;
+      const properties = (record as Record<string, unknown>).properties;
+      if (!Array.isArray(properties)) continue;
+      for (const property of properties) {
+        if (typeof property !== "object" || property === null || Array.isArray(property)) continue;
+        const temperatureRef = (property as Record<string, unknown>).temperature_ref;
+        if (
+          typeof temperatureRef === "object" &&
+          temperatureRef !== null &&
+          !Array.isArray(temperatureRef) &&
+          (temperatureRef as Record<string, unknown>).ref_type === "material_temperature_point" &&
+          typeof (temperatureRef as Record<string, unknown>).ref_id === "string" &&
+          String((temperatureRef as Record<string, unknown>).ref_id).length > 0
+        ) {
+          refIds.add(String((temperatureRef as Record<string, unknown>).ref_id));
+        }
+      }
+    }
+    return [...refIds].sort((left, right) => left.localeCompare(right));
+  } catch {
+    return [];
+  }
+}
+
 function sectionUnitOptions(
   route: UnitCatalogRoute | null,
   spec: (typeof SECTION_QUANTITY_SPECS)[keyof typeof SECTION_QUANTITY_SPECS],
@@ -1129,6 +1214,14 @@ function applyMaterialPropertyDraft(
   const propertySlot = {
     property_id: propertyId,
     property_kind: draft.propertyKind,
+    ...(draft.temperatureRefId
+      ? {
+          temperature_ref: {
+            ref_type: "material_temperature_point",
+            ref_id: draft.temperatureRefId
+          }
+        }
+      : {}),
     value_status: "private_user_supplied",
     required_for: spec.requiredFor,
     value: {

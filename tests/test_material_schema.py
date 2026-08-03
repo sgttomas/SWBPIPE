@@ -3,6 +3,7 @@
 
 import json
 import sys
+from copy import deepcopy
 from pathlib import Path
 
 
@@ -16,6 +17,7 @@ from schema_validation import (  # noqa: E402
     _skip_or_note_missing_jsonschema,
     enum_at,
     required_at,
+    schema_for_definition,
     validate_instance,
     validate_schema_document,
     walk_keys,
@@ -138,6 +140,7 @@ def main():
     assert {
         "density",
         "elastic_modulus",
+        "shear_modulus",
         "poisson_ratio",
         "thermal_expansion_coefficient",
         "allowable_stress",
@@ -145,12 +148,15 @@ def main():
         "TBD",
     } <= enum_at(schema, "MaterialPropertyKind")
 
-    # DEC-068 exact selection remains available; DEC-077 rules bounded linear
-    # interpolation with provenance and no extrapolation.
+    # DEC-068 exact selection remains available; DEC-077 and DEC-092 rule
+    # bounded E, G, and alpha interpolation with provenance and no fallback.
     temperature_ref = defs["MaterialPropertyValue"]["properties"]["temperature_ref"]
     assert temperature_ref["$ref"] == "#/$defs/Reference"
     assert "exact" in temperature_ref["description"]
     assert "linear interpolation" in temperature_ref["description"]
+    assert "shear modulus (G)" in temperature_ref["description"]
+    assert "thermal expansion coefficient (alpha)" in temperature_ref["description"]
+    assert "no property value is defaulted" in temperature_ref["description"]
     assert "Extrapolation is never performed" in temperature_ref["description"]
     assert (
         "temperature_interpolation_policy"
@@ -228,6 +234,27 @@ def main():
         == "no_public_code_specific_values"
     )
     assert fixture["material_records"][0]["completeness"][0]["status"] == "incomplete"
+    point_g = next(
+        prop
+        for prop in fixture["material_records"][0]["properties"]
+        if prop["property_kind"] == "shear_modulus"
+    )
+    assert point_g["temperature_ref"]["ref_id"] == (
+        "mat.invented.alpha.temperature.hot"
+    )
+    assert point_g["value"]["dimension_id"] == "stress"
+    assert point_g["value"]["quantity_kind"] == "unit_bearing"
+    assert point_g["value"]["unit_required"] is True
+    assert point_g["value"]["magnitude"] > 0
+    assert point_g["value"]["provenance"]
+    point_g_definition = next(
+        definition
+        for definition in fixture["property_definitions"]
+        if definition["property_kind"] == "shear_modulus"
+    )
+    assert point_g_definition["dimension_id"] == "stress"
+    assert point_g_definition["quantity_kind"] == "unit_bearing"
+    assert point_g_definition["unit_required"] is True
     assert fixture["diagnostics"][0]["code"] == "MATERIAL_PROPERTY_MISSING"
     assert fixture["diagnostics"][0]["class"] == "SOLVE_BLOCKING"
     assert fixture["diagnostics"][0]["source"] == (
@@ -254,6 +281,81 @@ def check_jsonschema_validation():
         _skip_or_note_missing_jsonschema(exc)
 
 
+def assert_invalid_instance(schema, instance):
+    try:
+        validate_instance(schema, instance)
+    except AssertionError:
+        return
+    raise AssertionError("instance unexpectedly passed JSON Schema validation")
+
+
+def check_temperature_point_shear_modulus_contract():
+    schema = load_json(SCHEMA_PATH)
+    fixture = load_json(FIXTURE_PATH)
+    point_g = next(
+        prop
+        for prop in fixture["material_records"][0]["properties"]
+        if prop["property_kind"] == "shear_modulus"
+    )
+    property_schema = schema_for_definition(schema, "MaterialPropertyValue")
+    definition_schema = schema_for_definition(schema, "MaterialPropertyDefinition")
+
+    try:
+        assert validate_instance(property_schema, point_g)
+
+        # Temperature-point G is optional: a pre-DEC-092 document with neither
+        # the point property nor its definition remains valid.
+        without_point_g = deepcopy(fixture)
+        without_point_g["material_records"][0]["properties"] = [
+            prop
+            for prop in without_point_g["material_records"][0]["properties"]
+            if prop["property_kind"] != "shear_modulus"
+        ]
+        without_point_g["property_definitions"] = [
+            definition
+            for definition in without_point_g["property_definitions"]
+            if definition["property_kind"] != "shear_modulus"
+        ]
+        assert validate_instance(schema, without_point_g)
+
+        for invalid_magnitude in [0.0, -1.0, "NaN", "Infinity"]:
+            invalid = deepcopy(point_g)
+            invalid["value"]["magnitude"] = invalid_magnitude
+            assert_invalid_instance(property_schema, invalid)
+
+        wrong_dimension = deepcopy(point_g)
+        wrong_dimension["value"]["dimension_id"] = "pressure"
+        assert_invalid_instance(property_schema, wrong_dimension)
+
+        wrong_definition_dimension = deepcopy(
+            next(
+                definition
+                for definition in fixture["property_definitions"]
+                if definition["property_kind"] == "shear_modulus"
+            )
+        )
+        wrong_definition_dimension["dimension_id"] = "density"
+        assert_invalid_instance(definition_schema, wrong_definition_dimension)
+
+        not_unit_bearing = deepcopy(point_g)
+        not_unit_bearing["value"]["unit_required"] = False
+        assert_invalid_instance(property_schema, not_unit_bearing)
+
+        missing_unit = deepcopy(point_g)
+        del missing_unit["value"]["unit_ref"]
+        assert_invalid_instance(property_schema, missing_unit)
+
+        missing_value = deepcopy(point_g)
+        del missing_value["value"]
+        assert_invalid_instance(property_schema, missing_value)
+
+        missing_provenance = deepcopy(point_g)
+        del missing_provenance["provenance"]
+        assert_invalid_instance(property_schema, missing_provenance)
+    except JsonSchemaDependencyMissing as exc:
+        _skip_or_note_missing_jsonschema(exc)
+
+
 def test_material_schema_contract():
     main()
 
@@ -262,6 +364,11 @@ def test_material_schema_jsonschema_validation_helper():
     check_jsonschema_validation()
 
 
+def test_temperature_point_shear_modulus_contract():
+    check_temperature_point_shear_modulus_contract()
+
+
 if __name__ == "__main__":
     main()
     check_jsonschema_validation()
+    check_temperature_point_shear_modulus_contract()

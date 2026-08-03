@@ -1,12 +1,22 @@
 # Status: DEL-05-02 Load-case algebra engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-01
+**Last Updated:** 2026-08-03
 
 ## Remaining
-- Implement D-45 Option O-B / `DEC-092`: add an explicit user-entered temperature-point G field and apply the `DEC-077` exact-id, adjacent-point linear-interpolation, two-source provenance, and no-extrapolation method to G across the governed schema, authoring, operation, solver, fixture, benchmark, and test surfaces. Current live behavior still clones the user-entered base G under exact-id and interpolated E/alpha bases; no implementation evidence exists yet. (source: `D-45_RULING_2026-08-01.md`; `DEC-092`)
+- No DEC-092 product-implementation residual remains after the validated
+  schema, authoring, operation, solver, provenance, fixture, oracle, and test
+  proof recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-08-02_DEC092_TEMPERATURE_G_IMPLEMENTATION.md`.
+  Parent-validated CHANGE integration, the clean-commit evidence sweep, and
+  prepared Receipt 87 application remain later Git/loop closeout acts, not a
+  product-behavior residual.
+- DEL-09-04 validation-manual derivative regeneration remains deferred to that
+  deliverable's owning cadence. It does not change this deliverable's validated
+  DEC-092 implementation result.
 
 ## History
+- 2026-08-03 - Implemented and validated D-45 Option O-B / `DEC-092`: explicit user-entered temperature-point G, exact-point consumption, strictly adjacent linear interpolation with two-source provenance, blocking without extrapolation or base-G fallback, private authoring and structured operation support, and independent torsion evidence. Gate 2 O-B corrected only four stale DAG-008 release-readiness test expectations to accepted/live DAG-009; corrected Python 3.13 full Piping pytest passes 557/557. State remains IN_PROGRESS; DEL-09-04 derivative regeneration and parent-validated Git/receipt closeout remain later acts, with no lifecycle, release, or professional-reliance transition.
 - 2026-08-01 - The owner ruled D-45 Option O-B, codified as `DEC-092`. The former owner-ruling gate is replaced by explicit unimplemented work for a user-entered temperature-point G field under the `DEC-077` method and evidence bar. State remains IN_PROGRESS; no schema, authoring, operation, solver, fixture, benchmark, test, lifecycle, stage, release, or professional-reliance change was made by codification.
 - 2026-07-15 - DEC-077 implemented declared linear interpolation of user-entered E and alpha between strictly bracketing temperature points, with exact-id selection preserved, explicit two-point provenance, and blocking at/beyond stored range edges. Temperature-indexed shear modulus remains outside the ruling and is routed to D-45. State remains IN_PROGRESS; no lifecycle, release, or professional-reliance claim was made.
 - 2026-07-12 - D-41 R5 T7 PDU-056 refreshed the cited dependency-maturity declaration to the recorded SATISFIED dispositions while preserving the evaluator-interface TBD; cited-claim backcheck closed the D-41 bootstrap.

@@ -1,0 +1,203 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 12
+  },
+  "counts": {
+    "category": {
+      "activation": 1,
+      "authoring": 3,
+      "closeout": 2,
+      "containment": 2,
+      "contract": 5,
+      "fan_in": 5,
+      "gate_2": 2,
+      "integration": 5,
+      "operation": 8,
+      "oracle": 6,
+      "package_return": 1,
+      "solver": 2
+    },
+    "event_type": {
+      "FINISH": 12,
+      "MILESTONE": 7,
+      "REMEDIATION": 7,
+      "RETRY": 4,
+      "START": 12
+    },
+    "outcome": {
+      "BLOCKED": 1,
+      "FAIL": 4,
+      "INFO": 6,
+      "PASS": 15,
+      "RETRY": 4,
+      "STARTED": 12
+    },
+    "reason_code": {
+      "DECLARED_ENVIRONMENT_RESOLVED": 3,
+      "DISPATCHED": 6,
+      "ENVIRONMENT_INCOMPLETE": 3,
+      "GATE1_ADOPTED": 1,
+      "GATE2_TEST_CURRENCY_REPAIR": 1,
+      "INHERITED_BASELINE_FAILURE": 1,
+      "LOCKED_CACHE_PROVISIONED": 2,
+      "LOCKED_JS_ENVIRONMENT_PROVISIONED": 1,
+      "N1_ACCEPTED": 1,
+      "N2_ACCEPTED": 1,
+      "N3_N4_ACCEPTED": 1,
+      "N5_ACCEPTED": 1,
+      "N6_ACCEPTED": 1,
+      "N7_STARTED": 1,
+      "N7_VALIDATED": 1,
+      "OUT_OF_FENCE_TELEMETRY_RECOVERED": 1,
+      "OWNER_RULING_O_B": 1,
+      "OWNER_RULING_REQUIRED": 1,
+      "PINNED_WASM_BINDGEN_PROVISIONED": 1,
+      "PLAYWRIGHT_BROWSER_PROVISIONED": 1,
+      "READY_N8_CHANGE": 1,
+      "RETRY_DISPATCHED": 4,
+      "RUN_ROOT_ARGUMENT_RECOVERED": 1,
+      "VALIDATED_RETURN": 6
+    }
+  },
+  "events": 42,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 716.756,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "N1-A1",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N1-A1"
+    },
+    {
+      "duration_seconds": 278.026,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N1-A2",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N1-A2"
+    },
+    {
+      "duration_seconds": 739.51,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "N2-A1",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N2-A1"
+    },
+    {
+      "duration_seconds": 287.321,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N2-A2",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N2-A2"
+    },
+    {
+      "duration_seconds": 1078.415,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N3-A1",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N3-A1"
+    },
+    {
+      "duration_seconds": 527.018,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "N4-A1",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N4-A1"
+    },
+    {
+      "duration_seconds": 410.959,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N4-A2",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N4-A2"
+    },
+    {
+      "duration_seconds": 1572.65,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N5-A1",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N5-A1"
+    },
+    {
+      "duration_seconds": 773.277,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "N6-A1",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N6-A1"
+    },
+    {
+      "duration_seconds": 356.641,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N6-A2",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "N6-A2"
+    },
+    {
+      "duration_seconds": 183.274,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG05-DEL0502-DEC092-001",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "N7-CLOSEOUT"
+    },
+    {
+      "duration_seconds": 11655.285,
+      "events": 20,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG05-DEL0502-DEC092-001",
+      "package_id": "PKG-05",
+      "remediations": 7,
+      "retries": 4,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-MANAGER"
+    }
+  ],
+  "sessions": 12,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

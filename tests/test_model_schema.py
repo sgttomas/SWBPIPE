@@ -385,17 +385,35 @@ def check_schema_contract():
     assert defs["ElementUniformDistributedForceLoadRecord"]["properties"][
         "load_record_type"
     ]["const"] == "element_uniform_distributed_force"
-    # DEC-068 item 1 + DEC-077: exact selection remains available and an
-    # explicit solve temperature enables bounded linear interpolation.
+    # DEC-068 item 1 + DEC-077 + DEC-092: exact selection remains available
+    # and an explicit solve temperature enables bounded E/G/alpha interpolation.
     assert "modulus_basis_ref" in defs["LoadCase"]["properties"]
     modulus_basis_ref = defs["LoadCase"]["properties"]["modulus_basis_ref"]
     assert "exact" in modulus_basis_ref["description"]
+    assert "shear modulus (G)" in modulus_basis_ref["description"]
+    assert (
+        "thermal expansion coefficient (alpha)" in modulus_basis_ref["description"]
+    )
+    assert "no property value is defaulted" in modulus_basis_ref["description"]
+    assert "substituted from base material values" in modulus_basis_ref["description"]
     assert "mutually exclusive" in modulus_basis_ref["description"]
     modulus_basis_temperature = defs["LoadCase"]["properties"][
         "modulus_basis_temperature"
     ]
     assert modulus_basis_temperature["$ref"] == "#/$defs/QuantityValue"
     assert "linear interpolation" in modulus_basis_temperature["description"]
+    assert "shear modulus (G)" in modulus_basis_temperature["description"]
+    assert (
+        "thermal expansion coefficient (alpha)"
+        in modulus_basis_temperature["description"]
+    )
+    assert (
+        "No property value is defaulted" in modulus_basis_temperature["description"]
+    )
+    assert (
+        "substituted from base material values"
+        in modulus_basis_temperature["description"]
+    )
     assert "extrapolation" in modulus_basis_temperature["description"]
     assert {
         "modulus_basis_ref",

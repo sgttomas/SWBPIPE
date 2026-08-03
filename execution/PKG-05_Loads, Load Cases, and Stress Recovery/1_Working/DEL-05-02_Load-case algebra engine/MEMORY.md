@@ -501,3 +501,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
   DEL-05-02 remains `IN_PROGRESS`; no lifecycle, stage, release-readiness,
   professional approval, certification, sealing, authentication, or
   code-compliance state changed.
+
+## 2026-08-03 - DEC-092 temperature-indexed shear-modulus implementation
+
+- Implemented the owner-ruled D-45 Option O-B / `DEC-092` contract across the
+  material/model schemas, private material authoring, structured operation,
+  product-physics resolution and provenance, invented fixture, independent
+  torsion hand calculation/benchmark, and focused/full tests.
+- Exact point selection consumes explicit point G. Declared temperature bases
+  interpolate G only between strictly bracketing adjacent user-entered points,
+  name both sources and `linear_temperature_interpolation`, and block missing,
+  invalid, endpoint/outside-range, duplicate-temperature, or conflicting
+  selector inputs without extrapolation or base-G fallback. No-basis solves
+  continue to consume explicit base G.
+- Gate 2 Option O-B added only
+  `tests/test_release_readiness_script.py` to correct four stale DAG-008
+  expectations to the already accepted/live DAG-009 basis. No production
+  source, DAG, pointer, runtime, or product behavior was reinterpreted.
+- Validation and environment/retry history are bound to
+  `_run_records/WORKING_ITEMS_RUN_2026-08-02_DEC092_TEMPERATURE_G_IMPLEMENTATION.md`.
+  The validated pre-commit candidate is based on branch
+  `codex/piping-dec092-temperature-g` at activation HEAD
+  `7249281e1f84ba5abee3c31c2fea3736b22000d3`; parent-validated CHANGE must bind
+  the later implementation commit and commit-bound evidence sweep before
+  applying the prepared Receipt 87.
+- DEL-09-04 validation-manual derivative regeneration is deferred to that
+  deliverable's owning cadence. DEL-05-02 remains `IN_PROGRESS`; no lifecycle,
+  release, publication, professional approval, certification, sealing,
+  authentication, or code-compliance state changed.

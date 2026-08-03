@@ -399,16 +399,17 @@ pub struct PreviewLoadCase {
     #[serde(default)]
     pub equivalent_static: Option<EquivalentStaticGenerationInput>,
     /// Optional modulus basis (DEC-068 item 1): names the user-entered
-    /// material temperature-point id whose E (and alpha, when supplied on
+    /// material temperature-point id whose E, G, and alpha (when supplied on
     /// the point) this load case solves with. Exact-id selection remains
-    /// available under DEC-077; an unresolved reference is blocking.
+    /// available under DEC-077 and DEC-092; an unresolved reference or a
+    /// selected point without explicit E or G is blocking.
     #[serde(default)]
     pub modulus_basis_ref: Option<String>,
     /// Optional user-entered solve temperature (DEC-077). When supplied
-    /// instead of `modulus_basis_ref`, E and alpha are linearly interpolated
-    /// between the two adjacent user-entered temperature points. Requests at
-    /// or outside the stored range edges are blocking; extrapolation is never
-    /// performed.
+    /// instead of `modulus_basis_ref`, E, G, and alpha are linearly
+    /// interpolated between the two adjacent user-entered temperature points.
+    /// Requests at or outside the stored range edges are blocking;
+    /// extrapolation and base-property fallback are never performed.
     #[serde(default)]
     pub modulus_basis_temperature: Option<Quantity>,
     #[serde(default)]
@@ -535,7 +536,8 @@ pub struct MaterialInput {
     /// User-entered temperature-indexed property points (DEC-068 item 1).
     /// A load case may name one point id as its exact modulus basis or supply
     /// a solve temperature for DEC-077 linear interpolation between adjacent
-    /// points. All values remain user-entered; extrapolation is blocked.
+    /// points. All values remain user-entered; selected bases require explicit
+    /// point G values, and extrapolation or base-G fallback is blocked.
     #[serde(default)]
     pub temperature_points: Vec<MaterialTemperaturePointInput>,
     #[serde(default)]
@@ -550,6 +552,11 @@ pub struct MaterialTemperaturePointInput {
     pub temperature: Option<Quantity>,
     #[serde(default)]
     pub elastic_modulus: Option<Quantity>,
+    /// Optional explicit user-entered shear modulus at this temperature point
+    /// (DEC-092). It is required when this point participates in an exact or
+    /// interpolated selected basis; no base-material G is substituted.
+    #[serde(default)]
+    pub shear_modulus: Option<Quantity>,
     #[serde(default)]
     pub thermal_expansion_coefficient: Option<Quantity>,
     #[serde(default)]
@@ -895,8 +902,9 @@ pub fn run_linear_static_preview_with_mode(
     // DEC-068 item 1 + DEC-077: a load case may name an exact user-entered
     // temperature-point id or an explicit solve temperature. Each distinct
     // basis gets its own built model and assembled stiffness from the
-    // basis-resolved E; temperature bases interpolate E and alpha only
-    // between adjacent user points and never extrapolate.
+    // basis-resolved E and G; temperature bases interpolate E, G, and alpha
+    // between adjacent user points and never extrapolate or fall back to base
+    // properties.
     let mut basis_solve_states: Vec<(
         Option<String>,
         Vec<MaterialInput>,
@@ -3751,6 +3759,19 @@ fn normalize_model_units(
                     diagnostics,
                 );
             }
+            if let Some(shear_modulus) = &mut point.shear_modulus {
+                normalize_quantity(
+                    shear_modulus,
+                    Dimension::Stress,
+                    &format!(
+                        "diagnostic:unit-conversion:material:{}:temperature-point:{}:shear-modulus",
+                        stable_suffix(&material.id),
+                        stable_suffix(&point_id)
+                    ),
+                    vec![material.id.clone(), point_id.clone()],
+                    diagnostics,
+                );
+            }
             if let Some(coefficient) = &mut point.thermal_expansion_coefficient {
                 normalize_quantity(
                     coefficient,
@@ -5233,9 +5254,10 @@ fn modulus_basis_key(
 
 /// Resolve an exact temperature-point basis (DEC-068 item 1) or a declared
 /// linear interpolation basis (DEC-077). For every material used by a pipe
-/// segment, exact selection requires the named point and its E; interpolation
-/// requires two adjacent points that strictly bracket the solve temperature
-/// and carry both E and alpha. No base-value mixing or extrapolation occurs.
+/// segment, exact selection requires the named point and its E and G;
+/// interpolation requires two adjacent points that strictly bracket the solve
+/// temperature and carry E, G, and alpha. No base-value mixing or
+/// extrapolation occurs.
 fn materials_for_modulus_basis(
     model: &PreviewModel,
     materials: &[MaterialInput],
@@ -5256,15 +5278,14 @@ fn materials_for_modulus_basis(
             resolved.push(material.clone());
             continue;
         }
-        let (elastic_modulus, thermal_expansion_coefficient, provenance) = if let Some(basis_ref) =
-            load_case.modulus_basis_ref.as_deref()
-        {
-            let Some(point) = material
-                .temperature_points
-                .iter()
-                .find(|point| point.id == basis_ref)
-            else {
-                diagnostics.push(diag(
+        let (elastic_modulus, shear_modulus, thermal_expansion_coefficient, provenance) =
+            if let Some(basis_ref) = load_case.modulus_basis_ref.as_deref() {
+                let Some(point) = material
+                    .temperature_points
+                    .iter()
+                    .find(|point| point.id == basis_ref)
+                else {
+                    diagnostics.push(diag(
                         &format!(
                             "diagnostic:modulus-basis:{}:{}:unresolved",
                             stable_suffix(load_case_id),
@@ -5278,11 +5299,11 @@ fn materials_for_modulus_basis(
                         ),
                         vec![load_case_id.to_string(), material.id.clone(), basis_ref.to_string()],
                     ));
-                blocked = true;
-                continue;
-            };
-            let Some(elastic_modulus) = point.elastic_modulus.clone() else {
-                diagnostics.push(diag(
+                    blocked = true;
+                    continue;
+                };
+                let Some(elastic_modulus) = point.elastic_modulus.clone() else {
+                    diagnostics.push(diag(
                         &format!(
                             "diagnostic:modulus-basis:{}:{}:elastic-modulus",
                             stable_suffix(load_case_id),
@@ -5296,31 +5317,59 @@ fn materials_for_modulus_basis(
                         ),
                         vec![load_case_id.to_string(), material.id.clone(), basis_ref.to_string()],
                     ));
-                blocked = true;
-                continue;
-            };
-            (
+                    blocked = true;
+                    continue;
+                };
+                let Some(shear_modulus) = point.shear_modulus.clone() else {
+                    diagnostics.push(diag(
+                        &format!(
+                            "diagnostic:modulus-basis:{}:{}:shear-modulus",
+                            stable_suffix(load_case_id),
+                            stable_suffix(&material.id)
+                        ),
+                        "MODULUS_BASIS_INPUT_MISSING",
+                        "blocking",
+                        format!(
+                            "modulus basis {basis_ref} on material {} carries no user-entered shear modulus; selected bases never fall back to base G",
+                            material.id
+                        ),
+                        vec![
+                            load_case_id.to_string(),
+                            material.id.clone(),
+                            basis_ref.to_string(),
+                        ],
+                    ));
+                    blocked = true;
+                    continue;
+                };
+                (
                     elastic_modulus,
+                    shear_modulus,
                     point.thermal_expansion_coefficient.clone(),
                     format!(
-                        "material={}; selection=exact_user_entered_point; source_point={basis_ref}; interpolation=not_performed",
-                        material.id
+                        "material={}; selection=exact_user_entered_point; elastic_modulus_source={basis_ref}; shear_modulus_source={basis_ref}; thermal_expansion_coefficient_source={}; interpolation=not_performed",
+                        material.id,
+                        point
+                            .thermal_expansion_coefficient
+                            .as_ref()
+                            .map(|_| basis_ref)
+                            .unwrap_or("absent_on_selected_point")
                     ),
                 )
-        } else {
-            let solve_temperature = load_case
-                .modulus_basis_temperature
-                .as_ref()
-                .expect("basis resolver is called only for a selected basis")
-                .value;
-            let mut points = material
-                .temperature_points
-                .iter()
-                .filter_map(|point| point.temperature.as_ref().map(|t| (t.value, point)))
-                .collect::<Vec<_>>();
-            points.sort_by(|left, right| left.0.total_cmp(&right.0));
-            if points.windows(2).any(|pair| pair[0].0 == pair[1].0) {
-                diagnostics.push(diag(
+            } else {
+                let solve_temperature = load_case
+                    .modulus_basis_temperature
+                    .as_ref()
+                    .expect("basis resolver is called only for a selected basis")
+                    .value;
+                let mut points = material
+                    .temperature_points
+                    .iter()
+                    .filter_map(|point| point.temperature.as_ref().map(|t| (t.value, point)))
+                    .collect::<Vec<_>>();
+                points.sort_by(|left, right| left.0.total_cmp(&right.0));
+                if points.windows(2).any(|pair| pair[0].0 == pair[1].0) {
+                    diagnostics.push(diag(
                         &format!(
                             "diagnostic:modulus-basis:{}:{}:duplicate-temperature",
                             stable_suffix(load_case_id),
@@ -5334,14 +5383,14 @@ fn materials_for_modulus_basis(
                         ),
                         vec![load_case_id.to_string(), material.id.clone()],
                     ));
-                blocked = true;
-                continue;
-            }
-            let bracket = points
-                .windows(2)
-                .find(|pair| pair[0].0 < solve_temperature && solve_temperature < pair[1].0);
-            let Some(bracket) = bracket else {
-                diagnostics.push(diag(
+                    blocked = true;
+                    continue;
+                }
+                let bracket = points
+                    .windows(2)
+                    .find(|pair| pair[0].0 < solve_temperature && solve_temperature < pair[1].0);
+                let Some(bracket) = bracket else {
+                    diagnostics.push(diag(
                         &format!(
                             "diagnostic:modulus-basis:{}:{}:interpolation-range",
                             stable_suffix(load_case_id),
@@ -5355,18 +5404,28 @@ fn materials_for_modulus_basis(
                         ),
                         vec![load_case_id.to_string(), material.id.clone()],
                     ));
-                blocked = true;
-                continue;
-            };
-            let (lower_temperature, lower) = bracket[0];
-            let (upper_temperature, upper) = bracket[1];
-            let (Some(lower_e), Some(upper_e), Some(lower_alpha), Some(upper_alpha)) = (
-                lower.elastic_modulus.as_ref(),
-                upper.elastic_modulus.as_ref(),
-                lower.thermal_expansion_coefficient.as_ref(),
-                upper.thermal_expansion_coefficient.as_ref(),
-            ) else {
-                diagnostics.push(diag(
+                    blocked = true;
+                    continue;
+                };
+                let (lower_temperature, lower) = bracket[0];
+                let (upper_temperature, upper) = bracket[1];
+                let (
+                    Some(lower_e),
+                    Some(upper_e),
+                    Some(lower_g),
+                    Some(upper_g),
+                    Some(lower_alpha),
+                    Some(upper_alpha),
+                ) = (
+                    lower.elastic_modulus.as_ref(),
+                    upper.elastic_modulus.as_ref(),
+                    lower.shear_modulus.as_ref(),
+                    upper.shear_modulus.as_ref(),
+                    lower.thermal_expansion_coefficient.as_ref(),
+                    upper.thermal_expansion_coefficient.as_ref(),
+                )
+                else {
+                    diagnostics.push(diag(
                         &format!(
                             "diagnostic:modulus-basis:{}:{}:interpolation-input",
                             stable_suffix(load_case_id),
@@ -5375,7 +5434,7 @@ fn materials_for_modulus_basis(
                         "MODULUS_BASIS_INPUT_MISSING",
                         "blocking",
                         format!(
-                            "material {} interpolation bracket {}..{} must carry user-entered elastic modulus and thermal expansion coefficient on both source points",
+                            "material {} interpolation bracket {}..{} must carry user-entered elastic modulus, shear modulus, and thermal expansion coefficient on both source points; selected bases never fall back to base G",
                             material.id, lower.id, upper.id
                         ),
                         vec![
@@ -5385,29 +5444,66 @@ fn materials_for_modulus_basis(
                             upper.id.clone(),
                         ],
                     ));
-                blocked = true;
-                continue;
-            };
-            let fraction =
-                (solve_temperature - lower_temperature) / (upper_temperature - lower_temperature);
-            let interpolated_e = lower_e.value + fraction * (upper_e.value - lower_e.value);
-            let interpolated_alpha =
-                lower_alpha.value + fraction * (upper_alpha.value - lower_alpha.value);
-            (
+                    blocked = true;
+                    continue;
+                };
+                if [lower_g, upper_g]
+                    .iter()
+                    .any(|value| !value.value.is_finite() || value.value <= 0.0)
+                {
+                    diagnostics.push(diag(
+                        &format!(
+                            "diagnostic:modulus-basis:{}:{}:interpolation-shear-modulus-invalid",
+                            stable_suffix(load_case_id),
+                            stable_suffix(&material.id)
+                        ),
+                        "MODULUS_BASIS_INPUT_INVALID",
+                        "blocking",
+                        format!(
+                            "material {} interpolation bracket {}..{} must carry finite positive user-entered shear modulus on both source points; selected bases never fall back to base G",
+                            material.id, lower.id, upper.id
+                        ),
+                        vec![
+                            load_case_id.to_string(),
+                            material.id.clone(),
+                            lower.id.clone(),
+                            upper.id.clone(),
+                        ],
+                    ));
+                    blocked = true;
+                    continue;
+                }
+                let fraction = (solve_temperature - lower_temperature)
+                    / (upper_temperature - lower_temperature);
+                let interpolated_e = lower_e.value + fraction * (upper_e.value - lower_e.value);
+                let interpolated_g = lower_g.value + fraction * (upper_g.value - lower_g.value);
+                let interpolated_alpha =
+                    lower_alpha.value + fraction * (upper_alpha.value - lower_alpha.value);
+                (
                     Quantity {
                         value: interpolated_e,
                         unit: lower_e.unit.clone(),
+                    },
+                    Quantity {
+                        value: interpolated_g,
+                        unit: lower_g.unit.clone(),
                     },
                     Some(Quantity {
                         value: interpolated_alpha,
                         unit: lower_alpha.unit.clone(),
                     }),
                     format!(
-                        "material={}; elastic_modulus_sources={},{}; thermal_expansion_coefficient_sources={},{}; method=linear_temperature_interpolation; solve_temperature_kelvin={solve_temperature}",
-                        material.id, lower.id, upper.id, lower.id, upper.id
+                        "material={}; elastic_modulus_sources={},{}; shear_modulus_sources={},{}; thermal_expansion_coefficient_sources={},{}; method=linear_temperature_interpolation; solve_temperature_kelvin={solve_temperature}",
+                        material.id,
+                        lower.id,
+                        upper.id,
+                        lower.id,
+                        upper.id,
+                        lower.id,
+                        upper.id
                     ),
                 )
-        };
+            };
         if !elastic_modulus.value.is_finite() || elastic_modulus.value <= 0.0 {
             diagnostics.push(diag(
                 &format!(
@@ -5419,6 +5515,24 @@ fn materials_for_modulus_basis(
                 "blocking",
                 format!(
                     "resolved elastic modulus on material {} must be finite and positive",
+                    material.id
+                ),
+                vec![load_case_id.to_string(), material.id.clone()],
+            ));
+            blocked = true;
+            continue;
+        }
+        if !shear_modulus.value.is_finite() || shear_modulus.value <= 0.0 {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:modulus-basis:{}:{}:shear-modulus-invalid",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&material.id)
+                ),
+                "MODULUS_BASIS_INPUT_INVALID",
+                "blocking",
+                format!(
+                    "resolved shear modulus on material {} must be finite and positive; selected bases never fall back to base G",
                     material.id
                 ),
                 vec![load_case_id.to_string(), material.id.clone()],
@@ -5451,10 +5565,7 @@ fn materials_for_modulus_basis(
         resolved.push(MaterialInput {
             id: material.id.clone(),
             elastic_modulus,
-            // The shear modulus stays the user-entered base value; a
-            // temperature-indexed shear modulus slot is a recorded residual
-            // outside the DEC-068 item 1 (E, alpha) grant.
-            shear_modulus: material.shear_modulus.clone(),
+            shear_modulus,
             thermal_expansion_coefficient,
             temperature_points: material.temperature_points.clone(),
             provenance: material.provenance.clone(),
@@ -12325,6 +12436,10 @@ mod tests {
                 value: 180_000_000_000.0,
                 unit: "Pa".to_string(),
             }),
+            shear_modulus: Some(Quantity {
+                value: 50_000_000_000.0,
+                unit: "Pa".to_string(),
+            }),
             thermal_expansion_coefficient: Some(Quantity {
                 value: 0.000013,
                 unit: "1/K".to_string(),
@@ -12347,6 +12462,10 @@ mod tests {
                     value: 200_000_000_000.0,
                     unit: "Pa".to_string(),
                 }),
+                shear_modulus: Some(Quantity {
+                    value: 60_000.0,
+                    unit: "MPa".to_string(),
+                }),
                 thermal_expansion_coefficient: Some(Quantity {
                     value: 0.000012,
                     unit: "1/K".to_string(),
@@ -12363,6 +12482,10 @@ mod tests {
                     value: 180_000_000_000.0,
                     unit: "Pa".to_string(),
                 }),
+                shear_modulus: Some(Quantity {
+                    value: 40_000.0,
+                    unit: "MPa".to_string(),
+                }),
                 thermal_expansion_coefficient: Some(Quantity {
                     value: 0.000014,
                     unit: "1/K".to_string(),
@@ -12371,6 +12494,23 @@ mod tests {
             },
         ];
         material
+    }
+
+    fn dec092_temperature_g_request() -> LinearStaticPreviewRequest {
+        serde_json::from_str(include_str!(
+            "../../../fixtures/product_preview/invented_dec092_temperature_g_request.json"
+        ))
+        .expect("DEC-092 invented request fixture must deserialize")
+    }
+
+    fn dec092_torsion_constant() -> f64 {
+        let outer_diameter: f64 = 0.12;
+        let inner_diameter: f64 = 0.10;
+        PI / 32.0 * (outer_diameter.powi(4) - inner_diameter.powi(4))
+    }
+
+    fn dec092_tip_rotation(shear_modulus: f64) -> f64 {
+        12_000.0 * 4.0 / (shear_modulus * dec092_torsion_constant())
     }
 
     #[test]
@@ -12451,6 +12591,286 @@ mod tests {
             "thermal_expansion_coefficient_sources=temperature-point:cold,temperature-point:hot"
         ));
         assert!(basis.contains("solve_temperature_kelvin=400"));
+    }
+
+    #[test]
+    fn dec092_fixture_consumes_exact_and_interpolated_g_with_provenance_and_combination_carry_through(
+    ) {
+        let result = run_linear_static_preview(dec092_temperature_g_request());
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(
+            result_value(&result, "result:disp:node-N-DEC092-TIP:rx"),
+            round6(dec092_tip_rotation(50.0e9))
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:loadcase:load-L-DEC092-INTERPOLATED:disp:node-N-DEC092-TIP:rx"
+            ),
+            round6(dec092_tip_rotation(47.5e9))
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:loadcase:load-L-DEC092-BASE:disp:node-N-DEC092-TIP:rx"
+            ),
+            round6(dec092_tip_rotation(80.0e9))
+        );
+
+        let exact_record = result
+            .results
+            .iter()
+            .find(|item| {
+                item.kind == "modulus_basis_record" && item.entity_ref == "load:L-DEC092-EXACT"
+            })
+            .expect("exact point-G basis record");
+        let exact_basis = &exact_record.metadata.as_ref().unwrap().basis;
+        assert!(exact_basis.contains("shear_modulus_source=temperature-point:exact"));
+        assert!(exact_basis.contains("interpolation=not_performed"));
+
+        let interpolated_record = result
+            .results
+            .iter()
+            .find(|item| {
+                item.kind == "modulus_basis_record"
+                    && item.entity_ref == "load:L-DEC092-INTERPOLATED"
+            })
+            .expect("interpolated point-G basis record");
+        let interpolated_basis = &interpolated_record.metadata.as_ref().unwrap().basis;
+        assert!(interpolated_basis
+            .contains("shear_modulus_sources=temperature-point:lower,temperature-point:upper"));
+        assert!(interpolated_basis.contains("method=linear_temperature_interpolation"));
+        assert!(interpolated_basis.contains("solve_temperature_kelvin=425"));
+
+        let combination_records = result
+            .results
+            .iter()
+            .filter(|item| item.kind == "combination_modulus_basis_record")
+            .collect::<Vec<_>>();
+        assert_eq!(combination_records.len(), 3);
+        assert!(combination_records.iter().any(|item| {
+            item.entity_ref == "load:L-DEC092-EXACT"
+                && item
+                    .metadata
+                    .as_ref()
+                    .is_some_and(|metadata| metadata.basis == *exact_basis)
+        }));
+        assert!(combination_records.iter().any(|item| {
+            item.entity_ref == "load:L-DEC092-INTERPOLATED"
+                && item
+                    .metadata
+                    .as_ref()
+                    .is_some_and(|metadata| metadata.basis == *interpolated_basis)
+        }));
+        assert!(combination_records.iter().any(|item| {
+            item.entity_ref == "load:L-DEC092-BASE"
+                && item
+                    .metadata
+                    .as_ref()
+                    .is_some_and(|metadata| metadata.basis == "material_base_values")
+        }));
+    }
+
+    #[test]
+    fn selected_point_g_is_base_independent_and_selected_g_sensitive() {
+        let baseline = run_linear_static_preview(dec092_temperature_g_request());
+
+        let mut changed_base = dec092_temperature_g_request();
+        changed_base.materials[0].shear_modulus.value = 20_000.0;
+        let changed_base = run_linear_static_preview(changed_base);
+        assert_eq!(changed_base.status.mechanics, "MECHANICS_SOLVED");
+        for id in [
+            "result:disp:node-N-DEC092-TIP:rx",
+            "result:loadcase:load-L-DEC092-INTERPOLATED:disp:node-N-DEC092-TIP:rx",
+        ] {
+            assert_eq!(
+                result_value(&changed_base, id),
+                result_value(&baseline, id),
+                "selected basis result {id} must not consume base G"
+            );
+        }
+        assert_eq!(
+            result_value(
+                &changed_base,
+                "result:loadcase:load-L-DEC092-BASE:disp:node-N-DEC092-TIP:rx"
+            ),
+            round6(dec092_tip_rotation(20.0e9)),
+            "no-basis load case must continue to consume explicit base G"
+        );
+
+        let mut changed_exact = dec092_temperature_g_request();
+        changed_exact.materials[0].temperature_points[0]
+            .shear_modulus
+            .as_mut()
+            .unwrap()
+            .value = 25_000.0;
+        let changed_exact = run_linear_static_preview(changed_exact);
+        assert_eq!(changed_exact.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(
+            result_value(&changed_exact, "result:disp:node-N-DEC092-TIP:rx"),
+            round6(dec092_tip_rotation(25.0e9))
+        );
+        assert_ne!(
+            result_value(&changed_exact, "result:disp:node-N-DEC092-TIP:rx"),
+            result_value(&baseline, "result:disp:node-N-DEC092-TIP:rx")
+        );
+        assert_eq!(
+            result_value(
+                &changed_exact,
+                "result:loadcase:load-L-DEC092-INTERPOLATED:disp:node-N-DEC092-TIP:rx"
+            ),
+            result_value(
+                &baseline,
+                "result:loadcase:load-L-DEC092-INTERPOLATED:disp:node-N-DEC092-TIP:rx"
+            ),
+            "non-coordinate exact point must not affect the adjacent temperature bracket"
+        );
+    }
+
+    #[test]
+    fn selected_basis_blocks_missing_invalid_or_dimensionally_wrong_point_g() {
+        let mut missing_exact = dec092_temperature_g_request();
+        missing_exact.materials[0].temperature_points[0].shear_modulus = None;
+        let result = run_linear_static_preview(missing_exact);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.diagnostics.iter().any(|item| {
+            item.code == "MODULUS_BASIS_INPUT_MISSING"
+                && item.severity == "blocking"
+                && item.message.contains("never fall back to base G")
+        }));
+        assert!(result.results.is_empty());
+
+        let mut missing_endpoint = dec092_temperature_g_request();
+        missing_endpoint.materials[0].temperature_points[1].shear_modulus = None;
+        let result = run_linear_static_preview(missing_endpoint);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.diagnostics.iter().any(|item| {
+            item.code == "MODULUS_BASIS_INPUT_MISSING"
+                && item.severity == "blocking"
+                && item.message.contains("temperature-point:lower")
+                && item.message.contains("temperature-point:upper")
+                && item.message.contains("never fall back to base G")
+        }));
+
+        for endpoint_index in [1, 2] {
+            let mut invalid_endpoint = dec092_temperature_g_request();
+            invalid_endpoint.materials[0].temperature_points[endpoint_index]
+                .shear_modulus
+                .as_mut()
+                .unwrap()
+                .value = 0.0;
+            let result = run_linear_static_preview(invalid_endpoint);
+            assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(result.diagnostics.iter().any(|item| {
+                item.code == "MODULUS_BASIS_INPUT_INVALID"
+                    && item.severity == "blocking"
+                    && item.message.contains("both source points")
+                    && item.message.contains("never fall back to base G")
+            }));
+            assert!(result.results.is_empty());
+        }
+
+        for invalid in [0.0, -1.0, f64::NAN, f64::INFINITY] {
+            let mut request = dec092_temperature_g_request();
+            request.materials[0].temperature_points[0]
+                .shear_modulus
+                .as_mut()
+                .unwrap()
+                .value = invalid;
+            let result = run_linear_static_preview(request);
+            assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(result.diagnostics.iter().any(|item| {
+                item.code == "MODULUS_BASIS_INPUT_INVALID"
+                    && item.severity == "blocking"
+                    && item.message.contains("shear modulus")
+            }));
+            assert!(result.results.is_empty());
+        }
+
+        let mut wrong_dimension = dec092_temperature_g_request();
+        wrong_dimension.materials[0].temperature_points[0]
+            .shear_modulus
+            .as_mut()
+            .unwrap()
+            .unit = "m".to_string();
+        let result = run_linear_static_preview(wrong_dimension);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.diagnostics.iter().any(|item| {
+            item.code == "UNIT_CONVERSION_UNAVAILABLE"
+                && item.severity == "blocking"
+                && item.id.contains("shear-modulus")
+        }));
+        assert!(result.results.is_empty());
+    }
+
+    #[test]
+    fn temperature_g_interpolation_uses_adjacent_points_and_duplicate_temperatures_still_block() {
+        let mut adjacent = dec092_temperature_g_request();
+        adjacent.materials[0]
+            .temperature_points
+            .push(MaterialTemperaturePointInput {
+                id: "temperature-point:middle".to_string(),
+                temperature: Some(Quantity {
+                    value: 400.0,
+                    unit: "K".to_string(),
+                }),
+                elastic_modulus: Some(Quantity {
+                    value: 190_000.0,
+                    unit: "MPa".to_string(),
+                }),
+                shear_modulus: Some(Quantity {
+                    value: 100_000.0,
+                    unit: "MPa".to_string(),
+                }),
+                thermal_expansion_coefficient: Some(Quantity {
+                    value: 0.000013,
+                    unit: "1/K".to_string(),
+                }),
+                provenance: Some("invented_dec092_middle_user_property_point".to_string()),
+            });
+        let result = run_linear_static_preview(adjacent);
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(
+            result_value(
+                &result,
+                "result:loadcase:load-L-DEC092-INTERPOLATED:disp:node-N-DEC092-TIP:rx"
+            ),
+            round6(dec092_tip_rotation(85.0e9))
+        );
+        let basis = &result
+            .results
+            .iter()
+            .find(|item| {
+                item.kind == "modulus_basis_record"
+                    && item.entity_ref == "load:L-DEC092-INTERPOLATED"
+            })
+            .unwrap()
+            .metadata
+            .as_ref()
+            .unwrap()
+            .basis;
+        assert!(basis
+            .contains("shear_modulus_sources=temperature-point:middle,temperature-point:upper"));
+        assert!(!basis
+            .contains("shear_modulus_sources=temperature-point:lower,temperature-point:upper"));
+
+        let mut duplicate = dec092_temperature_g_request();
+        duplicate.materials[0].temperature_points[2]
+            .temperature
+            .as_mut()
+            .unwrap()
+            .value = 300.0;
+        let result = run_linear_static_preview(duplicate);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.diagnostics.iter().any(|item| {
+            item.code == "MODULUS_BASIS_INPUT_INVALID"
+                && item.severity == "blocking"
+                && item
+                    .message
+                    .contains("duplicate user-entered temperature points")
+        }));
+        assert!(result.results.is_empty());
     }
 
     #[test]

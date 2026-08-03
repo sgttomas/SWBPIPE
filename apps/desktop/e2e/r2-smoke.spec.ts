@@ -1222,6 +1222,49 @@ test("library manager loads an invented private sample and reports the desktop-o
     }
   });
 
+  materialPropertyDraft.material_records[0].properties[0].temperature_ref = {
+    ref_type: "material_temperature_point",
+    ref_id: "material:user-alpha:temperature:hot"
+  };
+  await page.getByTestId("library-draft-json").fill(JSON.stringify(materialPropertyDraft));
+  await page.getByTestId("material-property-kind").selectOption("shear_modulus");
+  await expect(page.getByTestId("material-property-unit")).toHaveValue("unit:pascal");
+  await expect(page.getByTestId("material-property-temperature-ref")).toBeEnabled();
+  await page
+    .getByTestId("material-property-temperature-ref")
+    .selectOption("material:user-alpha:temperature:hot");
+  await expect(page.getByTestId("material-property-temperature-ref-basis")).toContainText(
+    "no point, value, or catalog entry is synthesized"
+  );
+  await page.getByTestId("material-property-value").fill("50000000000");
+  await page.getByTestId("material-property-apply-draft").click();
+  const shearModulusText = await page.getByTestId("library-draft-json").inputValue();
+  const shearModulusDraft = JSON.parse(shearModulusText);
+  const shearModulus = shearModulusDraft.material_records[0].properties.find(
+    (property: { property_kind?: string }) => property.property_kind === "shear_modulus"
+  );
+  expect(shearModulus).toMatchObject({
+    property_kind: "shear_modulus",
+    temperature_ref: {
+      ref_type: "material_temperature_point",
+      ref_id: "material:user-alpha:temperature:hot"
+    },
+    value_status: "private_user_supplied",
+    value: {
+      magnitude: 50000000000,
+      dimension_id: "stress",
+      quantity_kind: "unit_bearing",
+      unit_required: true,
+      missing_unit_behavior: "diagnostic_blocking",
+      unit_ref: { ref_type: "Unit", ref_id: "unit:pascal" },
+      provenance: { redistribution_status: "private_only", review_status: "pending" }
+    },
+    provenance: { redistribution_status: "private_only", review_status: "pending" }
+  });
+  await expect(page.getByTestId("library-action-status")).toContainText(
+    "temperature_ref=material:user-alpha:temperature:hot"
+  );
+
   await page.getByTestId("library-kind-select").selectOption("section");
   await page.getByTestId("library-load-template").click();
   const sectionText = await page.getByTestId("library-draft-json").inputValue();

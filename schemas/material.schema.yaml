@@ -315,6 +315,33 @@
     "MaterialPropertyDefinition": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "property_kind": {
+                "const": "shear_modulus"
+              }
+            },
+            "required": [
+              "property_kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "dimension_id": {
+                "const": "stress"
+              },
+              "quantity_kind": {
+                "const": "unit_bearing"
+              },
+              "unit_required": {
+                "const": true
+              }
+            }
+          }
+        }
+      ],
       "required": [
         "property_kind",
         "dimension_id",
@@ -375,6 +402,7 @@
       "enum": [
         "density",
         "elastic_modulus",
+        "shear_modulus",
         "poisson_ratio",
         "thermal_expansion_coefficient",
         "yield_strength",
@@ -389,6 +417,48 @@
     "MaterialPropertyValue": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "temperature_ref"
+            ],
+            "properties": {
+              "property_kind": {
+                "const": "shear_modulus"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {
+                "properties": {
+                  "magnitude": {
+                    "description": "An explicit positive finite JSON number; JSON numeric syntax excludes NaN and infinities.",
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "dimension_id": {
+                    "const": "stress"
+                  },
+                  "quantity_kind": {
+                    "const": "unit_bearing"
+                  },
+                  "unit_required": {
+                    "const": true
+                  },
+                  "missing_unit_behavior": {
+                    "const": "diagnostic_blocking"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
       "required": [
         "property_id",
         "property_kind",
@@ -405,7 +475,7 @@
           "$ref": "#/$defs/MaterialPropertyKind"
         },
         "temperature_ref": {
-          "description": "Temperature index for this user-entered property value. Solve semantics: DEC-068 exact-id selection remains available; DEC-077 also permits declared linear interpolation of elastic modulus and thermal expansion coefficient between two adjacent user-entered points, with source-point provenance and blocking at or beyond stored range edges. Extrapolation is never performed.",
+          "description": "Temperature index for this user-entered property value. Solve semantics: DEC-068 exact-id selection remains available; DEC-077 and DEC-092 permit declared linear interpolation of elastic modulus (E), shear modulus (G), and thermal expansion coefficient (alpha) between two adjacent user-entered points, with source-point provenance and blocking at or beyond stored range edges. Every point value is explicit and unit-bearing where applicable; no property value is defaulted or substituted from a base value. Extrapolation is never performed.",
           "$ref": "#/$defs/Reference"
         },
         "value": {

@@ -9848,3 +9848,31 @@ notes:
   new save, or replacement.
 - Boundary: invented local technical-preview verification only. Fresh N5
   verification and manager acceptance remain separate.
+
+## DEC-092 temperature-indexed shear-modulus authoring - PASSED (`N5-A1`, 2026-08-03)
+
+- Scope: bounded H4 evidence for the existing private material-library helper.
+  The helper now exposes `shear_modulus`, an explicit stress-unit selector, and
+  an optional selector containing only `material_temperature_point` references
+  already present in the user's draft.
+- Payload evidence: the focused component test binds an explicit 50 GPa value
+  in Pa to `material:user-alpha:temperature:hot` and verifies the emitted
+  `temperature_ref`, stress dimension, unit reference, blocking missing-unit
+  behavior, and private-only provenance. The helper does not synthesize a
+  temperature point, property value, or browser unit catalog.
+- Component validation: from the project root,
+  `npm test --workspace apps/desktop -- src/features/library/LibraryManagerPanel.test.tsx`
+  passed 1/1 file and 16/16 tests.
+- Playwright validation: after external provisioning of the lock-matched
+  Playwright 1.60.0 Chromium v1223 cache, the focused library-manager command
+  ran with `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/chirality-playwright-browsers`
+  and passed 2/2 configured projects (`chromium-desktop` and
+  `chromium-compact`). The test drives the visible shear-modulus, unit, and
+  existing-temperature-reference controls and verifies the resulting private
+  payload. The initial attempt had stopped before test execution because the
+  default cache lacked v1223; no repository dependency or lockfile changed.
+- Boundary: private draft authoring and tests only. No catalog/default material
+  value, protected content, schema, solver, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim is added. Final integration and
+  acceptance remain with the owning WORKING_ITEMS run.

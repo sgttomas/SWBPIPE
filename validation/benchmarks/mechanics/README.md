@@ -33,7 +33,7 @@ The explicit source inventory is the `fixture_inventory()` list in
 | Cantilever | `MECH-CANTILEVER-TIP-FORCE` |
 | Frame | `MECH-PORTAL-SWAY-ORIGINAL` |
 | Branch assembly | `MECH-BRANCH-ASSEMBLY-THREE-MEMBER` |
-| Straight pipe | `MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY` |
+| Straight pipe | `MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY`, `MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION` |
 | Support boundary | `MECH-SUPPORT-BOUNDARY-MIXED` |
 | Primitive load | `MECH-PRIMITIVE-LOAD-PREP` |
 | Integrated linear static | `MECH-TP-PHYS-002-LINEAR-STATIC-INTEGRATION` |
@@ -71,6 +71,15 @@ out-of-plane uniform loads on a clamped-clamped quarter-circle arc. Both
 comparison sides are closed-form; the measured agreement sits inside the
 DEC-026 analytic-class `1.0e-9` relative tier (near-zero absolute scale
 floor `1.0e-3` N / N-m for the exact-zero midspan torsion row).
+
+`MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION` is the
+independent D-45 O-B / DEC-092 straight-pipe pure-torsion oracle. Its invented
+base `G = 80 GPa` differs from the exact-ID `G = 50 GPa` and interpolated
+`G = 47.5 GPa`, so a base-G fallback produces rotations 37.5% and 40.625%
+below the respective closed-form targets. The frame-kernel comparison uses
+the existing DEC-024/DEC-026 analytic-class `1.0e-9` relative tier; all
+fixture `tolerance_policy` fields remain unresolved and no release threshold
+or new tolerance is established.
 
 ## Readiness Boundary
 
