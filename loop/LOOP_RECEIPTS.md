@@ -2098,3 +2098,30 @@
     this activation tranche lands. The 12 candidates and five holds remain;
     no DEC-092 implementation, product, lifecycle/status/memory, selection,
     release, or professional-reliance effect is created.
+
+- **2026-08-02 — Receipt 87** (Task Management harvest ruling and archive).
+  - Receipt-ID: `Receipt-87`
+  - Examined-Through: `4a162adb1ee4c318859501eecd3d987ad974b4eb`
+  - Parent-Receipt: `Receipt-86`
+  - Pointers: Task Management candidate harvest, owner ruling, deferral
+    review, live and closed registers, PR #482 verification, retained local
+    Root-notice source draft, materialized Root notice at
+    `execution/_Coordination/NOTICE_2026-08-02_PIPING_TM-PIP-026_SCANNER_REPAIR_CLOSURE.md`,
+    and closeout under `execution/_Coordination/_TaskManagement/`.
+  - Stale-Map-Delta: the linked Root-register SourceSha lineage is stale after
+    later Root register changes; exact affected rows and current blob identity
+    are recorded in the closeout, with no silent refresh or disposition.
+  - Checks: independent notice-dedup reproduction, Task Management tests,
+    live/archive validation, post-archive federation, receipt validation, and
+    diff checks pass; exact evidence is in the pointed closeout.
+  - Model-Attribution: OpenAI Codex TASK_MANAGEMENT Agent 1 used inherited
+    runtime capability without override or mid-task substitution; exact model
+    string was not exposed; no delegation.
+  - Gate-Outcome: `EXECUTED` — the owner-promoted product-direction row remains
+    deferred to the owner-initiated Piping product-basis act; the scanner row
+    closes only on independently reproduced Root repair evidence; already
+    closed rows are mechanically archived. No intent becomes scope and no
+    product, implementation, lifecycle, dependency, DAG, pointer, selection,
+    release, professional-reliance, or foreign-register effect is created. The
+    owner granted the closeout gate; the informational notice and Git delivery
+    become durable only when the closeout tranche merges.
