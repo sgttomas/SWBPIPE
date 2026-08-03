@@ -63,11 +63,11 @@ Final register layout:
 
 ## Routed response and remaining gates
 
-The owner-directed informational notice was materialized at
+The owner-directed informational notice is materialized at
 `execution/_Coordination/NOTICE_2026-08-02_PIPING_TM-PIP-026_SCANNER_REPAIR_CLOSURE.md`
-from the retained source draft. It records elevation, merged repair evidence,
-and closure with reciprocal citations. No receiving Root row or Root action is
-requested; routing becomes durable only when this closeout tranche merges.
+and records elevation, merged repair evidence, and closure with reciprocal
+citations. No receiving Root row or Root action is requested; routing becomes
+durable only when this closeout tranche merges.
 
 No other escalation candidate remains from this ruling. The owner granted the
 closeout gate for branch creation, notice materialization, validation, commit,

@@ -100,6 +100,6 @@ durably present and taken up under this loop's cadence:
 ## Git gate
 
 The follow-on closeout tranche consists of this closeout, the report, owner
-ruling, 23-row trigger maintenance in `REGISTER.csv`, and Receipt 88. It is
-assembled locally on the existing PR #485 branch. Staging, commit, push, and
-PR update remain behind the owner's requested Git gate; the PR remains open.
+ruling, and 23-row trigger maintenance in `REGISTER.csv`. It is assembled
+locally on the existing PR #485 branch. Staging, commit, push, and PR update
+remain behind the owner's requested Git gate; the PR remains open.
