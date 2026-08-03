@@ -2125,3 +2125,32 @@
     release, professional-reliance, or foreign-register effect is created. The
     owner granted the closeout gate; the informational notice and Git delivery
     become durable only when the closeout tranche merges.
+
+- **2026-08-02 — Receipt 88** (Task Management deferral review follow-on).
+  - Receipt-ID: `Receipt-88`
+  - Examined-Through: `c07ea11b15c0ef345b1b0afa0b8ef7b7d04c7217`
+  - Parent-Receipt: `Receipt-87`
+  - Pointers: follow-on deferral report, owner ruling, live and closed
+    registers, and closeout under
+    `execution/_Coordination/_TaskManagement/`.
+  - Stale-Map-Delta: no SourceSha lineage was refreshed. The owner reports
+    that Root's DEL-17 mirrors are closed `DUPLICATE` into surviving
+    `TM-PIP-002..022`, but that Root closeout is not yet present on the fetched
+    repository basis; federation is rerun after it lands. The expected later
+    Root runtime-surface-needs notice is awareness only until routed.
+  - Checks: exact trigger comparison, live/archive validation, archive
+    completion and dry-run, federation coverage, receipt validation, and
+    candidate-tranche diff checks pass; measurements and exact evidence are
+    in the pointed closeout.
+  - Model-Attribution: OpenAI Codex TASK_MANAGEMENT Agent 1 used inherited
+    runtime capability without override or mid-task substitution; exact model
+    string was not exposed; no delegation.
+  - Gate-Outcome: `EXECUTED` — the owner confirmed the report's trigger and
+    activation classifications and every ruled live row as `STILL_BLOCKED`,
+    then adopted the report's sharper trigger text. The ruled rows remain
+    `DEFERRED`; no row
+    closes, no handoff is drafted or dispatched, and archive relocation is a
+    truthful zero-row completion. No intent becomes scope; no product-basis,
+    implementation, lifecycle, dependency, DAG, pointer, selection, release,
+    professional-reliance, foreign-register, or routed-notice effect is
+    created. Git delivery remains behind the owner's separate gate.
