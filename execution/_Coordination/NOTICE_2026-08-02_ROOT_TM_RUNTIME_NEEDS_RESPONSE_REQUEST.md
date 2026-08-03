@@ -52,4 +52,3 @@ Return one Piping-owned coordination record that:
 That response will fire both Root triggers. Root opening or closing either row
 still requires a separate Root owner ruling. This notice changes no Piping
 register, lifecycle state, scope, or product basis.
-
