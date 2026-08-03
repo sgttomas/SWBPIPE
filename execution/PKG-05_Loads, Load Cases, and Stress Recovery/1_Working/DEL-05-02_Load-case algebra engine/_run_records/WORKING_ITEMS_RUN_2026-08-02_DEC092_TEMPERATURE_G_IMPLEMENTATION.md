@@ -4,7 +4,7 @@ instance_id: WI-PKG05-DEL0502-DEC092-001
 agent: WORKING_ITEMS
 package_id: PKG-05
 deliverable_id: DEL-05-02
-status: READY_N8_PARENT_VALIDATED_CHANGE
+status: READY_OWNER_INTEGRATION_GATE
 posture: MIXED
 selection_authority: OWNER_GATE_1_ADOPTION
 candidate_id: CB-2026-08-02-DEC092-DEL0502-TEMPG-IMPLEMENTATION-001
@@ -651,18 +651,18 @@ with its resolved value, record the rendered receipt SHA-256, append that
 rendered text to `loop/LOOP_RECEIPTS.md`, and validate the ledger. The template
 must not be applied with unresolved tokens.
 
-TemplateSha256: `fa4f425e0f4cd156a529392087b1cb7254112a1c5a10b3e77dcdf75dcacc36e0`
+TemplateSha256: `aa7ab153ea8f8f4ca52e23951f86ea101b6135db2fb3bf14b020cc2e7f8f08db`
 
 <!-- BEGIN PREPARED RECEIPT 87 TEMPLATE -->
 - **2026-08-03 — Receipt 87** (DEC-092 temperature-indexed shear-modulus implementation closeout).
   - Receipt-ID: `Receipt-87`
   - Examined-Through: `{{IMPLEMENTATION_COMMIT_SHA}}`
   - Parent-Receipt: `Receipt-86`
-  - Owner-Direction: Gate 1 `ADOPT` and Gate 2 `O-B` for `CB-2026-08-02-DEC092-DEL0502-TEMPG-IMPLEMENTATION-001`, transcribed exactly in the implementation run record.
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — Gate 1 `ADOPT` and Gate 2 `O-B` for `CB-2026-08-02-DEC092-DEL0502-TEMPG-IMPLEMENTATION-001`, transcribed exactly in the implementation run record.
   - Pointers: `DEC-092`; `execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/WORKING_ITEMS_RUN_2026-08-02_DEC092_TEMPERATURE_G_IMPLEMENTATION.md`; commit-bound evidence sweep `{{EVIDENCE_SWEEP_PATH}}`; `ScopeOfWork.md`, `MEMORY.md`, and `_STATUS.md` for DEL-05-02.
   - Checks: schema/model/import-provenance pytest, operation-applier native and 78-case native/WASM corpus parity, product-physics and mechanics benchmark suites, canonical WASM build, focused/full desktop Vitest, desktop build, development/distribution Playwright, Python 3.13 full Piping pytest, practitioner-harness self-check and pytest, claims language, receipt contract, numeric oracle, JSON/inventory, exact write containment, diff checks, commit-bound evidence sweep, and configured PR checks are recorded with actual outcomes in the pointed run/evidence records.
   - Model-Attribution: OpenAI Codex WORKING_ITEMS Agent 1 used governed native ephemeral Agent 2 sessions for bounded N1-N6 work, with sealed briefs, explicit write fences, durable returns, and no child delegation; exact runtime model strings were not exposed.
-  - Gate-Outcome: `EXECUTED` — D-45 Option O-B / `DEC-092` is implemented for explicit user-entered temperature-point G across schema, private authoring, structured operation, exact-ID and adjacent interpolation resolution, provenance, blocking, fixtures, independent torsion evidence, and tests. Gate 2 O-B corrected only four stale DAG-008 test expectations to accepted/live DAG-009. DEL-05-02 remains `IN_PROGRESS`; DEL-09-04 validation-manual derivative regeneration is deferred. No lifecycle, release, publication, professional approval, certification, sealing, authentication, code-compliance, DAG, pointer, dependency, or result-schema effect is created by this receipt.
+  - Gate-Outcome: `EXECUTED` — D-45 Option O-B / `DEC-092` is implemented for explicit user-entered temperature-point G across schema, private authoring, structured operation, exact-ID and adjacent interpolation resolution, provenance, blocking, fixtures, independent torsion evidence, and tests. Gate 2 O-B corrected only the stale test expectations tied to superseded DAG-008 and aligned them with accepted/live DAG-009. DEL-05-02 remains `IN_PROGRESS`; DEL-09-04 validation-manual derivative regeneration is deferred. No lifecycle, release, publication, professional approval, certification, sealing, authentication, code-compliance, DAG, pointer, dependency, or result-schema effect is created by this receipt.
 <!-- END PREPARED RECEIPT 87 TEMPLATE -->
 
 ## 7. Derivative Disposition
@@ -680,3 +680,55 @@ CHANGE may create the implementation commit, run the registered commit-bound
 evidence sweep, render the exact two-token Receipt 87 template above, append and
 validate that rendered receipt in a separate closeout commit, then push and
 present the owner integration gate. No receipt or Git action has occurred yet.
+
+## 9. N8 CHANGE evidence and closeout
+
+### Commit and immutable attempt evidence
+
+The implementation commit is
+`c394365ca72b8383c7d7203ce5be2cb9ea67d508`. N8 executed the registered
+commit-bound sweep without moving that HEAD. The complete attempt history is:
+
+| Evidence | Outcome | Bound environment | SHA-256 |
+| --- | --- | --- | --- |
+| first invocation | prerequisite preflight failed; no artifact and no evidence surface ran | inherited machine Python; no artifact | n/a |
+| `validation/evidence/sweeps/SWEEP_20260803T182158Z_c394365ca72b.json` | FAIL — Cargo 36/36 passed; Python could not import pytest; later surfaces not run | Xcode Python 3.9 | `d12681500d080f3b229b98059b31011cad3afdbc62f133a62e4a4caed23419e7` |
+| `validation/evidence/sweeps/SWEEP_20260803T190648Z_c394365ca72b.json` | FAIL — Cargo 36/36 passed; Python collection required `datetime.UTC`, unavailable in Python 3.9; later surfaces not run | Python 3.9.6, pytest 8.4.2, jsonschema 4.25.1 | `9db88775f5fab731f74fc97ae70063e2db860083a3f4ae115f4c69ba76436ed6` |
+| `validation/evidence/sweeps/SWEEP_20260803T194132Z_c394365ca72b.json` | PASS — all five registered surfaces passed | Python 3.13.14, pytest 9.1.1, jsonschema 4.26.0 | `7c15d42cd369c24f883a32192b069458da5eecbaba8c97d87a65735b3daee97b` |
+
+The passing sweep records `working_tree_dirty=false` and exact commit
+`c394365ca72b8383c7d7203ce5be2cb9ea67d508`. Its surface evidence is Cargo
+36/36, Python pytest 557/557, desktop Vitest 29/29 files and 523/523 tests,
+Playwright development 20/20 and distribution 2/2, and the desktop production
+build. The first two JSON artifacts are immutable failed evidence; neither is
+presented as satisfying the gate.
+
+### Sealed pre-execution environment event
+
+Immediately before the passing execution, CHANGE sealed a valid external JSON
+event at timestamp `2026-08-03T19:40:30Z`, SHA-256
+`313f1e927088ebfed3bbeab15db8010bef03583eee2833fc0cd04a5863f91514`.
+Its materialized runtime facts are: branch
+`codex/piping-dec092-temperature-g`; HEAD
+`c394365ca72b8383c7d7203ce5be2cb9ea67d508`; reconciled origin guard
+`376fd7f2d67cd0d6e2f185de25714062ad06f363`; invocation
+`uv run --offline --python 3.13 --with-requirements requirements-dev.txt`;
+Python `3.13.14`; pytest `9.1.1`; jsonschema `4.26.0`; required Python floor
+`>=3.11`; wasm-bindgen `0.2.123`; Playwright `1.60.0`; Chromium revision
+`1223`; Chrome for Testing `148.0.7778.96`; local/offline preflight `PASS`;
+clean Git state at c394; both failed-artifact paths and hashes above; and the
+15 ignored Cargo lockfile paths with their pre-execution hashes. The 15 locks
+were hash-checked after the terminal result and removed; both failed artifacts
+were restored byte-identically before closeout.
+
+### Receipt and gate placement
+
+Receipt 87 was rendered by exactly the two mandatory substitutions in the
+prepared canonical template. Rendered Receipt SHA-256:
+`230e74caf9296aeb74d5cc886440a4e82f600afdc39105efbf01175e2359b5bc`.
+Its evidence-sweep pointer names only the passing artifact. Its run-record
+pointer cites this all-attempt evidence, including both immutable failed
+artifacts and their hashes. Receipt validation is required before the closeout
+commit. The ready pull request remains the owner integration gate; there is no
+merge, lifecycle, release, publication, professional-reliance, DAG, pointer,
+dependency, result-schema, or deferred DEL-09-04 derivative effect.

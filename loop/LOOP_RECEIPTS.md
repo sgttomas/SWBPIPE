@@ -2098,3 +2098,13 @@
     this activation tranche lands. The 12 candidates and five holds remain;
     no DEC-092 implementation, product, lifecycle/status/memory, selection,
     release, or professional-reliance effect is created.
+
+- **2026-08-03 — Receipt 87** (DEC-092 temperature-indexed shear-modulus implementation closeout).
+  - Receipt-ID: `Receipt-87`
+  - Examined-Through: `c394365ca72b8383c7d7203ce5be2cb9ea67d508`
+  - Parent-Receipt: `Receipt-86`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — Gate 1 `ADOPT` and Gate 2 `O-B` for `CB-2026-08-02-DEC092-DEL0502-TEMPG-IMPLEMENTATION-001`, transcribed exactly in the implementation run record.
+  - Pointers: `DEC-092`; `execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/WORKING_ITEMS_RUN_2026-08-02_DEC092_TEMPERATURE_G_IMPLEMENTATION.md`; commit-bound evidence sweep `validation/evidence/sweeps/SWEEP_20260803T194132Z_c394365ca72b.json`; `ScopeOfWork.md`, `MEMORY.md`, and `_STATUS.md` for DEL-05-02.
+  - Checks: schema/model/import-provenance pytest, operation-applier native and 78-case native/WASM corpus parity, product-physics and mechanics benchmark suites, canonical WASM build, focused/full desktop Vitest, desktop build, development/distribution Playwright, Python 3.13 full Piping pytest, practitioner-harness self-check and pytest, claims language, receipt contract, numeric oracle, JSON/inventory, exact write containment, diff checks, commit-bound evidence sweep, and configured PR checks are recorded with actual outcomes in the pointed run/evidence records.
+  - Model-Attribution: OpenAI Codex WORKING_ITEMS Agent 1 used governed native ephemeral Agent 2 sessions for bounded N1-N6 work, with sealed briefs, explicit write fences, durable returns, and no child delegation; exact runtime model strings were not exposed.
+  - Gate-Outcome: `EXECUTED` — D-45 Option O-B / `DEC-092` is implemented for explicit user-entered temperature-point G across schema, private authoring, structured operation, exact-ID and adjacent interpolation resolution, provenance, blocking, fixtures, independent torsion evidence, and tests. Gate 2 O-B corrected only the stale test expectations tied to superseded DAG-008 and aligned them with accepted/live DAG-009. DEL-05-02 remains `IN_PROGRESS`; DEL-09-04 validation-manual derivative regeneration is deferred. No lifecycle, release, publication, professional approval, certification, sealing, authentication, code-compliance, DAG, pointer, dependency, or result-schema effect is created by this receipt.

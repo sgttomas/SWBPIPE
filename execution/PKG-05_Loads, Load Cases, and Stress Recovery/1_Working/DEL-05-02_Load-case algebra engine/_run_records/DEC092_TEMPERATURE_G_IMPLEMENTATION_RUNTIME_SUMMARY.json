@@ -2,7 +2,7 @@
   "context_telemetry": {
     "measurement_limitation": "native context occupancy unavailable for one or more sessions",
     "starts_with_context_occupancy": 0,
-    "starts_without_context_occupancy": 12
+    "starts_without_context_occupancy": 13
   },
   "counts": {
     "category": {
@@ -14,30 +14,33 @@
       "fan_in": 5,
       "gate_2": 2,
       "integration": 5,
+      "n8_change": 3,
       "operation": 8,
       "oracle": 6,
       "package_return": 1,
       "solver": 2
     },
     "event_type": {
-      "FINISH": 12,
-      "MILESTONE": 7,
+      "FINISH": 13,
+      "MILESTONE": 8,
       "REMEDIATION": 7,
       "RETRY": 4,
-      "START": 12
+      "START": 13
     },
     "outcome": {
       "BLOCKED": 1,
       "FAIL": 4,
       "INFO": 6,
-      "PASS": 15,
+      "PASS": 17,
       "RETRY": 4,
-      "STARTED": 12
+      "STARTED": 13
     },
     "reason_code": {
+      "COMMIT_BOUND_SWEEP_PASSED": 1,
       "DECLARED_ENVIRONMENT_RESOLVED": 3,
       "DISPATCHED": 6,
       "ENVIRONMENT_INCOMPLETE": 3,
+      "FINAL_SWEEP_ENVIRONMENT_SEALED": 1,
       "GATE1_ADOPTED": 1,
       "GATE2_TEST_CURRENCY_REPAIR": 1,
       "INHERITED_BASELINE_FAILURE": 1,
@@ -50,6 +53,7 @@
       "N6_ACCEPTED": 1,
       "N7_STARTED": 1,
       "N7_VALIDATED": 1,
+      "N8_CLOSEOUT_READY": 1,
       "OUT_OF_FENCE_TELEMETRY_RECOVERED": 1,
       "OWNER_RULING_O_B": 1,
       "OWNER_RULING_REQUIRED": 1,
@@ -61,7 +65,7 @@
       "VALIDATED_RETURN": 6
     }
   },
-  "events": 42,
+  "events": 45,
   "schema": "chirality-runtime-summary/v1",
   "session_results": [
     {
@@ -186,6 +190,17 @@
       "session_id": "N7-CLOSEOUT"
     },
     {
+      "duration_seconds": 440.0,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG05-DEL0502-DEC092-001",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "CHANGE",
+      "session_id": "N8-CHANGE"
+    },
+    {
       "duration_seconds": 11655.285,
       "events": 20,
       "final_outcome": "PASS",
@@ -197,7 +212,7 @@
       "session_id": "WI-MANAGER"
     }
   ],
-  "sessions": 12,
+  "sessions": 13,
   "status": "PASS",
   "unmatched_sessions": []
 }
