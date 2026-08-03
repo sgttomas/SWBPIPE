@@ -55,3 +55,14 @@ accurate historical evidence and need no rewrite. The next Piping
 TASK_MANAGEMENT invocation may name `deferral-review` as a mode directly;
 this loop's sharpened `Trigger` texts are already in the checkable form the
 mode expects.
+
+## Related in-tranche launcher changes
+
+The same tranche adds `projects/chirality-piping/init/taskmgmt-init-prompt.md`
+— a paste-ready launcher for one TASK_MANAGEMENT session bound to this loop's
+register, carrying the generational pass (preflight, harvest, deferral review,
+archive, closeout) with owner rulings as the only gates — and renames the
+development-loop launcher `init/init-prompt.md` to
+`init/dev-loop-init-prompt.md` here and at the root catalog. Live references
+in this loop's README, docs, and coordination surfaces were updated
+in-tranche; historical records are untouched.

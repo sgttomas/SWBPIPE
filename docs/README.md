@@ -59,7 +59,7 @@ vocabulary: `claims_registry.md`, DEC-081).
 
 ## How agents should use this package
 
-1. Start from `init/init-prompt.md` → `loop/LOOP_INIT.md` → the newest `loop/WORKPLAN_*.md` (the development loop instructions: discovery, work selection from deliverable folders, execution discipline, validation, and handoff). `execution/_Coordination/_COORDINATION.md` remains the ruled-record surface (current target stage).
+1. Start from `init/dev-loop-init-prompt.md` → `loop/LOOP_INIT.md` → the newest `loop/WORKPLAN_*.md` (the development loop instructions: discovery, work selection from deliverable folders, execution discipline, validation, and handoff). `execution/_Coordination/_COORDINATION.md` remains the ruled-record surface (current target stage).
 2. Use `execution/_Decomposition/SOFTWARE_DECOMP.md` as the authoritative working surface for packages and deliverables.
 3. Use `_Registers/*.csv` for machine-checkable mappings.
 4. Treat every deliverable as bounded: no agent may expand scope silently.
