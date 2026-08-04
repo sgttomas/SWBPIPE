@@ -80,4 +80,3 @@ compatibility, implementation authority, or closure of any Piping item.
 
 The final validation evidence is recorded in `VALIDATION.md`. No Git staging,
 commit, branch, push, pull request, merge, or other Git closeout was performed.
-

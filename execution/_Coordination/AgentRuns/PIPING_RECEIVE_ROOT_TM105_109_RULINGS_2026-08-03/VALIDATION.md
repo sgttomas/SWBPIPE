@@ -45,4 +45,3 @@
 Structural validation proves format, containment, and byte identity only. It
 does not accept the notice's semantics, dispose `TM-PIP-032`, or create a
 cross-consumer compatibility claim.
-

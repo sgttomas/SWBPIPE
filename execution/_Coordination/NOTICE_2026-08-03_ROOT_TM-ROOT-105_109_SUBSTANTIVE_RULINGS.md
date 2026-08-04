@@ -83,4 +83,3 @@ triggers are not satisfied by these closures. Their routing re-assessment
 remains for App's next deferral review. This statement is included to prevent
 the Piping-trigger effect from being misread as a cross-consumer contract or
 compatibility effect.
-

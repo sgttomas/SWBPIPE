@@ -52,4 +52,3 @@ No rerun is required for the completed byte-routing act unless the Root source
 notice changes before landing, in which case source/copy identity and the
 authority/effect boundary must be revalidated. There is no routing blocker.
 The separate Piping disposition remains intentionally unperformed.
-
