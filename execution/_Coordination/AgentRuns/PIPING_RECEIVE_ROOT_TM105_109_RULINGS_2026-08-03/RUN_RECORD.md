@@ -45,9 +45,9 @@ DEFERRED=11; APP OPEN=12 DEFERRED=3; PIP OPEN=8 DEFERRED=26`; findings were
 |---|---|
 | Root source notice `execution/_Coordination/NOTICE_2026-08-03_ROOT_TM-ROOT-105_109_SUBSTANTIVE_RULINGS.md` | `123c3a0f54ce3d03ba3cee67e6724faf659d54e2c8dda80d264d79d98e8ea40e` |
 | Piping inbound copy `projects/chirality-piping/execution/_Coordination/NOTICE_2026-08-03_ROOT_TM-ROOT-105_109_SUBSTANTIVE_RULINGS.md` | `123c3a0f54ce3d03ba3cee67e6724faf659d54e2c8dda80d264d79d98e8ea40e` |
-| Piping receipt ledger after Receipt 90 `projects/chirality-piping/loop/LOOP_RECEIPTS.md` | `9f29f758b65adb41952a3abe3227e3715852a928cfe78962bd84037aa093d723` |
+| Piping receipt ledger after Receipt 91 `projects/chirality-piping/loop/LOOP_RECEIPTS.md` | `e6b9605a566c69145dbc73b2bcbffa722efb6a8b8e6f28631d2d2390c29a016d` |
 
-Byte comparison of source and inbound copy returned identical. Receipt 90 is
+Byte comparison of source and inbound copy returned identical. Receipt 91 is
 the ordinary discovery breadcrumb required by the Piping receipt contract; it
 does not itself create authority or disposition.
 

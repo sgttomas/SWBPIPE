@@ -33,10 +33,10 @@
 
 ## Receipt, containment, whitespace, and Git preservation
 
-- Piping receipt-contract validator after Receipt 90: exit `0`, `VALID`.
+- Piping receipt-contract validator after Receipt 91: exit `0`, `VALID`.
 - `git diff --check`: exit `0`.
 - Piping-scoped status contains only the inbound notice, this run directory,
-  and the Receipt 90 append in `loop/LOOP_RECEIPTS.md`.
+  and the Receipt 91 append in `loop/LOOP_RECEIPTS.md`.
 - No product, DAG, decomposition, deliverable, lifecycle, decision, register,
   Root, App, PEC, or Git-state path was written by this run.
 - No staging, commit, branch creation/switch, push, pull request, merge, reset,

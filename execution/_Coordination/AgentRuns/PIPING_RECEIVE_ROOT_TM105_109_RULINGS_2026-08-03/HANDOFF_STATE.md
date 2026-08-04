@@ -22,7 +22,7 @@ cited owner ruling.
 ## Current derivative-package status
 
 - Piping inbound notice: `CURRENT / BYTE-IDENTICAL`.
-- Piping Receipt 90: `CURRENT DISCOVERY BREADCRUMB / NON-AUTHORITATIVE`.
+- Piping Receipt 91: `CURRENT DISCOVERY BREADCRUMB / NON-AUTHORITATIVE`.
 - Run record and validation evidence: `CURRENT`.
 
 ## What closed

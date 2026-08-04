@@ -2129,10 +2129,20 @@
   - Model-Attribution: Claude Fable 5 TASK_MANAGEMENT Agent 1 (model id claude-fable-5) executed the session directly and dispatched two read-only Claude Opus 5 Agent 2 ephemeral generalist sweeps (run-record marker verification; new-surface candidate sweep) with sealed briefs, declared read-only scope, no child delegation, and durable returns fan-in validated against source bytes before presentation.
   - Gate-Outcome: `EXECUTED` — the ruled harvest promotions `TM-PIP-031..037` are minted exactly as ruled (one OPEN row elevated to Root, three OPEN rows, three DEFERRED rows with owner-ruled triggers); the twenty-three pre-existing DEFERRED rows carry the 2026-08-03 review stamp; the archive relocation was a no-op; the reciprocal Root elevation notice for `TM-PIP-031` is materialized with the owner-ruled coordination context. Register writes record owner rulings only; no receiving Root row, approval, priority, scope, product, dependency, lifecycle, release, or merge effect is created by this receipt.
 
-- **2026-08-03 — Receipt 90** (Root TM-ROOT-105/109 substantive-rulings notice received).
+- **2026-08-03 — Receipt 90** (Task Management TM-PIP-034 routed-amendment closure).
   - Receipt-ID: `Receipt-90`
   - Examined-Through: `88e7590d3664d4f1daf91bed2a8899bda0748b92`
   - Parent-Receipt: `Receipt-89`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — "Close TM-PIP-034 as RESOLVED_WITH_CHANGE on the verified DEL-09-04 _STATUS.md amendment evidence blob 2805047c1f1d96d0ed5cc69380efe69bd2f977eb."
+  - Pointers: `execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv` row `TM-PIP-034`; `execution/_Coordination/_TaskManagement/REGISTER.csv`; `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md` evidence blob `2805047c1f1d96d0ed5cc69380efe69bd2f977eb`; producing-side deferral in DEL-05-02 `_STATUS.md`; Receipt 87.
+  - Checks: mandatory federation preflight and final federation pass COMPLETE with zero register writes; live and archived register validation, deterministic archive relocation, evidence-blob and exact-breadcrumb verification, lifecycle and producing-side-deferral preservation, receipt contract validation, repository self-check, full practitioner-harness pytest, exact closeout containment, and diff checks pass.
+  - Model-Attribution: OpenAI Codex TASK_MANAGEMENT Agent 1 under HELP_HUMAN used inherited runtime capability without override, delegation, or mid-task substitution; exact runtime model string was not exposed.
+  - Gate-Outcome: `EXECUTED` — the owner-ruled `TM-PIP-034` consumer-side breadcrumb closure is recorded as `RESOLVED_WITH_CHANGE` and mechanically archived. DEL-09-04 remains `IN_PROGRESS` and validation-manual derivative regeneration remains deferred. No lifecycle, derivative-regeneration, release, professional-reliance, DAG, dependency, foreign-register, or merge effect is created by this receipt.
+
+- **2026-08-03 — Receipt 91** (Root TM-ROOT-105/109 substantive-rulings notice received).
+  - Receipt-ID: `Receipt-91`
+  - Examined-Through: `88e7590d3664d4f1daf91bed2a8899bda0748b92`
+  - Parent-Receipt: `Receipt-90`
   - Pointers: byte-identical inbound `execution/_Coordination/NOTICE_2026-08-03_ROOT_TM-ROOT-105_109_SUBSTANTIVE_RULINGS.md`; receiving run record `execution/_Coordination/AgentRuns/PIPING_RECEIVE_ROOT_TM105_109_RULINGS_2026-08-03/`.
   - Checks: mandatory Task Management federation preflight, source/copy identity, register preservation, receipt validation, containment, and whitespace checks pass; exact evidence lives in the pointed run record.
   - Model-Attribution: OpenAI Codex TASK_MANAGEMENT Agent 1 under HELP_HUMAN used inherited runtime capability without override, delegation, or mid-task substitution; exact runtime model string was not exposed.
