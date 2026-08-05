@@ -2147,3 +2147,54 @@
   - Checks: mandatory Task Management federation preflight, source/copy identity, register preservation, receipt validation, containment, and whitespace checks pass; exact evidence lives in the pointed run record.
   - Model-Attribution: OpenAI Codex TASK_MANAGEMENT Agent 1 under HELP_HUMAN used inherited runtime capability without override, delegation, or mid-task substitution; exact runtime model string was not exposed.
   - Gate-Outcome: `EXECUTED` — ordinary receipt of coordination evidence only. Piping `TM-PIP-032` remains byte-unchanged and `DEFERRED`; Piping's next own deferral review may evaluate its trigger. No acceptance, disposition, un-deferral, closure, contract, compatibility, product, lifecycle, priority, scope, implementation, release, reliance, or Git effect is created.
+
+- **2026-08-04 — Receipt 92** (TM-PIP-025 product-basis decision preparation and D-64 materialization).
+  - Receipt-ID: `Receipt-92`
+  - Examined-Through: `cdc76a1d398231267f1379e7143b4de27abaa01b`
+  - Parent-Receipt: `Receipt-91`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — “Primary
+    lane is preparing the TM-PIP-025 product-basis decision surface — an
+    owner-ruling packet offering adopt/amend/defer/decline over the 2026-07-31
+    design-tool-boundary and 2026-08-02 product-delivery intent records. The
+    row's trigger reads as waiting on an owner act; this steer is that act's
+    commissioning — prepare the surface, decide nothing.” The steer also
+    stated exactly: “Root's substantive TM-ROOT-105/109 rulings are on your
+    surface for TM-PIP-032's ordinary deferral-review evaluation; handle that
+    by normal means.” Later owner approval, exact: “APPROVE: materialize the
+    exact D-64 packet payload from
+    projects/chirality-piping/execution/_Coordination/_TaskManagement/TM-PIP-025_D-64_DECISION_PACKET_MATERIALIZATION_2026-08-04.md
+    to
+    projects/chirality-piping/execution/_Coordination/_DECISIONS/D-64_piping_product_basis.md
+    and append its exact frozen D-64 AWAITING_RULING row to
+    projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md;
+    change no other path and make no ruling.”
+  - Pointers: canonical proposal
+    `execution/_Coordination/_DECISIONS/D-64_piping_product_basis.md` and
+    decision-register row `D-64`; Task Management derivatives
+    `execution/_Coordination/_TaskManagement/TM-PIP-025_PRODUCT_BASIS_DECISION_HANDOFF_2026-08-04.md`,
+    `execution/_Coordination/_TaskManagement/TM-PIP-025_D-64_DECISION_PACKET_MATERIALIZATION_2026-08-04.md`,
+    and
+    `execution/_Coordination/_TaskManagement/TM-PIP-032_DEFERRAL_REVIEW_DECISION_SUPPORT_2026-08-04.md`;
+    landed Root notice
+    `execution/_Coordination/NOTICE_2026-08-03_ROOT_TM-ROOT-105_109_SUBSTANTIVE_RULINGS.md`.
+    D-64 carries the App `D-APP-91` rider against response blob
+    `a71145ec0952cc5ad62b1b12635be44deebffbd3` with per-option response-basis
+    and reverification classification. The TM-PIP-032 derivative records
+    `TRIGGER_FIRED` and proposes, but does not apply,
+    `RESOLVED_BY_DECISION`.
+  - Stale-Map-Delta: the pointed TM-PIP-032 report records the Root
+    evidence-pointer whitespace-staleness observation and immutable historical
+    evidence identity; no foreign write occurred.
+  - Checks: Task Management federation, evidence and namespace binding,
+    independent evaluation, exact materialization hashes, decision and Task
+    Management register checks, receipt contract, candidate whitespace,
+    containment, and diff checks: PASS.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN, TASK_MANAGEMENT, EVALUATION,
+    and CHANGE roles used inherited runtime capability without override or
+    mid-task substitution; exact runtime model string was not exposed.
+  - Gate-Outcome: `EXECUTED` — preparation only. D-64 is `AWAITING_RULING`;
+    `TM-PIP-025` and `TM-PIP-032` remain `DEFERRED` and unmodified. No owner
+    option or Task Management disposition was selected. No product-basis,
+    PRD, decomposition, scope, planning, product/source, implementation, DAG,
+    dependency, lifecycle, priority, contract, compatibility, release,
+    reliance, or publication effect is created.
