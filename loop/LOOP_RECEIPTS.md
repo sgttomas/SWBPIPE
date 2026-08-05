@@ -2198,3 +2198,61 @@
     PRD, decomposition, scope, planning, product/source, implementation, DAG,
     dependency, lifecycle, priority, contract, compatibility, release,
     reliance, or publication effect is created.
+
+- **2026-08-04 — Receipt 93** (D-64 adoption and Task Management closeout).
+  - Receipt-ID: `Receipt-93`
+  - Examined-Through: `7ed052f77c5d7a5a9480303b28138bb44b744e4e`
+  - Parent-Receipt: `Receipt-92`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — the three
+    exact owner acts relayed through HELP_HUMAN are: “APPROVE D-64 OPTION
+    ADOPT — ADOPT BOTH EXACT INTENT RECORDS AS THE PIPING PRODUCT BASIS
+    WITHOUT AMENDMENT — Ryan Tufts 2026-08-04”; “After D-64 ruling recorded,
+    close/archive TM-PIP-025 RESOLVED_BY_DECISION using exact D-64 ruling
+    record and owner return as SHA-bound evidence; no independent
+    product-basis/PRD/decomposition/scope/planning/implementation/lifecycle
+    effect.”; “Close/archive TM-PIP-032 RESOLVED_BY_DECISION using local notice
+    blob a7e45dd...; closure limited to ownership/routing, no
+    generic-contract/equality/conformance/cross-consumer compatibility claim.”
+  - Pointers: D-64 ruling
+    `execution/_Coordination/_DECISIONS/D-64_RULING_2026-08-04.md`, Git blob
+    `afddbebf02c0378b58a64e375c9b6b8f2dd46e11`, SHA-256
+    `1c509069853702270d30f32473f8f84929171800f2c98a32b2b6312963c67b35`;
+    immutable proposal Git blob
+    `8a5d1580ce79f29b75cff7e96408e713702dcfde`; decision register
+    `execution/_Coordination/_DECISIONS/_REGISTER.md`; Task Management paths
+    under `execution/_Coordination/_TaskManagement/`: owner ruling
+    `OWNER_RULING_2026-08-04_TM-PIP-025_032_CLOSEOUT.md` Git blob
+    `36e5dad6df6622cef6b2a9b35168c0fb94018bfd`; live/archive
+    `REGISTER.csv` / `REGISTER_CLOSED.csv` Git blobs
+    `6105a346bd164b384122cb5f8b444b259406a1f9` /
+    `bc3540959788c649ed189f4d9aba96b5fbc64aeb`; closeout
+    `CLOSEOUT_2026-08-04_D64_TM-PIP-025_032.md` Git blob
+    `839b7d0f59343c07dfe726989b4af7f9cff8e1f2`; derivative SCA draft
+    `DRAFT_SCA_INTAKE_2026-08-04_D64_PRODUCT_BASIS_ADOPTION.md` Git blob
+    `a77aaae1bc59368f36e771365307a812a22e1514`, assessed by SCOPE_CHANGE as
+    `CONDITIONALLY_INTAKE_READY / PRE-GATE-1` with a later atomic owner request
+    required after landing; corrected derivative App-notice draft
+    `DRAFT_NOTICE_2026-08-04_D64_ADOPT_APP_BASIS_UNCHANGED.md` Git blob
+    `e46837c1ddb512f29e63aa9f085b3ba0403a05a9`; canonical notice
+    `execution/_Coordination/NOTICE_2026-08-04_D64_ADOPT_APP_BASIS_UNCHANGED.md`
+    Git blob `e7a63f2263b588f75629209089a84f739bf220d7`, SHA-256
+    `b7dbf53c24e860f8eef86bdd2361339ff73faeaf3c258781ca5ecd29b9ace61a`.
+  - Stale-Map-Delta: Root `TM-ROOT-102` remains a closure-echo candidate for
+    Root's ordinary deferral-review flow after D-64; no foreign row, notice,
+    status, or effect was written or inferred.
+  - Checks: EVALUATION PASS with no findings; Task Management federation
+    COMPLETE with zero writes; all eight canonical live/archive registers
+    PASS; Piping live=31 and archive=6; exact nine-path pre-receipt containment;
+    receipt validator, candidate whitespace, path-anchor, and diff checks PASS;
+    repository self-check exited zero with only pre-existing findings; full
+    practitioner-harness pytest: PASS with 349 collected and successful.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN, CHANGE, bounded D-64 decision
+    Agent 2, TASK_MANAGEMENT, bounded App-notice Agent 2, SCOPE_CHANGE, and
+    EVALUATION roles used inherited capability without override or mid-task
+    substitution; no exact runtime model string was exposed.
+  - Gate-Outcome: `EXECUTED` — D-64 is `RULED` as ADOPT; the response basis is
+    unchanged and App reverification is not owed. `TM-PIP-025` and
+    `TM-PIP-032` are `CLOSED / RESOLVED_BY_DECISION` and archived. The SCA
+    remains `PRE-GATE-1` with no scope effect; the canonical notice creates no
+    App authority; the Root closure-echo candidate creates no foreign effect.
+    No Git stage, commit, push, pull request, or merge occurs in this receipt.
