@@ -2256,3 +2256,44 @@
     remains `PRE-GATE-1` with no scope effect; the canonical notice creates no
     App authority; the Root closure-echo candidate creates no foreign effect.
     No Git stage, commit, push, pull request, or merge occurs in this receipt.
+
+- **2026-08-08 — Receipt 94** (Task Management generational pass: harvest, deferral review, archive, and closeout).
+  - Receipt-ID: `Receipt-94`
+  - Examined-Through: `182610bebaed1d3c02f2fad1add59c6859fa6f16`
+  - Parent-Receipt: `Receipt-93`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    acts are preserved in
+    `execution/_Coordination/_TaskManagement/OWNER_RULING_2026-08-08_HARVEST.md`
+    and `OWNER_RULING_2026-08-08_DEFERRAL_REVIEW.md`; the owner also approved
+    the exact base/branch closeout, scoped commit/push, and non-draft PR, with
+    merge expressly withheld.
+  - Pointers: `execution/_Coordination/_TaskManagement/REGISTER.csv`;
+    `REGISTER_CLOSED.csv`; `CANDIDATE_HARVEST_REPORT_2026-08-08.md`;
+    `DEFERRAL_REVIEW_REPORT_2026-08-08.md`;
+    `OWNER_RULING_2026-08-08_HARVEST.md`;
+    `OWNER_RULING_2026-08-08_DEFERRAL_REVIEW.md`;
+    `DRAFT_RECONCILIATION_HANDOFF_2026-08-08_TM-PIP-038_040.md`; and
+    `CLOSEOUT_2026-08-08_GENERATIONAL_PASS.md`. Register deltas: three OPEN
+    rows added; 24 DEFERRED rows reviewed and
+    retained; 22 linked-source citations refreshed; one Trigger sharpened;
+    zero status changes, zero dispositions, and zero archive moves. Final
+    Piping totals: live 34 (`OPEN=10`, `DEFERRED=24`, `ELEVATED=0`,
+    `CLOSED=0`); archive 6 CLOSED.
+  - Checks: mandatory pre-mode federation and final federation `COMPLETE`
+    with zero writes; all canonical live/archive inputs valid; Piping live and
+    archive validators PASS; deterministic archive no-op; exact ruled-field
+    containment; receipt validator; candidate whitespace; path anchors; and
+    diff checks PASS as recorded in the closeout evidence. Final federation
+    totals: PEC `OPEN=17 DEFERRED=3 CLOSED=1`, ROOT `OPEN=12 DEFERRED=11`, APP
+    `OPEN=11 DEFERRED=3`, PIP `OPEN=10 DEFERRED=24`; archived totals PEC 4,
+    ROOT 99, APP 26, PIP 6.
+  - Model-Attribution: OpenAI Codex TASK_MANAGEMENT Agent 1 used inherited
+    runtime capability without override, delegation, or mid-task
+    substitution; exact runtime model string was not exposed.
+  - Gate-Outcome: `EXECUTED` — owner-ruled harvest promotions `TM-PIP-038..040`
+    are recorded; all 24 DEFERRED rows remain `STILL_BLOCKED` with no status or
+    disposition change; source-currency and Trigger maintenance are applied
+    exactly as ruled. The single RECONCILIATION handoff is shipped only as an
+    undispatched derivative draft. No foreign-register, reconciliation,
+    product, scope, planning, implementation, lifecycle, release, reliance,
+    or merge effect is created.
