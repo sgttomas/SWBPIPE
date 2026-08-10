@@ -2336,3 +2336,51 @@
     decision, or register disposition. Both branches remain local proposal
     state at this receipt; no push, PR, merge, lifecycle, release, reliance,
     or professional-approval effect is created.
+
+- **2026-08-09 — Receipt 96** (activated TM-PIP-038..040 reconciliation treatment).
+  - Receipt-ID: `Receipt-96`
+  - Examined-Through: `da40d7dc4192c9aa2f49e9438729179aae281b61`
+  - Parent-Receipt: `Receipt-95`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    activation direction: “Owner direction, 2026-08-09. Initiate the activated
+    TM-PIP-038..040 reconciliation treatment.” The complete scope and fences
+    are frozen in the pointed run basis: current `origin/main` with the merged
+    activation record was required; TM-PIP-038 was limited to a preservation-
+    permitted attribution correction with exact before/after evidence;
+    TM-PIP-039 to a verbatim-preserving supersession record only; TM-PIP-040
+    to committed-provenance investigation and an owner-ready packet with no
+    `RESTORED`/`LOST`/`UNDETERMINED` act; managed RECONCILIATION execution,
+    owner merge gate, separate Task Management closure ruling, one receipt,
+    and a handoff distinguishing execution, records, and reserved decisions.
+  - Pointers: treatment `RUN_RECORD.md` SHA-256
+    `9ec5525b0960ec437012eae152b45fee05c2ce7088d6189ad7fac37e09257394`;
+    `HANDOFF_STATE.md` SHA-256
+    `519e93487bc136359818e5a1394eee93cce09af129ede220dc8db6ddf07b1259`;
+    `TREATMENT_VERDICTS.md` SHA-256
+    `d945d99f7f337cb8c6b4584a9a7439cc7cad035e5031d7dc72645d3ac6d96064`;
+    `DECISION_PACKETS/TM_PIP_040_OWNER_DECISION_PACKET.md` SHA-256
+    `3ab98c5127bd31af4ea9a2f5646d784582f4ca4d177572ce247279e0ac7c467b`,
+    all under `execution/_Reconciliation/DeliverableConcordance/
+    TM_PIP_038_040_TREATMENT_2026-08-09/`.
+  - Checks: activation ancestry and hashes; exact 18-file manager fan-in;
+    independent verifier; protected-target identity and projected correction;
+    quote fidelity; blank non-disposal packet; receipt contract; exact
+    containment; candidate whitespace; diff; claims-language; path anchors;
+    and repository self-check: PASS.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised a managed
+    RECONCILIATION Agent 1; RECONCILIATION dispatched three bounded owning
+    ephemeral Agent 2 children and one independent verifier Agent 2, each with
+    sealed brief, declared scope, recorded parentage, no delegation, and a
+    durable return. CHANGE performed independent closeout validation.
+    Inherited runtime capability was used without override; no exact runtime
+    model string was exposed.
+  - Gate-Outcome: `EXECUTED` — owner rulings remain open; no historical correction
+    was executed because TM-PIP-038's factual correction is protected;
+    verdict `AMEND — FACTUAL CORRECTION SUSTAINED; PROTECTED NO-EDIT` preserves
+    exact projection evidence. TM-PIP-039 verdict `ADOPT — SUPERSESSION RECORD
+    ONLY` produced only its derivative record. TM-PIP-040 verdict `ADOPT —
+    INVESTIGATION COMPLETE; OWNER DECISION RESERVED` produced only a blank
+    decision packet; no outcome was selected. Owner treatment/outcome rulings,
+    all Task Management register dispositions, and PR merge remain open. No
+    lifecycle, release, reliance, professional-approval, register, or
+    disposal effect is created; no push, PR, or merge occurs in this receipt.
