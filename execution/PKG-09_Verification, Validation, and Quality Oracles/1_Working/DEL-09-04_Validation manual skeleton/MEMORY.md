@@ -11,6 +11,36 @@ revision: 0.5
 
 # MEMORY - DEL-09-04 Validation Manual Skeleton
 
+## 2026-08-09 - DEC-092 validation-manual derivative regeneration
+
+- Owner adopted `CB-2026-08-09-DEL0904-DEC092-VALMANUAL-001` for exactly
+  `PKG-09 / DEL-09-04`; execution ran on
+  `codex/piping-del0904-dec092-valmanual-20260809` from pinned base
+  `81c376b41a1e181d3edb0737d4f3c9e398527dbe`.
+- The generator now supports per-case current evidence metadata and targeted
+  generation/check rendering. It deterministically produced one new
+  `DRAFT_EVIDENCE` mechanics page,
+  `docs/validation_manual/cases/mechanics/mech-tp-dec092-temperature-indexed-shear-modulus-torsion.md`,
+  plus one index row. The page binds explicit temperature-point `G`, exact-ID
+  resolution, strictly adjacent interpolation with both source IDs/method,
+  endpoint/outside and missing/invalid blocking, no selected-basis base-`G`
+  fallback, the preserved no-basis base path, and independent anti-fallback
+  values to implementation commit `c394365ca72b8383c7d7203ce5be2cb9ea67d508`,
+  the producing DEL-05-02 record, and the passing commit-bound sweep.
+- Evidence: temporary full render `64/64`; all 63 historical pages
+  byte-identical; new page exact; mechanics oracle `1/1`; full product-physics
+  `98/98`; registered harness pytest `349/349`; harness self-check exit 0;
+  claims-language, path-anchor, candidate-whitespace, diff, structural, and
+  exact containment checks passed. The normalized registered-check wrapper
+  could not write its required JSON outside the workspace under the exact
+  fence, so no wrapper PASS is claimed; both exact selected commands were run
+  directly and passed.
+- The exact DEC-092 derivative Remaining bullet is discharged. The other two
+  Remaining bullets are byte-identical and `Current State: IN_PROGRESS`
+  remains unchanged. No threshold, `MAINTAINER_REVIEWED`, GUI, clean-checkout
+  reproduction, lifecycle, release, publication, or professional-reliance act
+  occurred. Standard claim fence applies (F-PIP-2; DEC-081).
+
 ## 2026-07-20 - Clean-checkout reproduction at the R14 head (R14-W5)
 
 - Under adopted brief `CB-2026-07-20-DEL-09-04-CLEAN-REPRO-R14-001` (run

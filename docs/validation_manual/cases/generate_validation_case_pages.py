@@ -27,6 +27,7 @@ certification, or code-compliance claim is emitted.
 
 from __future__ import annotations
 
+import argparse
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -98,6 +99,13 @@ TOLERANCE_TEXTS = {
         "per-quantity-kind tolerance record required by `DEC-024`/`DEC-026` "
         "remains `TBD`, and this page neither tightens nor loosens any "
         "governed value."
+    ),
+    "dec092_analytic": (
+        "The independent mechanics comparison reuses the existing "
+        "`DEC-024`/`DEC-026` analytic-class relative tier `1.0e-9`. The "
+        "fixture's `tolerance_policy` remains unresolved (`None`): this case "
+        "selects no new governed tolerance, release threshold, CI gate, "
+        "publication scope, external-validation claim, or reliance basis."
     ),
     "expansion_loop": (
         "The witness-table comparison uses the measured, reason-annotated "
@@ -192,6 +200,18 @@ class Case:
     tolerance_key: str
     purpose_fallback: str | None = None
     extras: list[str] = field(default_factory=list)
+    created: str = "2026-07-10"
+    recorded_run_date: str = RECORDED_RUN_DATE
+    recorded_toolchain: str = RECORDED_TOOLCHAIN
+    recorded_result: str | None = None
+    run_record: str = RUN_RECORD
+    reproduction_commands: list[str] | None = None
+    expected_result_detail: str | None = None
+    software_result_detail: str | None = None
+    evidence_detail: str | None = None
+    runner_reproduction_detail: str | None = None
+    pass_fail_detail: str | None = None
+    solver_version_detail: str | None = None
 
 
 MECHANICS_CASES = [
@@ -365,6 +385,98 @@ MECHANICS_CASES = [
             "occloadgen_generation_blocks_without_user_inputs_or_marked_spans",
         ],
         "mech_numeric",
+    ),
+    Case(
+        "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION",
+        "mechanics",
+        "tp_dec092_temperature_indexed_shear_modulus_torsion.md",
+        ["temperature_indexed_shear_modulus_torsion_matches_independent_oracle"],
+        "dec092_analytic",
+        purpose_fallback=(
+            "Verify D-45 Option B / `DEC-092` temperature-indexed shear "
+            "modulus with an invented hollow straight-pipe cantilever in "
+            "pure torsion. Exact-ID and adjacent-interpolation selected `G` "
+            "values are compared with an independent elementary-mechanics "
+            "oracle while a distinct base `G` witnesses forbidden fallback."
+        ),
+        created="2026-08-09",
+        recorded_run_date="2026-08-03",
+        recorded_toolchain="rustc 1.97.1 / cargo 1.97.1",
+        recorded_result=(
+            "PASS; producing mechanics suite 39 passed with zero failures, "
+            "and the commit-bound sweep records Cargo 36/36 and overall pass"
+        ),
+        run_record=(
+            "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/"
+            "DEL-05-02_Load-case algebra engine/_run_records/"
+            "WORKING_ITEMS_RUN_2026-08-02_DEC092_TEMPERATURE_G_IMPLEMENTATION.md"
+        ),
+        reproduction_commands=[
+            "cargo test --offline --manifest-path validation/benchmarks/mechanics/Cargo.toml temperature_indexed_shear_modulus_torsion_matches_independent_oracle",
+            "cargo test --offline --manifest-path core/product_physics/Cargo.toml dec092_fixture_consumes_exact_and_interpolated_g_with_provenance_and_combination_carry_through",
+            "cargo test --offline --manifest-path core/product_physics/Cargo.toml selected_point_g_is_base_independent_and_selected_g_sensitive",
+            "cargo test --offline --manifest-path core/product_physics/Cargo.toml selected_basis_blocks_missing_invalid_or_dimensionally_wrong_point_g",
+            "cargo test --offline --manifest-path core/product_physics/Cargo.toml temperature_g_interpolation_uses_adjacent_points_and_duplicate_temperatures_still_block",
+            "cargo test --offline --manifest-path core/product_physics/Cargo.toml interpolation_blocks_at_and_beyond_stored_range_edges",
+            "cargo test --offline --manifest-path core/product_physics/Cargo.toml exact_and_interpolated_basis_fields_are_mutually_exclusive",
+            "cargo test --offline --manifest-path core/product_physics/Cargo.toml base_material_values_are_used_when_no_modulus_basis_is_named",
+        ],
+        expected_result_detail=(
+            "The independent note and mechanics fixture record `J = "
+            "1.0540043352793751e-5 m^4`, exact-point `G = 50.0e9 Pa`, and "
+            "strictly adjacent interpolation between `TP-LOW` (`300 K`, "
+            "`60.0e9 Pa`) and `TP-HIGH` (`500 K`, `40.0e9 Pa`) at `425 K`, "
+            "giving `f = 0.625` and `G = 47.5e9 Pa`. The resulting exact-ID "
+            "and interpolated tip rotations are `9.108121929551094e-2 rad` "
+            "and `9.587496767948521e-2 rad`. The deliberately distinct base "
+            "value `G_base = 80.0e9 Pa` gives `5.6925762059694338e-2 rad`; "
+            "substituting it misses the selected targets by `37.5%` and "
+            "`40.625%`."
+        ),
+        software_result_detail=(
+            "Product-physics tests separately prove that exact-ID selection "
+            "consumes the selected point's explicit `G`; temperature "
+            "selection uses the strictly adjacent bracket and records both "
+            "source IDs plus `method=linear_temperature_interpolation`; and "
+            "combination records carry the same basis. They also prove that "
+            "selection blocks at or outside stored range endpoints without "
+            "extrapolation, blocks missing, non-positive, non-finite, or "
+            "dimensionally wrong selected-point `G`, rejects duplicate "
+            "temperatures and conflicting exact/temperature selectors, and "
+            "never falls back to base `G`. A load case with no modulus basis "
+            "continues to consume the explicit base `G`. The mechanics test "
+            "is an independent numeric oracle; it does not by itself prove "
+            "product selection behavior."
+        ),
+        evidence_detail=(
+            "Implementation commit `c394365ca72b8383c7d7203ce5be2cb9ea67d508`; "
+            "passing commit-bound sweep "
+            "`validation/evidence/sweeps/SWEEP_20260803T194132Z_c394365ca72b.json`; "
+            "mechanics fixture/oracle and named test in "
+            "`validation/benchmarks/mechanics/src/lib.rs`; product behavior "
+            "and the seven named tests in `core/product_physics/src/lib.rs`. "
+            "Receipt-87 records closeout and routes this derivative, but is "
+            "not used as the sole basis for any mechanics or product claim."
+        ),
+        runner_reproduction_detail=(
+            "Reproduction is through the listed locked/offline crate tests. "
+            "No GUI or external-runner reproduction was executed for this "
+            "case."
+        ),
+        pass_fail_detail=(
+            "`PASS` as development evidence at the producing run and "
+            "commit-bound sweep: the independent mechanics oracle and the "
+            "product behavior tests passed. Evidence state remains "
+            "`DRAFT_EVIDENCE`; public tolerances, maintainer review, GUI "
+            "validation, release, and professional reliance remain open."
+        ),
+        solver_version_detail=(
+            "The in-repo OpenPipeStress solver and benchmark crates at "
+            "implementation commit `c394365ca72b8383c7d7203ce5be2cb9ea67d508`, "
+            "bound by the passing sweep above; toolchain rustc 1.97.1 / "
+            "cargo 1.97.1. No packaged release version exists; release labels "
+            "remain `TBD`."
+        ),
     ),
 ]
 
@@ -795,13 +907,16 @@ def render_case(case: Case, constructor: str | None) -> str:
             f"derivation."
         )
 
-    test_lines = "\n".join(
+    reproduction_commands = case.reproduction_commands or [
         f"cargo test --manifest-path {suite.crate}/Cargo.toml {name}"
         for name in case.tests
-    )
+    ]
+    test_lines = "\n".join(reproduction_commands)
     test_list = ", ".join(f"`{name}`" for name in case.tests)
 
-    if case.fixture_id == "NL-NONCONVERGENCE-LIMIT-ORIGINAL":
+    if case.pass_fail_detail is not None:
+        pass_fail = case.pass_fail_detail
+    elif case.fixture_id == "NL-NONCONVERGENCE-LIMIT-ORIGINAL":
         pass_fail = (
             "`PASS` (expected-diagnostic case) at the recorded run: the "
             "fixture failed to converge exactly as the reference predicts "
@@ -816,12 +931,37 @@ def render_case(case: Case, constructor: str | None) -> str:
         )
 
     extras = "".join(f"\n{extra}\n" for extra in case.extras)
+    expected_result = case.expected_result_detail or (
+        "The expected values and their derivation are recorded in the independent\n"
+        f"reference note `{note_rel}` and mirrored in the fixture's expected-value\n"
+        "slots. The reference derivation uses elementary open mechanics only."
+    )
+    software_result_detail = (
+        f"\n\n{case.software_result_detail}" if case.software_result_detail else ""
+    )
+    recorded_result = case.recorded_result or suite.recorded_result
+    evidence_detail = f"\n\nEvidence basis: {case.evidence_detail}" if case.evidence_detail else ""
+    runner_reproduction = case.runner_reproduction_detail or (
+        "Headless-runner binding: the `DEC-065` `openpipestress-runner run-benchmark`\n"
+        "verb accepts a schema-first benchmark request but currently exits `1` with\n"
+        "the structured blocking diagnostic\n"
+        "`HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD` because\n"
+        "benchmark payload binding remains future bounded `DEL-10-05` work. Until that\n"
+        "binding lands, the exact reproduction command for this case is the crate test\n"
+        "above; the runner-reproducible external path is recorded in\n"
+        "[headless_runner_reproduction.md](../../headless_runner_reproduction.md)."
+    )
+    solver_version = case.solver_version_detail or (
+        "The in-repo OpenPipeStress solver and benchmark crates at the commit recorded\n"
+        f"in `{case.run_record}`; toolchain {case.recorded_toolchain}. No packaged release version\n"
+        "exists; release labels remain `TBD`."
+    )
 
     return f"""---
 doc_id: OPS-VALIDATION-MANUAL-CASE-{case.fixture_id}
 doc_kind: governance.validation_manual_case
 status: draft_evidence
-created: 2026-07-10
+created: {case.created}
 generated_by: docs/validation_manual/cases/generate_validation_case_pages.py
 refs:
   - rel: implements
@@ -853,15 +993,13 @@ protected standards, commercial software examples, or proprietary data.
 
 ## Expected Result And Independent Reference
 
-The expected values and their derivation are recorded in the independent
-reference note `{note_rel}` and mirrored in the fixture's expected-value
-slots. The reference derivation uses elementary open mechanics only.
+{expected_result}
 
 ## Software Result And Reproduction
 
 The measured-vs-reference comparison executes inside the named suite
 test(s) {test_list}, which run the current in-repo solver path on the fixture
-and assert agreement with the reference expectations.
+and assert agreement with the reference expectations.{software_result_detail}
 
 Reproduction (from `projects/chirality-piping`):
 
@@ -869,19 +1007,12 @@ Reproduction (from `projects/chirality-piping`):
 {test_lines}
 ```
 
-Recorded run: {RECORDED_RUN_DATE}, toolchain {RECORDED_TOOLCHAIN}; suite
-result `{suite.recorded_result}` with the named test(s) passing. The full
+Recorded run: {case.recorded_run_date}, toolchain {case.recorded_toolchain}; suite
+result `{recorded_result}` with the named test(s) passing. The full
 suite output and the exact commit are recorded in the run record
-`{RUN_RECORD}`.
+`{case.run_record}`.{evidence_detail}
 
-Headless-runner binding: the `DEC-065` `openpipestress-runner run-benchmark`
-verb accepts a schema-first benchmark request but currently exits `1` with
-the structured blocking diagnostic
-`HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD` because
-benchmark payload binding remains future bounded `DEL-10-05` work. Until that
-binding lands, the exact reproduction command for this case is the crate test
-above; the runner-reproducible external path is recorded in
-[headless_runner_reproduction.md](../../headless_runner_reproduction.md).
+{runner_reproduction}
 
 ## Tolerance
 
@@ -893,9 +1024,7 @@ above; the runner-reproducible external path is recorded in
 
 ## Solver Version
 
-The in-repo OpenPipeStress solver and benchmark crates at the commit recorded
-in `{RUN_RECORD}`; toolchain {RECORDED_TOOLCHAIN}. No packaged release version
-exists; release labels remain `TBD`.
+{solver_version}
 
 ## Boundary
 
@@ -906,18 +1035,42 @@ evidence (claims registry BS-VALID, DEC-081), and it does not settle any
 """
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fixture-id", help="render exactly one registered fixture id")
+    parser.add_argument("--output-root", type=Path, default=OUT_DIR)
+    parser.add_argument("--check", action="store_true", help="compare without writing")
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
     lib_sources = {
         key: (ROOT / suite.crate / "src" / "lib.rs").read_text(encoding="utf-8")
         for key, suite in SUITES.items()
     }
-    for case in ALL_CASES:
+    cases = ALL_CASES
+    if args.fixture_id:
+        cases = [case for case in ALL_CASES if case.fixture_id == args.fixture_id]
+        if not cases:
+            raise SystemExit(f"unknown fixture id: {args.fixture_id}")
+    mismatches: list[Path] = []
+    for case in cases:
         constructor = find_constructor(lib_sources[case.suite], case.fixture_id)
         page = render_case(case, constructor)
-        out_path = OUT_DIR / case.suite / f"{slug(case.fixture_id)}.md"
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(page, encoding="utf-8")
-    print(f"generated {len(ALL_CASES)} case pages under {OUT_DIR}")
+        out_path = args.output_root / case.suite / f"{slug(case.fixture_id)}.md"
+        if args.check:
+            if not out_path.exists() or out_path.read_text(encoding="utf-8") != page:
+                mismatches.append(out_path)
+        else:
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(page, encoding="utf-8")
+    if mismatches:
+        for path in mismatches:
+            print(f"mismatch: {path}")
+        raise SystemExit(1)
+    verb = "checked" if args.check else "generated"
+    print(f"{verb} {len(cases)} case page(s) under {args.output_root}")
 
 
 if __name__ == "__main__":

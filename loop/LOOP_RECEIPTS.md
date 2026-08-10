@@ -2297,3 +2297,42 @@
     undispatched derivative draft. No foreign-register, reconciliation,
     product, scope, planning, implementation, lifecycle, release, reliance,
     or merge effect is created.
+
+- **2026-08-09 — Receipt 95** (DEC-092 validation-manual execution and reconciliation pre-activation deferral).
+  - Receipt-ID: `Receipt-95`
+  - Examined-Through: `81c376b41a1e181d3edb0737d4f3c9e398527dbe`
+  - Parent-Receipt: `Receipt-94`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — the owner
+    adopted
+    `CB-2026-08-09-DEL0904-DEC092-VALMANUAL-001`, directed its exact N0/N1/N2
+    execution, routed the unmodified TM-PIP-038..040 handoff to
+    RECONCILIATION under its own instrument, required managed Agent 1 child
+    instances and separate branches/PRs, and withheld all in-session merges.
+  - Pointers: combined handoff
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260809-DUAL-LANE-R26/HANDOFF_STATE.md`;
+    adopted candidate SHA-256
+    `5f51148b9b1644e4a2afe5e4c961708fd47e2e7463f77dfb586f2962afc215b8`;
+    WORKING_ITEMS run-record SHA-256
+    `3e2d9ce81907b8422962ad3df19847a3e3da16a35dcad455db47c1058c069c78`;
+    reconciliation activation record at local proposal commit
+    `3f00a351695ec3943be6d60a89643795a28f9220`, SHA-256
+    `e8ef649f54145e8c82b1d45bcce31bea2ec9f15d30f45bda7a464cd752f1309e`.
+  - Checks: full generator and targeted DEC-092 checks PASS; focused mechanics
+    and full product-physics evidence are recorded PASS by WORKING_ITEMS;
+    exact nine-path containment, receipt contract, claims language, path
+    anchors, repository self-check, candidate/run-record hashes, whitespace,
+    and cached diff checks PASS before local CHANGE commit.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised managed
+    WORKING_ITEMS, RECONCILIATION, and CHANGE Agent 1 instances;
+    WORKING_ITEMS dispatched one bounded ephemeral Agent 2. RECONCILIATION
+    stopped before Agent 2 dispatch. Inherited runtime capability was used
+    without override; no exact runtime model string was exposed.
+  - Gate-Outcome: `EXECUTED` — WORKING_ITEMS returned
+    `PASS_READY_CHANGE_CLOSEOUT`; the DEC-092 validation-manual derivative is
+    regenerated as `DRAFT_EVIDENCE`, DEL-09-04 remains `IN_PROGRESS`, its first
+    two Remaining bullets are preserved, and only its third DEC-092 bullet is
+    removed. RECONCILIATION returned `DEFERRED_PRE_ACTIVATION` before discovery
+    and produced no treatment verdict, repair, Agent 2 execution, evidence
+    decision, or register disposition. Both branches remain local proposal
+    state at this receipt; no push, PR, merge, lifecycle, release, reliance,
+    or professional-approval effect is created.

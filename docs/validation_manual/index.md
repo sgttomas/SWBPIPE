@@ -3,7 +3,7 @@ doc_id: OPS-VALIDATION-MANUAL-SKELETON
 doc_kind: governance.validation_manual
 status: draft
 created: 2026-05-04
-updated: 2026-07-10
+updated: 2026-08-09
 refs:
   - rel: governed_by
     to: OPS-CONTRACT
@@ -79,6 +79,11 @@ Suite crate: `validation/benchmarks/mechanics/`. Recorded run 2026-07-10:
 `ok. 30 passed; 0 failed` (run record
 `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`).
 
+Inventory updated 2026-08-09: 64 case pages total (21 mechanics, 15 stress,
+28 nonlinear). The DEC-092 row below uses its 2026-08-03 implementation run
+and commit-bound evidence; the other mechanics rows retain their historical
+2026-07-10 run metadata.
+
 | Case | Independent reference |
 |---|---|
 | [`MECH-BRANCH-ASSEMBLY-THREE-MEMBER`](cases/mechanics/mech-branch-assembly-three-member.md) | `validation/hand_calcs/mechanics/branch_assembly.md` |
@@ -100,6 +105,7 @@ Suite crate: `validation/benchmarks/mechanics/`. Recorded run 2026-07-10:
 | [`MECH-TP-PHYS-009-COMBINED-LOAD-AXIAL-EFFECTS`](cases/mechanics/mech-tp-phys-009-combined-load-axial-effects.md) | `validation/hand_calcs/mechanics/tp_phys_009_combined_load_axial_effects.md` |
 | [`MECH-TP-PHYS-014-CANONICAL-ANALYTICAL-PAYLOAD`](cases/mechanics/mech-tp-phys-014-canonical-analytical-payload.md) | `validation/hand_calcs/mechanics/tp_phys_014_canonical_analytical_payload.md` |
 | [`MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE`](cases/mechanics/mech-tp-phys-015-canonical-solve-result-envelope.md) | `validation/hand_calcs/mechanics/tp_phys_015a_canonical_solve_result_envelope.md` |
+| [`MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION`](cases/mechanics/mech-tp-dec092-temperature-indexed-shear-modulus-torsion.md) | `validation/hand_calcs/mechanics/tp_dec092_temperature_indexed_shear_modulus_torsion.md` |
 | [`MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC`](cases/mechanics/mech-tp-pmm-p3-occloadgen-equivalent-static.md) | `validation/hand_calcs/mechanics/tp_pmm_p3_occloadgen_equivalent_static.md` |
 
 ### 3.2 Stress recovery cases (`DEL-09-02`)
