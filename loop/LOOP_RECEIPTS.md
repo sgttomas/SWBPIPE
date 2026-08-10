@@ -2384,3 +2384,54 @@
     all Task Management register dispositions, and PR merge remain open. No
     lifecycle, release, reliance, professional-approval, register, or
     disposal effect is created; no push, PR, or merge occurs in this receipt.
+
+- **2026-08-09 — Receipt 97** (owner treatment rulings and TM-PIP-040 LOST outcome).
+  - Receipt-ID: `Receipt-97`
+  - Examined-Through: `38801d299b19b36f40009714d2c7015db0bd6484`
+  - Parent-Receipt: `Receipt-96`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — the direct
+    2026-08-09 owner acts accept TM-PIP-038's amended preservation treatment
+    without direct edit, accept TM-PIP-039's supersession record as executed,
+    and accept TM-PIP-040's investigation and packet; the owner selects
+    `LOST` on the verbatim personal-act basis preserved in
+    `OWNER_TREATMENT_RULINGS.md`, declines further recovery, preserves
+    historical test results and ledger encodings as evidence of record, and
+    directs only a future TASK_MANAGEMENT proposal to close TM-PIP-040 as
+    `RESOLVED_BY_DECISION`, effective solely on a later owner closure ruling.
+  - Pointers: owner-ruling derivative under
+    `execution/_Reconciliation/DeliverableConcordance/
+    TM_PIP_038_040_TREATMENT_2026-08-09/
+    OWNER_RULING_2026-08-09_TM_PIP_038_040/`; exact nine-file manifest
+    SHA-256 `18cf17219977f299f2de81a254571e9e8ab60fbef62490838db8320ddda9e5ad`;
+    `RUN_RECORD.md` `7172efe432d85f9fbaded22d1ccab885dc0c34094dc47f957f05e7864580e9ed`;
+    `HANDOFF_STATE.md` `5120e2ac40f40a4eef144c6cec4026ac4855a2bfa42c24e1522d7848f11c0573`;
+    `TM_PIP_040_LOST_OUTCOME_RECORD.md`
+    `8f9f081ce6676c4a6e1201784684465bef2d8f272cf54ecf9e9e2420d1825a1e`;
+    `OWNER_TREATMENT_RULINGS.md`
+    `654db10db5c54fe0348e8345330a98469a169036ec913b5013e33d6fe2525bda`;
+    verifier return
+    `27a22bd62493eb2b257579ad830e7417f43de298e401bc9a66407b48d952a84d`.
+  - Checks: exact owner words and personal-act statement; frozen-base,
+    activation, and treatment ancestry; accepted-input hashes; protected
+    parent-package, packet, snapshot, register, and Receipt-96 identity;
+    exact ten-path containment including ignored state; receipt contract;
+    whitespace; diff; claims-language; path anchors; independent verifier;
+    and repository self-check: PASS. Fetched `origin/main`
+    `4b2a13c57c8ba0e24167a197d25f913d945df025` contains the frozen base and
+    has an identical complete Piping tree; its intervening advance is
+    non-material to this derivative.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised managed
+    RECONCILIATION and CHANGE Agent 1 children; RECONCILIATION dispatched one
+    bounded non-delegating ephemeral Agent 2 verifier with sealed brief,
+    declared scope, recorded parentage, and durable return. Inherited runtime
+    capability was used without override; no exact runtime model string was
+    exposed.
+  - Gate-Outcome: `EXECUTED` — the accepted snapshot and parent treatment
+    package remain immutable; the pointed documentary derivative records the
+    treatment acceptances and TM-PIP-040 `LOST` owner outcome, with
+    no restore, delete, copy, regeneration, recovery, or other physical
+    operation. TM-PIP-038, TM-PIP-039, and TM-PIP-040 remain `OPEN`; only
+    future TM-PIP-040 `RESOLVED_BY_DECISION` closure is proposed and requires
+    a later owner ruling. No closure direction for TM-PIP-038 or TM-PIP-039,
+    register disposition, push, PR, merge, lifecycle, release, reliance, or
+    professional-approval effect is created.
