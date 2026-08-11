@@ -1,0 +1,32 @@
+warning: unused imports: `ElementExposedDiameter`, `ElementMassPerLength`, `EquivalentStaticMechanicsBasis`, `LoadExtent`, `generate_seismic_equivalent_static_loads`, `generate_wind_equivalent_static_loads`, and `prepare_equivalent_static_loads`
+  --> /private/tmp/chirality-piping-del0904-owner-gates-20260810/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:18:34
+   |
+18 |     assemble_solver_load_vector, generate_seismic_equivalent_static_loads,
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 |     prepare_lumped_nodal_loads, prepare_straight_pipe_axial_effects, ElementAxialEffectProperties,
+21 |     ElementExposedDiameter, ElementLoadSpan, ElementMassPerLength, EquivalentStaticAxisFactor,
+   |     ^^^^^^^^^^^^^^^^^^^^^^                   ^^^^^^^^^^^^^^^^^^^^
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                ^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE` is never used
+    --> /private/tmp/chirality-piping-del0904-owner-gates-20260810/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:1528:7
+     |
+1528 | const DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE: f64 = 1.0e-9;
+     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `cbdfe_close` is never used
+    --> /private/tmp/chirality-piping-del0904-owner-gates-20260810/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:2945:4
+     |
+2945 | fn cbdfe_close(actual: f64, expected: f64) -> bool {
+     |    ^^^^^^^^^^^
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 3 warnings (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running `/private/tmp/del0904-vd-capture.NMgEzJ/target/debug/openpipestress-runner run-benchmark --input projects/chirality-piping/validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/suite_run_mechanics_input.json --output /private/tmp/del0904-vd-capture.NMgEzJ/CURRENT_25_FIXTURE_CAPTURE.json --explicit-local-private-intent`

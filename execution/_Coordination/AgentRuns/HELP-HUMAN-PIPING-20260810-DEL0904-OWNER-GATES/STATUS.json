@@ -1,0 +1,17 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES",
+  "manager": "WORKING_ITEMS",
+  "parent": "HELP_HUMAN",
+  "status": "PASS_READY_TASK_MANAGEMENT",
+  "accepted_base": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "write_scope": "authorized application classes A-E",
+  "ruling_effects": "C-B_V-D_O-B_MR-A_APPLICATION_IN_PROGRESS",
+  "preparation_verifier_v2": "PASS",
+  "application_verifier_attempt_1": "INTERRUPTED_NO_ACCEPTED_TERMINAL_RETURN",
+  "cleanup_backcheck": "PASS_ZERO_IGNORED_DRIFT",
+  "post_cleanup_verifier_v1": "HOLD_PRESERVED_PATH_ANCHOR_CONTROL_DEFECT",
+  "post_cleanup_verifier_v2": "PASS",
+  "post_cleanup_verifier_v2_return_sha256": "d4c791c3c667b23d7ecd0a7628c2383593fe3f191426760db9a08d2846b11ec4",
+  "terminal_condition": "MET",
+  "next_manager": "TASK_MANAGEMENT_FOR_SEPARATELY_OWNER_RULED_TM_PIP_037_TREATMENT"
+}

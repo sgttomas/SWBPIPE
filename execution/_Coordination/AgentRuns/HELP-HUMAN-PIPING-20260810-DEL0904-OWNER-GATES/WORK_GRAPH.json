@@ -1,0 +1,18 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES",
+  "version": 1,
+  "frozen": true,
+  "selection_authority": "HUMAN",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "package_id": "PKG-09",
+  "selected_deliverables": ["DEL-09-04"],
+  "accepted_base": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "nodes": [
+    {"id":"A2-DEC046-CENSUS","agent_type":"EPHEMERAL_AGENT_2","dependencies":[],"concurrent_group":"authors","writes":["instances/A2_DEC046_CENSUS/PACKET.md","instances/A2_DEC046_CENSUS/RETURN.md"]},
+    {"id":"A2-R14","agent_type":"EPHEMERAL_AGENT_2","dependencies":[],"concurrent_group":"authors","writes":["instances/A2_R14/PACKET.md","instances/A2_R14/RETURN.md"]},
+    {"id":"A2-MAINTAINER-REVIEW","agent_type":"EPHEMERAL_AGENT_2","dependencies":[],"concurrent_group":"authors","writes":["instances/A2_MAINTAINER_REVIEW/PACKET.md","instances/A2_MAINTAINER_REVIEW/RETURN.md"]},
+    {"id":"A2-VERIFY","agent_type":"EPHEMERAL_AGENT_2","dependencies":["A2-DEC046-CENSUS","A2-R14","A2-MAINTAINER-REVIEW"],"concurrent_group":"serialized-verification","writes":["instances/A2_VERIFY/RETURN.md"]},
+    {"id":"A1-FANIN","agent_type":"WORKING_ITEMS_AGENT_1","dependencies":["A2-VERIFY"],"concurrent_group":"serialized-fanin","writes":["MANAGER_VALIDATION.md","RUN_RECORD.md","PACKAGE_RETURN.md","HANDOFF_STATE.md"]}
+  ],
+  "human_gates": ["DEC-046_VALUES","R14_ACCEPTANCE","MAINTAINER_REVIEWED_PROMOTION","TM-PIP-037_DISPOSITION","DEL-09-04_REMAINING_EDITS","GIT_CLOSEOUT"]
+}

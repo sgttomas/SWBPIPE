@@ -942,13 +942,13 @@ def render_case(case: Case, constructor: str | None) -> str:
     recorded_result = case.recorded_result or suite.recorded_result
     evidence_detail = f"\n\nEvidence basis: {case.evidence_detail}" if case.evidence_detail else ""
     runner_reproduction = case.runner_reproduction_detail or (
-        "Headless-runner binding: the `DEC-065` `openpipestress-runner run-benchmark`\n"
-        "verb accepts a schema-first benchmark request but currently exits `1` with\n"
-        "the structured blocking diagnostic\n"
-        "`HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD` because\n"
-        "benchmark payload binding remains future bounded `DEL-10-05` work. Until that\n"
-        "binding lands, the exact reproduction command for this case is the crate test\n"
-        "above; the runner-reproducible external path is recorded in\n"
+        "Headless-runner status: PR #287 bound `run-benchmark` and `run-regression`\n"
+        "for the committed `DEL-10-05` benchmark/regression payload families. That\n"
+        "bounded evidence does not establish a runner payload or per-case runner\n"
+        "execution for this page, so the exact reproduction command here remains the\n"
+        "crate test above. `export-results` is the only structured runner verb that\n"
+        "remains a stub. The bound runner path and its exact witnessed cases are recorded\n"
+        "in\n"
         "[headless_runner_reproduction.md](../../headless_runner_reproduction.md)."
     )
     solver_version = case.solver_version_detail or (

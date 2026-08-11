@@ -27,8 +27,8 @@ code-compliance determination remain with the responsible engineer and
 project authority (boundary vocabulary: `docs/claims_registry.md`, DEC-081).
 
 Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.8` and approved `execution/_DAG/DAG-007/` graph coordination
-authority. `DAG-007` supplies active dependency context only; it does not
+revision `0.11` and approved `execution/_DAG/DAG-009/` graph coordination
+authority. `DAG-009` supplies active dependency context only; it does not
 settle lifecycle state, release labels, or legal clearance, and acceptance and
 professional judgment remain with the responsible engineer.
 
@@ -197,7 +197,7 @@ governed `DEC-046` policy records committed beside the crate
 | Mechanics benchmarks | [Section 3.1 case pages](#31-mechanics-benchmark-cases-del-09-01); `validation/benchmarks/mechanics/`, `validation/hand_calcs/mechanics/` | `DRAFT_EVIDENCE`; final public benchmark acceptance and release tolerances are `TBD`. |
 | Stress recovery benchmarks | [Section 3.2 case pages](#32-stress-recovery-cases-del-09-02); `validation/benchmarks/stress/`, `validation/hand_calcs/stress/` | `DRAFT_EVIDENCE`; fatigue, allowable, and release-threshold decisions are `TBD`. |
 | Nonlinear support regression | [Section 3.3 case pages](#33-nonlinear-support-cases-del-09-03); `validation/benchmarks/nonlinear/` with governed `DEC-046` policy records | `DRAFT_EVIDENCE`; production release thresholds and external validation claims are `TBD`. |
-| Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples are reproducible from invented fixtures, but the `run-benchmark`/`run-regression` payload bindings remain stubbed and public benchmark thresholds remain `TBD`. |
+| Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples and the committed DEL-10-05 `run-benchmark`/`run-regression` payload families are reproducible from invented fixtures. `export-results` remains the only structured runner stub, and public benchmark thresholds remain `TBD`. |
 | GUI workflow validation | GUI workflow tests, screenshots, and interaction evidence when available | `PLANNED`; required evidence type, coverage, and review criteria are `TBD`. |
 | Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; development review evidence, not legal clearance, and acceptance stays with the responsible engineer. |
 | Release quality evidence | Future `DEL-09-05` release quality gate checklist | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
@@ -281,7 +281,8 @@ reviewers check that:
 - TBD: release-label policy beyond the minimum validation strategy gate.
 - TBD: required GUI validation evidence once the GUI tranche matures.
 - TBD: long-term storage format for reviewed validation evidence bundles.
-- TBD: `openpipestress-runner` benchmark/regression payload bindings
-  (`run-benchmark` / `run-regression` remain structured stubs), a clean
+- TBD: additional `openpipestress-runner` benchmark/regression payload coverage
+  beyond the exact committed DEL-10-05 witness families, `export-results`
+  payload binding (the only remaining structured runner stub), a clean
   environment demonstration record, and the human-gated release-quality and
   professional-boundary reviews required at the R5 exit.

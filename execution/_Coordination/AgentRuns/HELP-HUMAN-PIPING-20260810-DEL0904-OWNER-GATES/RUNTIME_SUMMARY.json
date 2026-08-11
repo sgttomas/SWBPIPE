@@ -1,0 +1,136 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 8
+  },
+  "counts": {
+    "category": {
+      "OPERATIONAL": 2,
+      "PREPARATION": 8,
+      "REMEDIATION": 4,
+      "VALIDATION": 1,
+      "VERIFICATION": 4
+    },
+    "event_type": {
+      "FINISH": 8,
+      "NOTICE": 3,
+      "START": 8
+    },
+    "outcome": {
+      "FAIL": 1,
+      "INFO": 3,
+      "PASS": 7,
+      "STARTED": 8
+    },
+    "reason_code": {
+      "AUTHORS_TERMINAL_PASS": 1,
+      "AUTHOR_PACKET_COMPLETE": 3,
+      "AUTHOR_PACKET_V2_COMPLETE": 2,
+      "AUTHOR_REMEDIATION_ATTEMPT_2": 2,
+      "INVALID_EVENT_TYPE_RETRIED": 1,
+      "MATERIAL_FINDINGS": 1,
+      "OWNER_DIRECTED_PREPARATION": 4,
+      "OWNER_READY_PREPARATION_COMPLETE": 1,
+      "REMEDIATIONS_TERMINAL_PASS": 1,
+      "REMEDIATION_VERIFIED": 1,
+      "TRANSIENT_WRONG_CHECKOUT_WRITE_REMOVED": 1,
+      "WHITESPACE_ONLY_NORMALIZATION": 1
+    }
+  },
+  "events": 19,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 744.199,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-DEC046-CENSUS",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2_dec046_census"
+    },
+    {
+      "duration_seconds": 492.904,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-DEC046-REMEDIATION",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2_dec046_remediation"
+    },
+    {
+      "duration_seconds": 590.62,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-MAINTAINER-REVIEW",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2_maintainer_review"
+    },
+    {
+      "duration_seconds": 666.725,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "A2-MAINTAINER-REVIEW-REMEDIATION",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2_maintainer_review_remediation"
+    },
+    {
+      "duration_seconds": 551.455,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-R14",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2_r14"
+    },
+    {
+      "duration_seconds": 767.038,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "A2-VERIFY",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2_verify"
+    },
+    {
+      "duration_seconds": 592.308,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-VERIFY-V2",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2_verify_v2"
+    },
+    {
+      "duration_seconds": 2854.628,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "WORKING_ITEMS-A1",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "working_items_del0904_owner_gates_prepare"
+    }
+  ],
+  "sessions": 8,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

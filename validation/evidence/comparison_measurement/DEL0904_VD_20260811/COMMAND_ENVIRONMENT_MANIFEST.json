@@ -1,0 +1,74 @@
+{
+  "artifact": "del0904.vd.command_environment_manifest",
+  "schema_version": "1.0.0",
+  "status": "non_authoritative_measurement_derivative",
+  "basis_commit": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "recorded_date": "2026-08-11",
+  "environment": {
+    "os": "macOS 26.6 (25G72)",
+    "kernel": "Darwin 25.6.0 arm64",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "python": "Python 3.9.6",
+    "git": "git version 2.55.0"
+  },
+  "input": {
+    "path": "projects/chirality-piping/validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/suite_run_mechanics_input.json",
+    "git_blob": "e6e4be22aa154e9a7fe6749b898685f4ea68ca88",
+    "sha256": "5338b502cc9dc5f631bc8d388feae84b337c4b8486f35f39e3c7f0b31c810eae"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "command": "CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/private/tmp/del0904-vd-capture.NMgEzJ/target cargo run --offline --manifest-path projects/chirality-piping/core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --input projects/chirality-piping/validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/suite_run_mechanics_input.json --output /private/tmp/del0904-vd-capture.NMgEzJ/CURRENT_25_FIXTURE_CAPTURE.json",
+      "exit_code": 1,
+      "result": "wrapper_policy_block_before_output_file",
+      "reason": "explicit local-private intent flag omitted",
+      "output_file_created": false,
+      "observed_wrapper_summary": {
+        "blocked": true,
+        "decision_count": 1869,
+        "finding_count": 1643,
+        "warning_count": 414,
+        "blocking_count": 1229
+      }
+    },
+    {
+      "attempt": 2,
+      "command": "CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/private/tmp/del0904-vd-capture.NMgEzJ/target cargo run --offline --manifest-path projects/chirality-piping/core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --input projects/chirality-piping/validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/suite_run_mechanics_input.json --output /private/tmp/del0904-vd-capture.NMgEzJ/CURRENT_25_FIXTURE_CAPTURE.json --explicit-local-private-intent",
+      "exit_code": 1,
+      "result": "exact_fail_closed_suite_capture",
+      "exit_interpretation": "expected nonzero because 14 suite cases are fail-closed binding blocks",
+      "wrapper_blocked": false,
+      "requested_case_count": 25,
+      "executed_and_matched": 11,
+      "executed_and_mismatched": 0,
+      "blocked": 14,
+      "runner_output_sha256": "e41f8545cf6fc0603cb41a0bdc08d90726f59ce57e13ad6809036589db3ded8f",
+      "runner_output_size_bytes": 1674110,
+      "stdout_byte_identical_to_output": true,
+      "stderr_sha256": "f30c75d45854b0062c70e9036f3d955850d75d3bc8897232e7513de45c6980f9"
+    }
+  ],
+  "source_identities": {
+    "headless_benchmark_binding_git_blob": "75fa69df616dd803ebd8409683d2468536c4b6ac",
+    "headless_cli_git_blob": "4bb34dca4667bf707ff13eb50f62dcccaa4f2551",
+    "mechanics_suite_git_blob": "eb65e53075110995a4ddcd93b4181b15392f91d5",
+    "stress_suite_git_blob": "201f5d84d1a666975000d07fb8e21900b88f9807",
+    "nonlinear_suite_git_blob": "37d19abf27a17c1d1333a81732d0b413e4ca2880",
+    "sparse_observation_git_blob": "ad57a55ca33e9b3f7f1a57eb196db52adc49484c",
+    "sparse_policy_git_blob": "c1dce40afc643d177700d7cea49df76d1c8d5262"
+  },
+  "unexpected_repository_side_effect": {
+    "path": "projects/chirality-piping/core/runner/headless/Cargo.lock",
+    "provenance": "created by the attempt-1 Cargo invocation; absent at application start",
+    "type": "regular_non_symlink_file",
+    "size_bytes": 10114,
+    "sha256": "7a3bd7e0df41a07e5c503aa312734e95fa6625afcd8b12f1f7994bd7a75b2e66",
+    "git_status": "ignored",
+    "preservation": "preserved untouched; deletion requires separate authority"
+  },
+  "network_used": false,
+  "repository_sources_modified": false,
+  "public_policy_selected": false
+}

@@ -63,13 +63,13 @@ result `ok. 19 passed; 0 failed; 0 ignored` with the named test(s) passing. The 
 suite output and the exact commit are recorded in the run record
 `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`.
 
-Headless-runner binding: the `DEC-065` `openpipestress-runner run-benchmark`
-verb accepts a schema-first benchmark request but currently exits `1` with
-the structured blocking diagnostic
-`HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD` because
-benchmark payload binding remains future bounded `DEL-10-05` work. Until that
-binding lands, the exact reproduction command for this case is the crate test
-above; the runner-reproducible external path is recorded in
+Headless-runner status: PR #287 bound `run-benchmark` and `run-regression`
+for the committed `DEL-10-05` benchmark/regression payload families. That
+bounded evidence does not establish a runner payload or per-case runner
+execution for this page, so the exact reproduction command here remains the
+crate test above. `export-results` is the only structured runner verb that
+remains a stub. The bound runner path and its exact witnessed cases are recorded
+in
 [headless_runner_reproduction.md](../../headless_runner_reproduction.md).
 
 ## Tolerance

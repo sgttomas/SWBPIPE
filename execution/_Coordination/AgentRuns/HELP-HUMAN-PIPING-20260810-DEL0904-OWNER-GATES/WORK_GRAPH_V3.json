@@ -1,0 +1,17 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES",
+  "version": 3,
+  "amends_version": 2,
+  "frozen": true,
+  "selection_authority": "owner ruling received 2026-08-11",
+  "accepted_base": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "posture": "MIXED",
+  "nodes": [
+    {"id":"A2-C-B-APPLICATION","dependencies":[],"concurrent_group":"application-authors","integration_owner":"WORKING_ITEMS"},
+    {"id":"A2-V-D-MEASUREMENT","dependencies":[],"concurrent_group":"application-authors","integration_owner":"WORKING_ITEMS"},
+    {"id":"A2-MR-A-BASIS","dependencies":[],"concurrent_group":"application-authors","integration_owner":"WORKING_ITEMS"},
+    {"id":"A1-FAN-IN","dependencies":["A2-C-B-APPLICATION","A2-V-D-MEASUREMENT","A2-MR-A-BASIS"],"concurrent_group":"serialized-integration","integration_owner":"WORKING_ITEMS"},
+    {"id":"A2-APPLICATION-VERIFY","dependencies":["A1-FAN-IN"],"concurrent_group":"serialized-verification","integration_owner":null}
+  ],
+  "human_gates": ["public comparison numeric value", "page review dispositions and promotions", "TM-PIP-037 disposition", "receipt", "Git closeout and merge"]
+}

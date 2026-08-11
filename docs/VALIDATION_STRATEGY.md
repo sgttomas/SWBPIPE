@@ -18,9 +18,15 @@ refs:
 
 Verification proves that the software solves the stated mechanics problem correctly within declared tolerances. Validation evaluates whether the software workflow is fit for its intended engineering support role. Neither replaces project-specific professional judgment.
 
-This draft is aligned to `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.7` and approved `execution/_DAG/DAG-007/` graph coordination
-authority. `DAG-007` preserves dependency coordination and does not itself
+This draft's last full content-alignment baseline remains
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`. Current
+decomposition authority is revision `0.11`, and current approved graph
+coordination authority is `execution/_DAG/DAG-009/`. Revisions `0.8` through
+`0.11` add PRD/decomposition currency, including the revision-`0.10`
+actor-neutral clean-checkout reproduction criterion and principal
+external-prover validation posture; those changes have not received a full
+strategy-content alignment review here, so this paragraph does not claim full
+revision-`0.11` alignment. `DAG-009` preserves dependency coordination and does not itself
 authorize lifecycle changes, release labels, professional approval, legal
 clearance, certification, sealing, authentication, or code-compliance claims (PRD §21.2).
 

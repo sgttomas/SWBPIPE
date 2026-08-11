@@ -2486,3 +2486,40 @@
     remain evidence of record. No push, PR, merge, lifecycle, release,
     reliance, scope, reconstruction, recovery, product-validation,
     filesystem-outcome, or professional-approval effect is created.
+
+- **2026-08-11 — Receipt 99** (DEL-09-04 owner-gates application and TM-PIP-037 closure).
+  - Receipt-ID: `Receipt-99`
+  - Examined-Through: `c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3`
+  - Parent-Receipt: `Receipt-98`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — the direct
+    owner selections are preserved verbatim in
+    `execution/_Coordination/AgentRuns/
+    HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/
+    OWNER_RULING_2026-08-11.md`; the later direct TM-PIP-037 closure ruling is
+    preserved verbatim in `execution/_Coordination/_TaskManagement/
+    TM_PIP_037_CLOSURE_2026-08-11/OWNER_CLOSURE_RULING.md`.
+  - Pointers: final Agent 0 handoff
+    `execution/_Coordination/AgentRuns/
+    HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/
+    FINAL_HANDOFF_STATE.md`; WORKING_ITEMS terminal handoff beside it;
+    TASK_MANAGEMENT terminal handoff under
+    `execution/_Coordination/_TaskManagement/
+    TM_PIP_037_CLOSURE_2026-08-11/`; DEL-09-04 application run record;
+    C-B policy record; V-D manifest; R14 qualified-acceptance record; and
+    MR-A review instrument.
+  - Checks: WORKING_ITEMS terminal verification, TASK_MANAGEMENT exact
+    mutation/archive backcheck, complete candidate containment, receipt
+    validator, candidate whitespace, diff, claims-language, path-anchor,
+    current-main ancestry/tree-overlap, and Git-state checks PASS; owning
+    records contain measurements and exact identities.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised managed
+    WORKING_ITEMS, TASK_MANAGEMENT, and CHANGE Agent 1 roles plus the bounded
+    Agent 2 instances recorded in the WORKING_ITEMS run root; inherited
+    capability was used without override; no exact runtime model string was
+    exposed.
+  - Gate-Outcome: `EXECUTED` — the owner selections were applied within their
+    exact fences, TM-PIP-037 is closed and archived as
+    `RESOLVED_BY_DECISION`, and the DEL-09-04 public comparison-number
+    residual remains open. No page-promotion, lifecycle, release, reliance,
+    GUI, export/CAEPIPE, repair, publication, or professional-approval effect
+    is created; push, PR, and merge remain separately gated.

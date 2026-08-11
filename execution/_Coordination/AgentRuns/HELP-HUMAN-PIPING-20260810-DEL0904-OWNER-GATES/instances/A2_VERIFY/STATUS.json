@@ -1,0 +1,1 @@
+{"instance_id":"A2-VERIFY","agent_type":"EPHEMERAL_AGENT_2","status":"FAIL","parent":"WORKING_ITEMS/Agent1/working_items_del0904_owner_gates_prepare","return_sha256":"8195d00059d167a8cffb03e75d786c865384d5c76e3b169c8f5c5d6a9592bd88","findings":["V-F01","V-F02","V-F03"],"writes":["RETURN.md"]}

@@ -1,0 +1,69 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES",
+  "parent_instance_id": "WORKING_ITEMS-A1-APPLICATION",
+  "child_instance_id": "A2-APPLICATION-VERIFY",
+  "agent_type": "EPHEMERAL_AGENT_2_NON_DELEGATING_EVIDENCE_ONLY",
+  "status": "FAILED_HOLD",
+  "semantic_application": "PASS_AFTER_MR_A_ATTEMPT_3",
+  "terminal_containment": "FAIL_VERIFIER_CREATED_THREE_IGNORED_CARGO_TARGET_ROOTS",
+  "tool_policy_compliance": "VIOLATION",
+  "accepted_base": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "locally_observed_origin_main": "912e3a8c9c07e9b8359093f63feace1c7c9f4776",
+  "original_vd_lock": {
+    "path": "projects/chirality-piping/core/runner/headless/Cargo.lock",
+    "sha256": "7a3bd7e0df41a07e5c503aa312734e95fa6625afcd8b12f1f7994bd7a75b2e66",
+    "size_bytes": 10114,
+    "terminal_state": "ABSENT_AFTER_SEPARATELY_OWNER_AUTHORIZED_EXTERNAL_CLEANUP",
+    "touched_by_verifier": false
+  },
+  "verifier_created_ignored_roots": [
+    {
+      "path": "projects/chirality-piping/core/reporting/protected_content_linter/target/",
+      "type": "directory_non_symlink",
+      "regular_files": 277,
+      "descendant_directories": 12,
+      "symlinks": 0,
+      "other": 0,
+      "regular_bytes": 13642088,
+      "fingerprint_sha256": "cfc574729e35b6b636944869cfd029b3067564736bcd76694e225abcd79406e7"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/target/",
+      "type": "directory_non_symlink",
+      "regular_files": 4283,
+      "descendant_directories": 155,
+      "symlinks": 0,
+      "other": 0,
+      "regular_bytes": 547137823,
+      "fingerprint_sha256": "4e5b9853191683ba1d2956579709bfa3b9fed4746a3e0c94fb3664c4c62d19a2"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/target/",
+      "type": "directory_non_symlink",
+      "regular_files": 1189,
+      "descendant_directories": 36,
+      "symlinks": 0,
+      "other": 0,
+      "regular_bytes": 101489154,
+      "fingerprint_sha256": "173e930b12f32004c7aa32581f7d4e2cec6ae871d20e5e7343d467a44aa86aa0"
+    }
+  ],
+  "ignored_root_count_terminal": 3,
+  "staged_paths": 0,
+  "semantic_checks": {
+    "c_b": "PASS",
+    "v_d": "PASS",
+    "o_b_r14": "PASS",
+    "mr_a": "PASS_AFTER_ATTEMPT_3",
+    "del0904_state": "PASS",
+    "protected_surfaces": "PASS",
+    "whitespace": "PASS",
+    "focused_nonlinear_pytest": "8_PASS",
+    "harness_pytest": "349_PASS_WITH_UNAUTHORIZED_IGNORED_TARGET_SIDE_EFFECT",
+    "harness_self_check": "PASS_WITH_EXISTING_FINDINGS",
+    "full_piping_pytest": "NOT_COMPLETE_JSONSCHEMA_MISSING_AT_COLLECTION",
+    "dec025": "TRIGGERED_DEFERRED_TO_CLEAN_COMMITTED_HEAD"
+  },
+  "cleanup_required": "EXACT_THREE_DIRECTORY_OWNER_GATE_AND_POST_CLEANUP_REVERIFY",
+  "return_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/instances/A2_APPLICATION_VERIFY/RETURN.md"
+}

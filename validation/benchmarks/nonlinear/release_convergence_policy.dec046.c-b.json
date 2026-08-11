@@ -1,0 +1,155 @@
+{
+  "record_kind": "governed_nonlinear_release_scope_convergence_policy",
+  "schema_version": 1,
+  "record_id": "DEC-046-C-B-active-set-count-release-scope-v1",
+  "decision_ref": "DEC-046",
+  "convention_ref": "D-19-CV-B",
+  "owner_selection": "C-B",
+  "status": "governed_release_scope_policy_recorded_not_released",
+  "scope": "public_benchmark_nonlinear_convergence_release_scope",
+  "accepted_basis_commit": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "policy_effect": {
+    "values_promoted_to_release_scope": true,
+    "release_executed": false,
+    "comparison_policy_selected": false,
+    "mechanics_runner_binding_changed": false
+  },
+  "source_pointers": [
+    {
+      "role": "verbatim_owner_ruling",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/OWNER_RULING_2026-08-11.md",
+      "git_blob": "ab17acbd19be9fcce163d7a13bb17dd7d0fbe4d1",
+      "sha256": "5f0f857e5b95284e88506c768c91547b3f02815dfd63747c966d2df7b8775a22"
+    },
+    {
+      "role": "owner_interface",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/PACKAGE_RETURN.md",
+      "git_blob": "ce2649072f75cb25189dde3804bad4ce3aa40b20",
+      "sha256": "01855ffbaee369e9321ae16972af56183fb6fada66a99a7aa9680c73a8bc906f"
+    },
+    {
+      "role": "accepted_decision_packet",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/instances/A2_DEC046_REMEDIATION/PACKET_V2.md",
+      "git_blob": "9a02bdfb743fd6e3dd5e2d051437139f4f6813f8",
+      "sha256": "1265e843c2c33eaa915f26cba5b75b72e811b7bf2bcc280bb90bcb02ecc5178c"
+    },
+    {
+      "role": "ruled_convergence_convention",
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-19_release_convergence_tolerance_policy.md",
+      "git_blob": "9275cd9c44f1af84b443910e08c8ba73aa0e8791"
+    },
+    {
+      "role": "accepted_four_class_validation_policy",
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/convergence_policy.dec046.json",
+      "git_blob": "d3850f5becda48c523dfb15cd5d87aabe54220c0",
+      "sha256": "bcf6a0a3afc02e12b08b82a790150373973091625d06ab8fd470d6f30efdc552"
+    },
+    {
+      "role": "accepted_multisupport_validation_policy",
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/multisupport_convergence_policy.dec046.json",
+      "git_blob": "a6f43a50aa7682d85409f1d25b8982aeff7bd6a9",
+      "sha256": "0ed5025fc48077b669e4a3984f492c2e2645172051743ce6fac9f80d640e4508"
+    }
+  ],
+  "residual_basis": {
+    "name": "active_set_changed_support_count",
+    "unit": "count",
+    "dimension": "dimensionless",
+    "domain": "nonnegative_integer",
+    "note": "zero means no nonlinear support state changed in the final assembled-loop iteration"
+  },
+  "inclusive_final_condition": {
+    "observed_field": "active_set_changed_support_count",
+    "operator": "less_than_or_equal",
+    "threshold": 0,
+    "unit": "count",
+    "required_final_changed_support_count": 0
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed convergence value or raising an iteration cap requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "one_way",
+      "relative_residual_field": {
+        "value": 0,
+        "unit": "count"
+      },
+      "absolute_residual_floor": {
+        "value": 0,
+        "unit": "count"
+      },
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+    },
+    {
+      "nonlinear_class": "gap",
+      "relative_residual_field": {
+        "value": 0,
+        "unit": "count"
+      },
+      "absolute_residual_floor": {
+        "value": 0,
+        "unit": "count"
+      },
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+    },
+    {
+      "nonlinear_class": "lift_off",
+      "relative_residual_field": {
+        "value": 0,
+        "unit": "count"
+      },
+      "absolute_residual_floor": {
+        "value": 0,
+        "unit": "count"
+      },
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+    },
+    {
+      "nonlinear_class": "friction",
+      "relative_residual_field": {
+        "value": 0,
+        "unit": "count"
+      },
+      "absolute_residual_floor": {
+        "value": 0,
+        "unit": "count"
+      },
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+    },
+    {
+      "nonlinear_class": "multi_support_multi_dof",
+      "relative_residual_field": {
+        "value": 0,
+        "unit": "count"
+      },
+      "absolute_residual_floor": {
+        "value": 0,
+        "unit": "count"
+      },
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+    }
+  ],
+  "evidence_admission": {
+    "accepted_seed_observations": "9/9",
+    "accepted_multisupport_observations": "13/13",
+    "maximum_observed_stabilization_iteration": 3,
+    "iteration_headroom_over_observed_maximum": 1,
+    "final_changed_support_count_required": 0,
+    "historical_mechanics_blocks_unblocked": "0/13"
+  },
+  "limitations": [
+    "This record governs only the DEC-046 nonlinear active-set convergence axis for the named public-benchmark classes.",
+    "It does not select DEC-026 result-versus-reference comparison values or change any comparison formula.",
+    "It does not repair or unblock any mechanics benchmark runner binding, fixture, data, implementation, or case.",
+    "It does not modify or supersede either accepted validation-scope convergence record cited above.",
+    "It does not itself execute a release, publication, lifecycle transition, reliance change, professional approval, certification, sealing, authentication, or code-compliance act."
+  ],
+  "boundary_notice": "Release-scope policy recording only; no release act is executed by this record."
+}

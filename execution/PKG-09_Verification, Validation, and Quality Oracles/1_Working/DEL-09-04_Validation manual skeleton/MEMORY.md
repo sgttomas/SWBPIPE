@@ -11,6 +11,71 @@ revision: 0.5
 
 # MEMORY - DEL-09-04 Validation Manual Skeleton
 
+## 2026-08-11 - Owner-gates application (C-B, V-D, O-B, MR-A)
+
+- The owner ruled verbatim: `DEC CONVERGENCE: C-B`,
+  `DEC COMPARISON: V-D`, `R14 REPRODUCTION: O-B`, and
+  `MAINTAINER_REVIEWED BASIS: MR-A`. The exact four-line record and separately
+  resolved semantics live under run
+  `HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES`.
+- C-B produced the new additive governed record
+  `validation/benchmarks/nonlinear/release_convergence_policy.dec046.c-b.json`:
+  all five nonlinear classes use `0 count` relative field, `0 count` absolute
+  floor, cap `4`, and an inclusive final changed-support count of zero. The 12
+  pre-existing nonlinear JSON records remained byte-identical and focused
+  schema/consumer tests passed 8/8. This is release-scope policy recording,
+  not a release act, and it does not select result-comparison values.
+- V-D produced the non-authoritative derivative
+  `validation/evidence/comparison_measurement/DEL0904_VD_20260811/`. The
+  current mechanics capture reconciles 25 requested, 11 matched, zero
+  mismatched, and 14 fail-closed implementation/binding blocks: 206 recorded
+  values, 91 observed, 115 unobserved. The historic July-20 census remains 13
+  blocks/109 values; the added DEC-092 case is the proved fourteenth current
+  block with six unobserved values. Per-kind near-zero analysis leaves three
+  analytic kinds wholly unobserved and seven without exact-zero coverage;
+  unit-normalized sparse raw metrics are also missing. Options VD-N1 through
+  VD-N4 return to the owner; no numeric policy was selected. The packet
+  recommends VD-N4 (retain the hold and complete evidence).
+- O-B records qualified owner acceptance of the immutable
+  `REPRO_DEL0904_20260720T074714Z_a5235340aae3` bundle as adequate evidence
+  that P1-P16 passed at pinned source
+  `a5235340aae3c41cf227f5617e593b268936f6b3` under procedure SHA-256
+  `fa714cf44d5c3e8a54ff6e2f6883676b81e01755e2e07d36a5bd118576b299c1`.
+  The bundle remains `INTERNALLY_VERIFIED`, byte-identical, and historic; no
+  current-head reproduction claim is created.
+- MR-A Phase A corrected only the bounded generator/page/index runner prose
+  and aggregate DAG/decomposition currency defined in the accepted V2 packet.
+  Exactly 63 pages changed; the DEC-092 page stayed byte-identical. The exact
+  64-page corpus (21 mechanics, 15 stress, 28 nonlinear) regenerates
+  deterministically and remains entirely `DRAFT_EVIDENCE`. The hash-bound
+  review instrument records zero dispositions/promotions, one formal witness
+  chain present, and 63 `WITNESS_CHAIN_MISSING` rows.
+- State effect: the first Remaining bullet is preserved because O-B and MR-A
+  do not create current-head evidence or page promotion. The second preserves
+  the still-open public result-comparison numeric selection while recording
+  that its DEC-046 convergence component is applied. Lifecycle remains
+  `IN_PROGRESS`; TM-PIP-037 register disposition belongs to a later
+  TASK_MANAGEMENT session.
+- Cleanup and verification currentness: V-D's offline Cargo invocation had
+  generated ignored regular non-symlink `core/runner/headless/Cargo.lock`
+  (10,114 bytes; SHA-256
+  `7a3bd7e0df41a07e5c503aa312734e95fa6625afcd8b12f1f7994bd7a75b2e66`),
+  and the first application verifier had generated three ignored Cargo
+  `target/` roots. Separate owner-authorized managed cleanup children verified
+  the exact identities and removed only those four artifacts. All four are
+  absent, the three target parents remain, ignored inventory is zero, and the
+  nonignored/index state is unchanged. The first verifier was interrupted
+  before an accepted terminal return; its on-disk draft is preserved as
+  attempt evidence and is not relied upon as terminal verification.
+  Post-cleanup verifier V1 subsequently held on two machine-local path anchors
+  in its own manager-authored sealed brief; that control evidence remains
+  immutable. A tokenized V2 brief passed prevalidation, and the fresh V2
+  verifier returned terminal `PASS` for the full application with zero
+  ignored/staged drift and no repository-side effect. Receipt, Git closeout,
+  PR routing, and merge remain separately gated.
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
 ## 2026-08-09 - DEC-092 validation-manual derivative regeneration
 
 - Owner adopted `CB-2026-08-09-DEL0904-DEC092-VALMANUAL-001` for exactly

@@ -1,0 +1,15 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES",
+  "version": 2,
+  "amends_version": 1,
+  "frozen": true,
+  "accepted_base": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes_added": [
+    {"id":"A2-DEC046-REMEDIATION","dependencies":["A2-VERIFY-FAIL"],"concurrent_group":"remediation-authors","writes":["instances/A2_DEC046_REMEDIATION/PACKET_V2.md","instances/A2_DEC046_REMEDIATION/RETURN.md"]},
+    {"id":"A2-MAINTAINER-REVIEW-REMEDIATION","dependencies":["A2-VERIFY-FAIL"],"concurrent_group":"remediation-authors","writes":["instances/A2_MAINTAINER_REVIEW_REMEDIATION/PACKET_V2.md","instances/A2_MAINTAINER_REVIEW_REMEDIATION/RETURN.md"]},
+    {"id":"A2-VERIFY-V2","dependencies":["A2-DEC046-REMEDIATION","A2-MAINTAINER-REVIEW-REMEDIATION","A2-R14"],"concurrent_group":"serialized-verification","writes":["instances/A2_VERIFY_V2/RETURN.md"]}
+  ],
+  "original_author_outputs_preserved": true,
+  "human_gates_unchanged": true
+}

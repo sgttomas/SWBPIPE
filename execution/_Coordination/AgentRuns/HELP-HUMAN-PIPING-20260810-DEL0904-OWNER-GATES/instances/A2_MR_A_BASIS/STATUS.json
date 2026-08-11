@@ -1,0 +1,48 @@
+{
+  "instance_id": "A2-MR-A-BASIS",
+  "agent_type": "EPHEMERAL_AGENT_2",
+  "parent": "WORKING_ITEMS-A1-APPLICATION",
+  "attempt": 3,
+  "status": "SUCCESS_WITH_SHARED_WORKTREE_EXTERNAL_DRIFT",
+  "run_status": "SUCCESS",
+  "completed_at": "2026-08-11T16:09:40Z",
+  "corpus": {
+    "total": 64,
+    "mechanics": 21,
+    "stress": 15,
+    "nonlinear": 28,
+    "draft_evidence": 64,
+    "maintainer_reviewed": 0,
+    "review_dispositions": 0,
+    "promotions": 0,
+    "witness_chain_present": 1,
+    "witness_chain_missing": 63,
+    "corpus_manifest_sha256": "e33877bef390f371a009c06e8247b56a2c410ad5fb499a8fc4fadb06165d8b45"
+  },
+  "changes": {
+    "modified_derivative_paths": 66,
+    "generated_pages_changed": 63,
+    "dec092_page_changed": false,
+    "new_review_artifacts_before_runtime_envelope": 3,
+    "changed_path_manifest_sha256": "15e1426e837b05314ece932d4b72d3952b446d11f8e538a2672cd3f631364919"
+  },
+  "validation": {
+    "generator_check": "PASS_64",
+    "fresh_generation_compare": "PASS_ALL_THREE_SUITES",
+    "membership": "PASS_EXACT_64",
+    "tiers": "PASS_ALL_DRAFT_EVIDENCE",
+    "zero_dispositions": "PASS",
+    "write_containment": "PASS",
+    "git_diff_check": "PASS",
+    "candidate_whitespace_attempt_2": "PASS",
+    "repository_relative_corpus_aggregate_attempt_3": "PASS",
+    "ignored_drift": "EXTERNAL_PATH_PRESENT"
+  },
+  "external_drift": {
+    "path": "projects/chirality-piping/core/runner/headless/Cargo.lock",
+    "sha256": "7a3bd7e0df41a07e5c503aa312734e95fa6625afcd8b12f1f7994bd7a75b2e66",
+    "size": 10114,
+    "created_by_this_instance": false,
+    "action_taken": "NONE"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "chirality-working-items-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES",
+  "version": 5,
+  "accepted_base": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "state": "TERMINAL_PASS_READY_TASK_MANAGEMENT",
+  "nodes": [
+    {
+      "id": "A2-APPLICATION-VERIFY-POST-CLEANUP",
+      "type": "EPHEMERAL_AGENT_2",
+      "state": "HOLD_PRESERVED",
+      "terminal_basis": false,
+      "reason": "two machine-local path anchors in sealed brief"
+    },
+    {
+      "id": "A2-APPLICATION-VERIFY-POST-CLEANUP-V2",
+      "type": "EPHEMERAL_AGENT_2",
+      "delegation": "FORBIDDEN",
+      "depends_on": ["V1_HOLD_PRESERVED", "TOKENIZED_BRIEF_PREVALIDATION_PASS"],
+      "write_scope": "instances/A2_APPLICATION_VERIFY_POST_CLEANUP_V2/{RETURN.md,STATUS.json}",
+      "terminal_gate": "FULL_APPLICATION_PASS_AND_ZERO_REPOSITORY_SIDE_EFFECTS"
+    },
+    {
+      "id": "A1-TERMINAL-FAN-IN",
+      "type": "WORKING_ITEMS",
+      "depends_on": ["A2-APPLICATION-VERIFY-POST-CLEANUP-V2"],
+      "terminal_gate": "STRUCTURED_PASS_OR_PRECISE_HOLD"
+    }
+  ],
+  "forbidden": ["task_management", "receipts", "stage", "commit", "push", "pull_request", "merge", "fetch", "rebase", "reset", "clean", "delete", "release", "promotion"]
+}

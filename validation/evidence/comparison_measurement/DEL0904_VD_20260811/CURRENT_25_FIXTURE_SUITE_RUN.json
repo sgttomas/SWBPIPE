@@ -1,0 +1,2142 @@
+{
+  "blocked": 14,
+  "cases": [
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "Cantilever",
+      "fixture_id": "MECH-CANTILEVER-TIP-FORCE",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "length",
+          "name": "tip_displacement_y",
+          "observed": null,
+          "recorded": 0.4166666666666667,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "fixed_end_moment_z",
+          "observed": null,
+          "recorded": 60.0,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "Frame",
+      "fixture_id": "MECH-PORTAL-SWAY-ORIGINAL",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "length",
+          "name": "top_right_sway_x",
+          "observed": 0.004745144915236896,
+          "recorded": 0.004745144915236896,
+          "unit": "m",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_branch_assembly_benchmark",
+      "encoded_predicate_result": true,
+      "family": "BranchAssembly",
+      "fixture_id": "MECH-BRANCH-ASSEMBLY-THREE-MEMBER",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "linear_stiffness",
+          "name": "branch_axial_stiffness",
+          "observed": 600.0,
+          "recorded": 600.0,
+          "unit": "N/m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "linear_stiffness",
+          "name": "header_lateral_stiffness",
+          "observed": 9333.333333333334,
+          "recorded": 9333.333333333334,
+          "unit": "N/m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "length",
+          "name": "junction_uy_displacement",
+          "observed": 0.009642857142857142,
+          "recorded": 0.009642857142857142,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "length",
+          "name": "branch_tip_uy_displacement",
+          "observed": 0.15964285714285714,
+          "recorded": 0.15964285714285714,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "length",
+          "name": "branch_axial_extension",
+          "observed": 0.15,
+          "recorded": 0.15,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "header_left_uy_reaction",
+          "observed": -69.42857142857143,
+          "recorded": -69.42857142857143,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "header_right_uy_reaction",
+          "observed": -20.571428571428573,
+          "recorded": -20.571428571428573,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "header_reaction_sum",
+          "observed": -90.0,
+          "recorded": -90.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "StraightPipe",
+      "fixture_id": "MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "force_per_length",
+          "name": "weight_force_per_length",
+          "observed": null,
+          "recorded": 22.5,
+          "unit": "N/m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "recovered_local_axial_force_j",
+          "observed": null,
+          "recorded": 18.0,
+          "unit": "N",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "StraightPipe",
+      "fixture_id": "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "second_moment_area",
+          "name": "torsion_constant",
+          "observed": null,
+          "recorded": 0.00001054004335279375,
+          "unit": "m^4",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "stress",
+          "name": "exact_id_shear_modulus",
+          "observed": null,
+          "recorded": 50000000000.0,
+          "unit": "Pa",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "stress",
+          "name": "interpolated_shear_modulus",
+          "observed": null,
+          "recorded": 47500000000.0,
+          "unit": "Pa",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "rotation",
+          "name": "exact_id_tip_rotation",
+          "observed": null,
+          "recorded": 0.09108121929551094,
+          "unit": "rad",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "rotation",
+          "name": "interpolated_tip_rotation",
+          "observed": null,
+          "recorded": 0.09587496767948521,
+          "unit": "rad",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "rotation",
+          "name": "base_g_fallback_tip_rotation",
+          "observed": null,
+          "recorded": 0.05692576205969434,
+          "unit": "rad",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "SupportBoundary",
+      "fixture_id": "MECH-SUPPORT-BOUNDARY-MIXED",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "dimensionless",
+          "name": "restrained_dof_count",
+          "observed": null,
+          "recorded": 7.0,
+          "unit": "count",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "linear_stiffness",
+          "name": "spring_stiffness",
+          "observed": null,
+          "recorded": 250.0,
+          "unit": "N/m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "rotation",
+          "name": "imposed_rotation",
+          "observed": null,
+          "recorded": 0.015,
+          "unit": "rad",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "PrimitiveLoad",
+      "fixture_id": "MECH-PRIMITIVE-LOAD-PREP",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "node_1_global_y_force",
+          "observed": null,
+          "recorded": 5.0,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force_per_length",
+          "name": "uniform_weight_force_per_length",
+          "observed": null,
+          "recorded": 1.25,
+          "unit": "N/m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "length",
+          "name": "imposed_uz_displacement",
+          "observed": null,
+          "recorded": -0.02,
+          "unit": "m",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_002_linear_static_integration",
+      "encoded_predicate_result": true,
+      "family": "IntegratedLinearStatic",
+      "fixture_id": "MECH-TP-PHYS-002-LINEAR-STATIC-INTEGRATION",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "lumped_node_0_uy_force",
+          "observed": -4.0,
+          "recorded": -4.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "lumped_node_1_uy_force",
+          "observed": -4.0,
+          "recorded": -4.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "length",
+          "name": "node_1_ux_displacement",
+          "observed": 0.016,
+          "recorded": 0.016,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "length",
+          "name": "node_1_uy_displacement",
+          "observed": -0.020545746388443007,
+          "recorded": -0.020545746388443007,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "length",
+          "name": "node_1_uz_prescribed_displacement",
+          "observed": -0.01,
+          "recorded": -0.01,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "recovered_local_axial_force_j",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "recovered_local_shear_y_j",
+          "observed": -3.1781701444622783,
+          "recorded": -3.1781701444622783,
+          "unit": "N",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_004_load_to_resultant_integration",
+      "encoded_predicate_result": true,
+      "family": "LoadToResultantIntegration",
+      "fixture_id": "MECH-TP-PHYS-004-LOAD-TO-RESULTANT",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "displacement",
+          "name": "node_1_uy_displacement",
+          "observed": -0.04533333333333334,
+          "recorded": -0.04533333333333334,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "rotation",
+          "name": "node_1_rz_rotation",
+          "observed": -0.014666666666666668,
+          "recorded": -0.014666666666666668,
+          "unit": "rad",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "assembled_node_0_uy_force",
+          "observed": -6.0,
+          "recorded": -6.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": -8.881784197001252E-16,
+          "dimension": "moment",
+          "name": "assembled_node_0_rz_moment",
+          "observed": -4.666666666666668,
+          "recorded": -4.666666666666667,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": -1.7763568394002505E-15,
+          "dimension": "force",
+          "name": "midspan_shear_y",
+          "observed": 3.9999999999999982,
+          "recorded": 4.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 3.552713678800501E-15,
+          "dimension": "moment",
+          "name": "midspan_bending_z",
+          "observed": 4.0000000000000036,
+          "recorded": 4.0,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_005_oriented_load_to_resultant_integration",
+      "encoded_predicate_result": true,
+      "family": "LoadToResultantIntegration",
+      "fixture_id": "MECH-TP-PHYS-005-ORIENTED-LOAD-TO-RESULTANT",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "displacement",
+          "name": "node_1_ux_displacement",
+          "observed": -0.04533333333333334,
+          "recorded": -0.04533333333333334,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "rotation",
+          "name": "node_1_rz_rotation",
+          "observed": 0.014666666666666668,
+          "recorded": 0.014666666666666668,
+          "unit": "rad",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "assembled_node_0_ux_force",
+          "observed": -6.0,
+          "recorded": -6.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 8.881784197001252E-16,
+          "dimension": "moment",
+          "name": "assembled_node_0_rz_moment",
+          "observed": 4.666666666666668,
+          "recorded": 4.666666666666667,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": -1.7763568394002505E-15,
+          "dimension": "force",
+          "name": "midspan_shear_y",
+          "observed": 3.9999999999999982,
+          "recorded": 4.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 3.552713678800501E-15,
+          "dimension": "moment",
+          "name": "midspan_bending_z",
+          "observed": 4.0000000000000036,
+          "recorded": 4.0,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_006_partial_span_load_to_resultant_integration",
+      "encoded_predicate_result": true,
+      "family": "LoadToResultantIntegration",
+      "fixture_id": "MECH-TP-PHYS-006-PARTIAL-SPAN-LOAD-TO-RESULTANT",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "node_0_uy_equivalent_load",
+          "observed": -2.0,
+          "recorded": -2.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "node_0_rz_equivalent_moment",
+          "observed": -1.8333333333333333,
+          "recorded": -1.8333333333333333,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "node_1_uy_equivalent_load",
+          "observed": -2.0,
+          "recorded": -2.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "node_1_rz_equivalent_moment",
+          "observed": 1.8333333333333333,
+          "recorded": 1.8333333333333333,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": -1.734723475976807E-18,
+          "dimension": "displacement",
+          "name": "node_1_uy_displacement",
+          "observed": -0.014000000000000002,
+          "recorded": -0.014,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": -8.673617379884035E-19,
+          "dimension": "rotation",
+          "name": "node_1_rz_rotation",
+          "observed": -0.004333333333333334,
+          "recorded": -0.004333333333333333,
+          "unit": "rad",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "midspan_shear_y",
+          "observed": 2.0,
+          "recorded": 2.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 1.7763568394002505E-15,
+          "dimension": "moment",
+          "name": "midspan_bending_z",
+          "observed": 1.0000000000000018,
+          "recorded": 1.0,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_007_station_sweep_resultants_integration",
+      "encoded_predicate_result": true,
+      "family": "LoadToResultantIntegration",
+      "fixture_id": "MECH-TP-PHYS-007-STATION-SWEEP-RESULTANTS",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "requested_station_fraction_0",
+          "observed": 0.75,
+          "recorded": 0.75,
+          "unit": "ratio",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "station_0_shear_y",
+          "observed": 0.0,
+          "recorded": 0.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 1.7763568394002505E-15,
+          "dimension": "moment",
+          "name": "station_0_bending_z",
+          "observed": 1.7763568394002505E-15,
+          "recorded": 0.0,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "requested_station_fraction_1",
+          "observed": 0.25,
+          "recorded": 0.25,
+          "unit": "ratio",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "station_1_shear_y",
+          "observed": 4.0,
+          "recorded": 4.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 1.7763568394002505E-15,
+          "dimension": "moment",
+          "name": "station_1_bending_z",
+          "observed": 4.000000000000002,
+          "recorded": 4.0,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "requested_station_fraction_2",
+          "observed": 0.5,
+          "recorded": 0.5,
+          "unit": "ratio",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "station_2_shear_y",
+          "observed": 2.0,
+          "recorded": 2.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 1.7763568394002505E-15,
+          "dimension": "moment",
+          "name": "station_2_bending_z",
+          "observed": 1.0000000000000018,
+          "recorded": 1.0,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "requested_station_fraction_3",
+          "observed": 1.0,
+          "recorded": 1.0,
+          "unit": "ratio",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "station_3_shear_y",
+          "observed": 0.0,
+          "recorded": 0.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 1.7763568394002505E-15,
+          "dimension": "moment",
+          "name": "station_3_bending_z",
+          "observed": 1.7763568394002505E-15,
+          "recorded": 0.0,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "ThermalGrowth",
+      "fixture_id": "MECH-FIXED-FIXED-THERMAL-AXIAL",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "dimensionless",
+          "name": "free_thermal_strain",
+          "observed": null,
+          "recorded": 0.0009,
+          "unit": "ratio",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "restrained_axial_force_magnitude",
+          "observed": null,
+          "recorded": 5.4,
+          "unit": "N",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_008_thermal_pressure_axial_effects",
+      "encoded_predicate_result": true,
+      "family": "ThermalGrowth",
+      "fixture_id": "MECH-TP-PHYS-008-THERMAL-PRESSURE-AXIAL-EFFECTS",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "thermal_axial_force",
+          "observed": 3.0,
+          "recorded": 3.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "pressure_thrust_force",
+          "observed": 9.0,
+          "recorded": 9.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "total_axial_effect_force",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "equivalent_node_i_axial_load",
+          "observed": -12.0,
+          "recorded": -12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "equivalent_node_j_axial_load",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "recovered_local_i_axial_force",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "recovered_local_j_axial_force",
+          "observed": -12.0,
+          "recorded": -12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "midspan_axial_force",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_009_combined_load_axial_effects",
+      "encoded_predicate_result": true,
+      "family": "LoadToResultantIntegration",
+      "fixture_id": "MECH-TP-PHYS-009-COMBINED-LOAD-AXIAL-EFFECTS",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "thermal_axial_force",
+          "observed": 3.0,
+          "recorded": 3.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "pressure_thrust_force",
+          "observed": 9.0,
+          "recorded": 9.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "total_axial_effect_force",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "node_0_ux_equivalent_load",
+          "observed": -12.0,
+          "recorded": -12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "node_0_uy_equivalent_load",
+          "observed": -3.0,
+          "recorded": -3.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "node_0_rz_equivalent_moment",
+          "observed": -4.125,
+          "recorded": -4.125,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "node_1_ux_equivalent_load",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "node_1_uy_equivalent_load",
+          "observed": -3.0,
+          "recorded": -3.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "node_1_rz_equivalent_moment",
+          "observed": 4.125,
+          "recorded": 4.125,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "displacement",
+          "name": "node_1_ux_displacement",
+          "observed": 0.0,
+          "recorded": 0.0,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "displacement",
+          "name": "node_1_uy_displacement",
+          "observed": -0.07087499999999997,
+          "recorded": -0.07087499999999997,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "rotation",
+          "name": "node_1_rz_rotation",
+          "observed": -0.014624999999999994,
+          "recorded": -0.014624999999999994,
+          "unit": "rad",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "end_i_axial_force",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "end_i_shear_y",
+          "observed": 5.999999999999999,
+          "recorded": 5.999999999999999,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "end_i_bending_z",
+          "observed": 17.999999999999993,
+          "recorded": 17.999999999999993,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "midspan_axial_force",
+          "observed": 12.0,
+          "recorded": 12.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "midspan_shear_y",
+          "observed": 2.999999999999999,
+          "recorded": 2.999999999999999,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "midspan_bending_z",
+          "observed": 2.2499999999999964,
+          "recorded": 2.2499999999999964,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_014_canonical_analytical_payload",
+      "encoded_predicate_result": true,
+      "family": "LoadToResultantIntegration",
+      "fixture_id": "MECH-TP-PHYS-014-CANONICAL-ANALYTICAL-PAYLOAD",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "distributed_load_count",
+          "observed": 1.0,
+          "recorded": 1.0,
+          "unit": "count",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "point_force_count",
+          "observed": 1.0,
+          "recorded": 1.0,
+          "unit": "count",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "node_0_uy_equivalent_load",
+          "observed": -6.0,
+          "recorded": -6.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "node_0_rz_equivalent_moment",
+          "observed": -4.666666666666668,
+          "recorded": -4.666666666666668,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "node_1_uy_equivalent_load",
+          "observed": -6.0,
+          "recorded": -6.0,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "node_1_rz_equivalent_moment",
+          "observed": 4.666666666666666,
+          "recorded": 4.666666666666666,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "displacement",
+          "name": "node_1_uy_displacement",
+          "observed": -0.04533333333333334,
+          "recorded": -0.04533333333333334,
+          "unit": "m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "rotation",
+          "name": "node_1_rz_rotation",
+          "observed": -0.014666666666666668,
+          "recorded": -0.014666666666666668,
+          "unit": "rad",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "midspan_shear_y",
+          "observed": 3.9999999999999982,
+          "recorded": 3.9999999999999982,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "midspan_bending_z",
+          "observed": 4.0000000000000036,
+          "recorded": 4.0000000000000036,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": null,
+      "encoded_predicate": "open_pipe_stress_mechanics_benchmarks::validate_tp_phys_015a_canonical_solve_result_envelope",
+      "encoded_predicate_result": true,
+      "family": "LoadToResultantIntegration",
+      "fixture_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+      "regression_detail": null,
+      "status": "executed_and_matched",
+      "values": [
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "quantity_result_count",
+          "observed": 10.0,
+          "recorded": 10.0,
+          "unit": "count",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "envelope_diagnostic_count",
+          "observed": 1.0,
+          "recorded": 1.0,
+          "unit": "count",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "dimensionless",
+          "name": "export_validation_diagnostic_count",
+          "observed": 0.0,
+          "recorded": 0.0,
+          "unit": "count",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "support_reaction_node_0_uy_force",
+          "observed": 11.999999999999998,
+          "recorded": 11.999999999999998,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "support_reaction_node_0_rz_moment",
+          "observed": 24.0,
+          "recorded": 24.0,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "force",
+          "name": "midspan_shear_y",
+          "observed": 3.9999999999999982,
+          "recorded": 3.9999999999999982,
+          "unit": "N",
+          "within_recorded_basis": true
+        },
+        {
+          "delta": 0.0,
+          "dimension": "moment",
+          "name": "midspan_bending_z",
+          "observed": 4.0000000000000036,
+          "recorded": 4.0000000000000036,
+          "unit": "N-m",
+          "within_recorded_basis": true
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "ImposedDisplacement",
+      "fixture_id": "MECH-IMPOSED-DISPLACEMENT-SPRING",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "spring_reaction_force",
+          "observed": null,
+          "recorded": 6.0,
+          "unit": "N",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "StiffnessTransform",
+      "fixture_id": "MECH-INCLINED-MEMBER-TRANSFORM",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "dimensionless",
+          "name": "local_x_global_x_component",
+          "observed": null,
+          "recorded": 0.7071067811865475,
+          "unit": "ratio",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "dimensionless",
+          "name": "local_x_global_y_component",
+          "observed": null,
+          "recorded": 0.7071067811865475,
+          "unit": "ratio",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "CurvedBendExpansionLoop",
+      "fixture_id": "MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "t2_ux_displacement",
+          "observed": null,
+          "recorded": -0.0072,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "h_b_k1",
+          "observed": null,
+          "recorded": -11636.12454,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "v_b_k1",
+          "observed": null,
+          "recorded": -7635.238153,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "m_b_k1",
+          "observed": null,
+          "recorded": 15230.56675,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "m_a_k1",
+          "observed": null,
+          "recorded": -21598.43094,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "t2_uy_displacement_k1",
+          "observed": null,
+          "recorded": 0.006691964071,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "h_b_k5",
+          "observed": null,
+          "recorded": -7461.555977,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "v_b_k5",
+          "observed": null,
+          "recorded": -4329.778531,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "m_b_k5",
+          "observed": null,
+          "recorded": 10654.47422,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "m_a_k5",
+          "observed": null,
+          "recorded": -17285.91674,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "t2_uy_displacement_k5",
+          "observed": null,
+          "recorded": 0.006468273963,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "h_b_k10",
+          "observed": null,
+          "recorded": -6144.267267,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "v_b_k10",
+          "observed": null,
+          "recorded": -3301.677847,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "m_b_k10",
+          "observed": null,
+          "recorded": 9245.475309,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "m_a_k10",
+          "observed": null,
+          "recorded": -15892.86043,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "t2_uy_displacement_k10",
+          "observed": null,
+          "recorded": 0.006417658716,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "h_b_k20",
+          "observed": null,
+          "recorded": -5282.037255,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "v_b_k20",
+          "observed": null,
+          "recorded": -2654.674339,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "m_b_k20",
+          "observed": null,
+          "recorded": 8383.839402,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "m_a_k20",
+          "observed": null,
+          "recorded": -14924.93527,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "t2_uy_displacement_k20",
+          "observed": null,
+          "recorded": 0.006419030749,
+          "unit": "m",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "CurvedBendDistributedLoad",
+      "fixture_id": "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "in_plane_b_fx_k1",
+          "observed": null,
+          "recorded": 518.6887093849,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "in_plane_a_fx_k1",
+          "observed": null,
+          "recorded": -518.6887093849,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_station_mz_q1_k1",
+          "observed": null,
+          "recorded": 36.3621332981,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "out_of_plane_b_fz_k1",
+          "observed": null,
+          "recorded": 753.9822368616,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "out_of_plane_a_fz_k1",
+          "observed": null,
+          "recorded": 753.9822368616,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_torsion_q1_k1",
+          "observed": null,
+          "recorded": 29.1159479459,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_bending_y_q1_k1",
+          "observed": null,
+          "recorded": -10.456601624,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "in_plane_b_fy_k1",
+          "observed": null,
+          "recorded": 675.831467382,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "in_plane_a_fy_k1",
+          "observed": null,
+          "recorded": 2151.601920849,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_station_mz_mid_k1",
+          "observed": null,
+          "recorded": -36.5602035248,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_b_mx_k1",
+          "observed": null,
+          "recorded": -15.072919664,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_a_mx_k1",
+          "observed": null,
+          "recorded": 262.2942354301,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_torsion_mid_k1",
+          "observed": null,
+          "recorded": 0.0,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_bending_y_mid_k1",
+          "observed": null,
+          "recorded": -106.2339587762,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_b_mz_k1",
+          "observed": null,
+          "recorded": 152.2772588244,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_a_mz_k1",
+          "observed": null,
+          "recorded": 48.226887419,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_station_mz_q3_k1",
+          "observed": null,
+          "recorded": -45.2741760268,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_b_my_k1",
+          "observed": null,
+          "recorded": -262.2942354301,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_a_my_k1",
+          "observed": null,
+          "recorded": 15.072919664,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_torsion_q3_k1",
+          "observed": null,
+          "recorded": -29.1159479459,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_bending_y_q3_k1",
+          "observed": null,
+          "recorded": -10.456601624,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "in_plane_b_fx_k2",
+          "observed": null,
+          "recorded": 603.4037708891,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "in_plane_a_fx_k2",
+          "observed": null,
+          "recorded": -603.4037708891,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_station_mz_q1_k2",
+          "observed": null,
+          "recorded": 40.4485183865,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "out_of_plane_b_fz_k2",
+          "observed": null,
+          "recorded": 753.9822368616,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "out_of_plane_a_fz_k2",
+          "observed": null,
+          "recorded": 753.9822368616,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_torsion_q1_k2",
+          "observed": null,
+          "recorded": 30.6639662874,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_bending_y_q1_k2",
+          "observed": null,
+          "recorded": -14.1938484988,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "in_plane_b_fy_k2",
+          "observed": null,
+          "recorded": 589.089232563,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "in_plane_a_fy_k2",
+          "observed": null,
+          "recorded": 2238.344155668,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_station_mz_mid_k2",
+          "observed": null,
+          "recorded": -22.0575891752,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_b_mx_k2",
+          "observed": null,
+          "recorded": -12.2125547407,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_a_mx_k2",
+          "observed": null,
+          "recorded": 259.4338705068,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_torsion_mid_k2",
+          "observed": null,
+          "recorded": 0.0,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_bending_y_mid_k2",
+          "observed": null,
+          "recorded": -110.2791256441,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_b_mz_k2",
+          "observed": null,
+          "recorded": 122.9516066821,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_a_mz_k2",
+          "observed": null,
+          "recorded": 75.1199315834,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "in_plane_station_mz_q3_k2",
+          "observed": null,
+          "recorded": -42.5043088892,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_b_my_k2",
+          "observed": null,
+          "recorded": -259.4338705068,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_a_my_k2",
+          "observed": null,
+          "recorded": 12.2125547407,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_torsion_q3_k2",
+          "observed": null,
+          "recorded": -30.6639662874,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "out_of_plane_station_bending_y_q3_k2",
+          "observed": null,
+          "recorded": -14.1938484988,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "CurvedBendPressureThrust",
+      "fixture_id": "MECH-CURVED-BEND-PRESSURE-THRUST-ARC",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "tip_ux_k1",
+          "observed": null,
+          "recorded": -0.000108086153456085,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "tip_uy_k1",
+          "observed": null,
+          "recorded": 0.000108086153456085,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "member_force_b_fx_k1",
+          "observed": null,
+          "recorded": -80833.98400998286,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "station_axial_q1_k1",
+          "observed": null,
+          "recorded": 80833.98400998286,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "station_axial_mid_k1",
+          "observed": null,
+          "recorded": 80833.98400998286,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "station_axial_q3_k1",
+          "observed": null,
+          "recorded": 80833.98400998286,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "tip_ux_k2",
+          "observed": null,
+          "recorded": -0.000108086153456085,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "displacement",
+          "name": "tip_uy_k2",
+          "observed": null,
+          "recorded": 0.000108086153456085,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "member_force_b_fx_k2",
+          "observed": null,
+          "recorded": -80833.98400998286,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "station_axial_q1_k2",
+          "observed": null,
+          "recorded": 80833.98400998286,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "station_axial_mid_k2",
+          "observed": null,
+          "recorded": 80833.98400998286,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "station_axial_q3_k2",
+          "observed": null,
+          "recorded": 80833.98400998286,
+          "unit": "N",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "EquivalentStaticGeneration",
+      "fixture_id": "MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "mass_per_length",
+          "name": "mass_per_length",
+          "observed": null,
+          "recorded": 64.31699191139529,
+          "unit": "kg/m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force_per_length",
+          "name": "seismic_intensity_global_x",
+          "observed": null,
+          "recorded": 189.22026861836537,
+          "unit": "N/m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force_per_length",
+          "name": "seismic_intensity_global_z",
+          "observed": null,
+          "recorded": -126.14684574557693,
+          "unit": "N/m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force_per_length",
+          "name": "wind_intensity_global_y",
+          "observed": null,
+          "recorded": 84.0,
+          "unit": "N/m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "seismic_lumped_end_force_global_x",
+          "observed": null,
+          "recorded": 283.83040292754805,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "wind_lumped_end_force_global_y",
+          "observed": null,
+          "recorded": 126.0,
+          "unit": "N",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "EquivalentStaticGeneration",
+      "fixture_id": "MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "force_per_length",
+          "name": "partial_wind_intensity_global_y",
+          "observed": null,
+          "recorded": 84.0,
+          "unit": "N/m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "extent_a_end_force_node_i",
+          "observed": null,
+          "recorded": 69.29999999999998,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "extent_a_end_force_node_j",
+          "observed": null,
+          "recorded": 56.69999999999998,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "extent_b_end_force_node_i",
+          "observed": null,
+          "recorded": 5.039999999999998,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "extent_b_end_force_node_j",
+          "observed": null,
+          "recorded": 45.35999999999999,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "superposed_end_force_node_i",
+          "observed": null,
+          "recorded": 74.33999999999997,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "superposed_end_force_node_j",
+          "observed": null,
+          "recorded": 102.05999999999997,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "whole_span_reduction_end_force",
+          "observed": null,
+          "recorded": 126.0,
+          "unit": "N",
+          "within_recorded_basis": null
+        }
+      ]
+    },
+    {
+      "block_reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "encoded_predicate": null,
+      "encoded_predicate_result": null,
+      "family": "ConstantEffortSupport",
+      "fixture_id": "MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD",
+      "regression_detail": null,
+      "status": "blocked",
+      "values": [
+        {
+          "delta": null,
+          "dimension": "length",
+          "name": "tip_displacement_y_without_support",
+          "observed": null,
+          "recorded": -0.4166666666666667,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "length",
+          "name": "tip_displacement_y_with_support",
+          "observed": null,
+          "recorded": 0.20833333333333334,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "length",
+          "name": "superposition_delta_y",
+          "observed": null,
+          "recorded": 0.625,
+          "unit": "m",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "force",
+          "name": "fixed_end_reaction_y",
+          "observed": null,
+          "recorded": -3.0,
+          "unit": "N",
+          "within_recorded_basis": null
+        },
+        {
+          "delta": null,
+          "dimension": "moment",
+          "name": "fixed_end_moment_z",
+          "observed": null,
+          "recorded": -30.0,
+          "unit": "N-m",
+          "within_recorded_basis": null
+        }
+      ]
+    }
+  ],
+  "claim_posture": "Per-case match/fail is regression evidence for current solver behavior against the suite crate's recorded comparison values only; release thresholds, final tolerance policy, CI gate policy, and professional reliance remain TBD pending human approval (DEC-046 promotion is owner-gated and untouched).",
+  "comparison_basis": "recorded expected values and encoded comparison predicates reused from validation/benchmarks/mechanics (DEL-09-01): recorded_comparison_holds internal-assertion basis plus public validate_* predicates",
+  "executed_and_matched": 11,
+  "executed_and_mismatched": 0,
+  "requested_case_count": 25,
+  "suite": "mechanics",
+  "suite_deliverable": "DEL-09-01",
+  "whole_suite_default_applied": true
+}

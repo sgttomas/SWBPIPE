@@ -1,0 +1,26 @@
+{
+  "instance_id": "A2-C-B-APPLICATION",
+  "agent_type": "EPHEMERAL_AGENT_2",
+  "status": "PASS",
+  "parent": "WORKING_ITEMS-A1-APPLICATION",
+  "attempt": 1,
+  "basis_commit": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "writes": [
+    "projects/chirality-piping/validation/benchmarks/nonlinear/release_convergence_policy.dec046.c-b.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/instances/A2_C_B_APPLICATION/RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/instances/A2_C_B_APPLICATION/STATUS.json"
+  ],
+  "policy_record_sha256": "1829a2a6a608dbbdd479248133f2c2a05406c0eabe7a03be57b998735fbe78b6",
+  "policy_record_git_blob": "468d6dd4a85525b64989ff520a5f4ff10e7c6e6f",
+  "return_sha256": "651a4a41374d63ef74592aa41b0f5a95712ee42d2fdb5d2c0c7bfc5594d2aeae",
+  "validation": {
+    "exact_policy_shape": "PASS",
+    "json_parse": "PASS",
+    "preexisting_policy_identity": "PASS",
+    "source_pointer_identity": "PASS",
+    "focused_nonlinear_tests": "PASS_8_OF_8",
+    "scope_ignored_drift": 0,
+    "staged_paths": 0
+  },
+  "external_fan_in_caveat": "projects/chirality-piping/core/runner/headless/Cargo.lock is ignored outside this child's scope and was reported to the parent"
+}

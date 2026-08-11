@@ -1,0 +1,1 @@
+{"instance_id":"A2-DEC046-REMEDIATION","agent_type":"EPHEMERAL_AGENT_2","attempt":2,"status":"PASS","parent":"WORKING_ITEMS/Agent1/working_items_del0904_owner_gates_prepare","packet_sha256":"1265e843c2c33eaa915f26cba5b75b72e811b7bf2bcc280bb90bcb02ecc5178c","return_sha256":"2c66f1b91928937c77d22ce2f7bf85c512caf06bd1a230c50c2a0ded97ce245a","writes":["PACKET_V2.md","RETURN.md"]}
