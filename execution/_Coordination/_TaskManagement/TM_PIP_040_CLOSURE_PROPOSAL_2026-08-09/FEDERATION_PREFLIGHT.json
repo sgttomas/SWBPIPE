@@ -1,0 +1,1244 @@
+{
+  "authority": "derived, rebuildable, gitignored, never authority",
+  "command": [
+    "federation",
+    "--register",
+    "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+    "--out",
+    "projects/chirality-piping/execution/_Coordination/_TaskManagement/TM_PIP_040_CLOSURE_PROPOSAL_2026-08-09/FEDERATION_PREFLIGHT.json"
+  ],
+  "coverage": "COMPLETE",
+  "excluded_paths": [],
+  "exclusions_declared": [
+    "untracked register lookalikes",
+    "tracked register paths outside sanctioned coordination shapes",
+    "archives, exports, fixtures, evaluation copies, and generated projections",
+    "Notes prose and untyped free text",
+    "foreign-register writes and automatic receiving rows",
+    "promotion, prioritization, elevation, closure, and disposition effects"
+  ],
+  "finding_counts": {
+    "AMBIGUOUS_REFERENCE": 0,
+    "DUPLICATE_GLOBAL_ID": 0,
+    "FOREIGN_LINK_TO_LOCAL": 1,
+    "INBOUND_ELEVATION": 0,
+    "INVALID_REGISTER": 0,
+    "LOCAL_CLOSED_REMOTE_OPEN": 0,
+    "LOCAL_LINK_TO_FOREIGN": 23,
+    "MISSING_NOTICE": 0,
+    "ORPHANED_LINK": 0,
+    "OUTBOUND_AWAITING_ACK": 0,
+    "REMOTE_CLOSED_LOCAL_OPEN": 22,
+    "UNREADABLE_REGISTER": 0
+  },
+  "findings": [
+    {
+      "class": "FOREIGN_LINK_TO_LOCAL",
+      "evidence": "execution/_Coordination/NOTICE_2026-08-03_PIPING_TM-PIP-030_RECEIPT_COUNT_DETECTOR_ELEVATION.md Concern and Requested Root treatment",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-030",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-113"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER.csv row TM-ROOT-037",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-001",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-037"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-077",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-002",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-077"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-078",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-003",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-078"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-079",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-004",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-079"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-080",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-005",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-080"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-081",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-006",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-081"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-082",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-007",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-082"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-083",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-008",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-083"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-084",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-009",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-084"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-085",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-010",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-085"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-086",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-011",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-086"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-087",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-012",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-087"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-088",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-013",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-088"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-089",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-014",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-089"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-090",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-015",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-090"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-091",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-016",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-091"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-092",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-017",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-092"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-093",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-018",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-093"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-094",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-019",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-094"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-095",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-020",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-095"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-096",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-021",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-096"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-097",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-022",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-097"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER.csv row TM-ROOT-053",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-023",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-053"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-002",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-077"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-003",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-078"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-004",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-079"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-005",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-080"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-006",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-081"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-007",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-082"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-008",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-083"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-009",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-084"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-010",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-085"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-011",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-086"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-012",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-087"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-013",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-088"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-014",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-089"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-015",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-090"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-016",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-091"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-017",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-092"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-018",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-093"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-019",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-094"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-020",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-095"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-021",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-096"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-022",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-097"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-ROOT-035",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-app-dev/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-APP-001"
+    }
+  ],
+  "invocation": {
+    "loop": "PIP",
+    "register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+  },
+  "operational_errors": [],
+  "presented_findings": [
+    {
+      "class": "FOREIGN_LINK_TO_LOCAL",
+      "evidence": "execution/_Coordination/NOTICE_2026-08-03_PIPING_TM-PIP-030_RECEIPT_COUNT_DETECTOR_ELEVATION.md Concern and Requested Root treatment",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-030",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-113"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER.csv row TM-ROOT-037",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-001",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-037"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-077",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-002",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-077"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-078",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-003",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-078"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-079",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-004",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-079"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-080",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-005",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-080"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-081",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-006",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-081"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-082",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-007",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-082"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-083",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-008",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-083"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-084",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-009",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-084"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-085",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-010",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-085"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-086",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-011",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-086"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-087",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-012",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-087"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-088",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-013",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-088"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-089",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-014",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-089"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-090",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-015",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-090"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-091",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-016",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-091"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-092",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-017",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-092"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-093",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-018",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-093"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-094",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-019",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-094"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-095",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-020",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-095"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-096",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-021",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-096"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv row TM-ROOT-097",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-022",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-097"
+    },
+    {
+      "class": "LOCAL_LINK_TO_FOREIGN",
+      "evidence": "execution/_Coordination/_TaskManagement/REGISTER.csv row TM-ROOT-053",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-023",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-053"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-002",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-077"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-003",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-078"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-004",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-079"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-005",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-080"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-006",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-081"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-007",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-082"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-008",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-083"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-009",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-084"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-010",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-085"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-011",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-086"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-012",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-087"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-013",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-088"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-014",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-089"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-015",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-090"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-016",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-091"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-017",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-092"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-018",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-093"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-019",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-094"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-020",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-095"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-021",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-096"
+    },
+    {
+      "class": "REMOTE_CLOSED_LOCAL_OPEN",
+      "evidence": "linked rows have divergent CLOSED status",
+      "field": "SourceRef",
+      "invoking_register": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "local_id": "TM-PIP-022",
+      "register_paths": [
+        "execution/_Coordination/_TaskManagement/REGISTER.csv",
+        "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv"
+      ],
+      "remote_id": "TM-ROOT-097"
+    }
+  ],
+  "registers": [
+    {
+      "after_sha256": "6f7eb2a528a8a38ee01b94f5a028632d95297c82f4fa197f4c62f7102fef9264",
+      "archive_after_sha256": "bf0d5537686d3dba23ad2e3c1b91d989850cda04e98e92dc545516829c9242b6",
+      "archive_before_sha256": "bf0d5537686d3dba23ad2e3c1b91d989850cda04e98e92dc545516829c9242b6",
+      "archive_path": "_DomainEngines/pec/_TaskManagement/REGISTER_CLOSED.csv",
+      "archive_row_count": 7,
+      "archive_tracked": true,
+      "archive_validation": "PASS",
+      "before_sha256": "6f7eb2a528a8a38ee01b94f5a028632d95297c82f4fa197f4c62f7102fef9264",
+      "namespace": "PEC",
+      "namespace_basis": "ACTION_ITEM_IDS",
+      "path": "_DomainEngines/pec/_TaskManagement/REGISTER.csv",
+      "row_count": 18,
+      "schema_version": "1.0",
+      "status_counts": {
+        "CLOSED": 1,
+        "DEFERRED": 1,
+        "ELEVATED": 0,
+        "OPEN": 16
+      },
+      "validation": "PASS",
+      "validation_details": [
+        "taskmgmt validate PASS: _DomainEngines/pec/_TaskManagement/REGISTER.csv \u2014 18 row(s), schema columns and referential rules conform. Form only; content judgment stays human (PRD \u00a79.3)."
+      ]
+    },
+    {
+      "after_sha256": "aac3136389571f51901dcb92547efb7268c35b176a43a9f73d0172ebff1f0da3",
+      "archive_after_sha256": "0c3dfc3cf60d86a623a2b171540e10f6a1977d83175c190305b61dc57b25a9a0",
+      "archive_before_sha256": "0c3dfc3cf60d86a623a2b171540e10f6a1977d83175c190305b61dc57b25a9a0",
+      "archive_path": "execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv",
+      "archive_row_count": 102,
+      "archive_tracked": true,
+      "archive_validation": "PASS",
+      "before_sha256": "aac3136389571f51901dcb92547efb7268c35b176a43a9f73d0172ebff1f0da3",
+      "namespace": "ROOT",
+      "namespace_basis": "ACTION_ITEM_IDS",
+      "path": "execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "row_count": 21,
+      "schema_version": "1.0",
+      "status_counts": {
+        "CLOSED": 0,
+        "DEFERRED": 10,
+        "ELEVATED": 0,
+        "OPEN": 11
+      },
+      "validation": "PASS",
+      "validation_details": [
+        "taskmgmt validate PASS: execution/_Coordination/_TaskManagement/REGISTER.csv \u2014 21 row(s), schema columns and referential rules conform. Form only; content judgment stays human (PRD \u00a79.3)."
+      ]
+    },
+    {
+      "after_sha256": "f3f77a81259b115a4d77b2f54a6920d28b480bc81c7a80ea21fde8cb9b9e1299",
+      "archive_after_sha256": "b29cedef46e6c9b9678dc805aa4283ede34df42ec1d5ca9edd826a97e9bffd92",
+      "archive_before_sha256": "b29cedef46e6c9b9678dc805aa4283ede34df42ec1d5ca9edd826a97e9bffd92",
+      "archive_path": "projects/chirality-app-dev/execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv",
+      "archive_row_count": 26,
+      "archive_tracked": true,
+      "archive_validation": "PASS",
+      "before_sha256": "f3f77a81259b115a4d77b2f54a6920d28b480bc81c7a80ea21fde8cb9b9e1299",
+      "namespace": "APP",
+      "namespace_basis": "ACTION_ITEM_IDS",
+      "path": "projects/chirality-app-dev/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "row_count": 16,
+      "schema_version": "1.0",
+      "status_counts": {
+        "CLOSED": 0,
+        "DEFERRED": 3,
+        "ELEVATED": 0,
+        "OPEN": 13
+      },
+      "validation": "PASS",
+      "validation_details": [
+        "taskmgmt validate PASS: projects/chirality-app-dev/execution/_Coordination/_TaskManagement/REGISTER.csv \u2014 16 row(s), schema columns and referential rules conform. Form only; content judgment stays human (PRD \u00a79.3)."
+      ]
+    },
+    {
+      "after_sha256": "60a8e4956c4f94cc7b64a886fb5c8060f026b010c0bc012d8296fd2044b2a30c",
+      "archive_after_sha256": "9f57d89c8c1298c3b033d32bb4494a6ddeb765586f8640eb2c8310aeaddc837f",
+      "archive_before_sha256": "9f57d89c8c1298c3b033d32bb4494a6ddeb765586f8640eb2c8310aeaddc837f",
+      "archive_path": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER_CLOSED.csv",
+      "archive_row_count": 6,
+      "archive_tracked": true,
+      "archive_validation": "PASS",
+      "before_sha256": "60a8e4956c4f94cc7b64a886fb5c8060f026b010c0bc012d8296fd2044b2a30c",
+      "namespace": "PIP",
+      "namespace_basis": "ACTION_ITEM_IDS",
+      "path": "projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv",
+      "row_count": 34,
+      "schema_version": "1.0",
+      "status_counts": {
+        "CLOSED": 0,
+        "DEFERRED": 24,
+        "ELEVATED": 0,
+        "OPEN": 10
+      },
+      "validation": "PASS",
+      "validation_details": [
+        "taskmgmt validate PASS: projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv \u2014 34 row(s), schema columns and referential rules conform. Form only; content judgment stays human (PRD \u00a79.3)."
+      ]
+    }
+  ],
+  "tool": "tools/taskmgmt/taskmgmt.py federation",
+  "unresolved_ambiguities": [],
+  "version": "v1",
+  "zero_write_proof": {
+    "register_writes": 0,
+    "statement": "zero register writes occurred; every readable register hash matched"
+  }
+}

@@ -2435,3 +2435,54 @@
     a later owner ruling. No closure direction for TM-PIP-038 or TM-PIP-039,
     register disposition, push, PR, merge, lifecycle, release, reliance, or
     professional-approval effect is created.
+
+- **2026-08-10 — Receipt 98** (owner-ruled TM-PIP-040 register closure and archive).
+  - Receipt-ID: `Receipt-98`
+  - Examined-Through: `6bd39077c6b8eccba8ac2e77cbcb9284be1e53b4`
+  - Parent-Receipt: `Receipt-97`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — the direct
+    2026-08-10 owner closure ruling is preserved verbatim in
+    `execution/_Coordination/_TaskManagement/
+    TM_PIP_040_CLOSURE_PROPOSAL_2026-08-09/APPLICATION_2026-08-10/
+    OWNER_CLOSURE_RULING.md`; it closes only TM-PIP-040 as `CLOSED /
+    RESOLVED_BY_DECISION` using exact evidence Git blobs
+    `dfc3b8faf0cfe336f4c8a47e4593ea9add134c9b` and
+    `cc7770df165286d4fb523131f28b7340d41216b8`, and preserves every exclusion
+    stated in that ruling.
+  - Pointers: proposal `HANDOFF_STATE.md` SHA-256
+    `c49d82259858677d72ee4f4d596c1d9915858188435f60e0a9b236a2764c9d33`;
+    application `EXECUTED_REGISTER_MUTATION_MANIFEST.md` SHA-256
+    `f8868616892f48011d6aec1e96254d832c820b997755328036b2f37a08bcf308`;
+    application `RUN_RECORD.md` SHA-256
+    `543681d2079468224af37c3840286cb17e41502641aae5bdc90097bcaa70d219`;
+    post-cleanup `CACHE_CLEANUP_BACKCHECK.md` SHA-256
+    `af8c6ef527b6a0f0839aec3a80c97360e1ff0bfb28cad77de53f08926a7eef82`;
+    terminal `HANDOFF_STATE_POST_CLEANUP.md` SHA-256
+    `51a4142d3182c2e8a4b20c195a810a1f7ce5e481ef557e4127c81c8ed936e84f`;
+    the application run record owns the Task Management test result and the
+    terminal handoff owns the final row counts and combined identity; final
+    live register SHA-256 is
+    `2175d2c4db7a480cd6ff77b9964d3815ff7558361df3a132838763d49a49ebfe`;
+    closed archive SHA-256 is
+    `a92c7c7ebceca79a6bfbbf5b1eb94063a6c1099b734b9e26167bf5726556369f`.
+  - Checks: bounded TASK_MANAGEMENT tests; register/archive schema; exact
+    eight-field row comparison; deterministic one-row archive; combined
+    identity; exact containment; receipt contract; whitespace/diff;
+    claims-language; path-anchor; evidence/source-blob; and final non-writing
+    backchecks PASS.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised managed
+    TASK_MANAGEMENT proposal, application, and post-cleanup Agent 1 children,
+    followed by a managed CHANGE Agent 1 closeout; each child had sealed
+    scope, recorded parentage, durable return, and no delegation. Inherited
+    runtime capability was used without override; no exact runtime model
+    string was exposed.
+  - Gate-Outcome: `EXECUTED` — the owner-ratified eight-field TM-PIP-040
+    mutation and deterministic one-row archive are current: TM-PIP-040 is
+    uniquely `CLOSED / RESOLVED_BY_DECISION`; TM-PIP-038 and TM-PIP-039 remain
+    live and `OPEN`. Cleanup removed only newly generated validation cache and
+    federation-projection artifacts under exact owner grants; it did not act
+    on, restore, reconstruct, delete, or alter the six historical artifact
+    sets accepted as `LOST`. Historical test results and ledger encodings
+    remain evidence of record. No push, PR, merge, lifecycle, release,
+    reliance, scope, reconstruction, recovery, product-validation,
+    filesystem-outcome, or professional-approval effect is created.
