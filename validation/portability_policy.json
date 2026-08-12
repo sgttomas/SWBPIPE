@@ -115,6 +115,14 @@
       "role": "CONTROL",
       "reason": "R23 Git approval preserves the owner's machine-absolute checkout and branch direction verbatim; this exception changes classification only, not authorization.",
       "authority": "Owner-approved R23 portability-classification amendment; the verbatim Git direction and Gate 1 O-A remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/instances/A2_APPLICATION_VERIFY_POST_CLEANUP/LAUNCH_BRIEF.md",
+      "sha256": "d937f558ee2b38d6d1458790de5efd2d987d9a2ce584ba9cfec2869bebca4a41",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Preserve the completed V1 verifier brief's actual machine-local checkout and scratch anchors; tokenized V2 supersedes it as terminal basis.",
+      "authority": "Direct owner PR #550 repair direction plus Amendment V5's frozen V1/tokenized V2 treatment."
     }
   ]
 }
