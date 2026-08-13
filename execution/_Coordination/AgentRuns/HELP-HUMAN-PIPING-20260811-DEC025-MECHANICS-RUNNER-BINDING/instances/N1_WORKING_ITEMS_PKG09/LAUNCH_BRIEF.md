@@ -35,4 +35,3 @@ Completion: exact `14/14`, `115/115`, no expected values used as observations,
 original behavior preserved, C-B byte-identical, format/tests/containment PASS,
 fresh verifier PASS. Any scope need or defect returns HOLD or a bounded fresh
 author remediation within the same one-file fence.
-

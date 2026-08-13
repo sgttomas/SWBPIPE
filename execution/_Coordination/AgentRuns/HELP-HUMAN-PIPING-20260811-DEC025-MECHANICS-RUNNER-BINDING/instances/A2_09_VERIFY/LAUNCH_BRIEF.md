@@ -63,4 +63,3 @@ Return exact commands/results, source identities, coverage, original-behavior
 proof, C-B/containment, findings, blockers, and rerun triggers. Do not repair,
 stage, commit, push, PR, merge, fetch, rebase, reset, clean, delete, or edit any
 other path.
-

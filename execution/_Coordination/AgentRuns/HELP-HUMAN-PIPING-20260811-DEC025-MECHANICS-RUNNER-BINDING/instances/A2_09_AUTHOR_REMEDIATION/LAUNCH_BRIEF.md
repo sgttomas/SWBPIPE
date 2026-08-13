@@ -55,4 +55,3 @@ terms are incorporated unchanged.
 Do not edit fixtures/pages/Cargo manifests/policies/state/evidence/receipt/
 PKG-10 or any other path. Do not stage, commit, push, PR, merge, fetch, rebase,
 reset, clean, delete, or expand scope. HOLD rather than widen scope.
-

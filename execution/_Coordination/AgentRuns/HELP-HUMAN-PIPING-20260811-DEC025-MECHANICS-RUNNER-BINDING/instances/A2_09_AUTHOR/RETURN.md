@@ -10,4 +10,3 @@ No production source, fixture, case page, state, receipt, evidence, or Git
 path changed. The only attempt-local delta is this truthful return/status
 record. Per the adopted brief, the defect is routed to one fresh bounded author
 remediation under the identical one-file production fence; N2 remains held.
-

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "run_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "instance_id": "N5-CHANGE-WHITESPACE-NORMALIZATION-VERIFY-01",
+  "parent_instance_id": "CHANGE-GITDIR-RECOVERY",
+  "role": "fresh non-repairing managed verifier",
+  "date": "2026-08-13",
+  "status": "PASS",
+  "verdict": "REPRESENTATION_ONLY_NORMALIZATION_VERIFIED",
+  "step1_commit": "e2f675664bfc2cd361bbdb3a2c9d5f5f67c5e32d",
+  "step1_tree": "daae3d4450e6d40464979bfd43d5e1bb07e0b65a",
+  "original_manifest_sha256": "7d8a43c5b7be10fa5ed426c7ff01aa866389fb8faa22c0ccced14692d9197f55",
+  "normalized_manifest_sha256": "56b5b3ace4b012e737a64a4029821ba3d56a056b7f8151dfd20255fdcb57f639",
+  "final_path_manifest_sha256": "1d2847a3fe450dd4747b02744d8b1c96117cebd233b0fa7fc2f94a045e1cbd1d",
+  "cases": {"matched": 25, "mismatched": 0, "blocked": 0},
+  "values": {"observed": 206, "total": 206, "new": 115, "preserved": 91},
+  "staged_paths": 0,
+  "ignored_paths": 0,
+  "out_of_scope_paths": 0,
+  "next_gate": "CHANGE_NORMALIZATION_COMMIT_THEN_DEC_025"
+}

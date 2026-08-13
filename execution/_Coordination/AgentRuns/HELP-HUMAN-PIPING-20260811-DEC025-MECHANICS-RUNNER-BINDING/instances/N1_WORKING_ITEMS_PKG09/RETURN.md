@@ -57,4 +57,3 @@ names, underlying mechanics APIs, frozen runner output, or C-B identity change.
 Derivative status: managed run records and runtime telemetry are derivative
 execution evidence, not decomposition truth or lifecycle authority. Next
 owner: HELP_HUMAN for serialized N1 fan-in and N2 release.
-

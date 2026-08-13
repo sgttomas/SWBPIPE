@@ -441,4 +441,3 @@ ADOPT CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 EXACTLY AS PREPARED —
 Any amendment, shortened token, changed base/branch, relaxed count, widened
 write scope, or omitted fence requires a superseding brief or explicit exact
 amendment before execution.
-

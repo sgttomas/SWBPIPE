@@ -77,4 +77,3 @@ Return the exact API signature/semantics, after-hash/blob, coverage table,
 commands/results, containment proof, side-effect inventory, blockers, and
 rerun triggers. HOLD rather than widen scope. Do not stage, commit, push, PR,
 merge, fetch, rebase, reset, clean, delete, or edit any other path.
-
