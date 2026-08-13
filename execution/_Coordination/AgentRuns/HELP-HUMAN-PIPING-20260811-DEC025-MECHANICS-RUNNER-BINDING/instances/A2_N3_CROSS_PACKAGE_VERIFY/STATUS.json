@@ -1,0 +1,14 @@
+{
+  "instance_id": "A2-N3-CROSS-PACKAGE-VERIFY",
+  "parent_instance_id": "N3-WORKING-ITEMS-CROSS-PACKAGE-VERIFY",
+  "run_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "agent_type": "EPHEMERAL_AGENT_2",
+  "delegation": "FORBIDDEN",
+  "repair_authority": false,
+  "status": "COMPLETE",
+  "terminal": true,
+  "verdict": "COMMIT_SAFE",
+  "external_root": "/private/tmp/n3-cross-package-verify-20260812.OnohUW",
+  "return_path": "RETURN.md",
+  "allowed_durable_writes": ["STATUS.json", "RETURN.md"]
+}

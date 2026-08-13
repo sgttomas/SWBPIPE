@@ -1,0 +1,38 @@
+{
+  "instance_id": "A2-10-VERIFY",
+  "parent_instance_id": "N2-WORKING-ITEMS-PKG10-DEL1005",
+  "run_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "status": "COMPLETE",
+  "terminal": true,
+  "agent_type": "EPHEMERAL_AGENT_2",
+  "delegation": "FORBIDDEN",
+  "repair_authority": false,
+  "verdict": "PASS",
+  "source_sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+  "source_git_blob": "455b9e9dee1a6a8154f65a1b5218dd7e09b6444f",
+  "n1_source_sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+  "coverage": {
+    "mechanics_cases_matched": 25,
+    "mechanics_observations": 206,
+    "new_cases": 14,
+    "new_observations": 115,
+    "original_cases_exact": 11,
+    "original_observations_exact": 91,
+    "negative_behaviors": 6,
+    "nonlinear_cases_matched": 5
+  },
+  "tests": {
+    "fmt_check": "PASS",
+    "runner_library_passed": 38,
+    "runner_preview_binary_passed": 1,
+    "runner_final_binary_passed": 15,
+    "mechanics_unit_passed": 41,
+    "failed": 0,
+    "diff_check": "PASS"
+  },
+  "external_shadow": "/private/tmp/a2-10-verify-20260812-77uFjL",
+  "whole_suite_output_sha256": "12901f73ffdf7d828c6e179f25e672aa152006f183c5331e2c64b80354d1962d",
+  "staged_drift": 0,
+  "ignored_drift": 0,
+  "blockers": []
+}

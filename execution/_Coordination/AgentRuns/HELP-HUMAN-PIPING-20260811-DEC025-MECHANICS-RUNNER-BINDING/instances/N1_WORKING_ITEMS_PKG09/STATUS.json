@@ -1,0 +1,15 @@
+{
+  "instance_id": "N1-WORKING-ITEMS-PKG09-DEL0901",
+  "agent_type": "WORKING_ITEMS_AGENT_1",
+  "parent": "HELP-HUMAN-PIPING-DEC025-RUNNER-BINDING",
+  "package_id": "PKG-09",
+  "deliverable_id": "DEL-09-01",
+  "representation": "SOW_V1",
+  "status": "COMPLETE",
+  "phase": "FAN_IN_ACCEPTED",
+  "terminal": true,
+  "outcome": "ACCEPT",
+  "accepted_source_sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+  "accepted_source_git_blob": "a0d8b4a269a5dc0f9d2f868a0a0cec97bacb0197",
+  "blockers": []
+}

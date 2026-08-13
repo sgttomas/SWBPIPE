@@ -753,3 +753,13 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current inventory is 24 project-original fixture/hand-calc families/fixtures (21 pre-R14 plus the three R14 additions); 38 Rust tests passed offline at the head. This refresh is project-owned verification evidence only.
 - Preserved holds: the PDU-037 provenance-index standing Remaining row remains open (the index is built as evidence; row closure is judged at the owner's gate); the PDU-013 unit-catalog hold is untouched (fixture-local `PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K` basis recorded as found); tolerance/threshold promotion, runner/release integration, verification-to-validation promotion, and the PDU-060 disposition remain owner-gated TBD.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-20_R14_W4_T6_BENCH_EVIDENCE.md`. Lifecycle remains `IN_PROGRESS`; all four Remaining rows byte-identical.
+
+## 2026-08-12 - Mechanics suite observation API
+
+- Executed N1 of owner-adopted `CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001` from pinned base `f1e311fb7ab1c2a0800b1d32c59445368428dee9`.
+- Added suite-owned `fixture_observations` and `fixture_recorded_comparison_holds` accessors in `validation/benchmarks/mechanics/src/lib.rs`; accepted SHA-256 is `18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5`, Git blob `a0d8b4a269a5dc0f9d2f868a0a0cec97bacb0197`.
+- The suite remains the owner of fixture identity, expected values, observation production, and encoded comparison predicates. The API covers the complete current 14-case / 115-value gap without reading expected numeric values as observations.
+- Fresh independent cross-package verification passed 25/25 cases and 206/206 finite populated comparisons, including exact new 14/115 coverage and complete serialized-object equality for the original 11 cases / 91 observations. Mechanics tests passed 41/41.
+- Stress behavior was unchanged; nonlinear remained 5/5. DEC-046 C-B stayed byte-identical at SHA-256 `1829a2a6a608dbbdd479248133f2c2a05406c0eabe7a03be57b998735fbe78b6` and remains nonlinear-only.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-08-12_DEL0901_MECHANICS_OBSERVATION_API.md` and managed run `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/`.
+- Lifecycle remains `IN_PROGRESS`. The public result-comparison number, acceptance thresholds, release integration, manual-page promotion, Task Management, and reliance decisions remain outside this bounded evidence. The clean-commit DEC-025 derivative evidence has not yet been produced.

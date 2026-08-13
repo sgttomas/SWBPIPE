@@ -1,0 +1,56 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "version": 3,
+  "selection_authority": "owner-adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001",
+  "posture": "SERIALIZED_CROSS_PACKAGE_AGENT0_FAN_IN",
+  "active_node": "N4_COMPLETE_AWAITING_CHANGE",
+  "nodes": [
+    {
+      "id": "N1",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-09",
+      "deliverable_id": "DEL-09-01",
+      "state": "ACCEPTED",
+      "children": [
+        "A2-09-AUTHOR",
+        "A2-09-VERIFY"
+      ],
+      "child_edge": "A2-09-AUTHOR -> A2-09-VERIFY",
+      "production_write_owner": "A2-09-AUTHOR",
+      "fan_in_gate": "14/14 cases, 115/115 values, original behavior preserved, C-B exact, tests/containment PASS"
+    },
+    {
+      "id": "N2",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-10",
+      "deliverable_id": "DEL-10-05",
+      "state": "ACCEPTED",
+      "children": [
+        "A2-10-AUTHOR",
+        "A2-10-AUTHOR-REMEDIATION",
+        "A2-10-VERIFY"
+      ],
+      "child_edge": "A2-10-AUTHOR(HOLD) -> A2-10-AUTHOR-REMEDIATION -> A2-10-VERIFY",
+      "production_write_owner": "A2-10-AUTHOR-REMEDIATION",
+      "fan_in_gate": "25/25 cases, 206/206 values, new 14/115, original 11/91 exact, zero mismatch/block, negative behavior, stress/nonlinear unchanged, C-B exact, containment PASS"
+    },
+    {
+      "id": "N3",
+      "role": "FRESH_INDEPENDENT_VERIFIER",
+      "state": "COMMIT_SAFE"
+    },
+    {
+      "id": "N4",
+      "role": "INTEGRATION_CLOSEOUT",
+      "state": "PASS_READY_CHANGE"
+    }
+  ],
+  "edges": [
+    "N1 -> N2",
+    "N2 -> N3",
+    "N3 -> N4"
+  ],
+  "concurrency": "NONE_IN_N2",
+  "escalation": "HOLD rather than widen scope"
+}

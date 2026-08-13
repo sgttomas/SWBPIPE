@@ -1,0 +1,16 @@
+{
+  "instance_id": "N2-WORKING-ITEMS-PKG10-DEL1005",
+  "run_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-10",
+  "deliverable_id": "DEL-10-05",
+  "status": "COMPLETE",
+  "accepted_n1_source_sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+  "active_child": null,
+  "verdict": "ACCEPT",
+  "reason_code": "N2_FRESH_VERIFY_PASS",
+  "cleanup_backcheck": "PASS",
+  "accepted_author_candidate_sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+  "verifier_released": true,
+  "verifier_verdict": "PASS"
+}

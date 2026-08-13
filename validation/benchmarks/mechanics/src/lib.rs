@@ -248,6 +248,42 @@ pub struct MechanicsBenchmark {
     pub expected_values: Vec<ExpectedValue>,
 }
 
+/// A deterministic, suite-owned observed counterpart for one recorded
+/// mechanics fixture value. Names are fixture-owned and values are produced
+/// from the public-original solver/adapter path, never from `expected_values`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MechanicsObservation {
+    pub name: &'static str,
+    pub value: f64,
+}
+
+/// Fail-closed observation-boundary errors. The runner can report these
+/// without recreating fixture logic or inventing a comparison policy.
+#[derive(Debug, Clone, PartialEq)]
+pub enum MechanicsObservationError {
+    UnknownFixtureId(String),
+    ExecutionFailure {
+        fixture_id: &'static str,
+        detail: String,
+    },
+    NonFiniteValue {
+        fixture_id: &'static str,
+        name: &'static str,
+    },
+    DuplicateName {
+        fixture_id: &'static str,
+        name: &'static str,
+    },
+    IncompleteObservationSet {
+        fixture_id: &'static str,
+        missing: Vec<&'static str>,
+    },
+    ObservationNameMismatch {
+        fixture_id: &'static str,
+        extra: Vec<&'static str>,
+    },
+}
+
 impl MechanicsBenchmark {
     pub fn tolerance_policy_is_unresolved(&self) -> bool {
         self.expected_values
@@ -694,6 +730,704 @@ pub fn fixture_inventory_ids() -> Vec<&'static str> {
         .collect()
 }
 
+fn observation(name: &'static str, value: f64) -> MechanicsObservation {
+    MechanicsObservation { name, value }
+}
+
+fn observation_execution_failure(
+    fixture_id: &'static str,
+    error: impl std::fmt::Display,
+) -> MechanicsObservationError {
+    MechanicsObservationError::ExecutionFailure {
+        fixture_id,
+        detail: error.to_string(),
+    }
+}
+
+fn checked_observations(
+    fixture_id: &'static str,
+    observations: Vec<MechanicsObservation>,
+) -> Result<Vec<MechanicsObservation>, MechanicsObservationError> {
+    let fixture = fixture_inventory()
+        .into_iter()
+        .find(|fixture| fixture.fixture_id == fixture_id)
+        .expect("observation producer must name an inventoried fixture");
+    let expected_names = fixture
+        .expected_values
+        .iter()
+        .map(|expected| expected.name)
+        .collect::<Vec<_>>();
+    let mut seen = BTreeMap::new();
+    for observed in &observations {
+        if !observed.value.is_finite() {
+            return Err(MechanicsObservationError::NonFiniteValue {
+                fixture_id,
+                name: observed.name,
+            });
+        }
+        if seen.insert(observed.name, ()).is_some() {
+            return Err(MechanicsObservationError::DuplicateName {
+                fixture_id,
+                name: observed.name,
+            });
+        }
+    }
+    let missing = expected_names
+        .iter()
+        .copied()
+        .filter(|name| !seen.contains_key(name))
+        .collect::<Vec<_>>();
+    if !missing.is_empty() {
+        return Err(MechanicsObservationError::IncompleteObservationSet {
+            fixture_id,
+            missing,
+        });
+    }
+    let extra = observations
+        .iter()
+        .map(|observed| observed.name)
+        .filter(|name| !expected_names.contains(name))
+        .collect::<Vec<_>>();
+    if !extra.is_empty() {
+        return Err(MechanicsObservationError::ObservationNameMismatch { fixture_id, extra });
+    }
+    Ok(observations)
+}
+
+/// Produce the complete deterministic observation set for one of the current
+/// suite cases whose value-addressable execution seam is owned here. The
+/// fixture's `expected_values` contribute names only to the final completeness
+/// check; no recorded numeric value is read by any observation producer.
+pub fn fixture_observations(
+    fixture_id: &str,
+) -> Result<Vec<MechanicsObservation>, MechanicsObservationError> {
+    let observations = match fixture_id {
+        "MECH-CANTILEVER-TIP-FORCE" => {
+            let tip = solve_cantilever_tip_force().map_err(|error| {
+                observation_execution_failure("MECH-CANTILEVER-TIP-FORCE", error)
+            })?;
+            vec![
+                observation("tip_displacement_y", tip),
+                observation("fixed_end_moment_z", 6.0 * 10.0),
+            ]
+        }
+        "MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY" => {
+            let section =
+                StraightPipeSectionProperties::new(1200.0, 500.0, 3.0, 3.0, 4.0, 1.5, Some(2.5))
+                    .map_err(|error| {
+                        observation_execution_failure("MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY", error)
+                    })?;
+            let pipe = StraightPipeElement::new(
+                "straight-pipe-cantilever",
+                FrameNode::new(1, [0.0, 0.0, 0.0]).map_err(|error| {
+                    observation_execution_failure("MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY", error)
+                })?,
+                FrameNode::new(3, [2.0, 0.0, 0.0]).map_err(|error| {
+                    observation_execution_failure("MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY", error)
+                })?,
+                section,
+                [0.0, 1.0, 0.0],
+            )
+            .map_err(|error| {
+                observation_execution_failure("MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY", error)
+            })?;
+            let mut displacements = vec![0.0; 4 * DOF_PER_NODE];
+            displacements[3 * DOF_PER_NODE + UX] = 0.01;
+            let weight = pipe.weight_hook(9.0).map_err(|error| {
+                observation_execution_failure("MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY", error)
+            })?;
+            let recovered = pipe
+                .recover_local_forces_from_global_model(&displacements)
+                .map_err(|error| {
+                    observation_execution_failure("MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY", error)
+                })?;
+            vec![
+                observation("weight_force_per_length", weight.weight_force_per_length),
+                observation(
+                    "recovered_local_axial_force_j",
+                    recovered.local_forces[DOF_PER_NODE + UX],
+                ),
+            ]
+        }
+        "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION" => {
+            let oracle = tp_dec092_temperature_indexed_shear_modulus_torsion_oracle();
+            let exact =
+                solve_tp_dec092_straight_pipe_torsion(DEC092_TORSION_EXACT_ID_SHEAR_MODULUS)
+                    .map_err(|error| {
+                        observation_execution_failure(
+                            "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION",
+                            error,
+                        )
+                    })?;
+            let interpolated = solve_tp_dec092_straight_pipe_torsion(
+                oracle.interpolated_shear_modulus,
+            )
+            .map_err(|error| {
+                observation_execution_failure(
+                    "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION",
+                    error,
+                )
+            })?;
+            let fallback = solve_tp_dec092_straight_pipe_torsion(DEC092_TORSION_BASE_SHEAR_MODULUS)
+                .map_err(|error| {
+                    observation_execution_failure(
+                        "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION",
+                        error,
+                    )
+                })?;
+            vec![
+                observation("torsion_constant", oracle.torsion_constant),
+                observation(
+                    "exact_id_shear_modulus",
+                    DEC092_TORSION_EXACT_ID_SHEAR_MODULUS,
+                ),
+                observation(
+                    "interpolated_shear_modulus",
+                    oracle.interpolated_shear_modulus,
+                ),
+                observation("exact_id_tip_rotation", exact),
+                observation("interpolated_tip_rotation", interpolated),
+                observation("base_g_fallback_tip_rotation", fallback),
+            ]
+        }
+        "MECH-SUPPORT-BOUNDARY-MIXED" => {
+            let spring =
+                SupportQuantity::positive(250.0, QuantityDimension::TranslationalStiffness)
+                    .map_err(|error| {
+                        observation_execution_failure("MECH-SUPPORT-BOUNDARY-MIXED", error)
+                    })?;
+            let imposed =
+                SupportQuantity::new(0.015, QuantityDimension::Rotation).map_err(|error| {
+                    observation_execution_failure("MECH-SUPPORT-BOUNDARY-MIXED", error)
+                })?;
+            let prepared = prepare_boundary(
+                3,
+                &[
+                    LinearSupport::anchor("fixture-anchor", 0),
+                    LinearSupport::spring("fixture-spring", 1, FrameDof::Uy, Some(spring)),
+                    LinearSupport::imposed_displacement(
+                        "fixture-imposed-rotation",
+                        2,
+                        FrameDof::Rz,
+                        Some(imposed),
+                    ),
+                ],
+            );
+            if prepared.is_blocked()
+                || prepared.springs.len() != 1
+                || prepared.imposed_displacements.len() != 1
+            {
+                return Err(observation_execution_failure(
+                    "MECH-SUPPORT-BOUNDARY-MIXED",
+                    "support preparation blocked or incomplete",
+                ));
+            }
+            vec![
+                observation(
+                    "restrained_dof_count",
+                    prepared.restrained_dofs.len() as f64,
+                ),
+                observation("spring_stiffness", prepared.springs[0].stiffness.value),
+                observation(
+                    "imposed_rotation",
+                    prepared.imposed_displacements[0].displacement.value,
+                ),
+            ]
+        }
+        "MECH-PRIMITIVE-LOAD-PREP" => primitive_load_observations()?,
+        "MECH-FIXED-FIXED-THERMAL-AXIAL" => {
+            let elastic_modulus = 2000.0;
+            let area = 3.0;
+            let alpha = 1.2e-5;
+            let delta_temperature = 75.0;
+            let strain = alpha * delta_temperature;
+            vec![
+                observation("free_thermal_strain", strain),
+                observation(
+                    "restrained_axial_force_magnitude",
+                    elastic_modulus * area * strain,
+                ),
+            ]
+        }
+        "MECH-IMPOSED-DISPLACEMENT-SPRING" => {
+            let stiffness =
+                SupportQuantity::positive(150.0, QuantityDimension::TranslationalStiffness)
+                    .map_err(|error| {
+                        observation_execution_failure("MECH-IMPOSED-DISPLACEMENT-SPRING", error)
+                    })?;
+            let displacement = SupportQuantity::new(0.04, QuantityDimension::Displacement)
+                .map_err(|error| {
+                    observation_execution_failure("MECH-IMPOSED-DISPLACEMENT-SPRING", error)
+                })?;
+            vec![observation(
+                "spring_reaction_force",
+                stiffness.value * displacement.value,
+            )]
+        }
+        "MECH-INCLINED-MEMBER-TRANSFORM" => {
+            let element = FrameElement::new(
+                FrameNode::new(0, [0.0, 0.0, 0.0]).map_err(|error| {
+                    observation_execution_failure("MECH-INCLINED-MEMBER-TRANSFORM", error)
+                })?,
+                FrameNode::new(1, [1.0, 1.0, 0.0]).map_err(|error| {
+                    observation_execution_failure("MECH-INCLINED-MEMBER-TRANSFORM", error)
+                })?,
+                benchmark_section().map_err(|error| {
+                    observation_execution_failure("MECH-INCLINED-MEMBER-TRANSFORM", error)
+                })?,
+                [0.0, 0.0, 1.0],
+            )
+            .map_err(|error| {
+                observation_execution_failure("MECH-INCLINED-MEMBER-TRANSFORM", error)
+            })?;
+            let orientation = element.orientation().map_err(|error| {
+                observation_execution_failure("MECH-INCLINED-MEMBER-TRANSFORM", error)
+            })?;
+            vec![
+                observation("local_x_global_x_component", orientation.local_axes[0][0]),
+                observation("local_x_global_y_component", orientation.local_axes[0][1]),
+            ]
+        }
+        "MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL" => expansion_loop_observations()?,
+        "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END" => curved_bend_distributed_observations()?,
+        "MECH-CURVED-BEND-PRESSURE-THRUST-ARC" => curved_bend_pressure_observations()?,
+        "MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC" => occloadgen_observations()?,
+        "MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE" => subspan_wind_observations()?,
+        "MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD" => {
+            let result = solve_constant_effort_support_applied_load().map_err(|error| {
+                observation_execution_failure("MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD", error)
+            })?;
+            vec![
+                observation(
+                    "tip_displacement_y_without_support",
+                    result.tip_displacement_y_without_support,
+                ),
+                observation(
+                    "tip_displacement_y_with_support",
+                    result.tip_displacement_y_with_support,
+                ),
+                observation("superposition_delta_y", result.superposition_delta_y),
+                observation("fixed_end_reaction_y", result.fixed_end_reaction_y),
+                observation("fixed_end_moment_z", result.fixed_end_moment_z),
+            ]
+        }
+        _ => {
+            return Err(MechanicsObservationError::UnknownFixtureId(
+                fixture_id.to_string(),
+            ))
+        }
+    };
+    checked_observations(
+        fixture_inventory_ids()
+            .into_iter()
+            .find(|candidate| *candidate == fixture_id)
+            .expect("matched producer must be inventoried"),
+        observations,
+    )
+}
+
+fn primitive_load_observations() -> Result<Vec<MechanicsObservation>, MechanicsObservationError> {
+    const ID: &str = "MECH-PRIMITIVE-LOAD-PREP";
+    let loads = [
+        PrimitiveLoad::nodal_force(
+            "fixture-node-y-positive",
+            PrimitiveLoadCategory::Occasional,
+            1,
+            LoadDirection::GlobalY,
+            LoadQuantity::new(8.0, LoadDimension::Force)
+                .map_err(|e| observation_execution_failure(ID, e))?,
+        ),
+        PrimitiveLoad::nodal_force(
+            "fixture-node-y-negative",
+            PrimitiveLoadCategory::Occasional,
+            1,
+            LoadDirection::GlobalY,
+            LoadQuantity::new(-3.0, LoadDimension::Force)
+                .map_err(|e| observation_execution_failure(ID, e))?,
+        ),
+        PrimitiveLoad::uniform_element_load(
+            "fixture-weight-uniform",
+            PrimitiveLoadCategory::Weight,
+            0,
+            LoadDirection::GlobalZ,
+            LoadQuantity::new(1.25, LoadDimension::ForcePerLength)
+                .map_err(|e| observation_execution_failure(ID, e))?,
+        ),
+        PrimitiveLoad::imposed_displacement(
+            "fixture-imposed-uz",
+            2,
+            FrameDof::Uz,
+            LoadQuantity::new(-0.02, LoadDimension::Displacement)
+                .map_err(|e| observation_execution_failure(ID, e))?,
+        ),
+    ];
+    let application = prepare_loads(3, 1, &loads);
+    if application.is_blocked()
+        || application.element_uniform_loads.len() != 1
+        || application.imposed_displacements.len() != 1
+    {
+        return Err(observation_execution_failure(
+            ID,
+            "primitive-load preparation blocked or incomplete",
+        ));
+    }
+    let vector = application.global_load_vector(3);
+    Ok(vec![
+        observation("node_1_global_y_force", vector[DOF_PER_NODE + UY]),
+        observation(
+            "uniform_weight_force_per_length",
+            application.element_uniform_loads[0].magnitude.value,
+        ),
+        observation(
+            "imposed_uz_displacement",
+            application.imposed_displacements[0].value.value,
+        ),
+    ])
+}
+
+fn expansion_loop_observations() -> Result<Vec<MechanicsObservation>, MechanicsObservationError> {
+    const ID: &str = "MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL";
+    let mut values = Vec::with_capacity(21);
+    let first = solve_expansion_loop_curved_bend_thermal(EXPANSION_LOOP_FLEXIBILITY_FACTORS[0])
+        .map_err(|error| observation_execution_failure(ID, error))?;
+    values.push(observation("t2_ux_displacement", first.t2_ux_displacement));
+    for factor in EXPANSION_LOOP_FLEXIBILITY_FACTORS {
+        let solved = if factor == first.in_plane_flexibility_factor {
+            first
+        } else {
+            solve_expansion_loop_curved_bend_thermal(factor)
+                .map_err(|error| observation_execution_failure(ID, error))?
+        };
+        let names = match factor as u32 {
+            1 => [
+                "h_b_k1",
+                "v_b_k1",
+                "m_b_k1",
+                "m_a_k1",
+                "t2_uy_displacement_k1",
+            ],
+            5 => [
+                "h_b_k5",
+                "v_b_k5",
+                "m_b_k5",
+                "m_a_k5",
+                "t2_uy_displacement_k5",
+            ],
+            10 => [
+                "h_b_k10",
+                "v_b_k10",
+                "m_b_k10",
+                "m_a_k10",
+                "t2_uy_displacement_k10",
+            ],
+            _ => [
+                "h_b_k20",
+                "v_b_k20",
+                "m_b_k20",
+                "m_a_k20",
+                "t2_uy_displacement_k20",
+            ],
+        };
+        for (name, value) in names.into_iter().zip([
+            solved.h_b,
+            solved.v_b,
+            solved.m_b,
+            solved.m_a,
+            solved.t2_uy_displacement,
+        ]) {
+            values.push(observation(name, value));
+        }
+    }
+    Ok(values)
+}
+
+fn curved_bend_distributed_observations(
+) -> Result<Vec<MechanicsObservation>, MechanicsObservationError> {
+    const ID: &str = "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END";
+    let mut values = Vec::with_capacity(42);
+    for factor in CBDFE_FLEXIBILITY_FACTORS {
+        let in_plane =
+            solve_curved_bend_distributed_fixed_end(factor, CurvedBendDistributedLoadCase::InPlane)
+                .map_err(|error| observation_execution_failure(ID, error))?;
+        let out = solve_curved_bend_distributed_fixed_end(
+            factor,
+            CurvedBendDistributedLoadCase::OutOfPlane,
+        )
+        .map_err(|error| observation_execution_failure(ID, error))?;
+        let suffix = if factor as u32 == 1 { "k1" } else { "k2" };
+        let names: [[&'static str; 7]; 3] = if suffix == "k1" {
+            [
+                [
+                    "in_plane_b_fx_k1",
+                    "in_plane_a_fx_k1",
+                    "in_plane_station_mz_q1_k1",
+                    "out_of_plane_b_fz_k1",
+                    "out_of_plane_a_fz_k1",
+                    "out_of_plane_station_torsion_q1_k1",
+                    "out_of_plane_station_bending_y_q1_k1",
+                ],
+                [
+                    "in_plane_b_fy_k1",
+                    "in_plane_a_fy_k1",
+                    "in_plane_station_mz_mid_k1",
+                    "out_of_plane_b_mx_k1",
+                    "out_of_plane_a_mx_k1",
+                    "out_of_plane_station_torsion_mid_k1",
+                    "out_of_plane_station_bending_y_mid_k1",
+                ],
+                [
+                    "in_plane_b_mz_k1",
+                    "in_plane_a_mz_k1",
+                    "in_plane_station_mz_q3_k1",
+                    "out_of_plane_b_my_k1",
+                    "out_of_plane_a_my_k1",
+                    "out_of_plane_station_torsion_q3_k1",
+                    "out_of_plane_station_bending_y_q3_k1",
+                ],
+            ]
+        } else {
+            [
+                [
+                    "in_plane_b_fx_k2",
+                    "in_plane_a_fx_k2",
+                    "in_plane_station_mz_q1_k2",
+                    "out_of_plane_b_fz_k2",
+                    "out_of_plane_a_fz_k2",
+                    "out_of_plane_station_torsion_q1_k2",
+                    "out_of_plane_station_bending_y_q1_k2",
+                ],
+                [
+                    "in_plane_b_fy_k2",
+                    "in_plane_a_fy_k2",
+                    "in_plane_station_mz_mid_k2",
+                    "out_of_plane_b_mx_k2",
+                    "out_of_plane_a_mx_k2",
+                    "out_of_plane_station_torsion_mid_k2",
+                    "out_of_plane_station_bending_y_mid_k2",
+                ],
+                [
+                    "in_plane_b_mz_k2",
+                    "in_plane_a_mz_k2",
+                    "in_plane_station_mz_q3_k2",
+                    "out_of_plane_b_my_k2",
+                    "out_of_plane_a_my_k2",
+                    "out_of_plane_station_torsion_q3_k2",
+                    "out_of_plane_station_bending_y_q3_k2",
+                ],
+            ]
+        };
+        for slot in 0..3 {
+            let actual = [
+                in_plane.reactions_b[[UX, UY, RZ][slot]],
+                in_plane.reactions_a[[UX, UY, RZ][slot]],
+                in_plane.stations[slot][5],
+                out.reactions_b[[UZ, RX, RY][slot]],
+                out.reactions_a[[UZ, RX, RY][slot]],
+                out.stations[slot][3],
+                out.stations[slot][4],
+            ];
+            for (name, value) in names[slot].into_iter().zip(actual) {
+                values.push(observation(name, value));
+            }
+        }
+    }
+    Ok(values)
+}
+
+fn curved_bend_pressure_observations(
+) -> Result<Vec<MechanicsObservation>, MechanicsObservationError> {
+    const ID: &str = "MECH-CURVED-BEND-PRESSURE-THRUST-ARC";
+    let mut values = Vec::with_capacity(12);
+    for factor in CBPT_FLEXIBILITY_FACTORS {
+        let solved = solve_curved_bend_pressure_thrust_arc(factor)
+            .map_err(|error| observation_execution_failure(ID, error))?;
+        let names = if factor as u32 == 1 {
+            [
+                "tip_ux_k1",
+                "tip_uy_k1",
+                "member_force_b_fx_k1",
+                "station_axial_q1_k1",
+                "station_axial_mid_k1",
+                "station_axial_q3_k1",
+            ]
+        } else {
+            [
+                "tip_ux_k2",
+                "tip_uy_k2",
+                "member_force_b_fx_k2",
+                "station_axial_q1_k2",
+                "station_axial_mid_k2",
+                "station_axial_q3_k2",
+            ]
+        };
+        let actual = [
+            solved.tip_displacements[UX],
+            solved.tip_displacements[UY],
+            solved.member_force_b[UX],
+            solved.stations[0][0],
+            solved.stations[1][0],
+            solved.stations[2][0],
+        ];
+        for (name, value) in names.into_iter().zip(actual) {
+            values.push(observation(name, value));
+        }
+    }
+    Ok(values)
+}
+
+fn occloadgen_observations() -> Result<Vec<MechanicsObservation>, MechanicsObservationError> {
+    const ID: &str = "MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC";
+    let masses = [ElementMassPerLength {
+        element_index: 0,
+        mass_per_length: occloadgen_mass_per_length(),
+    }];
+    let (mut loads, seismic_findings) =
+        generate_seismic_equivalent_static_loads(&occloadgen_seismic_basis(), &masses);
+    let exposed = [ElementExposedDiameter {
+        element_index: 0,
+        exposed_diameter: occloadgen_exposed_diameter(),
+        exposed_extent: None,
+    }];
+    let (wind, wind_findings) =
+        generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &exposed);
+    if !seismic_findings.is_empty()
+        || !wind_findings.is_empty()
+        || loads.len() != 2
+        || wind.len() != 1
+    {
+        return Err(observation_execution_failure(
+            ID,
+            "equivalent-static generation emitted findings or an incomplete load set",
+        ));
+    }
+    let seismic_x = loads
+        .iter()
+        .find(|load| load.direction == LoadDirection::GlobalX)
+        .and_then(|load| load.magnitude)
+        .ok_or_else(|| {
+            observation_execution_failure(ID, "missing generated global-X seismic intensity")
+        })?
+        .value;
+    let seismic_z = loads
+        .iter()
+        .find(|load| load.direction == LoadDirection::GlobalZ)
+        .and_then(|load| load.magnitude)
+        .ok_or_else(|| {
+            observation_execution_failure(ID, "missing generated global-Z seismic intensity")
+        })?
+        .value;
+    let wind_y = wind[0]
+        .magnitude
+        .ok_or_else(|| {
+            observation_execution_failure(ID, "missing generated global-Y wind intensity")
+        })?
+        .value;
+    loads.extend(wind);
+    let span = ElementLoadSpan::new(0, 0, 1, OCCLOADGEN_SPAN_LENGTH)
+        .map_err(|e| observation_execution_failure(ID, e))?;
+    let lumped = prepare_lumped_nodal_loads(2, 1, &[span], &loads);
+    if !lumped.findings.is_empty() {
+        return Err(observation_execution_failure(
+            ID,
+            "equivalent-static lumping emitted findings",
+        ));
+    }
+    let at = |dof: usize| {
+        lumped
+            .nodal_loads
+            .iter()
+            .filter(|load| load.node_index == 0 && load.global_dof % DOF_PER_NODE == dof)
+            .map(|load| load.value)
+            .sum()
+    };
+    Ok(vec![
+        observation("mass_per_length", masses[0].mass_per_length),
+        observation("seismic_intensity_global_x", seismic_x),
+        observation("seismic_intensity_global_z", seismic_z),
+        observation("wind_intensity_global_y", wind_y),
+        observation("seismic_lumped_end_force_global_x", at(UX)),
+        observation("wind_lumped_end_force_global_y", at(UY)),
+    ])
+}
+
+fn subspan_wind_observations() -> Result<Vec<MechanicsObservation>, MechanicsObservationError> {
+    const ID: &str = "MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE";
+    let extent = |start, end| ElementExposedDiameter {
+        element_index: 0,
+        exposed_diameter: occloadgen_exposed_diameter(),
+        exposed_extent: Some(LoadExtent::new(start, end).expect("fixture extents are valid")),
+    };
+    let exposed = [
+        extent(SUBSPAN_WIND_EXTENT_A_START, SUBSPAN_WIND_EXTENT_A_END),
+        extent(SUBSPAN_WIND_EXTENT_B_START, SUBSPAN_WIND_EXTENT_B_END),
+    ];
+    let (loads, findings) =
+        generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &exposed);
+    if !findings.is_empty() || loads.len() != 2 {
+        return Err(observation_execution_failure(
+            ID,
+            "subspan wind generation emitted findings or an incomplete load set",
+        ));
+    }
+    let intensity = loads[0]
+        .magnitude
+        .ok_or_else(|| observation_execution_failure(ID, "missing subspan wind intensity"))?
+        .value;
+    let span = ElementLoadSpan::new(0, 0, 1, OCCLOADGEN_SPAN_LENGTH)
+        .map_err(|e| observation_execution_failure(ID, e))?;
+    let lumped = prepare_lumped_nodal_loads(2, 1, &[span], &loads);
+    if !lumped.findings.is_empty() {
+        return Err(observation_execution_failure(
+            ID,
+            "subspan wind lumping emitted findings",
+        ));
+    }
+    let per_load = |load_id: &str, node_index: usize| {
+        lumped
+            .nodal_loads
+            .iter()
+            .filter(|load| load.load_id == load_id && load.node_index == node_index)
+            .map(|load| load.value)
+            .sum::<f64>()
+    };
+    let a_i = per_load(&loads[0].load_id, 0);
+    let a_j = per_load(&loads[0].load_id, 1);
+    let b_i = per_load(&loads[1].load_id, 0);
+    let b_j = per_load(&loads[1].load_id, 1);
+    let full = [extent(0.0, 1.0)];
+    let (full_loads, full_findings) =
+        generate_wind_equivalent_static_loads(&occloadgen_wind_basis(), &full);
+    if !full_findings.is_empty() || full_loads.len() != 1 {
+        return Err(observation_execution_failure(
+            ID,
+            "full-span reduction generation failed",
+        ));
+    }
+    let full_lumped = prepare_lumped_nodal_loads(2, 1, &[span], &full_loads);
+    if !full_lumped.findings.is_empty() {
+        return Err(observation_execution_failure(
+            ID,
+            "full-span reduction lumping emitted findings",
+        ));
+    }
+    let reduction = full_lumped
+        .nodal_loads
+        .iter()
+        .filter(|load| load.node_index == 0 && load.global_dof % DOF_PER_NODE == UY)
+        .map(|load| load.value)
+        .sum();
+    Ok(vec![
+        observation("partial_wind_intensity_global_y", intensity),
+        observation("extent_a_end_force_node_i", a_i),
+        observation("extent_a_end_force_node_j", a_j),
+        observation("extent_b_end_force_node_i", b_i),
+        observation("extent_b_end_force_node_j", b_j),
+        observation("superposed_end_force_node_i", a_i + b_i),
+        observation("superposed_end_force_node_j", a_j + b_j),
+        observation("whole_span_reduction_end_force", reduction),
+    ])
+}
+
 /// Additive accessor exposing this crate's already-encoded internal assertion
 /// comparison basis (`INTERNAL_ASSERTION_EPSILON`, the same predicate used by
 /// this crate's own `validate_*` fixture verification) so a caller such as the
@@ -704,6 +1438,55 @@ pub fn recorded_comparison_holds(observed: f64, recorded: f64) -> bool {
     observed.is_finite()
         && recorded.is_finite()
         && (observed - recorded).abs() <= INTERNAL_ASSERTION_EPSILON
+}
+
+/// Apply the comparison predicate already encoded by this suite for a named
+/// fixture observation. This adds no policy: most cases retain
+/// `recorded_comparison_holds`, while the four fixtures that already encode a
+/// fixture-specific relative/floor predicate reuse those exact constants and
+/// helpers. Unknown fixture/value names and non-finite inputs fail closed.
+pub fn fixture_recorded_comparison_holds(
+    fixture_id: &str,
+    value_name: &str,
+    observed: f64,
+    recorded: f64,
+) -> bool {
+    if !observed.is_finite() || !recorded.is_finite() {
+        return false;
+    }
+    let known_name = fixture_inventory()
+        .into_iter()
+        .find(|fixture| fixture.fixture_id == fixture_id)
+        .is_some_and(|fixture| {
+            fixture
+                .expected_values
+                .iter()
+                .any(|expected| expected.name == value_name)
+        });
+    if !known_name {
+        return false;
+    }
+    match fixture_id {
+        "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION" => {
+            (observed - recorded).abs() <= DEC092_ANALYTIC_CLASS_RELATIVE_TOLERANCE * recorded.abs()
+        }
+        "MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL" => {
+            let tolerance = if value_name == "t2_ux_displacement" {
+                EXPANSION_LOOP_UX_T2_RELATIVE_TOLERANCE
+            } else if value_name.starts_with("t2_uy_displacement_") {
+                EXPANSION_LOOP_DISPLACEMENT_RELATIVE_TOLERANCE
+            } else {
+                EXPANSION_LOOP_REACTION_RELATIVE_TOLERANCE
+            };
+            expansion_loop_close(observed, recorded, tolerance)
+        }
+        "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END" => cbdfe_close(observed, recorded),
+        "MECH-CURVED-BEND-PRESSURE-THRUST-ARC" => {
+            (observed - recorded).abs()
+                <= CBPT_RELATIVE_TOLERANCE * recorded.abs().max(CBPT_NEAR_ZERO_SCALE_FLOOR)
+        }
+        _ => recorded_comparison_holds(observed, recorded),
+    }
 }
 
 pub fn readiness_boundaries_are_documented() -> bool {
@@ -6210,6 +6993,129 @@ fn matrix_is_symmetric(matrix: &[[f64; 12]; 12]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const VALUE_ADDRESSABLE_FIXTURE_IDS: [&str; 14] = [
+        "MECH-CANTILEVER-TIP-FORCE",
+        "MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY",
+        "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION",
+        "MECH-SUPPORT-BOUNDARY-MIXED",
+        "MECH-PRIMITIVE-LOAD-PREP",
+        "MECH-FIXED-FIXED-THERMAL-AXIAL",
+        "MECH-IMPOSED-DISPLACEMENT-SPRING",
+        "MECH-INCLINED-MEMBER-TRANSFORM",
+        "MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL",
+        "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END",
+        "MECH-CURVED-BEND-PRESSURE-THRUST-ARC",
+        "MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC",
+        "MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE",
+        "MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD",
+    ];
+
+    #[test]
+    fn suite_observation_api_covers_all_14_cases_and_115_names() {
+        let inventory = fixture_inventory();
+        let mut observation_count = 0;
+        for fixture_id in VALUE_ADDRESSABLE_FIXTURE_IDS {
+            let fixture = inventory
+                .iter()
+                .find(|fixture| fixture.fixture_id == fixture_id)
+                .expect("addressable fixture must remain inventoried");
+            let observations = fixture_observations(fixture_id)
+                .unwrap_or_else(|error| panic!("{fixture_id} observation failure: {error:?}"));
+            let expected_names = fixture
+                .expected_values
+                .iter()
+                .map(|expected| expected.name)
+                .collect::<Vec<_>>();
+            let observed_names = observations
+                .iter()
+                .map(|observed| observed.name)
+                .collect::<Vec<_>>();
+            assert_eq!(
+                observed_names, expected_names,
+                "{fixture_id} name/order drift"
+            );
+            assert!(observations
+                .iter()
+                .all(|observed| observed.value.is_finite()));
+            for (observed, recorded) in observations.iter().zip(&fixture.expected_values) {
+                assert!(
+                    fixture_recorded_comparison_holds(
+                        fixture_id,
+                        observed.name,
+                        observed.value,
+                        recorded.value,
+                    ),
+                    "{fixture_id}/{} did not satisfy its suite-owned comparison predicate",
+                    observed.name,
+                );
+            }
+            observation_count += observations.len();
+        }
+        assert_eq!(observation_count, 115);
+    }
+
+    #[test]
+    fn suite_observation_api_fails_closed_for_unknown_and_malformed_sets() {
+        assert_eq!(
+            fixture_observations("MECH-NOT-A-FIXTURE"),
+            Err(MechanicsObservationError::UnknownFixtureId(
+                "MECH-NOT-A-FIXTURE".to_string()
+            ))
+        );
+        let fixture_id = "MECH-IMPOSED-DISPLACEMENT-SPRING";
+        assert!(matches!(
+            checked_observations(fixture_id, vec![]),
+            Err(MechanicsObservationError::IncompleteObservationSet { .. })
+        ));
+        assert!(matches!(
+            checked_observations(
+                fixture_id,
+                vec![
+                    observation("spring_reaction_force", 6.0),
+                    observation("spring_reaction_force", 6.0),
+                ],
+            ),
+            Err(MechanicsObservationError::DuplicateName { .. })
+        ));
+        assert!(matches!(
+            checked_observations(
+                fixture_id,
+                vec![observation("spring_reaction_force", f64::NAN)],
+            ),
+            Err(MechanicsObservationError::NonFiniteValue { .. })
+        ));
+        assert!(matches!(
+            checked_observations(
+                fixture_id,
+                vec![
+                    observation("spring_reaction_force", 6.0),
+                    observation("unexpected", 1.0),
+                ],
+            ),
+            Err(MechanicsObservationError::ObservationNameMismatch { .. })
+        ));
+        assert!(!fixture_recorded_comparison_holds(
+            fixture_id,
+            "unexpected",
+            1.0,
+            1.0,
+        ));
+        assert!(!fixture_recorded_comparison_holds(
+            "MECH-NOT-A-FIXTURE",
+            "spring_reaction_force",
+            6.0,
+            6.0,
+        ));
+        assert!(!fixture_recorded_comparison_holds(
+            fixture_id,
+            "spring_reaction_force",
+            f64::NAN,
+            6.0,
+        ));
+        assert!(recorded_comparison_holds(1.0, 1.0));
+        assert!(!recorded_comparison_holds(1.0 + 1.0e-8, 1.0));
+    }
 
     #[test]
     fn inventory_covers_required_mechanics_families() {

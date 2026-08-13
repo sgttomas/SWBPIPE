@@ -6,8 +6,9 @@
 //! `validation/benchmarks/nonlinear` = DEL-09-03). The suite crates remain the
 //! single source of fixture identity, recorded comparison values, and encoded
 //! comparison predicates: per-case comparison reuses each crate's own
-//! `recorded_comparison_holds` accessor, its public `validate_*` predicates,
-//! or (nonlinear) `NonlinearRegressionCase::matches_expected_outcome`.
+//! `recorded_comparison_holds` accessor, its public fixture-specific
+//! comparison accessor, its public `validate_*` predicates, or (nonlinear)
+//! `NonlinearRegressionCase::matches_expected_outcome`.
 //!
 //! No new numeric tolerance constant and no release-threshold vocabulary is
 //! introduced here. A requested case whose recorded comparison basis cannot be
@@ -131,6 +132,7 @@ struct EvaluatedCase {
 
 enum CaseEvaluation {
     Evaluated(EvaluatedCase),
+    SuiteEvaluated(Vec<(&'static str, f64)>),
     NotReusable(String),
     ExecutionFailed(String),
 }
@@ -197,78 +199,180 @@ fn compare_case(
             regression_detail: None,
             block_reason: Some(format!("case execution failed: {reason}")),
         },
-        CaseEvaluation::Evaluated(evaluated) => {
-            let mut values = Vec::new();
-            let mut missing_names: Vec<&str> = Vec::new();
-            let mut all_within = true;
-            for (name, unit, dimension, recorded) in expected {
-                let observed = evaluated
-                    .observed
-                    .iter()
-                    .find(|(observed_name, _)| observed_name == name)
-                    .map(|(_, value)| *value);
-                match observed {
-                    Some(observed_value) => {
-                        let within = comparison_holds(observed_value, *recorded);
-                        all_within &= within;
-                        values.push(ValueComparison {
-                            name: name.clone(),
-                            unit: unit.clone(),
-                            dimension: dimension.clone(),
-                            recorded: *recorded,
-                            observed: Some(observed_value),
-                            delta: Some(observed_value - *recorded),
-                            within_recorded_basis: Some(within),
-                        });
-                    }
-                    None => {
-                        missing_names.push(name);
-                        values.push(ValueComparison {
-                            name: name.clone(),
-                            unit: unit.clone(),
-                            dimension: dimension.clone(),
-                            recorded: *recorded,
-                            observed: None,
-                            delta: None,
-                            within_recorded_basis: None,
-                        });
-                    }
-                }
-            }
+        CaseEvaluation::Evaluated(evaluated) => compare_evaluated_case(
+            fixture_id,
+            family,
+            expected,
+            evaluated.observed,
+            evaluated.predicate,
+            false,
+            comparison_holds,
+        ),
+        CaseEvaluation::SuiteEvaluated(observed) => compare_evaluated_case(
+            fixture_id,
+            family,
+            expected,
+            observed,
+            None,
+            true,
+            comparison_holds,
+        ),
+    }
+}
 
-            if !missing_names.is_empty() {
-                return CaseReport {
-                    fixture_id: fixture_id.to_string(),
-                    family,
-                    status: CaseStatus::Blocked,
-                    encoded_predicate: evaluated.predicate.map(|(name, _)| name),
-                    encoded_predicate_result: evaluated.predicate.map(|(_, result)| result),
-                    values,
-                    regression_detail: None,
-                    block_reason: Some(not_reusable_reason(&format!(
-                        "recorded value(s) {}",
-                        missing_names.join(", ")
-                    ))),
-                };
-            }
-
-            let predicate_pass = evaluated.predicate.map(|(_, ok)| ok).unwrap_or(true);
-            let status = if all_within && predicate_pass {
-                CaseStatus::ExecutedAndMatched
-            } else {
-                CaseStatus::ExecutedAndMismatched
-            };
-            CaseReport {
+#[allow(clippy::too_many_arguments)]
+fn compare_evaluated_case(
+    fixture_id: &str,
+    family: String,
+    expected: &[(String, String, String, f64)],
+    observed: Vec<(&'static str, f64)>,
+    predicate: Option<(&'static str, bool)>,
+    use_mechanics_fixture_comparison: bool,
+    comparison_holds: fn(f64, f64) -> bool,
+) -> CaseReport {
+    if use_mechanics_fixture_comparison {
+        let expected_names = expected
+            .iter()
+            .map(|(name, _, _, _)| name.as_str())
+            .collect::<Vec<_>>();
+        let mut seen = std::collections::BTreeSet::new();
+        let duplicate_names = observed
+            .iter()
+            .filter_map(|(name, _)| (!seen.insert(*name)).then_some(*name))
+            .collect::<Vec<_>>();
+        let non_finite_names = observed
+            .iter()
+            .filter_map(|(name, value)| (!value.is_finite()).then_some(*name))
+            .collect::<Vec<_>>();
+        let missing_names = expected_names
+            .iter()
+            .copied()
+            .filter(|name| !seen.contains(name))
+            .collect::<Vec<_>>();
+        let extra_names = seen
+            .iter()
+            .copied()
+            .filter(|name| !expected_names.contains(name))
+            .collect::<Vec<_>>();
+        if !duplicate_names.is_empty()
+            || !non_finite_names.is_empty()
+            || !missing_names.is_empty()
+            || !extra_names.is_empty()
+        {
+            return CaseReport {
                 fixture_id: fixture_id.to_string(),
                 family,
-                status,
-                encoded_predicate: evaluated.predicate.map(|(name, _)| name),
-                encoded_predicate_result: evaluated.predicate.map(|(_, result)| result),
-                values,
+                status: CaseStatus::Blocked,
+                encoded_predicate: predicate.map(|(name, _)| name),
+                encoded_predicate_result: predicate.map(|(_, result)| result),
+                values: expected
+                    .iter()
+                    .map(|(name, unit, dimension, recorded)| {
+                        let observed_value = observed
+                            .iter()
+                            .find(|(observed_name, _)| observed_name == name)
+                            .map(|(_, value)| *value)
+                            .filter(|value| value.is_finite());
+                        ValueComparison {
+                            name: name.clone(),
+                            unit: unit.clone(),
+                            dimension: dimension.clone(),
+                            recorded: *recorded,
+                            observed: observed_value,
+                            delta: observed_value.map(|value| value - *recorded),
+                            within_recorded_basis: None,
+                        }
+                    })
+                    .collect(),
                 regression_detail: None,
-                block_reason: None,
+                block_reason: Some(format!(
+                    "suite-owned mechanics observations failed the runner seam: duplicate [{}], non-finite [{}], missing [{}], extra [{}]",
+                    duplicate_names.join(", "),
+                    non_finite_names.join(", "),
+                    missing_names.join(", "),
+                    extra_names.join(", ")
+                )),
+            };
+        }
+    }
+
+    let mut values = Vec::new();
+    let mut missing_names: Vec<&str> = Vec::new();
+    let mut all_within = true;
+    for (name, unit, dimension, recorded) in expected {
+        let observed_value = observed
+            .iter()
+            .find(|(observed_name, _)| observed_name == name)
+            .map(|(_, value)| *value);
+        match observed_value {
+            Some(observed_value) => {
+                let within = if use_mechanics_fixture_comparison {
+                    mechanics::fixture_recorded_comparison_holds(
+                        fixture_id,
+                        name,
+                        observed_value,
+                        *recorded,
+                    )
+                } else {
+                    comparison_holds(observed_value, *recorded)
+                };
+                all_within &= within;
+                values.push(ValueComparison {
+                    name: name.clone(),
+                    unit: unit.clone(),
+                    dimension: dimension.clone(),
+                    recorded: *recorded,
+                    observed: Some(observed_value),
+                    delta: Some(observed_value - *recorded),
+                    within_recorded_basis: Some(within),
+                });
+            }
+            None => {
+                missing_names.push(name);
+                values.push(ValueComparison {
+                    name: name.clone(),
+                    unit: unit.clone(),
+                    dimension: dimension.clone(),
+                    recorded: *recorded,
+                    observed: None,
+                    delta: None,
+                    within_recorded_basis: None,
+                });
             }
         }
+    }
+
+    if !missing_names.is_empty() {
+        return CaseReport {
+            fixture_id: fixture_id.to_string(),
+            family,
+            status: CaseStatus::Blocked,
+            encoded_predicate: predicate.map(|(name, _)| name),
+            encoded_predicate_result: predicate.map(|(_, result)| result),
+            values,
+            regression_detail: None,
+            block_reason: Some(not_reusable_reason(&format!(
+                "recorded value(s) {}",
+                missing_names.join(", ")
+            ))),
+        };
+    }
+
+    let predicate_pass = predicate.map(|(_, ok)| ok).unwrap_or(true);
+    let status = if all_within && predicate_pass {
+        CaseStatus::ExecutedAndMatched
+    } else {
+        CaseStatus::ExecutedAndMismatched
+    };
+    CaseReport {
+        fixture_id: fixture_id.to_string(),
+        family,
+        status,
+        encoded_predicate: predicate.map(|(name, _)| name),
+        encoded_predicate_result: predicate.map(|(_, result)| result),
+        values,
+        regression_detail: None,
+        block_reason: None,
     }
 }
 
@@ -842,8 +946,21 @@ fn evaluate_mechanics_case(fixture_id: &str) -> CaseEvaluation {
                 Err(error) => CaseEvaluation::ExecutionFailed(error),
             }
         }
-        _ => CaseEvaluation::NotReusable(not_reusable_reason(
-            "every recorded value of this case",
+        _ => mechanics_suite_evaluation(fixture_id),
+    }
+}
+
+fn mechanics_suite_evaluation(fixture_id: &str) -> CaseEvaluation {
+    match mechanics::fixture_observations(fixture_id) {
+        Ok(observations) => {
+            let observed = observations
+                .iter()
+                .map(|observation| (observation.name, observation.value))
+                .collect::<Vec<_>>();
+            CaseEvaluation::SuiteEvaluated(observed)
+        }
+        Err(error) => CaseEvaluation::ExecutionFailed(format!(
+            "suite-owned mechanics observation API returned {error:?}"
         )),
     }
 }
@@ -1295,5 +1412,246 @@ fn evaluate_nonlinear_case(case: &nonlinear::NonlinearRegressionCase) -> CaseRep
             regression_detail: None,
             block_reason: Some("case execution panicked".to_string()),
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const FROZEN_MECHANICS_RUN: &str = include_str!(
+        "../../../../validation/evidence/comparison_measurement/DEL0904_VD_20260811/\
+         CURRENT_25_FIXTURE_RUNNER_OUTPUT.json"
+    );
+
+    fn expected(name: &str, recorded: f64) -> Vec<(String, String, String, f64)> {
+        vec![(
+            name.to_string(),
+            "unit".to_string(),
+            "dimension".to_string(),
+            recorded,
+        )]
+    }
+
+    fn suite_report(
+        evaluation: CaseEvaluation,
+        expected: &[(String, String, String, f64)],
+    ) -> CaseReport {
+        compare_case(
+            "MECH-IMPOSED-DISPLACEMENT-SPRING",
+            "ImposedDisplacement".to_string(),
+            expected,
+            evaluation,
+            mechanics::recorded_comparison_holds,
+        )
+    }
+
+    #[test]
+    fn mechanics_whole_suite_is_25_cases_206_values_and_preserves_original_11_91() {
+        let outcome = run_benchmark_cases("mechanics", &[]);
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        let report = outcome.report.expect("mechanics report");
+        assert_eq!(report.requested_case_count, 25);
+        assert_eq!(report.executed_and_matched, 25);
+        assert_eq!(report.executed_and_mismatched, 0);
+        assert_eq!(report.blocked, 0);
+        assert_eq!(
+            report
+                .cases
+                .iter()
+                .map(|case| case.values.len())
+                .sum::<usize>(),
+            206
+        );
+        assert!(report
+            .cases
+            .iter()
+            .flat_map(|case| &case.values)
+            .all(|value| {
+                value.observed.is_some_and(f64::is_finite)
+                    && value.within_recorded_basis == Some(true)
+            }));
+
+        let frozen: serde_json::Value =
+            serde_json::from_str(FROZEN_MECHANICS_RUN).expect("frozen mechanics JSON");
+        let frozen_cases = frozen["payload"]["suite_run"]["cases"]
+            .as_array()
+            .expect("frozen cases");
+        let current = serde_json::to_value(&report).expect("serialize current report");
+        let current_cases = current["cases"].as_array().expect("current cases");
+        let frozen_original = frozen_cases
+            .iter()
+            .filter(|case| case["status"] == "executed_and_matched")
+            .collect::<Vec<_>>();
+        assert_eq!(frozen_original.len(), 11);
+        assert_eq!(
+            frozen_original
+                .iter()
+                .map(|case| case["values"].as_array().expect("values").len())
+                .sum::<usize>(),
+            91
+        );
+        for frozen_case in &frozen_original {
+            let fixture_id = frozen_case["fixture_id"].as_str().expect("fixture id");
+            let current_case = current_cases
+                .iter()
+                .find(|case| case["fixture_id"] == fixture_id)
+                .expect("original case remains present");
+            assert_eq!(
+                current_case, *frozen_case,
+                "original projection drift: {fixture_id}"
+            );
+        }
+
+        let original_ids = frozen_original
+            .iter()
+            .map(|case| case["fixture_id"].as_str().expect("fixture id"))
+            .collect::<std::collections::BTreeSet<_>>();
+        let new_cases = report
+            .cases
+            .iter()
+            .filter(|case| !original_ids.contains(case.fixture_id.as_str()))
+            .collect::<Vec<_>>();
+        assert_eq!(new_cases.len(), 14);
+        assert_eq!(
+            new_cases
+                .iter()
+                .map(|case| case.values.len())
+                .sum::<usize>(),
+            115
+        );
+        for case in new_cases {
+            let names = case
+                .values
+                .iter()
+                .map(|value| value.name.as_str())
+                .collect::<std::collections::BTreeSet<_>>();
+            assert_eq!(
+                names.len(),
+                case.values.len(),
+                "duplicate name: {}",
+                case.fixture_id
+            );
+        }
+    }
+
+    #[test]
+    fn unknown_mechanics_fixture_id_fails_closed() {
+        let outcome = run_benchmark_cases("mechanics", &["MECH-NOT-A-FIXTURE".to_string()]);
+        let report = outcome.report.expect("mechanics report");
+        assert_eq!(report.blocked, 1);
+        assert_eq!(report.executed_and_matched, 0);
+        assert!(outcome
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "HEADLESS_RUNNER_BENCHMARK_CASE_UNKNOWN" }));
+    }
+
+    #[test]
+    fn incomplete_suite_observations_fail_closed_at_runner_seam() {
+        let report = suite_report(
+            CaseEvaluation::SuiteEvaluated(vec![]),
+            &expected("spring_reaction_force", 6.0),
+        );
+        assert_eq!(report.status, CaseStatus::Blocked);
+        assert!(report
+            .block_reason
+            .as_deref()
+            .is_some_and(|reason| reason.contains("missing [spring_reaction_force]")));
+    }
+
+    #[test]
+    fn duplicate_suite_observation_names_fail_closed_at_runner_seam() {
+        let report = suite_report(
+            CaseEvaluation::SuiteEvaluated(vec![
+                ("spring_reaction_force", 6.0),
+                ("spring_reaction_force", 6.0),
+            ]),
+            &expected("spring_reaction_force", 6.0),
+        );
+        assert_eq!(report.status, CaseStatus::Blocked);
+        assert!(report
+            .block_reason
+            .as_deref()
+            .is_some_and(|reason| reason.contains("duplicate [spring_reaction_force]")));
+    }
+
+    #[test]
+    fn non_finite_suite_observation_fails_closed_at_runner_seam() {
+        let report = suite_report(
+            CaseEvaluation::SuiteEvaluated(vec![("spring_reaction_force", f64::NAN)]),
+            &expected("spring_reaction_force", 6.0),
+        );
+        assert_eq!(report.status, CaseStatus::Blocked);
+        assert!(report
+            .block_reason
+            .as_deref()
+            .is_some_and(|reason| reason.contains("non-finite [spring_reaction_force]")));
+    }
+
+    #[test]
+    fn suite_execution_error_fails_closed_at_runner_seam() {
+        let report = suite_report(
+            CaseEvaluation::ExecutionFailed("injected suite failure".to_string()),
+            &expected("spring_reaction_force", 6.0),
+        );
+        assert_eq!(report.status, CaseStatus::Blocked);
+        assert_eq!(
+            report.block_reason.as_deref(),
+            Some("case execution failed: injected suite failure")
+        );
+    }
+
+    #[test]
+    fn expected_observed_name_mismatch_fails_closed_at_runner_seam() {
+        let report = suite_report(
+            CaseEvaluation::SuiteEvaluated(vec![("unexpected", 6.0)]),
+            &expected("spring_reaction_force", 6.0),
+        );
+        assert_eq!(report.status, CaseStatus::Blocked);
+        let reason = report.block_reason.expect("block reason");
+        assert!(reason.contains("missing [spring_reaction_force]"));
+        assert!(reason.contains("extra [unexpected]"));
+    }
+
+    #[test]
+    fn stress_and_nonlinear_whole_suites_remain_matched() {
+        let stress = run_benchmark_cases("stress", &[]);
+        let stress_report = stress.report.expect("stress report");
+        assert_eq!(stress_report.executed_and_mismatched, 0);
+        assert_eq!(stress_report.blocked, 3);
+        assert_eq!(stress.diagnostics.len(), 3);
+        let blocked_ids = stress_report
+            .cases
+            .iter()
+            .filter(|case| case.status == CaseStatus::Blocked)
+            .map(|case| case.fixture_id.as_str())
+            .collect::<std::collections::BTreeSet<_>>();
+        assert_eq!(
+            blocked_ids,
+            [
+                "STRESS-TP-PHYS-008-THERMAL-AXIAL-EFFECT-TO-STRESS",
+                "STRESS-TP-PHYS-009-COMBINED-AXIAL-BENDING-TO-STRESS",
+                "STRESS-TP-PMM-P3-MODULUSBASIS-RANGE-STRESS",
+            ]
+            .into_iter()
+            .collect()
+        );
+        assert_eq!(
+            stress_report.executed_and_matched + stress_report.blocked,
+            stress_report.requested_case_count
+        );
+
+        let nonlinear = run_regression_cases("nonlinear", &[]);
+        assert!(
+            nonlinear.diagnostics.is_empty(),
+            "{:?}",
+            nonlinear.diagnostics
+        );
+        let nonlinear_report = nonlinear.report.expect("nonlinear report");
+        assert_eq!(nonlinear_report.requested_case_count, 5);
+        assert_eq!(nonlinear_report.executed_and_matched, 5);
+        assert_eq!(nonlinear_report.executed_and_mismatched, 0);
+        assert_eq!(nonlinear_report.blocked, 0);
     }
 }

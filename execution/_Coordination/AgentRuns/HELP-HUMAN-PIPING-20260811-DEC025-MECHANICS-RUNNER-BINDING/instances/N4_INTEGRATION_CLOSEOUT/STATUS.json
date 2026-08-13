@@ -1,0 +1,11 @@
+{
+  "instance_id": "N4-INTEGRATION-CLOSEOUT",
+  "parent_instance_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "run_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "role": "INTEGRATION_OWNER",
+  "status": "COMPLETE",
+  "verdict": "PASS_READY_CHANGE",
+  "accepted_n1_sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+  "accepted_n2_sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+  "n3_child_return_sha256": "e7dfee006d050636e38e0e5def29f1acdda487902ea5f3928dd6925fde6de19b"
+}

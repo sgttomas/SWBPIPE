@@ -1,0 +1,16 @@
+{
+  "instance_id": "N3-WORKING-ITEMS-CROSS-PACKAGE-VERIFY",
+  "parent_instance_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "run_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "role": "WORKING_ITEMS",
+  "managed_package": "PKG-10",
+  "selected_deliverable": "DEL-10-05",
+  "bounded_dependency_read": "PKG-09/DEL-09-01 accepted N1 output",
+  "status": "VERIFYING",
+  "active_child": "/root/wi_cross_package_verify/a2_n3_cross_package_verify",
+  "verdict": null,
+  "accepted_n1_sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+  "accepted_n2_sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+  "staged_inventory": 0,
+  "ignored_inventory": 0
+}

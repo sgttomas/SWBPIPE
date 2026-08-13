@@ -1,0 +1,37 @@
+{
+  "instance_id": "A2-10-AUTHOR-REMEDIATION",
+  "agent_type": "EPHEMERAL_AGENT_2",
+  "parent": "N2-WORKING-ITEMS-PKG10-DEL1005",
+  "package_id": "PKG-10",
+  "deliverable_id": "DEL-10-05",
+  "status": "COMPLETE",
+  "terminal": true,
+  "attempt": 2,
+  "delegation": "FORBIDDEN",
+  "outcome": "PASS",
+  "source_sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+  "source_git_blob": "455b9e9dee1a6a8154f65a1b5218dd7e09b6444f",
+  "coverage": {
+    "mechanics_cases_matched": 25,
+    "mechanics_observations": 206,
+    "new_cases": 14,
+    "new_observations": 115,
+    "original_cases_exact": 11,
+    "original_observations_exact": 91,
+    "nonlinear_cases_matched": 5
+  },
+  "tests": {
+    "runner_library_passed": 38,
+    "runner_preview_binary_passed": 1,
+    "runner_final_binary_passed": 15,
+    "mechanics_unit_passed": 41,
+    "failed": 0,
+    "fmt_check": "PASS",
+    "diff_check": "PASS"
+  },
+  "external_shadow": "/private/tmp/a2-10-author-remediation-final-20260812-pApJHt",
+  "whole_suite_output_sha256": "12901f73ffdf7d828c6e179f25e672aa152006f183c5331e2c64b80354d1962d",
+  "ignored_drift": 0,
+  "staged_drift": 0,
+  "blockers": []
+}

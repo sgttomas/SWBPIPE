@@ -1,0 +1,15 @@
+{
+  "instance_id": "A2-09-AUTHOR",
+  "agent_type": "EPHEMERAL_AGENT_2",
+  "parent": "N1-WORKING-ITEMS-PKG09-DEL0901",
+  "package_id": "PKG-09",
+  "deliverable_id": "DEL-09-01",
+  "status": "INTERRUPTED_NO_SOURCE_WRITE",
+  "terminal": true,
+  "attempt": 1,
+  "delegation": "FORBIDDEN",
+  "outcome": "FAIL",
+  "reason_code": "AUTHOR_NON_EXECUTION_TIMEBOX",
+  "source_changed": false,
+  "disposition": "FRESH_BOUNDED_AUTHOR_REMEDIATION"
+}

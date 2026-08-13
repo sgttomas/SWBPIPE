@@ -1,0 +1,40 @@
+{
+  "instance_id": "A2-09-VERIFY",
+  "agent_type": "EPHEMERAL_AGENT_2",
+  "parent": "N1-WORKING-ITEMS-PKG09-DEL0901",
+  "package_id": "PKG-09",
+  "deliverable_id": "DEL-09-01",
+  "status": "COMPLETE",
+  "terminal": true,
+  "delegation": "FORBIDDEN",
+  "repair": "FORBIDDEN",
+  "outcome": "PASS",
+  "source_sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+  "source_git_blob": "a0d8b4a269a5dc0f9d2f868a0a0cec97bacb0197",
+  "coverage": {
+    "fixture_cases": 14,
+    "observations": 115,
+    "original_cases_preserved": 11,
+    "original_observations_preserved": 91
+  },
+  "tests": {
+    "fmt_check": "PASS",
+    "unit_passed": 41,
+    "unit_failed": 0,
+    "doc_failed": 0
+  },
+  "source_delta": {
+    "insertions": 906,
+    "deletions": 0
+  },
+  "staged_drift": 0,
+  "ignored_drift": 0,
+  "blockers": [],
+  "rerun_triggers": [
+    "accepted lib.rs bytes change",
+    "fixture inventory or expected names change",
+    "underlying mechanics APIs change",
+    "frozen runner output identity changes",
+    "C-B identity changes"
+  ]
+}

@@ -504,3 +504,13 @@ or code-compliance decisions.
   protected standards content, private payload, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-08-12 - Mechanics case-runner observation binding
+
+- Executed N2 of owner-adopted `CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001` from pinned base `f1e311fb7ab1c2a0800b1d32c59445368428dee9`, serialized after acceptance of the DEL-09-01 suite API.
+- Updated only `core/runner/headless/src/benchmark_binding.rs`; accepted SHA-256 is `4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f`, Git blob `455b9e9dee1a6a8154f65a1b5218dd7e09b6444f`.
+- Preserved every original explicit 11-case evaluator. The formerly blocked fallback now consumes suite-owned `fixture_observations` and `fixture_recorded_comparison_holds`; no runner tolerance, expected value, fixture formula, schema change, or mechanics use of C-B was introduced.
+- Fresh independent cross-package verification passed 25/25 cases, 206/206 finite populated comparisons, exact new 14/115 coverage, complete serialized-object equality for the original 11/91 projection, and all six required fail-closed behaviors. Runner tests passed 38/38 library, 1/1 preview, and 15/15 final binary.
+- Stress source and historical behavior were unchanged; nonlinear remained 5/5. DEC-046 C-B remained byte-identical at SHA-256 `1829a2a6a608dbbdd479248133f2c2a05406c0eabe7a03be57b998735fbe78b6` and nonlinear-only.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-08-12_DEL1005_MECHANICS_RUNNER_BINDING.md` and managed run `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/`.
+- Lifecycle remains `IN_PROGRESS`. The public result-comparison number, manual-page promotion, Task Management, release/publication, and reliance decisions remain outside this bounded evidence. The clean-commit DEC-025 derivative evidence has not yet been produced.

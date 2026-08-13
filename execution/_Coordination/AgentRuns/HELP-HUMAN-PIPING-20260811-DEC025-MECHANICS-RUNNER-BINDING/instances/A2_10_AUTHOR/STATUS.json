@@ -1,0 +1,11 @@
+{
+  "instance_id": "A2-10-AUTHOR",
+  "parent_instance_id": "N2-WORKING-ITEMS-PKG10-DEL1005",
+  "run_id": "HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING",
+  "status": "COMPLETE",
+  "attempt": 1,
+  "verdict": "HOLD",
+  "reason_code": "UNEXPECTED_IGNORED_CARGO_LOCKFILE_SIDE_EFFECT",
+  "unexpected_path": "projects/chirality-piping/core/runner/headless/Cargo.lock",
+  "unexpected_sha256": "7a3bd7e0df41a07e5c503aa312734e95fa6625afcd8b12f1f7994bd7a75b2e66"
+}

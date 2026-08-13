@@ -1,15 +1,16 @@
 # Status: DEL-09-01 Mechanics benchmark suite
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-20
+**Last Updated:** 2026-08-12
 
 ## Remaining
-- Keep PDU-037's dedicated provenance/redistribution index, runner/release integration, and acceptance thresholds open; 21-family inventory and 33-test refresh are project-owned verification only.
+- Keep PDU-037's dedicated provenance/redistribution index, release integration, and acceptance thresholds open. The suite-to-headless observation binding is now bounded implementation evidence only; it does not select the still-open public result-comparison number or close validation/release gates.
 - Hold PDU-013 project-grain unit-system acceptance until the upstream canonical unit catalog and conversion constants are accepted; current benchmark evidence remains explicit and dimensionally checked only against its fixture-local unit basis (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
 - Complete the PRD §16.2 benchmark evidence system named residual by the conditional R4 gate (see also DEL-09-04 for §16.5) (source: PRD plan §3 D9 exit-refresh row / DEC-054)
 - Obtain the owning human disposition for `PKG09-0901-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` until that act occurs, and do not infer formal closure from the implemented fixture-local unit evidence (PDU-060).
 
 ## History
+- 2026-08-12 - Under owner-adopted `CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001`, DEL-09-01 added a suite-owned observation and recorded-comparison accessor seam for the complete current 25-case mechanics inventory. Fresh independent verification passed 25/25 cases, 206/206 values, the new 14/115 slice, and exact original 11/91 non-regression; stress was unchanged, nonlinear remained 5/5, and DEC-046 C-B remained byte-identical and nonlinear-only. This is bounded implementation evidence; lifecycle remains `IN_PROGRESS`, and the public comparison-number, release, promotion, and reliance gates remain open.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed the still-TBD human disposition for `PKG09-0901-PKG02-001`; technical evidence and formal finding disposition remain distinct, with no lifecycle change.
 - 2026-07-12 - D-41 R5 T6 PDU-037 refreshed bounded fixture/harness evidence and preserved all validation, policy, review, and lifecycle holds.

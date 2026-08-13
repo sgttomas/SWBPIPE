@@ -1,0 +1,174 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 11
+  },
+  "counts": {
+    "category": {
+      "EXECUTION": 5,
+      "IMPLEMENTATION": 9,
+      "INTEGRATION": 2,
+      "VERIFICATION": 8
+    },
+    "event_type": {
+      "FINISH": 11,
+      "REMEDIATION": 2,
+      "START": 11
+    },
+    "outcome": {
+      "FAIL": 2,
+      "PASS": 9,
+      "RETRY": 2,
+      "STARTED": 11
+    },
+    "reason_code": {
+      "ACCEPTED_AUTHOR_CANDIDATE": 2,
+      "AUTHOR_NON_EXECUTION_TIMEBOX": 1,
+      "DURABLE_RECORD_MTIME_BACKFILL": 2,
+      "FRESH_BOUNDED_AUTHOR_REMEDIATION": 1,
+      "FRESH_NON_REPAIRING_VERIFY": 2,
+      "N1_FAN_IN_ACCEPT": 1,
+      "N1_FAN_IN_ACCEPTED": 1,
+      "N1_INDEPENDENT_VERIFY_PASS": 1,
+      "N2_FAN_IN_ACCEPT": 1,
+      "N2_INDEPENDENT_VERIFY_PASS": 1,
+      "N3_COMMIT_SAFE": 1,
+      "N3_COMMIT_SAFE_ACCEPTED": 1,
+      "N3_FAN_IN_COMMIT_SAFE": 1,
+      "N4_PASS_READY_CHANGE": 1,
+      "OWNER_ADOPTED": 1,
+      "OWNER_AUTHORIZED_EXACT_CLEANUP_PASS": 1,
+      "SEALED_BRIEF_DISPATCHED": 4,
+      "UNEXPECTED_IGNORED_CARGO_LOCKFILE_SIDE_EFFECT": 1
+    }
+  },
+  "events": 24,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 358.586,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "A2-09-AUTHOR",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2-09-author-01"
+    },
+    {
+      "duration_seconds": 673.715,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "A2-09-AUTHOR-REMEDIATION",
+      "package_id": "PKG-09",
+      "remediations": 1,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2-09-author-remediation-01"
+    },
+    {
+      "duration_seconds": 343.229,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-09-VERIFY",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2-09-verify-01"
+    },
+    {
+      "duration_seconds": 25527.196,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "A2-10-AUTHOR",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2-10-author-01"
+    },
+    {
+      "duration_seconds": 684.547,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-10-AUTHOR-REMEDIATION",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2-10-author-remediation-01"
+    },
+    {
+      "duration_seconds": 375.461,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-10-VERIFY",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2-10-verify-01"
+    },
+    {
+      "duration_seconds": 403.0,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2-N3-CROSS-PACKAGE-VERIFY",
+      "package_id": null,
+      "remediations": 0,
+      "retries": 0,
+      "role": "EPHEMERAL_AGENT_2",
+      "session_id": "a2-n3-verify-01"
+    },
+    {
+      "duration_seconds": 1375.67,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N1-WORKING-ITEMS-PKG09-DEL0901",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "n1-manager-01"
+    },
+    {
+      "duration_seconds": 26587.344,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "N2-WORKING-ITEMS-PKG10-DEL1005",
+      "package_id": "PKG-10",
+      "remediations": 1,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "n2-manager-01"
+    },
+    {
+      "duration_seconds": 559.0,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N3-WORKING-ITEMS-CROSS-PACKAGE-VERIFY",
+      "package_id": null,
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "n3-manager-01"
+    },
+    {
+      "duration_seconds": 394.127,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N4-INTEGRATION-CLOSEOUT",
+      "package_id": null,
+      "remediations": 0,
+      "retries": 0,
+      "role": "INTEGRATION_OWNER",
+      "session_id": "n4-integration-01"
+    }
+  ],
+  "sessions": 11,
+  "status": "PASS",
+  "unmatched_sessions": []
+}
