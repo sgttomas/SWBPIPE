@@ -29,6 +29,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -39,6 +40,7 @@ DECISION_BASIS = "DEC-025"
 DEFAULT_OUTPUT_DIR = "validation/evidence/sweeps"
 PINNED_WASM_BINDGEN_VERSION = "0.2.123"
 REQUIRED_NODE_BINS = ("playwright", "tsc", "vite", "vitest")
+EXECUTION_CAPABILITIES = frozenset({"sandboxed", "host"})
 
 BOUNDARY_NOTE = (
     "Local-only development evidence. Not a release claim, professional "
@@ -53,7 +55,15 @@ class Surface:
 
     surface_id: str
     description: str
+    execution_capability: Literal["sandboxed", "host"]
     commands: tuple[tuple[str, ...], ...]
+
+    def __post_init__(self) -> None:
+        if self.execution_capability not in EXECUTION_CAPABILITIES:
+            raise ValueError(
+                f"invalid execution capability {self.execution_capability!r}; "
+                f"expected one of: {', '.join(sorted(EXECUTION_CAPABILITIES))}"
+            )
 
 
 def build_sweep_plan() -> list[Surface]:
@@ -69,6 +79,7 @@ def build_sweep_plan() -> list[Surface]:
         Surface(
             surface_id="cargo_crate_sweep",
             description="Rust crate tests across all discovered crate manifests.",
+            execution_capability="sandboxed",
             commands=(
                 (
                     sys.executable,
@@ -82,11 +93,13 @@ def build_sweep_plan() -> list[Surface]:
         Surface(
             surface_id="python_pytest",
             description="Repository Python contract, governance, and validation tests.",
+            execution_capability="sandboxed",
             commands=((sys.executable, "-m", "pytest", "-q", "tests"),),
         ),
         Surface(
             surface_id="desktop_vitest",
             description="Desktop unit/contract tests; wasm engine built first.",
+            execution_capability="sandboxed",
             commands=(
                 ("npm", "run", "build:wasm:desktop"),
                 ("npm", "run", "test:desktop"),
@@ -99,6 +112,7 @@ def build_sweep_plan() -> list[Surface]:
                 "lane, then production-dist lane via vite preview "
                 "(TP-APP-R2-WASMPKG-001)."
             ),
+            execution_capability="host",
             commands=(
                 ("npm", "run", "test:e2e:desktop"),
                 ("npm", "run", "test:e2e:dist:desktop"),
@@ -107,6 +121,7 @@ def build_sweep_plan() -> list[Surface]:
         Surface(
             surface_id="desktop_production_build",
             description="Desktop production build (tsc -b && vite build).",
+            execution_capability="sandboxed",
             commands=(("npm", "run", "build:desktop"),),
         ),
     ]
@@ -202,13 +217,22 @@ def run_command(command: tuple[str, ...], root: Path) -> int:
     return completed.returncode
 
 
-def preflight_prerequisites(root: Path) -> list[str]:
+def preflight_prerequisites(
+    root: Path, surfaces: list[Surface] | None = None
+) -> list[str]:
     """Validate the complete local/offline execution environment.
 
     The sweep never installs or downloads prerequisites.  Every check runs
     before the first evidence surface, and every Cargo cache probe is forced
-    offline both in argv and environment.
+    offline both in argv and environment. Direct callers that omit ``surfaces``
+    retain the complete five-surface preflight; selected plans probe only the
+    external services needed by their surfaces.
     """
+    if surfaces is None:
+        surfaces = build_sweep_plan()
+    needs_host_services = any(
+        surface.execution_capability == "host" for surface in surfaces
+    )
     errors: list[str] = []
     env = os.environ.copy()
     env["CARGO_NET_OFFLINE"] = "true"
@@ -218,7 +242,12 @@ def preflight_prerequisites(root: Path) -> list[str]:
             errors.append(f"missing executable: {executable}")
 
     node_bin = root / "node_modules" / ".bin"
-    for executable in REQUIRED_NODE_BINS:
+    required_node_bins = tuple(
+        executable
+        for executable in REQUIRED_NODE_BINS
+        if executable != "playwright" or needs_host_services
+    )
+    for executable in required_node_bins:
         if not (node_bin / executable).is_file():
             errors.append(
                 f"missing local Node prerequisite: node_modules/.bin/{executable} "
@@ -275,7 +304,11 @@ def preflight_prerequisites(root: Path) -> list[str]:
                     f"{version or 'unavailable'}"
                 )
 
-    if shutil.which("node") is not None and (node_bin / "playwright").is_file():
+    if (
+        needs_host_services
+        and shutil.which("node") is not None
+        and (node_bin / "playwright").is_file()
+    ):
         try:
             browser_probe = subprocess.run(
                 (
@@ -354,6 +387,7 @@ def run_sweep(surfaces: list[Surface], root: Path, runner=None) -> dict:
             "order": order,
             "surface_id": surface.surface_id,
             "description": surface.description,
+            "execution_capability": surface.execution_capability,
             "commands": [],
             "status": "not_run",
         }
@@ -428,12 +462,16 @@ def write_summary(summary: dict, output_dir: Path) -> Path:
 
 def print_plan(surfaces: list[Surface], root: Path, execute: bool) -> None:
     mode = "execute" if execute else "dry-run"
-    print(f"OpenPipeStress five-surface evidence sweep ({mode}) — {DECISION_BASIS}")
+    plan_scope = (
+        "five-surface" if len(surfaces) == 5 else f"{len(surfaces)}-surface partial"
+    )
+    print(f"OpenPipeStress {plan_scope} evidence sweep ({mode}) — {DECISION_BASIS}")
     print(f"repo: {root}")
     print("")
     print(f"surfaces (sequential, F-4-safe order): {len(surfaces)}")
     for order, surface in enumerate(surfaces, start=1):
         print(f"{order}. {surface.surface_id}")
+        print(f"   execution capability: {surface.execution_capability}")
         print(f"   {surface.description}")
         for command in surface.commands:
             print(f"   command: {' '.join(command)}")
@@ -449,6 +487,51 @@ def missing_tools(surfaces: list[Surface]) -> list[str]:
             if shutil.which(executable) is None and executable not in missing:
                 missing.append(executable)
     return missing
+
+
+def capability_preflight_errors(
+    surfaces: list[Surface], available_capability: str
+) -> list[str]:
+    """Return plan incompatibilities for the invoker's execution context.
+
+    A host context can run both capability classes. A sandboxed context cannot
+    run surfaces that need host OS services (currently Playwright/Chromium).
+    """
+    if available_capability not in EXECUTION_CAPABILITIES:
+        return [
+            f"invalid execution capability {available_capability!r}; expected one of: "
+            + ", ".join(sorted(EXECUTION_CAPABILITIES))
+        ]
+
+    errors = [
+        (
+            f"surface {surface.surface_id} requires host execution capability; "
+            "the declared context is sandboxed"
+        )
+        for surface in surfaces
+        if surface.execution_capability == "host"
+        and available_capability == "sandboxed"
+    ]
+    errors.extend(
+        f"surface {surface.surface_id} declares invalid execution capability "
+        f"{surface.execution_capability!r}"
+        for surface in surfaces
+        if surface.execution_capability not in EXECUTION_CAPABILITIES
+    )
+    return errors
+
+
+def select_surfaces(
+    surfaces: list[Surface], only_capability: str | None
+) -> list[Surface]:
+    """Select an explicitly capability-scoped subset of the sweep plan."""
+    if only_capability is None:
+        return surfaces
+    return [
+        surface
+        for surface in surfaces
+        if surface.execution_capability == only_capability
+    ]
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -474,6 +557,23 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         default=str(ROOT),
         help="Repository root. Defaults to the root containing this script.",
     )
+    parser.add_argument(
+        "--require-capability",
+        choices=sorted(EXECUTION_CAPABILITIES),
+        help=(
+            "Declare the invoker's execution context. 'sandboxed' fails "
+            "before surface 1 when the plan contains a host-only surface; "
+            "'host' permits both surface capability classes."
+        ),
+    )
+    parser.add_argument(
+        "--only-capability",
+        choices=sorted(EXECUTION_CAPABILITIES),
+        help=(
+            "Run only surfaces declaring this capability. The summary records "
+            "the selection and is not a complete five-surface DEC-025 sweep."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -484,9 +584,34 @@ def main(argv: list[str] | None = None) -> int:
         print(f"missing repository root: {root}", file=sys.stderr)
         return 2
 
-    surfaces = build_sweep_plan()
+    surfaces = select_surfaces(build_sweep_plan(), args.only_capability)
     print_plan(surfaces, root, args.execute)
+    if args.only_capability:
+        print(
+            "surface selection: only "
+            f"{args.only_capability} (partial DEC-025 sweep)"
+        )
     sys.stdout.flush()
+
+    if args.require_capability:
+        capability_errors = capability_preflight_errors(
+            surfaces, args.require_capability
+        )
+        if capability_errors:
+            print(
+                "evidence-sweep execution capability preflight failed before "
+                "surface 1:",
+                file=sys.stderr,
+            )
+            for error in capability_errors:
+                print(f"  - {error}", file=sys.stderr)
+            print("no evidence surface ran", file=sys.stderr)
+            return 1
+        print(
+            "[evidence-sweep] execution capability preflight: PASS "
+            f"({args.require_capability})"
+        )
+        sys.stdout.flush()
 
     if not args.execute:
         return 0
@@ -499,7 +624,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     os.environ["CARGO_NET_OFFLINE"] = "true"
-    prerequisite_errors = preflight_prerequisites(root)
+    prerequisite_errors = preflight_prerequisites(root, surfaces)
     if prerequisite_errors:
         print(
             "evidence-sweep prerequisite preflight failed before execution:",
@@ -524,6 +649,11 @@ def main(argv: list[str] | None = None) -> int:
     os.environ.setdefault("PLAYWRIGHT_WORKERS", "1")
 
     summary = run_sweep(surfaces, root)
+    if args.only_capability:
+        summary["surface_selection"] = {
+            "only_capability": args.only_capability,
+            "complete_dec025_sweep": False,
+        }
     output_path = write_summary(summary, root / args.output_dir)
 
     print("")

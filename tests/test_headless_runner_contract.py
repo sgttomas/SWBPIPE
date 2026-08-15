@@ -316,6 +316,25 @@ def test_both_runner_exposure_paths_are_controlled_before_stdout_or_file_write()
     assert "clean && !controlled.blocked" in compat_source
 
 
+def cargo_target_debug_directory(crate):
+    metadata = subprocess.run(
+        ["cargo", "metadata", "--format-version", "1", "--no-deps"],
+        cwd=crate,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert metadata.returncode == 0, metadata.stderr
+    return Path(json.loads(metadata.stdout)["target_directory"]) / "debug"
+
+
+def test_cargo_target_debug_directory_honors_cargo_target_dir(monkeypatch, tmp_path):
+    redirected_target = tmp_path / "cargo-target"
+    monkeypatch.setenv("CARGO_TARGET_DIR", str(redirected_target))
+
+    assert cargo_target_debug_directory(HEADLESS_CRATE) == redirected_target / "debug"
+
+
 @pytest.fixture(scope="module")
 def runner_binaries():
     build = subprocess.run(
@@ -326,7 +345,7 @@ def runner_binaries():
         check=False,
     )
     assert build.returncode == 0, build.stderr
-    target = HEADLESS_CRATE / "target" / "debug"
+    target = cargo_target_debug_directory(HEADLESS_CRATE)
     final = target / "openpipestress-runner"
     compat = target / "headless_preview_runner"
     assert final.is_file()

@@ -2566,3 +2566,35 @@
     unchanged. No routed notice, foreign-register write, trigger activation,
     deliverable amendment, lifecycle, release, reliance, professional-
     approval, or merge effect is created.
+
+- **2026-08-15 — Receipt 101** (runner-binding bridge retirement candidate).
+  - Receipt-ID: `Receipt-101`
+  - Examined-Through: `910c02129811a005da9b180c31e3c18dd365df6f`
+  - Parent-Receipt: `Receipt-100`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    direction: “DIRECTION — Piping development tranche: retire the runner-
+    binding environment bridge (CARGO_TARGET_DIR fix + sweep surface capability
+    annotation)”; “one branch off current main, one ready-for-review PR,
+    publication gate as usual, no merge”; and “run only the sandboxed surfaces
+    locally — do not attempt Playwright in-sandbox, and do not request
+    escalation for this tranche.”
+  - Pointers: candidate implementation and tests are confined to
+    `tests/test_headless_runner_contract.py`, `tests/test_evidence_sweep.py`,
+    and `tools/release/run_evidence_sweep.py`; no evidence, bridge note,
+    portability policy, lifecycle, deliverable-state, or foreign-loop artifact
+    was changed.
+  - Checks: focused evidence-sweep and headless-runner tests; default and
+    redirected-target headless tests; redirected-target Cargo crate sweep;
+    full Piping pytest; capability fail-fast preflight; grep, diff, receipt
+    contract, and repository self-check: PASS. The partial redirected-target
+    sandbox sweep passed Cargo and Python, then failed desktop Vitest on an
+    out-of-fence desktop WASM target-output hard-coding; production was not run.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised managed WORKING_ITEMS
+    and CHANGE Agent 1 roles. Inherited runtime capability was used without
+    override; no exact runtime model string was exposed.
+  - Gate-Outcome: `EXECUTED` — the bounded code and test candidate is locally
+    committable, but the required redirected-target sandbox surface acceptance
+    and DEC-025 pre-push gate are not green. No governed evidence was written;
+    no Playwright, push, PR, merge, lifecycle, release, reliance, or
+    professional-approval effect occurs. Publication awaits owner authorization
+    for the out-of-fence desktop hard-coding repair and a green rerun.

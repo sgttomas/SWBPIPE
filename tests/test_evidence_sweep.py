@@ -7,6 +7,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "tools" / "release" / "run_evidence_sweep.py"
@@ -35,6 +37,37 @@ def test_plan_is_the_five_surfaces_in_dec025_order():
     surfaces = sweep.build_sweep_plan()
 
     assert [surface.surface_id for surface in surfaces] == EXPECTED_SURFACE_ORDER
+
+
+def test_every_surface_declares_a_valid_execution_capability():
+    sweep = load_module()
+    surfaces = sweep.build_sweep_plan()
+
+    assert all(
+        surface.execution_capability in sweep.EXECUTION_CAPABILITIES
+        for surface in surfaces
+    )
+    assert {
+        surface.surface_id: surface.execution_capability for surface in surfaces
+    } == {
+        "cargo_crate_sweep": "sandboxed",
+        "python_pytest": "sandboxed",
+        "desktop_vitest": "sandboxed",
+        "desktop_playwright_e2e": "host",
+        "desktop_production_build": "sandboxed",
+    }
+
+
+def test_surface_rejects_invalid_execution_capability():
+    sweep = load_module()
+
+    with pytest.raises(ValueError, match="invalid execution capability"):
+        sweep.Surface(
+            surface_id="invalid",
+            description="invalid test surface",
+            execution_capability="networked",
+            commands=(),
+        )
 
 
 def test_wasm_engine_build_precedes_vitest():
@@ -101,6 +134,16 @@ def test_preflight_rejects_missing_node_dependencies_before_execution(
     assert any("node_modules/.bin/playwright" in error for error in errors)
 
 
+def test_sandboxed_preflight_does_not_require_playwright(monkeypatch, tmp_path):
+    sweep = load_module()
+    monkeypatch.setattr(sweep.shutil, "which", lambda executable: None)
+    selected = sweep.select_surfaces(sweep.build_sweep_plan(), "sandboxed")
+
+    errors = sweep.preflight_prerequisites(tmp_path, selected)
+
+    assert all("playwright" not in error.lower() for error in errors)
+
+
 def test_build_wasm_script_forces_offline_cargo():
     script = (ROOT / "apps" / "desktop" / "scripts" / "build-wasm-engine.mjs").read_text(
         encoding="utf-8"
@@ -127,6 +170,9 @@ def test_summary_binds_commit_hash_and_passes_when_all_surfaces_pass():
         EXPECTED_SURFACE_ORDER
     )
     assert all(entry["status"] == "pass" for entry in summary["surfaces"])
+    assert [entry["execution_capability"] for entry in summary["surfaces"]] == [
+        surface.execution_capability for surface in sweep.build_sweep_plan()
+    ]
     assert all(
         command["exit_code"] == 0
         for entry in summary["surfaces"]
@@ -319,6 +365,110 @@ def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
     assert result == 0
     assert "evidence sweep (dry-run)" in captured.out
     assert "surfaces (sequential, F-4-safe order): 5" in captured.out
+    assert "execution capability: host" in captured.out
+
+
+def test_sandboxed_capability_preflight_fails_before_any_execution(
+    monkeypatch, capsys
+):
+    sweep = load_module()
+
+    def fail_preflight(*args, **kwargs):
+        raise AssertionError("capability failure must precede prerequisite probes")
+
+    def fail_run_sweep(*args, **kwargs):
+        raise AssertionError("capability failure must stop before surface 1")
+
+    monkeypatch.setattr(sweep, "preflight_prerequisites", fail_preflight)
+    monkeypatch.setattr(sweep, "run_sweep", fail_run_sweep)
+
+    result = sweep.main(
+        [
+            "--execute",
+            "--require-capability",
+            "sandboxed",
+            "--repo-root",
+            str(ROOT),
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert result == 1
+    assert "capability preflight failed before surface 1" in captured.err
+    assert "desktop_playwright_e2e requires host" in captured.err
+    assert "no evidence surface ran" in captured.err
+
+
+def test_host_capability_preflight_accepts_the_complete_plan():
+    sweep = load_module()
+
+    assert sweep.capability_preflight_errors(
+        sweep.build_sweep_plan(), "host"
+    ) == []
+
+
+def test_sandboxed_capability_selection_excludes_host_surface():
+    sweep = load_module()
+
+    selected = sweep.select_surfaces(sweep.build_sweep_plan(), "sandboxed")
+
+    assert [surface.surface_id for surface in selected] == [
+        "cargo_crate_sweep",
+        "python_pytest",
+        "desktop_vitest",
+        "desktop_production_build",
+    ]
+    assert sweep.capability_preflight_errors(selected, "sandboxed") == []
+
+
+def test_main_executes_only_sandboxed_selection_and_records_partial_summary(
+    monkeypatch, capsys, tmp_path
+):
+    sweep = load_module()
+    observed_commands = []
+
+    def record_command(command, root):
+        observed_commands.append(command)
+        return 0
+
+    monkeypatch.setattr(sweep, "missing_tools", lambda surfaces: [])
+    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root, surfaces: [])
+    monkeypatch.setattr(sweep, "run_command", record_command)
+
+    result = sweep.main(
+        [
+            "--execute",
+            "--only-capability",
+            "sandboxed",
+            "--require-capability",
+            "sandboxed",
+            "--repo-root",
+            str(ROOT),
+            "--output-dir",
+            str(tmp_path),
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert result == 0
+    assert all(
+        all("test:e2e" not in argument for argument in command)
+        for command in observed_commands
+    )
+    assert "surface selection: only sandboxed (partial DEC-025 sweep)" in captured.out
+    summaries = list(tmp_path.glob("SWEEP_*.json"))
+    assert len(summaries) == 1
+    parsed = json.loads(summaries[0].read_text(encoding="utf-8"))
+    assert parsed["surface_selection"] == {
+        "only_capability": "sandboxed",
+        "complete_dec025_sweep": False,
+    }
+    assert [entry["surface_id"] for entry in parsed["surfaces"]] == [
+        "cargo_crate_sweep",
+        "python_pytest",
+        "desktop_vitest",
+        "desktop_production_build",
+    ]
 
 
 def test_main_execute_writes_summary_and_returns_failure_exit(
@@ -329,7 +479,7 @@ def test_main_execute_writes_summary_and_returns_failure_exit(
     monkeypatch.setattr(
         sweep, "run_command", lambda command, root: 1 if "pytest" in command else 0
     )
-    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root: [])
+    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root, surfaces: [])
 
     result = sweep.main(
         [
@@ -358,7 +508,7 @@ def test_main_preflight_failure_runs_no_surface_and_writes_no_summary(
     monkeypatch.setattr(
         sweep,
         "preflight_prerequisites",
-        lambda root: ["missing local prerequisite"],
+        lambda root, surfaces: ["missing local prerequisite"],
     )
 
     def fail_run_sweep(*args, **kwargs):
