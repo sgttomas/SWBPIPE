@@ -2625,3 +2625,30 @@
     by Receipt 101. A non-draft ready-for-review PR is intended after the final
     upstream fast-forward safety check; no merge, lifecycle, release, reliance,
     or professional-approval effect occurs.
+
+- **2026-08-15 — Receipt 103** (routine clean-basis branch creation amendment).
+  - Receipt-ID: `Receipt-103`
+  - Examined-Through: `0d3eb2249cdb09a2a4bda8b7c73f187a8835467b`
+  - Parent-Receipt: `Receipt-102`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    application direction: “Apply the new ruled fact: branch creation from
+    verified clean basis is routine and needs no APPROVE token; do not stop for
+    approval.”
+  - Pointers: owner ruling basis is App
+    `projects/chirality-app-dev/loop/LOOP_RECEIPTS.md` Receipt-74; the Piping
+    application is `projects/chirality-piping/AGENTS.md`, resulting Git blob
+    `f06abfdc5e9f4e4bdf7ba504f99ed4605fdd69ec` from clean base
+    `0d3eb2249cdb09a2a4bda8b7c73f187a8835467b`.
+  - Checks: exact single-block insertion and prior-blob comparison; instruction
+    entrypoint, receipt-ledger, and repository self-check validators; diff and
+    exact two-path containment: PASS. Runtime, frontend, desktop, and DEC-025
+    checks were skipped because no runtime source changed.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised HELPS_HUMANS and
+    CHANGE Agent 1 roles. Inherited runtime capability was used without
+    override; no exact runtime model string was exposed.
+  - Gate-Outcome: `EXECUTED` — Piping now classifies clean verified-basis task
+    branch creation as routine while preserving dirty-worktree and
+    work-carrying switches as non-routine. No root agent/instruction, App, DAG,
+    register, evidence, runtime, lifecycle, release, reliance, or
+    professional-approval effect occurs; a non-draft PR is intended and merge
+    remains owner-gated.

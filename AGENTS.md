@@ -84,6 +84,18 @@ perform the following scoped Git/file-state closeout checklist:
 - push only when the upstream branch can be fast-forwarded to the local scoped
   commit.
 
+Branch creation is routine. Creating the tranche's task branch (and, when
+isolation is warranted, its worktree lane) from a verified clean basis on the
+integration branch — clean status, no in-progress Git operation, base SHA
+recorded — is an ordinary Step 0/Step 4 act and requires no `APPROVE:` token,
+whether performed by the loop session or by a dispatched CHANGE instance.
+CHANGE reports the branch name and base SHA and proceeds. Basing a lane on a
+dirty worktree, or any switch that would discard or carry uncommitted work,
+remains non-routine under root `AGENT_CHANGE.md`. Owner direction 2026-07-19
+(recorded in App `loop/LOOP_RECEIPTS.md` Receipt-74), applied to this loop by
+owner direction 2026-08-15; scoped commit/push closeout follows the checklist
+above and likewise needs no per-run `APPROVE:` token.
+
 If the remote branch has advanced and local `HEAD` does not already include
 it, stop and surface the conflict. Do not merge, rebase, force push, or judge
 another agent's work during ordinary closeout.
