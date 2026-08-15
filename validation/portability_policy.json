@@ -81,6 +81,14 @@
       "role": "EVIDENCE",
       "reason": "Immutable R23 N2E Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
       "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/N5_CHANGE_WHITESPACE_NORMALIZATION/VALIDATION.md",
+      "sha256": "bd2995c2b401ecdeac1e6f8bfdb2937cfb4e755893a851664587007891935e9d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable N5 verification record captures its external verification root and inventory as historical evidence, not live instruction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; representation-only normalization and accepted N5 verification remain unchanged."
     }
   ],
   "control_path_exceptions": [
@@ -123,6 +131,78 @@
       "role": "CONTROL",
       "reason": "Preserve the completed V1 verifier brief's actual machine-local checkout and scratch anchors; tokenized V2 supersedes it as terminal basis.",
       "authority": "Direct owner PR #550 repair direction plus Amendment V5's frozen V1/tokenized V2 treatment."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_09_AUTHOR/LAUNCH_BRIEF.md",
+      "sha256": "fd5e0b5cb8b823c2f4a7a718dc3bf9081a8f486ebad96d7b785bb56e8fcbcb28",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_09_AUTHOR_REMEDIATION/LAUNCH_BRIEF.md",
+      "sha256": "6c260e749d008fe973060bc502553a050b1a6f900595f5241017d5f72295777a",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_09_VERIFY/LAUNCH_BRIEF.md",
+      "sha256": "bfdcefd180d6582e3de4731eee64babf7eeb7478669f4a3ffbcf19c0d227ef3e",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_10_AUTHOR/LAUNCH_BRIEF.md",
+      "sha256": "184bac8a6a304b3b4fe77ad285a6b657ef7760bf85dd29660a74cd2ba2366f81",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_10_AUTHOR_REMEDIATION/LAUNCH_BRIEF.md",
+      "sha256": "c669fab80de14fc02f51c99e33e066662c92f952243426a17b4d50e6309c1eb4",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_10_VERIFY/LAUNCH_BRIEF.md",
+      "sha256": "8eef63235b2065a7c622bc0409a02a3fd88458fde4af725f1547371236d5ee6e",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_N3_CROSS_PACKAGE_VERIFY/LAUNCH_BRIEF.md",
+      "sha256": "fe1577559d1653a749e7a3eef0e580b93a250a39acdfe9519c13fc4698377fb3",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/N3_WORKING_ITEMS_VERIFY/LAUNCH_BRIEF.md",
+      "sha256": "89e04e6d0ddf840dc16c48746ad47bdd034e40039bbe38352cfedf18e6efec17",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/N5_CHANGE_WHITESPACE_NORMALIZATION/LAUNCH_BRIEF.md",
+      "sha256": "553a85d85dbb2bd0045ea077a857ac206b1330144fc6addcab3d0dc338bcc013",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+      "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
     }
   ]
 }
