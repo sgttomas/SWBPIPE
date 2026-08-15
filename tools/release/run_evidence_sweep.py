@@ -25,6 +25,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -217,6 +218,138 @@ def run_command(command: tuple[str, ...], root: Path) -> int:
     return completed.returncode
 
 
+@dataclass(frozen=True)
+class CargoCacheProbe:
+    """One offline Cargo cache check and its source manifest identity."""
+
+    source_manifest: Path
+    cwd: Path
+    command: tuple[str, ...]
+
+
+def discover_cargo_manifests(root: Path) -> list[Path]:
+    """Return project-relative Cargo manifests covered by the sweep."""
+    return sorted(
+        path.relative_to(root)
+        for search_root in (root / "core", root / "validation" / "benchmarks")
+        if search_root.exists()
+        for path in search_root.rglob("Cargo.toml")
+        if "target" not in path.relative_to(root).parts
+    )
+
+
+def tracked_cargo_locks(root: Path) -> set[Path] | None:
+    """Return project-relative Cargo.lock paths owned by Git.
+
+    File existence is deliberately insufficient: library crates may have an
+    ignored Cargo.lock left by a local Cargo invocation. Such a lock must not
+    change a nominally lockless preflight into a ``--locked`` probe.
+    """
+    try:
+        completed = subprocess.run(
+            (
+                "git",
+                "ls-files",
+                "-z",
+                "--",
+                "core",
+                "validation/benchmarks",
+            ),
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return None
+    if completed.returncode != 0:
+        return None
+    return {
+        Path(path)
+        for path in completed.stdout.split("\0")
+        if path.endswith("Cargo.lock")
+    }
+
+
+def build_cargo_cache_probes(
+    manifests: list[Path],
+    root: Path,
+    projected_root: Path,
+    tracked_locks: set[Path],
+) -> list[CargoCacheProbe]:
+    """Bind tracked locks to the checkout and lockless crates to a projection."""
+    probes: list[CargoCacheProbe] = []
+    for manifest in manifests:
+        has_tracked_lock = manifest.with_name("Cargo.lock") in tracked_locks
+        command = ["cargo", "fetch"]
+        if has_tracked_lock:
+            command.append("--locked")
+        command.extend(("--offline", "--manifest-path", manifest.as_posix()))
+        probes.append(
+            CargoCacheProbe(
+                source_manifest=manifest,
+                cwd=root if has_tracked_lock else projected_root,
+                command=tuple(command),
+            )
+        )
+    return probes
+
+
+def project_cargo_sources(root: Path, projected_root: Path) -> None:
+    """Copy Cargo source roots without lockfiles or build output."""
+
+    def ignore_generated(_directory: str, names: list[str]) -> set[str]:
+        return {name for name in names if name == "Cargo.lock" or name == "target"}
+
+    for relative_root in (Path("core"), Path("validation") / "benchmarks"):
+        source = root / relative_root
+        if source.exists():
+            shutil.copytree(
+                source,
+                projected_root / relative_root,
+                ignore=ignore_generated,
+            )
+
+
+def cargo_cache_preflight_errors(root: Path, env: dict[str, str]) -> list[str]:
+    """Probe tracked and lockless Cargo manifests without mutating sources."""
+    manifests = discover_cargo_manifests(root)
+    tracked_locks = tracked_cargo_locks(root)
+    if tracked_locks is None:
+        return [
+            "unable to identify Git-tracked Cargo.lock files for offline Cargo "
+            "cache preflight"
+        ]
+
+    errors: list[str] = []
+    with tempfile.TemporaryDirectory(prefix="openpipestress-cargo-preflight-") as temp:
+        projected_root = Path(temp) / "project"
+        project_cargo_sources(root, projected_root)
+        for probe in build_cargo_cache_probes(
+            manifests, root, projected_root, tracked_locks
+        ):
+            try:
+                cache_probe = subprocess.run(
+                    probe.command,
+                    cwd=probe.cwd,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            except FileNotFoundError:
+                errors.append("missing executable: cargo")
+                break
+            if cache_probe.returncode != 0:
+                detail = cache_probe.stderr.strip().splitlines()
+                suffix = f": {detail[-1]}" if detail else ""
+                errors.append(
+                    "offline Cargo cache incomplete for "
+                    f"{probe.source_manifest}{suffix}"
+                )
+    return errors
+
+
 def preflight_prerequisites(
     root: Path, surfaces: list[Surface] | None = None
 ) -> list[str]:
@@ -335,36 +468,7 @@ def preflight_prerequisites(
                 )
 
     if shutil.which("cargo") is not None:
-        for manifest in sorted(
-            path.relative_to(root)
-            for search_root in (root / "core", root / "validation" / "benchmarks")
-            if search_root.exists()
-            for path in search_root.rglob("Cargo.toml")
-            if "target" not in path.relative_to(root).parts
-        ):
-            try:
-                cache_probe = subprocess.run(
-                    (
-                        "cargo",
-                        "fetch",
-                        "--locked",
-                        "--offline",
-                        "--manifest-path",
-                        manifest.as_posix(),
-                    ),
-                    cwd=root,
-                    env=env,
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-            except FileNotFoundError:
-                errors.append("missing executable: cargo")
-                break
-            if cache_probe.returncode != 0:
-                detail = cache_probe.stderr.strip().splitlines()
-                suffix = f": {detail[-1]}" if detail else ""
-                errors.append(f"offline Cargo cache incomplete for {manifest}{suffix}")
+        errors.extend(cargo_cache_preflight_errors(root, env))
 
     return errors
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -144,6 +145,165 @@ def test_sandboxed_preflight_does_not_require_playwright(monkeypatch, tmp_path):
     errors = sweep.preflight_prerequisites(tmp_path, selected)
 
     assert all("playwright" not in error.lower() for error in errors)
+
+
+def test_cargo_cache_probe_commands_distinguish_tracked_and_lockless_crates(
+    tmp_path,
+):
+    sweep = load_module()
+    root = tmp_path / "source"
+    projected_root = tmp_path / "projected"
+    manifests = [
+        Path("core/lockless/Cargo.toml"),
+        Path("core/tracked/Cargo.toml"),
+    ]
+
+    probes = sweep.build_cargo_cache_probes(
+        manifests,
+        root,
+        projected_root,
+        {Path("core/tracked/Cargo.lock")},
+    )
+    by_manifest = {probe.source_manifest: probe for probe in probes}
+
+    tracked = by_manifest[Path("core/tracked/Cargo.toml")]
+    assert tracked.cwd == root
+    assert tracked.command == (
+        "cargo",
+        "fetch",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/tracked/Cargo.toml",
+    )
+
+    lockless = by_manifest[Path("core/lockless/Cargo.toml")]
+    assert lockless.cwd == projected_root
+    assert lockless.command == (
+        "cargo",
+        "fetch",
+        "--offline",
+        "--manifest-path",
+        "core/lockless/Cargo.toml",
+    )
+
+
+def test_ignored_existing_cargo_lock_remains_lockless_and_untouched(tmp_path):
+    sweep = load_module()
+    root = tmp_path / "source"
+    tracked = root / "core" / "tracked"
+    lockless = root / "core" / "lockless"
+    tracked.mkdir(parents=True)
+    lockless.mkdir(parents=True)
+    (tracked / "Cargo.toml").write_text("[package]\nname='tracked'\n", encoding="utf-8")
+    (tracked / "Cargo.lock").write_text("tracked lock\n", encoding="utf-8")
+    (lockless / "Cargo.toml").write_text(
+        "[package]\nname='lockless'\n", encoding="utf-8"
+    )
+    ignored_lock = lockless / "Cargo.lock"
+    ignored_lock.write_text("ignored sentinel\n", encoding="utf-8")
+    (root / ".gitignore").write_text(
+        "core/lockless/Cargo.lock\n", encoding="utf-8"
+    )
+    subprocess.run(("git", "init", "-q"), cwd=root, check=True)
+    subprocess.run(("git", "add", "."), cwd=root, check=True)
+
+    tracked_locks = sweep.tracked_cargo_locks(root)
+    projected_root = tmp_path / "projected"
+    probes = sweep.build_cargo_cache_probes(
+        sweep.discover_cargo_manifests(root),
+        root,
+        projected_root,
+        tracked_locks,
+    )
+    by_manifest = {probe.source_manifest: probe for probe in probes}
+    sweep.project_cargo_sources(root, projected_root)
+
+    assert tracked_locks == {Path("core/tracked/Cargo.lock")}
+    assert "--locked" in by_manifest[Path("core/tracked/Cargo.toml")].command
+    assert "--locked" not in by_manifest[Path("core/lockless/Cargo.toml")].command
+    assert ignored_lock.read_text(encoding="utf-8") == "ignored sentinel\n"
+    assert not (projected_root / "core" / "lockless" / "Cargo.lock").exists()
+
+
+@pytest.mark.skipif(shutil.which("cargo") is None, reason="cargo is required")
+def test_real_cargo_preflight_keeps_lockless_git_checkout_clean(tmp_path):
+    sweep = load_module()
+    root = tmp_path / "mini-project"
+    tracked = root / "core" / "tracked"
+    lockless = root / "core" / "lockless"
+    for crate, package in ((tracked, "tracked_crate"), (lockless, "lockless_crate")):
+        (crate / "src").mkdir(parents=True)
+        (crate / "Cargo.toml").write_text(
+            "\n".join(
+                (
+                    "[package]",
+                    f'name = "{package}"',
+                    'version = "0.1.0"',
+                    'edition = "2021"',
+                    "",
+                )
+            ),
+            encoding="utf-8",
+        )
+        (crate / "src" / "lib.rs").write_text(
+            "pub fn ready() -> bool { true }\n", encoding="utf-8"
+        )
+    (root / ".gitignore").write_text(
+        "core/lockless/Cargo.lock\n", encoding="utf-8"
+    )
+
+    subprocess.run(("git", "init", "-q"), cwd=root, check=True)
+    subprocess.run(
+        (
+            "cargo",
+            "generate-lockfile",
+            "--offline",
+            "--manifest-path",
+            "core/tracked/Cargo.toml",
+        ),
+        cwd=root,
+        check=True,
+    )
+    subprocess.run(("git", "add", "."), cwd=root, check=True)
+    subprocess.run(
+        (
+            "git",
+            "-c",
+            "user.name=Evidence Sweep Test",
+            "-c",
+            "user.email=evidence-sweep@example.invalid",
+            "commit",
+            "-q",
+            "-m",
+            "fixture",
+        ),
+        cwd=root,
+        check=True,
+    )
+    before = subprocess.run(
+        ("git", "status", "--porcelain"),
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+
+    env = os.environ.copy()
+    env["CARGO_NET_OFFLINE"] = "true"
+    errors = sweep.cargo_cache_preflight_errors(root, env)
+
+    after = subprocess.run(
+        ("git", "status", "--porcelain"),
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    assert errors == []
+    assert before == after == ""
+    assert (tracked / "Cargo.lock").is_file()
+    assert not (lockless / "Cargo.lock").exists()
 
 
 def test_build_wasm_script_forces_offline_cargo():
