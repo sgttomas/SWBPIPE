@@ -2523,3 +2523,46 @@
     residual remains open. No page-promotion, lifecycle, release, reliance,
     GUI, export/CAEPIPE, repair, publication, or professional-approval effect
     is created; push, PR, and merge remain separately gated.
+
+- **2026-08-15 — Receipt 100** (Task Management generational pass closeout).
+  - Receipt-ID: `Receipt-100`
+  - Examined-Through: `dab32a212a961af8430b08dbc417bf62d30ebc69`
+  - Parent-Receipt: `Receipt-99`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — the owner
+    directed the full Task Management generational pass, ruled candidate
+    `HC-PIP-20260815-001` promoted as `TM-PIP-041 / OPEN / LOW`, accepted the
+    complete 23-row deferral-review report, approved the archive/final-
+    federation step, and approved this closeout and non-draft PR without
+    merge. Modes run were mandatory federation preflight, candidate harvest,
+    deferral review, archive, final federation, and closeout. Register deltas
+    were 1 row added, 23 existing deferred rows reviewed, 0 status changes,
+    and 0 archive moves; prepared closeout routing comprised 0 handoff
+    packages and 0 routed notices. Final live totals were 10 open and 23
+    deferred rows, with 0 elevated and 0 closed rows; the unchanged archive
+    contains 8 rows. The exact rulings are preserved in
+    `execution/_Coordination/_TaskManagement/
+    OWNER_RULING_2026-08-15_HARVEST.md` and
+    `OWNER_RULING_2026-08-15_DEFERRAL_REVIEW.md`.
+  - Pointers: candidate report
+    `execution/_Coordination/_TaskManagement/
+    CANDIDATE_HARVEST_REPORT_2026-08-15.md`; deferral report
+    `execution/_Coordination/_TaskManagement/
+    DEFERRAL_REVIEW_REPORT_2026-08-15.md`; complete row-by-row closeout and
+    federation evidence
+    `execution/_Coordination/_TaskManagement/
+    GENERATIONAL_PASS_CLOSEOUT_2026-08-15.md`; live register and closed
+    archive beside those reports.
+  - Checks: live-register validation, closed-archive validation, final
+    federation, receipt contract, candidate whitespace, diff, claims
+    language, path anchors, exact closeout containment, and Git-state checks
+    are the closeout gate.
+  - Model-Attribution: OpenAI Codex acted directly as `TASK_MANAGEMENT` under
+    the owner-gated sequence. No Agent 2 or foreign-loop agent was dispatched.
+    Inherited runtime capability was used without override; no exact runtime
+    model string was exposed.
+  - Gate-Outcome: `EXECUTED` — the owner-ruled promotion and accepted deferral
+    review are durably recorded. `TM-PIP-041` remains `OPEN / LOW`; all 23
+    reviewed deferred rows remain `DEFERRED / STILL_BLOCKED`; the archive is
+    unchanged. No routed notice, foreign-register write, trigger activation,
+    deliverable amendment, lifecycle, release, reliance, professional-
+    approval, or merge effect is created.
