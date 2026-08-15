@@ -24,13 +24,6 @@ const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const projectRoot = path.resolve(desktopRoot, "..", "..");
 const crateDir = path.join(projectRoot, "core", "model_operations", "operation_applier");
 const crateManifest = path.join(crateDir, "Cargo.toml");
-const wasmArtifact = path.join(
-  crateDir,
-  "target",
-  "wasm32-unknown-unknown",
-  "release",
-  "open_pipe_stress_operation_applier.wasm"
-);
 const outDir = path.join(desktopRoot, "public", "wasm-engine");
 // Pre-TP-APP-R2-WASMPKG-001 emission location; removed on every build so a
 // stale copy can never be mistaken for the live artifact set.
@@ -41,11 +34,12 @@ function fail(lines) {
   process.exit(1);
 }
 
-function tryRun(command, args) {
+function tryRun(command, args, { cwd } = {}) {
   try {
     return {
       ok: true,
       stdout: execFileSync(command, args, {
+        cwd,
         encoding: "utf8",
         env: { ...process.env, CARGO_NET_OFFLINE: "true" },
         stdio: ["ignore", "pipe", "pipe"]
@@ -55,6 +49,36 @@ function tryRun(command, args) {
     return { ok: false, stderr: error?.stderr?.toString?.() ?? String(error) };
   }
 }
+
+export function resolveWasmArtifact(crateDirectory = crateDir) {
+  const metadata = tryRun(
+    "cargo",
+    ["metadata", "--format-version", "1", "--no-deps"],
+    { cwd: crateDirectory }
+  );
+  if (!metadata.ok) {
+    throw new Error(`cargo metadata failed: ${metadata.stderr}`);
+  }
+
+  let targetDirectory;
+  try {
+    targetDirectory = JSON.parse(metadata.stdout).target_directory;
+  } catch (error) {
+    throw new Error(`cargo metadata returned invalid JSON: ${error.message}`);
+  }
+  if (typeof targetDirectory !== "string" || targetDirectory.length === 0) {
+    throw new Error("cargo metadata did not return a target_directory");
+  }
+
+  return path.join(
+    targetDirectory,
+    "wasm32-unknown-unknown",
+    "release",
+    "open_pipe_stress_operation_applier.wasm"
+  );
+}
+
+function main() {
 
 // 1. cargo present.
 if (!tryRun("cargo", ["--version"]).ok) {
@@ -121,6 +145,12 @@ const build = tryRun("cargo", [
 if (!build.ok) {
   fail(["`cargo build` for the wasm32 engine failed:", build.stderr]);
 }
+let wasmArtifact;
+try {
+  wasmArtifact = resolveWasmArtifact();
+} catch (error) {
+  fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
+}
 if (!existsSync(wasmArtifact)) {
   fail([`cargo build succeeded but the expected artifact is missing: ${wasmArtifact}`]);
 }
@@ -168,3 +198,9 @@ console.log(
   `[build-wasm-engine] OK — wasm operation engine generated at ${path.relative(desktopRoot, outDir)} ` +
     `(wasm-bindgen ${bindgenVersion}; artifacts are intentionally not committed)`
 );
+}
+
+const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
+if (invokedPath === fileURLToPath(import.meta.url)) {
+  main();
+}

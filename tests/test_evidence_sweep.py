@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -151,6 +153,37 @@ def test_build_wasm_script_forces_offline_cargo():
 
     assert 'CARGO_NET_OFFLINE: "true"' in script
     assert '"build",\n  "--offline",' in script
+
+
+def test_wasm_artifact_resolver_honors_redirected_cargo_target_dir(tmp_path):
+    script = ROOT / "apps" / "desktop" / "scripts" / "build-wasm-engine.mjs"
+    crate_dir = ROOT / "core" / "model_operations" / "operation_applier"
+    redirected_target = tmp_path / "cargo-target"
+    node_program = "\n".join(
+        (
+            f'import {{ resolveWasmArtifact }} from {json.dumps(script.as_uri())};',
+            f"console.log(resolveWasmArtifact({json.dumps(str(crate_dir))}));",
+        )
+    )
+    env = os.environ.copy()
+    env["CARGO_TARGET_DIR"] = str(redirected_target)
+
+    completed = subprocess.run(
+        ("node", "--input-type=module", "--eval", node_program),
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert Path(completed.stdout.strip()) == (
+        redirected_target
+        / "wasm32-unknown-unknown"
+        / "release"
+        / "open_pipe_stress_operation_applier.wasm"
+    )
 
 
 def test_summary_binds_commit_hash_and_passes_when_all_surfaces_pass():

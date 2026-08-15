@@ -2598,3 +2598,30 @@
     no Playwright, push, PR, merge, lifecycle, release, reliance, or
     professional-approval effect occurs. Publication awaits owner authorization
     for the out-of-fence desktop hard-coding repair and a green rerun.
+
+- **2026-08-15 — Receipt 102** (redirected WASM target repair and publication).
+  - Receipt-ID: `Receipt-102`
+  - Examined-Through: `ddcdfe0cffd58eebc9b242feb83db2080bc14581`
+  - Parent-Receipt: `Receipt-101`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    direction: “Owner approved the WASM scope expansion”; the standing
+    publication direction remains “one ready-for-review PR, publication gate
+    as usual, no merge.”
+  - Pointers: the bounded repair is confined to
+    `apps/desktop/scripts/build-wasm-engine.mjs` and
+    `tests/test_evidence_sweep.py`; Receipt 101 remains immutable. No governed
+    evidence, bridge note, policy, lifecycle, deliverable-state, or
+    foreign-loop artifact was changed.
+  - Checks: focused evidence-sweep tests, Node syntax, redirected-target Cargo
+    metadata resolution, offline-build and wasm-bindgen-pin preservation,
+    redirected-target sandboxed Cargo/Python/Vitest/production sweep, diff,
+    receipt contract, and repository self-check: PASS. Host Playwright was
+    excluded and not run or probed; schema 2 is preserved.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised managed WORKING_ITEMS
+    and CHANGE Agent 1 roles. Inherited runtime capability was used without
+    override; no exact runtime model string was exposed.
+  - Gate-Outcome: `EXECUTED` — the owner-authorized target-directory repair and
+    green redirected-target sandbox rerun close the publication hold recorded
+    by Receipt 101. A non-draft ready-for-review PR is intended after the final
+    upstream fast-forward safety check; no merge, lifecycle, release, reliance,
+    or professional-approval effect occurs.
