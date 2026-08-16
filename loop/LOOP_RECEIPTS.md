@@ -2766,3 +2766,29 @@
   - Gate-Outcome: `EXECUTED` — promotion records attention only; no dispatch,
     evidence, tool, lifecycle, release, reliance, foreign-register, or merge
     effect. A ready-for-review PR is opened for owner merge.
+
+- **2026-08-16 — Receipt 108** (TM-PIP-027 Python runtime-floor implementation).
+  - Receipt-ID: `Receipt-108`
+  - Examined-Through: `c7da5f32091b10e001e673e45ca68c2002841deb`
+  - Parent-Receipt: `Receipt-107`
+  - Pointers: `TM-PIP-027`; manager record
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260816-PYTHON-RUNTIME-FLOOR/`;
+    implementation in `requirements-dev.txt`,
+    `tools/release/run_evidence_sweep.py`, and `tests/test_evidence_sweep.py`;
+    partial sandbox summary
+    `validation/evidence/sweeps/SWEEP_20260816T220825Z_65735390590e-dirty.json`.
+  - Checks: focused and full Piping pytest, exact installed pins, redirected-target
+    four-surface sandbox sweep, practitioner harness, repository self-check,
+    applicable validators, diff, and exact containment: PASS. The complete
+    clean-commit host sweep is deferred to CHANGE; no Playwright ran in the
+    manager execution.
+  - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS and CHANGE Agent 1;
+    runtime attribution and substitution status are recorded in the named
+    AgentRuns package.
+  - Gate-Outcome: `EXECUTED` — the Python `>=3.11` fail-fast and four exact
+    development-dependency pins are implementation-complete with schema 2 and
+    existing capability, offline, and redirected-target behavior preserved.
+    No `core/**` or desktop product source changed, so the mandatory fresh
+    reviewer path does not apply. Publication remains pending the exact-commit
+    five-surface host gate; no register mutation, push, PR, merge, lifecycle,
+    release, reliance, or professional-approval effect occurs.

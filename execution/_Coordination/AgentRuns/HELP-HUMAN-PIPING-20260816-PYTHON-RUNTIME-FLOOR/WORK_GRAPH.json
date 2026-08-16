@@ -1,0 +1,63 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260816-PYTHON-RUNTIME-FLOOR",
+  "plan_version": 1,
+  "selection_authority": "HELP_HUMAN owner-directed activation of TM-PIP-027",
+  "posture": "SINGLE_MANAGER_DIRECT",
+  "source_commit": "65735390590e500dbbea6b63a4a79ba42944bf6d",
+  "nodes": [
+    {
+      "id": "CHANGE-BRANCH-SETUP",
+      "agent_type": 1,
+      "construction": "parent-managed accepted predecessor",
+      "serialized": true,
+      "integration_owner": false,
+      "dependencies": [],
+      "read_scope": "Git basis and branch state only",
+      "write_targets": [],
+      "expected_returns": [
+        "branch codex/piping-python-runtime-floor",
+        "clean base 65735390590e500dbbea6b63a4a79ba42944bf6d"
+      ],
+      "fan_in_gate": "completed before WORKING_ITEMS activation",
+      "escalation": "not applicable; accepted predecessor"
+    },
+    {
+      "id": "WORKING-ITEMS-TM-PIP-027",
+      "agent_type": 1,
+      "construction": "direct WORKING_ITEMS bounded integration",
+      "serialized": true,
+      "integration_owner": true,
+      "dependencies": ["CHANGE-BRANCH-SETUP"],
+      "read_scope": "sealed brief reads only",
+      "write_targets": [
+        "projects/chirality-piping/requirements-dev.txt",
+        "projects/chirality-piping/tools/release/run_evidence_sweep.py",
+        "projects/chirality-piping/tests/test_evidence_sweep.py",
+        "projects/chirality-piping/docs/BUILD_AND_RELEASE.md-if-required",
+        "projects/chirality-piping/validation/evidence/sweeps/one-summary-json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260816-PYTHON-RUNTIME-FLOOR/**"
+      ],
+      "expected_returns": [
+        "exact diff and containment inventory",
+        "validation results and environmental blockers",
+        "manager return and CHANGE handoff"
+      ],
+      "fan_in_gate": "all acceptance checks complete or explicitly blocked by environment",
+      "escalation": "stop before any out-of-fence write"
+    }
+  ],
+  "edges": [
+    {
+      "from": "CHANGE-BRANCH-SETUP",
+      "to": "WORKING-ITEMS-TM-PIP-027"
+    }
+  ],
+  "concurrency": "none",
+  "escalation_points": [
+    "scope expansion",
+    "new normative decision",
+    "out-of-fence write",
+    "unexplained validation failure"
+  ]
+}

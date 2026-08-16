@@ -40,6 +40,7 @@ ARTIFACT_KIND = "openpipestress.evidence_sweep_summary"
 DECISION_BASIS = "DEC-025"
 DEFAULT_OUTPUT_DIR = "validation/evidence/sweeps"
 PINNED_WASM_BINDGEN_VERSION = "0.2.123"
+MINIMUM_PYTHON_VERSION = (3, 11)
 REQUIRED_NODE_BINS = ("playwright", "tsc", "vite", "vitest")
 EXECUTION_CAPABILITIES = frozenset({"sandboxed", "host"})
 
@@ -208,6 +209,26 @@ def collect_runtime_versions(root: Path = ROOT) -> dict:
     ):
         versions[name] = _capture(command, root)
     return versions
+
+
+def current_python_version() -> tuple[int, int, int]:
+    """Return the running interpreter version as a comparison-safe tuple."""
+    return sys.version_info.major, sys.version_info.minor, sys.version_info.micro
+
+
+def python_runtime_preflight_error(
+    version: tuple[int, int, int] | None = None,
+) -> str | None:
+    """Reject interpreters below the project's Python 3.11 runtime floor."""
+    current = current_python_version() if version is None else version
+    if current[:2] >= MINIMUM_PYTHON_VERSION:
+        return None
+    current_label = ".".join(str(part) for part in current)
+    required_label = ".".join(str(part) for part in MINIMUM_PYTHON_VERSION)
+    return (
+        f"current Python is {current_label}; required Python is "
+        f">={required_label}"
+    )
 
 
 def run_command(command: tuple[str, ...], root: Path) -> int:
@@ -687,6 +708,20 @@ def main(argv: list[str] | None = None) -> int:
     if not root.exists():
         print(f"missing repository root: {root}", file=sys.stderr)
         return 2
+
+    python_error = python_runtime_preflight_error()
+    if python_error:
+        print(
+            "evidence-sweep Python runtime preflight failed before "
+            "prerequisite probing or surface 1:",
+            file=sys.stderr,
+        )
+        print(f"  - {python_error}", file=sys.stderr)
+        print(
+            "no prerequisite probe or evidence surface ran",
+            file=sys.stderr,
+        )
+        return 1
 
     surfaces = select_surfaces(build_sweep_plan(), args.only_capability)
     print_plan(surfaces, root, args.execute)

@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -24,6 +25,13 @@ EXPECTED_SURFACE_ORDER = [
     "desktop_production_build",
 ]
 
+EXPECTED_EXACT_DEV_REQUIREMENTS = {
+    "jsonschema": "4.26.0",
+    "coverage": "7.15.3",
+    "pyyaml": "6.0.3",
+    "pytest-xdist": "3.8.0",
+}
+
 
 def load_module():
     spec = importlib.util.spec_from_file_location("run_evidence_sweep", MODULE_PATH)
@@ -40,6 +48,69 @@ def test_plan_is_the_five_surfaces_in_dec025_order():
     surfaces = sweep.build_sweep_plan()
 
     assert [surface.surface_id for surface in surfaces] == EXPECTED_SURFACE_ORDER
+
+
+def test_python_runtime_preflight_accepts_minimum_and_current_runtime():
+    sweep = load_module()
+
+    assert sweep.python_runtime_preflight_error((3, 11, 0)) is None
+    assert sweep.python_runtime_preflight_error() is None
+    assert sweep.current_python_version()[:2] >= sweep.MINIMUM_PYTHON_VERSION
+
+
+def test_python_runtime_preflight_rejects_pre_311_before_any_probe_or_surface(
+    monkeypatch, capsys, tmp_path
+):
+    sweep = load_module()
+
+    monkeypatch.setattr(sweep, "current_python_version", lambda: (3, 10, 14))
+
+    def fail_downstream(*args, **kwargs):
+        raise AssertionError(
+            "Python runtime failure must precede prerequisite and surface work"
+        )
+
+    monkeypatch.setattr(sweep, "missing_tools", fail_downstream)
+    monkeypatch.setattr(sweep, "preflight_prerequisites", fail_downstream)
+    monkeypatch.setattr(sweep, "run_sweep", fail_downstream)
+
+    result = sweep.main(
+        [
+            "--execute",
+            "--repo-root",
+            str(ROOT),
+            "--output-dir",
+            str(tmp_path),
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert result == 1
+    assert "failed before prerequisite probing or surface 1" in captured.err
+    assert "current Python is 3.10.14" in captured.err
+    assert "required Python is >=3.11" in captured.err
+    assert "no prerequisite probe or evidence surface ran" in captured.err
+    assert list(tmp_path.glob("SWEEP_*.json")) == []
+
+
+def test_dev_requirements_are_exactly_pinned():
+    requirement_lines = [
+        line.strip()
+        for line in (ROOT / "requirements-dev.txt").read_text(
+            encoding="utf-8"
+        ).splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    parsed = {}
+
+    for requirement in requirement_lines:
+        assert re.fullmatch(
+            r"[A-Za-z0-9_.-]+==[A-Za-z0-9_.+!-]+", requirement
+        ), f"direct dev dependency is not exactly pinned: {requirement}"
+        name, version = requirement.split("==", 1)
+        parsed[name.lower()] = version
+
+    assert parsed == EXPECTED_EXACT_DEV_REQUIREMENTS
 
 
 def test_every_surface_declares_a_valid_execution_capability():

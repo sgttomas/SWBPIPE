@@ -1,0 +1,10 @@
+{
+  "schema": "chirality-managed-run-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260816-PYTHON-RUNTIME-FLOOR",
+  "manager": "WORKING_ITEMS",
+  "status": "COMPLETED",
+  "objective_status": "PASS",
+  "active_node": null,
+  "verdict": "CHANGE_READY",
+  "source_commit": "65735390590e500dbbea6b63a4a79ba42944bf6d"
+}
