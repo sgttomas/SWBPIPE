@@ -33,7 +33,7 @@ ownership is a preflight error rather than a guess.
   `Cargo.lock` files; every tuple was identical.
 - Redirected sandbox-capability sweep: PASS for Cargo, Python, desktop Vitest
   (29 files / 523 tests), and desktop production build, with
-  `CARGO_TARGET_DIR=/tmp/chirality-piping-lockless-target.GwX3jP`. Summary:
+  `CARGO_TARGET_DIR` redirected to a temporary target directory. Summary:
   `validation/evidence/sweeps/SWEEP_20260815T230054Z_0d3eb2249cdb-dirty.json`.
 - Practitioner-harness pytest: `349 passed`; repository self-check exit 0;
   receipt validator and `git diff --check`: PASS.
