@@ -2652,3 +2652,55 @@
     register, evidence, runtime, lifecycle, release, reliance, or
     professional-approval effect occurs; a non-draft PR is intended and merge
     remains owner-gated.
+- **2026-08-15 — Receipt 104** (lockless Cargo prerequisite preflight repair).
+  - Receipt-ID: `Receipt-104`
+  - Examined-Through: `0d3eb2249cdb09a2a4bda8b7c73f187a8835467b`
+  - Parent-Receipt: `Receipt-102`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    steer: “Pick the highest-value open engineering gap the instruments already
+    authorize, state it in one line, and go build it.”
+  - Pointers: `TM-PIP-029`; manager fan-in record
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260815-LOCKLESS-CARGO-PREFLIGHT/PROJECT_SETUP_RUN.md`;
+    implementation and tests in `tools/release/run_evidence_sweep.py` and
+    `tests/test_evidence_sweep.py`; sandbox summary
+    `validation/evidence/sweeps/SWEEP_20260815T230054Z_0d3eb2249cdb-dirty.json`.
+  - Checks: focused and full Piping pytest, live tracked/lockless offline probe,
+    ignored-lock integrity, redirected sandboxed Cargo/Python/Vitest/production
+    sweep, independent verification, self-check, harness pytest, diff, and
+    receipt contract: PASS. The complete host sweep is BLOCKED at Playwright's
+    escalation gate and was not retried.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised PROJECT_SETUP Agent 1,
+    which used separate bounded ephemeral Agent 2 implementation and read-only
+    verification sessions with no child delegation. Inherited capability was
+    used without override; no exact runtime model string was exposed.
+  - Gate-Outcome: `EXECUTED` — the TM-PIP-029 code candidate and all sandboxed
+    surfaces are green without changing ignored source lockfiles. Publication
+    remains blocked pending an owner-approved host Playwright rerun of the full
+    five-surface gate. No push, PR, merge, lifecycle, release, reliance,
+    or professional-approval effect occurs.
+
+- **2026-08-15 — Receipt 105** (TM-PIP-029 host evidence and publication hold release).
+  - Receipt-ID: `Receipt-105`
+  - Examined-Through: `f7614b1905864aecf60e95b7059d20c169043d7a`
+  - Parent-Receipt: `Receipt-104`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    direction: “APPROVED — TM-PIP-029 publication. Host-context full DEC-025
+    sweep on f7614b190 is green (five surfaces, clean tree). Place the minder-
+    supplied summary SWEEP_20260816T022259Z_f7614b190586.json (SHA-256
+    46ca98fa…7297, 3,864 B) under validation/evidence/sweeps/ byte-exact, commit
+    it on the branch as the commit-bound gate evidence, then push and open the
+    ready-for-review PR under the usual publication gate; no merge.”
+  - Pointers: clean commit `f7614b1905864aecf60e95b7059d20c169043d7a`;
+    complete DEC-025 summary
+    `validation/evidence/sweeps/SWEEP_20260816T022259Z_f7614b190586.json`
+    (SHA-256 `46ca98fa4f93ce337348e24598e073d89bfc986c959d64c2e5768fa5fc17a297`).
+  - Checks: source/destination byte identity and hash, schema-2 structure,
+    exact clean commit binding, five-surface status including host Playwright,
+    diff, and receipt contract: PASS.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised PROJECT_SETUP Agent 1
+    for bounded evidence verification and closeout. Inherited capability was
+    used without override; no exact runtime model string was exposed.
+  - Gate-Outcome: `EXECUTED` — the complete clean-commit five-surface summary
+    clears Receipt 104's publication hold. A ready-for-review PR is authorized;
+    no push, PR, merge, lifecycle, release, reliance, or professional-approval
+    effect is created by this receipt.
