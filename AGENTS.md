@@ -40,6 +40,52 @@ review, which writes a per-artifact JSON review status.
 
 Per human directive 2026-06-18 (`DEC-043`).
 
+## Agent Posture And Delegation
+
+Root `AGENTS.md` and `agents/AGENT_*.md` define the roles; this section maps
+them onto Piping work and fixes what a delegated run must leave behind.
+
+| Agent | Type | Role in this project |
+|---|---:|---|
+| `HELP_HUMAN` | 0 | Default supervising entry for the standing development loop; runs Step 0, selects the tranche, supervises the selected Agent 1 managers, validates cross-manager fan-in, and routes closeout to `CHANGE`. |
+| `WORKING_ITEMS` | 1 | One package-scoped instance per activated package; owns the tranche's work graph, dispatches Agent 2 children, validates fan-in, and returns package closure evidence. May execute single-deliverable work directly (see delegation posture below). |
+| `TASK` | 2 | Executes one sealed implementation, review, diagnosis, test-planning, docs, or evidence sub-scope with explicit read/write bounds; the `software-*` skills are the default method packs. |
+| `CHANGE` | 1 | Scoped Git/file-state closeout per the checklist below. |
+| `EVALUATION` / `REVIEW` / `RESEARCH` / `AUDIT_*` | 1 / 2 | As defined at root; read-only unless the tranche's write scope names them. |
+
+**Delegation posture (work-type conditioned).** Delegation is sized to the
+target, not applied by default:
+
+- *Single-manager path.* Tooling, tests, docs, evidence, and coordination
+  tranches confined to one deliverable or one bounded integration scope may be
+  executed directly by the `WORKING_ITEMS` instance under the bounded-execution
+  evidence contract below; the receipt is the record and no AgentRuns package is
+  owed.
+- *Independent-review path (mandatory).* Any tranche that changes source under
+  `core/**` (solver, mechanics, loads, stress recovery, model operations,
+  reporting math) or `apps/desktop/src/**` product behavior dispatches at least
+  one **fresh, read-only** `TASK + software-code-review` child over 100% of the
+  frozen diff before the DEC-025 sweep and before push. The reviewer has no write
+  target and is not the implementer's context. A `PASS` with no actionable finding
+  is required to publish; findings are remediated by a child or the manager and
+  re-reviewed. The sweep remains the deterministic gate; review is additional,
+  not a substitute.
+- *Multi-agent path.* Whenever children are dispatched (either path above,
+  or any fan-out), the tranche uses a recorded work graph and freezes, under
+  `execution/_Coordination/AgentRuns/<RUN_ID>/`: the activation or plan, the
+  work graph, one sealed launch brief per child (role, skill, scope path, declared
+  reads, allowed write targets, tools, acceptance criteria, exclusions), each
+  child's return and status, the manager return, and a handoff state. Parentage,
+  scopes, status, and returns are persisted per root `AGENTS.md`; siblings do not
+  message or delegate directly. Terminal fan-out/fan-in for independent children;
+  supervised many-to-many only when active findings may affect siblings.
+
+**Execution attribution.** No durable Piping surface prescribes models (D-GOV-17
+M1-D). Record which model actually ran each dispatched role in the AgentRuns
+record and point to it from the receipt; when no AgentRuns record exists, the
+receipt carries the minimum attribution directly. Any mid-wave substitution is
+recorded where the wave's execution is recorded — never silently.
+
 ## Project-Wide Execution Discipline
 
 Software work uses `software-workflow.json` under the root
@@ -122,6 +168,9 @@ Every bounded deliverable execution must bind:
 - applicable invariants from `CONTRACT.md`;
 - acceptance criteria from `_CONTEXT.md` or the sealed brief;
 - explicit write scope.
+- for delegated executions, the sealed brief's path under
+  `execution/_Coordination/AgentRuns/<RUN_ID>/` and the reviewer's return when
+  the independent-review path applies.
 
 If a bounded execution would cross package boundaries or require protected
 data, stop and return the condition to the governing authority.

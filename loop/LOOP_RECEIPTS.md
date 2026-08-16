@@ -2704,3 +2704,35 @@
     clears Receipt 104's publication hold. A ready-for-review PR is authorized;
     no push, PR, merge, lifecycle, release, reliance, or professional-approval
     effect is created by this receipt.
+
+- **2026-08-16 — Receipt 106** (Piping agent posture and delegation contract).
+  - Receipt-ID: `Receipt-106`
+  - Examined-Through: `483cd82d88746ae778b75b00176db8cde45269ca`
+  - Parent-Receipt: `Receipt-105`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    adoption/application: “Piping adopts the App loop's delegation contract,
+    sized to the work.” “This amendment (a) maps agent roles onto Piping, (b)
+    makes independent fresh review mandatory for `core/**` and desktop product
+    changes while keeping the single-manager path for tooling/tests/docs/evidence,
+    and (c) fixes the AgentRuns record contract for any delegated run.” Parked
+    owner decisions are (i) “whether to bind the `core/**` review rule inside
+    plan Step 4 via a DEC-083 re-mint” and (ii) “whether the App loop should
+    adopt the reciprocal "single-manager path" for tooling/tests-only tranches”.
+  - Pointers: Piping application `projects/chirality-piping/AGENTS.md`, resulting
+    Git blob `950cf6d0aa3fed8824caca5950abe5fc4f517cca`; clean base
+    `483cd82d88746ae778b75b00176db8cde45269ca`.
+  - Checks: exact two-hunk insertion and resulting blob; instruction-entrypoint,
+    path-anchor, receipt-ledger, and repository self-check validators; full
+    practitioner harness; diff and exact two-path containment: PASS. Runtime,
+    frontend, desktop, and DEC-025 checks were skipped because no runtime source
+    changed.
+  - Model-Attribution: OpenAI Codex HELP_HUMAN supervised HELPS_HUMANS and
+    CHANGE Agent 1 roles. Inherited runtime capability was used without
+    override; no exact runtime model string was exposed.
+  - Gate-Outcome: `EXECUTED` — Piping now sizes delegation by work type,
+    requires fresh read-only software-code review for `core/**` and desktop
+    product changes, permits the bounded single-manager path, and freezes the
+    AgentRuns record contract whenever children are dispatched. The two quoted
+    owner decisions remain parked; no root agent/instruction, App, DAG, register,
+    evidence, runtime, lifecycle, release, reliance, or professional-approval
+    effect occurs. A non-draft PR is intended and merge remains owner-gated.
