@@ -2736,3 +2736,33 @@
     owner decisions remain parked; no root agent/instruction, App, DAG, register,
     evidence, runtime, lifecycle, release, reliance, or professional-approval
     effect occurs. A non-draft PR is intended and merge remains owner-gated.
+
+- **2026-08-16 — Receipt 107** (TM-PIP-042 minder-candidate promotion).
+  - Receipt-ID: `Receipt-107`
+  - Examined-Through: `65735390590e500dbbea6b63a4a79ba42944bf6d`
+  - Parent-Receipt: `Receipt-106`
+  - Owner-Direction: CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING — exact owner
+    ruling: “OWNER RULING — promote minder-presented candidate
+    MINDER-20260816-02 to TM-PIP-042 as recorded in the owner-supplied row.
+    Append the row byte-exact as the last line of
+    projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv
+    (row bytes SHA-256
+    d4be0121ce7afa07fe37648f96506a4a9470ad25e7e3bfb02181b235d3df1341; verify
+    before commit), record the ruling in the loop's ordinary ruling/receipt
+    instrument, run the register validator, commit as a routine scoped
+    closeout, open a ready-for-review PR; no merge. Promotion records
+    attention only — no dispatch, edit, notice, or routing effect is created
+    by this act.”
+  - Pointers: register
+    `projects/chirality-piping/execution/_Coordination/_TaskManagement/REGISTER.csv`,
+    resulting Git blob `60b3f477deffbbae65179b318982684de932e019`; ruling record
+    `projects/chirality-piping/execution/_Coordination/_TaskManagement/OWNER_RULING_2026-08-16_MINDER_PROMOTION_TM-PIP-042.md`
+    (SHA-256 `7dae2f42a6cc0899b46d7bc3c5ab93b7c2daf7ddb3a79c75735cd12635185615`).
+  - Checks: register validator, receipt-ledger validator, repository
+    self-check, diff, and exact three-path containment: PASS.
+  - Model-Attribution: Claude Fable 5 ephemeral Agent 2 generalist under a
+    sealed brief from HELP_HUMAN (Claude Fable 5 session minder); no override
+    or mid-task substitution.
+  - Gate-Outcome: `EXECUTED` — promotion records attention only; no dispatch,
+    evidence, tool, lifecycle, release, reliance, foreign-register, or merge
+    effect. A ready-for-review PR is opened for owner merge.
