@@ -1,0 +1,15 @@
+{
+  "schema": "chirality-managed-run-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260816-DIRTY-SWEEP-OUTPUT",
+  "manager": "WORKING_ITEMS",
+  "status": "COMPLETED",
+  "objective_status": "PASS",
+  "active_node": null,
+  "verdict": "CHANGE_READY",
+  "accepted_graph_version": 2,
+  "fan_in_validation": "HELP_HUMAN exact-pin rerun: focused 38 passed in 2.53s; full Piping 576 passed in 15.49s",
+  "posture": "SERIAL",
+  "selection_authority": "AGENT_0",
+  "integration_owner": "WORKING_ITEMS",
+  "source_commit": "44903bc69cf56d4ca794fe9629f26793a82bf1b3"
+}

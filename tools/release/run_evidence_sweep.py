@@ -39,6 +39,7 @@ SCHEMA_VERSION = 2
 ARTIFACT_KIND = "openpipestress.evidence_sweep_summary"
 DECISION_BASIS = "DEC-025"
 DEFAULT_OUTPUT_DIR = "validation/evidence/sweeps"
+DIRTY_DEFAULT_OUTPUT_DIR_NAME = "openpipestress-dirty-sweeps"
 PINNED_WASM_BINDGEN_VERSION = "0.2.123"
 MINIMUM_PYTHON_VERSION = (3, 11)
 REQUIRED_NODE_BINS = ("playwright", "tsc", "vite", "vitest")
@@ -585,6 +586,74 @@ def write_summary(summary: dict, output_dir: Path) -> Path:
     return output_path
 
 
+class SummaryOutputError(ValueError):
+    """The requested summary destination violates evidence-output policy."""
+
+
+def resolve_summary_output_dir(
+    *,
+    root: Path,
+    requested_output_dir: str | None,
+    git_state: dict,
+    allow_dirty_canonical_output: bool,
+) -> tuple[Path, str]:
+    """Resolve a summary destination without polluting canonical evidence.
+
+    Clean runs retain the canonical default. Dirty runs with no explicit
+    destination are routed to the system temporary directory. An explicit
+    non-canonical ``--output-dir`` is always honored, while an intentional
+    dirty write to the canonical directory requires the dedicated opt-in.
+    Unverified Git state can never use the canonical directory because it
+    cannot establish that the worktree is safe.
+    """
+    canonical_dir = (root / DEFAULT_OUTPUT_DIR).resolve()
+    explicit_output = requested_output_dir is not None
+    if explicit_output:
+        requested = Path(requested_output_dir)
+        output_dir = (
+            requested if requested.is_absolute() else root / requested
+        ).resolve()
+    else:
+        output_dir = canonical_dir
+
+    targets_canonical = output_dir == canonical_dir
+    unverified = git_state_unverified(git_state)
+    dirty = git_state.get("working_tree_dirty") is True
+
+    if not dirty and not unverified:
+        return output_dir, "clean-default" if not explicit_output else "explicit"
+
+    if explicit_output and not targets_canonical:
+        return output_dir, "explicit-noncanonical"
+
+    if unverified:
+        if explicit_output:
+            raise SummaryOutputError(
+                "Git state is unverified; canonical evidence output is prohibited. "
+                "Choose a non-canonical --output-dir."
+            )
+        return (
+            Path(tempfile.gettempdir()) / DIRTY_DEFAULT_OUTPUT_DIR_NAME,
+            "unverified-temporary",
+        )
+
+    if allow_dirty_canonical_output:
+        return canonical_dir, "dirty-canonical-opt-in"
+
+    if explicit_output:
+        raise SummaryOutputError(
+            "the working tree is dirty and the requested --output-dir is the "
+            "canonical validation/evidence/sweeps directory. Use "
+            "--allow-dirty-canonical-output only when that write is intentional, "
+            "or choose a non-canonical --output-dir."
+        )
+
+    return (
+        Path(tempfile.gettempdir()) / DIRTY_DEFAULT_OUTPUT_DIR_NAME,
+        "dirty-temporary",
+    )
+
+
 def print_plan(surfaces: list[Surface], root: Path, execute: bool) -> None:
     mode = "execute" if execute else "dry-run"
     plan_scope = (
@@ -673,9 +742,22 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--output-dir",
-        default=DEFAULT_OUTPUT_DIR,
-        help=f"Summary artifact directory relative to the repo root "
-        f"(default: {DEFAULT_OUTPUT_DIR}).",
+        default=None,
+        help=(
+            "Summary artifact directory relative to the repo root. Clean runs "
+            f"default to {DEFAULT_OUTPUT_DIR}; dirty or Git-unverified runs "
+            "default to a system temporary directory."
+        ),
+    )
+    parser.add_argument(
+        "--allow-dirty-canonical-output",
+        action="store_true",
+        help=(
+            "Intentionally allow a dirty-worktree summary in the canonical "
+            f"{DEFAULT_OUTPUT_DIR} directory. Without this opt-in, dirty "
+            "default output is routed to a system temporary directory and an "
+            "explicit canonical --output-dir is rejected."
+        ),
     )
     parser.add_argument(
         "--repo-root",
@@ -793,7 +875,37 @@ def main(argv: list[str] | None = None) -> int:
             "only_capability": args.only_capability,
             "complete_dec025_sweep": False,
         }
-    output_path = write_summary(summary, root / args.output_dir)
+    try:
+        output_dir, output_disposition = resolve_summary_output_dir(
+            root=root,
+            requested_output_dir=args.output_dir,
+            git_state=summary["git"],
+            allow_dirty_canonical_output=args.allow_dirty_canonical_output,
+        )
+    except SummaryOutputError as error:
+        print(
+            f"evidence-sweep summary output rejected: {error}",
+            file=sys.stderr,
+        )
+        print("no summary was written", file=sys.stderr)
+        return 1
+
+    if output_disposition in {"dirty-temporary", "unverified-temporary"}:
+        reason = (
+            "working tree is dirty"
+            if output_disposition == "dirty-temporary"
+            else "Git state is unverified"
+        )
+        print(
+            f"[evidence-sweep] {reason}; canonical evidence output is disabled "
+            f"and the summary will be written under {output_dir}"
+        )
+    elif output_disposition == "dirty-canonical-opt-in":
+        print(
+            "[evidence-sweep] dirty canonical output explicitly enabled by "
+            "--allow-dirty-canonical-output"
+        )
+    output_path = write_summary(summary, output_dir)
 
     print("")
     print(f"[evidence-sweep] overall: {summary['overall_status']}")

@@ -1,0 +1,50 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260816-DIRTY-SWEEP-OUTPUT",
+  "plan_version": 1,
+  "selection_authority": "AGENT_0",
+  "posture": "SERIAL",
+  "integration_owner": "WORKING_ITEMS",
+  "source_commit": "44903bc69cf56d4ca794fe9629f26793a82bf1b3",
+  "nodes": [
+    {
+      "id": "N1",
+      "agent_type": 1,
+      "construction": "direct WORKING_ITEMS bounded tooling integration",
+      "serialized": true,
+      "integration_owner": "WORKING_ITEMS",
+      "dependencies": [],
+      "shared_surface_writes": "DEFERRED_TO_FAN_IN",
+      "read_scope": "TM-PIP-042, DEC-025 sweep tool/tests, and governing instructions",
+      "write_targets": [
+        "projects/chirality-piping/tools/release/run_evidence_sweep.py",
+        "projects/chirality-piping/tests/test_evidence_sweep.py",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260816-DIRTY-SWEEP-OUTPUT/**"
+      ],
+      "acceptance": [
+        "dirty default summary is routed outside validation/evidence/sweeps",
+        "dirty default creates no canonical evidence file",
+        "clean default writes to validation/evidence/sweeps",
+        "explicit dirty-canonical opt-in writes there intentionally",
+        "explicit safe --output-dir behavior remains compatible",
+        "summary schema remains 2"
+      ],
+      "gates": [
+        "path containment",
+        "focused and full applicable tests",
+        "git diff --check",
+        "repository self-check",
+        "practitioner-harness pytest",
+        "WORKING_ITEMS fan-in"
+      ],
+      "expected_returns": [
+        "candidate diff and changed-path inventory",
+        "exact validation evidence and blockers",
+        "CHANGE-ready manager handoff"
+      ],
+      "escalation": "report any prerequisite or consequence before scope expansion"
+    }
+  ],
+  "edges": [],
+  "concurrency": "none"
+}

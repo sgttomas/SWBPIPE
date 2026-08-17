@@ -43,6 +43,27 @@ def load_module():
     return module
 
 
+def stub_sweep_summary(*, dirty: bool) -> dict:
+    return {
+        "artifact": "openpipestress.evidence_sweep_summary",
+        "schema_version": 2,
+        "decision_basis": "DEC-025",
+        "git": {
+            "commit_hash": "a" * 40,
+            "branch": "test",
+            "status_capture_failed": False,
+            "working_tree_dirty": dirty,
+            "dirty_paths": ["tracked-change.txt"] if dirty else [],
+        },
+        "runtime": {},
+        "started_utc": "2026-08-16T12:00:00+00:00",
+        "finished_utc": "2026-08-16T12:00:01+00:00",
+        "duration_seconds": 1.0,
+        "surfaces": [],
+        "overall_status": "pass",
+    }
+
+
 def test_plan_is_the_five_surfaces_in_dec025_order():
     sweep = load_module()
     surfaces = sweep.build_sweep_plan()
@@ -613,6 +634,110 @@ def test_write_summary_emits_valid_json(tmp_path):
     parsed = json.loads(output_path.read_text(encoding="utf-8"))
     assert parsed["overall_status"] == "pass"
     assert parsed["git"]["commit_hash"] == summary["git"]["commit_hash"]
+
+
+def test_dirty_default_routes_outside_canonical_evidence(
+    monkeypatch, capsys, tmp_path
+):
+    sweep = load_module()
+    root = tmp_path / "repo"
+    root.mkdir()
+    temporary_root = tmp_path / "temporary-output"
+    monkeypatch.setattr(sweep.tempfile, "gettempdir", lambda: str(temporary_root))
+    monkeypatch.setattr(sweep, "missing_tools", lambda surfaces: [])
+    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root, surfaces: [])
+    monkeypatch.setattr(
+        sweep, "run_sweep", lambda surfaces, root: stub_sweep_summary(dirty=True)
+    )
+
+    result = sweep.main(["--execute", "--repo-root", str(root)])
+    captured = capsys.readouterr()
+
+    canonical = root / sweep.DEFAULT_OUTPUT_DIR
+    routed = temporary_root / sweep.DIRTY_DEFAULT_OUTPUT_DIR_NAME
+    assert result == 0
+    assert not canonical.exists()
+    assert len(list(routed.glob("SWEEP_*-dirty.json"))) == 1
+    assert "canonical evidence output is disabled" in captured.out
+    assert str(routed) in captured.out
+
+
+def test_clean_default_writes_canonical_evidence(monkeypatch, tmp_path):
+    sweep = load_module()
+    root = tmp_path / "repo"
+    root.mkdir()
+    monkeypatch.setattr(sweep, "missing_tools", lambda surfaces: [])
+    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root, surfaces: [])
+    monkeypatch.setattr(
+        sweep, "run_sweep", lambda surfaces, root: stub_sweep_summary(dirty=False)
+    )
+
+    result = sweep.main(["--execute", "--repo-root", str(root)])
+
+    summaries = list((root / sweep.DEFAULT_OUTPUT_DIR).glob("SWEEP_*.json"))
+    assert result == 0
+    assert len(summaries) == 1
+    assert json.loads(summaries[0].read_text(encoding="utf-8"))["schema_version"] == 2
+
+
+def test_dirty_canonical_output_requires_and_honors_explicit_opt_in(
+    monkeypatch, capsys, tmp_path
+):
+    sweep = load_module()
+    root = tmp_path / "repo"
+    root.mkdir()
+    monkeypatch.setattr(sweep, "missing_tools", lambda surfaces: [])
+    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root, surfaces: [])
+    monkeypatch.setattr(
+        sweep, "run_sweep", lambda surfaces, root: stub_sweep_summary(dirty=True)
+    )
+
+    rejected = sweep.main(
+        [
+            "--execute",
+            "--repo-root",
+            str(root),
+            "--output-dir",
+            sweep.DEFAULT_OUTPUT_DIR,
+        ]
+    )
+    rejected_output = capsys.readouterr()
+
+    canonical = root / sweep.DEFAULT_OUTPUT_DIR
+    assert rejected == 1
+    assert not canonical.exists()
+    assert "--allow-dirty-canonical-output" in rejected_output.err
+    assert "no summary was written" in rejected_output.err
+
+    accepted = sweep.main(
+        [
+            "--execute",
+            "--repo-root",
+            str(root),
+            "--allow-dirty-canonical-output",
+        ]
+    )
+    accepted_output = capsys.readouterr()
+
+    assert accepted == 0
+    assert len(list(canonical.glob("SWEEP_*-dirty.json"))) == 1
+    assert "dirty canonical output explicitly enabled" in accepted_output.out
+
+
+def test_dirty_explicit_noncanonical_output_dir_remains_supported(tmp_path):
+    sweep = load_module()
+    root = tmp_path / "repo"
+    explicit = tmp_path / "caller-selected"
+
+    output_dir, disposition = sweep.resolve_summary_output_dir(
+        root=root,
+        requested_output_dir=str(explicit),
+        git_state=stub_sweep_summary(dirty=True)["git"],
+        allow_dirty_canonical_output=False,
+    )
+
+    assert output_dir == explicit.resolve()
+    assert disposition == "explicit-noncanonical"
 
 
 def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
