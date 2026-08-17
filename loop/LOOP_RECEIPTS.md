@@ -2816,3 +2816,31 @@
     clears Receipt 107's publication hold. A non-draft ready-for-review PR is
     intended; no merge, branch deletion, lifecycle, release, reliance, or
     professional-approval effect occurs.
+
+- **2026-08-17 — Receipt 110** (TM-PIP-042 dirty-summary routing and portability closeout).
+  - Receipt-ID: `Receipt-110`
+  - Examined-Through: `44903bc69cf56d4ca794fe9629f26793a82bf1b3`
+  - Parent-Receipt: `Receipt-109`
+  - Pointers: `TM-PIP-042`; AgentRuns roots
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260816-DIRTY-SWEEP-OUTPUT/`
+    and
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260817-DIRTY-SWEEP-PORTABILITY/`;
+    N1 product commit `6ec3117c09891039dba3b9d78603c737be3f54ba`;
+    N2 record-only commit `40c26cc95c64c11bc60c3b2c39c379997c46f492`;
+    clean schema-2 summary
+    `validation/evidence/sweeps/SWEEP_20260817T055711Z_6ec3117c0989.json`
+    (SHA-256 `78dadd7b9d8123858f0594618fe53e7245fb3773b74ac84be36b3481216ce7a6`),
+    bound to the exact tested N1 product tree.
+  - Checks: focused and full Piping pytest, practitioner harness, repository
+    self-check after N2, exact-pin environment, five-surface DEC-025 sweep
+    including host Playwright, graph/version and JSON validation, diff, exact
+    containment, and receipt contract: PASS.
+  - Model-Attribution: execution attribution and substitution status are
+    recorded in both named AgentRuns roots; HELP_HUMAN executed the host gate
+    and supervised CHANGE Agent 1 closeout.
+  - Gate-Outcome: `EXECUTED` — forward behavior routes dirty default summaries
+    to temporary output and requires explicit opt-in for dirty canonical output;
+    schema 2 and historical summaries are unchanged. N2 changed only record
+    portability. Owner-only historical disposition remains parked. A non-draft
+    ready-for-review PR is intended; no merge, lifecycle, release, reliance, or
+    professional-approval effect occurs.
