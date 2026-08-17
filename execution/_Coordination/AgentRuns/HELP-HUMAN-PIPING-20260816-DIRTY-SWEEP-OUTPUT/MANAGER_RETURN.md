@@ -35,8 +35,8 @@ environment rerun, so the candidate is fully `PASS` and `CHANGE_READY`.
   `487 passed, 17 skipped, 30 failed`; the failures were downstream schema or
   validation behavior under the same missing dependency. No repository
   dependency or environment mutation was attempted.
-- HELP_HUMAN fan-in rerun in
-  `/private/tmp/chirality-piping-preflight-venv`: focused evidence-sweep tests
+- HELP_HUMAN fan-in rerun in the existing exact-pin Python environment:
+  focused evidence-sweep tests
   `38 passed in 2.53s`; full Piping pytest `576 passed in 15.49s`.
 - Fan-in verdict: `PASS`; accepted graph: `WORK_GRAPH_V2.json`.
 

@@ -1,0 +1,56 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260817-DIRTY-SWEEP-PORTABILITY",
+  "plan_version": 2,
+  "selection_authority": "AGENT_0",
+  "posture": "SERIAL",
+  "integration_owner": "WORKING_ITEMS",
+  "source_commit": "6ec3117c09891039dba3b9d78603c737be3f54ba",
+  "nodes": [
+    {
+      "id": "N2",
+      "agent_type": 1,
+      "construction": "direct WORKING_ITEMS bounded record portability repair",
+      "serialized": true,
+      "integration_owner": "WORKING_ITEMS",
+      "dependencies": ["N1"],
+      "read_scope": "two self-check findings and their cited N1 AgentRuns records",
+      "write_targets": [
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260816-DIRTY-SWEEP-OUTPUT/MANAGER_RETURN.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260816-DIRTY-SWEEP-OUTPUT/WORK_GRAPH_V2.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260817-DIRTY-SWEEP-PORTABILITY/**"
+      ],
+      "acceptance": [
+        "the two cited machine-specific paths are replaced by portable wording",
+        "HELP_HUMAN attribution is preserved",
+        "focused result remains 38 passed in 2.53s",
+        "full Piping result remains 576 passed in 15.49s",
+        "self-check reports neither tranche-local path finding"
+      ],
+      "gates": [
+        "exact write containment",
+        "repository self-check",
+        "JSON parse",
+        "git diff --check",
+        "WORKING_ITEMS fan-in"
+      ],
+      "expected_returns": [
+        "exact two-line portability repair",
+        "validation evidence",
+        "CHANGE-ready handoff"
+      ],
+      "escalation": "report any consequence before scope expansion",
+      "status": "RESOLVED_ACCEPTED",
+      "fan_in_validation": {
+        "portable_path_replacements": 2,
+        "self_check_exit_code": 0,
+        "tranche_local_path_findings": 0,
+        "json_parse": "PASS",
+        "diff_check": "PASS",
+        "verdict": "PASS"
+      }
+    }
+  ],
+  "edges": [],
+  "concurrency": "none"
+}

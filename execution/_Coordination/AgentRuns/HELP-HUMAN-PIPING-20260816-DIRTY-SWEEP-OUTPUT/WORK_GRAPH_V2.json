@@ -46,7 +46,7 @@
       "status": "RESOLVED_ACCEPTED",
       "fan_in_validation": {
         "attribution": "HELP_HUMAN",
-        "environment": "/private/tmp/chirality-piping-preflight-venv",
+        "environment": "existing exact-pin Python environment",
         "focused_pytest": "38 passed in 2.53s",
         "full_piping_pytest": "576 passed in 15.49s",
         "verdict": "PASS"
