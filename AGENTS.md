@@ -109,6 +109,8 @@ rule below. Do not write root governance files, root agent instructions, root
 skills, or root tools unless the human explicitly directs that governance
 work.
 
+Host-capability execution. Some registered checks and evidence surfaces cannot run inside the session's sandbox because the sandbox denies process spawning, Mach bootstrap, network, or keychain access — DEC-025 surfaces annotated execution_capability: host (Playwright/Chromium) are the standing example. For such a surface, the executing agent requests sandbox escalation for the exact command (for example npm run build:wasm && PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test …, or tools/release/run_evidence_sweep.py --execute --only-capability host) and runs it itself in the session; the human approves or declines per command. A sandbox denial is not a substrate limitation and is not a reason to park, hand off, waive, or infer a pass. Park with HOST_RERUN_REQUIRED only when the escalation request itself is declined, and record the exact command that was declined. Escalated runs are recorded in the run record with the command, the capability annotation, and the result, and remain bound to the same commit-hash and clean-worktree rules as sandboxed runs. Root harness CI is additional evidence where it exists; it does not replace a required host surface unless the owning decision says so.
+
 There may be other agents working in this monorepo with disjoint write scopes.
 Treat unrelated dirty files outside the selected tranche scope as external
 state. Do not fix, stage, revert, or interpret them unless the human directs
