@@ -105,6 +105,30 @@ no canonical evidence is written by this node. CHANGE must commit the exact N1
 path set and then run the full DEC-025 sweep at clean committed HEAD before the
 commit-bound merge gate can be claimed.
 
+## After-the-fact host DEC-025 closeout
+
+Agent 0 ran the complete ordered sweep under execution capability `host` at
+the committed N1 HEAD. The three escalated attempts were:
+
+1. `python3 tools/release/run_evidence_sweep.py --execute` — exit 1 before
+   prerequisite probing or surface 1 because Python 3.9.6 is below the required
+   Python 3.11 floor.
+2. `/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3.13 tools/release/run_evidence_sweep.py --execute`
+   — exit 1 after the cargo surface passed because missing `jsonschema` caused
+   Python test-collection errors. The failed canonical summary from this
+   attempt was discarded before retry.
+3. `/private/tmp/chirality-piping-dec025-venv/bin/python tools/release/run_evidence_sweep.py --execute`
+   — exit 0; all five ordered surfaces passed: cargo crate sweep, Python 576,
+   desktop Vitest 523, development Playwright 22/22, distribution Playwright
+   2/2, and desktop production build.
+
+The passing clean-head summary is
+`validation/evidence/sweeps/SWEEP_20260818T011106Z_47eb94e9d6b8.json`, SHA-256
+`4506dfb573100c53619dd577bdf4ecbba7e6cd78de92e5da6fc7bc9c0cefb837`,
+bound to Git commit `47eb94e9d6b8d8ab68e31f49cd0528ffeaf1e4b3` with
+`working_tree_dirty=false`. This closes the N1 commit-bound DEC-025 rerun. The
+DEL-09-04 residual and lifecycle state remain unchanged.
+
 ## Evidence pointers
 
 - Candidate:
@@ -120,8 +144,9 @@ commit-bound merge gate can be claimed.
 
 ## Rerun
 
-Use a host context that permits Chromium launch. Run the focused spec in both
-registered viewport projects, then run the complete DEC-025 sweep at a clean
-committed HEAD. Only after both pass may the GUI-workflow residual be narrowed.
+No N1 verification rerun is outstanding for commit
+`47eb94e9d6b8d8ab68e31f49cd0528ffeaf1e4b3`. If that commit binding changes,
+rerun the focused host case and complete DEC-025 sweep. This verification does
+not narrow the unchanged DEL-09-04 residual.
 
 Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).
