@@ -1,0 +1,14 @@
+{
+  "child_instance_id": "CODE-REVIEW-01",
+  "parent_instance_id": "WORKING-ITEMS-PKG09-DEL0904-GUI-01",
+  "status": "FAILED",
+  "task_skill": "software-code-review",
+  "apply_edits": false,
+  "frozen_head": "32360f2eb53936a526a98a41b0a571c7af287483",
+  "review_verdict": "FAIL",
+  "blocking_findings": 1,
+  "frozen_paths": [
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts"
+  ]
+}

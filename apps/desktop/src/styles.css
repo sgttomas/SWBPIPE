@@ -514,7 +514,10 @@ button:focus-visible {
 }
 
 .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) {
-  --pane-agent-col: 0;
+  /* The agent pane is absent in this state, so remove its track as well.
+     Leaving a zero-width third track makes grid auto-placement put the
+     inspector into that track and lets the viewport overlap its controls. */
+  grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-inspector-col);
 }
 
 .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) .workspace-pane-agent {
