@@ -2898,3 +2898,26 @@
   - Checks: decision/register/codification consistency, deliverable-status discovery, receipt contract, repository self-check, practitioner harness, whitespace, diff, and containment: PASS.
   - Model-Attribution: HELP_HUMAN supervised HELPS_HUMANS and CHANGE Agent 1 roles; inherited runtime capability, no exact model exposed, no substitution.
   - Gate-Outcome: `EXECUTED` — the owner ruling is recorded and codified; no engineering work ran. The CI-binding implementation is selectable next, and until it lands sweeps continue on the host path. No workflow, sweep, schema, validator, manifest, lifecycle, release, publication, merge, or professional-reliance effect occurs.
+
+- **2026-08-19 — Receipt 115** (DEC-093 CI surface-4 tooling closeout).
+  - Receipt-ID: `Receipt-115`
+  - Examined-Through: `219f695d348f1d83ba904ef4dd38781636b423a6`
+  - Parent-Receipt: `Receipt-114`
+  - Pointers: N1 commit `3bd7a9d24b146199555c8731fe1741635ce278a5`;
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4/`;
+    TASK-REVIEW-005 terminal PASS; clean schema-v3 sweep
+    `validation/evidence/sweeps/SWEEP_20260819T200703Z_3bd7a9d24b14.json`
+    (SHA-256 `8d95ee9a2e153f59a781ffc30bbb3d43b9534c11e585a2e5cf9f53bdced4e07f`).
+  - Checks: focused and full Piping tests, terminal integrated-diff review,
+    DEC-025 five-surface host sweep, repository self-check, practitioner
+    harness, receipt contract, diff, and containment pass.
+  - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS, five fresh
+    read-only TASK review attempts, and CHANGE; inherited GPT-5-based Codex
+    runtime capability was used without substitution.
+  - Gate-Outcome: `EXECUTED` — the DEL-10-04 DEC-093 tooling item is closed;
+    CI-bound surface-4 summaries and downstream consumers now fail closed on
+    invalid, partial, dirty, Git-unverified, malformed, mismatched, or
+    contradictory evidence while the host path remains available. The two
+    owner-gated DEL-10-04 publication/signing residuals remain unchanged. No
+    lifecycle, stage, release, publication, merge, or professional-reliance
+    effect occurs.

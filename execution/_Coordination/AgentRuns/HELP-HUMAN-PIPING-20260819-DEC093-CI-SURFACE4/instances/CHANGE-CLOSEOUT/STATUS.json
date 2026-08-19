@@ -2,6 +2,8 @@
   "run_id": "HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4",
   "instance_id": "CHANGE-CLOSEOUT",
   "role": "CHANGE",
-  "status": "READY_PHASE1",
+  "status": "READY_PHASE2",
+  "node_commit": "3bd7a9d24b146199555c8731fe1741635ce278a5",
+  "proof_summary": "validation/evidence/sweeps/SWEEP_20260819T200703Z_3bd7a9d24b14.json",
   "blockers": []
 }
