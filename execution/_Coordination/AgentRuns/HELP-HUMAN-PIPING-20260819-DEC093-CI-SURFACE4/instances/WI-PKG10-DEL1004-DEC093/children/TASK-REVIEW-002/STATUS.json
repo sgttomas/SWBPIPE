@@ -1,0 +1,10 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4",
+  "parent_instance_id": "WI-PKG10-DEL1004-DEC093",
+  "instance_id": "TASK-REVIEW-002",
+  "role": "TASK",
+  "task_skill": "software-code-review",
+  "status": "INTERRUPTED",
+  "reason": "A post-freeze validation hardening edit invalidated the sealed diff-hash basis before any verdict; this review supplies no accepted result.",
+  "write_authorization": "RUN_RECORD_ONLY"
+}

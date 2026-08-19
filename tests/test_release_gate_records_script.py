@@ -55,6 +55,7 @@ def make_sweep_artifact(
     return {
         "artifact": "openpipestress.evidence_sweep_summary",
         "schema_version": 2,
+        "decision_basis": "DEC-025",
         "git": {
             "commit_hash": commit,
             "branch": "main",
@@ -64,8 +65,27 @@ def make_sweep_artifact(
         },
         "started_utc": started,
         "surfaces": [
-            {"surface_id": surface_id, "status": status}
-            for surface_id, status in statuses.items()
+            {
+                "order": order,
+                "surface_id": surface_id,
+                "description": f"fixture {surface_id}",
+                "execution_capability": (
+                    "host" if surface_id == "desktop_playwright_e2e" else "sandboxed"
+                ),
+                "commands": (
+                    []
+                    if status == "not_run"
+                    else [
+                        {
+                            "argv": ["fixture"],
+                            "exit_code": 1 if status == "fail" else 0,
+                            "duration_seconds": 0.0,
+                        }
+                    ]
+                ),
+                "status": status,
+            }
+            for order, (surface_id, status) in enumerate(statuses.items(), start=1)
         ],
         "overall_status": (
             "fail" if any(s != "pass" for s in statuses.values()) else "pass"
@@ -206,6 +226,34 @@ def test_dirty_sweep_artifacts_never_qualify_as_gate_evidence(tmp_path):
     assert evidence["selected"] is None
 
 
+def test_ci_sweep_with_mismatched_head_never_qualifies_as_gate_evidence(tmp_path):
+    gates = load_module()
+    sweep = make_sweep_artifact()
+    sweep["schema_version"] = 3
+    sweep["decision_basis"] = ["DEC-025", "DEC-093"]
+    for surface in sweep["surfaces"]:
+        surface["execution_capability"] = "sandboxed"
+        surface["commands"] = []
+    surface4 = sweep["surfaces"][3]
+    surface4["execution_capability"] = "ci"
+    surface4["ci_binding"] = {
+        "workflow_path": ".github/workflows/piping-desktop-e2e.yml",
+        "run_id": 1234,
+        "run_attempt": 1,
+        "head_sha": COMMIT_B,
+        "conclusion": "success",
+        "registered_e2e_specs_executed": True,
+        "viewport_projects": ["chromium-desktop", "chromium-compact"],
+    }
+
+    record = build_record(gates, tmp_path, sweep_bodies=[sweep])
+    evidence = record["inputs"]["sweep_evidence"]
+
+    assert evidence["artifacts_at_commit"] == 0
+    assert evidence["clean_artifacts_at_commit"] == 0
+    assert evidence["selected"] is None
+
+
 def test_latest_clean_sweep_is_selected(tmp_path):
     gates = load_module()
     older = make_sweep_artifact(started="2026-07-10T00:00:00+00:00")
@@ -216,6 +264,70 @@ def test_latest_clean_sweep_is_selected(tmp_path):
         record["inputs"]["sweep_evidence"]["selected"]["started_utc"]
         == "2026-07-11T02:00:00+00:00"
     )
+
+
+def test_newer_partial_sweep_cannot_displace_complete_evidence(tmp_path):
+    gates = load_module()
+    complete = make_sweep_artifact(started="2026-07-11T01:00:00+00:00")
+    partial = make_sweep_artifact(started="2026-07-11T03:00:00+00:00")
+    partial["surfaces"] = [
+        surface
+        for surface in partial["surfaces"]
+        if surface["execution_capability"] == "sandboxed"
+    ]
+    for order, surface in enumerate(partial["surfaces"], start=1):
+        surface["order"] = order
+    partial["surface_selection"] = {
+        "only_capability": "sandboxed",
+        "complete_dec025_sweep": False,
+    }
+
+    record = build_record(
+        gates, tmp_path, sweep_bodies=[complete, partial]
+    )
+
+    selected = record["inputs"]["sweep_evidence"]["selected"]
+    assert selected["path"] == "SWEEP_0.json"
+    assert selected["started_utc"] == "2026-07-11T01:00:00+00:00"
+
+
+def test_malformed_git_artifact_is_excluded_without_crashing(tmp_path):
+    gates = load_module()
+    malformed = make_sweep_artifact()
+    malformed["git"] = "malformed"
+
+    record = build_record(gates, tmp_path, sweep_bodies=[malformed])
+    evidence = record["inputs"]["sweep_evidence"]
+
+    assert evidence["artifacts_at_commit"] == 0
+    assert evidence["clean_artifacts_at_commit"] == 0
+    assert evidence["selected"] is None
+
+
+def test_malformed_started_timestamp_cannot_block_valid_selection(tmp_path):
+    gates = load_module()
+    valid = make_sweep_artifact(started="2026-07-11T01:00:00+00:00")
+    malformed = make_sweep_artifact(started="2026-07-11T03:00:00+00:00")
+    malformed["started_utc"] = {"malformed": True}
+
+    record = build_record(gates, tmp_path, sweep_bodies=[valid, malformed])
+    selected = record["inputs"]["sweep_evidence"]["selected"]
+
+    assert selected["path"] == "SWEEP_0.json"
+    assert selected["started_utc"] == "2026-07-11T01:00:00+00:00"
+
+
+def test_false_dirty_flag_with_named_paths_never_qualifies(tmp_path):
+    gates = load_module()
+    contradictory = make_sweep_artifact(dirty=False)
+    contradictory["git"]["dirty_paths"] = ["modified-file"]
+
+    record = build_record(gates, tmp_path, sweep_bodies=[contradictory])
+    evidence = record["inputs"]["sweep_evidence"]
+
+    assert evidence["artifacts_at_commit"] == 0
+    assert evidence["clean_artifacts_at_commit"] == 0
+    assert evidence["selected"] is None
 
 
 def test_tbd_criteria_carry_reasons_and_no_invented_values(tmp_path):

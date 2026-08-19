@@ -44,6 +44,22 @@ def load_module():
 
 
 def stub_sweep_summary(*, dirty: bool) -> dict:
+    surfaces = []
+    for order, surface_id in enumerate(EXPECTED_SURFACE_ORDER, start=1):
+        surfaces.append(
+            {
+                "order": order,
+                "surface_id": surface_id,
+                "description": f"fixture {surface_id}",
+                "execution_capability": (
+                    "host" if surface_id == "desktop_playwright_e2e" else "sandboxed"
+                ),
+                "commands": [
+                    {"argv": ["fixture"], "exit_code": 0, "duration_seconds": 0.0}
+                ],
+                "status": "pass",
+            }
+        )
     return {
         "artifact": "openpipestress.evidence_sweep_summary",
         "schema_version": 2,
@@ -59,8 +75,20 @@ def stub_sweep_summary(*, dirty: bool) -> dict:
         "started_utc": "2026-08-16T12:00:00+00:00",
         "finished_utc": "2026-08-16T12:00:01+00:00",
         "duration_seconds": 1.0,
-        "surfaces": [],
+        "surfaces": surfaces,
         "overall_status": "pass",
+    }
+
+
+def valid_ci_binding(*, head_sha: str, run_attempt: int = 1) -> dict:
+    return {
+        "workflow_path": ".github/workflows/piping-desktop-e2e.yml",
+        "run_id": 987654321,
+        "run_attempt": run_attempt,
+        "head_sha": head_sha,
+        "conclusion": "success",
+        "registered_e2e_specs_executed": True,
+        "viewport_projects": ["chromium-desktop", "chromium-compact"],
     }
 
 
@@ -151,6 +179,57 @@ def test_every_surface_declares_a_valid_execution_capability():
         "desktop_playwright_e2e": "host",
         "desktop_production_build": "sandboxed",
     }
+
+
+def test_ci_binding_replaces_only_surface_4_and_records_dual_viewport_proof():
+    sweep = load_module()
+    binding = valid_ci_binding(head_sha="a" * 40)
+
+    surfaces = sweep.build_sweep_plan(binding)
+    surface4 = surfaces[3]
+
+    assert [surface.surface_id for surface in surfaces] == EXPECTED_SURFACE_ORDER
+    assert surface4.execution_capability == "ci"
+    assert surface4.commands == ()
+    assert surface4.ci_binding == binding
+    assert [surface.execution_capability for surface in surfaces[:3] + surfaces[4:]] == [
+        "sandboxed",
+        "sandboxed",
+        "sandboxed",
+        "sandboxed",
+    ]
+
+
+def test_host_surface_4_commands_and_capability_remain_unchanged():
+    sweep = load_module()
+    surface4 = sweep.build_sweep_plan()[3]
+
+    assert surface4.execution_capability == "host"
+    assert surface4.commands == (
+        ("npm", "run", "test:e2e:desktop"),
+        ("npm", "run", "test:e2e:dist:desktop"),
+    )
+    assert surface4.ci_binding is None
+
+
+def test_ci_binding_accepts_same_sha_rerun_attempt():
+    sweep = load_module()
+    binding = valid_ci_binding(head_sha="a" * 40, run_attempt=3)
+
+    assert sweep.validate_ci_binding(binding, commit_hash="a" * 40) == []
+
+
+def test_ci_binding_rejects_head_mismatch_failed_specs_and_incomplete_viewports():
+    sweep = load_module()
+    binding = valid_ci_binding(head_sha="a" * 40)
+    binding["conclusion"] = "failure"
+    binding["viewport_projects"] = ["chromium-desktop"]
+
+    errors = sweep.validate_ci_binding(binding, commit_hash="b" * 40)
+
+    assert any("does not equal sweep commit_hash" in error for error in errors)
+    assert any("failed specs are not accepted" in error for error in errors)
+    assert any("registered dual-viewport" in error for error in errors)
 
 
 def test_surface_rejects_invalid_execution_capability():
@@ -444,8 +523,8 @@ def test_summary_binds_commit_hash_and_passes_when_all_surfaces_pass():
     summary = sweep.run_sweep(sweep.build_sweep_plan(), ROOT, runner=lambda c, r: 0)
 
     assert summary["artifact"] == "openpipestress.evidence_sweep_summary"
-    assert summary["schema_version"] == 2
-    assert summary["decision_basis"] == "DEC-025"
+    assert summary["schema_version"] == 3
+    assert summary["decision_basis"] == ["DEC-025", "DEC-093"]
     git_state = summary["git"]
     assert git_state["commit_hash"] and len(git_state["commit_hash"]) == 40
     assert git_state["status_capture_failed"] is False
@@ -463,6 +542,164 @@ def test_summary_binds_commit_hash_and_passes_when_all_surfaces_pass():
         for entry in summary["surfaces"]
         for command in entry["commands"]
     )
+    assert sweep.validate_summary(summary) == []
+
+
+def test_ci_summary_records_binding_and_validates_against_commit(monkeypatch):
+    sweep = load_module()
+    commit = "a" * 40
+    binding = valid_ci_binding(head_sha=commit, run_attempt=2)
+    monkeypatch.setattr(
+        sweep,
+        "collect_git_state",
+        lambda root: {
+            "commit_hash": commit,
+            "branch": "ci-proof",
+            "status_capture_failed": False,
+            "working_tree_dirty": False,
+            "dirty_paths": [],
+        },
+    )
+
+    summary = sweep.run_sweep(
+        sweep.build_sweep_plan(binding), ROOT, runner=lambda command, root: 0
+    )
+    surface4 = summary["surfaces"][3]
+
+    assert surface4["execution_capability"] == "ci"
+    assert surface4["commands"] == []
+    assert surface4["ci_binding"] == binding
+    assert surface4["status"] == "pass"
+    assert summary["overall_status"] == "pass"
+    assert sweep.validate_summary(summary) == []
+
+
+def test_summary_validator_rejects_ci_head_sha_mismatch(monkeypatch):
+    sweep = load_module()
+    binding = valid_ci_binding(head_sha="a" * 40)
+    monkeypatch.setattr(
+        sweep,
+        "collect_git_state",
+        lambda root: {
+            "commit_hash": "b" * 40,
+            "branch": "ci-proof",
+            "status_capture_failed": False,
+            "working_tree_dirty": False,
+            "dirty_paths": [],
+        },
+    )
+
+    summary = sweep.run_sweep(
+        sweep.build_sweep_plan(binding), ROOT, runner=lambda command, root: 0
+    )
+    errors = sweep.validate_summary(summary)
+
+    assert any("does not equal sweep commit_hash" in error for error in errors)
+
+
+def test_committed_historical_v2_corpus_remains_valid():
+    sweep = load_module()
+    paths = sorted((ROOT / "validation/evidence/sweeps").glob("SWEEP_*.json"))
+    v2_summaries = []
+    for path in paths:
+        summary = json.loads(path.read_text(encoding="utf-8"))
+        if summary.get("schema_version") == 2:
+            v2_summaries.append((path, summary))
+
+    assert v2_summaries
+    assert {
+        path.name: sweep.validate_summary(summary)
+        for path, summary in v2_summaries
+        if sweep.validate_summary(summary)
+    } == {}
+    assert any(
+        sweep.is_complete_sweep_summary(summary)
+        for _, summary in v2_summaries
+    )
+
+
+def test_historical_v2_validator_rejects_malformed_or_truncated_summary():
+    sweep = load_module()
+    summary = stub_sweep_summary(dirty=False)
+    summary["surfaces"] = summary["surfaces"][:2]
+    summary["surfaces"][1]["surface_id"] = "cargo_crate_sweep"
+
+    errors = sweep.validate_summary(summary)
+
+    assert any("selected DEC-025 order" in error for error in errors)
+    assert any("surface_id values must be unique" in error for error in errors)
+    assert sweep.is_complete_sweep_summary(summary) is False
+
+
+def test_validator_rejects_non_string_or_non_utc_started_timestamp():
+    sweep = load_module()
+    summary = stub_sweep_summary(dirty=False)
+
+    summary["started_utc"] = {"malformed": True}
+    assert any("started_utc" in error for error in sweep.validate_summary(summary))
+    assert sweep.is_complete_sweep_summary(summary) is False
+
+    summary["started_utc"] = "2026-08-19T12:00:00"
+    assert any("started_utc" in error for error in sweep.validate_summary(summary))
+
+
+def test_validator_rejects_contradictory_or_unverified_dirty_paths():
+    sweep = load_module()
+    summary = stub_sweep_summary(dirty=False)
+    summary["git"]["dirty_paths"] = ["modified-file"]
+
+    assert any(
+        "working_tree_dirty" in error for error in sweep.validate_summary(summary)
+    )
+    assert sweep.is_complete_sweep_summary(summary) is False
+
+    summary["git"].update(
+        status_capture_failed=True,
+        working_tree_dirty=None,
+    )
+    assert any("dirty_paths must be empty" in error for error in sweep.validate_summary(summary))
+
+
+def test_schema_v2_cannot_claim_a_ci_capability_selection():
+    sweep = load_module()
+    summary = stub_sweep_summary(dirty=False)
+    summary["surfaces"] = [summary["surfaces"][3]]
+    summary["surfaces"][0]["order"] = 1
+    summary["surface_selection"] = {
+        "only_capability": "ci",
+        "complete_dec025_sweep": False,
+    }
+
+    errors = sweep.validate_summary(summary)
+
+    assert any("does not match surface_selection 'ci'" in error for error in errors)
+
+
+def test_ci_binding_remains_valid_when_an_earlier_surface_fails(monkeypatch):
+    sweep = load_module()
+    commit = "a" * 40
+    binding = valid_ci_binding(head_sha=commit)
+    monkeypatch.setattr(
+        sweep,
+        "collect_git_state",
+        lambda root: {
+            "commit_hash": commit,
+            "branch": "ci-proof",
+            "status_capture_failed": False,
+            "working_tree_dirty": False,
+            "dirty_paths": [],
+        },
+    )
+
+    summary = sweep.run_sweep(
+        sweep.build_sweep_plan(binding),
+        ROOT,
+        runner=lambda command, root: 1,
+    )
+
+    assert summary["overall_status"] == "fail"
+    assert summary["surfaces"][3]["status"] == "not_run"
+    assert sweep.validate_summary(summary) == []
 
 
 def test_parse_porcelain_status_keeps_full_path_for_unstaged_first_record():
@@ -794,6 +1031,85 @@ def test_host_capability_preflight_accepts_the_complete_plan():
     assert sweep.capability_preflight_errors(
         sweep.build_sweep_plan(), "host"
     ) == []
+
+
+def test_ci_capability_preflight_accepts_bound_surface_and_sandboxed_surfaces():
+    sweep = load_module()
+    binding = valid_ci_binding(head_sha="a" * 40)
+
+    assert sweep.capability_preflight_errors(
+        sweep.build_sweep_plan(binding), "ci"
+    ) == []
+
+
+def test_main_accepts_ci_binding_and_writes_valid_summary(
+    monkeypatch, tmp_path
+):
+    sweep = load_module()
+    commit = sweep.collect_git_state(ROOT)["commit_hash"]
+    binding_path = tmp_path / "ci-binding.json"
+    binding_path.write_text(
+        json.dumps(valid_ci_binding(head_sha=commit, run_attempt=2)),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sweep, "missing_tools", lambda surfaces: [])
+    monkeypatch.setattr(sweep, "preflight_prerequisites", lambda root, surfaces: [])
+    monkeypatch.setattr(sweep, "run_command", lambda command, root: 0)
+
+    result = sweep.main(
+        [
+            "--execute",
+            "--repo-root",
+            str(ROOT),
+            "--surface4-ci-binding",
+            str(binding_path),
+            "--require-capability",
+            "ci",
+            "--output-dir",
+            str(tmp_path / "summaries"),
+        ]
+    )
+
+    assert result == 0
+    summaries = list((tmp_path / "summaries").glob("SWEEP_*.json"))
+    assert len(summaries) == 1
+    summary = json.loads(summaries[0].read_text(encoding="utf-8"))
+    assert summary["surfaces"][3]["execution_capability"] == "ci"
+    assert summary["surfaces"][3]["ci_binding"]["run_attempt"] == 2
+    assert sweep.validate_summary(summary) == []
+
+
+def test_main_rejects_ci_binding_head_mismatch_before_surface_1(
+    monkeypatch, capsys, tmp_path
+):
+    sweep = load_module()
+    binding_path = tmp_path / "ci-binding.json"
+    binding_path.write_text(
+        json.dumps(valid_ci_binding(head_sha="0" * 40)), encoding="utf-8"
+    )
+
+    def fail_run(*args, **kwargs):
+        raise AssertionError("a mismatched CI binding must stop before surface 1")
+
+    monkeypatch.setattr(sweep, "run_sweep", fail_run)
+
+    result = sweep.main(
+        [
+            "--execute",
+            "--repo-root",
+            str(ROOT),
+            "--surface4-ci-binding",
+            str(binding_path),
+            "--output-dir",
+            str(tmp_path / "summaries"),
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert result == 1
+    assert "rejected before surface 1" in captured.err
+    assert "does not equal sweep commit_hash" in captured.err
+    assert not (tmp_path / "summaries").exists()
 
 
 def test_sandboxed_capability_selection_excludes_host_surface():

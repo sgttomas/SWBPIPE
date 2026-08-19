@@ -1,0 +1,19 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4",
+  "instance_id": "WI-PKG10-DEL1004-DEC093",
+  "role": "WORKING_ITEMS",
+  "status": "COMPLETE",
+  "plan_version": 5,
+  "fan_in_validity": "VALID",
+  "accepted_review": "TASK-REVIEW-005",
+  "focused_checks": "95 passed, 1 deselected",
+  "blockers": [],
+  "residual_closeout": [
+    "requirements-complete focused suite",
+    "evidence-sweep",
+    "piping-pytest",
+    "harness-pytest",
+    "harness-self-check",
+    "CHANGE and Agent 0 fan-in"
+  ]
+}

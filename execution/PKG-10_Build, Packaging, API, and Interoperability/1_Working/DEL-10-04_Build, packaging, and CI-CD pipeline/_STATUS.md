@@ -1,14 +1,21 @@
 # Status: DEL-10-04 Build, packaging, and CI/CD pipeline
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-16
+**Last Updated:** 2026-08-19
 
 ## Remaining
-- Implement the D-65/DEC-093 CI-binding path in `tools/release/run_evidence_sweep.py` and its summary schema/validator as applicable: record `execution_capability: ci`, workflow path, Actions run ID and attempt, exact head SHA, conclusion, and both registered viewport-project execution; reject any summary whose bound head SHA differs from `commit_hash`. This is a selectable bounded follow-up node and is not executed in the D-65 recording tranche; until it lands, sweeps continue on the host path. (source: D-65 / DEC-093)
 - Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, making the export self-verifying or trimming its test set, and owner review of the v1 include/exclude allowlist (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
 - Sign/notarize release artifacts or record the explicit deviation from the historical v0.1 PRD §22.6 read through the D-21 Annex A crosswalk (forward home: the DEC-056 R6-entry release-machinery residuals) (gated: D-06b) (source: PRD plan §3 E5 row / register row D-06b / DEC-057)
 
 ## History
+- 2026-08-19 - Implemented the D-65/DEC-093 CI-bound surface-4 path in the
+  evidence sweep: schema v3 records and validates the fixed workflow, Actions
+  run/attempt, exact head SHA, success conclusion, registered-spec execution,
+  and both viewport projects; mismatched heads and non-success conclusions are
+  rejected before evidence acceptance. The unchanged host surface remains the
+  default alternative. Focused in-session regression checks passed; lifecycle
+  remains `IN_PROGRESS` and committed-head sweep/closeout evidence remains with
+  the governing run.
 - 2026-07-16 - DEC-080/SCA-007 (D-47 O-A) propagation: the D-06b signing item's "PRD §22.6" citation re-keyed to the historical v0.1 token read through the D-21 Annex A crosswalk, with forward home in the DEC-056 R6-entry release-machinery residuals; gate suffix and item scope unchanged. No lifecycle change.
 - 2026-07-16 - Owner adopted CB-2026-07-15-DEL-10-04-CIBROWSER-001; `docs/BUILD_AND_RELEASE.md` §7 now records provider-neutral Playwright browser provisioning and maps both source-mode and production-dist lanes into the DEC-025-ordered phase sequence. The two documentation residuals closed; hosted/public CI, signing/notarization, publication, release authority, and lifecycle remain unchanged.
 - 2026-07-15 - D-42/DEC-076 PDU-077 bounded update recorded SURF-011 as DEL-10-04 implementation evidence and completed the authorized implementation-surface/claim-concordance re-extraction; panel behavior and lifecycle remain unchanged.

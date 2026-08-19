@@ -11,6 +11,49 @@ revision: 0.5
 
 # MEMORY - DEL-10-04 Build, Packaging, And CI/CD Pipeline
 
+## 2026-08-19 - DEC-093 CI-bound surface-4 tooling
+
+- `tools/release/run_evidence_sweep.py` now accepts an explicit
+  `--surface4-ci-binding` JSON input and emits schema v3 summaries under the
+  combined `DEC-025` / `DEC-093` basis. The binding is closed to the ruled
+  fields: `.github/workflows/piping-desktop-e2e.yml`, positive Actions run ID
+  and attempt, full head SHA, `success` conclusion, affirmative registered-spec
+  execution, and the exact `chromium-desktop` / `chromium-compact` project set.
+- The binding head must equal the sweep `git.commit_hash`; mismatch is rejected
+  before surface 1 and revalidated before summary write. Non-success runs,
+  incomplete viewport evidence, extra/missing binding fields, local commands on
+  a CI-bound surface, and schema-v2 CI claims are rejected. A later successful
+  attempt on the same SHA is accepted.
+- The default surface-4 host route remains `execution_capability: host` with
+  the existing source and production-dist commands unchanged. CI selection does
+  not edit or execute the workflow and does not substitute for a future
+  host-mandatory macOS surface.
+- `run_release_gate_records.py` now excludes invalid and partial sweep summaries
+  from clean commit-bound gate evidence. `package_release_artifact.py` applies
+  the same complete-summary validator before its authenticity chain can become
+  verified. Historical schema-v2 summaries are structurally validated; all 284
+  committed v2 artifacts pass, including two valid diagnostic partials that
+  remain ineligible as full downstream evidence.
+- The first fresh independent review rejected fan-in with four blockers. Brief
+  amendments V2/V3 authorized the exact three canonical focused test paths;
+  remediation closed fail-open v2 validation, partial-summary selection, and
+  packaging-chain bypasses. A later 100% frozen-diff review found three further
+  downstream integrity gaps; remediation now rejects Git-unverified sweeps in
+  packaging, validates gate artifacts before nested Git access, and requires a
+  parseable UTC `started_utc` before evidence sorting. A subsequent review found
+  a contradictory dirty-flag/path state; the shared validator now requires the
+  flag to equal whether dirty paths exist and requires no paths when capture
+  fails. Terminal fresh re-review remains required before acceptance.
+- Focused evidence: 53 evidence-sweep tests, 24 release-gate tests, and 18
+  packaging tests passed (95 total). The one jsonschema-dependent release-gate
+  validation case remains deselected because the available Python 3.13 test
+  environment does not have `jsonschema`; the full focused run reports 95 passes
+  plus that sole environment/import failure. `py_compile` and
+  `git diff --check` passed.
+- This closes only the D-65/DEC-093 tooling Remaining item. It creates no
+  workflow, release, publication, lifecycle, or professional-reliance act.
+
+
 ## 2026-07-16 - CI browser provisioning and provider-neutral phase mapping
 
 - Owner adoption of `CB-2026-07-15-DEL-10-04-CIBROWSER-001` authorized the

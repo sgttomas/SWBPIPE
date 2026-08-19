@@ -1,0 +1,24 @@
+# Sealed TASK brief — TASK-REVIEW-002
+
+- RequestedBy: `WI-PKG10-DEL1004-DEC093`
+- RunID: `HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4`
+- ParentInstanceID: `WI-PKG10-DEL1004-DEC093`
+- ChildInstanceID: `TASK-REVIEW-002`
+- Role: `TASK` (Agent 2)
+- TaskSkill: `software-code-review`
+- PackageID: `PKG-10`
+- DeliverableID: `DEL-10-04`
+- ScopePath: `projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline`
+- ImplementationBrief: fresh terminal review after TASK-REVIEW-001 FAIL and manager remediation. D-65/DEC-093 CI-bound surface-4 evidence, strict v2/v3 summary validation, partial-evidence exclusion in downstream consumers, unchanged host path, canonical regressions, and reconciled deliverable/run evidence.
+- AcceptedBasis: root/project `AGENTS.md`; `agents/AGENT_TASK.md`; `skills/software-code-review/{SKILL.md,BRIEF_SCHEMA.md,TOOL_POLICY.md,QA_CHECKS.md}`; D-65/DEC-093; manager launch brief plus V2/V3; live workflow/Playwright contracts; TASK-REVIEW-001 return.
+- DiffBasis: 100% of `N1_DIFF_MANIFEST_V2.md`, base `219f695d348f1d83ba904ef4dd38781636b423a6`; verify every listed hash before review and inspect both tracked diffs and listed untracked files.
+- VerificationEvidence: 50/50 evidence-sweep tests including all 284 committed v2 summaries; 21/21 release-gate tests with one jsonschema-only environment case deselected; 18/18 packaging tests; combined 89 PASS / one deselected; py_compile PASS; git diff --check PASS. Full run's only failure is missing `jsonschema` in available Python 3.13.
+- PROFILE_PATH: `projects/chirality-piping/software-workflow.json`
+- ApplyEdits: `false`
+- AllowedWriteTargets: none; managed runtime status/return files only.
+- AllowedTools: `python3 tools/software_workflow/validate_change_scope.py`; `python3 tools/software_workflow/select_affected_checks.py`; `python3 tools/software_workflow/compare_structured.py`; `python3 tools/software_workflow/verify_generated_manifest.py`; read-only shell/git inspection.
+- ExpectedReturn: `PASS` with no actionable findings, or findings grouped as blocking/non-blocking with exact file/line, impact, evidence, and remediation direction; explicit scope/evidence audit and residual risk.
+- AcceptanceCriteria: review all 20 frozen files; confirm V2/V3 scope containment; exact D-65 fields/SHA rejection/dual viewports/same-SHA rerun/non-success rejection; strict actual-corpus-compatible v2 and current v3 validation; valid partial diagnostic preservation but full-evidence consumer exclusion; packaging-chain rejection of invalid/partial summaries; unchanged host commands/capability; no lifecycle act.
+- EXCLUSIONS: no edits, installs, network, host execution, workflow changes, commit, push, PR, receipt, release, publication, lifecycle, or professional-reliance action; Agent 2 must not delegate.
+- Escalation: return `FAILED_INPUTS` for a hash mismatch or missing frozen file; otherwise report every actionable finding to the parent and finish.
+- ModelAttribution: inherited GPT-5-based Codex runtime; fresh context independent from the implementer and first reviewer.

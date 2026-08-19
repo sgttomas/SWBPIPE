@@ -1,0 +1,16 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4",
+  "parent_instance_id": "WI-PKG10-DEL1004-DEC093",
+  "instance_id": "TASK-REVIEW-005",
+  "role": "TASK",
+  "task_skill": "software-code-review",
+  "status": "SUCCESS",
+  "write_authorization": "RUN_RECORD_ONLY",
+  "review_verdict": "PASS",
+  "blocking_findings": 0,
+  "non_blocking_findings": 0,
+  "frozen_hashes_verified": 32,
+  "frozen_hashes_total": 32,
+  "frozen_scope_reviewed_percent": 100,
+  "fan_in_validity": "VALID"
+}

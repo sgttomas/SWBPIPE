@@ -1,0 +1,24 @@
+# Sealed TASK brief — TASK-REVIEW-001
+
+- RequestedBy: `WI-PKG10-DEL1004-DEC093`
+- RunID: `HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4`
+- ParentInstanceID: `WI-PKG10-DEL1004-DEC093`
+- ChildInstanceID: `TASK-REVIEW-001`
+- Role: `TASK` (Agent 2)
+- TaskSkill: `software-code-review`
+- PackageID: `PKG-10`
+- DeliverableID: `DEL-10-04`
+- ScopePath: `projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline`
+- ImplementationBrief: implement D-65/DEC-093 CI-bound surface-4 evidence in the sweep tooling, exact binding and head-SHA validation, focused regression coverage, unchanged host semantics, and deliverable reconciliation.
+- AcceptedBasis: root/project `AGENTS.md`; `agents/AGENT_TASK.md`; `skills/software-code-review/{SKILL.md,BRIEF_SCHEMA.md,TOOL_POLICY.md,QA_CHECKS.md}`; D-65 ruling; DEC-093; manager launch brief; live workflow and Playwright project contracts.
+- DiffBasis: 100% of `N1_DIFF_MANIFEST.md`, base `219f695d348f1d83ba904ef4dd38781636b423a6`; verify every listed hash before review and inspect both tracked diffs and listed untracked files.
+- VerificationEvidence: 48/48 `test_evidence_sweep.py`; 20/20 `test_release_gate_records_script.py` excluding its jsonschema-only case; combined 67 passes with sole environment failure `jsonschema` unavailable; py_compile PASS; `git diff --check` PASS.
+- PROFILE_PATH: `projects/chirality-piping/software-workflow.json`
+- ApplyEdits: `false`
+- AllowedWriteTargets: none; managed runtime status/return files only.
+- AllowedTools: `python3 tools/software_workflow/validate_change_scope.py`; `python3 tools/software_workflow/select_affected_checks.py`; `python3 tools/software_workflow/compare_structured.py`; `python3 tools/software_workflow/verify_generated_manifest.py`; read-only shell/git inspection.
+- ExpectedReturn: `PASS` with no actionable findings, or findings grouped as blocking/non-blocking with exact file/line, impact, evidence, and remediation direction; explicit scope/evidence audit and residual risk.
+- AcceptanceCriteria: review 100% of the frozen manifest; confirm exact D-65 fields, SHA mismatch rejection, successful dual-viewport proof, same-SHA rerun support, failed-spec rejection, schema-v2 historical compatibility, downstream invalid-summary exclusion, and unchanged default host commands/capability; return no lifecycle act.
+- EXCLUSIONS: no edits, installs, network, host execution, workflow changes, commit, push, PR, receipt, release, publication, lifecycle, or professional-reliance action; Agent 2 must not delegate.
+- Escalation: return `FAILED_INPUTS` for a hash mismatch or missing frozen file; otherwise report every actionable finding to the parent and finish.
+- ModelAttribution: inherited GPT-5-based Codex runtime; fresh context from the implementation manager.

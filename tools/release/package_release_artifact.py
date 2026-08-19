@@ -96,7 +96,9 @@ CHAIN_NO_SWEEP = "missing_sweep_artifact"
 CHAIN_SWEEP_COMMIT_MISMATCH = "sweep_commit_mismatch"
 CHAIN_SWEEP_NOT_PASS = "sweep_not_pass"
 CHAIN_SWEEP_DIRTY = "sweep_working_tree_dirty"
+CHAIN_SWEEP_GIT_UNVERIFIED = "sweep_git_state_unverified"
 CHAIN_SWEEP_UNREADABLE = "sweep_artifact_unreadable"
+CHAIN_SWEEP_INVALID = "sweep_artifact_invalid_or_partial"
 
 
 def _load_sibling(module_name: str):
@@ -330,6 +332,9 @@ def evaluate_chain(
         except (OSError, ValueError):
             chain["status"] = CHAIN_SWEEP_UNREADABLE
             return chain
+        if not sweep_module.is_complete_sweep_summary(sweep):
+            chain["status"] = CHAIN_SWEEP_INVALID
+            return chain
         chain["sweep_commit"] = (sweep.get("git") or {}).get("commit_hash")
         chain["sweep_overall_status"] = sweep.get("overall_status")
     if sweep_module.git_state_unverified(git_state):
@@ -339,6 +344,9 @@ def evaluate_chain(
         chain["status"] = CHAIN_DIRTY
         return chain
     if sweep_path is None:
+        return chain
+    if sweep_module.git_state_unverified(sweep["git"]):
+        chain["status"] = CHAIN_SWEEP_GIT_UNVERIFIED
         return chain
     if (sweep.get("git") or {}).get("working_tree_dirty"):
         chain["status"] = CHAIN_SWEEP_DIRTY

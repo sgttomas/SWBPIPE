@@ -1,0 +1,31 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4",
+  "version": 3,
+  "selection_authority": "HUMAN",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "id": "N1",
+      "instance_id": "WI-PKG10-DEL1004-DEC093",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-10",
+      "deliverable_id": "DEL-10-04",
+      "dependencies": [],
+      "concurrency": "NONE_SINGLE_NODE",
+      "checks": [
+        "in-session focused tests",
+        "host-capability DEC-025 five-surface sweep",
+        "repository self-check",
+        "full practitioner-harness pytest"
+      ]
+    }
+  ],
+  "edges": [],
+  "shared_surfaces": {
+    "fan_in_only": [
+      "projects/chirality-piping/loop/LOOP_RECEIPTS.md"
+    ]
+  },
+  "integration_owner": "HELP_HUMAN",
+  "git_closeout_owner": "CHANGE"
+}

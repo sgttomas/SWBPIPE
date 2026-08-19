@@ -1,0 +1,24 @@
+# Sealed TASK brief — TASK-REVIEW-004
+
+- RequestedBy: `WI-PKG10-DEL1004-DEC093`
+- RunID: `HELP-HUMAN-PIPING-20260819-DEC093-CI-SURFACE4`
+- ParentInstanceID: `WI-PKG10-DEL1004-DEC093`
+- ChildInstanceID: `TASK-REVIEW-004`
+- Role: `TASK` (Agent 2)
+- TaskSkill: `software-code-review`
+- PackageID: `PKG-10`
+- DeliverableID: `DEL-10-04`
+- ScopePath: `projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline`
+- ImplementationBrief: independent terminal review after TASK-REVIEW-001 and TASK-REVIEW-003 failed and all seven findings were remediated; TASK-REVIEW-002 was interrupted without verdict. Review D-65/DEC-093 CI-bound surface-4 evidence, strict v2/v3 validation including UTC timestamp typing, invalid/partial/unverified evidence exclusion in both downstream consumers, unchanged host path, canonical regressions, and reconciled deliverable/run evidence.
+- AcceptedBasis: root/project `AGENTS.md`; `agents/AGENT_TASK.md`; `skills/software-code-review/{SKILL.md,BRIEF_SCHEMA.md,TOOL_POLICY.md,QA_CHECKS.md}`; D-65/DEC-093; manager launch brief plus V2/V3; live workflow/Playwright contracts; TASK-REVIEW-001 and TASK-REVIEW-003 returns; TASK-REVIEW-002 interrupted disposition.
+- DiffBasis: 100% of `N1_DIFF_MANIFEST_V4.md`, base `219f695d348f1d83ba904ef4dd38781636b423a6`; independently verify every one of the 28 listed hashes before review, inspect the complete tracked diff for every listed tracked path, and read every listed untracked file in full.
+- VerificationEvidence: 52/52 evidence-sweep tests including all 284 committed v2 summaries; 23/23 release-gate tests with one jsonschema-only environment case deselected; 18/18 packaging tests; combined 93 PASS / one deselected; py_compile PASS; git diff --check PASS. The full focused run is 93 PASS / one failure caused solely by unavailable `jsonschema` in the available Python 3.13 interpreter.
+- PROFILE_PATH: `projects/chirality-piping/software-workflow.json`
+- ApplyEdits: `false`
+- AllowedWriteTargets: none; managed runtime status/return files only.
+- AllowedTools: `python3 tools/software_workflow/validate_change_scope.py`; `python3 tools/software_workflow/select_affected_checks.py`; `python3 tools/software_workflow/compare_structured.py`; `python3 tools/software_workflow/verify_generated_manifest.py`; read-only shell/git inspection.
+- ExpectedReturn: terminal `PASS` with no actionable findings, or findings grouped as blocking/non-blocking with exact file/line, impact, evidence, and remediation direction; explicit scope/evidence audit and residual risk.
+- AcceptanceCriteria: review all 28 frozen files; confirm V2/V3 scope containment; exact D-65 fields/SHA rejection/dual viewports/same-SHA rerun/non-success rejection; strict actual-corpus-compatible v2 and current v3 validation; valid partial diagnostic preservation but full-evidence consumer exclusion; packaging rejection of invalid, partial, dirty, and Git-unverified summaries; release-gate rejection of malformed nested Git and timestamp fields without crashing; unchanged host commands/capability; no lifecycle act.
+- EXCLUSIONS: no implementation/deliverable edits, tests, installs, network, host execution, workflow changes, commit, push, PR, receipt, release, publication, lifecycle, professional-reliance action, or reuse/inference of TASK-REVIEW-002 context or result; Agent 2 must not delegate.
+- Escalation: return `FAILED_INPUTS` for a hash mismatch or missing frozen file; otherwise report every actionable finding to the parent and finish.
+- ModelAttribution: inherited GPT-5-based Codex runtime; freshly instantiated independently of implementer and all prior reviewers.

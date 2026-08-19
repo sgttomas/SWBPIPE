@@ -59,10 +59,56 @@ def clean_git_state(commit: str = "a" * 40) -> dict:
 
 def sweep_stub(tmp_path: Path, commit: str, status: str = "pass", dirty: bool = False) -> Path:
     path = tmp_path / f"SWEEP_stub_{commit[:8]}_{status}_{dirty}.json"
+    surface_ids = [
+        "cargo_crate_sweep",
+        "python_pytest",
+        "desktop_vitest",
+        "desktop_playwright_e2e",
+        "desktop_production_build",
+    ]
+    surfaces = []
+    failed = status == "fail"
+    for order, surface_id in enumerate(surface_ids, start=1):
+        surface_status = "fail" if failed and order == 1 else (
+            "not_run" if failed else "pass"
+        )
+        surfaces.append(
+            {
+                "order": order,
+                "surface_id": surface_id,
+                "description": f"fixture {surface_id}",
+                "execution_capability": (
+                    "host" if surface_id == "desktop_playwright_e2e" else "sandboxed"
+                ),
+                "commands": (
+                    []
+                    if surface_status == "not_run"
+                    else [
+                        {
+                            "argv": ["fixture"],
+                            "exit_code": 1 if surface_status == "fail" else 0,
+                            "duration_seconds": 0.0,
+                        }
+                    ]
+                ),
+                "status": surface_status,
+            }
+        )
     path.write_text(
         json.dumps(
             {
-                "git": {"commit_hash": commit, "working_tree_dirty": dirty},
+                "artifact": "openpipestress.evidence_sweep_summary",
+                "schema_version": 2,
+                "decision_basis": "DEC-025",
+                "git": {
+                    "commit_hash": commit,
+                    "branch": "fixture",
+                    "status_capture_failed": False,
+                    "working_tree_dirty": dirty,
+                    "dirty_paths": ["fixture"] if dirty else [],
+                },
+                "started_utc": "2026-08-19T12:00:00+00:00",
+                "surfaces": surfaces,
                 "overall_status": status,
             }
         ),
@@ -222,6 +268,18 @@ def test_authenticity_chain_states(tmp_path):
         packaging.evaluate_chain(commit, clean, dirty_sweep, ROOT)["status"]
         == packaging.CHAIN_SWEEP_DIRTY
     )
+    unverified_sweep = sweep_stub(tmp_path, commit)
+    unverified_summary = json.loads(unverified_sweep.read_text(encoding="utf-8"))
+    unverified_summary["git"].update(
+        status_capture_failed=True,
+        working_tree_dirty=None,
+        dirty_paths=[],
+    )
+    unverified_sweep.write_text(json.dumps(unverified_summary), encoding="utf-8")
+    assert (
+        packaging.evaluate_chain(commit, clean, unverified_sweep, ROOT)["status"]
+        == packaging.CHAIN_SWEEP_GIT_UNVERIFIED
+    )
     dirty_tree = dict(clean, working_tree_dirty=True, dirty_paths=["x"])
     assert (
         packaging.evaluate_chain(commit, dirty_tree, matching, ROOT)["status"]
@@ -237,6 +295,65 @@ def test_authenticity_chain_states(tmp_path):
     assert (
         packaging.evaluate_chain(commit, clean, unreadable, ROOT)["status"]
         == packaging.CHAIN_SWEEP_UNREADABLE
+    )
+
+
+def test_chain_rejects_mismatched_ci_binding_and_partial_summary(tmp_path):
+    packaging = load_module()
+    commit = "b" * 40
+    clean = clean_git_state(commit)
+
+    ci_path = sweep_stub(tmp_path, commit)
+    ci_summary = json.loads(ci_path.read_text(encoding="utf-8"))
+    ci_summary["schema_version"] = 3
+    ci_summary["decision_basis"] = ["DEC-025", "DEC-093"]
+    surface4 = ci_summary["surfaces"][3]
+    surface4["execution_capability"] = "ci"
+    surface4["commands"] = []
+    surface4["ci_binding"] = {
+        "workflow_path": ".github/workflows/piping-desktop-e2e.yml",
+        "run_id": 1234,
+        "run_attempt": 1,
+        "head_sha": "c" * 40,
+        "conclusion": "success",
+        "registered_e2e_specs_executed": True,
+        "viewport_projects": ["chromium-desktop", "chromium-compact"],
+    }
+    ci_path.write_text(json.dumps(ci_summary), encoding="utf-8")
+
+    assert (
+        packaging.evaluate_chain(commit, clean, ci_path, ROOT)["status"]
+        == packaging.CHAIN_SWEEP_INVALID
+    )
+
+    partial_path = sweep_stub(tmp_path, commit)
+    partial_summary = json.loads(partial_path.read_text(encoding="utf-8"))
+    partial_summary["surfaces"] = [
+        surface
+        for surface in partial_summary["surfaces"]
+        if surface["execution_capability"] == "sandboxed"
+    ]
+    for order, surface in enumerate(partial_summary["surfaces"], start=1):
+        surface["order"] = order
+    partial_summary["surface_selection"] = {
+        "only_capability": "sandboxed",
+        "complete_dec025_sweep": False,
+    }
+    partial_path.write_text(json.dumps(partial_summary), encoding="utf-8")
+
+    assert (
+        packaging.evaluate_chain(commit, clean, partial_path, ROOT)["status"]
+        == packaging.CHAIN_SWEEP_INVALID
+    )
+
+    contradictory_path = sweep_stub(tmp_path, commit)
+    contradictory = json.loads(contradictory_path.read_text(encoding="utf-8"))
+    contradictory["git"]["dirty_paths"] = ["modified-file"]
+    contradictory_path.write_text(json.dumps(contradictory), encoding="utf-8")
+
+    assert (
+        packaging.evaluate_chain(commit, clean, contradictory_path, ROOT)["status"]
+        == packaging.CHAIN_SWEEP_INVALID
     )
 
 
@@ -368,6 +485,7 @@ def test_execute_end_to_end_with_fake_app(tmp_path, monkeypatch, capsys):
         collect_git_state=lambda root: clean_git_state(commit),
         collect_runtime_versions=lambda root: {"platform": "test"},
         git_state_unverified=lambda git: not git.get("commit_hash"),
+        is_complete_sweep_summary=lambda summary: True,
     )
     monkeypatch.setattr(packaging, "_sweep_module", lambda: stub)
     monkeypatch.setattr(packaging, "commit_timestamp", lambda root: 1783987200)
@@ -414,6 +532,7 @@ def test_execute_fails_loud_on_missing_bundle_or_wrong_arch(tmp_path, monkeypatc
         collect_git_state=lambda root: clean_git_state(),
         collect_runtime_versions=lambda root: {"platform": "test"},
         git_state_unverified=lambda git: not git.get("commit_hash"),
+        is_complete_sweep_summary=lambda summary: True,
     )
     monkeypatch.setattr(packaging, "_sweep_module", lambda: stub)
 

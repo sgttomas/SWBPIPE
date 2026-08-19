@@ -10,10 +10,12 @@ pre-push/fan-in evidence for every parallel agent development branch
 basis `execution/_Coordination/_DECISIONS/D-05_ci_provider_workflow.md`
 Option D).
 
-The sweep is local-only: no network services, no signing, no publication
-credentials. A green sweep is development evidence, not a release claim,
-professional approval, certification, sealing, authentication, or
-code-compliance determination.
+The tool performs no network lookup: surface 4 either runs through the existing
+local host path or consumes a caller-supplied, commit-bound record of the
+successful DEC-093 Actions run. It uses no signing or publication credentials.
+A green sweep is development evidence, not a release claim, professional
+approval, certification, sealing, authentication, or code-compliance
+determination.
 """
 
 from __future__ import annotations
@@ -22,6 +24,7 @@ import argparse
 import json
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -35,18 +38,44 @@ from typing import Literal
 
 ROOT = Path(__file__).resolve().parents[2]
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 ARTIFACT_KIND = "openpipestress.evidence_sweep_summary"
-DECISION_BASIS = "DEC-025"
+DECISION_BASIS = ["DEC-025", "DEC-093"]
 DEFAULT_OUTPUT_DIR = "validation/evidence/sweeps"
 DIRTY_DEFAULT_OUTPUT_DIR_NAME = "openpipestress-dirty-sweeps"
 PINNED_WASM_BINDGEN_VERSION = "0.2.123"
 MINIMUM_PYTHON_VERSION = (3, 11)
 REQUIRED_NODE_BINS = ("playwright", "tsc", "vite", "vitest")
-EXECUTION_CAPABILITIES = frozenset({"sandboxed", "host"})
+EXECUTION_CAPABILITIES = frozenset({"sandboxed", "host", "ci"})
+CI_WORKFLOW_PATH = ".github/workflows/piping-desktop-e2e.yml"
+CI_VIEWPORT_PROJECTS = ("chromium-desktop", "chromium-compact")
+CI_BINDING_FIELDS = frozenset(
+    {
+        "workflow_path",
+        "run_id",
+        "run_attempt",
+        "head_sha",
+        "conclusion",
+        "registered_e2e_specs_executed",
+        "viewport_projects",
+    }
+)
+SURFACE_IDS = (
+    "cargo_crate_sweep",
+    "python_pytest",
+    "desktop_vitest",
+    "desktop_playwright_e2e",
+    "desktop_production_build",
+)
+SANDBOXED_SURFACE_IDS = tuple(
+    surface_id
+    for surface_id in SURFACE_IDS
+    if surface_id != "desktop_playwright_e2e"
+)
 
 BOUNDARY_NOTE = (
-    "Local-only development evidence. Not a release claim, professional "
+    "Commit-bound development evidence; the tool performs no network lookup. "
+    "Not a release claim, professional "
     "approval, certification, sealing, authentication, or code-compliance "
     "determination."
 )
@@ -58,8 +87,9 @@ class Surface:
 
     surface_id: str
     description: str
-    execution_capability: Literal["sandboxed", "host"]
+    execution_capability: Literal["sandboxed", "host", "ci"]
     commands: tuple[tuple[str, ...], ...]
+    ci_binding: dict | None = None
 
     def __post_init__(self) -> None:
         if self.execution_capability not in EXECUTION_CAPABILITIES:
@@ -67,9 +97,73 @@ class Surface:
                 f"invalid execution capability {self.execution_capability!r}; "
                 f"expected one of: {', '.join(sorted(EXECUTION_CAPABILITIES))}"
             )
+        if self.execution_capability == "ci":
+            errors = validate_ci_binding(self.ci_binding)
+            if errors:
+                raise ValueError("invalid CI surface binding: " + "; ".join(errors))
+            if self.commands:
+                raise ValueError("a CI-bound surface cannot declare local commands")
+        elif self.ci_binding is not None:
+            raise ValueError("only a CI-bound surface may carry ci_binding")
 
 
-def build_sweep_plan() -> list[Surface]:
+def validate_ci_binding(
+    binding: object, *, commit_hash: str | None = None
+) -> list[str]:
+    """Validate the exact DEC-093 surface-4 CI evidence binding."""
+    if not isinstance(binding, dict):
+        return ["ci_binding must be an object"]
+
+    errors: list[str] = []
+    fields = set(binding)
+    missing = sorted(CI_BINDING_FIELDS - fields)
+    extra = sorted(fields - CI_BINDING_FIELDS)
+    if missing:
+        errors.append("missing fields: " + ", ".join(missing))
+    if extra:
+        errors.append("unexpected fields: " + ", ".join(extra))
+
+    if binding.get("workflow_path") != CI_WORKFLOW_PATH:
+        errors.append(f"workflow_path must equal {CI_WORKFLOW_PATH!r}")
+    for field in ("run_id", "run_attempt"):
+        value = binding.get(field)
+        if type(value) is not int or value < 1:
+            errors.append(f"{field} must be a positive integer")
+
+    head_sha = binding.get("head_sha")
+    if not isinstance(head_sha, str) or re.fullmatch(r"[0-9a-f]{40}", head_sha) is None:
+        errors.append("head_sha must be a full lowercase 40-hex Git SHA")
+    if commit_hash is not None and head_sha != commit_hash:
+        errors.append(
+            f"head_sha {head_sha!r} does not equal sweep commit_hash {commit_hash!r}"
+        )
+    if binding.get("conclusion") != "success":
+        errors.append("conclusion must equal 'success'; failed specs are not accepted")
+    if binding.get("registered_e2e_specs_executed") is not True:
+        errors.append("registered_e2e_specs_executed must be true")
+    if binding.get("viewport_projects") != list(CI_VIEWPORT_PROJECTS):
+        errors.append(
+            "viewport_projects must exactly equal the registered dual-viewport "
+            f"projects {list(CI_VIEWPORT_PROJECTS)!r}"
+        )
+    return errors
+
+
+def load_ci_binding(path: Path) -> dict:
+    """Load and validate a caller-supplied DEC-093 CI binding JSON object."""
+    try:
+        body = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as error:
+        raise ValueError(f"unable to read CI binding {path}: {error}") from error
+    except json.JSONDecodeError as error:
+        raise ValueError(f"invalid CI binding JSON {path}: {error}") from error
+    errors = validate_ci_binding(body)
+    if errors:
+        raise ValueError("invalid CI surface binding: " + "; ".join(errors))
+    return body
+
+
+def build_sweep_plan(ci_binding: dict | None = None) -> list[Surface]:
     """The five surfaces in the DEC-025 / F-4-safe sequential order.
 
     The wasm engine build precedes Vitest because the Vitest setup pre-warms
@@ -108,18 +202,31 @@ def build_sweep_plan() -> list[Surface]:
                 ("npm", "run", "test:desktop"),
             ),
         ),
-        Surface(
-            surface_id="desktop_playwright_e2e",
-            description=(
-                "Playwright end-to-end smoke in a real Chrome browser: dev-server "
-                "lane, then production-dist lane via vite preview "
-                "(TP-APP-R2-WASMPKG-001)."
-            ),
-            execution_capability="host",
-            commands=(
-                ("npm", "run", "test:e2e:desktop"),
-                ("npm", "run", "test:e2e:dist:desktop"),
-            ),
+        (
+            Surface(
+                surface_id="desktop_playwright_e2e",
+                description=(
+                    "Registered source-mode Playwright e2e specs across both "
+                    "viewport projects, bound to the successful DEC-093 Actions run."
+                ),
+                execution_capability="ci",
+                commands=(),
+                ci_binding=dict(ci_binding),
+            )
+            if ci_binding is not None
+            else Surface(
+                surface_id="desktop_playwright_e2e",
+                description=(
+                    "Playwright end-to-end smoke in a real Chrome browser: dev-server "
+                    "lane, then production-dist lane via vite preview "
+                    "(TP-APP-R2-WASMPKG-001)."
+                ),
+                execution_capability="host",
+                commands=(
+                    ("npm", "run", "test:e2e:desktop"),
+                    ("npm", "run", "test:e2e:dist:desktop"),
+                ),
+            )
         ),
         Surface(
             surface_id="desktop_production_build",
@@ -517,11 +624,20 @@ def run_sweep(surfaces: list[Surface], root: Path, runner=None) -> dict:
             "commands": [],
             "status": "not_run",
         }
+        if surface.ci_binding is not None:
+            entry["ci_binding"] = dict(surface.ci_binding)
         if failed:
             results.append(entry)
             continue
 
         surface_failed = False
+        if surface.execution_capability == "ci":
+            print(
+                f"[evidence-sweep] {surface.surface_id}: bound CI run "
+                f"{surface.ci_binding['run_id']} attempt "
+                f"{surface.ci_binding['run_attempt']}",
+                flush=True,
+            )
         for command in surface.commands:
             print(f"[evidence-sweep] {surface.surface_id}: {' '.join(command)}", flush=True)
             start = time.monotonic()
@@ -564,6 +680,226 @@ def run_sweep(surfaces: list[Surface], root: Path, runner=None) -> dict:
     }
 
 
+def _validate_git_state(git_state: object) -> tuple[list[str], str | None]:
+    if not isinstance(git_state, dict):
+        return ["git must be an object"], None
+    errors: list[str] = []
+    commit_hash = git_state.get("commit_hash")
+    capture_failed = git_state.get("status_capture_failed")
+    working_tree_dirty = git_state.get("working_tree_dirty")
+    dirty_paths = git_state.get("dirty_paths")
+    if commit_hash is not None and (
+        not isinstance(commit_hash, str)
+        or re.fullmatch(r"[0-9a-f]{40}", commit_hash) is None
+    ):
+        errors.append("git.commit_hash must be null or a full lowercase 40-hex Git SHA")
+    if type(capture_failed) is not bool:
+        errors.append("git.status_capture_failed must be boolean")
+    if capture_failed is True:
+        if working_tree_dirty is not None:
+            errors.append("git.working_tree_dirty must be null when status capture failed")
+    elif type(working_tree_dirty) is not bool:
+        errors.append("git.working_tree_dirty must be boolean when status capture succeeds")
+    if not isinstance(dirty_paths, list) or not all(
+        isinstance(path, str) for path in dirty_paths
+    ):
+        errors.append("git.dirty_paths must be an array of strings")
+    elif capture_failed is True and dirty_paths:
+        errors.append("git.dirty_paths must be empty when status capture failed")
+    elif (
+        capture_failed is False
+        and type(working_tree_dirty) is bool
+        and working_tree_dirty != bool(dirty_paths)
+    ):
+        errors.append("git.working_tree_dirty must equal whether dirty_paths is nonempty")
+    if capture_failed is False and commit_hash is None:
+        errors.append("git.commit_hash cannot be null when status capture succeeds")
+    return errors, commit_hash if isinstance(commit_hash, str) else None
+
+
+def _validate_utc_timestamp(value: object, field_name: str) -> list[str]:
+    if not isinstance(value, str) or re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|\+00:00)", value
+    ) is None:
+        return [f"{field_name} must be an ISO-8601 UTC timestamp string"]
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return [f"{field_name} must be an ISO-8601 UTC timestamp string"]
+    return []
+
+
+def _validate_command(command: object, surface_id: object) -> list[str]:
+    if not isinstance(command, dict):
+        return [f"surface {surface_id!r} commands must contain objects"]
+    errors: list[str] = []
+    argv = command.get("argv")
+    if not isinstance(argv, list) or not argv or not all(
+        isinstance(argument, str) and argument for argument in argv
+    ):
+        errors.append(f"surface {surface_id!r} command argv must be nonempty strings")
+    if type(command.get("exit_code")) is not int:
+        errors.append(f"surface {surface_id!r} command exit_code must be an integer")
+    duration = command.get("duration_seconds")
+    if type(duration) not in {int, float} or duration < 0:
+        errors.append(
+            f"surface {surface_id!r} command duration_seconds must be nonnegative"
+        )
+    return errors
+
+
+def _expected_ids_for_selection(selection: object) -> tuple[list[str], list[str]]:
+    if selection is None:
+        return list(SURFACE_IDS), []
+    if not isinstance(selection, dict):
+        return [], ["surface_selection must be an object when present"]
+    if set(selection) != {"only_capability", "complete_dec025_sweep"}:
+        return [], ["surface_selection must contain only the two registered fields"]
+    capability = selection.get("only_capability")
+    if capability not in EXECUTION_CAPABILITIES:
+        return [], ["surface_selection.only_capability is invalid"]
+    if selection.get("complete_dec025_sweep") is not False:
+        return [], ["a capability-selected summary must record complete_dec025_sweep false"]
+    if capability == "sandboxed":
+        return list(SANDBOXED_SURFACE_IDS), []
+    return ["desktop_playwright_e2e"], []
+
+
+def validate_summary(summary: object) -> list[str]:
+    """Validate historical v2 and current v3 sweep summary contracts."""
+    if not isinstance(summary, dict):
+        return ["summary must be an object"]
+    errors: list[str] = []
+    if summary.get("artifact") != ARTIFACT_KIND:
+        errors.append(f"artifact must equal {ARTIFACT_KIND!r}")
+
+    schema_version = summary.get("schema_version")
+    if schema_version not in {2, SCHEMA_VERSION}:
+        errors.append(f"schema_version must equal 2 or {SCHEMA_VERSION}")
+        return errors
+    expected_basis = "DEC-025" if schema_version == 2 else DECISION_BASIS
+    if summary.get("decision_basis") != expected_basis:
+        errors.append(f"decision_basis must equal {expected_basis!r}")
+    errors.extend(_validate_utc_timestamp(summary.get("started_utc"), "started_utc"))
+
+    git_errors, commit_hash = _validate_git_state(summary.get("git"))
+    errors.extend(git_errors)
+    surfaces = summary.get("surfaces")
+    if not isinstance(surfaces, list):
+        return errors + ["surfaces must be an array"]
+    selection = summary.get("surface_selection")
+    expected_ids, selection_errors = _expected_ids_for_selection(selection)
+    errors.extend(selection_errors)
+    selected_capability = (
+        selection.get("only_capability") if isinstance(selection, dict) else None
+    )
+
+    surface_ids: list[str] = []
+    failed_seen = False
+    for index, surface in enumerate(surfaces, start=1):
+        if not isinstance(surface, dict):
+            errors.append("each surface must be an object")
+            continue
+        surface_id = surface.get("surface_id")
+        surface_ids.append(surface_id if isinstance(surface_id, str) else "")
+        if surface.get("order") != index:
+            errors.append(f"surface {surface_id!r} order must equal {index}")
+        if not isinstance(surface.get("description"), str):
+            errors.append(f"surface {surface_id!r} description must be a string")
+
+        capability = surface.get("execution_capability")
+        if schema_version == 2 and capability is None:
+            capability = (
+                "host"
+                if surface_id == "desktop_playwright_e2e"
+                else "sandboxed"
+            )
+        allowed_capabilities = {"sandboxed", "host"}
+        if schema_version == SCHEMA_VERSION:
+            allowed_capabilities.add("ci")
+        if capability not in allowed_capabilities:
+            errors.append(
+                f"surface {surface_id!r} has invalid execution_capability {capability!r}"
+            )
+        if selected_capability is not None and capability != selected_capability:
+            errors.append(
+                f"surface {surface_id!r} capability does not match "
+                f"surface_selection {selected_capability!r}"
+            )
+        if surface_id in SANDBOXED_SURFACE_IDS and capability != "sandboxed":
+            errors.append(f"surface {surface_id!r} must be sandboxed")
+
+        commands = surface.get("commands")
+        if not isinstance(commands, list):
+            errors.append(f"surface {surface_id!r} commands must be an array")
+            commands = []
+        for command in commands:
+            errors.extend(_validate_command(command, surface_id))
+        command_dicts = [command for command in commands if isinstance(command, dict)]
+        status = surface.get("status")
+        if status not in {"pass", "fail", "not_run"}:
+            errors.append(f"surface {surface_id!r} status is invalid")
+        elif status == "not_run":
+            if commands:
+                errors.append(f"surface {surface_id!r} not_run must have no commands")
+            if not failed_seen:
+                errors.append(f"surface {surface_id!r} cannot be not_run before a failure")
+        elif failed_seen:
+            errors.append(f"surface {surface_id!r} must be not_run after a failure")
+        elif status == "fail":
+            failed_seen = True
+            if not command_dicts or not any(
+                command.get("exit_code") for command in command_dicts
+            ):
+                errors.append(f"surface {surface_id!r} fail requires a nonzero command")
+        elif capability != "ci" and (
+            len(command_dicts) != len(commands)
+            or not command_dicts
+            or any(command.get("exit_code") != 0 for command in command_dicts)
+        ):
+            errors.append(f"surface {surface_id!r} pass requires successful commands")
+
+        if surface_id != "desktop_playwright_e2e":
+            if "ci_binding" in surface:
+                errors.append(f"surface {surface_id!r} cannot carry ci_binding")
+            continue
+        if capability == "ci":
+            binding_errors = validate_ci_binding(
+                surface.get("ci_binding"), commit_hash=commit_hash
+            )
+            errors.extend(
+                f"desktop_playwright_e2e.ci_binding: {error}"
+                for error in binding_errors
+            )
+            if commands:
+                errors.append("a CI-bound desktop_playwright_e2e surface cannot record commands")
+        elif capability == "host":
+            if "ci_binding" in surface:
+                errors.append("a host desktop_playwright_e2e surface cannot carry ci_binding")
+        else:
+            errors.append(
+                "desktop_playwright_e2e execution_capability must be 'host' or 'ci'"
+            )
+
+    if surface_ids != expected_ids:
+        errors.append(f"surfaces must equal the selected DEC-025 order {expected_ids!r}")
+    if len(surface_ids) != len(set(surface_ids)):
+        errors.append("surface_id values must be unique")
+    expected_overall = "fail" if failed_seen else "pass"
+    if summary.get("overall_status") != expected_overall:
+        errors.append(f"overall_status must equal {expected_overall!r}")
+    return errors
+
+
+def is_complete_sweep_summary(summary: object) -> bool:
+    """True only for a valid, unselected five-surface DEC-025 summary."""
+    return (
+        isinstance(summary, dict)
+        and "surface_selection" not in summary
+        and validate_summary(summary) == []
+    )
+
+
 def summary_filename(summary: dict) -> str:
     commit = (summary["git"]["commit_hash"] or "nocommit")[:12]
     if git_state_unverified(summary["git"]):
@@ -578,6 +914,9 @@ def summary_filename(summary: dict) -> str:
 
 
 def write_summary(summary: dict, output_dir: Path) -> Path:
+    validation_errors = validate_summary(summary)
+    if validation_errors:
+        raise ValueError("invalid evidence-sweep summary: " + "; ".join(validation_errors))
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / summary_filename(summary)
     output_path.write_text(
@@ -659,7 +998,10 @@ def print_plan(surfaces: list[Surface], root: Path, execute: bool) -> None:
     plan_scope = (
         "five-surface" if len(surfaces) == 5 else f"{len(surfaces)}-surface partial"
     )
-    print(f"OpenPipeStress {plan_scope} evidence sweep ({mode}) — {DECISION_BASIS}")
+    print(
+        f"OpenPipeStress {plan_scope} evidence sweep ({mode}) — "
+        f"{' + '.join(DECISION_BASIS)}"
+    )
     print(f"repo: {root}")
     print("")
     print(f"surfaces (sequential, F-4-safe order): {len(surfaces)}")
@@ -688,8 +1030,10 @@ def capability_preflight_errors(
 ) -> list[str]:
     """Return plan incompatibilities for the invoker's execution context.
 
-    A host context can run both capability classes. A sandboxed context cannot
-    run surfaces that need host OS services (currently Playwright/Chromium).
+    A host context retains its existing ability to run host and sandboxed
+    surfaces. A sandboxed or CI context cannot run surfaces that need host OS
+    services. A CI-bound surface records already-completed Actions evidence and
+    does not itself require local host services.
     """
     if available_capability not in EXECUTION_CAPABILITIES:
         return [
@@ -700,11 +1044,11 @@ def capability_preflight_errors(
     errors = [
         (
             f"surface {surface.surface_id} requires host execution capability; "
-            "the declared context is sandboxed"
+            f"the declared context is {available_capability}"
         )
         for surface in surfaces
         if surface.execution_capability == "host"
-        and available_capability == "sandboxed"
+        and available_capability != "host"
     ]
     errors.extend(
         f"surface {surface.surface_id} declares invalid execution capability "
@@ -741,6 +1085,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Run the sweep. Without this flag, only print the plan.",
     )
     parser.add_argument(
+        "--surface4-ci-binding",
+        default=None,
+        help=(
+            "JSON file containing the exact DEC-093 Actions binding for surface 4. "
+            "When omitted, the unchanged host Playwright path is used."
+        ),
+    )
+    parser.add_argument(
         "--output-dir",
         default=None,
         help=(
@@ -768,9 +1120,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--require-capability",
         choices=sorted(EXECUTION_CAPABILITIES),
         help=(
-            "Declare the invoker's execution context. 'sandboxed' fails "
-            "before surface 1 when the plan contains a host-only surface; "
-            "'host' permits both surface capability classes."
+            "Declare the invoker's execution context. 'sandboxed' or 'ci' "
+            "fails before surface 1 when the plan contains a host-only surface; "
+            "'host' retains the existing local execution semantics."
         ),
     )
     parser.add_argument(
@@ -805,7 +1157,39 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
 
-    surfaces = select_surfaces(build_sweep_plan(), args.only_capability)
+    ci_binding = None
+    if args.surface4_ci_binding:
+        binding_path = Path(args.surface4_ci_binding)
+        if not binding_path.is_absolute():
+            binding_path = root / binding_path
+        try:
+            ci_binding = load_ci_binding(binding_path.resolve())
+        except ValueError as error:
+            print(f"evidence-sweep CI binding rejected: {error}", file=sys.stderr)
+            print("no evidence surface ran", file=sys.stderr)
+            return 1
+
+        initial_git_state = collect_git_state(root)
+        binding_errors = validate_ci_binding(
+            ci_binding, commit_hash=initial_git_state.get("commit_hash")
+        )
+        if binding_errors:
+            print(
+                "evidence-sweep CI binding rejected before surface 1:",
+                file=sys.stderr,
+            )
+            for error in binding_errors:
+                print(f"  - {error}", file=sys.stderr)
+            print("no evidence surface ran", file=sys.stderr)
+            return 1
+
+    surfaces = select_surfaces(build_sweep_plan(ci_binding), args.only_capability)
+    if not surfaces:
+        print(
+            "evidence-sweep surface selection is empty for this plan",
+            file=sys.stderr,
+        )
+        return 1
     print_plan(surfaces, root, args.execute)
     if args.only_capability:
         print(
@@ -875,6 +1259,13 @@ def main(argv: list[str] | None = None) -> int:
             "only_capability": args.only_capability,
             "complete_dec025_sweep": False,
         }
+    validation_errors = validate_summary(summary)
+    if validation_errors:
+        print("evidence-sweep summary validation failed:", file=sys.stderr)
+        for error in validation_errors:
+            print(f"  - {error}", file=sys.stderr)
+        print("no summary was written", file=sys.stderr)
+        return 1
     try:
         output_dir, output_disposition = resolve_summary_output_dir(
             root=root,

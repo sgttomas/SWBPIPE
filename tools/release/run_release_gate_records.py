@@ -674,13 +674,23 @@ def select_sweep_evidence(sweep_dir: Path, commit: str) -> dict:
     Among clean matches the latest by started_utc wins.
     """
     artifacts = _load_json_artifacts(sweep_dir, SWEEP_ARTIFACT_KIND)
-    matching = [
+    sweep_module = _sweep_module()
+    valid = [
         (path, body)
         for path, body in artifacts
-        if (body.get("git") or {}).get("commit_hash") == commit
+        if sweep_module.is_complete_sweep_summary(body)
+    ]
+    matching = [
+        (path, body)
+        for path, body in valid
+        if body["git"]["commit_hash"] == commit
     ]
     clean = [(p, b) for p, b in matching if _is_clean_commit_bound(b)]
-    clean.sort(key=lambda item: item[1].get("started_utc") or "")
+    clean.sort(
+        key=lambda item: datetime.fromisoformat(
+            item[1]["started_utc"].replace("Z", "+00:00")
+        )
+    )
     selected = clean[-1] if clean else None
     evidence: dict = {
         "sweep_dir": sweep_dir.as_posix(),
