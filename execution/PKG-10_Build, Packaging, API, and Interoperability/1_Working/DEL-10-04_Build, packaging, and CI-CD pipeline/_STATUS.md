@@ -4,6 +4,7 @@
 **Last Updated:** 2026-07-16
 
 ## Remaining
+- Implement the D-65/DEC-093 CI-binding path in `tools/release/run_evidence_sweep.py` and its summary schema/validator as applicable: record `execution_capability: ci`, workflow path, Actions run ID and attempt, exact head SHA, conclusion, and both registered viewport-project execution; reject any summary whose bound head SHA differs from `commit_hash`. This is a selectable bounded follow-up node and is not executed in the D-65 recording tranche; until it lands, sweeps continue on the host path. (source: D-65 / DEC-093)
 - Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, making the export self-verifying or trimming its test set, and owner review of the v1 include/exclude allowlist (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
 - Sign/notarize release artifacts or record the explicit deviation from the historical v0.1 PRD §22.6 read through the D-21 Annex A crosswalk (forward home: the DEC-056 R6-entry release-machinery residuals) (gated: D-06b) (source: PRD plan §3 E5 row / register row D-06b / DEC-057)
 

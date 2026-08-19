@@ -2889,3 +2889,12 @@
   - Checks: cold and warm Actions proofs, receipt validator, repository self-check, practitioner harness, G4, whitespace, diff, and containment: PASS.
   - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS and CHANGE Agent 1 single-manager path; inherited runtime capability, no exact model exposed, no substitution.
   - Gate-Outcome: `EXECUTED` — the implicit Azure mirrorlist caused cancelled hangs; canonical-source normalization repaired the workflow-owned apt path without changing proof. DEC-025, its sweep and surface-4 recording, lifecycle, residuals, and manifest scope are unchanged; the CI acceptance and run-ID/commit-hash summary-binding question remains parked. No merge occurs.
+
+- **2026-08-19 — Receipt 114** (DEC-025 CI surface-4 ruling record).
+  - Receipt-ID: `Receipt-114`
+  - Examined-Through: `011d0b055a5671c94ea1fcfe19df8a6eeb7fa66c`
+  - Parent-Receipt: `Receipt-113`
+  - Pointers: `D-65`; `DEC-093`; `execution/_Coordination/_DECISIONS/D-65_RULING_2026-08-19.md`; DEL-10-04 `_STATUS.md` `## Remaining` CI-binding implementation item.
+  - Checks: decision/register/codification consistency, deliverable-status discovery, receipt contract, repository self-check, practitioner harness, whitespace, diff, and containment: PASS.
+  - Model-Attribution: HELP_HUMAN supervised HELPS_HUMANS and CHANGE Agent 1 roles; inherited runtime capability, no exact model exposed, no substitution.
+  - Gate-Outcome: `EXECUTED` — the owner ruling is recorded and codified; no engineering work ran. The CI-binding implementation is selectable next, and until it lands sweeps continue on the host path. No workflow, sweep, schema, validator, manifest, lifecycle, release, publication, merge, or professional-reliance effect occurs.
