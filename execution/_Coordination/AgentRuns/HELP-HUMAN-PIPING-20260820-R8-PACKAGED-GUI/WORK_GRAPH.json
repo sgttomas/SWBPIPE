@@ -1,0 +1,64 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "version": 1,
+  "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
+  "status": "BLOCKED_HOST_COMPUTER_USE_STATE_CAPTURE_HUNG",
+  "frozen": true,
+  "selection_authority": "HELP_HUMAN under explicit owner development-pressure steer",
+  "accepted_basis": "fae5e38ee60fd4c8d4a52ac7f663036a83cdbd7d",
+  "receipt_basis": "Receipt-118",
+  "dependency_authority": "DAG-009",
+  "target_stage": "R5",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "id": "N1",
+      "instance_id": "WI-PKG07-DEL0706",
+      "agent_type": 1,
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-07",
+      "deliverable_id": "DEL-07-06",
+      "status": "BLOCKED_HOST_COMPUTER_USE_STATE_CAPTURE_HUNG",
+      "objective": "Close only the exact packaged-Tauri saved-project edited-load GUI smoke residual through actual packaged macOS GUI operation.",
+      "write_owner": "WI-PKG07-DEL0706",
+      "write_targets": [
+        "projects/chirality-piping/apps/desktop/**",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/**",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/**"
+      ],
+      "checks": [
+        "host-capability actual packaged macOS GUI operation",
+        "desktop-test and desktop-build if code changes",
+        "harness-self-check",
+        "harness-pytest for execution/evidence changes",
+        "scoped focused checks",
+        "fresh read-only software-code-review over 100% frozen integrated diff if product code changes"
+      ],
+      "expected_return": "Observed GUI predicates, exact changed paths, checks, containment, blockers/reruns, derivative status, and requested Agent0 action."
+    }
+  ],
+  "edges": [],
+  "concurrency": "single selected package node",
+  "fan_in_gate": [
+    "actual packaged GUI journey observes 350 N edited to 425 N and applied",
+    "save then quit/relaunch/reopen observes persisted 425 N",
+    "no pending edit or stale solved state is represented as current",
+    "post-reopen solve observes MECHANICS_SOLVED through native backend with matching identity and non-empty rows",
+    "all triggered deterministic checks and independent review pass",
+    "writes remain contained"
+  ],
+  "exclusions": [
+    "receipts and shared registers",
+    "DAG, decomposition, root governance",
+    "Git commit, push, or PR",
+    "lifecycle, release, or professional-reliance claims",
+    "headless proof substituted for GUI observation"
+  ],
+  "runtime_attribution": {
+    "manager": "WORKING_ITEMS WI-PKG07-DEL0706 on Codex GPT-5",
+    "gui_capability": "computer-use skill with @oai/sky on macOS",
+    "context_occupancy": "unavailable unless exposed by runtime"
+  }
+}

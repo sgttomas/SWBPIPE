@@ -2952,3 +2952,13 @@
   - Checks: focused and full desktop tests/builds, actual packaged-binary execution, fresh integrated-diff review, complete DEC-025 five-surface host sweep, repository self-check, full practitioner harness, receipt contract, diff, and containment: PASS.
   - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS, three fresh read-only TASK review instances, and CHANGE; inherited GPT-5-family Codex runtime capability was used without substitution.
   - Gate-Outcome: `EXECUTED` — the packaged executable now proves structured edited-load persistence, restore, identity, and solve behavior; the narrower packaged-GUI observation remains host-blocked and its exact DEL-07-06 Remaining item is preserved. No merge, lifecycle, stage, release, issuance, publication, or professional-reliance effect occurs.
+
+- **2026-08-20 — Receipt 119** (R8 packaged GUI proof attempt).
+  - Receipt-ID: `Receipt-119`
+  - Examined-Through: `fae5e38ee60fd4c8d4a52ac7f663036a83cdbd7d`
+  - Parent-Receipt: `Receipt-118`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — “Steer (this run): start a new branch for this work you are about to define, do not continue working in this current branch.”
+  - Pointers: branch `codex/piping-product-20260820`; base `main`; predecessor PR #588 merged, so no dependency; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/`.
+  - Checks: receipt validator, JSON/JSONL and runtime-summary integrity, diff and exact containment, repository self-check, and full practitioner harness pytest: PASS.
+  - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS and CHANGE Agent 1; inherited GPT-5-based Codex runtime without substitution; exact manager attribution is recorded in the named AgentRuns root.
+  - Gate-Outcome: `STOPPED` — BLOCKED: the actual packaged app was confirmed running as `org.openpipestress.technical-preview`, but both path and exact-ID Computer Use state capture returned no AX tree or screenshot and hung until interrupted. No GUI predicate was observed, no product or deliverable change occurred, and the exact DEL-07-06 residual remains open. No lifecycle, stage, release, issuance, publication, or professional-reliance effect occurs.

@@ -1,0 +1,48 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 1
+  },
+  "counts": {
+    "category": {
+      "checks": 1,
+      "execution": 2,
+      "host": 1
+    },
+    "event_type": {
+      "CHECK": 1,
+      "FINISH": 1,
+      "NOTICE": 1,
+      "START": 1
+    },
+    "outcome": {
+      "BLOCKED": 2,
+      "PASS": 1,
+      "STARTED": 1
+    },
+    "reason_code": {
+      "ACTIVATION_FROZEN": 1,
+      "COORDINATION_CHECKS_PASS": 1,
+      "HOST_COMPUTER_USE_STATE_CAPTURE_HUNG": 2
+    }
+  },
+  "events": 4,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 661.004,
+      "events": 4,
+      "final_outcome": "BLOCKED",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1"
+    }
+  ],
+  "sessions": 1,
+  "status": "PASS",
+  "unmatched_sessions": []
+}
