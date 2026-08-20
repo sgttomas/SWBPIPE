@@ -186,3 +186,21 @@ Boundaries preserved:
 - Any authorized future canonical plugin-schema revision must deliberately
   update the pinned fingerprint and rerun the weakened/hostile-schema suite and
   fresh full-diff review.
+
+### Integrated-review Amendment 3
+
+- Adapter declaration capabilities now require an exact list/JSON-array shape,
+  exact plain-string items from the canonical `AdapterCapability` enum, and at
+  least one operational capability required by the schema's `contains` rule.
+- Strings and other non-list iterables, unknown or mixed tokens, non-string and
+  nested/unhashable values, and hostile unhashable string subclasses fail
+  closed without raising. Canonical duplicate items remain accepted because
+  the schema has no uniqueness requirement.
+- Capability defects do not mask protected/quarantined adapter provenance;
+  direct declaration validation and public composed verification retain both
+  quarantine marker forms and keep runtime dispatch false.
+- Evidence: complete focused/existing suite `129 passed in 0.50s`; composed
+  schema, containment, and diff checks PASS; V20 fresh review matched all nine
+  hashes/line counts, covered the complete 4,230-line frozen set and full diff,
+  and returned PASS with zero findings. Integrated review v3 and V19 findings
+  are closed.

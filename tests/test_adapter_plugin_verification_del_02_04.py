@@ -736,7 +736,75 @@ def test_malformed_nested_adapter_capabilities_never_raise(capabilities):
     assert result.runtime_dispatched is False
 
 
-@pytest.mark.parametrize("capabilities", [None, [["unhashable"]]])
+@pytest.mark.parametrize(
+    "capabilities",
+    [
+        "import_model",
+        ("import_model",),
+        {"import_model"},
+        range(1),
+    ],
+)
+def test_non_list_adapter_capability_iterables_fail_closed(capabilities):
+    adapter = _adapter()
+    adapter["adapter_declaration"]["capabilities"] = capabilities
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "REJECTED"
+    assert "ADAPTER_CAPABILITIES_MALFORMED" in _diagnostics_by_code(result)
+    assert result.declaration_accepted is False
+    assert result.runtime_dispatched is False
+
+
+@pytest.mark.parametrize(
+    ("capabilities", "expected_code"),
+    [
+        (["arbitrary_hashable_token"], "ADAPTER_CAPABILITY_INVALID"),
+        (["import_model", "arbitrary_hashable_token"], "ADAPTER_CAPABILITY_INVALID"),
+        ([1], "ADAPTER_CAPABILITIES_MALFORMED"),
+        (["TBD"], "ADAPTER_OPERATIONAL_CAPABILITY_MISSING"),
+        (["import_library"], "ADAPTER_OPERATIONAL_CAPABILITY_MISSING"),
+    ],
+)
+def test_noncanonical_adapter_capability_values_fail_closed(
+    capabilities,
+    expected_code,
+):
+    adapter = _adapter()
+    adapter["adapter_declaration"]["capabilities"] = capabilities
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "REJECTED"
+    assert expected_code in _diagnostics_by_code(result)
+    assert result.declaration_accepted is False
+    assert result.runtime_dispatched is False
+
+
+def test_duplicate_canonical_adapter_capabilities_are_schema_valid():
+    adapter = _adapter()
+    adapter["adapter_declaration"]["capabilities"] = [
+        "import_model",
+        "import_model",
+    ]
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "BLOCKED_RUNTIME_NOT_SELECTED"
+    assert result.declaration_accepted is True
+    assert result.runtime_dispatched is False
+
+
+@pytest.mark.parametrize(
+    ("capabilities", "capability_code"),
+    [
+        (None, "ADAPTER_CAPABILITIES_MALFORMED"),
+        ([["unhashable"]], "ADAPTER_CAPABILITIES_MALFORMED"),
+        ("import_model", "ADAPTER_CAPABILITIES_MALFORMED"),
+        (["arbitrary_hashable_token"], "ADAPTER_CAPABILITY_INVALID"),
+    ],
+)
 @pytest.mark.parametrize(
     ("marker_field", "marker_value"),
     [
@@ -746,6 +814,7 @@ def test_malformed_nested_adapter_capabilities_never_raise(capabilities):
 )
 def test_adapter_quarantine_marker_survives_malformed_capabilities(
     capabilities,
+    capability_code,
     marker_field,
     marker_value,
 ):
@@ -759,7 +828,40 @@ def test_adapter_quarantine_marker_survives_malformed_capabilities(
     assert result.outcome == "QUARANTINE"
     assert result.runtime_dispatched is False
     diagnostics = _diagnostics_by_code(result)
+    assert capability_code in diagnostics
+    quarantine_diagnostic = diagnostics["ADAPTER_PROTECTED_CONTENT_SUSPECTED"]
+    assert quarantine_diagnostic["provenance"][marker_field] == marker_value
+    assert result.declaration_accepted is False
+
+
+@pytest.mark.parametrize(
+    ("marker_field", "marker_value"),
+    [
+        ("redistribution_status", "protected_suspected"),
+        ("review_status", "quarantined"),
+    ],
+)
+def test_unhashable_string_capability_never_masks_composed_quarantine(
+    marker_field,
+    marker_value,
+):
+    class UnhashableString(str):
+        __hash__ = None
+
+    adapter = _adapter()
+    provenance = adapter["adapter_declaration"]["provenance"]
+    provenance[marker_field] = marker_value
+    adapter["adapter_declaration"]["capabilities"] = [
+        UnhashableString("import_model")
+    ]
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.runtime_dispatched is False
+    diagnostics = _diagnostics_by_code(result)
     assert "ADAPTER_CAPABILITIES_MALFORMED" in diagnostics
+    assert "ADAPTER_DECLARATION_MALFORMED" not in diagnostics
     quarantine_diagnostic = diagnostics["ADAPTER_PROTECTED_CONTENT_SUSPECTED"]
     assert quarantine_diagnostic["provenance"][marker_field] == marker_value
     assert result.declaration_accepted is False

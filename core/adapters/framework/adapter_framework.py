@@ -29,6 +29,29 @@ REQUIRED_TBD_DECISIONS = {
     "redaction_workflow",
 }
 
+ALLOWED_ADAPTER_CAPABILITIES = frozenset(
+    {
+        "import_model",
+        "export_model",
+        "import_library",
+        "export_library",
+        "import_rule_pack_ref",
+        "export_results",
+        "validate_payload",
+        "contribution_review",
+        "TBD",
+    }
+)
+
+REQUIRED_OPERATIONAL_ADAPTER_CAPABILITIES = frozenset(
+    {
+        "import_model",
+        "export_model",
+        "validate_payload",
+        "contribution_review",
+    }
+)
+
 REQUIRED_PROVENANCE_FIELDS = {
     "source_name",
     "source_location",
@@ -445,20 +468,17 @@ def _validate_adapter(adapter: Any, path: str) -> list[AdapterFinding]:
                 "Do not select external formats in DEL-10-02.",
             )
         )
-    capabilities_malformed = False
-    try:
-        capabilities = set(adapter.get("capabilities", ()))
-    except (TypeError, ValueError):
-        capabilities = set()
-        capabilities_malformed = True
-    if capabilities_malformed:
+    capabilities = adapter.get("capabilities")
+    if type(capabilities) is not list or any(
+        type(capability) is not str for capability in capabilities
+    ):
         findings.append(
             AdapterFinding(
                 "ADAPTER_CAPABILITIES_MALFORMED",
                 "blocking",
                 f"{path}.capabilities",
                 "Adapter capabilities are malformed.",
-                "Declare bounded format-neutral capabilities as hashable values.",
+                "Declare capabilities as a JSON-array-shaped list of canonical string values.",
             )
         )
     elif not capabilities:
@@ -469,6 +489,32 @@ def _validate_adapter(adapter: Any, path: str) -> list[AdapterFinding]:
                 f"{path}.capabilities",
                 "Adapter capabilities are missing.",
                 "Declare bounded format-neutral capabilities.",
+            )
+        )
+    elif any(
+        capability not in ALLOWED_ADAPTER_CAPABILITIES
+        for capability in capabilities
+    ):
+        findings.append(
+            AdapterFinding(
+                "ADAPTER_CAPABILITY_INVALID",
+                "blocking",
+                f"{path}.capabilities",
+                "Adapter capabilities contain a noncanonical value.",
+                "Use only canonical AdapterCapability enum values.",
+            )
+        )
+    elif not any(
+        capability in REQUIRED_OPERATIONAL_ADAPTER_CAPABILITIES
+        for capability in capabilities
+    ):
+        findings.append(
+            AdapterFinding(
+                "ADAPTER_OPERATIONAL_CAPABILITY_MISSING",
+                "blocking",
+                f"{path}.capabilities",
+                "Adapter capabilities do not include an operational capability.",
+                "Include import_model, export_model, validate_payload, or contribution_review.",
             )
         )
     findings.extend(_validate_provenance(adapter.get("provenance"), f"{path}.provenance"))

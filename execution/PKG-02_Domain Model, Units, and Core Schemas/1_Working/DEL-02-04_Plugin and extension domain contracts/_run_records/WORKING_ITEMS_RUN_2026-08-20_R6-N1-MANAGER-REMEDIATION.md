@@ -92,3 +92,24 @@ identity and complete schema evaluation. A custom dict subclass whose
 `get("required")` lies while underlying serialized items remain canonical can
 no longer bypass root checksum/professional-boundary requirements. Complete
 suite: `112 passed in 0.79s`; fresh V18 review required.
+
+## Integrated-review Amendment 3
+
+Integrated review v3 found adapter capabilities were converted from arbitrary
+iterables to a set and were not checked against the canonical enum. Amendment 3
+requires an exact list of canonical `AdapterCapability` strings, requires the
+schema's operational `contains` constraint, and fails closed without throwing
+for strings, non-list iterables, arbitrary tokens, mixed valid/invalid values,
+and nested/unhashable entries. Canonical duplicates remain accepted because the
+schema has no uniqueness constraint. Protected/quarantined provenance remains
+visible and controls outcome precedence alongside malformed capabilities.
+Complete suite: `126 passed in 0.49s`; fresh full amended-diff review required.
+
+V19 fresh review found an unhashable `str` subclass could pass the broad string
+shape check and raise during enum membership, masking declaration quarantine
+provenance in the composed verifier. Remediation requires exact plain-string
+items before enum membership. Direct declaration and composed-verifier
+regressions combine the hostile string-like item with both protected and
+quarantined provenance markers and require `QUARANTINE` without exception.
+Complete suite: `129 passed in 0.50s`; fresh full amended-diff review remains
+required.

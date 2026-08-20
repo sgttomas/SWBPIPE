@@ -297,6 +297,28 @@ def test_protected_suspected_fixture_quarantines():
     assert "ADAPTER_PROTECTED_CONTENT_SUSPECTED" in codes(result)
 
 
+def test_unhashable_string_capability_never_masks_direct_quarantine():
+    class UnhashableString(str):
+        __hash__ = None
+
+    for marker_field, marker_value in (
+        ("redistribution_status", "protected_suspected"),
+        ("review_status", "quarantined"),
+    ):
+        fixture = current_authority_fixture()
+        fixture["adapter_declaration"]["capabilities"] = [
+            UnhashableString("import_model")
+        ]
+        fixture["adapter_declaration"]["provenance"][marker_field] = marker_value
+
+        result = validate_adapter_declaration(fixture)
+
+        assert result.accepted is False
+        assert result.outcome == "QUARANTINE"
+        assert "ADAPTER_CAPABILITIES_MALFORMED" in codes(result)
+        assert "ADAPTER_PROTECTED_CONTENT_SUSPECTED" in codes(result)
+
+
 def test_no_bypass_controls_are_enforced():
     fixture = current_authority_fixture()
     fixture["adapter_declaration"]["no_bypass_controls"][
@@ -456,6 +478,7 @@ if __name__ == "__main__":
     test_direct_persistence_access_is_rejected()
     test_missing_provenance_blocks_adapter_declaration()
     test_protected_suspected_fixture_quarantines()
+    test_unhashable_string_capability_never_masks_direct_quarantine()
     test_no_bypass_controls_are_enforced()
     test_application_service_persistence_no_bypass_controls_are_enforced()
     test_operation_result_builder_preserves_boundaries()
