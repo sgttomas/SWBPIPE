@@ -2952,3 +2952,23 @@
   - Checks: focused and full desktop tests/builds, actual packaged-binary execution, fresh integrated-diff review, complete DEC-025 five-surface host sweep, repository self-check, full practitioner harness, receipt contract, diff, and containment: PASS.
   - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS, three fresh read-only TASK review instances, and CHANGE; inherited GPT-5-family Codex runtime capability was used without substitution.
   - Gate-Outcome: `EXECUTED` — the packaged executable now proves structured edited-load persistence, restore, identity, and solve behavior; the narrower packaged-GUI observation remains host-blocked and its exact DEL-07-06 Remaining item is preserved. No merge, lifecycle, stage, release, issuance, publication, or professional-reliance effect occurs.
+
+- **2026-08-20 — Receipt 119** (R8 packaged GUI proof attempt).
+  - Receipt-ID: `Receipt-119`
+  - Examined-Through: `fae5e38ee60fd4c8d4a52ac7f663036a83cdbd7d`
+  - Parent-Receipt: `Receipt-118`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — “Steer (this run): start a new branch for this work you are about to define, do not continue working in this current branch.”
+  - Pointers: branch `codex/piping-product-20260820`; base `main`; predecessor PR #588 merged, so no dependency; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/`.
+  - Checks: receipt validator, JSON/JSONL and runtime-summary integrity, diff and exact containment, repository self-check, and full practitioner harness pytest: PASS.
+  - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS and CHANGE Agent 1; inherited GPT-5-based Codex runtime without substitution; exact manager attribution is recorded in the named AgentRuns root.
+  - Gate-Outcome: `STOPPED` — BLOCKED: the actual packaged app was confirmed running as `org.openpipestress.technical-preview`, but both path and exact-ID Computer Use state capture returned no AX tree or screenshot and hung until interrupted. No GUI predicate was observed, no product or deliverable change occurred, and the exact DEL-07-06 residual remains open. No lifecycle, stage, release, issuance, publication, or professional-reliance effect occurs.
+
+- **2026-08-20 — Receipt 120** (R8 packaged GUI proof and lifecycle closeout).
+  - Receipt-ID: `Receipt-120`
+  - Examined-Through: `91b92f949b8d808b61268baca9a54f4f716c99ff`
+  - Parent-Receipt: `Receipt-119`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — “FYI: CI change merged: the unsigned macOS artifact job is now label-gated. When a node declares the unsigned-artifact CI surface as its proof surface, apply the artifact-proof label to the PR at final-verification time (the label itself triggers the run) and cite that run in the receipt. Unlabeled pushes no longer produce artifact runs.”
+  - Pointers: branch `codex/piping-product-20260820`; base `main`; predecessor PR #588 merged, so no dependency; node `a9b1fbef90f3bb9a894054c22f6fc77572fedd0d`; adjacent remediation `0cfc30c440071a09eb35f8d021ed29b254a547a5`; proof `594acf73e78d1b4e408f2dafe88ad2d6e30acf15`; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/`; reviewer 8 `PASS / VALID_FOR_ADJACENT_CHANGE` with reviewer 5's technical PASS history preserved; packaged GUI V6 screenshots; clean five-surface summary `validation/evidence/sweeps/SWEEP_20260820T223618Z_0cfc30c44007.json` (SHA-256 `1dfc7eabc7f90893caef9421c64b4b2ad152e8625153e6fd0d3e0da1d48ab23c`).
+  - Checks: focused Vitest 7, desktop Vitest 533, desktop build, focused Playwright 2, full Playwright 22 plus production-dist 2, Tauri package, actual Computer Use V6 journey, harness pytest 350 and self-check, reviewer 8, complete DEC-025 five-surface sweep, receipt contract, diff, JSON/JSONL, and exact containment: PASS.
+  - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS, eight fresh read-only TASK review attempts, and CHANGE Agent 1; inherited GPT-5-based Codex runtime without substitution. Exact parentage and execution attribution are recorded in the named AgentRuns root.
+  - Gate-Outcome: `EXECUTED` — the exact DEL-07-06 packaged edited-load GUI residual is closed through the actual packaged GUI V6 proof; DEL-07-06 remains `IN_PROGRESS`, and the human-owned PDU-045/PDU-046 holds remain unchanged. The `artifact-proof` label is `NOT_APPLICABLE` because this node declared host packaged-app proof, not the unsigned-artifact CI surface. No lifecycle, stage, release, issuance, publication, or professional-reliance effect occurs.

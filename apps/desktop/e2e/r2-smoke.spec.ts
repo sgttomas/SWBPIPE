@@ -68,6 +68,26 @@ async function ensurePipeEndpointPick(page: Page, testId: "viewport-pick-pipe-fr
   await expect(button).toHaveAttribute("aria-pressed", "true");
 }
 
+async function expectWorkspaceStatusClearOfTarget(
+  page: Page,
+  targetTestId: string,
+): Promise<void> {
+  const target = page.getByTestId(targetTestId);
+  await target.scrollIntoViewIfNeeded();
+  const [targetBox, statusBox] = await Promise.all([
+    target.boundingBox(),
+    page.getByTestId("workspace-status-bar").boundingBox(),
+  ]);
+  expect(targetBox).not.toBeNull();
+  expect(statusBox).not.toBeNull();
+  const overlaps =
+    targetBox!.x < statusBox!.x + statusBox!.width &&
+    targetBox!.x + targetBox!.width > statusBox!.x &&
+    targetBox!.y < statusBox!.y + statusBox!.height &&
+    targetBox!.y + targetBox!.height > statusBox!.y;
+  expect(overlaps, `${targetTestId} must not be covered by workspace status`).toBe(false);
+}
+
 test("guided workbench shell keeps journey steps, details, and compact status reachable", async ({ page }) => {
   await page.goto("/");
 
@@ -524,6 +544,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 50 of 170 matching results; page 1 of 4"
   );
+  await expectWorkspaceStatusClearOfTarget(page, "result-row-result:force:pipe-P-120:axial");
   await page.getByTestId("result-row-result:force:pipe-P-120:axial").click();
   await expect(page.getByTestId("result-detail-panel")).toContainText("pipe:P-120");
   await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
@@ -919,6 +940,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("length=m");
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=none");
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
+  await expectWorkspaceStatusClearOfTarget(page, "rendered-report-render");
   await page.getByTestId("rendered-report-render").click();
   await expect(page.getByTestId("rendered-report-redaction-summary")).toContainText("blocked=true");
   await expect(page.getByTestId("rendered-report-route")).toHaveCount(0);

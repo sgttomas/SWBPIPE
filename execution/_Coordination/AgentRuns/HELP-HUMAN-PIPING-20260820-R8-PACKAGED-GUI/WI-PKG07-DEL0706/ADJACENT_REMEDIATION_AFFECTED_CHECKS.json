@@ -1,0 +1,45 @@
+{
+  "schema": "chirality-affected-check-disposition/v1",
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "base_commit": "a9b1fbef90f3bb9a894054c22f6fc77572fedd0d",
+  "selected_checks": [
+    "desktop-build",
+    "desktop-test",
+    "evidence-sweep",
+    "harness-pytest",
+    "harness-self-check",
+    "piping-pytest"
+  ],
+  "dispositions": {
+    "desktop-build": {
+      "status": "PASS",
+      "evidence": "npm run build:desktop"
+    },
+    "desktop-test": {
+      "status": "PASS",
+      "evidence": "npm run test:desktop; 29 files / 533 tests"
+    },
+    "evidence-sweep": {
+      "status": "DEFERRED_TO_CHANGE_COMMIT_BOUND_PROOF",
+      "reason": "The existing sweep summaries are immutable trigger evidence. HELP_HUMAN explicitly assigned the next clean DEC-025 sweep to CHANGE after the adjacent remediation commit; an uncommitted sweep cannot substitute for that commit-bound proof."
+    },
+    "harness-pytest": {
+      "status": "PASS",
+      "evidence": "ADJACENT_REMEDIATION_REGISTERED_CHECKS.json; 350 tests"
+    },
+    "harness-self-check": {
+      "status": "PASS",
+      "evidence": "ADJACENT_REMEDIATION_REGISTERED_CHECKS.json; exit 0 with existing repository-wide findings"
+    },
+    "piping-pytest": {
+      "status": "PASS_ACCEPTED_COMMIT_BOUND_BASIS",
+      "evidence": "validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json; Python surface exit 0 / 902 tests per authoritative sweep report",
+      "reason": "The two validation-path additions are the immutable sweep summaries themselves; the adjacent implementation changes only desktop CSS, Playwright coverage, and run controls. The accepted clean node-commit sweep already passed the Python surface."
+    }
+  },
+  "additional_affected_proof": {
+    "focused_playwright": "PASS; exact formerly failing desktop cases 2/2",
+    "full_playwright": "PASS; desktop and compact 22/22"
+  },
+  "overall_status": "PASS_WITH_COMMIT_BOUND_EVIDENCE_SWEEP_PENDING"
+}

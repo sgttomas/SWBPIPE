@@ -1,0 +1,186 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 10
+  },
+  "counts": {
+    "category": {
+      "checks": 7,
+      "execution": 8,
+      "host": 3,
+      "implementation": 7,
+      "review": 12,
+      "telemetry": 1
+    },
+    "event_type": {
+      "CHECK": 7,
+      "FINISH": 10,
+      "NOTICE": 4,
+      "REMEDIATION": 7,
+      "START": 10
+    },
+    "outcome": {
+      "BLOCKED": 2,
+      "FAIL": 5,
+      "PASS": 20,
+      "STARTED": 11
+    },
+    "reason_code": {
+      "ACTIVATION_FROZEN": 1,
+      "ADJACENT_REMEDIATION_CHECKS_PASS": 1,
+      "ADJACENT_REMEDIATION_READY_FOR_REVIEW_7": 1,
+      "CLEAN_DEC025_SWEEP_REGRESSION": 1,
+      "CONTROL_CONTAINMENT_READY_FOR_REVIEW_8": 1,
+      "COORDINATION_CHECKS_PASS": 1,
+      "DETACHED_CANCEL_TRIGGERED_AND_HOST_CHECKS_PASS": 1,
+      "DETACHED_PRESTART_CANCEL_TOMBSTONE_BOUND": 1,
+      "EXACT_SWEEP_PATHS_ADDED_TO_GRAPH": 1,
+      "FROZEN_ADJACENT_DIFF_REVIEW_7_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_2_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_3_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_4_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_5_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_5_VALID_FOR_TERMINAL_FAN_IN": 1,
+      "FROZEN_DIFF_REVIEW_STARTED": 1,
+      "GENERATION_REMEDIATED_TRIGGERED_AND_HOST_CHECKS_PASS": 1,
+      "HOST_COMPUTER_USE_STATE_CAPTURE_HUNG": 2,
+      "MODEL_TRANSITION_AND_PRESTART_CANCEL_NOT_GENERATION_BOUND": 1,
+      "MODEL_TRANSITION_AND_PRESTART_CANCEL_SYNCHRONOUSLY_BOUND": 1,
+      "OVERLAPPING_PACKAGED_RUN_CALLBACKS_NOT_GENERATION_BOUND": 1,
+      "OWNER_INVITED_RETRY": 1,
+      "PACKAGED_GUI_PREDICATES_OBSERVED": 1,
+      "PASS_VALIDATED_TERMINAL_FAN_IN": 1,
+      "PRESTART_CANCEL_DROPPED_BY_MODEL_TRANSITION": 1,
+      "REMEDIATED_PACKAGED_GUI_BOUND_PROOF_PASS": 1,
+      "REMEDIATED_TRIGGERED_CHECKS_PASS": 1,
+      "REVIEW_7_CONTAINMENT_REMEDIATION": 1,
+      "REVIEW_SESSION_ATTRIBUTION_CORRECTED": 1,
+      "SOLVE_BACKEND_IDENTITY_NOT_RELIABLY_VISIBLE": 1,
+      "SOLVE_CALLBACKS_GENERATION_AND_JOB_BOUND": 1,
+      "SOLVE_PROOF_JOB_MODEL_VERSION_BOUND": 1,
+      "STALE_SOLVE_PROOF_NOT_JOB_MODEL_BOUND": 1,
+      "SWEEP_SUMMARIES_OUTSIDE_GRAPH_WRITE_TARGETS": 1,
+      "SYNCHRONOUS_TRANSITION_TRIGGERED_AND_HOST_CHECKS_PASS": 1,
+      "TRIGGERED_CHECKS_PASS": 1,
+      "VIEWPORT_BUDGETED_WORKSPACE_LAYOUT": 1
+    }
+  },
+  "events": 38,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 661.004,
+      "events": 4,
+      "final_outcome": "BLOCKED",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1"
+    },
+    {
+      "duration_seconds": 9952.571,
+      "events": 15,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 5,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2"
+    },
+    {
+      "duration_seconds": 3676.683,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-1"
+    },
+    {
+      "duration_seconds": 841.721,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-2"
+    },
+    {
+      "duration_seconds": 716.8,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-3"
+    },
+    {
+      "duration_seconds": 480.0,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-4"
+    },
+    {
+      "duration_seconds": 840.0,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-5"
+    },
+    {
+      "duration_seconds": 0.259,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 1,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-3"
+    },
+    {
+      "duration_seconds": 0.168,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 1,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-3-CONTROL-REMEDIATION"
+    },
+    {
+      "duration_seconds": 0.086,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-3-REVIEW-7"
+    }
+  ],
+  "sessions": 10,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

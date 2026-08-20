@@ -1,0 +1,64 @@
+{
+  "schema": "chirality-software-code-review-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
+  "instance_id": "WI-PKG07-DEL0706-TASK-REVIEW-7",
+  "run_status": "FAILED",
+  "review_verdict": "FAIL / ACTIONABLE_FINDINGS",
+  "valid_for_adjacent_change": false,
+  "basis_head": "a9b1fbef90f3bb9a894054c22f6fc77572fedd0d",
+  "hashes": {
+    "status": "PASS",
+    "matched": 14,
+    "expected": 14,
+    "mismatches": []
+  },
+  "membership": {
+    "status": "PASS",
+    "frozen_members": 14,
+    "self_excluded_manifest": 1,
+    "authorized_review_outputs": 2,
+    "unexpected_paths": []
+  },
+  "containment": {
+    "status": "FAIL",
+    "contained": 12,
+    "expected": 14,
+    "declared_graph_roots": 5,
+    "violations": [
+      "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214752Z_a9b1fbef90f3.json",
+      "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json"
+    ]
+  },
+  "profile_selection": {
+    "status": "PASS",
+    "profile": "projects/chirality-piping/software-workflow.json",
+    "checks": [
+      "desktop-build",
+      "desktop-test",
+      "evidence-sweep",
+      "harness-pytest",
+      "harness-self-check",
+      "piping-pytest"
+    ],
+    "matches_recorded_disposition": true
+  },
+  "coverage_percent": 100,
+  "product_code_findings": 0,
+  "actionable_findings": [
+    {
+      "severity": "HIGH",
+      "code": "FROZEN_SWEEP_SUMMARIES_OUTSIDE_GRAPH_WRITE_ROOTS",
+      "file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WORK_GRAPH.json",
+      "line": 24,
+      "impact": "The adjacent tree fails the graph's writes-remain-contained fan-in predicate and is invalid for CHANGE staging.",
+      "remediation": "Declare only the two exact sweep-summary paths in the graph write targets or remove/reconcile them, update hashes, refreeze, and run a fresh review."
+    }
+  ],
+  "prior_review_history": {
+    "reviewers_1_through_6_preserved": true,
+    "prior_findings_reopened": false
+  },
+  "next_evidence_sweep": "CORRECTLY_DEFERRED_TO_CHANGE_AFTER_ADJACENT_COMMIT",
+  "required_next_action": "RECONCILE_GRAPH_SCOPE_REFREEZE_AND_FRESH_REVIEW",
+  "delegated": false
+}

@@ -1,5 +1,33 @@
 # DEL-07-06 Memory
 
+## 2026-08-20 - packaged GUI edited-load smoke passed
+
+- Computer Use drove the actual macOS Tauri `.app` through the invented
+  `load:L-100/load:L-100-Y` magnitude edit from `350 N` to `425 N`, structured
+  apply, local save, quit/relaunch, explicit local-project reopen, and
+  post-reopen native solve.
+- Reopen evidence showed `425 N`, zero pending/applied/editor/proposal state,
+  and `not started; result rows=0`, so neither a pending edit nor a stale solve
+  was represented as current.
+- The packaged post-reopen solve showed `MECHANICS_SOLVED`, viewport results,
+  and the visible proof predicate
+  `seam=tauri_backend_job; project=project:invented-loop-01; result_model=project:invented-loop-01; identity=match; rows=830`, bound to
+  `backend-solve-job-1`, exact current model SHA-256, and input-manifest
+  SHA-256.
+- The run exposed and repaired a bounded observability defect: those existing
+  state/result-envelope values were previously buried in a long solve-audit
+  surface. Reviewer 1 then found that the first row could combine a retained
+  old result with a different current job. The final row renders only a
+  completed exact job/model-version/result binding; running, cancelling,
+  cancelled, failed, job-mismatch, model-hash-mismatch, and late-result cases
+  suppress it. No contract changed; Vitest and Playwright cover the row.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-08-20_R8_PACKAGED_GUI_EDITED_LOAD.md`,
+  `apps/desktop/SMOKE.md` TP-MAC-286, and the R8 AgentRuns screenshot assets.
+- This closes only the packaged edited-load smoke residual. It does not change
+  the PDU-045/PDU-046 usability/measurable-target holds, lifecycle, release
+  posture, or professional-reliance boundaries.
+
 ## 2026-08-20 - packaged-binary edited-load product proof; GUI host blocked
 
 - Added the packaged executable developer self-test

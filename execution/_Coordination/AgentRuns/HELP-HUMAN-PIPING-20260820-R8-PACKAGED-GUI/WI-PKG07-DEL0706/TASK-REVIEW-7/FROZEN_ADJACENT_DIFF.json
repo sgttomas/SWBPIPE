@@ -1,0 +1,41 @@
+{
+  "schema": "chirality-frozen-node-diff/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
+  "instance_id": "WI-PKG07-DEL0706",
+  "node_id": "N1",
+  "attempt": 3,
+  "review_attempt": 7,
+  "basis_head": "a9b1fbef90f3bb9a894054c22f6fc77572fedd0d",
+  "status": "ADJACENT_AMENDMENT_7_DIFF_FROZEN_FOR_FRESH_READ_ONLY_REVIEW",
+  "hash_algorithm": "sha256",
+  "self_hash": "NOT_APPLICABLE_MANIFEST_CANNOT_HASH_ITSELF",
+  "files": [
+    {"sha256":"3fd5c60009cf74da7ced6f841e58a796aa92535b38ee7d7ed3e66bddd7a4e727","path":"projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"},
+    {"sha256":"9e308acdccab0cbf6311360730b6dcd363e30de548d6985bb5e7f84015d10357","path":"projects/chirality-piping/apps/desktop/src/styles.css"},
+    {"sha256":"369058517102448d44d659fab01ddca83102a619c64768fa54f9a96e323a6c88","path":"projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/WORKING_ITEMS_RUN_2026-08-20_R8_PACKAGED_GUI_EDITED_LOAD.md"},
+    {"sha256":"3c47e557fcd955158045acf8f168a813df3f69b23e05ee09cb54937c48124b25","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WORK_GRAPH.json"},
+    {"sha256":"ef10400055e9f19d9e917b895f1537a217825e10fee0a03aa1b2510005b406bb","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/ADJACENT_REMEDIATION_AFFECTED_CHECKS.json"},
+    {"sha256":"4ff34482dcf41a52584db6d0fa5a3bedd503156dd2601818ca74b7280f12f449","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/ADJACENT_REMEDIATION_REGISTERED_CHECKS.json"},
+    {"sha256":"7d9ff261bcf471763c065fac5808b158279e6eb8b38967c97787bbc39dacdec3","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/AMENDMENT_7.md"},
+    {"sha256":"9c2b8ce6e64bb6424c32895b1ddb05e682c6040fb4cfbac8164e0072b58e1b23","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/HANDOFF_STATE.md"},
+    {"sha256":"502fb0e6ad83c5057be96d30ff6ff1ccc45dcb352aff0e88a679619f367ff844","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/MANAGER_RETURN.md"},
+    {"sha256":"efa99f0f1d90b3eb49eae0fd3e73d3ee090fffcb61d3dceeb10014161e8ee402","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/RUNTIME_EVENTS.jsonl"},
+    {"sha256":"2c4e3ef82c1aed38a86d1954e91a0e196d4d8799be29b35735e96c335532d2f0","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/RUNTIME_SUMMARY.json"},
+    {"sha256":"5f6f4849b91e8c646837dcba34dd2733ab467eab48a7ebe0d5239b7c107c6b69","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/TASK-REVIEW-7/LAUNCH_BRIEF.md"},
+    {"sha256":"c66786be239b46f5d8fdc16c754c31f9eaff55de99f684a1b7d7970d4173e7df","path":"projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214752Z_a9b1fbef90f3.json"},
+    {"sha256":"79301f7651bce52a492562a001d65b959c368b8d02cdf896bc3927d911c3a078","path":"projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json"}
+  ],
+  "file_count": 14,
+  "checks_before_freeze": {
+    "focused_playwright": "PASS_2_OF_2",
+    "desktop_test": "PASS_29_FILES_533_TESTS",
+    "desktop_build": "PASS",
+    "full_playwright": "PASS_22_OF_22",
+    "harness_pytest": "PASS_350_TESTS",
+    "harness_self_check": "PASS_EXECUTION",
+    "piping_pytest": "PASS_ACCEPTED_CLEAN_NODE_COMMIT_SWEEP_902_TESTS",
+    "evidence_sweep": "DEFERRED_TO_CHANGE_AFTER_ADJACENT_COMMIT"
+  },
+  "prior_review_history_preserved": "REVIEWERS_1_THROUGH_6",
+  "profile_path": "projects/chirality-piping/software-workflow.json"
+}

@@ -15,7 +15,7 @@ import {
   Sparkles
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -140,6 +140,77 @@ type SessionModelCheckpoint = {
   model: PreviewModel;
   selection: EntityRef;
 };
+
+export type SolveProofEvidence = {
+  state: "completed";
+  run_generation: number;
+  job_id: string;
+  backend_job_seam: SolveJobAuditState["backend_job_seam"];
+  project_ref: string;
+  model_sha256: string;
+  input_manifest_sha256: string;
+  result_run_id: string;
+  result_model_ref: string;
+  result_row_count: number;
+};
+
+// A run token is acquired synchronously before the first await. This closes the
+// native-menu double-dispatch window and also lets model/open invalidation make
+// every callback from an older solve inert, even when an adapter reuses a job
+// identifier.
+export class SolveRunGenerationGate {
+  private generation = 0;
+  private active: number | null = null;
+  private cancelRequested = false;
+
+  tryStart(): number | null {
+    if (this.active !== null) return null;
+    this.active = ++this.generation;
+    this.cancelRequested = false;
+    return this.active;
+  }
+
+  current(): number | null {
+    return this.active;
+  }
+
+  isCurrent(token: number): boolean {
+    return this.active === token;
+  }
+
+  requestCancellation(token: number): boolean {
+    if (!this.isCurrent(token)) return false;
+    this.cancelRequested = true;
+    return true;
+  }
+
+  isCancellationRequested(token: number): boolean {
+    return this.isCurrent(token) && this.cancelRequested;
+  }
+
+  invalidate(): void {
+    this.generation += 1;
+    this.active = null;
+    this.cancelRequested = false;
+  }
+
+  finish(token: number): boolean {
+    if (!this.isCurrent(token)) return false;
+    this.active = null;
+    this.cancelRequested = false;
+    return true;
+  }
+}
+
+export function commitModelAfterSolveInvalidation(
+  gate: SolveRunGenerationGate,
+  revision: { current: number },
+  commit: () => void
+): void {
+  revision.current += 1;
+  gate.invalidate();
+  commit();
+}
 
 // TP-APP-R2-UXSHELL-001 workspace information architecture.
 //
@@ -347,6 +418,7 @@ export function App() {
   const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
   const [projectOperation, setProjectOperation] = useState("not_started");
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
+  const [solveProof, setSolveProof] = useState<SolveProofEvidence | null>(null);
   const [running, setRunning] = useState(false);
   const [solverMode, setSolverMode] = useState<PreviewSolverMode>("sparse_interactive");
   const [projectBusy, setProjectBusy] = useState(false);
@@ -382,6 +454,17 @@ export function App() {
   const [auditDrawerOpen, setAuditDrawerOpen] = useState(false);
   const [issuesDrawerOpen, setIssuesDrawerOpen] = useState(false);
   const intentSequence = useRef(0);
+  const modelRevision = useRef(0);
+  const solveRunGate = useRef(new SolveRunGenerationGate());
+  const activeSolveJob = useRef<{
+    generation: number;
+    job: SolveJobAuditState;
+    cancellation_dispatched: boolean;
+  } | null>(null);
+  const solveCancellationTombstones = useRef(new Map<number, {
+    requested: boolean;
+    dispatched: boolean;
+  }>());
   const comparison = useMemo(
     () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
     [analysisRun, result]
@@ -392,7 +475,7 @@ export function App() {
     Promise.all([loadPreviewModel(), loadDesignKnowledge(), getLocalStorageCapability()]).then(
       ([loadedModel, loadedKnowledge, loadedStorageCapability]) => {
         if (!active) return;
-        setModel(loadedModel);
+        commitModel(loadedModel);
         setKnowledge(loadedKnowledge);
         setSelection(defaultSelection(loadedModel));
         setStorageCapability(loadedStorageCapability);
@@ -403,8 +486,13 @@ export function App() {
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let active = true;
+    modelRevision.current += 1;
+    solveRunGate.current.invalidate();
+    activeSolveJob.current = null;
+    setRunning(false);
+    setSolveProof(null);
     setModelHash(null);
     if (!model) return;
     computeModelHash(model).then((hash) => {
@@ -414,6 +502,16 @@ export function App() {
       active = false;
     };
   }, [model]);
+
+  function commitModel(nextModel: PreviewModel) {
+    commitModelAfterSolveInvalidation(solveRunGate.current, modelRevision, () => {
+      activeSolveJob.current = null;
+      setRunning(false);
+      setSolveProof(null);
+      setModelHash(null);
+      setModel(nextModel);
+    });
+  }
 
   // Warm up the operation engine and report its honest route/readiness.
   // Browser mode lazily loads the wasm32 operation_applier build; an absent
@@ -428,25 +526,140 @@ export function App() {
     };
   }, []);
 
+  function dispatchActiveSolveCancellation(runGeneration: number) {
+    const active = activeSolveJob.current;
+    const tombstone = solveCancellationTombstones.current.get(runGeneration);
+    if (
+      !active ||
+      active.generation !== runGeneration ||
+      active.cancellation_dispatched ||
+      !tombstone?.requested ||
+      tombstone.dispatched ||
+      !solveRunGate.current.isCurrent(runGeneration) ||
+      active.job.backend_job_seam !== "tauri_backend_job" ||
+      !active.job.backend_job_id
+    ) return;
+    active.cancellation_dispatched = true;
+    tombstone.dispatched = true;
+    void cancelPreviewMechanicsJob(
+      active.job.backend_job_id,
+      active.job.backend_cancellation_token
+    )
+      .then((receipt) => {
+        if (
+          !solveRunGate.current.isCurrent(runGeneration) ||
+          receipt.job_id !== active.job.job_id
+        ) return;
+        setSolveJob((current) =>
+          current.job_id === active.job.job_id
+            ? recordBackendCancellationReceipt(current, receipt)
+            : current
+        );
+      })
+      .catch((error) => {
+        if (!solveRunGate.current.isCurrent(runGeneration)) return;
+        setSolveJob((current) =>
+          current.job_id === active.job.job_id
+            ? recordBackendCancellationFailure(current, error)
+            : current
+        );
+      });
+  }
+
   async function handleRun() {
+    const runGeneration = solveRunGate.current.tryStart();
+    if (runGeneration === null) return;
+    solveCancellationTombstones.current.set(runGeneration, {
+      requested: false,
+      dispatched: false
+    });
     setRunning(true);
+    setSolveProof(null);
+    setResult(null);
     setAnalysisRun(null);
     setInputManifest(null);
     // A fresh solve invalidates any prior rule-check run against the old result.
     setRuleCheckAggregate(null);
+    let startedJob: SolveJobAuditState | null = null;
     try {
       if (!model) {
         throw new Error(
           "INPUT-MANIFEST-MODEL-INCOMPLETE: a current session model is required before solve."
         );
       }
-      const startReceipt = await startPreviewMechanicsJob(model, solverMode);
-      setSolveJob(startSolveJob(model, startReceipt));
+      const solveModel = clonePreviewModel(model);
+      const solveModelRevision = modelRevision.current;
+      const solveModelHash = await computeModelHash(solveModel);
+      if (
+        !solveModelHash ||
+        modelRevision.current !== solveModelRevision ||
+        !solveRunGate.current.isCurrent(runGeneration)
+      ) return;
+      if (
+        solveRunGate.current.isCancellationRequested(runGeneration) ||
+        solveCancellationTombstones.current.get(runGeneration)?.requested
+      ) {
+        setSolveJob(cancelledBeforeBackendStartSolveJob(solveModel));
+        return;
+      }
+      const startReceipt = await startPreviewMechanicsJob(solveModel, solverMode);
+      const cancellationTombstone = solveCancellationTombstones.current.get(runGeneration);
+      if (
+        modelRevision.current !== solveModelRevision ||
+        !solveRunGate.current.isCurrent(runGeneration)
+      ) {
+        if (
+          cancellationTombstone?.requested &&
+          !cancellationTombstone.dispatched &&
+          startReceipt.mode === "backend_job"
+        ) {
+          cancellationTombstone.dispatched = true;
+          void cancelPreviewMechanicsJob(
+            startReceipt.job_id,
+            startReceipt.backend_cancellation_token
+          ).catch(() => {
+            // The originating generation is already detached from visible UI.
+            // A failed best-effort cancellation must not resurrect stale state.
+          });
+        }
+        return;
+      }
+      startedJob = startSolveJob(solveModel, startReceipt);
+      const cancellationRequested =
+        solveRunGate.current.isCancellationRequested(runGeneration) ||
+        cancellationTombstone?.requested === true;
+      const visibleStartedJob = cancellationRequested
+        ? requestSolveCancellation(startedJob)
+        : startedJob;
+      activeSolveJob.current = {
+        generation: runGeneration,
+        job: visibleStartedJob,
+        cancellation_dispatched: false
+      };
+      setSolveJob(visibleStartedJob);
+      if (cancellationRequested) {
+        if (startReceipt.mode === "backend_job") {
+          dispatchActiveSolveCancellation(runGeneration);
+        } else {
+          setSolveJob(cancelledWithoutBackendSolveJob(visibleStartedJob));
+          return;
+        }
+      }
       let output: MechanicsResult;
       if (startReceipt.mode === "backend_job") {
         const terminal = await awaitBackendSolveJob(startReceipt.job_id);
+        if (!solveRunGate.current.isCurrent(runGeneration)) return;
+        if (terminal.job_id !== startedJob.job_id) {
+          throw new Error(
+            `SOLVE-JOB-IDENTITY-MISMATCH: expected ${startedJob.job_id}; received ${terminal.job_id}`
+          );
+        }
         if (terminal.state === "cancelled") {
-          setSolveJob((current) => cancelledSolveJob(current, terminal));
+          setSolveJob((current) =>
+            current.job_id === startedJob?.job_id
+              ? cancelledSolveJob(current, terminal)
+              : current
+          );
           return;
         }
         if (terminal.state !== "completed" || !terminal.result) {
@@ -456,10 +669,11 @@ export function App() {
         }
         output = terminal.result;
       } else {
-        output = await runPreviewMechanics(model, solverMode);
+        output = await runPreviewMechanics(solveModel, solverMode);
+        if (solveRunGate.current.isCancellationRequested(runGeneration)) return;
       }
       const manifest = await buildCurrentSessionInputManifest({
-        model,
+        model: solveModel,
         solver: {
           solver_name: "open_pipe_stress_product_physics",
           solver_version: "0.1.0",
@@ -474,19 +688,56 @@ export function App() {
         active_rule_packs: [],
         external_assets: []
       });
+      if (!solveRunGate.current.isCurrent(runGeneration)) return;
       const runRecord = await buildAnalysisRunPreview(output, {
         inputManifest: manifest
       });
-      setSolveJob((current) => completeSolveJob(current, output, runRecord));
+      if (
+        modelRevision.current !== solveModelRevision ||
+        !solveRunGate.current.isCurrent(runGeneration)
+      ) return;
+      if (output.model_ref !== solveModel.project.id) {
+        throw new Error(
+          `SOLVE-RESULT-MODEL-MISMATCH: expected ${solveModel.project.id}; received ${output.model_ref}`
+        );
+      }
+      setSolveJob((current) =>
+        current.job_id === startedJob?.job_id
+          ? completeSolveJob(current, output, runRecord)
+          : current
+      );
       setResult(output);
       setSelectedReviewTarget(null);
       setProposal(null);
       setInputManifest(manifest);
       setAnalysisRun(runRecord);
+      setModelHash(solveModelHash);
+      setSolveProof({
+        state: "completed",
+        run_generation: runGeneration,
+        job_id: startedJob.job_id,
+        backend_job_seam: startedJob.backend_job_seam,
+        project_ref: solveModel.project.id,
+        model_sha256: solveModelHash.value,
+        input_manifest_sha256: manifest.manifest_sha256,
+        result_run_id: output.run_id,
+        result_model_ref: output.model_ref,
+        result_row_count: output.results.length
+      });
     } catch (error) {
-      setSolveJob((current) => failSolveJob(current, error));
+      if (solveRunGate.current.isCurrent(runGeneration)) {
+        setSolveJob((current) =>
+          !startedJob || current.job_id === startedJob.job_id
+            ? failSolveJob(current, error)
+            : current
+        );
+      }
     } finally {
-      setRunning(false);
+      solveCancellationTombstones.current.delete(runGeneration);
+      if (activeSolveJob.current?.generation === runGeneration) {
+        activeSolveJob.current = null;
+      }
+      if (solveRunGate.current.finish(runGeneration)) setRunning(false);
     }
   }
 
@@ -522,12 +773,26 @@ export function App() {
   }
 
   function handleCancelRun() {
-    const activeJob = solveJob;
-    setSolveJob((current) => requestSolveCancellation(current));
-    if (activeJob.backend_job_seam === "tauri_backend_job" && activeJob.backend_job_id) {
-      void cancelPreviewMechanicsJob(activeJob.backend_job_id, activeJob.backend_cancellation_token)
-        .then((receipt) => setSolveJob((current) => recordBackendCancellationReceipt(current, receipt)))
-        .catch((error) => setSolveJob((current) => recordBackendCancellationFailure(current, error)));
+    const runGeneration = solveRunGate.current.current();
+    if (runGeneration === null) return;
+    if (!solveRunGate.current.requestCancellation(runGeneration)) return;
+    const tombstone = solveCancellationTombstones.current.get(runGeneration);
+    if (tombstone) tombstone.requested = true;
+    const active = activeSolveJob.current;
+    if (!active || active.generation !== runGeneration) {
+      setSolveJob((current) => pendingBackendStartCancellationSolveJob(current));
+      return;
+    }
+    active.job = requestSolveCancellation(active.job);
+    setSolveJob((current) =>
+      current.job_id === active.job.job_id
+        ? requestSolveCancellation(current)
+        : current
+    );
+    if (active.job.backend_job_seam === "tauri_backend_job") {
+      dispatchActiveSolveCancellation(runGeneration);
+    } else {
+      setSolveJob(cancelledWithoutBackendSolveJob(active.job));
     }
   }
 
@@ -609,7 +874,7 @@ export function App() {
         ].slice(0, 25)
       );
       setRedoStack([]);
-      setModel(outcome.applied_model);
+      commitModel(outcome.applied_model);
       const appliedSelection = selectionForOperationOutcome(outcome);
       if (
         outcome.change_kind === "delete_support" ||
@@ -663,7 +928,7 @@ export function App() {
         ...current
       ].slice(0, 25)
     );
-    setModel(clonePreviewModel(checkpoint.model));
+    commitModel(clonePreviewModel(checkpoint.model));
     setSelection(checkpoint.selection);
     clearComputedModelState(sessionHistoryChangedSolveJob("undo", checkpoint.operation_id));
     setOperationMessage(
@@ -686,7 +951,7 @@ export function App() {
         ...current
       ].slice(0, 25)
     );
-    setModel(clonePreviewModel(checkpoint.model));
+    commitModel(clonePreviewModel(checkpoint.model));
     setSelection(checkpoint.selection);
     clearComputedModelState(sessionHistoryChangedSolveJob("redo", checkpoint.operation_id));
     setOperationMessage(
@@ -767,7 +1032,7 @@ export function App() {
         ...created.summary,
         message: "Created blank local model document without fixture entities or external file copies."
       };
-      setModel(created.model);
+      commitModel(created.model);
       setSelection(defaultSelection(created.model));
       setUndoStack([]);
       setRedoStack([]);
@@ -812,7 +1077,7 @@ export function App() {
       }
       const restoredResult = opened.mechanics_result ?? null;
       const restoredAnalysisRun = opened.analysis_run ?? null;
-      setModel(opened.model);
+      commitModel(opened.model);
       setSelection(defaultSelection(opened.model));
       setUndoStack([]);
       setRedoStack([]);
@@ -1567,8 +1832,11 @@ export function App() {
 
       <StatusBar
         model={model}
+        modelHash={modelHash}
         knowledge={knowledge}
         result={result}
+        solveJob={solveJob}
+        solveProof={solveProof}
         storageCapability={storageCapability}
         operationOutcomes={operationOutcomes}
         auditDrawerOpen={auditDrawerOpen}
@@ -1868,8 +2136,11 @@ function AgentFocusFact({ label, value, testId }: { label: string; value: string
 
 function StatusBar({
   model,
+  modelHash,
   knowledge,
   result,
+  solveJob,
+  solveProof,
   storageCapability,
   operationOutcomes,
   auditDrawerOpen,
@@ -1878,8 +2149,11 @@ function StatusBar({
   onOpenIssues
 }: {
   model: PreviewModel;
+  modelHash: ModelHashEvidence | null;
   knowledge: DesignKnowledge | null;
   result: MechanicsResult | null;
+  solveJob: SolveJobAuditState;
+  solveProof: SolveProofEvidence | null;
   storageCapability: LocalStorageCapability | null;
   operationOutcomes: Record<string, OperationOutcome>;
   auditDrawerOpen: boolean;
@@ -1889,6 +2163,7 @@ function StatusBar({
 }) {
   const status = result?.status ?? model.analysis_status;
   const issueCount = issueCountFor(model, knowledge, result, operationOutcomes);
+  const visibleSolveProof = solveProofStatus(model, modelHash, result, solveJob, solveProof);
   return (
     <section className="status-bar" aria-label="Workspace status" data-testid="workspace-status-bar">
       <div className="status-pill-group" aria-label="Analysis statuses">
@@ -1899,6 +2174,13 @@ function StatusBar({
           value={professionalStatusLabel(status.professional_acceptance)}
           testId="status-pill-professional"
         />
+        {visibleSolveProof ? (
+          <StatusPill
+            label="Solve proof"
+            value={visibleSolveProof}
+            testId="status-pill-solve-proof"
+          />
+        ) : null}
       </div>
       <div className="status-bar-actions">
         <button
@@ -2059,6 +2341,43 @@ function ruleCheckStatusLabel(value: string) {
     return "RULE_INPUTS_INCOMPLETE";
   }
   return value;
+}
+
+export function solveProofStatus(
+  model: PreviewModel,
+  modelHash: ModelHashEvidence | null,
+  result: MechanicsResult | null,
+  solveJob: SolveJobAuditState,
+  proof: SolveProofEvidence | null
+): string | null {
+  if (
+    !modelHash ||
+    !result ||
+    !proof ||
+    solveJob.state !== "completed" ||
+    proof.state !== "completed" ||
+    solveJob.job_id !== proof.job_id ||
+    solveJob.backend_job_seam !== proof.backend_job_seam ||
+    model.project.id !== proof.project_ref ||
+    modelHash.value !== proof.model_sha256 ||
+    result.run_id !== proof.result_run_id ||
+    result.model_ref !== proof.result_model_ref ||
+    result.results.length !== proof.result_row_count ||
+    result.model_ref !== model.project.id
+  ) {
+    return null;
+  }
+  return [
+    `seam=${proof.backend_job_seam}`,
+    `project=${model.project.id}`,
+    `result_model=${result.model_ref}`,
+    "identity=match",
+    `rows=${result.results.length}`,
+    `generation=${proof.run_generation}`,
+    `job=${proof.job_id}`,
+    `model_sha256=${proof.model_sha256}`,
+    `input_manifest_sha256=${proof.input_manifest_sha256}`
+  ].join("; ");
 }
 
 function issueCountFor(
@@ -2459,6 +2778,73 @@ function requestSolveCancellation(current: SolveJobAuditState): SolveJobAuditSta
         message: backendJob
           ? `Cancellation requested for backend solve job ${current.backend_job_id} using its backend cancellation token; cancellation is cooperative at backend checkpoints and success is not guaranteed.`
           : "Cancellation request recorded at the UI boundary; no backend job exists in browser fixture mode, so the in-flight fixture run cannot be interrupted.",
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ]
+  };
+}
+
+function pendingBackendStartCancellationSolveJob(current: SolveJobAuditState): SolveJobAuditState {
+  return {
+    ...initialSolveJob(),
+    job_id: "job:preview-linear-static:pending-start-cancel",
+    state: "cancelling",
+    cancellation_requested: true,
+    cancellation_status: "request_recorded_awaiting_backend_job_start",
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-cancel-requested-before-backend-start",
+        state: "cancelling",
+        message:
+          "Cancellation requested before backend job creation completed; the active solve generation will stop before start or dispatch exactly one cooperative cancellation when its backend receipt arrives.",
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ]
+  };
+}
+
+function cancelledBeforeBackendStartSolveJob(model: PreviewModel): SolveJobAuditState {
+  return {
+    ...initialSolveJob(),
+    job_id: `job:preview-linear-static:cancelled-before-start:${safeJobToken(model.project.id)}`,
+    state: "cancelled",
+    cancellation_requested: true,
+    cancellation_status: "cancelled_before_backend_job_start",
+    events: [
+      {
+        event_id: "solve-preview-cancelled-before-backend-start",
+        state: "cancelled",
+        message:
+          "The active solve generation was cancelled before any backend job was started; no result was computed or published.",
+        result_available: false,
+        diagnostic_count: model.diagnostics.length,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ]
+  };
+}
+
+function cancelledWithoutBackendSolveJob(current: SolveJobAuditState): SolveJobAuditState {
+  return {
+    ...current,
+    state: "cancelled",
+    cancellation_requested: true,
+    cancellation_status: "cancelled_before_browser_fixture_result_publication",
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-browser-fixture-cancelled",
+        state: "cancelled",
+        message:
+          "The browser fixture solve generation was cancelled before result publication; no backend cancellation-success claim is made.",
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,

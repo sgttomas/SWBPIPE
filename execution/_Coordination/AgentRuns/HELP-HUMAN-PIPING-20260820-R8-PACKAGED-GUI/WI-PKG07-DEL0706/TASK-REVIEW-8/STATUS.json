@@ -1,0 +1,62 @@
+{
+  "schema": "chirality-software-code-review-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
+  "instance_id": "WI-PKG07-DEL0706-TASK-REVIEW-8",
+  "run_status": "SUCCESS",
+  "review_verdict": "PASS / VALID_FOR_ADJACENT_CHANGE",
+  "valid_for_adjacent_change": true,
+  "basis_head": "a9b1fbef90f3bb9a894054c22f6fc77572fedd0d",
+  "hashes": {
+    "status": "PASS",
+    "matched": 19,
+    "expected": 19,
+    "mismatches": []
+  },
+  "membership": {
+    "status": "PASS",
+    "pre_output_paths": 20,
+    "frozen_members": 19,
+    "self_excluded_manifest": 1,
+    "authorized_review_outputs": 2,
+    "unexpected_paths": []
+  },
+  "containment": {
+    "status": "PASS",
+    "contained": 19,
+    "expected": 19,
+    "declared_graph_targets": 7,
+    "exact_validation_targets": [
+      "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214752Z_a9b1fbef90f3.json",
+      "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json"
+    ],
+    "violations": []
+  },
+  "profile_selection": {
+    "status": "PASS",
+    "profile": "projects/chirality-piping/software-workflow.json",
+    "checks": [
+      "desktop-build",
+      "desktop-test",
+      "evidence-sweep",
+      "harness-pytest",
+      "harness-self-check",
+      "piping-pytest"
+    ],
+    "matches_recorded_disposition": true
+  },
+  "coverage_percent": 100,
+  "product_code_findings": 0,
+  "actionable_findings": [],
+  "reviewer_7_finding": {
+    "code": "FROZEN_SWEEP_SUMMARIES_OUTSIDE_GRAPH_WRITE_ROOTS",
+    "status": "CLOSED_BY_EXACT_GRAPH_TARGETS"
+  },
+  "product_hashes_unchanged_from_review_7": true,
+  "prior_review_history": {
+    "reviewers_1_through_7_preserved": true,
+    "prior_product_findings_reopened": false
+  },
+  "next_evidence_sweep": "REQUIRED_CHANGE_OWNED_AFTER_ADJACENT_COMMIT",
+  "required_next_action": "CHANGE_CREATE_ADJACENT_COMMIT_THEN_RUN_CLEAN_DEC025",
+  "delegated": false
+}
