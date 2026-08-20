@@ -85,6 +85,32 @@ relax the checksum definition, and alter the professional-boundary definition;
 all are rejected as noncanonical. Complete suite: `111 passed in 0.49s`;
 fresh full amended-diff review required.
 
+V29 fresh review confirmed the V28 manifest/unit-marker fixes but found raw
+adapter capabilities were still traversed without a width bound after snapshot
+failure and over-limit adapter/unit strings could enter diagnostic references.
+Remediation is restricted to deterministic fallback traversal/reference bounds,
+exact regressions, and a fresh full amended-diff review.
+
+V29 remediation bounds raw capability fallback and constrains adapter/unit
+diagnostic references to exact canonical strings of at most 256 UTF-8 bytes,
+otherwise using deterministic bounded fallback identifiers. Nine adversarial
+regressions cover overflow, noncanonical, and quarantine combinations. Complete
+suite: `283 passed in 0.78s`; containment/diff PASS; V30 fresh full amended-
+diff review required.
+
+V30 fresh review found raw preflight invalid-path segments could enter
+diagnostic references across every caller surface, and caller plugin-schema
+normalization was not fully bounded/exception-contained. Remediation is limited
+to bounded canonical diagnostic paths, bounded exact schema snapshotting,
+adversarial regressions, and a fresh full amended-diff review.
+
+V30 remediation sanitizes every preflight invalid-path component before it can
+enter diagnostics and applies fully exception-contained bounded exact-JSON
+normalization to caller plugin schemas before hashing/evaluation. Twenty-four
+focused regressions cover adversarial keys and hostile/deep schema payloads.
+Complete suite: `306 passed in 0.77s`; containment/diff PASS; V31 fresh full
+amended-diff review required.
+
 V17 review found the authenticated bytes and executed object could diverge for
 a hostile Mapping accessor. Remediation serializes once, fingerprints those
 exact bytes, parses a plain JSON snapshot, and uses only the snapshot for
@@ -169,3 +195,41 @@ maximum JSON depth 512 before strict serialization. Direct and composed deep,
 cyclic, nonfinite, and hostile-container regressions require structured reject/
 quarantine, protected envelope, schema validity, and runtime non-dispatch.
 Complete suite: `190 passed in 0.52s`; V26 fresh review required.
+
+## Integrated-review Amendment 5
+
+Integrated review v5 found raw adapter, unit-catalog, and unit-evidence inputs
+could escape public composed verification and malformed manifest structure could
+discard safely readable protected markers. Amendment 5 normalizes each caller
+input into a bounded exact-JSON detached snapshot before validation, lookup,
+diagnostics, boundary ranking, or envelope construction. Hostile/custom
+accessors, subclasses, cycles, depth/node/byte overflow, nonfinite values, and
+serialization failures produce structured conservative contexts; safely
+observable exact quarantine markers retain precedence. Direct/composed tests
+cover every caller surface and malformed/protected combinations. Complete suite:
+`219 passed in 0.56s`; fresh full amended-diff review required.
+
+V27 fresh review found malformed manifest safe-marker fallback was incomplete,
+manifest snapshotting lacked node/text/byte limits, and unit-evidence fallback
+stopped scanning at 1,024 entries. Remediation preserves safely observable
+provenance/metadata quarantine markers, enforces deterministic 10,000-node,
+1 MiB text, depth-512, and 1 MiB serialized limits, and scans the complete
+bounded evidence list. Direct/composed regressions cover marker positions 1,024
+and 1,500 plus malformed manifest combinations. Complete suite: `253 passed in
+0.64s`; V28 fresh full amended-diff review required.
+
+V28 fresh review verified all 17 files/6,964 lines but found three blocking
+fallback defects: hostile colliding dictionary keys could escape safe-marker
+observation, unit fallback could scan arbitrary-width raw lists after snapshot
+failure, and malformed-manifest fallback reused looser adapter provenance
+bounds and raw identifiers. Remediation is limited to exception-contained
+marker observation, deterministic fallback bounds, manifest-specific limits,
+and exact regressions; fresh full amended-diff review remains required.
+
+V28 remediation replaces raw dictionary lookup with bounded exact-key scans,
+caps unit fallback at 2,048 entries and 64 keys/object using marker-only
+detached evidence, and applies manifest-specific limits plus a canonical
+256-byte ceiling to fallback plugin identifiers. Twenty-one direct/composed
+regressions cover hostile keys and both accepted/excluded marker boundaries.
+Complete suite: `274 passed in 0.67s`; containment and diff checks PASS; V29
+fresh full amended-diff review required.

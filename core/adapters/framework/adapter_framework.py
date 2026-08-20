@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+import json
+import math
 import re
 from typing import Any
 
@@ -115,6 +117,17 @@ FORBIDDEN_PERSISTENCE_PATTERNS = {
 }
 
 PUBLIC_REVIEWED = "public_permissive_reviewed"
+MAX_CALLER_JSON_DEPTH = 64
+MAX_CALLER_JSON_NODES = 100_000
+MAX_CALLER_JSON_BYTES = 4 * 1024 * 1024
+MAX_ADAPTER_FALLBACK_CAPABILITIES = 64
+MAX_ADAPTER_FALLBACK_IDENTIFIER_BYTES = 256
+MAX_DIAGNOSTIC_PATH_SEGMENT_BYTES = 256
+MAX_DIAGNOSTIC_PATH_BYTES = 4096
+ADAPTER_FALLBACK_IDENTIFIER_PATTERN = re.compile(
+    r"^ops\.adapter\.[a-z0-9_]+$"
+)
+DIAGNOSTIC_PATH_SEGMENT_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 @dataclass(frozen=True)
@@ -144,7 +157,354 @@ class AdapterRuntimeGateResult:
     findings: tuple[AdapterFinding, ...]
 
 
-def gate_adapter_runtime_dispatch(payload: dict[str, Any]) -> AdapterRuntimeGateResult:
+@dataclass(frozen=True)
+class _AdapterPayloadNormalization:
+    snapshot: dict[str, Any] | None
+    findings: tuple[AdapterFinding, ...]
+    diagnostic_contexts: tuple[Mapping[str, Any], ...]
+    boundary_candidates: tuple[tuple[Any, Mapping[str, Any] | None], ...]
+
+
+def _bounded_diagnostic_child_path(path: str, key: Any, index: int) -> str:
+    """Append only a bounded canonical caller-key segment to a diagnostic path."""
+
+    segment = f"key_{index}"
+    if type(key) is str:
+        try:
+            if (
+                len(key.encode("utf-8")) <= MAX_DIAGNOSTIC_PATH_SEGMENT_BYTES
+                and DIAGNOSTIC_PATH_SEGMENT_PATTERN.fullmatch(key) is not None
+            ):
+                segment = key
+        except Exception:
+            pass
+    candidate = f"{path}.{segment}"
+    try:
+        if len(candidate.encode("utf-8")) <= MAX_DIAGNOSTIC_PATH_BYTES:
+            return candidate
+    except Exception:
+        pass
+    root = re.split(r"[.\[]", path, maxsplit=1)[0]
+    return f"{root}.path_limit.key_{index}"
+
+
+def _plain_json_snapshot(
+    value: Any,
+    path: str,
+) -> tuple[Any, str | None, str | None]:
+    """Detach bounded exact-JSON evidence without invoking caller overloads."""
+
+    stack: list[tuple[str, Any, str, int]] = [("visit", value, path, 0)]
+    active_containers: set[int] = set()
+    nodes = 0
+    text_characters = 0
+    current_path = path
+    try:
+        while stack:
+            action, current, current_path, depth = stack.pop()
+            if action == "exit":
+                active_containers.remove(current)
+                continue
+            nodes += 1
+            if nodes > MAX_CALLER_JSON_NODES:
+                return None, current_path, "node_limit"
+            if depth > MAX_CALLER_JSON_DEPTH:
+                return None, current_path, "depth_limit"
+
+            value_type = type(current)
+            if current is None or value_type in {bool, int}:
+                continue
+            if value_type is str:
+                text_characters += len(current)
+                if text_characters > MAX_CALLER_JSON_BYTES:
+                    return None, current_path, "byte_limit"
+                continue
+            if value_type is float:
+                if not math.isfinite(current):
+                    return None, current_path, "nonfinite_number"
+                continue
+            if value_type not in {dict, list}:
+                return None, current_path, "non_exact_json_value"
+
+            identity = id(current)
+            if identity in active_containers:
+                return None, current_path, "cycle"
+            active_containers.add(identity)
+            stack.append(("exit", identity, current_path, depth))
+            if len(current) > MAX_CALLER_JSON_NODES - nodes:
+                return None, current_path, "node_limit"
+            if value_type is list:
+                for index in range(len(current) - 1, -1, -1):
+                    stack.append(
+                        (
+                            "visit",
+                            current[index],
+                            f"{current_path}[{index}]",
+                            depth + 1,
+                        )
+                    )
+            else:
+                items = list(dict.items(current))
+                for index, (key, _) in enumerate(items):
+                    if type(key) is not str:
+                        return (
+                            None,
+                            _bounded_diagnostic_child_path(
+                                current_path, key, index
+                            ),
+                            "non_string_key",
+                        )
+                    text_characters += len(key)
+                    if text_characters > MAX_CALLER_JSON_BYTES:
+                        return None, current_path, "byte_limit"
+                for index in range(len(items) - 1, -1, -1):
+                    key, item = items[index]
+                    stack.append(
+                        (
+                            "visit",
+                            item,
+                            _bounded_diagnostic_child_path(
+                                current_path, key, index
+                            ),
+                            depth + 1,
+                        )
+                    )
+
+        serialized = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        if len(serialized) > MAX_CALLER_JSON_BYTES:
+            return None, path, "byte_limit"
+        snapshot = json.loads(serialized)
+    except Exception:
+        return None, current_path, "serialization_failure"
+    return snapshot, None, None
+
+
+def _exact_child(value: Any, key: str) -> Any:
+    """Read an exact-string key without hashing/equality on hostile raw keys."""
+
+    if type(value) is not dict:
+        return None
+    text_characters = 0
+    try:
+        for index, (candidate, child) in enumerate(dict.items(value)):
+            if index >= MAX_CALLER_JSON_NODES:
+                return None
+            if type(candidate) is str:
+                text_characters += len(candidate)
+                if text_characters > MAX_CALLER_JSON_BYTES:
+                    return None
+                if candidate == key:
+                    return child
+    except Exception:
+        return None
+    return None
+
+
+def _safe_provenance_snapshot(provenance: Any) -> dict[str, Any] | None:
+    snapshot, invalid_path, _ = _plain_json_snapshot(provenance, "provenance")
+    if invalid_path is None and type(snapshot) is dict:
+        return snapshot
+    if type(provenance) is not dict:
+        return None
+    redistribution = _exact_child(provenance, "redistribution_status")
+    review = _exact_child(provenance, "review_status")
+    if type(redistribution) is str and redistribution == "protected_suspected":
+        return {"redistribution_status": redistribution, "review_status": "TBD"}
+    if type(review) is str and review == "quarantined":
+        return {"redistribution_status": "TBD", "review_status": review}
+    return None
+
+
+def _adapter_capabilities_malformed(capabilities: Any) -> bool:
+    """Inspect raw fallback capabilities within a fixed operation budget."""
+
+    if type(capabilities) is not list:
+        return True
+    try:
+        capability_count = len(capabilities)
+        if capability_count > MAX_ADAPTER_FALLBACK_CAPABILITIES:
+            return True
+        return any(
+            type(capabilities[index]) is not str
+            for index in range(capability_count)
+        )
+    except Exception:
+        return True
+
+
+def _safe_adapter_reference_id(adapter_id: Any) -> str:
+    """Return only a bounded canonical adapter identifier for diagnostics."""
+
+    if type(adapter_id) is not str:
+        return "TBD"
+    try:
+        if len(adapter_id.encode("utf-8")) > MAX_ADAPTER_FALLBACK_IDENTIFIER_BYTES:
+            return "TBD"
+        if ADAPTER_FALLBACK_IDENTIFIER_PATTERN.fullmatch(adapter_id) is None:
+            return "TBD"
+    except Exception:
+        return "TBD"
+    return adapter_id
+
+
+def _adapter_shape_finding(invalid_path: str | None, reason: str | None) -> AdapterFinding:
+    path = (invalid_path or "adapter_payload").removeprefix("adapter_payload.")
+    if ".provenance" in path:
+        object_path, _, _ = path.partition(".provenance")
+        return AdapterFinding(
+            "ADAPTER_PROVENANCE_INCOMPLETE",
+            "blocking",
+            f"{object_path}.provenance",
+            "Adapter provenance contains a noncanonical JSON value.",
+            "Provide exact JSON provenance without subclasses, cycles, excessive depth, or nonfinite values.",
+        )
+    if path.startswith("adapter_declaration.capabilities"):
+        return AdapterFinding(
+            "ADAPTER_CAPABILITIES_MALFORMED",
+            "blocking",
+            "adapter_declaration.capabilities",
+            "Adapter capabilities contain a noncanonical JSON value.",
+            "Declare capabilities as a bounded exact-JSON array of canonical strings.",
+        )
+    return AdapterFinding(
+        "ADAPTER_DECLARATION_MALFORMED",
+        "blocking",
+        path or "adapter_declaration",
+        f"Adapter declaration cannot be normalized to bounded exact JSON ({reason or 'invalid_shape'}).",
+        "Provide exact JSON objects, arrays, and primitive values without subclasses, cycles, excessive depth, or nonfinite numbers.",
+    )
+
+
+def _normalize_adapter_payload(
+    payload: Any,
+    *,
+    preflight: tuple[Any, str | None, str | None] | None = None,
+) -> _AdapterPayloadNormalization:
+    snapshot, invalid_path, reason = (
+        preflight
+        if preflight is not None
+        else _plain_json_snapshot(payload, "adapter_payload")
+    )
+    if invalid_path is None and type(snapshot) is dict:
+        return _AdapterPayloadNormalization(snapshot, (), (), ())
+
+    findings: list[AdapterFinding] = [_adapter_shape_finding(invalid_path, reason)]
+    contexts: list[Mapping[str, Any]] = [
+        {
+            "source": {"ref_type": "adapter", "ref_id": "TBD"},
+            "affected_object": {
+                "ref_type": "diagnostic",
+                "ref_id": findings[0].path,
+            },
+            "provenance": None,
+        }
+    ]
+    boundary_candidates: list[tuple[Any, Mapping[str, Any] | None]] = []
+    declaration_value = _exact_child(payload, "adapter_declaration")
+    capabilities = _exact_child(declaration_value, "capabilities")
+    if (
+        findings[0].code != "ADAPTER_CAPABILITIES_MALFORMED"
+        and _adapter_capabilities_malformed(capabilities)
+    ):
+        finding = AdapterFinding(
+            "ADAPTER_CAPABILITIES_MALFORMED",
+            "blocking",
+            "adapter_declaration.capabilities",
+            "Adapter capabilities are malformed.",
+            "Declare capabilities as a bounded exact-JSON array of canonical strings.",
+        )
+        findings.append(finding)
+        contexts.append(
+            {
+                "source": {"ref_type": "adapter", "ref_id": "TBD"},
+                "affected_object": {
+                    "ref_type": "diagnostic",
+                    "ref_id": finding.path,
+                },
+                "provenance": None,
+            }
+        )
+    for object_name in ("adapter_declaration", "operation_result"):
+        object_value = _exact_child(payload, object_name)
+        adapter_ref = _safe_adapter_reference_id(
+            _exact_child(object_value, "adapter_id")
+        )
+        provenance = _exact_child(object_value, "provenance")
+        provenance_snapshot = _safe_provenance_snapshot(provenance)
+        redistribution = _exact_child(provenance, "redistribution_status")
+        review = _exact_child(provenance, "review_status")
+        if (
+            type(redistribution) is str
+            and redistribution == "protected_suspected"
+        ) or (type(review) is str and review == "quarantined"):
+            finding = AdapterFinding(
+                "ADAPTER_PROTECTED_CONTENT_SUSPECTED",
+                "quarantine",
+                f"{object_name}.provenance",
+                "Adapter provenance indicates suspected protected content.",
+                "Quarantine the payload and request human/legal review.",
+            )
+            findings.append(finding)
+            contexts.append(
+                {
+                    "source": {"ref_type": "adapter", "ref_id": adapter_ref},
+                    "affected_object": {
+                        "ref_type": "diagnostic",
+                        "ref_id": finding.path,
+                    },
+                    "provenance": provenance_snapshot,
+                }
+            )
+            boundary_candidates.append((provenance_snapshot, None))
+
+        privacy = _exact_child(object_value, "privacy")
+        classification = _exact_child(privacy, "classification")
+        if type(classification) is str and classification == "protected_suspected":
+            finding = AdapterFinding(
+                "ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED",
+                "quarantine",
+                f"{object_name}.privacy.classification",
+                "Adapter privacy classification indicates suspected protected content.",
+                "Quarantine the payload and request human/legal review.",
+            )
+            findings.append(finding)
+            contexts.append(
+                {
+                    "source": {"ref_type": "adapter", "ref_id": adapter_ref},
+                    "affected_object": {
+                        "ref_type": "diagnostic",
+                        "ref_id": finding.path,
+                    },
+                    "provenance": provenance_snapshot,
+                }
+            )
+            boundary_candidates.append(
+                (
+                    provenance_snapshot,
+                    {
+                        "classification": "protected_suspected",
+                        "local_first": True,
+                        "telemetry_allowed": False,
+                        "export_review_required": True,
+                        "private_payload_redacted": False,
+                    },
+                )
+            )
+    return _AdapterPayloadNormalization(
+        None,
+        tuple(findings),
+        tuple(contexts),
+        tuple(boundary_candidates),
+    )
+
+
+def gate_adapter_runtime_dispatch(payload: Any) -> AdapterRuntimeGateResult:
     """Gate the selected declaration-to-runtime seam without creating a loader.
 
     Invalid or quarantined declarations stop at their existing validation
@@ -176,8 +536,22 @@ def gate_adapter_runtime_dispatch(payload: dict[str, Any]) -> AdapterRuntimeGate
     )
 
 
-def validate_adapter_declaration(payload: dict[str, Any]) -> AdapterValidationResult:
+def validate_adapter_declaration(payload: Any) -> AdapterValidationResult:
     """Validate a format-neutral adapter declaration payload."""
+
+    normalized = _normalize_adapter_payload(payload)
+    if normalized.snapshot is None:
+        return AdapterValidationResult(
+            outcome=_determine_outcome(list(normalized.findings)),
+            findings=normalized.findings,
+        )
+    return _validate_adapter_declaration_snapshot(normalized.snapshot)
+
+
+def _validate_adapter_declaration_snapshot(
+    payload: dict[str, Any],
+) -> AdapterValidationResult:
+    """Validate a detached exact-JSON adapter payload snapshot."""
 
     findings: list[AdapterFinding] = []
     findings.extend(_validate_identity(payload))

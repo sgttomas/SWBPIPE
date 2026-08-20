@@ -15,7 +15,15 @@ import math
 import re
 from typing import Any
 
-from .adapter_framework import AdapterFinding, build_result, validate_adapter_declaration
+from .adapter_framework import (
+    AdapterFinding,
+    _bounded_diagnostic_child_path,
+    _normalize_adapter_payload,
+    _plain_json_snapshot,
+    _safe_adapter_reference_id,
+    _validate_adapter_declaration_snapshot,
+    build_result,
+)
 
 
 REQUIRED_PLUGIN_PROVENANCE_FIELDS = (
@@ -55,6 +63,16 @@ CANONICAL_PLUGIN_SCHEMA_SHA256 = (
     "99e126316bca0faf43da1833a211698618ce9e3432b25e4e27c17d438f756f83"
 )
 MAX_MANIFEST_JSON_DEPTH = 512
+MAX_MANIFEST_JSON_NODES = 10_000
+MAX_MANIFEST_TEXT_BYTES = 1024 * 1024
+MAX_MANIFEST_SERIALIZED_BYTES = 1024 * 1024
+MAX_MANIFEST_FALLBACK_IDENTIFIER_BYTES = 256
+MAX_UNIT_EVIDENCE_FALLBACK_ITEMS = 2048
+MAX_UNIT_EVIDENCE_FALLBACK_KEYS_PER_OBJECT = 64
+MAX_UNIT_DIAGNOSTIC_PATH_BYTES = 256
+UNIT_DIAGNOSTIC_PATH_PATTERN = re.compile(
+    r"^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+|\[[0-9]+\])*$"
+)
 
 
 @dataclass(frozen=True)
@@ -93,6 +111,76 @@ class AdapterPluginVerificationResult:
         return self.outcome == "QUARANTINE"
 
 
+@dataclass(frozen=True)
+class _UnitInputNormalization:
+    evidence: list[Any] | None
+    catalog: dict[str, Any] | None
+    findings: tuple[AdapterFinding, ...]
+    diagnostic_contexts: tuple[Mapping[str, Any], ...]
+    boundary_candidates: tuple[tuple[Any, Mapping[str, Any] | None], ...]
+
+
+@dataclass(frozen=True)
+class _ManifestInputNormalization:
+    snapshot: dict[str, Any] | None
+    findings: tuple[AdapterFinding, ...]
+    diagnostic_contexts: tuple[Mapping[str, Any], ...]
+    boundary_candidates: tuple[tuple[Any, Mapping[str, Any] | None], ...]
+
+
+def _bounded_unit_child(value: Any, key: str) -> Any:
+    """Read one exact unit key within the declared fallback operation budget."""
+
+    if type(value) is not dict:
+        return None
+    try:
+        for index, (candidate, child) in enumerate(dict.items(value)):
+            if index >= MAX_UNIT_EVIDENCE_FALLBACK_KEYS_PER_OBJECT:
+                return None
+            if type(candidate) is str and candidate == key:
+                return child
+    except Exception:
+        return None
+    return None
+
+
+def _safe_unit_diagnostic_path(value: Any, index: int) -> str:
+    """Bound and canonicalize caller-declared paths used in diagnostics."""
+
+    fallback = f"unit_evidence[{index}]"
+    if type(value) is not str:
+        return fallback
+    try:
+        if len(value.encode("utf-8")) > MAX_UNIT_DIAGNOSTIC_PATH_BYTES:
+            return fallback
+        if UNIT_DIAGNOSTIC_PATH_PATTERN.fullmatch(value) is None:
+            return fallback
+    except Exception:
+        return fallback
+    return value
+
+
+def _bounded_manifest_child(value: Any, key: str) -> Any:
+    """Read one exact manifest key under manifest-specific node/text bounds."""
+
+    if type(value) is not dict:
+        return None
+    text_bytes = 0
+    try:
+        for index, (candidate, child) in enumerate(dict.items(value)):
+            if index >= MAX_MANIFEST_JSON_NODES:
+                return None
+            if type(candidate) is str:
+                text_bytes += len(candidate.encode("utf-8"))
+                if text_bytes > MAX_MANIFEST_TEXT_BYTES:
+                    return None
+                if candidate == key:
+                    return child
+    except Exception:
+        return None
+    return None
+
+
 def _raw_json_shape_error(
     value: Any,
     path: str,
@@ -101,6 +189,8 @@ def _raw_json_shape_error(
 
     stack: list[tuple[str, Any, str, int]] = [("visit", value, path, 0)]
     active_containers: set[int] = set()
+    nodes = 0
+    text_bytes = 0
     current_path = path
     try:
         while stack:
@@ -108,11 +198,19 @@ def _raw_json_shape_error(
             if action == "exit":
                 active_containers.remove(current)
                 continue
+            nodes += 1
+            if nodes > MAX_MANIFEST_JSON_NODES:
+                return current_path
             if depth > MAX_MANIFEST_JSON_DEPTH:
                 return current_path
 
             value_type = type(current)
-            if current is None or value_type in {bool, int, str}:
+            if current is None or value_type in {bool, int}:
+                continue
+            if value_type is str:
+                text_bytes += len(current.encode("utf-8"))
+                if text_bytes > MAX_MANIFEST_TEXT_BYTES:
+                    return current_path
                 continue
             if value_type is float:
                 if not math.isfinite(current):
@@ -126,6 +224,8 @@ def _raw_json_shape_error(
                 return current_path
             active_containers.add(identity)
             stack.append(("exit", identity, current_path, depth))
+            if len(current) > MAX_MANIFEST_JSON_NODES - nodes:
+                return current_path
             if value_type is list:
                 for index in range(len(current) - 1, -1, -1):
                     stack.append(
@@ -138,22 +238,61 @@ def _raw_json_shape_error(
                     )
             else:
                 items = list(dict.items(current))
-                for key, _ in items:
+                for index, (key, _) in enumerate(items):
                     if type(key) is not str:
-                        return f"{current_path}.<key>"
-                for key, item in reversed(items):
+                        return _bounded_diagnostic_child_path(
+                            current_path, key, index
+                        )
+                    text_bytes += len(key.encode("utf-8"))
+                    if text_bytes > MAX_MANIFEST_TEXT_BYTES:
+                        return current_path
+                for index in range(len(items) - 1, -1, -1):
+                    key, item = items[index]
                     stack.append(
-                        ("visit", item, f"{current_path}.{key}", depth + 1)
+                        (
+                            "visit",
+                            item,
+                            _bounded_diagnostic_child_path(
+                                current_path, key, index
+                            ),
+                            depth + 1,
+                        )
                     )
     except Exception:
         return current_path
     return None
 
 
+def _plain_manifest_value_snapshot(
+    value: Any,
+    path: str,
+) -> tuple[Any, str | None]:
+    """Apply manifest-specific bounds to one raw fallback value."""
+
+    invalid_path = _raw_json_shape_error(value, path)
+    if invalid_path is not None:
+        return None, invalid_path
+    try:
+        serialized = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        if len(serialized) > MAX_MANIFEST_SERIALIZED_BYTES:
+            return None, path
+        return json.loads(serialized), None
+    except Exception:
+        return None, path
+
+
 def _plain_manifest_snapshot(
     manifest: Any,
 ) -> tuple[dict[str, Any] | None, AdapterFinding | None]:
-    invalid_path = _raw_json_shape_error(manifest, "plugin_manifest")
+    snapshot, invalid_path = _plain_manifest_value_snapshot(
+        manifest, "plugin_manifest"
+    )
     if invalid_path is not None or type(manifest) is not dict:
         provenance_invalid = invalid_path == "plugin_manifest.provenance" or (
             isinstance(invalid_path, str)
@@ -168,23 +307,6 @@ def _plain_manifest_snapshot(
             "Plugin manifest contains a noncanonical raw JSON shape.",
             "Provide exact JSON objects, arrays, and primitive values without subclasses or cycles.",
         )
-    try:
-        manifest_bytes = json.dumps(
-            manifest,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=False,
-            allow_nan=False,
-        ).encode("utf-8")
-        snapshot = json.loads(manifest_bytes)
-    except Exception:
-        return None, _finding(
-            "PLUGIN_MANIFEST_MALFORMED",
-            "blocking",
-            "plugin_manifest",
-            "Plugin manifest cannot be normalized to exact JSON evidence.",
-            "Provide an acyclic manifest composed only of canonical JSON primitives and containers.",
-        )
     if type(snapshot) is not dict:
         return None, _finding(
             "PLUGIN_MANIFEST_MALFORMED",
@@ -196,17 +318,146 @@ def _plain_manifest_snapshot(
     return snapshot, None
 
 
+def _safe_manifest_provenance_snapshot(provenance: Any) -> dict[str, Any] | None:
+    snapshot, invalid_path = _plain_manifest_value_snapshot(
+        provenance, "plugin_manifest.provenance"
+    )
+    if invalid_path is None and type(snapshot) is dict:
+        return snapshot
+    if type(provenance) is not dict:
+        return None
+    redistribution = _bounded_manifest_child(provenance, "redistribution_status")
+    review = _bounded_manifest_child(provenance, "review_status")
+    if type(redistribution) is str and redistribution == "protected_suspected":
+        return {"redistribution_status": redistribution, "review_status": "TBD"}
+    if type(review) is str and review == "quarantined":
+        return {"redistribution_status": "TBD", "review_status": review}
+    return None
+
+
+def _safe_manifest_plugin_ref(metadata: Any) -> str:
+    plugin_id = _bounded_manifest_child(metadata, "plugin_id")
+    if type(plugin_id) is not str:
+        return "TBD"
+    try:
+        if len(plugin_id.encode("utf-8")) > MAX_MANIFEST_FALLBACK_IDENTIFIER_BYTES:
+            return "TBD"
+    except Exception:
+        return "TBD"
+    return (
+        plugin_id
+        if re.fullmatch(r"ops-plugin-[a-z0-9][a-z0-9_-]*", plugin_id)
+        else "TBD"
+    )
+
+
+def _normalize_manifest_input(manifest: Any) -> _ManifestInputNormalization:
+    """Normalize manifest evidence and retain only safely observable markers."""
+
+    snapshot, malformed = _plain_manifest_snapshot(manifest)
+    if snapshot is not None and malformed is None:
+        return _ManifestInputNormalization(snapshot, (), (), ())
+    assert malformed is not None
+
+    findings: list[AdapterFinding] = [malformed]
+    contexts: list[Mapping[str, Any]] = [
+        {
+            "source": {"ref_type": "payload", "ref_id": "TBD"},
+            "affected_object": {
+                "ref_type": "diagnostic",
+                "ref_id": malformed.path,
+            },
+            "provenance": None,
+        }
+    ]
+    candidates: list[tuple[Any, Mapping[str, Any] | None]] = []
+    metadata = _bounded_manifest_child(manifest, "metadata")
+    plugin_ref = _safe_manifest_plugin_ref(metadata)
+    provenance = _bounded_manifest_child(manifest, "provenance")
+    provenance_snapshot = _safe_manifest_provenance_snapshot(provenance)
+    redistribution = _bounded_manifest_child(provenance, "redistribution_status")
+    review = _bounded_manifest_child(provenance, "review_status")
+    if (
+        type(redistribution) is str and redistribution == "protected_suspected"
+    ) or (type(review) is str and review == "quarantined"):
+        marker = _finding(
+            "PLUGIN_PROTECTED_CONTENT_SUSPECTED",
+            "quarantine",
+            "plugin_manifest.provenance",
+            "Plugin provenance indicates suspected protected content.",
+            "Quarantine the manifest and payload for human/legal review.",
+        )
+        findings.append(marker)
+        contexts.append(
+            {
+                "source": {"ref_type": "payload", "ref_id": plugin_ref},
+                "affected_object": {
+                    "ref_type": "diagnostic",
+                    "ref_id": marker.path,
+                },
+                "provenance": provenance_snapshot,
+            }
+        )
+        candidates.append((provenance_snapshot, None))
+
+    metadata_status = _bounded_manifest_child(metadata, "status")
+    if type(metadata_status) is str and metadata_status == "quarantined":
+        marker = _finding(
+            "PLUGIN_MANIFEST_QUARANTINED",
+            "quarantine",
+            "plugin_manifest.metadata.status",
+            "Plugin manifest is already marked quarantined.",
+            "Keep it quarantined pending human review.",
+        )
+        findings.append(marker)
+        contexts.append(
+            {
+                "source": {"ref_type": "payload", "ref_id": plugin_ref},
+                "affected_object": {
+                    "ref_type": "diagnostic",
+                    "ref_id": marker.path,
+                },
+                "provenance": provenance_snapshot,
+            }
+        )
+        candidates.append(
+            (
+                provenance_snapshot,
+                {
+                    "classification": "protected_suspected",
+                    "local_first": True,
+                    "telemetry_allowed": False,
+                    "export_review_required": True,
+                    "private_payload_redacted": False,
+                },
+            )
+        )
+    return _ManifestInputNormalization(
+        None,
+        tuple(findings),
+        tuple(contexts),
+        tuple(candidates),
+    )
+
+
 def verify_plugin_manifest(
     manifest: Any,
     plugin_schema: Any,
 ) -> PluginManifestVerificationResult:
     """Verify fail-closed controls on one already-loaded plugin manifest."""
 
-    snapshot, finding = _plain_manifest_snapshot(manifest)
-    if finding is not None or snapshot is None:
-        assert finding is not None
-        return PluginManifestVerificationResult("REJECTED", (finding,))
-    return _verify_plugin_manifest_snapshot(snapshot, plugin_schema)
+    normalized = _normalize_manifest_input(manifest)
+    if normalized.snapshot is None:
+        outcome = (
+            "QUARANTINE"
+            if any(
+                finding.severity == "quarantine"
+                for finding in normalized.findings
+            )
+            else "REJECTED"
+        )
+        return PluginManifestVerificationResult(outcome, normalized.findings)
+    return _verify_plugin_manifest_snapshot(normalized.snapshot, plugin_schema)
 
 
 def _verify_plugin_manifest_snapshot(
@@ -236,6 +487,171 @@ def _verify_plugin_manifest_snapshot(
     return PluginManifestVerificationResult(outcome, tuple(findings))
 
 
+def _observe_unit_quarantine(
+    unit_evidence: Any,
+) -> tuple[
+    tuple[AdapterFinding, ...],
+    tuple[Mapping[str, Any], ...],
+    tuple[tuple[Any, Mapping[str, Any] | None], ...],
+]:
+    """Observe only canonical marker paths through exact built-in containers."""
+
+    if type(unit_evidence) is not list:
+        return (), (), ()
+    findings: list[AdapterFinding] = []
+    contexts: list[Mapping[str, Any]] = []
+    candidates: list[tuple[Any, Mapping[str, Any] | None]] = []
+    for index in range(min(len(unit_evidence), MAX_UNIT_EVIDENCE_FALLBACK_ITEMS)):
+        evidence = unit_evidence[index]
+        if type(evidence) is not dict:
+            continue
+        declared_path = _bounded_unit_child(evidence, "path")
+        evidence_path = _safe_unit_diagnostic_path(declared_path, index)
+        quantity = _bounded_unit_child(evidence, "quantity")
+        if type(quantity) is not dict:
+            continue
+        provenance = _bounded_unit_child(quantity, "provenance")
+        if type(provenance) is not dict:
+            continue
+        redistribution = _bounded_unit_child(provenance, "redistribution_status")
+        review = _bounded_unit_child(provenance, "review_status")
+        if not (
+            (
+                type(redistribution) is str
+                and redistribution == "protected_suspected"
+            )
+            or (type(review) is str and review == "quarantined")
+        ):
+            continue
+        provenance_snapshot = (
+            {
+                "redistribution_status": redistribution,
+                "review_status": "TBD",
+            }
+            if type(redistribution) is str
+            and redistribution == "protected_suspected"
+            else {
+                "redistribution_status": "TBD",
+                "review_status": review,
+            }
+        )
+        finding = _finding(
+            "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED",
+            "quarantine",
+            evidence_path,
+            "Quantity provenance indicates suspected protected or quarantined content.",
+            "Quarantine the quantity and payload for human/legal review.",
+        )
+        findings.append(finding)
+        contexts.append(_unit_diagnostic_context(evidence_path, provenance_snapshot))
+        candidates.append((provenance_snapshot, None))
+    return tuple(findings), tuple(contexts), tuple(candidates)
+
+
+def _normalize_unit_inputs(
+    unit_evidence: Any,
+    unit_catalog: Any,
+    *,
+    catalog_preflight: tuple[Any, str | None, str | None] | None = None,
+    evidence_preflight: tuple[Any, str | None, str | None] | None = None,
+) -> _UnitInputNormalization:
+    """Normalize both caller unit surfaces before semantic unit validation."""
+
+    catalog_snapshot, catalog_path, catalog_reason = (
+        catalog_preflight
+        if catalog_preflight is not None
+        else _plain_json_snapshot(unit_catalog, "unit_catalog")
+    )
+    evidence_snapshot, evidence_path, evidence_reason = (
+        evidence_preflight
+        if evidence_preflight is not None
+        else _plain_json_snapshot(unit_evidence, "unit_evidence")
+    )
+    findings: list[AdapterFinding] = []
+    contexts: list[Mapping[str, Any]] = []
+    candidates: list[tuple[Any, Mapping[str, Any] | None]] = []
+
+    normalized_catalog = (
+        catalog_snapshot
+        if catalog_path is None and type(catalog_snapshot) is dict
+        else None
+    )
+    if normalized_catalog is None:
+        code = (
+            "PLUGIN_UNIT_CATALOG_MISSING"
+            if unit_catalog is None
+            else "PLUGIN_UNIT_CATALOG_MALFORMED"
+        )
+        finding = _finding(
+            code,
+            "blocking",
+            catalog_path or "unit_catalog",
+            f"Caller-loaded unit catalog evidence is missing or malformed ({catalog_reason or 'invalid_shape'}).",
+            "Provide a bounded exact-JSON object from accepted unit IDs or symbols to canonical dimensions.",
+        )
+        findings.append(finding)
+        contexts.append(_unit_diagnostic_context(finding.path, None))
+
+    normalized_evidence = (
+        evidence_snapshot
+        if evidence_path is None and type(evidence_snapshot) is list
+        else None
+    )
+    if normalized_evidence is None:
+        nonfinite_quantity = (
+            evidence_reason == "nonfinite_number"
+            and isinstance(evidence_path, str)
+            and evidence_path.endswith(".quantity.value")
+        )
+        finding = _finding(
+            (
+                "PLUGIN_QUANTITY_VALUE_NONFINITE"
+                if nonfinite_quantity
+                else "PLUGIN_UNIT_EVIDENCE_MALFORMED"
+            ),
+            "blocking",
+            evidence_path or "unit_evidence",
+            (
+                "Quantity value must be finite."
+                if nonfinite_quantity
+                else f"Unit evidence is missing or malformed ({evidence_reason or 'invalid_shape'})."
+            ),
+            (
+                "Replace NaN or infinity with a finite JSON number or reject the payload."
+                if nonfinite_quantity
+                else "Provide a bounded exact-JSON array with one canonical quantity-evidence object per dimensional value."
+            ),
+        )
+        findings.append(finding)
+        contexts.append(_unit_diagnostic_context(finding.path, None))
+        marker_findings, marker_contexts, marker_candidates = (
+            _observe_unit_quarantine(unit_evidence)
+        )
+        findings.extend(marker_findings)
+        contexts.extend(marker_contexts)
+        candidates.extend(marker_candidates)
+        candidates.append(
+            (
+                None,
+                {
+                    "classification": "TBD",
+                    "local_first": True,
+                    "telemetry_allowed": False,
+                    "export_review_required": True,
+                    "private_payload_redacted": False,
+                },
+            )
+        )
+
+    return _UnitInputNormalization(
+        evidence=normalized_evidence,
+        catalog=normalized_catalog,
+        findings=tuple(findings),
+        diagnostic_contexts=tuple(contexts),
+        boundary_candidates=tuple(candidates),
+    )
+
+
 def verify_adapter_plugin_contracts(
     adapter_declaration: Any,
     plugin_manifest: Any,
@@ -252,67 +668,91 @@ def verify_adapter_plugin_contracts(
     unresolved owner-held decisions.
     """
 
-    if isinstance(adapter_declaration, dict):
-        try:
-            adapter_result = validate_adapter_declaration(adapter_declaration)
-        except Exception as error:
-            adapter_findings = (
-                _finding(
-                    "ADAPTER_DECLARATION_MALFORMED",
-                    "blocking",
-                    "adapter_declaration",
-                    f"Adapter declaration contains malformed nested values ({type(error).__name__}).",
-                    "Provide the existing format-neutral adapter declaration with well-formed nested values.",
-                ),
-            )
-            declaration_accepted = False
-        else:
-            adapter_findings = adapter_result.findings
-            declaration_accepted = adapter_result.accepted
-    else:
-        adapter_findings = (
-            _finding(
-                "ADAPTER_DECLARATION_MALFORMED",
-                "blocking",
-                "adapter_declaration",
-                "Adapter declaration payload must be an in-memory dictionary.",
-                "Provide the existing format-neutral adapter declaration payload.",
-            ),
-        )
-        declaration_accepted = False
-
-    manifest_snapshot, manifest_finding = _plain_manifest_snapshot(plugin_manifest)
-    if manifest_finding is not None or manifest_snapshot is None:
-        assert manifest_finding is not None
-        manifest_result = PluginManifestVerificationResult(
-            "REJECTED", (manifest_finding,)
-        )
-        semantic_manifest: Mapping[str, Any] = {}
-    else:
-        manifest_result = _verify_plugin_manifest_snapshot(
-            manifest_snapshot, plugin_schema
-        )
-        semantic_manifest = manifest_snapshot
-    unit_findings, unit_contexts = _verify_unit_evidence(unit_evidence, unit_catalog)
-    plugin_context = _plugin_diagnostic_context(semantic_manifest)
-    envelope_privacy, envelope_provenance = _derive_envelope_boundaries(
+    adapter_preflight = _plain_json_snapshot(adapter_declaration, "adapter_payload")
+    catalog_preflight = _plain_json_snapshot(unit_catalog, "unit_catalog")
+    evidence_preflight = _plain_json_snapshot(unit_evidence, "unit_evidence")
+    adapter_normalized = _normalize_adapter_payload(
         adapter_declaration,
-        semantic_manifest,
-        unit_evidence,
+        preflight=adapter_preflight,
     )
-    findings = adapter_findings + manifest_result.findings + tuple(unit_findings)
-    diagnostic_contexts = (
-        tuple(
+    manifest_normalized = _normalize_manifest_input(plugin_manifest)
+    unit_normalized = _normalize_unit_inputs(
+        unit_evidence,
+        unit_catalog,
+        catalog_preflight=catalog_preflight,
+        evidence_preflight=evidence_preflight,
+    )
+
+    if adapter_normalized.snapshot is None:
+        adapter_findings = adapter_normalized.findings
+        adapter_contexts = adapter_normalized.diagnostic_contexts
+        declaration_accepted = False
+        semantic_adapter: Mapping[str, Any] = {}
+    else:
+        adapter_result = _validate_adapter_declaration_snapshot(
+            adapter_normalized.snapshot
+        )
+        adapter_findings = adapter_result.findings
+        adapter_contexts = tuple(
             _context_for_finding(
-                _adapter_diagnostic_context(adapter_declaration, finding.path),
+                _adapter_diagnostic_context(
+                    adapter_normalized.snapshot, finding.path
+                ),
                 finding,
             )
             for finding in adapter_findings
         )
-        + tuple(
-            _context_for_finding(plugin_context, finding)
+        declaration_accepted = adapter_result.accepted
+        semantic_adapter = adapter_normalized.snapshot
+
+    if manifest_normalized.snapshot is None:
+        manifest_outcome = (
+            "QUARANTINE"
+            if any(
+                finding.severity == "quarantine"
+                for finding in manifest_normalized.findings
+            )
+            else "REJECTED"
+        )
+        manifest_result = PluginManifestVerificationResult(
+            manifest_outcome,
+            manifest_normalized.findings,
+        )
+        manifest_contexts = manifest_normalized.diagnostic_contexts
+        semantic_manifest: Mapping[str, Any] = {}
+    else:
+        manifest_result = _verify_plugin_manifest_snapshot(
+            manifest_normalized.snapshot, plugin_schema
+        )
+        semantic_manifest = manifest_normalized.snapshot
+        semantic_plugin_context = _plugin_diagnostic_context(semantic_manifest)
+        manifest_contexts = tuple(
+            _context_for_finding(semantic_plugin_context, finding)
             for finding in manifest_result.findings
         )
+    semantic_unit_findings, semantic_unit_contexts = _verify_unit_evidence(
+        unit_normalized.evidence,
+        unit_normalized.catalog,
+    )
+    unit_findings = unit_normalized.findings + tuple(semantic_unit_findings)
+    unit_contexts = (
+        unit_normalized.diagnostic_contexts + tuple(semantic_unit_contexts)
+    )
+    plugin_context = _plugin_diagnostic_context(semantic_manifest)
+    envelope_privacy, envelope_provenance = _derive_envelope_boundaries(
+        semantic_adapter,
+        semantic_manifest,
+        unit_normalized.evidence or [],
+        conservative_candidates=(
+            adapter_normalized.boundary_candidates
+            + manifest_normalized.boundary_candidates
+            + unit_normalized.boundary_candidates
+        ),
+    )
+    findings = adapter_findings + manifest_result.findings + unit_findings
+    diagnostic_contexts = (
+        adapter_contexts
+        + manifest_contexts
         + tuple(unit_contexts)
     )
     if any(finding.severity == "quarantine" for finding in findings):
@@ -403,25 +843,29 @@ def _verify_manifest_schema(
                 "Provide the already-loaded canonical plugin schema mapping.",
             )
         ]
-    if not isinstance(plugin_schema, Mapping):
+    schema_snapshot, schema_path, schema_reason = _plain_json_snapshot(
+        plugin_schema,
+        "plugin_manifest_schema",
+    )
+    if schema_path is not None or type(schema_snapshot) is not dict:
         return [
             _finding(
                 "PLUGIN_MANIFEST_SCHEMA_MALFORMED",
                 "blocking",
                 "plugin_manifest_schema",
-                "Canonical plugin-manifest schema evidence is malformed.",
-                "Provide the already-loaded canonical plugin schema mapping.",
+                f"Canonical plugin-manifest schema cannot be normalized to bounded exact JSON ({schema_reason or 'invalid_shape'}).",
+                "Provide a bounded exact-JSON canonical plugin schema mapping.",
             )
         ]
     try:
         schema_bytes = json.dumps(
-            plugin_schema,
+            schema_snapshot,
             sort_keys=True,
             separators=(",", ":"),
             ensure_ascii=False,
+            allow_nan=False,
         ).encode("utf-8")
-        schema_snapshot = json.loads(schema_bytes)
-    except (TypeError, ValueError, json.JSONDecodeError):
+    except Exception:
         return [
             _finding(
                 "PLUGIN_MANIFEST_SCHEMA_MALFORMED",
@@ -642,9 +1086,11 @@ def _json_equal(left: Any, right: Any) -> bool:
 
 
 def _verify_unit_evidence(
-    unit_evidence: Any,
-    unit_catalog: Any,
+    unit_evidence: list[Any] | None,
+    unit_catalog: dict[str, Any] | None,
 ) -> tuple[list[AdapterFinding], list[Mapping[str, Any]]]:
+    """Validate only detached unit snapshots; normalization findings are upstream."""
+
     path = "unit_evidence"
     findings: list[AdapterFinding] = []
     contexts: list[Mapping[str, Any]] = []
@@ -653,16 +1099,15 @@ def _verify_unit_evidence(
         findings.append(finding)
         contexts.append(context)
 
-    catalog_dimensions = _validated_unit_catalog(unit_catalog)
-    if catalog_dimensions is None:
-        code = (
-            "PLUGIN_UNIT_CATALOG_MISSING"
-            if unit_catalog is None
-            else "PLUGIN_UNIT_CATALOG_MALFORMED"
-        )
+    catalog_dimensions = (
+        _validated_unit_catalog(unit_catalog)
+        if unit_catalog is not None
+        else None
+    )
+    if unit_catalog is not None and catalog_dimensions is None:
         add(
             _finding(
-                code,
+                "PLUGIN_UNIT_CATALOG_MALFORMED",
                 "blocking",
                 "unit_catalog",
                 "Caller-loaded unit catalog evidence is missing or malformed.",
@@ -671,17 +1116,7 @@ def _verify_unit_evidence(
             _unit_diagnostic_context("unit_catalog", None),
         )
 
-    if not isinstance(unit_evidence, list):
-        add(
-            _finding(
-                "PLUGIN_UNIT_EVIDENCE_MALFORMED",
-                "blocking",
-                path,
-                "Unit evidence must be an explicit in-memory list, including an empty list when no dimensional values are present.",
-                "Provide one path, expected_dimension, and canonical quantity mapping per dimensional value.",
-            ),
-            _unit_diagnostic_context(path, None),
-        )
+    if unit_evidence is None:
         return findings, contexts
 
     canonical_dimensions = (
@@ -706,11 +1141,7 @@ def _verify_unit_evidence(
         declared_path = evidence.get("path")
         expected_dimension = evidence.get("expected_dimension")
         quantity = evidence.get("quantity")
-        affected_path = (
-            declared_path
-            if isinstance(declared_path, str) and declared_path.strip()
-            else evidence_path
-        )
+        affected_path = _safe_unit_diagnostic_path(declared_path, index)
         provenance = quantity.get("provenance") if isinstance(quantity, Mapping) else None
         context = _unit_diagnostic_context(affected_path, provenance)
         provenance_requires_quarantine = isinstance(
@@ -897,7 +1328,7 @@ def _verify_unit_evidence(
                 _finding(
                     "PLUGIN_QUANTITY_DIMENSION_MISMATCH",
                     "blocking",
-                    str(declared_path) if isinstance(declared_path, str) else evidence_path,
+                    affected_path,
                     f"Quantity dimension {quantity.get('dimension')!r} does not match expected dimension {expected_dimension!r}.",
                     "Provide a quantity with the caller-declared canonical dimension; no conversion or inference is performed.",
                 ),
@@ -981,6 +1412,10 @@ def _derive_envelope_boundaries(
     adapter_payload: Any,
     plugin_manifest: Any,
     unit_evidence: Any,
+    *,
+    conservative_candidates: tuple[
+        tuple[Any, Mapping[str, Any] | None], ...
+    ] = (),
 ) -> tuple[Mapping[str, Any], Any]:
     """Select the most restrictive caller provenance/privacy without invention."""
 
@@ -1024,6 +1459,7 @@ def _derive_envelope_boundaries(
         )
     else:
         candidates.append((None, None))
+    candidates.extend(conservative_candidates)
 
     selected_provenance: Any = None
     selected_privacy: Any = None
@@ -1153,7 +1589,7 @@ def _adapter_diagnostic_context(
     return {
         "source": {
             "ref_type": "adapter",
-            "ref_id": adapter_id if isinstance(adapter_id, str) and adapter_id.strip() else "TBD",
+            "ref_id": _safe_adapter_reference_id(adapter_id),
         },
         "affected_object": {"ref_type": "diagnostic", "ref_id": "adapter_declaration"},
         "provenance": provenance,

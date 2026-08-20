@@ -227,3 +227,28 @@ Boundaries preserved:
   and diff checks PASS; V26 fresh review matched all fifteen hashes/line counts,
   covered the complete 5,563-line frozen set and full diff, and returned PASS
   with zero findings. Integrated review v4 and V21–V25 findings are closed.
+
+### Integrated-review Amendment 5
+
+- Every caller manifest, adapter declaration/result, unit catalog, unit
+  evidence, and plugin schema is converted into a bounded detached exact-JSON
+  snapshot before validation, traversal, lookup, diagnostics, boundary ranking,
+  hashing, or schema evaluation. Hostile accessors, subclasses, cycles, depth,
+  node/text/serialized-byte overflow, and nonfinite values fail closed.
+- Safely observable exact protected/quarantined markers retain precedence when
+  unrelated structure is malformed. Fallback marker inspection and capability
+  inspection are explicitly width/key bounded; raw hostile keys are never
+  compared, and all diagnostic paths/IDs are canonical and byte bounded.
+- Malformed manifest fallback uses plugin-specific resource limits; caller
+  plugin schema evidence is bounded and fully exception-contained before the
+  canonical fingerprint check. No input is mutated or loaded at runtime.
+- Direct/composed regressions cover adversarial keys, hostile/deep/cyclic/
+  nonfinite/oversized schemas and evidence, marker boundaries, overflowed IDs,
+  quarantine precedence, canonical envelopes, and runtime non-dispatch.
+- Evidence: complete suite `306 passed in 0.76s`; composed schema, containment,
+  and diff checks PASS; V31 matched all 20 hashes/line counts, reviewed the full
+  8,082-line frozen set and original-basis amended diff, and returned PASS with
+  zero findings. Integrated review v5 and V27–V30 findings are closed.
+- Exact PDU-037 Remaining stays closed. Runtime loader/isolation, transport,
+  capability grant, and permission persistence remain owner-held and dispatch
+  remains blocked.

@@ -17,7 +17,20 @@ from core.adapters.framework import (  # noqa: E402
     verify_adapter_plugin_contracts,
     verify_plugin_manifest,
 )
-from core.adapters.framework.plugin_verification import _schema_mismatches  # noqa: E402
+from core.adapters.framework.adapter_framework import (  # noqa: E402
+    MAX_CALLER_JSON_BYTES,
+    MAX_CALLER_JSON_NODES,
+    MAX_DIAGNOSTIC_PATH_SEGMENT_BYTES,
+)
+from core.adapters.framework.plugin_verification import (  # noqa: E402
+    MAX_MANIFEST_JSON_NODES,
+    MAX_MANIFEST_FALLBACK_IDENTIFIER_BYTES,
+    MAX_MANIFEST_SERIALIZED_BYTES,
+    MAX_MANIFEST_TEXT_BYTES,
+    MAX_UNIT_EVIDENCE_FALLBACK_ITEMS,
+    _normalize_unit_inputs,
+    _schema_mismatches,
+)
 
 
 ADAPTER_FIXTURE = ROOT / "fixtures/adapters/invented/invented_adapter_framework.json"
@@ -239,6 +252,73 @@ class _RaisingEqualityString(str):
         raise RuntimeError("caller equality must not execute")
 
 
+class _HostileCallerDict(dict):
+    def __init__(self, value):
+        super().__init__(value)
+        self.accesses = 0
+
+    def get(self, key, default=None):
+        self.accesses += 1
+        raise RuntimeError("caller accessor must not execute")
+
+    def items(self):
+        self.accesses += 1
+        raise RuntimeError("caller iteration must not execute")
+
+    def __iter__(self):
+        self.accesses += 1
+        raise RuntimeError("caller iteration must not execute")
+
+
+class _HostileCallerList(list):
+    def __init__(self, value):
+        super().__init__(value)
+        self.accesses = 0
+
+    def __iter__(self):
+        self.accesses += 1
+        raise RuntimeError("caller iteration must not execute")
+
+    def __getitem__(self, index):
+        self.accesses += 1
+        raise RuntimeError("caller accessor must not execute")
+
+
+class _CollidingHostileKey:
+    def __init__(self, target):
+        self.target = target
+        self.equality_calls = 0
+
+    def __hash__(self):
+        return hash(self.target)
+
+    def __eq__(self, other):
+        self.equality_calls += 1
+        raise RuntimeError("hostile raw-key equality must not execute")
+
+
+def _deep_caller_probe():
+    root = []
+    cursor = root
+    for _ in range(80):
+        child = []
+        cursor.append(child)
+        cursor = child
+    return root
+
+
+def _assert_canonical_fail_closed(result, expected_outcome="REJECTED"):
+    assert result.outcome == expected_outcome
+    assert result.verification_passed is False
+    assert result.runtime_dispatched is False
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
 def test_valid_pair_verifies_but_runtime_remains_undispatched():
     result = _verify()
     assert result.outcome == "BLOCKED_RUNTIME_NOT_SELECTED"
@@ -316,28 +396,16 @@ def test_weakened_lookalike_schema_is_not_authenticated(weaken):
     assert result.runtime_dispatched is False
 
 
-def test_authenticated_schema_executes_plain_snapshot_not_hostile_accessor():
-    class HostileSchema(dict):
-        def get(self, key, default=None):
-            if key == "required":
-                return []
-            return super().get(key, default)
+def test_hostile_schema_accessor_is_rejected_without_access():
+    schema = _HostileCallerDict(json.loads(json.dumps(PLUGIN_SCHEMA)))
 
-    schema = HostileSchema(json.loads(json.dumps(PLUGIN_SCHEMA)))
-    assert schema.get("required") == []
-    assert {"checksums", "professional_boundary"} <= set(
-        dict.__getitem__(schema, "required")
-    )
-    manifest = _manifest()
-    del manifest["checksums"]
-    del manifest["professional_boundary"]
-
-    result = _verify(manifest=manifest, schema=schema)
+    result = _verify(schema=schema)
 
     assert result.outcome == "REJECTED"
-    assert "PLUGIN_MANIFEST_SCHEMA_MISMATCH" in _codes(result)
+    assert "PLUGIN_MANIFEST_SCHEMA_MALFORMED" in _codes(result)
     assert result.manifest_verified is False
     assert result.runtime_dispatched is False
+    assert schema.accesses == 0
 
 
 @pytest.mark.parametrize("missing", ["unit", "dimension", "provenance"])
@@ -1621,3 +1689,932 @@ def test_quantity_quarantine_marker_precedes_missing_quantity_metadata(
     ]
     assert diagnostic["provenance"][marker_field] == marker_value
     assert diagnostic["provenance"]["source_license"] == "TBD"
+
+
+@pytest.mark.parametrize(
+    "failure_kind",
+    [
+        "hostile_mapping",
+        "hostile_list",
+        "cycle",
+        "depth",
+        "nonfinite",
+        "serialization",
+    ],
+)
+def test_composed_adapter_input_is_snapshotted_before_any_caller_traversal(
+    failure_kind,
+):
+    adapter = _adapter()
+    probe = None
+    if failure_kind == "hostile_mapping":
+        adapter = _HostileCallerDict(adapter)
+        probe = adapter
+    elif failure_kind == "hostile_list":
+        probe = _HostileCallerList(["import_model"])
+        adapter["adapter_declaration"]["capabilities"] = probe
+    elif failure_kind == "cycle":
+        probe = []
+        probe.append(probe)
+        adapter["caller_probe"] = probe
+    elif failure_kind == "depth":
+        probe = _deep_caller_probe()
+        adapter["caller_probe"] = probe
+    elif failure_kind == "nonfinite":
+        probe = float("nan")
+        adapter["caller_probe"] = probe
+    else:
+        probe = 10**5000
+        adapter["caller_probe"] = probe
+
+    result = _verify(adapter=adapter)
+
+    _assert_canonical_fail_closed(result)
+    assert result.declaration_accepted is False
+    assert (
+        "ADAPTER_CAPABILITIES_MALFORMED"
+        if failure_kind == "hostile_list"
+        else "ADAPTER_DECLARATION_MALFORMED"
+    ) in _codes(result)
+    if hasattr(probe, "accesses"):
+        assert probe.accesses == 0
+    if failure_kind == "cycle":
+        assert probe[0] is probe
+    if failure_kind == "nonfinite":
+        assert probe != probe
+
+
+@pytest.mark.parametrize(
+    "failure_kind",
+    [
+        "hostile_mapping",
+        "hostile_list",
+        "cycle",
+        "depth",
+        "nonfinite",
+        "serialization",
+    ],
+)
+def test_composed_unit_catalog_is_independently_snapshotted(failure_kind):
+    catalog = dict(UNIT_CATALOG)
+    probe = None
+    if failure_kind == "hostile_mapping":
+        catalog = _HostileCallerDict(catalog)
+        probe = catalog
+    elif failure_kind == "hostile_list":
+        probe = _HostileCallerList(["force"])
+        catalog["probe"] = probe
+    elif failure_kind == "cycle":
+        probe = []
+        probe.append(probe)
+        catalog["probe"] = probe
+    elif failure_kind == "depth":
+        probe = _deep_caller_probe()
+        catalog["probe"] = probe
+    elif failure_kind == "nonfinite":
+        probe = float("inf")
+        catalog["probe"] = probe
+    else:
+        probe = 10**5000
+        catalog["probe"] = probe
+
+    result = _verify(unit_catalog=catalog)
+
+    _assert_canonical_fail_closed(result)
+    assert "PLUGIN_UNIT_CATALOG_MALFORMED" in _codes(result)
+    if hasattr(probe, "accesses"):
+        assert probe.accesses == 0
+    if failure_kind == "cycle":
+        assert probe[0] is probe
+    if failure_kind == "nonfinite":
+        assert probe == float("inf")
+
+
+@pytest.mark.parametrize(
+    "failure_kind",
+    [
+        "hostile_list",
+        "hostile_mapping",
+        "cycle",
+        "depth",
+        "nonfinite",
+        "serialization",
+    ],
+)
+def test_composed_unit_evidence_is_independently_snapshotted(failure_kind):
+    evidence = _quantity_evidence()
+    probe = None
+    if failure_kind == "hostile_list":
+        evidence = _HostileCallerList(evidence)
+        probe = evidence
+    elif failure_kind == "hostile_mapping":
+        probe = _HostileCallerDict({"untrusted": True})
+        evidence[0]["caller_probe"] = probe
+    elif failure_kind == "cycle":
+        probe = []
+        probe.append(probe)
+        evidence[0]["caller_probe"] = probe
+    elif failure_kind == "depth":
+        probe = _deep_caller_probe()
+        evidence[0]["caller_probe"] = probe
+    elif failure_kind == "nonfinite":
+        probe = float("-inf")
+        evidence[0]["caller_probe"] = probe
+    else:
+        probe = 10**5000
+        evidence[0]["caller_probe"] = probe
+
+    result = _verify(unit_evidence=evidence)
+
+    _assert_canonical_fail_closed(result)
+    assert "PLUGIN_UNIT_EVIDENCE_MALFORMED" in _codes(result)
+    if hasattr(probe, "accesses"):
+        assert probe.accesses == 0
+    if failure_kind == "cycle":
+        assert probe[0] is probe
+    if failure_kind == "nonfinite":
+        assert probe == float("-inf")
+
+
+@pytest.mark.parametrize(
+    "failure_kind", ["hostile", "cycle", "depth", "nonfinite"]
+)
+def test_composed_safe_adapter_quarantine_marker_survives_malformed_sibling(
+    failure_kind,
+):
+    adapter = _adapter()
+    provenance = adapter["operation_result"]["provenance"]
+    provenance["review_status"] = "quarantined"
+    if failure_kind == "hostile":
+        probe = _HostileCallerDict({"untrusted": True})
+    elif failure_kind == "cycle":
+        probe = []
+        probe.append(probe)
+    elif failure_kind == "depth":
+        probe = _deep_caller_probe()
+    else:
+        probe = float("nan")
+    adapter["caller_probe"] = probe
+
+    result = _verify(adapter=adapter)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    diagnostics = _diagnostics_by_code(result)
+    assert "ADAPTER_DECLARATION_MALFORMED" in diagnostics
+    assert "ADAPTER_PROTECTED_CONTENT_SUSPECTED" in diagnostics
+    assert diagnostics["ADAPTER_PROTECTED_CONTENT_SUSPECTED"]["provenance"][
+        "review_status"
+    ] == "quarantined"
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    if hasattr(probe, "accesses"):
+        assert probe.accesses == 0
+
+
+@pytest.mark.parametrize(
+    "failure_kind", ["hostile", "cycle", "depth", "nonfinite"]
+)
+def test_composed_safe_unit_quarantine_marker_survives_malformed_unit_inputs(
+    failure_kind,
+):
+    evidence = _quantity_evidence()
+    provenance = evidence[0]["quantity"]["provenance"]
+    provenance["redistribution_status"] = "protected_suspected"
+    if failure_kind == "hostile":
+        evidence_probe = _HostileCallerDict({"untrusted": True})
+    elif failure_kind == "cycle":
+        evidence_probe = []
+        evidence_probe.append(evidence_probe)
+    elif failure_kind == "depth":
+        evidence_probe = _deep_caller_probe()
+    else:
+        evidence_probe = float("inf")
+    evidence.append(evidence_probe)
+    hostile_catalog = _HostileCallerDict(UNIT_CATALOG)
+
+    result = _verify(unit_evidence=evidence, unit_catalog=hostile_catalog)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    diagnostics = _diagnostics_by_code(result)
+    assert "PLUGIN_UNIT_EVIDENCE_MALFORMED" in diagnostics
+    assert "PLUGIN_UNIT_CATALOG_MALFORMED" in diagnostics
+    assert "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED" in diagnostics
+    assert diagnostics["PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED"][
+        "provenance"
+    ]["redistribution_status"] == "protected_suspected"
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    if hasattr(evidence_probe, "accesses"):
+        assert evidence_probe.accesses == 0
+    assert hostile_catalog.accesses == 0
+
+
+def _manifest_with_marker_and_unrelated_failure(marker_kind, failure_kind):
+    manifest = _manifest()
+    if marker_kind == "redistribution":
+        manifest["provenance"]["redistribution_status"] = "protected_suspected"
+        marker_code = "PLUGIN_PROTECTED_CONTENT_SUSPECTED"
+    elif marker_kind == "review":
+        manifest["provenance"]["review_status"] = "quarantined"
+        marker_code = "PLUGIN_PROTECTED_CONTENT_SUSPECTED"
+    else:
+        manifest["metadata"]["status"] = "quarantined"
+        marker_code = "PLUGIN_MANIFEST_QUARANTINED"
+
+    if failure_kind == "cycle":
+        probe = []
+        probe.append(probe)
+    elif failure_kind == "nonfinite":
+        probe = float("nan")
+    elif failure_kind == "depth":
+        probe = []
+        cursor = probe
+        for _ in range(600):
+            child = []
+            cursor.append(child)
+            cursor = child
+    else:
+        probe = _HostileCallerDict({"untrusted": True})
+    manifest["unrelated_raw_probe"] = probe
+    return manifest, probe, marker_code
+
+
+@pytest.mark.parametrize(
+    "marker_kind", ["redistribution", "review", "metadata"]
+)
+@pytest.mark.parametrize(
+    "failure_kind", ["cycle", "nonfinite", "depth", "hostile"]
+)
+def test_manifest_safe_quarantine_markers_survive_unrelated_raw_failure_directly(
+    marker_kind,
+    failure_kind,
+):
+    manifest, probe, marker_code = _manifest_with_marker_and_unrelated_failure(
+        marker_kind, failure_kind
+    )
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.verified is False
+    assert result.quarantined is True
+    assert {"PLUGIN_MANIFEST_MALFORMED", marker_code} <= _codes(result)
+    if hasattr(probe, "accesses"):
+        assert probe.accesses == 0
+    if failure_kind == "cycle":
+        assert probe[0] is probe
+    if failure_kind == "nonfinite":
+        assert probe != probe
+
+
+@pytest.mark.parametrize(
+    "marker_kind", ["redistribution", "review", "metadata"]
+)
+@pytest.mark.parametrize(
+    "failure_kind", ["cycle", "nonfinite", "depth", "hostile"]
+)
+def test_manifest_safe_quarantine_markers_survive_unrelated_raw_failure_composed(
+    marker_kind,
+    failure_kind,
+):
+    manifest, probe, marker_code = _manifest_with_marker_and_unrelated_failure(
+        marker_kind, failure_kind
+    )
+
+    result = _verify(manifest=manifest)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    assert result.manifest_verified is False
+    assert {"PLUGIN_MANIFEST_MALFORMED", marker_code} <= _codes(result)
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    marker_diagnostic = _diagnostics_by_code(result)[marker_code]
+    assert marker_diagnostic["provenance"] == manifest["provenance"]
+    if hasattr(probe, "accesses"):
+        assert probe.accesses == 0
+
+
+def _manifest_bound_overflow(bound_kind):
+    manifest = _manifest()
+    if bound_kind == "nodes":
+        probe = [None] * (MAX_MANIFEST_JSON_NODES + 1)
+    elif bound_kind == "text":
+        probe = "x" * (MAX_MANIFEST_TEXT_BYTES + 1)
+    else:
+        manifest["serialized_probe"] = ""
+        baseline = len(
+            json.dumps(
+                manifest,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            ).encode("utf-8")
+        )
+        probe = "x" * (MAX_MANIFEST_SERIALIZED_BYTES - baseline + 1)
+    manifest["bounded_raw_probe" if bound_kind != "serialized" else "serialized_probe"] = probe
+    return manifest, probe
+
+
+@pytest.mark.parametrize("bound_kind", ["nodes", "text", "serialized"])
+def test_manifest_deterministic_resource_bounds_fail_closed_directly(bound_kind):
+    manifest, probe = _manifest_bound_overflow(bound_kind)
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "REJECTED"
+    assert result.verified is False
+    assert [finding.code for finding in result.findings] == [
+        "PLUGIN_MANIFEST_MALFORMED"
+    ]
+    assert result.findings[0].path == (
+        "plugin_manifest"
+        if bound_kind == "serialized"
+        else "plugin_manifest.bounded_raw_probe"
+    )
+    assert manifest[
+        "bounded_raw_probe" if bound_kind != "serialized" else "serialized_probe"
+    ] is probe
+
+
+@pytest.mark.parametrize("bound_kind", ["nodes", "text", "serialized"])
+def test_manifest_deterministic_resource_bounds_fail_closed_composed(bound_kind):
+    manifest, probe = _manifest_bound_overflow(bound_kind)
+
+    result = _verify(manifest=manifest)
+
+    _assert_canonical_fail_closed(result)
+    assert result.manifest_verified is False
+    assert "PLUGIN_MANIFEST_MALFORMED" in _codes(result)
+    assert manifest[
+        "bounded_raw_probe" if bound_kind != "serialized" else "serialized_probe"
+    ] is probe
+
+
+def _large_unit_evidence_with_late_marker(marker_index, marker_field, marker_value):
+    template = _quantity_evidence()[0]
+    evidence = [
+        json.loads(json.dumps(template)) for _ in range(marker_index + 1)
+    ]
+    for index, item in enumerate(evidence):
+        item["path"] = f"plugin_output.force_{index}"
+    evidence[marker_index]["quantity"]["provenance"][marker_field] = marker_value
+    hostile = _HostileCallerDict({"untrusted": True})
+    evidence[0] = hostile
+    return evidence, hostile
+
+
+@pytest.mark.parametrize("marker_index", [1024, 1500])
+@pytest.mark.parametrize(
+    ("marker_field", "marker_value"),
+    [
+        ("redistribution_status", "protected_suspected"),
+        ("review_status", "quarantined"),
+    ],
+)
+def test_complete_bounded_unit_marker_collection_includes_index_1024_and_later(
+    marker_index,
+    marker_field,
+    marker_value,
+):
+    evidence, hostile = _large_unit_evidence_with_late_marker(
+        marker_index, marker_field, marker_value
+    )
+
+    result = _verify(unit_evidence=evidence)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    diagnostics = _diagnostics_by_code(result)
+    assert "PLUGIN_UNIT_EVIDENCE_MALFORMED" in diagnostics
+    marker = diagnostics["PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED"]
+    assert marker["affected_object"]["ref_id"] == (
+        f"plugin_output.force_{marker_index}"
+    )
+    assert marker["provenance"][marker_field] == marker_value
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    assert result.verification_passed is False
+    assert result.runtime_dispatched is False
+    assert hostile.accesses == 0
+
+
+@pytest.mark.parametrize("colliding_target", ["metadata", "provenance"])
+def test_manifest_marker_fallback_skips_colliding_hostile_key_directly(
+    colliding_target,
+):
+    manifest = _manifest()
+    del manifest[colliding_target]
+    hostile_key = _CollidingHostileKey(colliding_target)
+    manifest[hostile_key] = {"untrusted": True}
+    if colliding_target == "metadata":
+        manifest["provenance"]["redistribution_status"] = "protected_suspected"
+        marker_code = "PLUGIN_PROTECTED_CONTENT_SUSPECTED"
+    else:
+        manifest["metadata"] = {
+            "plugin_id": "ops-plugin-collision-test",
+            "status": "quarantined",
+        }
+        marker_code = "PLUGIN_MANIFEST_QUARANTINED"
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.verified is False
+    assert {"PLUGIN_MANIFEST_MALFORMED", marker_code} <= _codes(result)
+    assert hostile_key.equality_calls == 0
+
+
+@pytest.mark.parametrize("colliding_target", ["metadata", "provenance"])
+def test_manifest_marker_fallback_skips_colliding_hostile_key_composed(
+    colliding_target,
+):
+    manifest = _manifest()
+    del manifest[colliding_target]
+    hostile_key = _CollidingHostileKey(colliding_target)
+    manifest[hostile_key] = {"untrusted": True}
+    if colliding_target == "metadata":
+        manifest["provenance"]["review_status"] = "quarantined"
+        marker_code = "PLUGIN_PROTECTED_CONTENT_SUSPECTED"
+    else:
+        manifest["metadata"] = {
+            "plugin_id": "ops-plugin-collision-test",
+            "status": "quarantined",
+        }
+        marker_code = "PLUGIN_MANIFEST_QUARANTINED"
+
+    result = _verify(manifest=manifest)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    assert result.manifest_verified is False
+    assert {"PLUGIN_MANIFEST_MALFORMED", marker_code} <= _codes(result)
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    assert hostile_key.equality_calls == 0
+
+
+def test_composed_adapter_marker_fallback_skips_colliding_hostile_key():
+    adapter = _adapter()
+    del adapter["adapter_declaration"]
+    hostile_key = _CollidingHostileKey("adapter_declaration")
+    adapter[hostile_key] = {"untrusted": True}
+    adapter["operation_result"]["privacy"]["classification"] = (
+        "protected_suspected"
+    )
+
+    result = _verify(adapter=adapter)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    assert "ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED" in _codes(result)
+    assert result.declaration_accepted is False
+    assert hostile_key.equality_calls == 0
+
+
+def test_composed_unit_marker_fallback_skips_colliding_hostile_key():
+    evidence = _quantity_evidence()
+    entry = evidence[0]
+    del entry["path"]
+    hostile_key = _CollidingHostileKey("path")
+    entry[hostile_key] = "untrusted"
+    entry["quantity"]["provenance"]["review_status"] = "quarantined"
+
+    result = _verify(unit_evidence=evidence)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    assert "PLUGIN_UNIT_EVIDENCE_MALFORMED" in _codes(result)
+    assert "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED" in _codes(result)
+    assert hostile_key.equality_calls == 0
+
+
+@pytest.mark.parametrize(
+    ("marker_index", "expected_outcome"),
+    [
+        (MAX_UNIT_EVIDENCE_FALLBACK_ITEMS - 1, "QUARANTINE"),
+        (MAX_UNIT_EVIDENCE_FALLBACK_ITEMS, "REJECTED"),
+    ],
+)
+def test_unit_fallback_budget_has_explicit_inclusive_marker_boundary(
+    marker_index,
+    expected_outcome,
+):
+    evidence, hostile = _large_unit_evidence_with_late_marker(
+        marker_index,
+        "redistribution_status",
+        "protected_suspected",
+    )
+    if len(evidence) == MAX_UNIT_EVIDENCE_FALLBACK_ITEMS:
+        evidence.append({"unrelated": True})
+    assert len(evidence) > MAX_UNIT_EVIDENCE_FALLBACK_ITEMS
+
+    result = _verify(unit_evidence=evidence)
+
+    _assert_canonical_fail_closed(result, expected_outcome)
+    assert "PLUGIN_UNIT_EVIDENCE_MALFORMED" in _codes(result)
+    if expected_outcome == "QUARANTINE":
+        assert "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED" in _codes(result)
+        assert result.result_envelope["privacy"]["classification"] == (
+            "protected_suspected"
+        )
+    else:
+        assert "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED" not in _codes(result)
+    assert hostile.accesses == 0
+
+
+@pytest.mark.parametrize(
+    ("marker_field", "marker_value"),
+    [
+        ("redistribution_status", "protected_suspected"),
+        ("review_status", "quarantined"),
+    ],
+)
+def test_over_limit_manifest_provenance_retains_only_bounded_marker_directly(
+    marker_field,
+    marker_value,
+):
+    manifest = _manifest()
+    manifest["provenance"][marker_field] = marker_value
+    oversized = "x" * (MAX_MANIFEST_TEXT_BYTES + 1)
+    manifest["provenance"]["oversized_raw_evidence"] = oversized
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.verified is False
+    assert "PLUGIN_PROTECTED_CONTENT_SUSPECTED" in _codes(result)
+    assert manifest["provenance"]["oversized_raw_evidence"] is oversized
+
+
+@pytest.mark.parametrize(
+    ("marker_field", "marker_value"),
+    [
+        ("redistribution_status", "protected_suspected"),
+        ("review_status", "quarantined"),
+    ],
+)
+def test_over_limit_manifest_provenance_is_not_copied_into_composed_diagnostics(
+    marker_field,
+    marker_value,
+):
+    manifest = _manifest()
+    manifest["provenance"][marker_field] = marker_value
+    oversized = "x" * (MAX_MANIFEST_TEXT_BYTES + 1)
+    manifest["provenance"]["oversized_raw_evidence"] = oversized
+
+    result = _verify(manifest=manifest)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    marker = _diagnostics_by_code(result)["PLUGIN_PROTECTED_CONTENT_SUSPECTED"]
+    assert marker["provenance"][marker_field] == marker_value
+    assert "oversized_raw_evidence" not in marker["provenance"]
+    assert oversized not in marker["provenance"].values()
+    assert "oversized_raw_evidence" not in result.result_envelope["provenance"]
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+
+
+def _manifest_with_unsafe_fallback_plugin_id(identifier_kind):
+    manifest = _manifest()
+    manifest["metadata"]["status"] = "quarantined"
+    if identifier_kind == "over_limit":
+        plugin_id = "ops-plugin-" + (
+            "a" * (MAX_MANIFEST_TEXT_BYTES + 1)
+        )
+    elif identifier_kind == "fallback_limit":
+        plugin_id = "ops-plugin-" + (
+            "a" * (MAX_MANIFEST_FALLBACK_IDENTIFIER_BYTES + 1)
+        )
+        cycle = []
+        cycle.append(cycle)
+        manifest["unrelated_raw_probe"] = cycle
+    elif identifier_kind == "hostile":
+        plugin_id = _RaisingEqualityString("ops-plugin-hostile-id")
+    else:
+        plugin_id = "NOT CANONICAL"
+        cycle = []
+        cycle.append(cycle)
+        manifest["unrelated_raw_probe"] = cycle
+    manifest["metadata"]["plugin_id"] = plugin_id
+    return manifest, plugin_id
+
+
+@pytest.mark.parametrize(
+    "identifier_kind",
+    ["over_limit", "fallback_limit", "hostile", "noncanonical"],
+)
+def test_unsafe_manifest_fallback_plugin_id_never_escapes_directly(identifier_kind):
+    manifest, plugin_id = _manifest_with_unsafe_fallback_plugin_id(identifier_kind)
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.verified is False
+    assert "PLUGIN_MANIFEST_QUARANTINED" in _codes(result)
+    assert manifest["metadata"]["plugin_id"] is plugin_id
+
+
+@pytest.mark.parametrize(
+    "identifier_kind",
+    ["over_limit", "fallback_limit", "hostile", "noncanonical"],
+)
+def test_unsafe_manifest_fallback_plugin_id_is_tbd_in_composed_diagnostic(
+    identifier_kind,
+):
+    manifest, plugin_id = _manifest_with_unsafe_fallback_plugin_id(identifier_kind)
+
+    result = _verify(manifest=manifest)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    marker = _diagnostics_by_code(result)["PLUGIN_MANIFEST_QUARANTINED"]
+    assert marker["source"] == {"ref_type": "payload", "ref_id": "TBD"}
+    assert marker["source"]["ref_id"] != plugin_id
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    assert result.runtime_dispatched is False
+
+
+def test_oversized_adapter_capabilities_are_bounded_in_composed_quarantine():
+    adapter = _adapter()
+    capabilities = ["import_model"] * (MAX_CALLER_JSON_NODES + 1)
+    adapter["adapter_declaration"]["capabilities"] = capabilities
+    adapter["operation_result"]["provenance"]["review_status"] = "quarantined"
+
+    result = _verify(adapter=adapter)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    diagnostics = _diagnostics_by_code(result)
+    assert "ADAPTER_CAPABILITIES_MALFORMED" in diagnostics
+    assert "ADAPTER_PROTECTED_CONTENT_SUSPECTED" in diagnostics
+    assert diagnostics["ADAPTER_PROTECTED_CONTENT_SUSPECTED"]["provenance"][
+        "review_status"
+    ] == "quarantined"
+    assert adapter["adapter_declaration"]["capabilities"] is capabilities
+
+
+@pytest.mark.parametrize(
+    "adapter_id",
+    [
+        "ops.adapter." + ("a" * (MAX_CALLER_JSON_BYTES + 1)),
+        "ops.adapter.NOT-CANONICAL",
+    ],
+)
+def test_unsafe_adapter_id_never_enters_composed_quarantine_diagnostic(adapter_id):
+    adapter = _adapter()
+    adapter["adapter_declaration"]["adapter_id"] = adapter_id
+    adapter["adapter_declaration"]["provenance"][
+        "redistribution_status"
+    ] = "protected_suspected"
+
+    result = _verify(adapter=adapter)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    marker = _diagnostics_by_code(result)["ADAPTER_PROTECTED_CONTENT_SUSPECTED"]
+    assert marker["source"] == {"ref_type": "adapter", "ref_id": "TBD"}
+    assert marker["source"]["ref_id"] != adapter_id
+    assert adapter_id not in json.dumps(result.result_envelope, sort_keys=True)
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+
+
+@pytest.mark.parametrize(
+    "declared_path",
+    [
+        "plugin_output." + ("x" * (MAX_CALLER_JSON_BYTES + 1)),
+        "plugin output/value",
+    ],
+)
+def test_unsafe_unit_path_is_bounded_directly_during_quarantine(declared_path):
+    evidence = _quantity_evidence()
+    evidence[0]["path"] = declared_path
+    evidence[0]["quantity"]["provenance"][
+        "review_status"
+    ] = "quarantined"
+    cycle = []
+    cycle.append(cycle)
+    evidence[0]["caller_probe"] = cycle
+
+    normalized = _normalize_unit_inputs(evidence, UNIT_CATALOG)
+
+    assert "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED" in {
+        finding.code for finding in normalized.findings
+    }
+    marker_index = next(
+        index
+        for index, finding in enumerate(normalized.findings)
+        if finding.code == "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED"
+    )
+    context = normalized.diagnostic_contexts[marker_index]
+    assert context["source"]["ref_id"] == "unit_evidence[0]"
+    assert context["affected_object"]["ref_id"] == "unit_evidence[0]"
+    assert context["source"]["ref_id"] != declared_path
+
+
+@pytest.mark.parametrize(
+    "declared_path",
+    [
+        "plugin_output." + ("x" * (MAX_CALLER_JSON_BYTES + 1)),
+        "plugin output/value",
+    ],
+)
+def test_unsafe_unit_path_never_enters_composed_quarantine_diagnostic(
+    declared_path,
+):
+    evidence = _quantity_evidence()
+    evidence[0]["path"] = declared_path
+    evidence[0]["quantity"]["provenance"][
+        "redistribution_status"
+    ] = "protected_suspected"
+
+    result = _verify(unit_evidence=evidence)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    marker = _diagnostics_by_code(result)[
+        "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED"
+    ]
+    assert marker["source"]["ref_id"] == "unit_evidence[0]"
+    assert marker["affected_object"]["ref_id"] == "unit_evidence[0]"
+    assert marker["source"]["ref_id"] != declared_path
+    assert declared_path not in json.dumps(result.result_envelope, sort_keys=True)
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+
+
+def _adversarial_preflight_key(key_kind):
+    if key_kind == "over_limit":
+        return "x" * (MAX_DIAGNOSTIC_PATH_SEGMENT_BYTES + 1)
+    return "raw key/../not-canonical"
+
+
+@pytest.mark.parametrize("key_kind", ["over_limit", "noncanonical"])
+@pytest.mark.parametrize("surface", ["manifest", "catalog", "evidence"])
+def test_adversarial_preflight_keys_are_sanitized_directly(surface, key_kind):
+    raw_key = _adversarial_preflight_key(key_kind)
+    if surface == "manifest":
+        manifest = _manifest()
+        manifest[raw_key] = float("nan")
+        manifest["provenance"]["review_status"] = "quarantined"
+
+        result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+        assert result.outcome == "QUARANTINE"
+        malformed = next(
+            finding
+            for finding in result.findings
+            if finding.code == "PLUGIN_MANIFEST_MALFORMED"
+        )
+        assert "PLUGIN_PROTECTED_CONTENT_SUSPECTED" in _codes(result)
+    else:
+        evidence = _quantity_evidence()
+        catalog = dict(UNIT_CATALOG)
+        expected_code = "PLUGIN_UNIT_CATALOG_MALFORMED"
+        if surface == "catalog":
+            catalog[raw_key] = float("nan")
+        else:
+            evidence[0][raw_key] = float("nan")
+            evidence[0]["quantity"]["provenance"][
+                "redistribution_status"
+            ] = "protected_suspected"
+            expected_code = "PLUGIN_UNIT_EVIDENCE_MALFORMED"
+
+        normalized = _normalize_unit_inputs(evidence, catalog)
+
+        malformed = next(
+            finding
+            for finding in normalized.findings
+            if finding.code == expected_code
+        )
+        assert raw_key not in repr(normalized.diagnostic_contexts)
+        if surface == "evidence":
+            assert "PLUGIN_QUANTITY_PROTECTED_CONTENT_SUSPECTED" in {
+                finding.code for finding in normalized.findings
+            }
+    assert raw_key not in malformed.path
+    assert "key_" in malformed.path
+    assert len(malformed.path.encode("utf-8")) < 512
+
+
+@pytest.mark.parametrize("key_kind", ["over_limit", "noncanonical"])
+@pytest.mark.parametrize(
+    ("surface", "malformed_code"),
+    [
+        ("adapter", "ADAPTER_DECLARATION_MALFORMED"),
+        ("manifest", "PLUGIN_MANIFEST_MALFORMED"),
+        ("catalog", "PLUGIN_UNIT_CATALOG_MALFORMED"),
+        ("evidence", "PLUGIN_UNIT_EVIDENCE_MALFORMED"),
+    ],
+)
+def test_adversarial_preflight_keys_never_enter_composed_diagnostics(
+    surface,
+    malformed_code,
+    key_kind,
+):
+    raw_key = _adversarial_preflight_key(key_kind)
+    adapter = _adapter()
+    manifest = _manifest()
+    evidence = _quantity_evidence()
+    catalog = dict(UNIT_CATALOG)
+    if surface == "adapter":
+        adapter[raw_key] = float("nan")
+        adapter["operation_result"]["provenance"][
+            "review_status"
+        ] = "quarantined"
+    elif surface == "manifest":
+        manifest[raw_key] = float("nan")
+        manifest["provenance"]["redistribution_status"] = (
+            "protected_suspected"
+        )
+    elif surface == "catalog":
+        catalog[raw_key] = float("nan")
+        evidence[0]["quantity"]["provenance"]["review_status"] = (
+            "quarantined"
+        )
+    else:
+        evidence[0][raw_key] = float("nan")
+        evidence[0]["quantity"]["provenance"][
+            "redistribution_status"
+        ] = "protected_suspected"
+
+    result = _verify(
+        adapter=adapter,
+        manifest=manifest,
+        unit_evidence=evidence,
+        unit_catalog=catalog,
+    )
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    malformed = _diagnostics_by_code(result)[malformed_code]
+    assert raw_key not in json.dumps(result.result_envelope, sort_keys=True)
+    assert "key_" in malformed["affected_object"]["ref_id"]
+    assert len(malformed["affected_object"]["ref_id"].encode("utf-8")) < 512
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+
+
+def _adversarial_plugin_schema(failure_kind):
+    schema = json.loads(json.dumps(PLUGIN_SCHEMA))
+    if failure_kind == "hostile":
+        return _HostileCallerDict(schema)
+    if failure_kind == "depth":
+        probe = _deep_caller_probe()
+    elif failure_kind == "cycle":
+        probe = {}
+        probe["self"] = probe
+    else:
+        probe = float("nan")
+    schema["caller_probe"] = probe
+    return schema
+
+
+@pytest.mark.parametrize(
+    "failure_kind", ["hostile", "depth", "cycle", "nonfinite"]
+)
+def test_adversarial_plugin_schema_fails_closed_directly_without_masking_quarantine(
+    failure_kind,
+):
+    manifest = _manifest()
+    manifest["provenance"]["review_status"] = "quarantined"
+    schema = _adversarial_plugin_schema(failure_kind)
+
+    result = verify_plugin_manifest(manifest, schema)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.verified is False
+    assert {
+        "PLUGIN_MANIFEST_SCHEMA_MALFORMED",
+        "PLUGIN_PROTECTED_CONTENT_SUSPECTED",
+    } <= _codes(result)
+    if hasattr(schema, "accesses"):
+        assert schema.accesses == 0
+
+
+@pytest.mark.parametrize(
+    "failure_kind", ["hostile", "depth", "cycle", "nonfinite"]
+)
+def test_adversarial_plugin_schema_fails_closed_composed_without_masking_quarantine(
+    failure_kind,
+):
+    manifest = _manifest()
+    manifest["provenance"]["redistribution_status"] = "protected_suspected"
+    schema = _adversarial_plugin_schema(failure_kind)
+
+    result = _verify(manifest=manifest, schema=schema)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    assert {
+        "PLUGIN_MANIFEST_SCHEMA_MALFORMED",
+        "PLUGIN_PROTECTED_CONTENT_SUSPECTED",
+    } <= _codes(result)
+    assert result.manifest_verified is False
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    if hasattr(schema, "accesses"):
+        assert schema.accesses == 0
