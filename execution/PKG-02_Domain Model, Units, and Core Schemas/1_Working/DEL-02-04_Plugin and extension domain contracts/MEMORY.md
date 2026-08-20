@@ -252,3 +252,19 @@ Boundaries preserved:
 - Exact PDU-037 Remaining stays closed. Runtime loader/isolation, transport,
   capability grant, and permission persistence remain owner-held and dispatch
   remains blocked.
+
+### Integrated-review Amendment 6
+
+- Post-snapshot plugin-schema mismatch construction canonicalizes and byte-
+  bounds every caller-derived property-name path segment and sanitizes/bounds
+  all caller-derived instance text before findings or envelopes are built.
+- Normalized and malformed-fallback manifest plugin identifiers share the exact
+  canonical 256-byte safe-reference helper. Finite adversarial keys, near-1-MiB
+  keys, and schema-valid huge plugin IDs cannot enter finding paths, messages,
+  remediation text, source/affected references, or composed envelopes.
+- Direct and composed regressions preserve protected/quarantine precedence,
+  canonical result schemas, and `runtime_dispatched=false`.
+- Evidence: full N1 suite `318 passed in 0.81s`; V33 independently reran `318
+  passed in 0.78s`, matched all 22 hashes/line counts, reviewed all 8,470 frozen
+  lines and the full original-basis amended diff, and returned PASS with zero
+  findings. Integrated review v6 and V32 are closed.

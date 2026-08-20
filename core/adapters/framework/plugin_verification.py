@@ -17,6 +17,7 @@ from typing import Any
 
 from .adapter_framework import (
     AdapterFinding,
+    MAX_DIAGNOSTIC_PATH_BYTES,
     _bounded_diagnostic_child_path,
     _normalize_adapter_payload,
     _plain_json_snapshot,
@@ -70,6 +71,7 @@ MAX_MANIFEST_FALLBACK_IDENTIFIER_BYTES = 256
 MAX_UNIT_EVIDENCE_FALLBACK_ITEMS = 2048
 MAX_UNIT_EVIDENCE_FALLBACK_KEYS_PER_OBJECT = 64
 MAX_UNIT_DIAGNOSTIC_PATH_BYTES = 256
+MAX_SCHEMA_MISMATCH_INSTANCE_BYTES = 256
 UNIT_DIAGNOSTIC_PATH_PATTERN = re.compile(
     r"^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+|\[[0-9]+\])*$"
 )
@@ -829,6 +831,38 @@ class _SchemaDefinitionError(ValueError):
     """Raised when the already-loaded schema is not internally usable."""
 
 
+def _bounded_schema_index_path(path: str, index: int) -> str:
+    """Append a bounded canonical array index to a schema diagnostic path."""
+
+    candidate = f"{path}[{index}]"
+    if len(candidate.encode("utf-8")) <= MAX_DIAGNOSTIC_PATH_BYTES:
+        return candidate
+    root = re.split(r"[.\[]", path, maxsplit=1)[0]
+    return f"{root}.path_limit.item_{index}"
+
+
+def _bounded_schema_instance_text(value: Any) -> str:
+    """Render detached caller data as bounded, escaped canonical JSON text."""
+
+    try:
+        serialized = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+            allow_nan=False,
+        ).encode("utf-8")
+    except Exception:
+        return "<unavailable exact-JSON value>"
+    if len(serialized) <= MAX_SCHEMA_MISMATCH_INSTANCE_BYTES:
+        return serialized.decode("ascii")
+    digest = hashlib.sha256(serialized).hexdigest()
+    return (
+        f"<{_json_type_name(value)} value: {len(serialized)} bytes, "
+        f"sha256={digest}>"
+    )
+
+
 def _verify_manifest_schema(
     manifest: Mapping[str, Any],
     plugin_schema: Any,
@@ -970,7 +1004,14 @@ def _schema_mismatches(
         if not isinstance(choices, list):
             raise _SchemaDefinitionError("Schema enum must be an array.")
         if not any(_json_equal(instance, choice) for choice in choices):
-            mismatches.append((path, f"Value {instance!r} is not in the allowed enum."))
+            mismatches.append(
+                (
+                    path,
+                    "Value "
+                    f"{_bounded_schema_instance_text(instance)} "
+                    "is not in the allowed enum.",
+                )
+            )
 
     if isinstance(instance, str):
         minimum = schema.get("minLength")
@@ -1000,14 +1041,24 @@ def _schema_mismatches(
         if schema.get("uniqueItems") is True:
             for index, item in enumerate(instance):
                 if any(_json_equal(item, prior) for prior in instance[:index]):
-                    mismatches.append((f"{path}[{index}]", "Array items must be unique."))
+                    mismatches.append(
+                        (
+                            _bounded_schema_index_path(path, index),
+                            "Array items must be unique.",
+                        )
+                    )
         item_schema = schema.get("items")
         if item_schema is not None:
             if not isinstance(item_schema, Mapping):
                 raise _SchemaDefinitionError("Schema items must be an object.")
             for index, item in enumerate(instance):
                 mismatches.extend(
-                    _schema_mismatches(item, item_schema, root_schema, f"{path}[{index}]")
+                    _schema_mismatches(
+                        item,
+                        item_schema,
+                        root_schema,
+                        _bounded_schema_index_path(path, index),
+                    )
                 )
 
     if isinstance(instance, Mapping):
@@ -1016,13 +1067,19 @@ def _schema_mismatches(
             not isinstance(item, str) for item in required
         ):
             raise _SchemaDefinitionError("Schema required must be an array of strings.")
-        for key in required:
+        for index, key in enumerate(required):
             if key not in instance:
-                mismatches.append((f"{path}.{key}", "Required property is missing."))
+                mismatches.append(
+                    (
+                        _bounded_diagnostic_child_path(path, key, index),
+                        "Required property is missing.",
+                    )
+                )
         properties = schema.get("properties", {})
         if not isinstance(properties, Mapping):
             raise _SchemaDefinitionError("Schema properties must be an object.")
-        for key, value in instance.items():
+        for index, (key, value) in enumerate(instance.items()):
+            child_path = _bounded_diagnostic_child_path(path, key, index)
             if key in properties:
                 property_schema = properties[key]
                 if not isinstance(property_schema, Mapping):
@@ -1034,11 +1091,13 @@ def _schema_mismatches(
                         value,
                         property_schema,
                         root_schema,
-                        f"{path}.{key}",
+                        child_path,
                     )
                 )
             elif schema.get("additionalProperties") is False:
-                mismatches.append((f"{path}.{key}", "Additional property is not allowed."))
+                mismatches.append(
+                    (child_path, "Additional property is not allowed.")
+                )
     return mismatches
 
 
@@ -1600,11 +1659,10 @@ def _plugin_diagnostic_context(plugin_manifest: Any) -> Mapping[str, Any]:
     manifest = plugin_manifest if isinstance(plugin_manifest, Mapping) else {}
     metadata = manifest.get("metadata")
     metadata = metadata if isinstance(metadata, Mapping) else {}
-    plugin_id = metadata.get("plugin_id")
     return {
         "source": {
             "ref_type": "payload",
-            "ref_id": plugin_id if isinstance(plugin_id, str) and plugin_id.strip() else "TBD",
+            "ref_id": _safe_manifest_plugin_ref(metadata),
         },
         "affected_object": {"ref_type": "diagnostic", "ref_id": "plugin_manifest"},
         "provenance": manifest.get("provenance"),

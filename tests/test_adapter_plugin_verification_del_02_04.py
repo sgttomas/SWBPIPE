@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -20,6 +21,7 @@ from core.adapters.framework import (  # noqa: E402
 from core.adapters.framework.adapter_framework import (  # noqa: E402
     MAX_CALLER_JSON_BYTES,
     MAX_CALLER_JSON_NODES,
+    MAX_DIAGNOSTIC_PATH_BYTES,
     MAX_DIAGNOSTIC_PATH_SEGMENT_BYTES,
 )
 from core.adapters.framework.plugin_verification import (  # noqa: E402
@@ -27,6 +29,7 @@ from core.adapters.framework.plugin_verification import (  # noqa: E402
     MAX_MANIFEST_FALLBACK_IDENTIFIER_BYTES,
     MAX_MANIFEST_SERIALIZED_BYTES,
     MAX_MANIFEST_TEXT_BYTES,
+    MAX_SCHEMA_MISMATCH_INSTANCE_BYTES,
     MAX_UNIT_EVIDENCE_FALLBACK_ITEMS,
     _normalize_unit_inputs,
     _schema_mismatches,
@@ -2618,3 +2621,163 @@ def test_adversarial_plugin_schema_fails_closed_composed_without_masking_quarant
     )
     if hasattr(schema, "accesses"):
         assert schema.accesses == 0
+
+
+SCHEMA_DIAGNOSTIC_PATH_PATTERN = re.compile(
+    r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*|\[[0-9]+\])*$"
+)
+
+
+def _finite_schema_diagnostic_probe(probe_kind):
+    manifest = _manifest()
+    manifest["provenance"]["redistribution_status"] = "protected_suspected"
+    if probe_kind == "adversarial_key":
+        raw = 'raw/key\n../["not-canonical"]'
+        manifest[raw] = True
+    elif probe_kind == "huge_key":
+        raw = "k" * (MAX_MANIFEST_SERIALIZED_BYTES - (64 * 1024))
+        manifest[raw] = True
+    elif probe_kind == "adversarial_instance":
+        raw = 'raw enum\nvalue\x00../["not-canonical"]'
+        manifest["metadata"]["status"] = raw
+    else:
+        raw = "v" * (MAX_MANIFEST_SERIALIZED_BYTES - (64 * 1024))
+        manifest["metadata"]["status"] = raw
+    return manifest, raw
+
+
+@pytest.mark.parametrize(
+    "probe_kind",
+    ["adversarial_key", "huge_key", "adversarial_instance", "huge_instance"],
+)
+def test_finite_schema_diagnostics_are_canonical_and_bounded_directly(probe_kind):
+    manifest, raw = _finite_schema_diagnostic_probe(probe_kind)
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "QUARANTINE"
+    assert {
+        "PLUGIN_MANIFEST_SCHEMA_MISMATCH",
+        "PLUGIN_PROTECTED_CONTENT_SUSPECTED",
+    } <= _codes(result)
+    mismatch = next(
+        finding
+        for finding in result.findings
+        if finding.code == "PLUGIN_MANIFEST_SCHEMA_MISMATCH"
+    )
+    assert SCHEMA_DIAGNOSTIC_PATH_PATTERN.fullmatch(mismatch.path)
+    assert len(mismatch.path.encode("utf-8")) <= MAX_DIAGNOSTIC_PATH_BYTES
+    assert len(mismatch.message.encode("utf-8")) <= (
+        MAX_SCHEMA_MISMATCH_INSTANCE_BYTES + 128
+    )
+    assert raw not in mismatch.path
+    assert raw not in mismatch.message
+    if probe_kind == "adversarial_instance":
+        assert "\n" not in mismatch.message
+        assert "\x00" not in mismatch.message
+        assert "\\n" in mismatch.message
+        assert "\\u0000" in mismatch.message
+    elif probe_kind == "huge_instance":
+        assert "sha256=" in mismatch.message
+
+
+@pytest.mark.parametrize(
+    "probe_kind",
+    ["adversarial_key", "huge_key", "adversarial_instance", "huge_instance"],
+)
+def test_finite_schema_diagnostics_stay_safe_in_composed_envelope(probe_kind):
+    manifest, raw = _finite_schema_diagnostic_probe(probe_kind)
+
+    result = _verify(manifest=manifest)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    assert result.runtime_dispatched is False
+    assert result.manifest_verified is False
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    diagnostic = _diagnostics_by_code(result)["PLUGIN_MANIFEST_SCHEMA_MISMATCH"]
+    reference = diagnostic["affected_object"]["ref_id"]
+    source_reference = diagnostic["source"]["ref_id"]
+    assert source_reference == "ops-plugin-invented-no-bypass"
+    assert SCHEMA_DIAGNOSTIC_PATH_PATTERN.fullmatch(reference)
+    assert len(reference.encode("utf-8")) <= MAX_DIAGNOSTIC_PATH_BYTES
+    assert len(diagnostic["message"].encode("utf-8")) <= (
+        MAX_SCHEMA_MISMATCH_INSTANCE_BYTES + 128
+    )
+    assert raw not in reference
+    assert raw not in source_reference
+    assert raw not in diagnostic["message"]
+    if probe_kind == "adversarial_instance":
+        assert "\n" not in diagnostic["message"]
+        assert "\x00" not in diagnostic["message"]
+        assert "\\n" in diagnostic["message"]
+        assert "\\u0000" in diagnostic["message"]
+    elif probe_kind == "huge_instance":
+        assert "sha256=" in diagnostic["message"]
+
+
+def _schema_valid_unsafe_plugin_reference(identifier_kind):
+    prefix = "ops-plugin-"
+    if identifier_kind == "over_safe_ref_limit":
+        suffix_length = MAX_MANIFEST_FALLBACK_IDENTIFIER_BYTES - len(prefix) + 1
+    else:
+        suffix_length = MAX_MANIFEST_SERIALIZED_BYTES - (64 * 1024) - len(prefix)
+    plugin_id = prefix + ("a" * suffix_length)
+    manifest = _manifest()
+    manifest["metadata"]["plugin_id"] = plugin_id
+    manifest["provenance"]["redistribution_status"] = "protected_suspected"
+    return manifest, plugin_id
+
+
+@pytest.mark.parametrize(
+    "identifier_kind", ["over_safe_ref_limit", "near_manifest_limit"]
+)
+def test_schema_valid_unsafe_plugin_ids_do_not_enter_direct_findings(
+    identifier_kind,
+):
+    manifest, plugin_id = _schema_valid_unsafe_plugin_reference(identifier_kind)
+
+    assert _schema_mismatches(
+        manifest,
+        PLUGIN_SCHEMA,
+        PLUGIN_SCHEMA,
+        "plugin_manifest",
+    ) == []
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.verified is False
+    assert "PLUGIN_PROTECTED_CONTENT_SUSPECTED" in _codes(result)
+    for finding in result.findings:
+        assert plugin_id not in finding.path
+        assert plugin_id not in finding.message
+        assert plugin_id not in finding.remediation
+        assert len(finding.path.encode("utf-8")) <= MAX_DIAGNOSTIC_PATH_BYTES
+        assert len(finding.message.encode("utf-8")) <= 512
+
+
+@pytest.mark.parametrize(
+    "identifier_kind", ["over_safe_ref_limit", "near_manifest_limit"]
+)
+def test_schema_valid_unsafe_plugin_ids_are_tbd_in_composed_diagnostics(
+    identifier_kind,
+):
+    manifest, plugin_id = _schema_valid_unsafe_plugin_reference(identifier_kind)
+
+    result = _verify(manifest=manifest)
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    assert result.runtime_dispatched is False
+    assert result.manifest_verified is False
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    marker = _diagnostics_by_code(result)["PLUGIN_PROTECTED_CONTENT_SUSPECTED"]
+    assert marker["source"] == {"ref_type": "payload", "ref_id": "TBD"}
+    assert marker["affected_object"]["ref_id"] == "plugin_manifest.provenance"
+    assert len(marker["source"]["ref_id"].encode("utf-8")) <= (
+        MAX_MANIFEST_FALLBACK_IDENTIFIER_BYTES
+    )
+    assert len(marker["message"].encode("utf-8")) <= 512
+    assert plugin_id not in json.dumps(result.result_envelope, sort_keys=True)

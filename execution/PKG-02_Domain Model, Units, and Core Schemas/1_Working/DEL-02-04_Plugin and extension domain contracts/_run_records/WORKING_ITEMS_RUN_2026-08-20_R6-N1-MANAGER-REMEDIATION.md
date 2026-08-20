@@ -233,3 +233,21 @@ detached evidence, and applies manifest-specific limits plus a canonical
 regressions cover hostile keys and both accepted/excluded marker boundaries.
 Complete suite: `274 passed in 0.67s`; containment and diff checks PASS; V29
 fresh full amended-diff review required.
+
+## Integrated-review Amendment 6
+
+Integrated review v6 found finite caller-controlled plugin-manifest property
+names and raw instance text could enter post-snapshot schema mismatch paths and
+diagnostic references without canonical byte bounds. Amendment 6 canonicalizes
+and bounds every schema-generated path segment and sanitizes/bounds mismatch
+instance text. Direct/composed finite adversarial and near-limit key regressions
+require protected-marker precedence, schema-valid envelopes, and runtime non-
+dispatch. Complete suite: `314 passed in 0.85s`; containment/diff PASS; fresh
+full original-basis amended-diff review required.
+
+V32 review confirmed schema mismatch paths/messages are bounded but found
+normalized schema-valid plugin IDs could bypass the existing 256-byte
+diagnostic reference fence. Remediation routes every normalized diagnostic
+plugin ID through `_safe_manifest_plugin_ref`; four over-limit/near-1-MiB direct
+and composed regressions pass. Complete suite: `318 passed in 0.87s`;
+containment/diff PASS; V33 fresh full amended-diff review required.
