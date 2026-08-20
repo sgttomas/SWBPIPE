@@ -1,0 +1,8 @@
+{
+  "child_instance_id": "TASK-REVIEW",
+  "node": "N2-R1",
+  "status": "FAILED_ACTIONABLE_FINDING",
+  "attempt": 1,
+  "model": "inherited fresh runtime context; exact identifier not exposed to manager",
+  "updated": "2026-08-20T06:03:00Z"
+}

@@ -1,0 +1,76 @@
+{
+  "schema": "chirality-working-items-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R6-ENGINEERING",
+  "instance_id": "WI-PKG14-DEL1404",
+  "package_id": "PKG-14",
+  "selected_deliverables": ["DEL-14-04"],
+  "version": 1,
+  "status": "frozen",
+  "selection_authority": "Agent 0 sealed activation for frozen run node N3",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "node_id": "N3.IMPLEMENT",
+      "agent_type": 2,
+      "role": "TASK",
+      "task_skill": "software-bounded-implementation",
+      "objective": "Implement and test explicit deterministic per-family bindings for all currently supported analysis-run comparison result families.",
+      "dependencies": [],
+      "concurrency": "ready",
+      "write_owner": "N3.IMPLEMENT",
+      "allowed_write_targets": [
+        "projects/chirality-piping/core/comparison/analysis_run/**",
+        "projects/chirality-piping/tests/test_analysis_run_comparison.py",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R6-ENGINEERING/WI-PKG14-DEL1404/children/IMPLEMENT/**"
+      ],
+      "expected_return": "exact changed paths, behavioral summary, focused checks, containment, blockers and residual risks"
+    },
+    {
+      "node_id": "N3.REVIEW",
+      "agent_type": 2,
+      "role": "TASK",
+      "task_skill": "software-code-review",
+      "objective": "Fresh read-only review of 100% of the frozen N3 implementation diff.",
+      "dependencies": ["N3.IMPLEMENT"],
+      "concurrency": "serialized_after_implementation",
+      "write_owner": null,
+      "allowed_write_targets": [],
+      "expected_return": "PASS with no actionable findings, or located findings and remediation direction"
+    },
+    {
+      "node_id": "N3.FANIN",
+      "agent_type": 1,
+      "role": "WORKING_ITEMS",
+      "objective": "Validate implementation, review, checks, containment, and truthful DEL-14-04 residual update.",
+      "dependencies": ["N3.REVIEW"],
+      "concurrency": "serialized",
+      "write_owner": "WI-PKG14-DEL1404",
+      "allowed_write_targets": [
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R6-ENGINEERING/WI-PKG14-DEL1404/**",
+        "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/_STATUS.md",
+        "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/MEMORY.md",
+        "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/_run_records/**"
+      ],
+      "expected_return": "manager return and explicit handoff state to Agent 0"
+    }
+  ],
+  "edges": [
+    ["N3.IMPLEMENT", "N3.REVIEW"],
+    ["N3.REVIEW", "N3.FANIN"]
+  ],
+  "fan_in_gates": [
+    "focused pytest passes",
+    "category bindings are separate and deterministic",
+    "unsupported or missing category behavior is explicit",
+    "fresh review PASS",
+    "write containment clean",
+    "PDU-011 and PDU-047 holds unchanged"
+  ],
+  "escalation_points": [
+    "authority or write-scope expansion",
+    "need for an authoritative comparison-output schema",
+    "need for tolerance, validation, or suitability policy",
+    "cross-package or shared-surface write",
+    "unavailable declared check surface"
+  ]
+}

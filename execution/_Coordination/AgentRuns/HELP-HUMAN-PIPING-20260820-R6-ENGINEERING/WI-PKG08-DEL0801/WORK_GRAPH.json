@@ -1,0 +1,50 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260820-R6-ENGINEERING",
+  "instance_id": "WI-PKG08-DEL0801",
+  "package_id": "PKG-08",
+  "selected_deliverable_ids": ["DEL-08-01"],
+  "version": 1,
+  "status": "complete",
+  "selection_authority": "Agent 0 sealed N2 activation",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "id": "N2-I1",
+      "agent_type": "TASK",
+      "skill": "software-bounded-implementation",
+      "status": "complete_after_amendment_3",
+      "objective": "Implement and execute the smallest cross-layer TypeScript-to-Rust component-provenance report-package proof.",
+      "dependencies": [],
+      "write_owner": "TASK-IMPLEMENT",
+      "expected_return": "exact changed paths, focused Vitest/Rust results, containment, residuals/blockers"
+    },
+    {
+      "id": "N2-R1",
+      "agent_type": "TASK",
+      "skill": "software-code-review",
+      "status": "pass_attempt_4",
+      "objective": "Fresh read-only review over 100% of the frozen N2-I1 product/test diff.",
+      "dependencies": ["N2-I1 accepted"],
+      "write_owner": "runtime records only",
+      "expected_return": "PASS with no actionable findings, or exact findings and severity"
+    }
+  ],
+  "edges": [{"from": "N2-I1", "to": "N2-R1", "gate": "implementation checks and containment pass"}],
+  "concurrency": "serialized because review consumes the frozen implementation diff",
+  "integration_owner": "WI-PKG08-DEL0801",
+  "fan_in_gates": [
+    "cross-layer proof binds TypeScript production output to Rust consumer/output",
+    "present, missing, and malformed provenance behavior is covered",
+    "focused Vitest and report-package Rust checks pass",
+    "all writes are contained",
+    "fresh read-only review PASS",
+    "Remaining item removed only after accepted fan-in"
+  ],
+  "escalation_points": [
+    "public contract or acceptance-policy change",
+    "write beyond the sealed paths",
+    "protected/private real data need",
+    "unavailable executable proof surface",
+    "production defect requiring a wider product seam"
+  ]
+}

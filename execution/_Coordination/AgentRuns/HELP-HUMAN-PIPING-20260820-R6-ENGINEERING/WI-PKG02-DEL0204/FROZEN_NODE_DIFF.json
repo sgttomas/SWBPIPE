@@ -1,0 +1,37 @@
+{
+  "node": "PKG02-IMPLEMENT",
+  "accepted_basis": "357a58b56726feba49507534159c3fbc4656b818",
+  "frozen_at": "2026-08-19T23:54:06-06:00",
+  "scope": "100% of the implementation return before manager status/memory fan-in",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/adapters/framework/__init__.py",
+      "sha256": "1fdd92c300a189f0fb3f8a3f9cea74dfd0b3c4dad63228c8ea24f38cdbe303a3",
+      "lines": 35,
+      "state": "modified"
+    },
+    {
+      "path": "projects/chirality-piping/core/adapters/framework/plugin_verification.py",
+      "sha256": "fbb3d81c77ccf9341fa6ea5168c91561a1d72940ad612ff34fcf436637bda20b",
+      "lines": 483,
+      "state": "added"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_adapter_plugin_verification_del_02_04.py",
+      "sha256": "ef81c706221d7001493d7fbe3d13050819b4891948ac59f17c122b9d537524ad",
+      "lines": 150,
+      "state": "added"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/_run_records/TASK_RUN_2026-08-19_2345.md",
+      "sha256": "6a1883467a0eb58a81f32f923dd4abb00f0d414818fd5db36e7a343baecb3417",
+      "lines": 82,
+      "state": "added"
+    }
+  ],
+  "verification_evidence": [
+    "implementation child: 29 passed in 0.68s",
+    "manager independent rerun: 29 passed in 0.88s",
+    "implementation child scope validation: PASS, zero violations"
+  ]
+}

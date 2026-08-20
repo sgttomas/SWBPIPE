@@ -1,0 +1,13 @@
+{
+  "node":"PKG02-IMPLEMENT","attempt":11,"accepted_basis":"357a58b56726feba49507534159c3fbc4656b818","frozen_at":"2026-08-20T01:18:43-06:00","scope":"100% final integrated product, test, and immutable execution records before status/memory fan-in",
+  "files":[
+    {"path":"projects/chirality-piping/core/adapters/framework/__init__.py","sha256":"1fdd92c300a189f0fb3f8a3f9cea74dfd0b3c4dad63228c8ea24f38cdbe303a3","lines":35},
+    {"path":"projects/chirality-piping/core/adapters/framework/adapter_framework.py","sha256":"336a0ab7ed212d50233ce0b56d38d91c95ce51a9c304cca8a061f21704030793","lines":741},
+    {"path":"projects/chirality-piping/core/adapters/framework/plugin_verification.py","sha256":"0212ec747f2a7126e5b3e0d17585f471e82f4ed1d03cce2d7f50e289a0197271","lines":1151},
+    {"path":"projects/chirality-piping/tests/test_adapter_plugin_verification_del_02_04.py","sha256":"280a56b19860685d22bb450b29e03437cb95da75825c0399f7cb606f2664fcee","lines":717},
+    {"path":"projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/_run_records/TASK_RUN_2026-08-19_2345.md","sha256":"6a1883467a0eb58a81f32f923dd4abb00f0d414818fd5db36e7a343baecb3417","lines":82},
+    {"path":"projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/_run_records/TASK_RUN_2026-08-20_0001.md","sha256":"8250a73cf20892db547d86d1f7c91941eddea268eb132dc5b053321575df9ad9","lines":84},
+    {"path":"projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/_run_records/TASK_RUN_2026-08-20_0022.md","sha256":"2337088aaf8b546fcd6bcf81e1d6d77825e5f45327e4bc7a06a697c996b1d9f2","lines":84},
+    {"path":"projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/_run_records/WORKING_ITEMS_RUN_2026-08-20_R6-N1-MANAGER-REMEDIATION.md","sha256":"7a712855dce502a1ce487efdbf983dc287f65b4088fb24bab6c2dd4194c1d2b9","lines":26}
+  ],"verification_evidence":["84 passed in 0.45s","composed-result schema validation included","git diff --check PASS","explicit scoped diff check PASS"]
+}

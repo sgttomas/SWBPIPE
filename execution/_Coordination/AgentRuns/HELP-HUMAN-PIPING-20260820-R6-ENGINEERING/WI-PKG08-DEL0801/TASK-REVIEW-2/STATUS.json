@@ -1,0 +1,8 @@
+{
+  "child_instance_id": "TASK-REVIEW-2",
+  "node": "N2-R1",
+  "review_attempt": 2,
+  "status": "PASS",
+  "model": "inherited fresh runtime context; exact identifier not exposed to manager",
+  "updated": "2026-08-20T06:12:00Z"
+}

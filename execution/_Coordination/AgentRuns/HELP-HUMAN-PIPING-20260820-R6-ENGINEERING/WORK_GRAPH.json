@@ -1,0 +1,65 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260820-R6-ENGINEERING",
+  "version": 1,
+  "status": "frozen",
+  "selection_authority": "HUMAN+AGENT_0",
+  "posture": "MIXED",
+  "fan_out": "terminal",
+  "accepted_basis": {
+    "git_sha": "357a58b56726feba49507534159c3fbc4656b818",
+    "dag": "DAG-009",
+    "target": "R5"
+  },
+  "shared_record_owner": "WI-PKG02-DEL0204",
+  "nodes": [
+    {
+      "id": "N1",
+      "package_id": "PKG-02",
+      "deliverable_id": "DEL-02-04",
+      "manager_instance": "WI-PKG02-DEL0204",
+      "objective": "Close the executable adapter/plugin verification-layer residual.",
+      "concurrency": "independent",
+      "checks": [
+        "registered focused adapter/plugin tests (in-session)",
+        "applicable registered evidence-sweep selectors (in-session or host as registered)",
+        "fresh read-only software-code-review over 100% of frozen node diff when core/** or desktop product source changes"
+      ],
+      "write_ownership": "sealed activation scope plus run-root shared-record integration ownership"
+    },
+    {
+      "id": "N2",
+      "package_id": "PKG-08",
+      "deliverable_id": "DEL-08-01",
+      "manager_instance": "WI-PKG08-DEL0801",
+      "objective": "Execute the DEL-08-01 product node defined by its sealed activation.",
+      "concurrency": "independent",
+      "checks": ["sealed-brief registered in-session and/or host-capability checks"],
+      "write_ownership": "sealed package node scope and own instance subfolder only"
+    },
+    {
+      "id": "N3",
+      "package_id": "PKG-14",
+      "deliverable_id": "DEL-14-04",
+      "manager_instance": "WI-PKG14-DEL1404",
+      "objective": "Execute the DEL-14-04 product node defined by its sealed activation.",
+      "concurrency": "independent",
+      "checks": ["sealed-brief registered in-session and/or host-capability checks"],
+      "write_ownership": "sealed package node scope and own instance subfolder only"
+    }
+  ],
+  "edges": [],
+  "integrated_fan_in_gates": [
+    "exact changed paths and clean write containment",
+    "registered node checks pass or exact rerun/blocker is returned",
+    "mandatory fresh review PASS for source-changing nodes",
+    "truthful deliverable residual state",
+    "no inter-node write or gate-surface conflict"
+  ],
+  "escalation_points": [
+    "authority expansion",
+    "cross-package or protected-data need",
+    "declared check surface unavailable",
+    "acceptance-policy ambiguity",
+    "shared or gate-surface overlap"
+  ]
+}

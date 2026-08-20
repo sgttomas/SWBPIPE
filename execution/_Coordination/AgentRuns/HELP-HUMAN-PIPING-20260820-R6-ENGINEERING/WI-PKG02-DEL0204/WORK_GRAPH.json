@@ -1,0 +1,38 @@
+{
+  "instance_id": "WI-PKG02-DEL0204",
+  "version": 1,
+  "status": "frozen",
+  "selection_authority": "HUMAN+AGENT_0",
+  "posture": "MIXED",
+  "nodes": [
+    {
+      "id": "PKG02-IMPLEMENT",
+      "role": "TASK",
+      "skill": "software-bounded-implementation",
+      "objective": "Implement and test the executable adapter/plugin verification seam for the five DEL-02-04 residual dimensions.",
+      "writes": [
+        "core/adapters/framework/**",
+        "adapter/plugin-specific schemas and focused DEL-02-04 tests",
+        "DEL-02-04/_run_records/**"
+      ]
+    },
+    {
+      "id": "PKG02-REVIEW",
+      "role": "TASK",
+      "skill": "software-code-review",
+      "objective": "Fresh read-only review of 100% of the frozen PKG-02 node diff.",
+      "writes": []
+    }
+  ],
+  "edges": [
+    {"from": "PKG02-IMPLEMENT", "to": "PKG02-REVIEW", "type": "predecessor"}
+  ],
+  "integration_owner": "WI-PKG02-DEL0204",
+  "fan_in_gates": [
+    "five verification dimensions executable and fail closed where applicable",
+    "focused registered tests pass",
+    "fresh review PASS",
+    "write containment clean",
+    "truthful Remaining state"
+  ]
+}

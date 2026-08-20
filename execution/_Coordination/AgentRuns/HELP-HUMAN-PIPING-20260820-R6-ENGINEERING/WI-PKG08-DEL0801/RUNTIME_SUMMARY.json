@@ -1,0 +1,151 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 8
+  },
+  "counts": {
+    "category": {
+      "CHECK": 2,
+      "IMPLEMENTATION": 8,
+      "INTEGRATED_REVIEW_FINDING": 2,
+      "REVIEW": 8,
+      "REVIEW_FINDING": 1,
+      "VERIFICATION": 4
+    },
+    "event_type": {
+      "CHECK": 4,
+      "FINISH": 8,
+      "REMEDIATION": 3,
+      "RETRY": 2,
+      "START": 8
+    },
+    "outcome": {
+      "FAIL": 1,
+      "PASS": 11,
+      "RETRY": 2,
+      "STARTED": 11
+    },
+    "reason_code": {
+      "ACCEPTED_FOR_REVIEW": 1,
+      "AMENDMENT_2_CHECKS_PASS": 1,
+      "AMENDMENT_3_CHECKS_PASS": 1,
+      "ASSERTION_MESSAGE_SHAPE": 1,
+      "FINDING_REMEDIATED": 1,
+      "FIXTURE_IMPORT_PATH": 1,
+      "FIXTURE_ROOT_UNBOUND": 2,
+      "FOCUSED_CHECKS_PASS": 1,
+      "FRESH_FULL_N2_PRODUCTION_REVIEW": 1,
+      "FRESH_FULL_N2_REVIEW": 1,
+      "FRESH_REREVIEW_DISPATCH": 1,
+      "FRESH_REVIEW_DISPATCH": 1,
+      "FULL_N2_NO_ACTIONABLE_FINDINGS": 1,
+      "INITIAL_DISPATCH": 1,
+      "MODEL_MANIFEST_PAYLOAD_IDENTITY_UNCHECKED": 1,
+      "NO_ACTIONABLE_FINDINGS": 1,
+      "PRODUCTION_GATE_NO_ACTIONABLE_FINDINGS": 1,
+      "PRODUCTION_IDENTITY_GATE": 1,
+      "PRODUCTION_IDENTITY_GATE_FIXED": 1,
+      "REMEDIATION_CHECKS_PASS": 1,
+      "REVIEW_REMEDIATION": 1,
+      "SESSION_BASIS_MISMATCH": 1,
+      "SESSION_BASIS_REMEDIATED": 1,
+      "SESSION_BASIS_REMEDIATION": 1
+    }
+  },
+  "events": 25,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 529.539,
+      "events": 5,
+      "final_outcome": "PASS",
+      "instance_id": "TASK-IMPLEMENT",
+      "package_id": "PKG-08",
+      "remediations": 0,
+      "retries": 2,
+      "role": "TASK",
+      "session_id": "N2-I1-A1"
+    },
+    {
+      "duration_seconds": 219.576,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "TASK-IMPLEMENT",
+      "package_id": "PKG-08",
+      "remediations": 1,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "N2-I1-A2"
+    },
+    {
+      "duration_seconds": 231.504,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG08-DEL0801",
+      "package_id": "PKG-08",
+      "remediations": 1,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "N2-I1-A3"
+    },
+    {
+      "duration_seconds": 243.875,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG08-DEL0801",
+      "package_id": "PKG-08",
+      "remediations": 1,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "N2-I1-A4"
+    },
+    {
+      "duration_seconds": 361.57,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "TASK-REVIEW",
+      "package_id": "PKG-08",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "N2-R1-A1"
+    },
+    {
+      "duration_seconds": 341.256,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "TASK-REVIEW-2",
+      "package_id": "PKG-08",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "N2-R1-A2"
+    },
+    {
+      "duration_seconds": 355.561,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "TASK-REVIEW-3",
+      "package_id": "PKG-08",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "N2-R1-A3"
+    },
+    {
+      "duration_seconds": 389.979,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "TASK-REVIEW-4",
+      "package_id": "PKG-08",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "N2-R1-A4"
+    }
+  ],
+  "sessions": 8,
+  "status": "PASS",
+  "unmatched_sessions": []
+}
