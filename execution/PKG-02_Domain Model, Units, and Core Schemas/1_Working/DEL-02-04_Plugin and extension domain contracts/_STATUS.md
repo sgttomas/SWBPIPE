@@ -1,12 +1,13 @@
 # Status: DEL-02-04 Plugin and extension domain contracts
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-08-20
 
 ## Remaining
-- Keep PDU-037's non-schema plugin verification layers open: executable unit-safety, provenance, diagnostics, protected-content, and adapter/plugin runtime regression remain downstream and unvalidated.
+- None for PDU-037's exact non-schema adapter/plugin verification-layer residual. Separately governed runtime, transport, capability, and permission-persistence choices remain owner-held and runtime dispatch stays blocked.
 
 ## History
+- 2026-08-20 - R6 N1 executed unit-safety, provenance, diagnostic-envelope, protected-content, malformed-input, and adapter/plugin regression layers; focused/adjacent tests passed and fresh 100% frozen-diff review returned PASS with zero findings. Exact PDU-037 residual closed; lifecycle remains IN_PROGRESS and runtime dispatch remains blocked.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 2 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6 PDU-037 refreshed bounded fixture/harness evidence and preserved all validation, policy, review, and lifecycle holds.
 - 2026-04-30 - State set to OPEN (PREPARATION)

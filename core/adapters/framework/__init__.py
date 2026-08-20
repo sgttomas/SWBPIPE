@@ -14,12 +14,22 @@ from .adapter_framework import (
     gate_adapter_runtime_dispatch,
     validate_adapter_declaration,
 )
+from .plugin_verification import (
+    AdapterPluginVerificationResult,
+    PluginManifestVerificationResult,
+    verify_adapter_plugin_contracts,
+    verify_plugin_manifest,
+)
 
 __all__ = [
     "AdapterFinding",
     "AdapterRuntimeGateResult",
     "AdapterValidationResult",
+    "AdapterPluginVerificationResult",
+    "PluginManifestVerificationResult",
     "build_result",
     "gate_adapter_runtime_dispatch",
     "validate_adapter_declaration",
+    "verify_adapter_plugin_contracts",
+    "verify_plugin_manifest",
 ]

@@ -139,3 +139,24 @@ Boundaries preserved:
 
 - Plugin schema/no-bypass fixture verification refreshed within the 19/19 Python set. Unit-safety, provenance, diagnostic, protected-content, and runtime adapter/plugin regression layers remain downstream.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
+## 2026-08-20 - R6 N1 executable adapter/plugin verification
+
+- Added a pure in-memory adapter/plugin composition verifier that executes the
+  caller-loaded canonical plugin schema, caller-loaded unit catalog and
+  quantity evidence, provenance/privacy/no-bypass checks, protected-content
+  quarantine, complete diagnostic envelopes, and existing adapter declaration
+  validation without selecting or dispatching a runtime.
+- Unit evidence fails closed for missing/malformed/nonfinite values,
+  noncanonical or incompatible dimensions/units, malformed/non-cleared
+  provenance, and protected/quarantined content.
+- Adapter, plugin, quantity, and operation-result diagnostics preserve the exact
+  source, affected object, class, and provenance. Malformed nested adapter
+  capabilities no longer raise or mask a simultaneous quarantine marker.
+- Evidence: focused plus existing adapter/plugin suites `85 passed in 0.45s`;
+  composed result envelopes conform to the canonical adapter operation-result
+  schema; diff checks passed; V12 fresh read-only review covered all 2,944
+  frozen lines and returned PASS with zero actionable findings.
+- The exact PDU-037 Remaining item is closed. Lifecycle remains `IN_PROGRESS`.
+  Runtime loader/isolation, transport, capability grant, and permission
+  persistence choices remain separately governed and dispatch remains blocked.

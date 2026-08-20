@@ -8,6 +8,7 @@ parsing real external files or selecting a concrete import/export format.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 import re
 from typing import Any
@@ -178,8 +179,24 @@ def build_result(
     operation_id: str,
     operation_class: str,
     diagnostics: tuple[AdapterFinding, ...],
+    diagnostic_contexts: tuple[Mapping[str, Any], ...] | None = None,
 ) -> dict[str, Any]:
     """Build a deterministic operation result envelope for tests and callers."""
+
+    if diagnostic_contexts is None:
+        diagnostic_contexts = tuple(
+            {
+                "source": {"ref_type": "adapter", "ref_id": "ops.adapter.framework"},
+                "affected_object": {
+                    "ref_type": "diagnostic",
+                    "ref_id": finding.path,
+                },
+                "provenance": invented_provenance(),
+            }
+            for finding in diagnostics
+        )
+    if len(diagnostic_contexts) != len(diagnostics):
+        raise ValueError("diagnostic_contexts must align one-to-one with diagnostics")
 
     return {
         "operation_id": operation_id,
@@ -194,16 +211,13 @@ def build_result(
                 "code": finding.code,
                 "class": _diagnostic_class(finding),
                 "severity": finding.severity,
-                "source": {"ref_type": "adapter", "ref_id": "ops.adapter.framework"},
-                "affected_object": {
-                    "ref_type": "diagnostic",
-                    "ref_id": finding.path,
-                },
+                "source": dict(context["source"]),
+                "affected_object": dict(context["affected_object"]),
                 "message": finding.message,
                 "remediation": finding.remediation,
-                "provenance": invented_provenance(),
+                "provenance": _diagnostic_provenance(context.get("provenance")),
             }
-            for finding in diagnostics
+            for finding, context in zip(diagnostics, diagnostic_contexts, strict=True)
         ],
         "privacy": {
             "classification": PUBLIC_REVIEWED,
@@ -222,6 +236,50 @@ def build_result(
         },
         "professional_boundary": professional_boundary(),
     }
+
+
+def _diagnostic_provenance(provenance: Any) -> dict[str, str]:
+    """Preserve canonical input provenance and fail closed without invention."""
+
+    fields = (
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+    )
+    source = provenance if isinstance(provenance, Mapping) else {}
+    complete = all(
+        isinstance(source.get(field), str) and source[field].strip()
+        for field in fields
+    )
+    result = {
+        field: value if isinstance((value := source.get(field)), str) and value.strip() else "TBD"
+        for field in fields
+    }
+    valid_redistribution = {
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "TBD",
+    }
+    valid_review = {"accepted", "needs_review", "quarantined", "rejected", "TBD"}
+    if result["redistribution_status"] not in valid_redistribution:
+        result["redistribution_status"] = "TBD"
+        complete = False
+    if result["review_status"] not in valid_review:
+        result["review_status"] = "TBD"
+        complete = False
+    quarantine_marker = (
+        result["redistribution_status"] == "protected_suspected"
+        or result["review_status"] == "quarantined"
+    )
+    if not complete and not quarantine_marker:
+        result["review_status"] = "rejected"
+    return result
 
 
 def invented_provenance() -> dict[str, str]:
@@ -369,8 +427,23 @@ def _validate_adapter(adapter: Any, path: str) -> list[AdapterFinding]:
                 "Do not select external formats in DEL-10-02.",
             )
         )
-    capabilities = set(adapter.get("capabilities", ()))
-    if not capabilities:
+    capabilities_malformed = False
+    try:
+        capabilities = set(adapter.get("capabilities", ()))
+    except (TypeError, ValueError):
+        capabilities = set()
+        capabilities_malformed = True
+    if capabilities_malformed:
+        findings.append(
+            AdapterFinding(
+                "ADAPTER_CAPABILITIES_MALFORMED",
+                "blocking",
+                f"{path}.capabilities",
+                "Adapter capabilities are malformed.",
+                "Declare bounded format-neutral capabilities as hashable values.",
+            )
+        )
+    elif not capabilities:
         findings.append(
             AdapterFinding(
                 "ADAPTER_CAPABILITIES_MISSING",
@@ -478,6 +551,18 @@ def _validate_provenance(provenance: Any, path: str) -> list[AdapterFinding]:
                 "Record source, license, contributor, redistribution, and review metadata.",
             )
         ]
+    redistribution = provenance.get("redistribution_status")
+    review = provenance.get("review_status")
+    if redistribution == "protected_suspected" or review == "quarantined":
+        return [
+            AdapterFinding(
+                "ADAPTER_PROTECTED_CONTENT_SUSPECTED",
+                "quarantine",
+                path,
+                "Adapter provenance indicates suspected protected content.",
+                "Quarantine the payload and request human/legal review.",
+            )
+        ]
     missing = sorted(field for field in REQUIRED_PROVENANCE_FIELDS if not provenance.get(field))
     if missing:
         return [
@@ -489,14 +574,20 @@ def _validate_provenance(provenance: Any, path: str) -> list[AdapterFinding]:
                 "Complete provenance before adapter declaration acceptance.",
             )
         ]
-    if provenance.get("redistribution_status") == "protected_suspected":
+    if redistribution not in {
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "TBD",
+    } or review not in {"accepted", "needs_review", "quarantined", "rejected", "TBD"}:
         return [
             AdapterFinding(
-                "ADAPTER_PROTECTED_CONTENT_SUSPECTED",
-                "quarantine",
+                "ADAPTER_PROVENANCE_INVALID",
+                "blocking",
                 path,
-                "Adapter provenance indicates suspected protected content.",
-                "Quarantine the payload and request human/legal review.",
+                "Adapter provenance contains an invalid redistribution or review status.",
+                "Use canonical provenance status values before adapter declaration acceptance.",
             )
         ]
     return []
@@ -635,10 +726,16 @@ def _determine_outcome(findings: list[AdapterFinding]) -> str:
 
 
 def _diagnostic_class(finding: AdapterFinding) -> str:
+    if "PROTECTED" in finding.code:
+        return "IP_BOUNDARY_WARNING"
+    if (
+        "UNIT" in finding.code
+        or "DIMENSION" in finding.code
+        or ("QUANTITY" in finding.code and "PROVENANCE" not in finding.code)
+    ):
+        return "UNIT_WARNING"
     if "PROVENANCE" in finding.code:
         return "PROVENANCE_WARNING"
     if "PRIVACY" in finding.code or "TELEMETRY" in finding.code:
         return "PRIVACY_WARNING"
-    if "PROTECTED" in finding.code:
-        return "IP_BOUNDARY_WARNING"
     return "ADAPTER_BLOCKING"
