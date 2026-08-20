@@ -1,14 +1,14 @@
 # Status: DEL-14-04 Analysis-run comparison engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-08-19
 
 ## Remaining
-- Exercise every named result category and bind comparison outputs separately; the T4 persisted model-state/analysis-run reader does not consume comparison records and does not alter PDU-011/PDU-047 holds.
 - Hold PDU-011 comparison-output schema conformance until an authoritative analysis-run comparison-result/export schema is accepted; current mapping and tolerance schemas govern inputs only (source: D-41 R5 T2B bounded schema check, 2026-07-12)
 - Hold PDU-047 engineering-validation/suitability of unit-normalized comparison mechanics; the section-property witness is not an authorized tolerance or comparison-validation basis and section-property results are outside the engine's current supported result families (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
 
 ## History
+- 2026-08-19 - R6 engineering node N3 exercised all seven supported result families and added deterministic, independent per-family comparison bindings while preserving aggregate deltas; focused regression passed 29/29 and fresh read-only software review passed with no findings. The exact category-binding residual closed; PDU-011/PDU-047 holds and lifecycle remain unchanged.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-021 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.

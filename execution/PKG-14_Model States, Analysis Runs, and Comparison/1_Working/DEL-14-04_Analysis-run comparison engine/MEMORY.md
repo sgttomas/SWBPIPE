@@ -1,5 +1,24 @@
 # DEL-14-04 Memory
 
+## 2026-08-19 - R6 supported result-category bindings
+
+- `AnalysisRunComparison` now exposes deterministic `result_deltas_by_family`
+  bindings for every currently supported family: displacement, rotation, force,
+  moment, reaction, stress, and ratio. Empty family bindings remain explicit,
+  and the existing aggregate `result_deltas` surface is preserved.
+- Focused evidence exercises all seven families and verifies unsupported,
+  mismatched, and missing family metadata remains explicit diagnostic evidence.
+- Validation passed the whole focused comparison file (11/11) and adjacent
+  comparison contract/desktop/report consumer regressions (29/29 total).
+- Fresh read-only `software-code-review` covered the complete frozen two-file
+  diff at SHA-256
+  `e6dd15e7dfde3f348edf9d6ce9890457ccda90db1223f1517364e1cd81b8fb1e`
+  and returned PASS with no actionable findings.
+- This closes only the named category-binding residual. It does not create an
+  authoritative comparison-result/export schema, validation/suitability basis,
+  tolerance policy, or professional claim; PDU-011 and PDU-047 remain held.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-08-19_R6-N3-RESULT-CATEGORIES.md`.
+
 ## 2026-07-12 - D-41 R5 T4 PDU-021 supporting evidence
 
 - The selected T4 reader consumes persisted state/run records, not comparison results. Named result-family coverage and PDU-011/PDU-047 holds remain unchanged.

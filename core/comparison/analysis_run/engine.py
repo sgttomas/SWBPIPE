@@ -13,7 +13,7 @@ from typing import Any, Iterable, Mapping
 
 
 COMPARABLE_MAPPING_STATUSES = {"automatic_match", "manual_match"}
-SUPPORTED_RESULT_FAMILIES = {
+SUPPORTED_RESULT_FAMILIES = (
     "displacement",
     "rotation",
     "force",
@@ -21,7 +21,7 @@ SUPPORTED_RESULT_FAMILIES = {
     "reaction",
     "stress",
     "ratio",
-}
+)
 RUN_CONTEXT_FIELDS = (
     "run_id",
     "run_name",
@@ -135,11 +135,26 @@ class AnalysisRunComparison:
     def has_blocking_findings(self) -> bool:
         return any(item.severity == "blocking" for item in self.diagnostics)
 
+    @property
+    def result_deltas_by_family(self) -> dict[str, tuple[ResultDelta, ...]]:
+        """Bind deltas to every supported family in deterministic family order."""
+
+        return {
+            family: tuple(
+                item for item in self.result_deltas if item.result_family == family
+            )
+            for family in SUPPORTED_RESULT_FAMILIES
+        }
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "comparison_id": self.comparison_id,
             "run_context": _freeze_to_plain(self.run_context),
             "result_deltas": [item.to_dict() for item in self.result_deltas],
+            "result_deltas_by_family": {
+                family: [item.to_dict() for item in deltas]
+                for family, deltas in self.result_deltas_by_family.items()
+            },
             "settings_deltas": [item.to_dict() for item in self.settings_deltas],
             "diagnostics": [item.to_dict() for item in self.diagnostics],
             "has_blocking_findings": self.has_blocking_findings,

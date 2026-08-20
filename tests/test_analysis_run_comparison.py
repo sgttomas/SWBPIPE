@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from core.comparison.analysis_run.engine import (
+    SUPPORTED_RESULT_FAMILIES,
     compare_analysis_runs,
     comparison_dict,
     derive_exact_result_id_mappings,
@@ -320,6 +321,80 @@ def test_unit_normalized_delta_and_classification_keep_raw_evidence_separate():
     }
 
 
+def test_every_supported_result_family_has_a_deterministic_independent_binding():
+    inputs = fixture_inputs()
+    family_evidence = (
+        ("displacement", "length", "mm"),
+        ("rotation", "rotation", "rad"),
+        ("force", "force", "N"),
+        ("moment", "moment", "N*m"),
+        ("reaction", "force", "N"),
+        ("stress", "stress", "Pa"),
+        ("ratio", "ratio", "1"),
+    )
+    inputs["left_results"] = result_envelope(
+        "RES-left",
+        "RUN-left",
+        [
+            quantity_result(
+                f"left:{family}:E1",
+                family,
+                "E1",
+                float(index),
+                unit,
+                dimension,
+            )
+            for index, (family, dimension, unit) in enumerate(
+                reversed(family_evidence), start=1
+            )
+        ],
+    )
+    inputs["right_results"] = result_envelope(
+        "RES-right",
+        "RUN-right",
+        [
+            quantity_result(
+                f"right:{family}:E1",
+                family,
+                "E1",
+                float(index) + 0.5,
+                unit,
+                dimension,
+            )
+            for index, (family, dimension, unit) in enumerate(
+                reversed(family_evidence), start=1
+            )
+        ],
+    )
+    inputs["mappings"] = [
+        mapping(
+            f"MAP-{family}-E1",
+            f"left:{family}:E1",
+            f"right:{family}:E1",
+        )
+        for family, _, _ in reversed(family_evidence)
+    ]
+    inputs["tolerance_profile"] = None
+    inputs["unit_conversions"] = {}
+
+    comparison = compare_analysis_runs(**inputs)
+    first = comparison_dict(comparison)
+    second = comparison_dict(compare_analysis_runs(**deepcopy(inputs)))
+
+    assert first == second
+    assert first["diagnostics"] == []
+    assert tuple(comparison.result_deltas_by_family) == SUPPORTED_RESULT_FAMILIES
+    assert tuple(first["result_deltas_by_family"]) == SUPPORTED_RESULT_FAMILIES
+    assert [item["mapping_id"] for item in first["result_deltas"]] == sorted(
+        f"MAP-{family}-E1" for family in SUPPORTED_RESULT_FAMILIES
+    )
+    for family in SUPPORTED_RESULT_FAMILIES:
+        family_deltas = first["result_deltas_by_family"][family]
+        assert len(family_deltas) == 1
+        assert family_deltas[0]["result_family"] == family
+        assert family_deltas[0] in first["result_deltas"]
+
+
 def test_dec026_mixed_unit_relative_absolute_tolerance_corpus():
     inputs = fixture_inputs()
     inputs["left_results"] = result_envelope(
@@ -437,6 +512,71 @@ def test_missing_mapping_and_result_data_are_explicit_findings():
     assert output["has_blocking_findings"]
 
 
+def test_unsupported_mismatched_and_missing_result_families_are_explicit():
+    inputs = fixture_inputs()
+    inputs["left_results"] = result_envelope(
+        "RES-left",
+        "RUN-left",
+        [
+            quantity_result(
+                "left:missing:E1", "", "E1", 1.0, "N", "force"
+            ),
+            quantity_result(
+                "left:mismatched:E1", "force", "E1", 1.0, "N", "force"
+            ),
+            quantity_result(
+                "left:unsupported:E1",
+                "section_property",
+                "E1",
+                1.0,
+                "mm2",
+                "area",
+            ),
+        ],
+    )
+    inputs["right_results"] = result_envelope(
+        "RES-right",
+        "RUN-right",
+        [
+            quantity_result(
+                "right:missing:E1", "", "E1", 2.0, "N", "force"
+            ),
+            quantity_result(
+                "right:mismatched:E1", "moment", "E1", 2.0, "N*m", "moment"
+            ),
+            quantity_result(
+                "right:unsupported:E1",
+                "section_property",
+                "E1",
+                2.0,
+                "mm2",
+                "area",
+            ),
+        ],
+    )
+    inputs["mappings"] = [
+        mapping("MAP-unsupported", "left:unsupported:E1", "right:unsupported:E1"),
+        mapping("MAP-missing", "left:missing:E1", "right:missing:E1"),
+        mapping("MAP-mismatched", "left:mismatched:E1", "right:mismatched:E1"),
+    ]
+
+    output = comparison_dict(compare_analysis_runs(**inputs))
+
+    assert output["result_deltas"] == []
+    assert all(not deltas for deltas in output["result_deltas_by_family"].values())
+    assert [item["code"] for item in output["diagnostics"]] == [
+        "ARC-RESULT-FAMILY-UNSUPPORTED",
+        "ARC-RESULT-FAMILY-UNSUPPORTED",
+        "ARC-RESULT-FAMILY-UNSUPPORTED",
+    ]
+    assert {item["class"] for item in output["diagnostics"]} == {
+        "UNSUPPORTED_CATEGORY"
+    }
+    assert {
+        item["affected_refs"][0]["ref"] for item in output["diagnostics"]
+    } == {"MAP-missing", "MAP-mismatched", "MAP-unsupported"}
+
+
 def test_carried_run_diagnostics_are_preserved_as_review_evidence():
     inputs = fixture_inputs()
     inputs["left_run"]["analysis_run"]["diagnostics"] = [
@@ -511,8 +651,10 @@ if __name__ == "__main__":
     test_exact_stable_result_id_mapping_is_produced_and_round_trips()
     test_nonidentical_or_ambiguous_result_ids_require_manual_mapping()
     test_unit_normalized_delta_and_classification_keep_raw_evidence_separate()
+    test_every_supported_result_family_has_a_deterministic_independent_binding()
     test_dec026_mixed_unit_relative_absolute_tolerance_corpus()
     test_incompatible_or_missing_unit_metadata_produces_diagnostics_not_deltas()
     test_missing_mapping_and_result_data_are_explicit_findings()
+    test_unsupported_mismatched_and_missing_result_families_are_explicit()
     test_carried_run_diagnostics_are_preserved_as_review_evidence()
     test_output_does_not_emit_prohibited_professional_claims()
