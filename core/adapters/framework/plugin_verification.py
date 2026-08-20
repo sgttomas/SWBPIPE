@@ -358,7 +358,28 @@ def _normalize_manifest_input(manifest: Any) -> _ManifestInputNormalization:
 
     snapshot, malformed = _plain_manifest_snapshot(manifest)
     if snapshot is not None and malformed is None:
-        return _ManifestInputNormalization(snapshot, (), (), ())
+        metadata = snapshot.get("metadata")
+        provenance = snapshot.get("provenance")
+        candidates: tuple[
+            tuple[Any, Mapping[str, Any] | None], ...
+        ] = ()
+        if (
+            isinstance(metadata, Mapping)
+            and metadata.get("status") == "quarantined"
+        ):
+            candidates = (
+                (
+                    provenance,
+                    {
+                        "classification": "protected_suspected",
+                        "local_first": True,
+                        "telemetry_allowed": False,
+                        "export_review_required": True,
+                        "private_payload_redacted": False,
+                    },
+                ),
+            )
+        return _ManifestInputNormalization(snapshot, (), (), candidates)
     assert malformed is not None
 
     findings: list[AdapterFinding] = [malformed]

@@ -251,3 +251,13 @@ diagnostic reference fence. Remediation routes every normalized diagnostic
 plugin ID through `_safe_manifest_plugin_ref`; four over-limit/near-1-MiB direct
 and composed regressions pass. Complete suite: `318 passed in 0.87s`;
 containment/diff PASS; V33 fresh full amended-diff review required.
+
+## Integrated-review Amendment 7
+
+Integrated review v7 found normalized schema-valid quarantined manifest
+metadata produced a quarantine outcome but did not force the top-level protected
+boundary used by malformed fallback. Amendment 7 makes normalized and fallback
+derivation consistent. Three direct and three composed public/private/protected
+regressions require protected top-level privacy/provenance, canonical envelopes,
+and runtime non-dispatch. Complete suite: `324 passed in 1.10s`;
+containment/diff PASS; fresh full original-basis review required.

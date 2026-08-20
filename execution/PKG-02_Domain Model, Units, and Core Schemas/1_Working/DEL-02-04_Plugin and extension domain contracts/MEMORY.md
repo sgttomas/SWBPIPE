@@ -268,3 +268,16 @@ Boundaries preserved:
   passed in 0.78s`, matched all 22 hashes/line counts, reviewed all 8,470 frozen
   lines and the full original-basis amended diff, and returned PASS with zero
   findings. Integrated review v6 and V32 are closed.
+
+### Integrated-review Amendment 7
+
+- Schema-valid normalized `metadata.status="quarantined"` contributes the same
+  protected conservative envelope boundary as malformed fallback.
+- Public, private, or already-protected companion evidence cannot downgrade the
+  top-level privacy/provenance to public-reviewed; caller provenance is retained
+  without invention, canonical result-envelope schema passes, and runtime
+  dispatch remains false.
+- Evidence: complete N1 suite `324 passed in 0.90s`; V34 independently reran
+  `324 passed in 0.79s`, matched all 23 hashes/line counts, reviewed all 8,654
+  frozen lines and the full original-basis amended diff, and returned PASS with
+  zero findings. Integrated review v7 is closed.

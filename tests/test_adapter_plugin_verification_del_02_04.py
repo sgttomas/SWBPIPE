@@ -2781,3 +2781,80 @@ def test_schema_valid_unsafe_plugin_ids_are_tbd_in_composed_diagnostics(
     )
     assert len(marker["message"].encode("utf-8")) <= 512
     assert plugin_id not in json.dumps(result.result_envelope, sort_keys=True)
+
+
+@pytest.mark.parametrize(
+    "redistribution_status",
+    ["public_permissive", "private_only", "protected_suspected"],
+)
+def test_schema_valid_quarantined_metadata_is_quarantined_directly(
+    redistribution_status,
+):
+    manifest = _manifest()
+    manifest["metadata"]["status"] = "quarantined"
+    manifest["provenance"]["redistribution_status"] = redistribution_status
+
+    assert _schema_mismatches(
+        manifest,
+        PLUGIN_SCHEMA,
+        PLUGIN_SCHEMA,
+        "plugin_manifest",
+    ) == []
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.verified is False
+    assert result.quarantined is True
+    assert "PLUGIN_MANIFEST_QUARANTINED" in _codes(result)
+
+
+@pytest.mark.parametrize(
+    ("other_boundary", "expected_provenance_source"),
+    [
+        ("public", "manifest"),
+        ("private", "manifest"),
+        ("protected", "adapter"),
+    ],
+)
+def test_schema_valid_quarantined_metadata_forces_protected_composed_envelope(
+    other_boundary,
+    expected_provenance_source,
+):
+    manifest = _manifest()
+    manifest["metadata"]["status"] = "quarantined"
+    adapter = _adapter()
+    evidence = _quantity_evidence()
+    if other_boundary == "private":
+        evidence[0]["quantity"]["provenance"]["redistribution_status"] = (
+            "private_only"
+        )
+    elif other_boundary == "protected":
+        adapter["operation_result"]["provenance"][
+            "redistribution_status"
+        ] = "protected_suspected"
+
+    result = _verify(
+        adapter=adapter,
+        manifest=manifest,
+        unit_evidence=evidence,
+    )
+
+    _assert_canonical_fail_closed(result, "QUARANTINE")
+    assert result.manifest_verified is False
+    assert result.runtime_dispatched is False
+    assert "PLUGIN_MANIFEST_QUARANTINED" in _codes(result)
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    expected_provenance = (
+        adapter["operation_result"]["provenance"]
+        if expected_provenance_source == "adapter"
+        else manifest["provenance"]
+    )
+    assert result.result_envelope["provenance"] == expected_provenance
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
