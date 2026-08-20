@@ -1,0 +1,31 @@
+{
+  "schema": "chirality-frozen-node-snapshot/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R7-ENGINEERING",
+  "instance_id": "WI-PKG07-DEL0706",
+  "base_sha": "8eea5d06d3f98dd91b56b53a2c7caec2f7ed5919",
+  "version": 2,
+  "status": "FROZEN_AFTER_P2_REMEDIATION_FOR_FRESH_REVIEW",
+  "scope_note": "Complete substantive remediated node snapshot. TASK-REVIEW-2 RETURN/STATUS transition and terminal telemetry/summary are appended after freeze.",
+  "files": [
+    {"path":"projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs","sha256":"d608cd32619d78f8f70e783c8329bc6fa411b1be93b204f1684329fbdb675d3c"},
+    {"path":"projects/chirality-piping/apps/desktop/src-tauri/src/main.rs","sha256":"03c5b9f8fc8812114d1a7db1b1e2c5c9f2ce6c7bbf0f000565fbb872e7a1d5ca"},
+    {"path":"projects/chirality-piping/apps/desktop/SMOKE.md","sha256":"baca3f7dccdd1d4c7749f8a3ca9f766e57a73238992f0947cf4e98f94c951b53"},
+    {"path":"projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md","sha256":"ae21c3001cfb34b6f5026ab267e6c0efc3be88de1297d8fd27daaada2640c5e7"},
+    {"path":"projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md","sha256":"f504628a88236747f702b27940a86344605a874f3666f5291d398f210959c827"},
+    {"path":"projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/WORKING_ITEMS_RUN_2026-08-20_R7_PACKAGED_EDITED_LOAD.md","sha256":"95afbeff6247efcbaa788862deb89eb05d6ff1bc8e68d2e3c37bcf317bb0f6b1"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/ACTIVATION_BRIEF.md","sha256":"e4d46927ce21614722b348ad568848efde1a26c31b4be1d15287eef80c507b65"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/AMENDMENT_1.md","sha256":"3e68545369e3b9ac33072dc8c3e59e00def934cd7d6dc7131da540cd9b379beb"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/FROZEN_NODE_DIFF.json","sha256":"b3ad0491a69b2e0943a050aca54e6b103fb9e2a8656458798ca821bc8e77e1a4"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/HANDOFF_STATE.md","sha256":"5ccdbfc7b84300cf26c17c101636c24c6527607988748d8e0bf3cd0889e19906"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/MANAGER_RETURN.md","sha256":"eaa41468094fec26a2ce14c327ca2d3085e03a2dd235d0d82fc5dd3c7a03640b"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/RUNTIME_EVENTS.jsonl","sha256":"d33325a8ad99c2672906d8f18ed1de348f30df15045761a4dfeda6ac156c6eae"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/TASK-REVIEW/LAUNCH_BRIEF.md","sha256":"7b9e157bf03d2c344efe833bf62263eb5b2d27eae40c8b12eb7e361bdc13c7ff"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/TASK-REVIEW/RETURN.md","sha256":"46a6fffcff3612e50dbbea4041d215cfc0b2011e5562dafb9d690aa26c35c12a"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/TASK-REVIEW/STATUS.json","sha256":"b74cf7307d89bf8b59c010de6d846b254c73bfb42e64caff2686ead13dbbd638"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/TASK-REVIEW-2/LAUNCH_BRIEF.md","sha256":"ee7902466f88dcea880574154f7f52d0028912192ee99b4bfd646d34f16d1c3c"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/TASK-REVIEW-2/STATUS.json","sha256":"02d849e65269c65c1a81c5681672f007028bcd467e17149cc4094176c9adbf0a"},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/WI-PKG07-DEL0706/WORK_GRAPH.json","sha256":"0c80a3f52936eaacec1787d489442aa9ee95255a62e758234f063051ef96f64d"}
+  ],
+  "required_review_coverage": "100_percent_of_all_18_files_and_full_remediated_base_to_worktree_diff",
+  "reviewer_write_targets": []
+}

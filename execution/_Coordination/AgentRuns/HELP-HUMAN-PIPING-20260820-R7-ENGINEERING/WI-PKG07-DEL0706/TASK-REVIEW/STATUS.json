@@ -1,0 +1,10 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260820-R7-ENGINEERING",
+  "parent_instance_id": "WI-PKG07-DEL0706",
+  "child_instance_id": "TASK-REVIEW",
+  "agent_type": 2,
+  "skill": "software-code-review",
+  "delegation": "forbidden",
+  "write_targets": [],
+  "status": "FAILED_ACTIONABLE_FINDING_P2"
+}

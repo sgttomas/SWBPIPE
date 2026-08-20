@@ -3522,6 +3522,208 @@ fn build_app_menu<R: tauri::Runtime>(
         .build()
 }
 
+fn packaged_saved_edited_load_intent() -> Value {
+    json!({
+        "operation_id": "op:packaged-smoke-load-L-100-Y-magnitude",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "author_type": "user",
+        "target": { "object_type": "Load", "ref": "load:L-100" },
+        "change": {
+            "change_id": "change:packaged-smoke-load-L-100-Y-magnitude",
+            "change_kind": "update_load",
+            "field_label": "load:L-100-Y magnitude",
+            "field_path": "primitive_loads.1.magnitude.value",
+            "before": "350",
+            "after": "425",
+            "unit": "N",
+            "dimension": "force",
+            "source_note": "invented packaged-binary saved edited-load self-test"
+        },
+        "validation": {
+            "schema_validation": "not_run",
+            "constraint_validation": "not_run",
+            "unit_validation": "not_run",
+            "diff_preview_status": "not_generated",
+            "application_status": "not_applied"
+        },
+        "audit_boundary": {
+            "mutation_route": "structured_operations_only",
+            "direct_model_mutation_allowed": false,
+            "requires_user_acceptance": true,
+            "mutates_accepted_model_state": false
+        },
+        "professional_boundary": {
+            "human_review_required": true,
+            "software_makes_compliance_claim": false,
+            "software_makes_certification_claim": false,
+            "software_makes_sealing_claim": false,
+            "software_makes_approval_claim": false,
+            "software_makes_authentication_claim": false
+        },
+        "rationale": "prove packaged-binary edit, file-backed persistence, restore, and solve"
+    })
+}
+
+fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, String> {
+    // The fixture is embedded so the packaged executable does not depend on
+    // the repository or its current working directory.
+    let mut model: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/invented_preview_model.json"
+    ))
+    .map_err(|error| format!("PACKAGED-SMOKE-FIXTURE-INVALID: {error}"))?;
+    let baseline = solve_preview_mechanics(model.clone())?;
+    let baseline_displacement = baseline["results"]
+        .as_array()
+        .and_then(|rows| {
+            rows.iter()
+                .find(|row| row["id"].as_str() == Some("result:disp:node-N-140"))
+        })
+        .and_then(|row| row["value"].as_f64())
+        .ok_or_else(|| "PACKAGED-SMOKE-BASELINE-RESULT-MISSING".to_string())?;
+
+    model["project"]["id"] = json!("project:packaged-edited-load-smoke");
+    model["project"]["name"] = json!("Packaged Edited Load Smoke");
+    let applied = apply_model_operation(model, packaged_saved_edited_load_intent(), None)?;
+    if applied["validation"]["application_status"] != json!("applied_to_session_model") {
+        return Err("PACKAGED-SMOKE-OPERATION-NOT-APPLIED".to_string());
+    }
+    if applied["acceptance"]["acceptance_is_professional_approval"] != json!(false) {
+        return Err("PACKAGED-SMOKE-PROFESSIONAL-BOUNDARY-FAILED".to_string());
+    }
+    let edited_model = applied["applied_model"].clone();
+    let edited_value =
+        edited_model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64();
+    let edited_unit =
+        edited_model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"].as_str();
+    if edited_value != Some(425.0) || edited_unit != Some("N") {
+        return Err("PACKAGED-SMOKE-EDITED-LOAD-MISMATCH".to_string());
+    }
+
+    let store_migration = {
+        let (mut connection, migration) = open_project_store(store_path)?;
+        let (model_to_persist, document_status, ledger) = prepare_model_document_for_persist(
+            &connection,
+            "project:packaged-edited-load-smoke",
+            edited_model,
+            &Value::Null,
+            &json!({"value": "sha256:packaged-edited-load-smoke"}),
+        )?;
+        upsert_project(
+            &mut connection,
+            "project:packaged-edited-load-smoke",
+            "Packaged Edited Load Smoke",
+            &model_to_persist,
+            &json!([]),
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &json!({"value": "sha256:packaged-edited-load-smoke"}),
+            &Value::Null,
+            &ledger,
+        )?;
+        json!({
+            "store_schema_version": migration.store_schema_version,
+            "document_status": document_status.status,
+            "persistence_state": document_status.persistence_state
+        })
+    };
+
+    // A second connection models application restart and catches any evidence
+    // that existed only in writer-connection state.
+    let (connection, reopen_migration) = open_project_store(store_path)?;
+    let restored = load_project(&connection, Some("project:packaged-edited-load-smoke"))?
+        .ok_or_else(|| "PACKAGED-SMOKE-RESTORED-PROJECT-MISSING".to_string())?;
+    drop(connection);
+    if restored.project_id != "project:packaged-edited-load-smoke"
+        || restored.model["project"]["id"] != json!("project:packaged-edited-load-smoke")
+    {
+        return Err("PACKAGED-SMOKE-RESTORED-PROJECT-IDENTITY-MISMATCH".to_string());
+    }
+    let restored_value =
+        restored.model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64();
+    let restored_unit =
+        restored.model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"].as_str();
+    if restored_value != Some(425.0) || restored_unit != Some("N") {
+        return Err("PACKAGED-SMOKE-RESTORED-LOAD-MISMATCH".to_string());
+    }
+    let solved = solve_preview_mechanics(restored.model)?;
+    let result_rows = solved["results"].as_array().map_or(0, Vec::len);
+    let restored_displacement = solved["results"]
+        .as_array()
+        .and_then(|rows| {
+            rows.iter()
+                .find(|row| row["id"].as_str() == Some("result:disp:node-N-140"))
+        })
+        .and_then(|row| row["value"].as_f64())
+        .ok_or_else(|| "PACKAGED-SMOKE-RESTORED-RESULT-MISSING".to_string())?;
+    if solved["status"]["mechanics"] != json!("MECHANICS_SOLVED")
+        || solved["model_ref"] != json!("project:packaged-edited-load-smoke")
+        || result_rows == 0
+    {
+        return Err("PACKAGED-SMOKE-RESTORED-SOLVE-FAILED".to_string());
+    }
+    if restored_displacement == baseline_displacement {
+        return Err("PACKAGED-SMOKE-EDIT-DID-NOT-AFFECT-RESULT".to_string());
+    }
+
+    Ok(json!({
+        "status": "PASS",
+        "route": "packaged_binary_saved_edited_load_self_test",
+        "fixture_class": "invented_public",
+        "project_id": "project:packaged-edited-load-smoke",
+        "operation": {
+            "target": "load:L-100/load:L-100-Y",
+            "before": 350,
+            "after": 425,
+            "unit": "N",
+            "application_status": "applied_to_session_model",
+            "professional_approval": false
+        },
+        "persistence": {
+            "storage": "isolated_file_backed_sqlite",
+            "writer_connection_closed_before_restore": true,
+            "restored_value": 425,
+            "restored_unit": "N",
+            "store_migration": store_migration,
+            "reopen_store_schema_version": reopen_migration.store_schema_version
+        },
+        "solve": {
+            "mechanics": solved["status"]["mechanics"],
+            "model_ref": solved["model_ref"],
+            "result_rows": result_rows,
+            "edited_result_differs_from_baseline": true
+        },
+        "boundary": {
+            "network": false,
+            "telemetry": false,
+            "private_data": false,
+            "protected_content": false,
+            "repository_write": false
+        }
+    }))
+}
+
+/// Run the native packaged-binary persistence proof in a unique, disposable
+/// file-backed SQLite store and remove that store before returning.
+pub fn run_packaged_saved_edited_load_self_test() -> Result<Value, String> {
+    let nonce = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|error| error.to_string())?
+        .as_nanos();
+    let smoke_dir = std::env::temp_dir().join(format!(
+        "openpipestress-packaged-edited-load-smoke-{}-{nonce}",
+        std::process::id()
+    ));
+    fs::create_dir(&smoke_dir).map_err(|error| format!("PACKAGED-SMOKE-TEMP-CREATE: {error}"))?;
+    let store_path = smoke_dir.join(PROJECT_STORE_FILE);
+    let result = packaged_saved_edited_load_self_test_at(&store_path);
+    fs::remove_dir_all(&smoke_dir)
+        .map_err(|error| format!("PACKAGED-SMOKE-TEMP-CLEANUP: {error}"))?;
+    result
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -3571,6 +3773,23 @@ pub fn run() {
 mod tests {
     use super::*;
     use std::collections::BTreeSet;
+
+    #[test]
+    fn packaged_binary_self_test_persists_restores_and_solves_edited_load() {
+        let evidence = run_packaged_saved_edited_load_self_test()
+            .expect("packaged-binary saved edited-load self-test passes");
+        assert_eq!(evidence["status"], json!("PASS"));
+        assert_eq!(evidence["operation"]["after"], json!(425));
+        assert_eq!(evidence["persistence"]["restored_value"], json!(425));
+        assert_eq!(evidence["persistence"]["restored_unit"], json!("N"));
+        assert_eq!(evidence["solve"]["mechanics"], json!("MECHANICS_SOLVED"));
+        assert_eq!(
+            evidence["solve"]["model_ref"],
+            json!("project:packaged-edited-load-smoke")
+        );
+        assert!(evidence["solve"]["result_rows"].as_u64().unwrap_or(0) > 0);
+        assert_eq!(evidence["boundary"]["repository_write"], json!(false));
+    }
 
     #[test]
     fn native_menu_dispatch_script_targets_the_main_dom_command_event() {

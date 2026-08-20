@@ -1,7 +1,7 @@
 # Status: DEL-07-06 Accessibility and usability baseline
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-08-20
 
 ## Remaining
 - Preserve PDU-046 / `DEL-07-06-RQ-004` as `VERIFIED_NOT_VALIDATED` until a separately authorized independent usability basis and human-selected measurable contrast/readability target exist; the target remains `TBD_by_human_project_authority`.
@@ -9,6 +9,7 @@
 - Run a packaged-Tauri smoke over a saved project with edited load data (source: PRD plan §4 FR-007 A4 residual / seam plan §9.5)
 
 ## History
+- 2026-08-20 - A packaged-binary developer self-test closed the executable edit/persist/restore/solve engineering gap over invented `350 N -> 425 N` load data; the actual packaged GUI-control journey remains open because both Computer Use and System Events returned no usable accessibility state in this host session. No lifecycle change.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-046 recorded the measurable-target and independent-usability hold; no validation promotion or target selection occurred.
 - 2026-07-12 - D-41 R5 T5/PDU-045 added focused evidence that the deterministic baseline remains project-owned verification, desktop runtime evaluation is not performed, and the measurable contrast/readability target is held; lifecycle remains IN_PROGRESS.

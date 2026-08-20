@@ -1,5 +1,28 @@
 # DEL-07-06 Memory
 
+## 2026-08-20 - packaged-binary edited-load product proof; GUI host blocked
+
+- Added the packaged executable developer self-test
+  `--self-test-saved-edited-load`. The actual `.app` binary now deterministically
+  proves structured `350 N -> 425 N` edit, isolated file-backed SQLite save,
+  writer close, second-connection restore, unit preservation, and restored
+  `MECHANICS_SOLVED` output with non-empty changed results.
+- Fresh package execution passed with executable SHA-256
+  `28e2effdc2203437f0fb7ef02339f78a2f6e1ad1ccf775bb0053edba858669ca`,
+  restored `425 N`, SQLite schema 11, and 830 result rows.
+- Fresh review attempt 1 found a missing fail-closed identity guard. The
+  remediated PASS now requires the restored row, restored model, and solve
+  output all identify `project:packaged-edited-load-smoke`; the focused test
+  asserts that model ref.
+- The GUI-control observation itself was not performed: the packaged app
+  launched, but Computer Use and a read-only System Events accessibility query
+  produced no usable UI state. The exact packaged-Tauri GUI residual therefore
+  remains in `_STATUS.md ## Remaining`; native evidence was not substituted for
+  GUI evidence.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-08-20_R7_PACKAGED_EDITED_LOAD.md` and
+  `apps/desktop/SMOKE.md` TP-MAC-285.
+
 ## 2026-07-12 - D-41 R5 T6 PDU-046 hold
 
 - `DEL-07-06-RQ-004` remains `VERIFIED_NOT_VALIDATED`; deterministic

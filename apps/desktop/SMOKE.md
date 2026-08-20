@@ -9729,6 +9729,44 @@ notes:
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
 
+## TP-MAC-285 packaged-binary saved edited-load self-test - PASSED; GUI journey BLOCKED (`HELP-HUMAN-PIPING-20260820-R7-ENGINEERING`, 2026-08-20)
+
+- Product improvement: the packaged executable now accepts the developer
+  self-test flag `--self-test-saved-edited-load`. It embeds the invented public
+  model fixture, applies the exact structured `load:L-100/load:L-100-Y`
+  magnitude edit from `350 N` to `425 N`, writes the edited document to a
+  unique file-backed SQLite store, closes the writer connection, reopens the
+  store through a second connection, verifies `425 N`, solves the restored
+  document, emits structured JSON evidence, and removes the isolated store.
+- Actual package proof: a fresh macOS `.app` was built and its bundled
+  executable ran the self-test successfully. Evidence reported store schema
+  version `11`, migration state `persisted_with_ledger_record`, restored value
+  `425 N`, `MECHANICS_SOLVED`, model ref
+  `project:packaged-edited-load-smoke`, `830` result rows, and an edited
+  displacement different from the baseline. Executable SHA-256:
+  `28e2effdc2203437f0fb7ef02339f78a2f6e1ad1ccf775bb0053edba858669ca`.
+- Fresh integrated review attempt 1 found and remediation closed an identity
+  false-pass risk: PASS now requires the restored SQLite row ID, restored model
+  project ID, and solved `model_ref` all equal the frozen smoke project ID;
+  the Rust test asserts the solved identity. The post-remediation actual bundle
+  invocation produced the hash above and retained the same 425 N / 830-row
+  result evidence.
+- Focused regression: Rust tests
+  `packaged_binary_self_test_persists_restores_and_solves_edited_load` and
+  `saved_edited_load_model_round_trips_and_solves_from_restored_payload`
+  passed independently.
+- Packaged GUI observation status: `BLOCKED_HOST_AUTOMATION_UNAVAILABLE`, not
+  passed. `open` launched the `.app` and macOS listed the process as running,
+  but two bounded Computer Use state requests returned no accessibility tree
+  or screenshot; the exact read-only System Events window/control query also
+  returned no UI state and was terminated after 20 seconds. No GUI predicate
+  was inferred from the native self-test. The DEL-07-06 packaged-GUI residual
+  remains open for a host with working Accessibility control.
+- Boundary: invented data, isolated temporary storage, no repository-default
+  user data, network, daemon, telemetry, protected content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.
+
 ## DEL-08-01 report-package native save seam - PASSED (`R16-N4`, 2026-07-22)
 
 - Scope: final packaged-debug native smoke for the adopted DEL-08-01 report

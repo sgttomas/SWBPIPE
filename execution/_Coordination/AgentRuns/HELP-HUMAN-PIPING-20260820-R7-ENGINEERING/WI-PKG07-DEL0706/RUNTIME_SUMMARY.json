@@ -1,0 +1,109 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 5
+  },
+  "counts": {
+    "category": {
+      "checks": 1,
+      "closeout": 4,
+      "execution": 2,
+      "host": 1,
+      "review": 7,
+      "validation": 1
+    },
+    "event_type": {
+      "CHECK": 2,
+      "FINISH": 5,
+      "NOTICE": 1,
+      "REMEDIATION": 2,
+      "RETRY": 1,
+      "START": 5
+    },
+    "outcome": {
+      "BLOCKED": 1,
+      "FAIL": 1,
+      "PASS": 9,
+      "STARTED": 5
+    },
+    "reason_code": {
+      "ACTIVATION_FROZEN": 1,
+      "CHANGE_TRAILING_BLANK_LINE_DEFECT": 1,
+      "CLOSEOUT_REPAIR_COMPLETE": 1,
+      "COMPLETE_NODE_VALIDATED": 1,
+      "CORRECTED_NODE_VALIDATED": 1,
+      "FROZEN_V1_REVIEW": 1,
+      "FROZEN_V2_REVIEW": 1,
+      "FROZEN_V3_REVIEW": 1,
+      "HOST_GUI_AUTOMATION_UNAVAILABLE": 1,
+      "NO_ACTIONABLE_FINDINGS": 2,
+      "POST_REVIEW_REMEDIATION_RERUN": 1,
+      "RESTORED_PROJECT_IDENTITY_NOT_GATED": 2,
+      "TRAILING_BLANK_LINES_NORMALIZED": 1,
+      "VALIDATED_PARTIAL_PRODUCT_PROGRESS": 1
+    }
+  },
+  "events": 16,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 0.032,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "TASK-REVIEW",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK_REVIEW",
+      "session_id": "TASK-REVIEW-ATTEMPT-1"
+    },
+    {
+      "duration_seconds": 0.027,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "TASK-REVIEW-2",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK_REVIEW",
+      "session_id": "TASK-REVIEW-ATTEMPT-2"
+    },
+    {
+      "duration_seconds": 0.007,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "TASK-REVIEW-3",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK_REVIEW",
+      "session_id": "TASK-REVIEW-ATTEMPT-3"
+    },
+    {
+      "duration_seconds": 384.815,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 1,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-CLOSEOUT-2"
+    },
+    {
+      "duration_seconds": 2243.111,
+      "events": 6,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 1,
+      "retries": 1,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1"
+    }
+  ],
+  "sessions": 5,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

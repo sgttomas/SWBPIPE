@@ -1,0 +1,101 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R7-ENGINEERING",
+  "instance_id": "WI-PKG07-DEL0706",
+  "package_id": "PKG-07",
+  "selected_deliverable_ids": ["DEL-07-06"],
+  "version": 3,
+  "frozen": true,
+  "status": "complete_with_host_gui_blocker",
+  "selection_authority": "HELP_HUMAN sealed human-steered N1 activation",
+  "posture": "MIXED",
+  "accepted_base": "8eea5d06d3f98dd91b56b53a2c7caec2f7ed5919",
+  "integration_owner": "WI-PKG07-DEL0706",
+  "nodes": [
+    {
+      "id": "N1-E1",
+      "agent_type": 1,
+      "construction": "direct WORKING_ITEMS host-capability execution",
+      "status": "product_proof_pass_gui_host_blocked",
+      "objective": "Build and execute the actual packaged-Tauri saved edited-load smoke; diagnose and repair only in-scope product defects.",
+      "dependencies": [],
+      "checks": ["in-session focused and registered checks", "host-capability packaged build and native GUI journey"],
+      "write_owner": "WI-PKG07-DEL0706",
+      "write_targets": [
+        "projects/chirality-piping/apps/desktop/**",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/{_STATUS.md,MEMORY.md,_run_records/**}",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/**"
+      ],
+      "expected_return": "packaged journey observations, exact changed paths, checks, containment, residuals, and rerun requirements"
+    },
+    {
+      "id": "N1-R1",
+      "agent_type": 2,
+      "construction": "conditional TASK software-code-review",
+      "skill": "software-code-review",
+      "status": "failed_actionable_finding_p2_remediated",
+      "objective": "Fresh read-only review over 100% of the complete frozen node diff, including src-tauri product/test changes and integrated evidence/AgentRuns artifacts.",
+      "dependencies": ["N1-E1 implementation accepted and complete node diff frozen"],
+      "delegation": "forbidden",
+      "allowed_write_targets": [],
+      "expected_return": "PASS with no actionable finding or exact findings"
+    },
+    {
+      "id": "N1-R2",
+      "agent_type": 2,
+      "construction": "fresh TASK software-code-review after remediation",
+      "skill": "software-code-review",
+      "status": "pass_no_actionable_findings",
+      "objective": "Fresh read-only review over 100% of FROZEN_NODE_DIFF_V2 after identity fail-closed remediation and rerun checks.",
+      "dependencies": ["N1-R1 P2 remediated", "remediated checks pass", "v2 frozen"],
+      "delegation": "forbidden",
+      "allowed_write_targets": [],
+      "expected_return": "PASS with no actionable finding or exact findings"
+    },
+    {
+      "id": "N1-R3",
+      "agent_type": 2,
+      "construction": "fresh TASK software-code-review after closeout whitespace normalization",
+      "skill": "software-code-review",
+      "status": "pass_no_actionable_findings",
+      "objective": "Fresh read-only review over 100% of FROZEN_NODE_DIFF_V3 after deterministic trailing-blank-line normalization.",
+      "dependencies": ["CHANGE closeout whitespace defect normalized", "v3 frozen"],
+      "delegation": "forbidden",
+      "allowed_write_targets": [],
+      "expected_return": "PASS with no actionable finding or exact findings"
+    },
+    {
+      "id": "N1-F1",
+      "agent_type": 1,
+      "construction": "WORKING_ITEMS fan-in",
+      "status": "complete_after_fresh_review_3_pass",
+      "objective": "Validate native proof, checks, evidence/state edits, containment, review if triggered, and return to Agent 0.",
+      "dependencies": ["N1-E1 accepted", "N1-R3 PASS"],
+      "write_owner": "WI-PKG07-DEL0706",
+      "expected_return": "validated manager return and explicit handoff state"
+    }
+  ],
+  "edges": [
+    {"from": "N1-E1", "to": "N1-R1", "gate": "apps/desktop/src/** changed"},
+    {"from": "N1-R1", "to": "N1-R2", "gate": "P2 remediated and v2 frozen"},
+    {"from": "N1-R2", "to": "N1-R3", "gate": "closeout whitespace normalized and v3 frozen"},
+    {"from": "N1-E1", "to": "N1-F1", "gate": "native smoke and required checks pass"},
+    {"from": "N1-R3", "to": "N1-F1", "gate": "fresh corrected-node review PASS"}
+  ],
+  "concurrency": "none; one selected deliverable node, review serialized after frozen diff",
+  "fan_in_gates": [
+    "actual packaged Tauri journey passes all frozen predicates",
+    "focused and registered checks pass",
+    "all writes remain contained",
+    "fresh complete-node read-only review PASS after remediation",
+    "only the exact packaged-smoke Remaining item is removed"
+  ],
+  "escalation_points": [
+    "write beyond frozen scope",
+    "new normative or owner decision",
+    "private/protected data exposure",
+    "cross-package defect",
+    "host-capability request declined",
+    "native journey cannot express a required predicate"
+  ]
+}

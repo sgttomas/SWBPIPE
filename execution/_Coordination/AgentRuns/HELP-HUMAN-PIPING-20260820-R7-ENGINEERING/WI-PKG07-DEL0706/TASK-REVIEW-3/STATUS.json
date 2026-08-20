@@ -1,0 +1,15 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260820-R7-ENGINEERING",
+  "parent_instance_id": "WI-PKG07-DEL0706",
+  "child_instance_id": "TASK-REVIEW-3",
+  "agent_type": 2,
+  "skill": "software-code-review",
+  "delegation": "forbidden",
+  "write_targets": [],
+  "status": "PASS",
+  "verdict": "no_actionable_findings",
+  "frozen_snapshot": "../FROZEN_NODE_DIFF_V3.json",
+  "verified_hashes": 24,
+  "review_coverage": "100_percent",
+  "completed_at": "2026-08-20T16:53:28.177Z"
+}
