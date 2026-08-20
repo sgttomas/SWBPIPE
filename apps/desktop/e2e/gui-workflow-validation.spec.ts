@@ -87,6 +87,15 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("solve-job-summary")).toContainText(`result_rows=${resultFixture.results.length}`);
   await expect(page.getByTestId("status-pill-mechanics")).toContainText(resultFixture.status.mechanics);
   await expect(page.getByTestId("status-pill-rule-check")).toContainText(resultFixture.status.rule_check);
+  const visibleSolveProof = page.getByTestId("status-pill-solve-proof");
+  await expect(visibleSolveProof).toContainText("seam=browser_fixture_no_backend_job");
+  await expect(visibleSolveProof).toContainText(`project=${modelFixture.project.id}`);
+  await expect(visibleSolveProof).toContainText(`result_model=${modelFixture.project.id}`);
+  await expect(visibleSolveProof).toContainText("identity=match");
+  await expect(visibleSolveProof).toContainText(`rows=${resultFixture.results.length}`);
+  await expect(visibleSolveProof).toContainText("job=job:preview-linear-static:");
+  await expect(visibleSolveProof).toContainText("model_sha256=sha256:");
+  await expect(visibleSolveProof).toContainText("input_manifest_sha256=");
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("result-filter-summary")).toContainText(
     `${resultFixture.results.length} of ${resultFixture.results.length} results match filter`

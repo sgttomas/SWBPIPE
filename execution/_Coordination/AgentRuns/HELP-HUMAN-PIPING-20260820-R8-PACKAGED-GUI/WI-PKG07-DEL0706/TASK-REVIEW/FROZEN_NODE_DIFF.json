@@ -1,0 +1,34 @@
+{
+  "schema": "chirality-frozen-node-diff/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
+  "instance_id": "WI-PKG07-DEL0706",
+  "node_id": "N1",
+  "attempt": 2,
+  "basis_head": "91b92f949b8d808b61268baca9a54f4f716c99ff",
+  "status": "FROZEN_FOR_READ_ONLY_REVIEW",
+  "hash_algorithm": "sha256",
+  "self_hash": "NOT_APPLICABLE_MANIFEST_CANNOT_HASH_ITSELF",
+  "files": [
+    {"sha256":"96a753dd86dc98f0f108f2d154c05888c7c81c9a41d9d0c10c80184742035292","path":"projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/WORKING_ITEMS_RUN_2026-08-20_R8_PACKAGED_GUI_EDITED_LOAD.md"},
+    {"sha256":"6f8550b16cf6910e007d9e2a92401c1e2c9bea281ef913cc9d2170dfc685b39f","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/AMENDMENT_1.md"},
+    {"sha256":"5ef7ce74b15c5ebe6694b352e4eade7e58b737b1266197f2767af9ef57506f78","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/AMENDMENT_2.md"},
+    {"sha256":"a29a8df901277188fa020b0125cb3eea773f1c132de065d8ceaad12a11fd06d2","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/PACKAGED_REOPENED_UNSOLVED.jpeg"},
+    {"sha256":"59ae2c43a9eff05d0342fc446c97d3cb3412c3948f1fd992efb818360e65c447","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/PACKAGED_SOLVED_PROOF.jpeg"},
+    {"sha256":"1fdf28f7198cb12432a0648a8f98fce622dcbba124a646d2eeb9366c4a57e4f0","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/TASK-REVIEW/LAUNCH_BRIEF.md"},
+    {"sha256":"6fd8bb347e8c62954a6a724ca6112ed7ba4b5539e10647dbac9cbd6017d1b284","path":"projects/chirality-piping/apps/desktop/SMOKE.md"},
+    {"sha256":"cd1ca61f8028548fa02ef90029cf2c3fe74e7c7ce571d6c5a880786bc0038f0e","path":"projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts"},
+    {"sha256":"8b1b8702a93bca5ec9f8c7379140f185d91f4184f4ec1ac3431e078865d5f9da","path":"projects/chirality-piping/apps/desktop/src/App.test.tsx"},
+    {"sha256":"cb0c0f976a8ce9b856c6d815abbf8f1742a6d5ccbc2fc691775b940a2b5c34d7","path":"projects/chirality-piping/apps/desktop/src/App.tsx"},
+    {"sha256":"e1849063034c85b73916c5b3cb47b50cdcd0d0352a80814ce5485ac1d509607f","path":"projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md"},
+    {"sha256":"a3ef564379b14d756ef6c40c13302ad48ea95011f0c02dd7646a332246c03b64","path":"projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md"},
+    {"sha256":"2e89357489a6fe470beea5090e75b7dabf525d43c49219329bba57a7afa5a520","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/HANDOFF_STATE.md"},
+    {"sha256":"fe70248be630527a88caa9599e818e5072fede2ff4aaa8e42ff0fcc709407d69","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/MANAGER_RETURN.md"},
+    {"sha256":"e4519a49bee419ddd1289ff5c84eaf348386377f19a05c48afb3b0d6f49607ad","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WI-PKG07-DEL0706/RUNTIME_EVENTS.jsonl"},
+    {"sha256":"c5f0882ab3f7d527b6c156d9ba7b87170602bfbf99f5bb00a9ba18e8b468161c","path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/WORK_GRAPH.json"}
+  ],
+  "file_count": 16,
+  "checks_before_freeze": {
+    "git_diff_check": "PASS",
+    "git_diff_head_check": "PASS"
+  }
+}

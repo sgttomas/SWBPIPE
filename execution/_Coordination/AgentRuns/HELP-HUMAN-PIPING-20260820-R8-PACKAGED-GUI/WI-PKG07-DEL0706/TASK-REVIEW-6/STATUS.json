@@ -1,0 +1,12 @@
+{
+  "schema": "chirality-managed-task-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
+  "instance_id": "WI-PKG07-DEL0706-TASK-REVIEW-6",
+  "task_skill": "software-code-review",
+  "status": "PASSED_VALID_FOR_CHANGE_STAGING",
+  "read_only": true,
+  "delegated": false,
+  "frozen_hashes_verified": 50,
+  "frozen_hashes_total": 50,
+  "fan_in_valid": true
+}

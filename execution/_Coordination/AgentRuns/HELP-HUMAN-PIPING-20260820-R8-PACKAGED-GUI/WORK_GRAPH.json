@@ -1,8 +1,8 @@
 {
   "schema": "chirality-managed-work-graph/v1",
-  "version": 1,
+  "version": 7,
   "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
-  "status": "BLOCKED_HOST_COMPUTER_USE_STATE_CAPTURE_HUNG",
+  "status": "PASS_VALIDATED_TERMINAL_FAN_IN",
   "frozen": true,
   "selection_authority": "HELP_HUMAN under explicit owner development-pressure steer",
   "accepted_basis": "fae5e38ee60fd4c8d4a52ac7f663036a83cdbd7d",
@@ -18,7 +18,7 @@
       "role": "WORKING_ITEMS",
       "package_id": "PKG-07",
       "deliverable_id": "DEL-07-06",
-      "status": "BLOCKED_HOST_COMPUTER_USE_STATE_CAPTURE_HUNG",
+      "status": "PASS_VALIDATED_TERMINAL_FAN_IN",
       "objective": "Close only the exact packaged-Tauri saved-project edited-load GUI smoke residual through actual packaged macOS GUI operation.",
       "write_owner": "WI-PKG07-DEL0706",
       "write_targets": [
@@ -60,5 +60,51 @@
     "manager": "WORKING_ITEMS WI-PKG07-DEL0706 on Codex GPT-5",
     "gui_capability": "computer-use skill with @oai/sky on macOS",
     "context_occupancy": "unavailable unless exposed by runtime"
-  }
+  },
+  "attempt_history": [
+    {
+      "attempt": 1,
+      "status": "BLOCKED_HOST_COMPUTER_USE_STATE_CAPTURE_HUNG",
+      "record": "WI-PKG07-DEL0706/MANAGER_RETURN.md#attempt-1--preserved-blocked-history"
+    },
+    {
+      "attempt": 2,
+      "status": "PASS_VALIDATED_TERMINAL_FAN_IN",
+      "amendments": [
+        "WI-PKG07-DEL0706/AMENDMENT_1.md",
+        "WI-PKG07-DEL0706/AMENDMENT_2.md",
+        "WI-PKG07-DEL0706/AMENDMENT_3.md",
+        "WI-PKG07-DEL0706/AMENDMENT_4.md",
+        "WI-PKG07-DEL0706/AMENDMENT_5.md",
+        "WI-PKG07-DEL0706/AMENDMENT_6.md"
+      ],
+      "review_history": [
+        {
+          "review": 1,
+          "status": "FAIL_ACTIONABLE_FINDINGS_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW/RETURN.md"
+        },
+        {
+          "review": 2,
+          "status": "FAIL_ACTIONABLE_FINDINGS_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-2/RETURN.md"
+        },
+        {
+          "review": 3,
+          "status": "FAIL_ACTIONABLE_FINDINGS_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-3/RETURN.md"
+        },
+        {
+          "review": 4,
+          "status": "FAIL_ACTIONABLE_FINDINGS_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-4/RETURN.md"
+        },
+        {
+          "review": 5,
+          "status": "PASS_VALID_FOR_TERMINAL_FAN_IN",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-5/RETURN.md"
+        }
+      ]
+    }
+  ]
 }

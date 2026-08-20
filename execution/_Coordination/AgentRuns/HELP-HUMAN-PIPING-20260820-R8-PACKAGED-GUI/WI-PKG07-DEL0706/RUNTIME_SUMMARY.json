@@ -2,32 +2,62 @@
   "context_telemetry": {
     "measurement_limitation": "native context occupancy unavailable for one or more sessions",
     "starts_with_context_occupancy": 0,
-    "starts_without_context_occupancy": 1
+    "starts_without_context_occupancy": 7
   },
   "counts": {
     "category": {
-      "checks": 1,
-      "execution": 2,
-      "host": 1
+      "checks": 6,
+      "execution": 4,
+      "host": 3,
+      "implementation": 5,
+      "review": 10,
+      "telemetry": 1
     },
     "event_type": {
-      "CHECK": 1,
-      "FINISH": 1,
-      "NOTICE": 1,
-      "START": 1
+      "CHECK": 6,
+      "FINISH": 7,
+      "NOTICE": 4,
+      "REMEDIATION": 5,
+      "START": 7
     },
     "outcome": {
       "BLOCKED": 2,
-      "PASS": 1,
-      "STARTED": 1
+      "FAIL": 4,
+      "PASS": 15,
+      "STARTED": 8
     },
     "reason_code": {
       "ACTIVATION_FROZEN": 1,
       "COORDINATION_CHECKS_PASS": 1,
-      "HOST_COMPUTER_USE_STATE_CAPTURE_HUNG": 2
+      "DETACHED_CANCEL_TRIGGERED_AND_HOST_CHECKS_PASS": 1,
+      "DETACHED_PRESTART_CANCEL_TOMBSTONE_BOUND": 1,
+      "FROZEN_DIFF_REVIEW_2_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_3_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_4_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_5_STARTED": 1,
+      "FROZEN_DIFF_REVIEW_5_VALID_FOR_TERMINAL_FAN_IN": 1,
+      "FROZEN_DIFF_REVIEW_STARTED": 1,
+      "GENERATION_REMEDIATED_TRIGGERED_AND_HOST_CHECKS_PASS": 1,
+      "HOST_COMPUTER_USE_STATE_CAPTURE_HUNG": 2,
+      "MODEL_TRANSITION_AND_PRESTART_CANCEL_NOT_GENERATION_BOUND": 1,
+      "MODEL_TRANSITION_AND_PRESTART_CANCEL_SYNCHRONOUSLY_BOUND": 1,
+      "OVERLAPPING_PACKAGED_RUN_CALLBACKS_NOT_GENERATION_BOUND": 1,
+      "OWNER_INVITED_RETRY": 1,
+      "PACKAGED_GUI_PREDICATES_OBSERVED": 1,
+      "PASS_VALIDATED_TERMINAL_FAN_IN": 1,
+      "PRESTART_CANCEL_DROPPED_BY_MODEL_TRANSITION": 1,
+      "REMEDIATED_PACKAGED_GUI_BOUND_PROOF_PASS": 1,
+      "REMEDIATED_TRIGGERED_CHECKS_PASS": 1,
+      "REVIEW_SESSION_ATTRIBUTION_CORRECTED": 1,
+      "SOLVE_BACKEND_IDENTITY_NOT_RELIABLY_VISIBLE": 1,
+      "SOLVE_CALLBACKS_GENERATION_AND_JOB_BOUND": 1,
+      "SOLVE_PROOF_JOB_MODEL_VERSION_BOUND": 1,
+      "STALE_SOLVE_PROOF_NOT_JOB_MODEL_BOUND": 1,
+      "SYNCHRONOUS_TRANSITION_TRIGGERED_AND_HOST_CHECKS_PASS": 1,
+      "TRIGGERED_CHECKS_PASS": 1
     }
   },
-  "events": 4,
+  "events": 29,
   "schema": "chirality-runtime-summary/v1",
   "session_results": [
     {
@@ -40,9 +70,75 @@
       "retries": 0,
       "role": "WORKING_ITEMS",
       "session_id": "WI-PKG07-DEL0706-N1"
+    },
+    {
+      "duration_seconds": 9952.571,
+      "events": 15,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 5,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2"
+    },
+    {
+      "duration_seconds": 3676.683,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-1"
+    },
+    {
+      "duration_seconds": 841.721,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-2"
+    },
+    {
+      "duration_seconds": 716.8,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-3"
+    },
+    {
+      "duration_seconds": 480.0,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-4"
+    },
+    {
+      "duration_seconds": 840.0,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "WI-PKG07-DEL0706",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "WI-PKG07-DEL0706-N1-ATTEMPT-2-REVIEW-5"
     }
   ],
-  "sessions": 1,
+  "sessions": 7,
   "status": "PASS",
   "unmatched_sessions": []
 }
