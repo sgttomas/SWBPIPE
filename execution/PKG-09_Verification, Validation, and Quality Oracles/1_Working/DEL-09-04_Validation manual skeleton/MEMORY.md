@@ -11,6 +11,26 @@ revision: 0.5
 
 # MEMORY - DEL-09-04 Validation Manual Skeleton
 
+## 2026-08-20 - Fixture-bound desktop GUI workflow evidence
+
+- The existing DEL-09-04 Playwright journey now reads the repository-local
+  invented model and mechanics-result fixtures as its expectation basis and
+  runs once under each registered desktop viewport project.
+- It proves visible pre-solve, solved (830 fixture result rows), edited,
+  local-save/reopen, and edited-model solve-blocked (zero result rows) states;
+  separately visible rule-input, provenance, solve-blocking, and professional
+  assumption warnings; explicit public/protected/private/professional
+  boundaries; and zero external requests.
+- Focused host execution on 2026-08-20 passed both `chromium-desktop` and
+  `chromium-compact` (2/2). The manual GUI inventory therefore moves only to
+  `DRAFT_EVIDENCE`, and the GUI-workflow clause is removed from Remaining.
+- `MAINTAINER_REVIEWED` case-page promotion and public result-comparison
+  values remain owner-gated and open. Lifecycle stays `IN_PROGRESS`; no
+  threshold, release, publication, acceptance, or professional-reliance act
+  occurred.
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
 ## 2026-08-11 - Owner-gates application (C-B, V-D, O-B, MR-A)
 
 - The owner ruled verbatim: `DEC CONVERGENCE: C-B`,

@@ -3,7 +3,7 @@ doc_id: OPS-VALIDATION-MANUAL-SKELETON
 doc_kind: governance.validation_manual
 status: draft
 created: 2026-05-04
-updated: 2026-08-09
+updated: 2026-08-20
 refs:
   - rel: governed_by
     to: OPS-CONTRACT
@@ -59,8 +59,8 @@ Manual entries use these states:
 
 Final release thresholds, public benchmark acceptance, release labels, and
 professional reliance wording remain `TBD` unless a human governance record says
-otherwise. GUI validation evidence requirements and validation evidence-bundle
-storage also remain `TBD`.
+otherwise. GUI workflow validation has `DRAFT_EVIDENCE`; maintainer review and
+long-term validation evidence-bundle storage remain open.
 
 ## 3. Case Index
 
@@ -174,6 +174,7 @@ governed `DEC-046` policy records committed beside the crate
 | Slice | Evidence state | Purpose |
 |---|---|---|
 | [Headless runner reproduction](headless_runner_reproduction.md) | `DRAFT_EVIDENCE` | Records the current external-reproducibility path for the invented `openpipestress-runner` examples produced by `TP-RUNNER-015` under `DEC-065`. |
+| [Desktop GUI workflow validation](../../apps/desktop/e2e/gui-workflow-validation.spec.ts) | `DRAFT_EVIDENCE` | Binds the invented repository fixtures to visible pre-solve, solved, edited, reopened, and solve-blocked states; distinct missing-input, provenance, and assumption warnings; explicit data/professional boundaries; and no external requests across both registered viewport projects. |
 
 ## 4. Manual Section Map
 
@@ -186,7 +187,7 @@ governed `DEC-046` policy records committed beside the crate
 | Load and stress recovery verification | Mechanics verification | [section 3.2 cases](#32-stress-recovery-cases-del-09-02) | Axial, bending, torsion, pressure membrane, stress range, load-case algebra, documented tolerances |
 | Nonlinear support verification | Mechanics verification | [section 3.3 cases](#33-nonlinear-support-cases-del-09-03) | Active-set behavior, gap/lift-off/friction cases, convergence and non-convergence diagnostics |
 | Rule-pack evaluator verification | User rule check | rule schemas, evaluator tests, invented rule packs | Required inputs, unit awareness, sandboxing, deterministic pass/fail status, checksum/provenance |
-| GUI workflow validation | Workflow validation | GUI workflow tests and screenshots when available | Missing-data behavior, warning visibility, assumptions, solve status, result state transitions |
+| GUI workflow validation | Workflow validation | `apps/desktop/e2e/gui-workflow-validation.spec.ts`; `fixtures/product_preview/invented_preview_model.json`; `fixtures/product_preview/invented_mechanics_result.json` | Missing-data behavior, warning visibility, assumptions, solve status, result state transitions |
 | Report reproducibility validation | Workflow validation | report generator, audit manifest, protected-content linter | Stable output, checksums, warning inclusion, provenance disclosure, professional-boundary notice |
 | Known limitations and open issues | Cross-cutting | issue records, release notes, `TBD` queue | Missing evidence, unapproved thresholds, source restrictions, model limitations, accepted risks |
 
@@ -198,7 +199,7 @@ governed `DEC-046` policy records committed beside the crate
 | Stress recovery benchmarks | [Section 3.2 case pages](#32-stress-recovery-cases-del-09-02); `validation/benchmarks/stress/`, `validation/hand_calcs/stress/` | `DRAFT_EVIDENCE`; fatigue, allowable, and release-threshold decisions are `TBD`. |
 | Nonlinear support regression | [Section 3.3 case pages](#33-nonlinear-support-cases-del-09-03); `validation/benchmarks/nonlinear/` with governed `DEC-046` policy records | `DRAFT_EVIDENCE`; production release thresholds and external validation claims are `TBD`. |
 | Headless runner reproduction | `docs/validation_manual/headless_runner_reproduction.md`; `validation/witness/inputs/`; `validation/witness/generated/` | `DRAFT_EVIDENCE`; the current DEC-065 local CLI examples and the committed DEL-10-05 `run-benchmark`/`run-regression` payload families are reproducible from invented fixtures. `export-results` remains the only structured runner stub, and public benchmark thresholds remain `TBD`. |
-| GUI workflow validation | GUI workflow tests, screenshots, and interaction evidence when available | `PLANNED`; required evidence type, coverage, and review criteria are `TBD`. |
+| GUI workflow validation | `apps/desktop/e2e/gui-workflow-validation.spec.ts`; repository-local invented model/result fixtures; two-viewport projects in `apps/desktop/playwright.config.ts` | `DRAFT_EVIDENCE`; on 2026-08-20 the focused host run `npm exec playwright test -- e2e/gui-workflow-validation.spec.ts` passed 2/2 (`chromium-desktop`, `chromium-compact`). Coverage binds visible missing-data and warning classes, assumptions/boundaries, solve and result transitions, local-only persistence, and zero external requests. No threshold or maintainer-review promotion is selected. |
 | Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; development review evidence, not legal clearance, and acceptance stays with the responsible engineer. |
 | Release quality evidence | Future `DEL-09-05` release quality gate checklist | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
 | Validation evidence bundles | Future evidence package location/format | `TBD`; long-term storage, retention, and release attachment policy are unsettled. |
@@ -279,7 +280,6 @@ reviewers check that:
   remains unfilled).
 - TBD: public benchmark source acceptance process and reviewer roster.
 - TBD: release-label policy beyond the minimum validation strategy gate.
-- TBD: required GUI validation evidence once the GUI tranche matures.
 - TBD: long-term storage format for reviewed validation evidence bundles.
 - TBD: additional `openpipestress-runner` benchmark/regression payload coverage
   beyond the exact committed DEL-10-05 witness families, `export-results`

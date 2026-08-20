@@ -1,0 +1,21 @@
+# Package Activation — DEL-09-04 GUI Workflow Closure
+
+- RunID: `HELP-HUMAN-PIPING-20260820-DEL0904-GUI-WORKFLOW-CLOSURE`
+- Parent: HELP_HUMAN Agent 0
+- InstanceID: `WI-PKG09-DEL0904-GUI-CLOSURE`
+- Manager: WORKING_ITEMS Agent 1
+- PackageID: `PKG-09`
+- SelectedDeliverable: `DEL-09-04`
+- AcceptedBasis: Git `57803893d1eb161f395e0574c256dd27920bf1d4`; `DAG-009`; R5; live DEL-09-04 `IN_PROGRESS` status and first Remaining item
+- Objective: close only the GUI-workflow validation-evidence residual by binding the validation manual's documented GUI checklist to invented Playwright fixtures and executing it through both registered desktop viewport projects.
+- Profile: `projects/chirality-piping/software-workflow.json`
+- Posture: `MIXED`
+- Authority: Agent-0 Work Graph v1 and current owner development-pressure steer
+- Dependency state: active execution-upstream dependencies satisfied per Agent 0 Step 0
+- Product write fence: `apps/desktop/e2e/**`; `apps/desktop/src/**` only for a defect demonstrated by the focused case; `docs/validation_manual/**`; invented `validation/**` support/evidence if required
+- Deliverable-state write fence: DEL-09-04 `_STATUS.md`, `MEMORY.md`, and one `_run_records/**` record
+- Coordination write fence: this run root only
+- Shared-surface exclusions: loop receipts, decisions, registers, DAG/decomposition, packages other than DEL-09-04, root files, `.github/**`, and other projects
+- Owner gates preserved: no `MAINTAINER_REVIEWED` promotion, public comparison value, lifecycle/stage/release/publication/professional-reliance act, or owner-gated residual disposition
+- Checks: focused TypeScript/Playwright discovery in session; focused Playwright both registered viewports under host capability; affected registered desktop checks; mandatory fresh read-only software code review over 100% of the frozen integrated N1 diff; committed-head DEC-025 sweep and PR CI after CHANGE commit
+- Git: implementation manager does not commit, push, open PR, merge, or write the shared receipt; CHANGE owns publication.

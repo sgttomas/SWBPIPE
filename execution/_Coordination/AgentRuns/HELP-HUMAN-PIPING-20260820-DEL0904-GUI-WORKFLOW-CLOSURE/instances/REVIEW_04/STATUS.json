@@ -1,0 +1,30 @@
+{
+  "instance_id": "TASK-DEL0904-GUI-REVIEW-04",
+  "agent_type": "TASK_AGENT_2",
+  "task_skill": "software-code-review",
+  "parent": "WI-PKG09-DEL0904-GUI-CLOSURE",
+  "status": "PASS",
+  "terminal": true,
+  "base": "57803893d1eb161f395e0574c256dd27920bf1d4",
+  "frozen_manifest": "FROZEN_DIFF_MANIFEST_V4.md",
+  "frozen_manifest_sha256": "5b474ee3544470607b721cd9bd0b6b0847c6b56008ae173a94ae436b0128f804",
+  "frozen_path_count": 28,
+  "coverage_percent": 100,
+  "hash_verification_passes": 2,
+  "hash_identity_status": "PASS",
+  "semantic_consistency_status": "PASS",
+  "conditional_acceptance_status": "SATISFIED",
+  "prior_review_history_status": "PRESERVED",
+  "whole_worktree_whitespace_status": "PASS",
+  "scope_status": "PASS",
+  "affected_check_evidence_status": "PASS",
+  "final_host_proof_status": "PASS_2_OF_2",
+  "actionable_finding_count": 0,
+  "blocking_finding_count": 0,
+  "change_fan_in_valid": true,
+  "delegation": "FORBIDDEN_AND_NOT_USED",
+  "write_scope": [
+    "RETURN.md",
+    "STATUS.json"
+  ]
+}

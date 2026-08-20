@@ -1,0 +1,23 @@
+{
+  "instance_id": "TASK-DEL0904-GUI-REVIEW-01",
+  "agent_type": "TASK_AGENT_2",
+  "task_skill": "software-code-review",
+  "parent": "WI-PKG09-DEL0904-GUI-CLOSURE",
+  "status": "FAIL",
+  "terminal": true,
+  "base": "57803893d1eb161f395e0574c256dd27920bf1d4",
+  "frozen_path_count": 9,
+  "coverage_percent": 100,
+  "hash_verification_passes": 2,
+  "hash_identity_status": "PASS",
+  "scope_status": "PASS",
+  "actionable_finding_count": 1,
+  "blocking_finding_count": 1,
+  "registered_check_evidence_status": "PASS_AT_MANAGER_FAN_IN",
+  "manager_fan_in_valid": false,
+  "delegation": "FORBIDDEN_AND_NOT_USED",
+  "write_scope": [
+    "RETURN.md",
+    "STATUS.json"
+  ]
+}
