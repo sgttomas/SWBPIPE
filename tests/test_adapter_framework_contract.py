@@ -384,6 +384,10 @@ def test_operation_result_builder_preserves_boundaries():
     assert built["parse_status"] == "not_parsed_by_framework"
     assert built["privacy"]["local_first"] is True
     assert built["privacy"]["telemetry_allowed"] is False
+    assert built["privacy"]["classification"] == "TBD"
+    assert built["provenance"]["source_name"] == "TBD"
+    assert built["provenance"]["review_status"] == "rejected"
+    assert "Invented adapter framework fixture" not in built["provenance"].values()
     assert built["result_envelope_ref"]["schema_ref"] == "schemas/results.schema.yaml"
     assert built["professional_boundary"]["software_makes_compliance_claim"] is False
 

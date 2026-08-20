@@ -327,6 +327,9 @@ def test_malformed_unit_evidence_fails_closed(unit_evidence):
     result = _verify(unit_evidence=unit_evidence)
     assert result.outcome == "REJECTED"
     assert "PLUGIN_UNIT_EVIDENCE_MALFORMED" in _codes(result)
+    assert result.result_envelope["privacy"]["classification"] == (
+        "export_review_required"
+    )
 
 
 def test_unit_safety_control_fails_closed_when_disabled():
@@ -362,6 +365,269 @@ def test_suspected_protected_content_quarantines():
     assert result.quarantined is True
     assert result.runtime_dispatched is False
     assert "PLUGIN_PROTECTED_CONTENT_SUSPECTED" in _codes(result)
+
+
+@pytest.mark.parametrize(
+    ("redistribution_status", "expected_classification", "expected_outcome"),
+    [
+        ("private_only", "private_local_only", "BLOCKED_RUNTIME_NOT_SELECTED"),
+        ("protected_suspected", "protected_suspected", "QUARANTINE"),
+    ],
+)
+def test_manifest_boundary_controls_top_level_envelope(
+    redistribution_status,
+    expected_classification,
+    expected_outcome,
+):
+    manifest = _manifest()
+    provenance = manifest["provenance"]
+    provenance["redistribution_status"] = redistribution_status
+
+    result = _verify(manifest=manifest)
+
+    assert result.outcome == expected_outcome
+    assert result.runtime_dispatched is False
+    assert result.result_envelope["privacy"]["classification"] == (
+        expected_classification
+    )
+    assert result.result_envelope["provenance"] == provenance
+    assert "Invented adapter framework fixture" not in (
+        result.result_envelope["provenance"].values()
+    )
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize(
+    ("redistribution_status", "expected_classification", "expected_outcome"),
+    [
+        ("private_only", "private_local_only", "BLOCKED_RUNTIME_NOT_SELECTED"),
+        ("protected_suspected", "protected_suspected", "QUARANTINE"),
+    ],
+)
+def test_quantity_boundary_controls_top_level_envelope(
+    redistribution_status,
+    expected_classification,
+    expected_outcome,
+):
+    unit_evidence = _quantity_evidence()
+    provenance = unit_evidence[0]["quantity"]["provenance"]
+    provenance["redistribution_status"] = redistribution_status
+
+    result = _verify(unit_evidence=unit_evidence)
+
+    assert result.outcome == expected_outcome
+    assert result.runtime_dispatched is False
+    assert result.result_envelope["privacy"]["classification"] == (
+        expected_classification
+    )
+    assert result.result_envelope["provenance"] == provenance
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+def test_missing_quantity_provenance_controls_top_level_envelope_fail_closed():
+    unit_evidence = _quantity_evidence()
+    del unit_evidence[0]["quantity"]["provenance"]
+
+    result = _verify(unit_evidence=unit_evidence)
+
+    assert result.outcome == "REJECTED"
+    assert result.result_envelope["privacy"]["classification"] == (
+        "export_review_required"
+    )
+    assert result.result_envelope["provenance"]["source_name"] == "TBD"
+    assert result.result_envelope["provenance"]["review_status"] == "rejected"
+    assert "Invented adapter framework fixture" not in (
+        result.result_envelope["provenance"].values()
+    )
+
+
+def test_incomplete_public_manifest_provenance_is_not_public_reviewed():
+    manifest = _manifest()
+    provenance = manifest["provenance"]
+    del provenance["source_license"]
+
+    result = _verify(manifest=manifest)
+
+    assert result.outcome == "REJECTED"
+    assert result.result_envelope["privacy"]["classification"] == (
+        "export_review_required"
+    )
+    assert result.result_envelope["provenance"]["source_name"] == (
+        provenance["source_name"]
+    )
+    assert result.result_envelope["provenance"]["source_license"] == "TBD"
+    assert result.result_envelope["provenance"]["review_status"] == "rejected"
+
+
+@pytest.mark.parametrize("source_kind", ["manifest", "quantity", "adapter_result"])
+def test_incomplete_private_provenance_retains_private_boundary(source_kind):
+    manifest = _manifest()
+    unit_evidence = _quantity_evidence()
+    adapter = _adapter()
+    if source_kind == "manifest":
+        provenance = manifest["provenance"]
+    elif source_kind == "quantity":
+        provenance = unit_evidence[0]["quantity"]["provenance"]
+    else:
+        provenance = adapter["operation_result"]["provenance"]
+    provenance["redistribution_status"] = "private_only"
+    del provenance["source_license"]
+
+    result = _verify(
+        adapter=adapter,
+        manifest=manifest,
+        unit_evidence=unit_evidence,
+    )
+
+    assert result.outcome == "REJECTED"
+    assert result.result_envelope["privacy"]["classification"] == (
+        "private_local_only"
+    )
+    assert result.result_envelope["provenance"]["redistribution_status"] == (
+        "private_only"
+    )
+    assert result.result_envelope["provenance"]["source_license"] == "TBD"
+    assert result.result_envelope["provenance"]["review_status"] == "rejected"
+
+
+def test_missing_manifest_privacy_is_review_required_not_public():
+    manifest = _manifest()
+    del manifest["privacy"]
+
+    result = _verify(manifest=manifest)
+
+    assert result.outcome == "REJECTED"
+    assert result.result_envelope["privacy"]["classification"] == (
+        "export_review_required"
+    )
+    assert result.result_envelope["provenance"] == manifest["provenance"]
+
+
+@pytest.mark.parametrize(
+    ("private_data_access", "expected_outcome"),
+    [
+        (None, "REJECTED"),
+        ("not-a-status", "REJECTED"),
+        ("TBD", "BLOCKED_RUNTIME_NOT_SELECTED"),
+    ],
+)
+def test_manifest_private_data_access_must_be_cleared_for_public_envelope(
+    private_data_access,
+    expected_outcome,
+):
+    manifest = _manifest()
+    if private_data_access is None:
+        del manifest["privacy"]["private_data_access"]
+    else:
+        manifest["privacy"]["private_data_access"] = private_data_access
+
+    result = _verify(manifest=manifest)
+
+    assert result.outcome == expected_outcome
+    assert result.result_envelope["privacy"]["classification"] == (
+        "export_review_required"
+    )
+
+
+def test_malformed_adapter_result_privacy_is_review_required_not_public():
+    adapter = _adapter()
+    adapter["operation_result"]["privacy"] = None
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "REJECTED"
+    assert result.result_envelope["privacy"]["classification"] == (
+        "export_review_required"
+    )
+    assert result.result_envelope["provenance"] == (
+        adapter["operation_result"]["provenance"]
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("export_review_required", None),
+        ("export_review_required", "yes"),
+        ("private_payload_redacted", None),
+        ("private_payload_redacted", "yes"),
+    ],
+)
+def test_adapter_required_privacy_booleans_fail_closed(field, value):
+    adapter = _adapter()
+    privacy = adapter["operation_result"]["privacy"]
+    if value is None:
+        del privacy[field]
+    else:
+        privacy[field] = value
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "REJECTED"
+    assert "ADAPTER_PRIVACY_FIELD_INVALID" in _diagnostics_by_code(result)
+    assert result.result_envelope["privacy"]["classification"] == (
+        "export_review_required"
+    )
+
+
+@pytest.mark.parametrize(
+    "classification",
+    ["private_local_only", "protected_suspected"],
+)
+def test_positive_adapter_privacy_boundary_survives_incomplete_controls(
+    classification,
+):
+    adapter = _adapter()
+    privacy = adapter["operation_result"]["privacy"]
+    privacy["classification"] = classification
+    del privacy["local_first"]
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "REJECTED"
+    assert result.result_envelope["privacy"]["classification"] == classification
+
+
+@pytest.mark.parametrize(
+    ("redistribution_status", "expected_classification", "expected_outcome"),
+    [
+        ("private_only", "private_local_only", "BLOCKED_RUNTIME_NOT_SELECTED"),
+        ("protected_suspected", "protected_suspected", "QUARANTINE"),
+    ],
+)
+def test_adapter_result_boundary_controls_top_level_envelope(
+    redistribution_status,
+    expected_classification,
+    expected_outcome,
+):
+    adapter = _adapter()
+    provenance = adapter["operation_result"]["provenance"]
+    provenance["redistribution_status"] = redistribution_status
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == expected_outcome
+    assert result.runtime_dispatched is False
+    assert result.result_envelope["privacy"]["classification"] == (
+        expected_classification
+    )
+    assert result.result_envelope["provenance"] == provenance
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
 
 
 @pytest.mark.parametrize(
@@ -490,6 +756,10 @@ def test_missing_operation_result_does_not_inherit_declaration_provenance():
     assert diagnostic["provenance"]["source_name"] == "TBD"
     assert diagnostic["provenance"]["review_status"] == "rejected"
     assert "Distinct declaration provenance" not in diagnostic["provenance"].values()
+    assert result.result_envelope["privacy"]["classification"] == (
+        "export_review_required"
+    )
+    assert result.result_envelope["provenance"]["review_status"] == "rejected"
 
 
 def test_result_envelope_is_complete_and_propagates_finding_classes():

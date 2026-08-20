@@ -153,10 +153,19 @@ Boundaries preserved:
 - Adapter, plugin, quantity, and operation-result diagnostics preserve the exact
   source, affected object, class, and provenance. Malformed nested adapter
   capabilities no longer raise or mask a simultaneous quarantine marker.
-- Evidence: focused plus existing adapter/plugin suites `85 passed in 0.45s`;
+- Integrated-review Amendment 1 removed `build_result`'s invented/public
+  top-level defaults. Composed results now derive privacy and provenance from
+  caller manifest, quantity, adapter-result, and adapter-declaration evidence:
+  protected dominates private, incomplete/non-cleared evidence remains
+  review-required, and public-reviewed requires complete canonical clearance.
+  Required manifest/adapter privacy fields fail closed, while positive private/
+  protected markers retain precedence through unrelated incompleteness.
+- Evidence: focused plus existing adapter/plugin suites `107 passed in 0.47s`;
   composed result envelopes conform to the canonical adapter operation-result
-  schema; diff checks passed; V12 fresh read-only review covered all 2,944
-  frozen lines and returned PASS with zero actionable findings.
+  schema across public/private/protected/incomplete cases; diff and containment
+  checks passed; V16 fresh read-only review covered all 3,930 frozen lines and
+  returned PASS with zero actionable findings. The integrated-review attempt 1
+  finding and V13–V15 review findings are closed.
 - The exact PDU-037 Remaining item is closed. Lifecycle remains `IN_PROGRESS`.
   Runtime loader/isolation, transport, capability grant, and permission
   persistence choices remain separately governed and dispatch remains blocked.

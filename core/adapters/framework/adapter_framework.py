@@ -180,6 +180,8 @@ def build_result(
     operation_class: str,
     diagnostics: tuple[AdapterFinding, ...],
     diagnostic_contexts: tuple[Mapping[str, Any], ...] | None = None,
+    privacy_context: Mapping[str, Any] | None = None,
+    provenance: Any = None,
 ) -> dict[str, Any]:
     """Build a deterministic operation result envelope for tests and callers."""
 
@@ -191,7 +193,7 @@ def build_result(
                     "ref_type": "diagnostic",
                     "ref_id": finding.path,
                 },
-                "provenance": invented_provenance(),
+                "provenance": None,
             }
             for finding in diagnostics
         )
@@ -219,14 +221,8 @@ def build_result(
             }
             for finding, context in zip(diagnostics, diagnostic_contexts, strict=True)
         ],
-        "privacy": {
-            "classification": PUBLIC_REVIEWED,
-            "local_first": True,
-            "telemetry_allowed": False,
-            "export_review_required": True,
-            "private_payload_redacted": True,
-        },
-        "provenance": invented_provenance(),
+        "privacy": _result_privacy(privacy_context),
+        "provenance": _diagnostic_provenance(provenance),
         "checksums": [],
         "audit_manifest_refs": [],
         "result_envelope_ref": {
@@ -235,6 +231,28 @@ def build_result(
             "ref": {"ref_type": "result_envelope", "ref_id": "TBD"},
         },
         "professional_boundary": professional_boundary(),
+    }
+
+
+def _result_privacy(privacy: Mapping[str, Any] | None) -> dict[str, Any]:
+    """Return a schema-valid, local-first context without inventing clearance."""
+
+    source = privacy if isinstance(privacy, Mapping) else {}
+    classification = source.get("classification")
+    if classification not in {
+        PUBLIC_REVIEWED,
+        "private_local_only",
+        "protected_suspected",
+        "export_review_required",
+        "TBD",
+    }:
+        classification = "TBD"
+    return {
+        "classification": classification,
+        "local_first": True,
+        "telemetry_allowed": False,
+        "export_review_required": source.get("export_review_required") is not False,
+        "private_payload_redacted": source.get("private_payload_redacted") is True,
     }
 
 
@@ -605,6 +623,22 @@ def _validate_privacy(privacy: Any, path: str) -> list[AdapterFinding]:
             )
         ]
     findings: list[AdapterFinding] = []
+    if privacy.get("classification") not in {
+        PUBLIC_REVIEWED,
+        "private_local_only",
+        "protected_suspected",
+        "export_review_required",
+        "TBD",
+    }:
+        findings.append(
+            AdapterFinding(
+                "ADAPTER_PRIVACY_CLASSIFICATION_INVALID",
+                "blocking",
+                f"{path}.classification",
+                "Privacy classification is missing or invalid.",
+                "Use a canonical privacy classification.",
+            )
+        )
     if privacy.get("local_first") is not True:
         findings.append(
             AdapterFinding(
@@ -625,6 +659,17 @@ def _validate_privacy(privacy: Any, path: str) -> list[AdapterFinding]:
                 "Set telemetry_allowed to false.",
             )
         )
+    for field in ("export_review_required", "private_payload_redacted"):
+        if not isinstance(privacy.get(field), bool):
+            findings.append(
+                AdapterFinding(
+                    "ADAPTER_PRIVACY_FIELD_INVALID",
+                    "blocking",
+                    f"{path}.{field}",
+                    f"{field} must be an explicit boolean.",
+                    "Provide the complete canonical privacy context.",
+                )
+            )
     return findings
 
 

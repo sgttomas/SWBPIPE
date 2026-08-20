@@ -173,6 +173,11 @@ def verify_adapter_plugin_contracts(
     manifest_result = verify_plugin_manifest(plugin_manifest, plugin_schema)
     unit_findings, unit_contexts = _verify_unit_evidence(unit_evidence, unit_catalog)
     plugin_context = _plugin_diagnostic_context(plugin_manifest)
+    envelope_privacy, envelope_provenance = _derive_envelope_boundaries(
+        adapter_declaration,
+        plugin_manifest,
+        unit_evidence,
+    )
     findings = adapter_findings + manifest_result.findings + tuple(unit_findings)
     diagnostic_contexts = (
         tuple(
@@ -195,6 +200,8 @@ def verify_adapter_plugin_contracts(
             manifest_verified=manifest_result.verified,
             findings=findings,
             diagnostic_contexts=diagnostic_contexts,
+            envelope_privacy=envelope_privacy,
+            envelope_provenance=envelope_provenance,
         )
     if (
         not declaration_accepted
@@ -207,6 +214,8 @@ def verify_adapter_plugin_contracts(
             manifest_verified=manifest_result.verified,
             findings=findings,
             diagnostic_contexts=diagnostic_contexts,
+            envelope_privacy=envelope_privacy,
+            envelope_provenance=envelope_provenance,
         )
 
     runtime_finding = _finding(
@@ -222,6 +231,8 @@ def verify_adapter_plugin_contracts(
         manifest_verified=True,
         findings=(runtime_finding,),
         diagnostic_contexts=(_context_for_finding(plugin_context, runtime_finding),),
+        envelope_privacy=envelope_privacy,
+        envelope_provenance=envelope_provenance,
     )
 
 
@@ -232,6 +243,8 @@ def _composed_result(
     manifest_verified: bool,
     findings: tuple[AdapterFinding, ...],
     diagnostic_contexts: tuple[Mapping[str, Any], ...],
+    envelope_privacy: Mapping[str, Any],
+    envelope_provenance: Any,
 ) -> AdapterPluginVerificationResult:
     return AdapterPluginVerificationResult(
         outcome=outcome,
@@ -244,6 +257,8 @@ def _composed_result(
             operation_class="validate",
             diagnostics=findings,
             diagnostic_contexts=diagnostic_contexts,
+            privacy_context=envelope_privacy,
+            provenance=envelope_provenance,
         ),
     )
 
@@ -782,6 +797,152 @@ def _provenance_is_cleared(provenance: Mapping[str, Any]) -> bool:
         provenance.get("redistribution_status") in {"public_permissive", "private_only"}
         and provenance.get("review_status") == "accepted"
     )
+
+
+def _derive_envelope_boundaries(
+    adapter_payload: Any,
+    plugin_manifest: Any,
+    unit_evidence: Any,
+) -> tuple[Mapping[str, Any], Any]:
+    """Select the most restrictive caller provenance/privacy without invention."""
+
+    candidates: list[tuple[Any, Any]] = []
+    manifest = plugin_manifest if isinstance(plugin_manifest, Mapping) else {}
+    candidates.append(
+        (
+            manifest.get("provenance"),
+            _plugin_privacy_boundary(manifest.get("privacy")),
+        )
+    )
+
+    if isinstance(unit_evidence, list):
+        for evidence in unit_evidence:
+            quantity = evidence.get("quantity") if isinstance(evidence, Mapping) else None
+            if isinstance(quantity, Mapping):
+                candidates.append((quantity.get("provenance"), None))
+            else:
+                candidates.append((None, None))
+    else:
+        candidates.append((None, None))
+
+    adapter = adapter_payload if isinstance(adapter_payload, Mapping) else {}
+    operation_result = adapter.get("operation_result")
+    if isinstance(operation_result, Mapping):
+        candidates.append(
+            (
+                operation_result.get("provenance"),
+                _adapter_privacy_boundary(operation_result.get("privacy")),
+            )
+        )
+    else:
+        candidates.append((None, None))
+    declaration = adapter.get("adapter_declaration")
+    if isinstance(declaration, Mapping):
+        candidates.append(
+            (
+                declaration.get("provenance"),
+                _adapter_privacy_boundary(declaration.get("privacy")),
+            )
+        )
+    else:
+        candidates.append((None, None))
+
+    selected_provenance: Any = None
+    selected_privacy: Any = None
+    selected_score = (0, 0)
+    for provenance, privacy in candidates:
+        provenance_rank = _provenance_boundary_rank(provenance)
+        rank = max(provenance_rank, _privacy_boundary_rank(privacy))
+        score = (rank, provenance_rank)
+        if score > selected_score:
+            selected_provenance = provenance
+            selected_privacy = privacy
+            selected_score = score
+
+    classification = {
+        4: "protected_suspected",
+        3: "private_local_only",
+        2: "export_review_required",
+        1: "public_permissive_reviewed",
+    }.get(selected_score[0], "TBD")
+    privacy_context = {
+        "classification": classification,
+        "local_first": True,
+        "telemetry_allowed": False,
+        "export_review_required": True,
+        "private_payload_redacted": (
+            isinstance(selected_privacy, Mapping)
+            and selected_privacy.get("private_payload_redacted") is True
+        ),
+    }
+    return privacy_context, selected_provenance
+
+
+def _provenance_boundary_rank(provenance: Any) -> int:
+    if not isinstance(provenance, Mapping):
+        return 2
+    if _provenance_requires_quarantine(provenance):
+        return 4
+    if provenance.get("redistribution_status") == "private_only":
+        return 3
+    if not _canonical_provenance(provenance):
+        return 2
+    return 1 if _provenance_is_cleared(provenance) else 2
+
+
+def _privacy_boundary_rank(privacy: Any) -> int:
+    if not isinstance(privacy, Mapping):
+        return 0
+    return {
+        "protected_suspected": 4,
+        "private_local_only": 3,
+        "export_review_required": 2,
+        "TBD": 2,
+        "public_permissive_reviewed": 1,
+    }.get(privacy.get("classification"), 0)
+
+
+def _plugin_privacy_boundary(privacy: Any) -> Mapping[str, Any]:
+    expected = {
+        "local_first": True,
+        "private_data_transmission_default": False,
+        "telemetry_enabled_by_default": False,
+        "export_requires_permission": True,
+        "redaction_supported": True,
+    }
+    if not isinstance(privacy, Mapping) or any(
+        privacy.get(key) != value for key, value in expected.items()
+    ) or privacy.get("private_data_access") not in {
+        "none",
+        "explicit_permission_required",
+    }:
+        return {"classification": "TBD"}
+    return privacy
+
+
+def _adapter_privacy_boundary(privacy: Any) -> Mapping[str, Any]:
+    accepted_classifications = {
+        "public_permissive_reviewed",
+        "private_local_only",
+        "protected_suspected",
+        "export_review_required",
+        "TBD",
+    }
+    if isinstance(privacy, Mapping) and privacy.get("classification") in {
+        "private_local_only",
+        "protected_suspected",
+    }:
+        return privacy
+    if (
+        not isinstance(privacy, Mapping)
+        or privacy.get("local_first") is not True
+        or privacy.get("telemetry_allowed") is not False
+        or privacy.get("classification") not in accepted_classifications
+        or not isinstance(privacy.get("export_review_required"), bool)
+        or not isinstance(privacy.get("private_payload_redacted"), bool)
+    ):
+        return {"classification": "TBD"}
+    return privacy
 
 
 def _adapter_diagnostic_context(
