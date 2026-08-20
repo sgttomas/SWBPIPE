@@ -143,6 +143,17 @@ export async function buildReportPackageRequest({
       "REPORT-PACKAGE-INPUT-MANIFEST-MODEL-MISMATCH: manifest, model, and result refs must match."
     );
   }
+  const [modelHash, manifestModelHash] = await Promise.all([
+    canonicalSha256Hex(model),
+    canonicalSha256Hex(inputManifest.manifest.model_basis.model_payload)
+  ]);
+  requireSha256("model_hash", modelHash);
+  requireSha256("input_manifest.model_basis.model_payload_hash", manifestModelHash);
+  if (modelHash !== manifestModelHash) {
+    throw new Error(
+      "REPORT-PACKAGE-INPUT-MANIFEST-MODEL-PAYLOAD-MISMATCH: supplied model must canonically equal the verified input-manifest model payload."
+    );
+  }
   if (ruleCheckAggregate !== null || result.status.rule_check !== "RULE_INPUTS_INCOMPLETE") {
     throw new Error(
       "REPORT-PACKAGE-RULE-PACK-BINDING-UNAVAILABLE: active rule-check metadata is not owned at the report-package boundary."
@@ -153,7 +164,6 @@ export async function buildReportPackageRequest({
   }
 
   const report = await buildRenderableReportInput({ model, result, analysisRun, projectSummary });
-  const modelHash = await canonicalSha256Hex(model);
   const run = analysisRun.analysis_run;
   const runHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
   const resultEnvelopeHash = run.hashes.find(
@@ -170,7 +180,6 @@ export async function buildReportPackageRequest({
   ) {
     throw new Error("REPORT-PACKAGE-HASH-BINDING-INCOMPLETE: current model/input/run hashes are required.");
   }
-  requireSha256("model_hash", modelHash);
   for (const hash of run.hashes) {
     if (hash.algorithm === "sha256") {
       requireSha256(`analysis_run.hashes[${hash.payload_scope}]`, hash.value);

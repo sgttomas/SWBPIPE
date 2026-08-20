@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildAnalysisRunPreview, buildPreviewComparison, loadPreviewModel, runPreviewMechanics } from "../../services/previewService";
+import { canonicalSha256Hex } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { PreviewModel } from "../../types";
 import { buildReportPackageRequest } from "./reportPackageRequest";
@@ -179,6 +180,51 @@ describe("report-package current-session request", () => {
     expect(model).toEqual(modelSnapshot);
     expect(result).toEqual(resultSnapshot);
     expect(analysisRun).toEqual(runSnapshot);
+  });
+
+  it("blocks a same-ID model whose canonical payload differs from the verified manifest", async () => {
+    const { model, result, inputManifest, analysisRun } = await currentSession();
+    const changedModel = structuredClone(model);
+    changedModel.project.description = `${changedModel.project.description} changed after manifest`;
+
+    expect(changedModel.project.id).toBe(inputManifest.manifest.model_basis.model_ref);
+    expect(await canonicalSha256Hex(changedModel)).not.toBe(
+      await canonicalSha256Hex(inputManifest.manifest.model_basis.model_payload)
+    );
+    await expect(
+      buildReportPackageRequest({
+        model: changedModel,
+        result,
+        analysisRun,
+        inputManifest,
+        projectSummary: null,
+        comparison: null,
+        ruleCheckAggregate: null
+      })
+    ).rejects.toThrow("REPORT-PACKAGE-INPUT-MANIFEST-MODEL-PAYLOAD-MISMATCH");
+  });
+
+  it("accepts canonically equal model payloads with reordered object keys", async () => {
+    const { model, result, inputManifest, analysisRun } = await currentSession();
+    const reorderedModel = structuredClone(model);
+    reorderedModel.project.units = Object.fromEntries(
+      Object.entries(reorderedModel.project.units).reverse()
+    );
+    const canonicalModelHash = await canonicalSha256Hex(model);
+
+    expect(JSON.stringify(reorderedModel)).not.toBe(JSON.stringify(model));
+    expect(await canonicalSha256Hex(reorderedModel)).toBe(canonicalModelHash);
+    const request = await buildReportPackageRequest({
+      model: reorderedModel,
+      result,
+      analysisRun,
+      inputManifest,
+      projectSummary: null,
+      comparison: null,
+      ruleCheckAggregate: null
+    });
+
+    expect(request.audit_manifest.model_hash?.value).toBe(canonicalModelHash);
   });
 
   it("blocks every non-null rule-check aggregate before assembly", async () => {
