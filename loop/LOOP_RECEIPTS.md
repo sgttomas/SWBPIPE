@@ -2921,3 +2921,15 @@
     owner-gated DEL-10-04 publication/signing residuals remain unchanged. No
     lifecycle, stage, release, publication, merge, or professional-reliance
     effect occurs.
+
+- **2026-08-20 — Receipt 116** (DEL-09-04 GUI workflow evidence closure).
+  - Receipt-ID: `Receipt-116`
+  - Examined-Through: `57803893d1eb161f395e0574c256dd27920bf1d4`
+  - Parent-Receipt: `Receipt-115`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — “You don't need to ask approval for that type of git command. But here's the token just to keep you going:
+
+    APPROVE: merge origin/main into codex/piping-r5-engineering-20260820, rerun required integration checks, push the branch, and open the PR; do not merge the PR.”
+  - Pointers: N1 `5bb93dd860fc3c05f26c5a9a8d337be197096c6e`; first proof `231f5a385f69f46157e358ece5d16c632c1af896`; approved main-sync merge `339ff378fe1db0f357299b9d17498d6a00579703`; integrated proof `339c3e57eb6c2e13c1ea227bbffc64959b8e6bfc`; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-DEL0904-GUI-WORKFLOW-CLOSURE/`; integrated sweep `validation/evidence/sweeps/SWEEP_20260820T040333Z_339ff378fe1d.json` (SHA-256 `9d1ad73b5f214adb9e161e95c2b01e472a0c045cdcf878ca6671b5eafb7633e1`); PR #584; governance run `32331061741` success; desktop run `32331061753` success.
+  - Checks: focused and registered checks, terminal integrated-diff review, committed-head and integrated DEC-025 sweeps, governance CI, desktop CI, receipt contract, diff, and containment: PASS.
+  - Model-Attribution: exact execution attribution and substitution status are recorded in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-DEL0904-GUI-WORKFLOW-CLOSURE/`.
+  - Gate-Outcome: `EXECUTED` — only the DEL-09-04 GUI workflow evidence gap closed as `DRAFT_EVIDENCE`; DEL-09-04 remains `IN_PROGRESS`, case-page `MAINTAINER_REVIEWED` promotion and public comparison values remain parked, and PR #584 remains unmerged. No lifecycle, stage, release, publication, or professional-reliance effect occurs.
