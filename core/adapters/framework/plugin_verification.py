@@ -54,6 +54,7 @@ NO_BYPASS_CODES = {
 CANONICAL_PLUGIN_SCHEMA_SHA256 = (
     "99e126316bca0faf43da1833a211698618ce9e3432b25e4e27c17d438f756f83"
 )
+MAX_MANIFEST_JSON_DEPTH = 512
 
 
 @dataclass(frozen=True)
@@ -92,22 +93,126 @@ class AdapterPluginVerificationResult:
         return self.outcome == "QUARANTINE"
 
 
+def _raw_json_shape_error(
+    value: Any,
+    path: str,
+) -> str | None:
+    """Return the first non-exact JSON path without invoking caller overloads."""
+
+    stack: list[tuple[str, Any, str, int]] = [("visit", value, path, 0)]
+    active_containers: set[int] = set()
+    current_path = path
+    try:
+        while stack:
+            action, current, current_path, depth = stack.pop()
+            if action == "exit":
+                active_containers.remove(current)
+                continue
+            if depth > MAX_MANIFEST_JSON_DEPTH:
+                return current_path
+
+            value_type = type(current)
+            if current is None or value_type in {bool, int, str}:
+                continue
+            if value_type is float:
+                if not math.isfinite(current):
+                    return current_path
+                continue
+            if value_type not in {dict, list}:
+                return current_path
+
+            identity = id(current)
+            if identity in active_containers:
+                return current_path
+            active_containers.add(identity)
+            stack.append(("exit", identity, current_path, depth))
+            if value_type is list:
+                for index in range(len(current) - 1, -1, -1):
+                    stack.append(
+                        (
+                            "visit",
+                            current[index],
+                            f"{current_path}[{index}]",
+                            depth + 1,
+                        )
+                    )
+            else:
+                items = list(dict.items(current))
+                for key, _ in items:
+                    if type(key) is not str:
+                        return f"{current_path}.<key>"
+                for key, item in reversed(items):
+                    stack.append(
+                        ("visit", item, f"{current_path}.{key}", depth + 1)
+                    )
+    except Exception:
+        return current_path
+    return None
+
+
+def _plain_manifest_snapshot(
+    manifest: Any,
+) -> tuple[dict[str, Any] | None, AdapterFinding | None]:
+    invalid_path = _raw_json_shape_error(manifest, "plugin_manifest")
+    if invalid_path is not None or type(manifest) is not dict:
+        provenance_invalid = invalid_path == "plugin_manifest.provenance" or (
+            isinstance(invalid_path, str)
+            and invalid_path.startswith("plugin_manifest.provenance.")
+        )
+        return None, _finding(
+            "PLUGIN_PROVENANCE_INCOMPLETE"
+            if provenance_invalid
+            else "PLUGIN_MANIFEST_MALFORMED",
+            "blocking",
+            invalid_path or "plugin_manifest",
+            "Plugin manifest contains a noncanonical raw JSON shape.",
+            "Provide exact JSON objects, arrays, and primitive values without subclasses or cycles.",
+        )
+    try:
+        manifest_bytes = json.dumps(
+            manifest,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        snapshot = json.loads(manifest_bytes)
+    except Exception:
+        return None, _finding(
+            "PLUGIN_MANIFEST_MALFORMED",
+            "blocking",
+            "plugin_manifest",
+            "Plugin manifest cannot be normalized to exact JSON evidence.",
+            "Provide an acyclic manifest composed only of canonical JSON primitives and containers.",
+        )
+    if type(snapshot) is not dict:
+        return None, _finding(
+            "PLUGIN_MANIFEST_MALFORMED",
+            "blocking",
+            "plugin_manifest",
+            "Plugin manifest JSON snapshot is not an object.",
+            "Provide a schema-shaped manifest JSON object.",
+        )
+    return snapshot, None
+
+
 def verify_plugin_manifest(
     manifest: Any,
     plugin_schema: Any,
 ) -> PluginManifestVerificationResult:
     """Verify fail-closed controls on one already-loaded plugin manifest."""
 
-    if not isinstance(manifest, Mapping):
-        finding = _finding(
-            "PLUGIN_MANIFEST_MALFORMED",
-            "blocking",
-            "plugin_manifest",
-            "Plugin manifest must be an in-memory mapping.",
-            "Provide a schema-shaped manifest mapping before verification.",
-        )
+    snapshot, finding = _plain_manifest_snapshot(manifest)
+    if finding is not None or snapshot is None:
+        assert finding is not None
         return PluginManifestVerificationResult("REJECTED", (finding,))
+    return _verify_plugin_manifest_snapshot(snapshot, plugin_schema)
 
+
+def _verify_plugin_manifest_snapshot(
+    manifest: dict[str, Any],
+    plugin_schema: Any,
+) -> PluginManifestVerificationResult:
     findings: list[AdapterFinding] = []
     findings.extend(_verify_manifest_schema(manifest, plugin_schema))
     findings.extend(_verify_no_bypass_controls(manifest.get("no_bypass_constraints")))
@@ -176,12 +281,23 @@ def verify_adapter_plugin_contracts(
         )
         declaration_accepted = False
 
-    manifest_result = verify_plugin_manifest(plugin_manifest, plugin_schema)
+    manifest_snapshot, manifest_finding = _plain_manifest_snapshot(plugin_manifest)
+    if manifest_finding is not None or manifest_snapshot is None:
+        assert manifest_finding is not None
+        manifest_result = PluginManifestVerificationResult(
+            "REJECTED", (manifest_finding,)
+        )
+        semantic_manifest: Mapping[str, Any] = {}
+    else:
+        manifest_result = _verify_plugin_manifest_snapshot(
+            manifest_snapshot, plugin_schema
+        )
+        semantic_manifest = manifest_snapshot
     unit_findings, unit_contexts = _verify_unit_evidence(unit_evidence, unit_catalog)
-    plugin_context = _plugin_diagnostic_context(plugin_manifest)
+    plugin_context = _plugin_diagnostic_context(semantic_manifest)
     envelope_privacy, envelope_provenance = _derive_envelope_boundaries(
         adapter_declaration,
-        plugin_manifest,
+        semantic_manifest,
         unit_evidence,
     )
     findings = adapter_findings + manifest_result.findings + tuple(unit_findings)
@@ -805,33 +921,59 @@ def _validated_unit_catalog(unit_catalog: Any) -> dict[str, str] | None:
     return dict(unit_catalog)
 
 
-def _canonical_provenance(provenance: Any) -> bool:
+def _provenance_field(provenance: Mapping[str, Any], field: str) -> Any:
+    """Read caller provenance without allowing a hostile accessor to escape."""
+
+    try:
+        return provenance.get(field)
+    except Exception:
+        return None
+
+
+def _canonical_provenance_values(provenance: Any) -> dict[str, str] | None:
     if not isinstance(provenance, Mapping):
-        return False
-    if any(
-        not isinstance(provenance.get(field), str) or not provenance[field].strip()
+        return None
+    values = {
+        field: _provenance_field(provenance, field)
         for field in REQUIRED_PLUGIN_PROVENANCE_FIELDS
+    }
+    if any(
+        type(value) is not str or not value.strip()
+        for value in values.values()
     ):
+        return None
+    return values
+
+
+def _canonical_provenance(provenance: Any) -> bool:
+    values = _canonical_provenance_values(provenance)
+    if values is None:
         return False
     return (
-        provenance["redistribution_status"]
+        values["redistribution_status"]
         in {"public_permissive", "private_only", "unknown", "protected_suspected", "TBD"}
-        and provenance["review_status"]
+        and values["review_status"]
         in {"accepted", "needs_review", "quarantined", "rejected", "TBD"}
     )
 
 
 def _provenance_requires_quarantine(provenance: Mapping[str, Any]) -> bool:
+    redistribution = _provenance_field(provenance, "redistribution_status")
+    review = _provenance_field(provenance, "review_status")
     return (
-        provenance.get("redistribution_status") == "protected_suspected"
-        or provenance.get("review_status") == "quarantined"
+        type(redistribution) is str and redistribution == "protected_suspected"
+    ) or (
+        type(review) is str and review == "quarantined"
     )
 
 
 def _provenance_is_cleared(provenance: Mapping[str, Any]) -> bool:
+    values = _canonical_provenance_values(provenance)
+    if values is None:
+        return False
     return (
-        provenance.get("redistribution_status") in {"public_permissive", "private_only"}
-        and provenance.get("review_status") == "accepted"
+        values["redistribution_status"] in {"public_permissive", "private_only"}
+        and values["review_status"] == "accepted"
     )
 
 
@@ -919,7 +1061,8 @@ def _provenance_boundary_rank(provenance: Any) -> int:
         return 2
     if _provenance_requires_quarantine(provenance):
         return 4
-    if provenance.get("redistribution_status") == "private_only":
+    redistribution = _provenance_field(provenance, "redistribution_status")
+    if type(redistribution) is str and redistribution == "private_only":
         return 3
     if not _canonical_provenance(provenance):
         return 2
@@ -1092,9 +1235,13 @@ def _verify_provenance(provenance: Any) -> list[AdapterFinding]:
             )
         ]
 
-    redistribution = provenance.get("redistribution_status")
-    review = provenance.get("review_status")
-    if redistribution == "protected_suspected" or review == "quarantined":
+    redistribution = _provenance_field(provenance, "redistribution_status")
+    review = _provenance_field(provenance, "review_status")
+    protected_marker = (
+        type(redistribution) is str and redistribution == "protected_suspected"
+    )
+    quarantined_marker = type(review) is str and review == "quarantined"
+    if protected_marker or quarantined_marker:
         return [
             _finding(
                 "PLUGIN_PROTECTED_CONTENT_SUSPECTED",
@@ -1105,22 +1252,20 @@ def _verify_provenance(provenance: Any) -> list[AdapterFinding]:
             )
         ]
 
-    missing = [
-        field
-        for field in REQUIRED_PLUGIN_PROVENANCE_FIELDS
-        if not isinstance(provenance.get(field), str) or not provenance.get(field).strip()
-    ]
-    if missing:
+    canonical = _canonical_provenance_values(provenance)
+    if canonical is None:
         return [
             _finding(
                 "PLUGIN_PROVENANCE_INCOMPLETE",
                 "blocking",
                 path,
-                f"Required provenance fields are missing or malformed: {', '.join(missing)}.",
+                "Required provenance fields are missing or malformed.",
                 "Complete provenance before plugin verification.",
             )
         ]
 
+    redistribution = canonical["redistribution_status"]
+    review = canonical["review_status"]
     if redistribution not in {"public_permissive", "private_only"} or review != "accepted":
         return [
             _finding(

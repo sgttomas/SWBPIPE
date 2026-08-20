@@ -284,6 +284,76 @@ def test_missing_provenance_blocks_adapter_declaration():
     assert "ADAPTER_PROVENANCE_INCOMPLETE" in codes(result)
 
 
+def test_uncleared_canonical_provenance_blocks_declaration_and_operation_result():
+    uncleared_cases = (
+        ("review_status", "rejected"),
+        ("review_status", "needs_review"),
+        ("review_status", "TBD"),
+        ("redistribution_status", "unknown"),
+        ("redistribution_status", "TBD"),
+    )
+    for object_name in ("adapter_declaration", "operation_result"):
+        for field, value in uncleared_cases:
+            fixture = current_authority_fixture()
+            fixture[object_name]["provenance"][field] = value
+
+            result = validate_adapter_declaration(fixture)
+
+            matching = [
+                finding
+                for finding in result.findings
+                if finding.code == "ADAPTER_PROVENANCE_NOT_CLEARED"
+            ]
+            assert result.accepted is False
+            assert result.outcome == "REJECTED"
+            assert [finding.path for finding in matching] == [
+                f"{object_name}.provenance"
+            ]
+
+
+def test_provenance_requires_exact_nonblank_plain_strings_without_throwing():
+    class UnhashableString(str):
+        __hash__ = None
+
+    malformed_cases = (
+        ("source_name", {"truthy": True}),
+        ("source_location", ["truthy"]),
+        ("source_license", 17),
+        ("contributor", object()),
+        ("contributor_certification", True),
+        ("redistribution_status", UnhashableString("public_permissive")),
+        ("review_status", UnhashableString("accepted")),
+    )
+    for object_name in ("adapter_declaration", "operation_result"):
+        for field, value in malformed_cases:
+            fixture = current_authority_fixture()
+            fixture[object_name]["provenance"][field] = value
+
+            result = validate_adapter_declaration(fixture)
+
+            assert result.accepted is False
+            assert result.outcome == "REJECTED"
+            assert "ADAPTER_PROVENANCE_INCOMPLETE" in codes(result)
+
+
+def test_provenance_quarantine_marker_precedes_truthy_malformed_fields():
+    for object_name in ("adapter_declaration", "operation_result"):
+        for marker_field, marker_value in (
+            ("redistribution_status", "protected_suspected"),
+            ("review_status", "quarantined"),
+        ):
+            fixture = current_authority_fixture()
+            provenance = fixture[object_name]["provenance"]
+            provenance[marker_field] = marker_value
+            provenance["source_license"] = {"truthy": True}
+
+            result = validate_adapter_declaration(fixture)
+
+            assert result.accepted is False
+            assert result.outcome == "QUARANTINE"
+            assert "ADAPTER_PROTECTED_CONTENT_SUSPECTED" in codes(result)
+
+
 def test_protected_suspected_fixture_quarantines():
     fixture = current_authority_fixture()
     fixture["adapter_declaration"]["provenance"][
@@ -295,6 +365,62 @@ def test_protected_suspected_fixture_quarantines():
     assert result.accepted is False
     assert result.outcome == "QUARANTINE"
     assert "ADAPTER_PROTECTED_CONTENT_SUSPECTED" in codes(result)
+
+
+def test_protected_privacy_quarantines_declaration_and_operation_result():
+    for object_name in ("adapter_declaration", "operation_result"):
+        fixture = current_authority_fixture()
+        fixture[object_name]["privacy"]["classification"] = "protected_suspected"
+
+        result = validate_adapter_declaration(fixture)
+
+        matching = [
+            finding
+            for finding in result.findings
+            if finding.code == "ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED"
+        ]
+        assert result.accepted is False
+        assert result.outcome == "QUARANTINE"
+        assert [finding.path for finding in matching] == [
+            f"{object_name}.privacy.classification"
+        ]
+
+
+def test_protected_privacy_quarantine_survives_malformed_capabilities_directly():
+    for object_name in ("adapter_declaration", "operation_result"):
+        fixture = current_authority_fixture()
+        fixture["adapter_declaration"]["capabilities"] = None
+        fixture[object_name]["privacy"]["classification"] = "protected_suspected"
+
+        result = validate_adapter_declaration(fixture)
+
+        assert result.accepted is False
+        assert result.outcome == "QUARANTINE"
+        assert "ADAPTER_CAPABILITIES_MALFORMED" in codes(result)
+        assert "ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED" in codes(result)
+
+
+def test_protected_privacy_dominates_hostile_provenance_and_capabilities_directly():
+    class UnhashableString(str):
+        __hash__ = None
+
+    for object_name in ("adapter_declaration", "operation_result"):
+        for status_field, status_value in (
+            ("redistribution_status", UnhashableString("public_permissive")),
+            ("review_status", UnhashableString("accepted")),
+        ):
+            fixture = current_authority_fixture()
+            fixture["adapter_declaration"]["capabilities"] = None
+            fixture[object_name]["provenance"][status_field] = status_value
+            fixture[object_name]["privacy"]["classification"] = "protected_suspected"
+
+            result = validate_adapter_declaration(fixture)
+
+            assert result.accepted is False
+            assert result.outcome == "QUARANTINE"
+            assert "ADAPTER_PROVENANCE_INCOMPLETE" in codes(result)
+            assert "ADAPTER_CAPABILITIES_MALFORMED" in codes(result)
+            assert "ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED" in codes(result)
 
 
 def test_unhashable_string_capability_never_masks_direct_quarantine():

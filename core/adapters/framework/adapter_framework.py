@@ -292,13 +292,13 @@ def _diagnostic_provenance(provenance: Any) -> dict[str, str]:
         "review_status",
     )
     source = provenance if isinstance(provenance, Mapping) else {}
+    values = {field: source.get(field) for field in fields}
     complete = all(
-        isinstance(source.get(field), str) and source[field].strip()
-        for field in fields
+        type(value) is str and bool(value.strip()) for value in values.values()
     )
     result = {
-        field: value if isinstance((value := source.get(field)), str) and value.strip() else "TBD"
-        for field in fields
+        field: value if type(value) is str and value.strip() else "TBD"
+        for field, value in values.items()
     }
     valid_redistribution = {
         "public_permissive",
@@ -615,9 +615,13 @@ def _validate_provenance(provenance: Any, path: str) -> list[AdapterFinding]:
                 "Record source, license, contributor, redistribution, and review metadata.",
             )
         ]
-    redistribution = provenance.get("redistribution_status")
-    review = provenance.get("review_status")
-    if redistribution == "protected_suspected" or review == "quarantined":
+    redistribution = dict.get(provenance, "redistribution_status")
+    review = dict.get(provenance, "review_status")
+    protected_marker = (
+        type(redistribution) is str and redistribution == "protected_suspected"
+    )
+    quarantined_marker = type(review) is str and review == "quarantined"
+    if protected_marker or quarantined_marker:
         return [
             AdapterFinding(
                 "ADAPTER_PROTECTED_CONTENT_SUSPECTED",
@@ -627,14 +631,19 @@ def _validate_provenance(provenance: Any, path: str) -> list[AdapterFinding]:
                 "Quarantine the payload and request human/legal review.",
             )
         ]
-    missing = sorted(field for field in REQUIRED_PROVENANCE_FIELDS if not provenance.get(field))
-    if missing:
+    malformed = sorted(
+        field
+        for field in REQUIRED_PROVENANCE_FIELDS
+        if type((value := dict.get(provenance, field))) is not str
+        or not value.strip()
+    )
+    if malformed:
         return [
             AdapterFinding(
                 "ADAPTER_PROVENANCE_INCOMPLETE",
                 "blocking",
                 path,
-                f"Required provenance fields are missing: {', '.join(missing)}.",
+                f"Required provenance fields are missing or malformed: {', '.join(malformed)}.",
                 "Complete provenance before adapter declaration acceptance.",
             )
         ]
@@ -654,6 +663,16 @@ def _validate_provenance(provenance: Any, path: str) -> list[AdapterFinding]:
                 "Use canonical provenance status values before adapter declaration acceptance.",
             )
         ]
+    if redistribution not in {"public_permissive", "private_only"} or review != "accepted":
+        return [
+            AdapterFinding(
+                "ADAPTER_PROVENANCE_NOT_CLEARED",
+                "blocking",
+                path,
+                "Adapter provenance is complete but not cleared for use.",
+                "Resolve redistribution and review status without importing protected content.",
+            )
+        ]
     return []
 
 
@@ -669,10 +688,20 @@ def _validate_privacy(privacy: Any, path: str) -> list[AdapterFinding]:
             )
         ]
     findings: list[AdapterFinding] = []
-    if privacy.get("classification") not in {
+    classification = privacy.get("classification")
+    if classification == "protected_suspected":
+        findings.append(
+            AdapterFinding(
+                "ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED",
+                "quarantine",
+                f"{path}.classification",
+                "Adapter privacy classification indicates suspected protected content.",
+                "Quarantine the payload and request human/legal review.",
+            )
+        )
+    elif classification not in {
         PUBLIC_REVIEWED,
         "private_local_only",
-        "protected_suspected",
         "export_review_required",
         "TBD",
     }:

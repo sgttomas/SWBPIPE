@@ -13,7 +13,10 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from core.adapters.framework import verify_adapter_plugin_contracts  # noqa: E402
+from core.adapters.framework import (  # noqa: E402
+    verify_adapter_plugin_contracts,
+    verify_plugin_manifest,
+)
 from core.adapters.framework.plugin_verification import _schema_mismatches  # noqa: E402
 
 
@@ -141,6 +144,43 @@ def _manifest():
     }
 
 
+def _deep_manifest():
+    manifest = _manifest()
+    nested = []
+    manifest["deep_raw_probe"] = nested
+    for _ in range(2_000):
+        child = []
+        nested.append(child)
+        nested = child
+    return manifest
+
+
+def _cyclic_manifest():
+    manifest = _manifest()
+    cycle = []
+    cycle.append(cycle)
+    manifest["cyclic_raw_probe"] = cycle
+    return manifest
+
+
+def _nonfinite_manifest():
+    manifest = _manifest()
+    manifest["metadata"]["description"] = float("nan")
+    return manifest
+
+
+class _HostileManifest(dict):
+    def get(self, key, default=None):
+        raise RuntimeError("caller accessor must not execute")
+
+    def items(self):
+        raise RuntimeError("caller iteration must not execute")
+
+
+def _hostile_manifest():
+    return _HostileManifest(_manifest())
+
+
 def _quantity_evidence():
     return [{
         "path": "plugin_output.force",
@@ -186,6 +226,17 @@ def _codes(result):
 
 def _diagnostics_by_code(result):
     return {item["code"]: item for item in result.result_envelope["diagnostics"]}
+
+
+class _UnhashableString(str):
+    __hash__ = None
+
+
+class _RaisingEqualityString(str):
+    __hash__ = str.__hash__
+
+    def __eq__(self, other):
+        raise RuntimeError("caller equality must not execute")
 
 
 def test_valid_pair_verifies_but_runtime_remains_undispatched():
@@ -399,6 +450,84 @@ def test_missing_provenance_fails_closed():
     result = _verify(manifest=manifest)
     assert result.outcome == "REJECTED"
     assert "PLUGIN_PROVENANCE_INCOMPLETE" in _codes(result)
+
+
+@pytest.mark.parametrize(
+    ("status_field", "status_value"),
+    [
+        ("redistribution_status", _UnhashableString("public_permissive")),
+        ("review_status", _UnhashableString("accepted")),
+    ],
+)
+def test_manifest_hostile_provenance_status_fails_closed_directly(
+    status_field,
+    status_value,
+):
+    manifest = _manifest()
+    manifest["provenance"][status_field] = status_value
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "REJECTED"
+    assert result.verified is False
+    assert result.quarantined is False
+    assert {finding.code for finding in result.findings} == {
+        "PLUGIN_PROVENANCE_INCOMPLETE"
+    }
+
+
+@pytest.mark.parametrize(
+    ("status_field", "status_value"),
+    [
+        ("redistribution_status", _RaisingEqualityString("public_permissive")),
+        ("review_status", _RaisingEqualityString("accepted")),
+    ],
+)
+def test_manifest_raising_equality_status_fails_closed_directly(
+    status_field,
+    status_value,
+):
+    manifest = _manifest()
+    manifest["provenance"][status_field] = status_value
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "REJECTED"
+    assert result.verified is False
+    assert result.quarantined is False
+    assert {finding.code for finding in result.findings} == {
+        "PLUGIN_PROVENANCE_INCOMPLETE"
+    }
+
+
+def test_manifest_raising_equality_metadata_status_is_structurally_rejected():
+    manifest = _manifest()
+    manifest["metadata"]["status"] = _RaisingEqualityString("draft")
+
+    result = verify_plugin_manifest(manifest, PLUGIN_SCHEMA)
+
+    assert result.outcome == "REJECTED"
+    assert result.verified is False
+    assert result.quarantined is False
+    assert [finding.code for finding in result.findings] == [
+        "PLUGIN_MANIFEST_MALFORMED"
+    ]
+    assert result.findings[0].path == "plugin_manifest.metadata.status"
+
+
+@pytest.mark.parametrize(
+    "manifest_factory",
+    [_deep_manifest, _cyclic_manifest, _nonfinite_manifest, _hostile_manifest],
+    ids=["deep", "cyclic", "nonfinite", "hostile-container"],
+)
+def test_raw_manifest_failures_are_structurally_rejected(manifest_factory):
+    result = verify_plugin_manifest(manifest_factory(), PLUGIN_SCHEMA)
+
+    assert result.outcome == "REJECTED"
+    assert result.verified is False
+    assert [finding.code for finding in result.findings] == [
+        "PLUGIN_MANIFEST_MALFORMED"
+    ]
 
 
 def test_diagnostic_envelope_incompatibility_fails_closed():
@@ -634,11 +763,15 @@ def test_adapter_required_privacy_booleans_fail_closed(field, value):
 
 
 @pytest.mark.parametrize(
-    "classification",
-    ["private_local_only", "protected_suspected"],
+    ("classification", "expected_outcome"),
+    [
+        ("private_local_only", "REJECTED"),
+        ("protected_suspected", "QUARANTINE"),
+    ],
 )
 def test_positive_adapter_privacy_boundary_survives_incomplete_controls(
     classification,
+    expected_outcome,
 ):
     adapter = _adapter()
     privacy = adapter["operation_result"]["privacy"]
@@ -647,8 +780,10 @@ def test_positive_adapter_privacy_boundary_survives_incomplete_controls(
 
     result = _verify(adapter=adapter)
 
-    assert result.outcome == "REJECTED"
+    assert result.outcome == expected_outcome
     assert result.result_envelope["privacy"]["classification"] == classification
+    if classification == "protected_suspected":
+        assert "ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED" in _codes(result)
 
 
 @pytest.mark.parametrize(
@@ -895,6 +1030,336 @@ def test_operation_result_quarantine_uses_its_provenance_with_malformed_capabili
     )
     assert quarantine_diagnostic["provenance"] == operation_provenance
     assert quarantine_diagnostic["provenance"][marker_field] == marker_value
+
+
+@pytest.mark.parametrize("object_name", ["adapter_declaration", "operation_result"])
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("review_status", "rejected"),
+        ("review_status", "needs_review"),
+        ("review_status", "TBD"),
+        ("redistribution_status", "unknown"),
+        ("redistribution_status", "TBD"),
+    ],
+)
+def test_composed_verifier_blocks_uncleared_adapter_provenance(
+    object_name,
+    field,
+    value,
+):
+    adapter = _adapter()
+    adapter[object_name]["provenance"][field] = value
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "REJECTED"
+    assert result.declaration_accepted is False
+    assert result.runtime_dispatched is False
+    diagnostic = _diagnostics_by_code(result)["ADAPTER_PROVENANCE_NOT_CLEARED"]
+    assert diagnostic["affected_object"]["ref_id"] == f"{object_name}.provenance"
+    assert diagnostic["provenance"] == adapter[object_name]["provenance"]
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize("object_name", ["adapter_declaration", "operation_result"])
+@pytest.mark.parametrize("capabilities", [["import_model"], None])
+def test_composed_verifier_quarantines_protected_adapter_privacy(
+    object_name,
+    capabilities,
+):
+    adapter = _adapter()
+    adapter["adapter_declaration"]["capabilities"] = capabilities
+    adapter[object_name]["privacy"]["classification"] = "protected_suspected"
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.declaration_accepted is False
+    assert result.runtime_dispatched is False
+    diagnostics = _diagnostics_by_code(result)
+    quarantine = diagnostics["ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED"]
+    assert quarantine["affected_object"]["ref_id"] == (
+        f"{object_name}.privacy.classification"
+    )
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    if capabilities is None:
+        assert "ADAPTER_CAPABILITIES_MALFORMED" in diagnostics
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize("object_name", ["adapter_declaration", "operation_result"])
+@pytest.mark.parametrize(
+    ("marker_field", "marker_value"),
+    [
+        ("redistribution_status", "protected_suspected"),
+        ("review_status", "quarantined"),
+    ],
+)
+def test_composed_adapter_quarantine_precedes_truthy_malformed_provenance(
+    object_name,
+    marker_field,
+    marker_value,
+):
+    adapter = _adapter()
+    provenance = adapter[object_name]["provenance"]
+    provenance[marker_field] = marker_value
+    provenance["source_license"] = {"truthy": True}
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.declaration_accepted is False
+    assert result.runtime_dispatched is False
+    diagnostic = _diagnostics_by_code(result)["ADAPTER_PROTECTED_CONTENT_SUSPECTED"]
+    assert diagnostic["affected_object"]["ref_id"] == f"{object_name}.provenance"
+    assert diagnostic["provenance"][marker_field] == marker_value
+    assert diagnostic["provenance"]["source_license"] == "TBD"
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize("object_name", ["adapter_declaration", "operation_result"])
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("source_license", {"truthy": True}),
+        ("redistribution_status", _UnhashableString("public_permissive")),
+        ("review_status", _UnhashableString("accepted")),
+    ],
+)
+def test_composed_verifier_rejects_hostile_adapter_provenance_shape(
+    object_name,
+    field,
+    value,
+):
+    adapter = _adapter()
+    adapter[object_name]["provenance"][field] = value
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "REJECTED"
+    assert result.declaration_accepted is False
+    assert result.runtime_dispatched is False
+    diagnostics = _diagnostics_by_code(result)
+    diagnostic = diagnostics["ADAPTER_PROVENANCE_INCOMPLETE"]
+    assert diagnostic["affected_object"]["ref_id"] == f"{object_name}.provenance"
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize("object_name", ["adapter_declaration", "operation_result"])
+@pytest.mark.parametrize(
+    ("status_field", "status_value"),
+    [
+        ("redistribution_status", _UnhashableString("public_permissive")),
+        ("review_status", _UnhashableString("accepted")),
+    ],
+)
+def test_composed_protected_privacy_dominates_hostile_provenance_and_capabilities(
+    object_name,
+    status_field,
+    status_value,
+):
+    adapter = _adapter()
+    adapter["adapter_declaration"]["capabilities"] = None
+    adapter[object_name]["provenance"][status_field] = status_value
+    adapter[object_name]["privacy"]["classification"] = "protected_suspected"
+
+    result = _verify(adapter=adapter)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.declaration_accepted is False
+    assert result.runtime_dispatched is False
+    diagnostics = _diagnostics_by_code(result)
+    assert "ADAPTER_PROVENANCE_INCOMPLETE" in diagnostics
+    assert "ADAPTER_CAPABILITIES_MALFORMED" in diagnostics
+    quarantine = diagnostics["ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED"]
+    assert quarantine["affected_object"]["ref_id"] == (
+        f"{object_name}.privacy.classification"
+    )
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize("privacy_object", ["adapter_declaration", "operation_result"])
+@pytest.mark.parametrize(
+    ("status_field", "status_value"),
+    [
+        ("redistribution_status", _UnhashableString("public_permissive")),
+        ("review_status", _UnhashableString("accepted")),
+    ],
+)
+def test_adapter_protected_privacy_dominates_hostile_manifest_provenance(
+    privacy_object,
+    status_field,
+    status_value,
+):
+    adapter = _adapter()
+    adapter[privacy_object]["privacy"]["classification"] = "protected_suspected"
+    manifest = _manifest()
+    manifest["provenance"][status_field] = status_value
+
+    result = _verify(adapter=adapter, manifest=manifest)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.declaration_accepted is False
+    assert result.manifest_verified is False
+    assert result.runtime_dispatched is False
+    diagnostics = _diagnostics_by_code(result)
+    assert "PLUGIN_PROVENANCE_INCOMPLETE" in diagnostics
+    quarantine = diagnostics["ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED"]
+    assert quarantine["affected_object"]["ref_id"] == (
+        f"{privacy_object}.privacy.classification"
+    )
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize("privacy_object", ["adapter_declaration", "operation_result"])
+@pytest.mark.parametrize(
+    ("status_field", "status_value"),
+    [
+        ("redistribution_status", _RaisingEqualityString("public_permissive")),
+        ("review_status", _RaisingEqualityString("accepted")),
+    ],
+)
+def test_adapter_protected_privacy_dominates_raising_equality_manifest_status(
+    privacy_object,
+    status_field,
+    status_value,
+):
+    adapter = _adapter()
+    adapter[privacy_object]["privacy"]["classification"] = "protected_suspected"
+    manifest = _manifest()
+    manifest["provenance"][status_field] = status_value
+
+    result = _verify(adapter=adapter, manifest=manifest)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.declaration_accepted is False
+    assert result.manifest_verified is False
+    assert result.runtime_dispatched is False
+    diagnostics = _diagnostics_by_code(result)
+    assert "PLUGIN_PROVENANCE_INCOMPLETE" in diagnostics
+    quarantine = diagnostics["ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED"]
+    assert quarantine["affected_object"]["ref_id"] == (
+        f"{privacy_object}.privacy.classification"
+    )
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize("privacy_object", ["adapter_declaration", "operation_result"])
+def test_adapter_protected_privacy_dominates_raising_metadata_status(
+    privacy_object,
+):
+    adapter = _adapter()
+    adapter[privacy_object]["privacy"]["classification"] = "protected_suspected"
+    manifest = _manifest()
+    manifest["metadata"]["status"] = _RaisingEqualityString("draft")
+
+    result = _verify(adapter=adapter, manifest=manifest)
+
+    assert result.outcome == "QUARANTINE"
+    assert result.declaration_accepted is False
+    assert result.manifest_verified is False
+    assert result.runtime_dispatched is False
+    diagnostics = _diagnostics_by_code(result)
+    malformed = diagnostics["PLUGIN_MANIFEST_MALFORMED"]
+    assert malformed["affected_object"]["ref_id"] == (
+        "plugin_manifest.metadata.status"
+    )
+    quarantine = diagnostics["ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED"]
+    assert quarantine["affected_object"]["ref_id"] == (
+        f"{privacy_object}.privacy.classification"
+    )
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
+
+
+@pytest.mark.parametrize("privacy_object", ["adapter_declaration", "operation_result"])
+@pytest.mark.parametrize(
+    "manifest_factory",
+    [_deep_manifest, _cyclic_manifest, _nonfinite_manifest, _hostile_manifest],
+    ids=["deep", "cyclic", "nonfinite", "hostile-container"],
+)
+def test_adapter_protected_privacy_dominates_raw_manifest_failures(
+    privacy_object,
+    manifest_factory,
+):
+    adapter = _adapter()
+    adapter[privacy_object]["privacy"]["classification"] = "protected_suspected"
+
+    result = _verify(adapter=adapter, manifest=manifest_factory())
+
+    assert result.outcome == "QUARANTINE"
+    assert result.declaration_accepted is False
+    assert result.manifest_verified is False
+    assert result.runtime_dispatched is False
+    diagnostics = _diagnostics_by_code(result)
+    assert "PLUGIN_MANIFEST_MALFORMED" in diagnostics
+    quarantine = diagnostics["ADAPTER_PRIVACY_PROTECTED_CONTENT_SUSPECTED"]
+    assert quarantine["affected_object"]["ref_id"] == (
+        f"{privacy_object}.privacy.classification"
+    )
+    assert result.result_envelope["privacy"]["classification"] == (
+        "protected_suspected"
+    )
+    assert _schema_mismatches(
+        result.result_envelope,
+        ADAPTER_SCHEMA["$defs"]["AdapterOperationResult"],
+        ADAPTER_SCHEMA,
+        "operation_result",
+    ) == []
 
 
 def test_missing_operation_result_does_not_inherit_declaration_provenance():

@@ -204,3 +204,26 @@ Boundaries preserved:
   hashes/line counts, covered the complete 4,230-line frozen set and full diff,
   and returned PASS with zero findings. Integrated review v3 and V19 findings
   are closed.
+
+### Integrated-review Amendment 4
+
+- Complete canonical adapter declaration and operation-result provenance now
+  requires cleared redistribution (`public_permissive` or `private_only`) and
+  accepted review. Canonical unresolved/rejected postures emit blocking
+  `ADAPTER_PROVENANCE_NOT_CLEARED`; protected privacy emits quarantine.
+- Provenance fields require exact nonblank plain strings. Positive protected/
+  quarantined markers retain precedence, and diagnostic normalization plus
+  composed boundary ranking cannot hash or compare hostile subclasses.
+- Caller manifest evidence receives iterative exact-type, cycle-aware,
+  exception-contained raw-JSON preflight with deterministic depth 512 before
+  strict one-time serialization. The detached snapshot alone drives schema,
+  manifest semantics, diagnostic context, and envelope boundaries; caller
+  evidence is not mutated or invented.
+- Direct and composed tests cover declaration/result provenance and privacy,
+  malformed capabilities, hostile equality/hash/container behavior, deep and
+  cyclic structures, nonfinite values, exact diagnostic routing, protected
+  envelope dominance, canonical result schema, and runtime non-dispatch.
+- Evidence: complete suite `190 passed in 0.51s`; composed schema, containment,
+  and diff checks PASS; V26 fresh review matched all fifteen hashes/line counts,
+  covered the complete 5,563-line frozen set and full diff, and returned PASS
+  with zero findings. Integrated review v4 and V21–V25 findings are closed.

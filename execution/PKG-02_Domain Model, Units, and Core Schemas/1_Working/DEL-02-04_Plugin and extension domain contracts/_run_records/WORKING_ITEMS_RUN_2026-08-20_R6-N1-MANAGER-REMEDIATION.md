@@ -113,3 +113,59 @@ regressions combine the hostile string-like item with both protected and
 quarantined provenance markers and require `QUARANTINE` without exception.
 Complete suite: `129 passed in 0.50s`; fresh full amended-diff review remains
 required.
+
+## Integrated-review Amendment 4
+
+Integrated review v4 found canonical-but-non-cleared adapter declaration/result
+provenance and protected privacy could reach verification-passed blocked-runtime
+results. Amendment 4 emits a blocking `ADAPTER_PROVENANCE_NOT_CLEARED` finding
+unless complete canonical provenance has cleared redistribution and accepted
+review, and emits quarantine for `protected_suspected` privacy. Direct and
+composed regressions cover declaration and operation-result paths, malformed
+capabilities, exact diagnostic routing, protected top-level dominance,
+canonical result-envelope schema, and runtime non-dispatch. Complete suite:
+`146 passed in 0.51s`; fresh full amended-diff review required.
+
+V21 fresh review found truthy non-string provenance fields could pass
+completeness and hostile unhashable status subclasses could throw before
+protected privacy quarantine. Remediation requires every provenance field to be
+an exact nonblank plain string, retains positive protected/quarantined markers
+before completeness, and hardens diagnostic normalization plus composed
+canonicalization/boundary ranking without mutating caller evidence. Direct and
+composed declaration/result regressions include protected privacy and malformed
+capabilities. Complete suite: `163 passed in 0.53s`; V22 fresh full amended-diff
+review required.
+
+V22 fresh review found plugin-manifest provenance retained the hostile status
+membership path. Remediation applies exception-contained reads, exact
+plain-string positive-marker handling, and a shared canonical snapshot before
+membership/clearance. Direct manifest and composed protected-privacy tests
+cover hostile redistribution/review values across declaration/result surfaces,
+preserving structured rejection/quarantine, exact caller evidence, canonical
+envelopes, and runtime non-dispatch. Complete suite: `169 passed in 0.54s`;
+V23 fresh full amended-diff review required.
+
+V23 fresh review found raw manifest schema enum comparison could invoke a
+caller-overloaded equality operator before provenance validation. Remediation
+serializes the manifest once with strict JSON settings, evaluates schema
+against the detached plain snapshot, leaves caller evidence untouched, and
+then rejects its non-exact provenance shape. Direct manifest and composed
+protected-privacy regressions cover both status fields with raising comparators,
+structured reject/quarantine, schema validity, and runtime non-dispatch.
+Complete suite: `175 passed in 0.55s`; V24 fresh review required.
+
+V24 fresh review found later manifest semantic checks still compared raw caller
+values. Remediation adds exception-contained exact raw-JSON preflight for
+subclasses, cycles, nonfinite numbers, and hostile containers, then routes
+schema, all manifest semantics, composed diagnostic context, and envelope
+boundaries through one detached strict snapshot. Raw provenance keeps its
+specific structural finding; caller evidence remains unchanged. Complete suite:
+`179 passed in 0.82s`; V25 fresh full amended-diff review required.
+
+V25 fresh review found recursive raw preflight could overflow before its
+exception boundary. Remediation replaces it with iterative active-ancestor
+cycle tracking, exact-type checks, exception containment, and deterministic
+maximum JSON depth 512 before strict serialization. Direct and composed deep,
+cyclic, nonfinite, and hostile-container regressions require structured reject/
+quarantine, protected envelope, schema validity, and runtime non-dispatch.
+Complete suite: `190 passed in 0.52s`; V26 fresh review required.
