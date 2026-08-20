@@ -1,8 +1,8 @@
 {
   "schema": "chirality-managed-work-graph/v1",
-  "version": 7,
+  "version": 9,
   "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
-  "status": "PASS_VALIDATED_TERMINAL_FAN_IN",
+  "status": "PASS_CHECKS_AWAITING_REVIEW_8",
   "frozen": true,
   "selection_authority": "HELP_HUMAN under explicit owner development-pressure steer",
   "accepted_basis": "fae5e38ee60fd4c8d4a52ac7f663036a83cdbd7d",
@@ -18,7 +18,7 @@
       "role": "WORKING_ITEMS",
       "package_id": "PKG-07",
       "deliverable_id": "DEL-07-06",
-      "status": "PASS_VALIDATED_TERMINAL_FAN_IN",
+      "status": "PASS_CHECKS_AWAITING_REVIEW_8",
       "objective": "Close only the exact packaged-Tauri saved-project edited-load GUI smoke residual through actual packaged macOS GUI operation.",
       "write_owner": "WI-PKG07-DEL0706",
       "write_targets": [
@@ -26,7 +26,9 @@
         "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
         "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
         "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/**",
-        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/**"
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/**",
+        "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214752Z_a9b1fbef90f3.json",
+        "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json"
       ],
       "checks": [
         "host-capability actual packaged macOS GUI operation",
@@ -103,8 +105,32 @@
           "review": 5,
           "status": "PASS_VALID_FOR_TERMINAL_FAN_IN",
           "record": "WI-PKG07-DEL0706/TASK-REVIEW-5/RETURN.md"
+        },
+        {
+          "review": 6,
+          "status": "PASS_VALID_FOR_TERMINAL_FAN_IN",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-6/RETURN.md"
         }
       ]
+    },
+    {
+      "attempt": 3,
+      "status": "PASS_CHECKS_AWAITING_REVIEW_8",
+      "basis_commit": "a9b1fbef90f3bb9a894054c22f6fc77572fedd0d",
+      "amendment": "WI-PKG07-DEL0706/AMENDMENT_7.md",
+      "trigger_evidence": [
+        "validation/evidence/sweeps/SWEEP_20260820T214752Z_a9b1fbef90f3.json",
+        "validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json"
+      ],
+      "review_history": [
+        {
+          "review": 7,
+          "status": "FAIL_ACTIONABLE_CONTAINMENT_FINDING_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-7/RETURN.md"
+        }
+      ],
+      "control_remediation": "WI-PKG07-DEL0706/AMENDMENT_8.md",
+      "review_gate": "fresh read-only non-delegating review 8 over 100% adjacent remediation diff"
     }
   ]
 }

@@ -71,3 +71,37 @@
   generation-bound cancellation tombstone to that receipt, dispatches exactly
   once, and keeps stale UI callbacks inert. Reviewer 5 passed the final
   snapshot with no actionable finding.
+
+## Amendment-7 adjacent remediation handoff
+
+- Trigger: mandatory clean DEC-025 sweep over node commit
+  `a9b1fbef90f3bb9a894054c22f6fc77572fedd0d` returned 20 Playwright passes / 2
+  desktop failures after Cargo, Python 902 tests, and desktop Vitest 533 tests
+  passed. The two named sweep summaries are preserved; the first is an
+  environment-only missing-`jsonschema` attempt.
+- Preserved review basis: reviewer 6 passed the 50-member terminal closeout
+  snapshot before the node commit; reviewers 1-5 and all remediations remain
+  immutable history.
+- Root cause: the modeling core's fixed 540px minimum forced dock content
+  beneath the persistent workspace-status row at 1440x920.
+- Product repair: viewport-budget the modeling minimum with
+  `clamp(230px, 40vh, 540px)`; retain all status-row hit testing.
+- Regression proof: explicit status/target rectangle non-overlap checks plus
+  the original result-row and Render report clicks. Focused 2/2, desktop
+  Vitest 533/533, desktop build, full Playwright 22/22, harness pytest 350/350,
+  and always-on harness self-check execution all pass.
+- Exact profile disposition: validation-path trigger summaries also select
+  `piping-pytest` and `evidence-sweep`. The accepted clean node-commit sweep
+  supplies the Python PASS (902 tests); the next evidence sweep is explicitly
+  deferred to CHANGE after its adjacent commit so the proof is clean and
+  commit-bound.
+- Reviewer 7: preserved `FAIL / ACTIONABLE_FINDINGS`; product review was clean,
+  but containment was 12/14 because the graph omitted the two exact sweep
+  summaries. Amendment 8 adds only those two paths to graph write targets.
+- Current gate: eighth fresh 100% adjacent-diff review. This frozen handoff is
+  accepted as `PASS_VALIDATED_TERMINAL_FAN_IN` only if reviewer 8 returns PASS;
+  otherwise it remains stopped at that finding without a post-review rewrite.
+- Next action on reviewer-8 PASS: CHANGE creates one adjacent proof-loop commit,
+  then reruns clean DEC-025. No receipt, push, or PR action is manager-owned.
+- Telemetry: PASS, 38 events / ten matched sessions; layout remediation,
+  review-7 FAIL, and containment remediation sessions are complete.

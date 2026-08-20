@@ -6,8 +6,8 @@
 | InstanceID | `WI-PKG07-DEL0706` |
 | Node | `N1` |
 | Accepted basis | `fae5e38ee60fd4c8d4a52ac7f663036a83cdbd7d`; Receipt-118; DAG-009; R5 |
-| Outcome | `PASS_VALIDATED_TERMINAL_FAN_IN` |
-| Product effect | Generation-bound packaged solve proof row and detached exact-once cancellation; adverse Vitest and happy-path Playwright coverage |
+| Outcome | `PASS_CHECKS_AWAITING_REVIEW_8` |
+| Product effect | Generation-bound packaged solve proof row and detached exact-once cancellation; viewport-budgeted desktop workspace layout; adverse Vitest and real-click Playwright coverage |
 | Deliverable truth effect | Exact packaged edited-load smoke residual closed; PDU-045/PDU-046 holds and lifecycle unchanged |
 
 ## Attempt 1 — preserved blocked history
@@ -180,9 +180,9 @@ product/evidence tranche to CHANGE for its dependency-ordered commit and
 closeout. No manager-owned Git, receipt, register, lifecycle, release, or
 professional-reliance action is authorized or performed.
 
-Final runtime telemetry integrity is PASS: 29 events across seven matched
-manager/review sessions; attempt 2 final outcome is PASS. Native token/context
-occupancy remained unavailable and is not inferred.
+Attempt-2 terminal runtime telemetry integrity was PASS: 29 events across seven
+matched manager/review sessions; attempt 2 final outcome was PASS. Native
+token/context occupancy remained unavailable and is not inferred.
 
 The exact terminal changed-path set is 50 paths: the 47 paths enumerated in
 `TASK-REVIEW-5/FROZEN_NODE_DIFF.json`, that self-excluded manifest, and the
@@ -190,3 +190,71 @@ post-review control outputs `TASK-REVIEW-5/RETURN.md` and
 `TASK-REVIEW-5/STATUS.json`. All are within the five declared graph write
 surfaces; no receipt, register, DAG/decomposition, root-governance, Git, or PR
 path is included.
+
+## Post-node clean-sweep remediation — Amendment 7
+
+CHANGE committed the validated node as
+`a9b1fbef90f3bb9a894054c22f6fc77572fedd0d`, then stopped before receipt/PR
+closeout when its mandatory clean DEC-025 sweep exposed a desktop-only
+hit-testing regression. The commit-bound sweep
+`SWEEP_20260820T214858Z_a9b1fbef90f3.json` passed Cargo, Python 902 tests, and
+desktop Vitest 533 tests, then returned 20 Playwright passes / 2 failures. At
+1440x920, the result-row and Render report clicks were intercepted by the
+later workspace-status row. The compact variants passed. The earlier
+`SWEEP_20260820T214752Z_a9b1fbef90f3.json` is preserved as environment-attempt
+history only: bare Python lacked `jsonschema`.
+
+Reviewer 6 had already returned `PASS / VALID_FOR_CHANGE_STAGING` over the
+50-member terminal closeout snapshot before CHANGE created the node commit;
+that review and reviewers 1-5 remain preserved as immutable history.
+
+The root cause was layout overflow, not a control defect: the fixed-height app
+grid could not satisfy the modeling core's 540px floor, the dock's 210px
+floor, and the persistent chrome/status/footer at the desktop test height.
+Targets scrolled underneath the later status row. `apps/desktop/src/styles.css`
+now gives the modeling core a viewport-budgeted
+`min-height: clamp(230px, 40vh, 540px)`. Status controls remain interactive;
+no pointer-event bypass exists. `apps/desktop/e2e/r2-smoke.spec.ts` now asserts
+that each formerly covered target has no rectangle overlap with the status
+row, then performs the same real click and downstream assertions.
+
+Adjacent-remediation checks against the node commit:
+
+- exact focused Chromium desktop cases: PASS, 2/2;
+- registered desktop Vitest: PASS, 29 files / 533 tests;
+- registered desktop build: PASS, existing chunk-size warning only;
+- full Playwright surface: PASS, 22/22 desktop and compact cases;
+- registered harness pytest: PASS, 350 tests;
+- registered always-on harness self-check: PASS execution, with only the
+  existing repository-wide generated-view findings.
+
+Exact profile selection over the adjacent tree additionally names
+`piping-pytest` and `evidence-sweep` because the two immutable clean-sweep
+summaries are new under `validation/evidence/**`. The accepted clean
+node-commit sweep already records the Python surface PASS (902 tests); no
+Python implementation changed. `evidence-sweep` is intentionally
+`DEFERRED_TO_CHANGE_COMMIT_BOUND_PROOF`: HELP_HUMAN assigned the next clean
+DEC-025 run to CHANGE after the adjacent commit, and an uncommitted sweep cannot
+substitute for it. `ADJACENT_REMEDIATION_AFFECTED_CHECKS.json` freezes these
+dispositions.
+
+Runtime telemetry now summarizes 38 events across ten matched sessions with
+status PASS; the original layout remediation, review-7 FAIL, and Amendment-8
+control remediation are complete sessions.
+
+Reviewer 7 verified 14/14 hashes, exact membership, exact six-check profile
+selection, and 100% substantive coverage, with no product-code finding. Its
+terminal `FAIL / ACTIONABLE_FINDINGS` is preserved: the graph omitted the two
+exact Amendment-7 sweep-summary paths, so containment was only 12/14.
+`AMENDMENT_8.md` adds only those two files to the graph's write targets; it does
+not broaden a directory root or change product/tests/proof.
+
+This manager return intentionally refreezes with reviewer 8 pending. A
+different fresh read-only non-delegating reviewer must verify 100% of the
+complete adjacent remediation diff against
+`a9b1fbef90f3bb9a894054c22f6fc77572fedd0d`. If and only if reviewer 8 returns
+PASS with hashes, exact membership/containment/profile, check evidence, and no
+actionable finding, this section constitutes
+`PASS_VALIDATED_TERMINAL_FAN_IN` without a post-review mutation. On that
+condition, CHANGE may create the adjacent proof-loop fix commit and rerun clean
+DEC-025. Otherwise CHANGE must remain stopped.

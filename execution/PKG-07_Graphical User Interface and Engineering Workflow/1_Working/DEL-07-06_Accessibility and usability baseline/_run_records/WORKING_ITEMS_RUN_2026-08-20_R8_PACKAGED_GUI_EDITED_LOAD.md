@@ -139,3 +139,55 @@ sequential screenshot evidence versus mocked timing adversity, the narratively
 observed `425 N` not appearing in the final screenshot pair, and an
 already-started invalidated backend poll continuing to terminal while every
 stale publication/finalization callback remains gated.
+
+## Amendment 7 — clean-sweep desktop click remediation
+
+After CHANGE created node commit
+`a9b1fbef90f3bb9a894054c22f6fc77572fedd0d`, the mandatory clean DEC-025
+evidence sweep found a desktop-width regression and stopped before build,
+receipt, push, or PR. Its authoritative summary is
+`validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json` (SHA-256
+`79301f7651bce52a492562a001d65b959c368b8d02cdf896bc3927d911c3a078`):
+Cargo PASS, Python 902 PASS, desktop Vitest 533 PASS, Playwright 20 pass / 2
+fail, build not run. The initial bare-Python environment attempt
+`SWEEP_20260820T214752Z_a9b1fbef90f3.json` (SHA-256
+`c66786be239b46f5d8fdc16c754c31f9eaff55de99f684a1b7d7970d4173e7df`)
+failed only because that interpreter lacked `jsonschema` and is preserved as
+attempt history, not a product failure.
+
+Reviewer 6's preceding 50-member terminal-closeout review passed before the
+node commit; reviewers 1-6 and their complete histories remain preserved.
+
+Both product failures had the same geometry: at 1440x920, the fixed 100vh app
+grid plus a 540px modeling-core minimum and 210px dock minimum overflowed the
+workspace row. Playwright scrolled a valid target beneath the later
+workspace-status row, whose Solve proof/mechanics pills then received the
+click. Compact layouts already lower the modeling floor and passed.
+
+The bounded fix changes the modeling minimum to
+`clamp(230px, 40vh, 540px)`, keeping the core substantial while allowing it to
+participate in the viewport-height budget. No status control loses hit
+testing. Durable Playwright coverage measures that the status row does not
+overlap each formerly covered target, then retains the real result-row and
+Render report clicks and downstream assertions.
+
+| Adjacent-remediation check | Result |
+|---|---|
+| Exact two formerly failing Chromium desktop cases | PASS, 2/2 in 47.5s |
+| Registered desktop Vitest | PASS, 29 files / 533 tests |
+| Registered desktop build | PASS; existing Vite chunk-size warning only |
+| Full Playwright desktop + compact surface | PASS, 22/22 in 1.6m |
+| Registered harness pytest | PASS, 350/350 |
+| Registered harness self-check | PASS execution; existing repository-wide findings only |
+| Profile-selected `piping-pytest` | PASS accepted commit-bound basis; clean node sweep Python surface 902 tests |
+| Profile-selected `evidence-sweep` | DEFERRED to CHANGE after adjacent commit; must be clean/commit-bound |
+| Fresh adjacent-diff software-code-review 7 | FAIL after 14/14 hashes and 100% review; graph containment 12/14 |
+| Amendment-8 exact-path containment repair | PASS; only two named sweep files added to graph targets |
+| Fresh adjacent-diff software-code-review 8 | pending refrozen dispatch |
+
+No packaged GUI rerun is required: the observed edited-load/native-identity
+predicates and packaged executable did not change. Reviewer 7 found no product
+defect but rejected the omitted exact sweep paths in the graph; Amendment 8
+repairs only that control containment. CHANGE must create the adjacent
+proof-loop commit only after a different fresh reviewer 8 passes, then rerun
+clean DEC-025 against that commit.

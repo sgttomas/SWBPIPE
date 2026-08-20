@@ -498,7 +498,11 @@ button:focus-visible {
   grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-agent-col) var(--pane-inspector-col);
   gap: 10px;
   flex: 1.5 1 0;
-  min-height: 540px;
+  /* Keep the persistent model core substantial on tall displays without
+     forcing the dock to overflow underneath the terminal status row at the
+     1440x920 packaged-window height. The dock and panes own their scrolling;
+     this floor therefore has to participate in the viewport-height budget. */
+  min-height: clamp(230px, 40vh, 540px);
 }
 
 /* Collapsing a rail hands its column width to the viewport; the column shrinks
