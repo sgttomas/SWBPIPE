@@ -3,9 +3,11 @@
 ## 2026-08-20 - R6 N2 TypeScript-to-Rust component-provenance proof
 
 The report-package seam now has one exact shared invented projection proving
-that production TypeScript `buildReportPackageRequest` output carries present
-and missing component provenance into the Rust `ReportPackageRequest` wire,
-package assembly, and canonical rendered HTML member. The proof preserves
+that one current-session model—including its missing component provenance—is
+bound consistently across mechanics, the complete input-manifest payload and
+hash/ref, the analysis run, production TypeScript `buildReportPackageRequest`,
+the Rust `ReportPackageRequest` wire, package assembly, and canonical rendered
+HTML member. The proof preserves
 `private_only`, `pending`, and `private_project_data`; missing provenance stays
 an explicit `COMPONENT_PROVENANCE_MISSING` warning with
 `missing_data_finding=true`; malformed provenance is rejected before assembly.
@@ -20,7 +22,10 @@ Evidence: `_run_records/WORKING_ITEMS_RUN_2026-08-20_R6-N2-COMPPROV-CROSS-LAYER.
 and manager records under
 `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R6-ENGINEERING/WI-PKG08-DEL0801/`.
 Focused Vitest passed 6/6; report-package Cargo passed 19/19 plus doc tests;
-Cargo formatting, containment, diff checks, and fresh 100% review passed.
+Cargo formatting, containment, diff checks, and fresh full-N2 review passed
+after integrated review v4's exact-session basis-mismatch finding was closed by
+moving the provenance mutation before every dependent evidence construction and
+asserting complete manifest-payload equality.
 Lifecycle remains IN_PROGRESS for the separate `.opsproj` compatibility-policy
 residual.
 

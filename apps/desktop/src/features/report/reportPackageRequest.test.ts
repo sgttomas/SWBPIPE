@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { buildAnalysisRunPreview, buildPreviewComparison, loadPreviewModel, runPreviewMechanics } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+import type { PreviewModel } from "../../types";
 import { buildReportPackageRequest } from "./reportPackageRequest";
 import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
 
-async function currentSession() {
-  const model = await loadPreviewModel();
+async function currentSession(sourceModel?: PreviewModel) {
+  const model = structuredClone(sourceModel ?? (await loadPreviewModel()));
   const result = await runPreviewMechanics(model);
   const inputManifest = await buildCurrentSessionInputManifest({
     model,
@@ -31,16 +32,28 @@ async function currentSession() {
 
 describe("report-package current-session request", () => {
   it("matches the shared component-provenance projection at the production package boundary", async () => {
-    const { model, result, inputManifest, analysisRun } = await currentSession();
-    const modelWithMissingProvenance = structuredClone(model);
+    const modelWithMissingProvenance = structuredClone(await loadPreviewModel());
     const missingComponent = modelWithMissingProvenance.components.find(
       (component) => component.id === "component:C-140"
     );
     expect(missingComponent).toBeDefined();
     missingComponent!.provenance = "";
+    const { model, result, inputManifest, analysisRun } = await currentSession(
+      modelWithMissingProvenance
+    );
+    const manifestComponent = inputManifest.manifest.model_basis.model_payload.components.find(
+      (component) => component.id === "component:C-140"
+    );
+
+    expect(inputManifest.manifest.model_basis.model_ref).toBe(model.project.id);
+    expect(inputManifest.manifest.model_basis.model_payload).toEqual(model);
+    expect(manifestComponent).toMatchObject({
+      id: "component:C-140",
+      provenance: ""
+    });
 
     const request = await buildReportPackageRequest({
-      model: modelWithMissingProvenance,
+      model,
       result,
       analysisRun,
       inputManifest,
