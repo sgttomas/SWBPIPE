@@ -236,6 +236,59 @@ def test_missing_or_malformed_schema_fails_closed(schema):
     assert _codes(result) & {"PLUGIN_MANIFEST_SCHEMA_MISSING", "PLUGIN_MANIFEST_SCHEMA_MALFORMED"}
 
 
+@pytest.mark.parametrize(
+    "weaken",
+    [
+        lambda schema: schema["required"].remove("checksums"),
+        lambda schema: schema["required"].remove("professional_boundary"),
+        lambda schema: schema["$defs"]["ChecksumSet"].__setitem__("required", []),
+        lambda schema: schema["$defs"]["ProfessionalBoundary"]["properties"][
+            "human_review_required"
+        ].pop("const"),
+    ],
+    ids=[
+        "remove-checksum-required",
+        "remove-professional-boundary-required",
+        "relax-checksum-definition",
+        "alter-professional-boundary-definition",
+    ],
+)
+def test_weakened_lookalike_schema_is_not_authenticated(weaken):
+    schema = json.loads(json.dumps(PLUGIN_SCHEMA))
+    weaken(schema)
+
+    result = _verify(schema=schema)
+
+    assert result.outcome == "REJECTED"
+    assert "PLUGIN_MANIFEST_SCHEMA_NOT_CANONICAL" in _codes(result)
+    assert result.manifest_verified is False
+    assert result.runtime_dispatched is False
+
+
+def test_authenticated_schema_executes_plain_snapshot_not_hostile_accessor():
+    class HostileSchema(dict):
+        def get(self, key, default=None):
+            if key == "required":
+                return []
+            return super().get(key, default)
+
+    schema = HostileSchema(json.loads(json.dumps(PLUGIN_SCHEMA)))
+    assert schema.get("required") == []
+    assert {"checksums", "professional_boundary"} <= set(
+        dict.__getitem__(schema, "required")
+    )
+    manifest = _manifest()
+    del manifest["checksums"]
+    del manifest["professional_boundary"]
+
+    result = _verify(manifest=manifest, schema=schema)
+
+    assert result.outcome == "REJECTED"
+    assert "PLUGIN_MANIFEST_SCHEMA_MISMATCH" in _codes(result)
+    assert result.manifest_verified is False
+    assert result.runtime_dispatched is False
+
+
 @pytest.mark.parametrize("missing", ["unit", "dimension", "provenance"])
 def test_missing_quantity_metadata_fails_closed(missing):
     evidence = _quantity_evidence()

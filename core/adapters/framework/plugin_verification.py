@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+import hashlib
+import json
 import math
 import re
 from typing import Any
@@ -48,6 +50,10 @@ NO_BYPASS_CODES = {
     "diagnostic_envelope": "PLUGIN_DIAGNOSTIC_ENVELOPE_CONTROL_DISABLED",
     "protected_content_controls": "PLUGIN_PROTECTED_CONTENT_CONTROL_DISABLED",
 }
+
+CANONICAL_PLUGIN_SCHEMA_SHA256 = (
+    "99e126316bca0faf43da1833a211698618ce9e3432b25e4e27c17d438f756f83"
+)
 
 
 @dataclass(frozen=True)
@@ -291,30 +297,60 @@ def _verify_manifest_schema(
                 "Provide the already-loaded canonical plugin schema mapping.",
             )
         ]
+    try:
+        schema_bytes = json.dumps(
+            plugin_schema,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+        schema_snapshot = json.loads(schema_bytes)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return [
+            _finding(
+                "PLUGIN_MANIFEST_SCHEMA_MALFORMED",
+                "blocking",
+                "plugin_manifest_schema",
+                "Canonical plugin-manifest schema cannot be normalized to a plain JSON mapping.",
+                "Provide the already-loaded canonical plugin schema mapping.",
+            )
+        ]
     expected_markers = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "https://openpipestress.org/schemas/plugin_manifest.schema.yaml",
         "type": "object",
     }
     if (
-        any(plugin_schema.get(key) != value for key, value in expected_markers.items())
-        or not isinstance(plugin_schema.get("properties"), Mapping)
-        or not isinstance(plugin_schema.get("$defs"), Mapping)
+        not isinstance(schema_snapshot, dict)
+        or any(schema_snapshot.get(key) != value for key, value in expected_markers.items())
+        or not isinstance(schema_snapshot.get("properties"), dict)
+        or not isinstance(schema_snapshot.get("$defs"), dict)
     ):
         return [
             _finding(
                 "PLUGIN_MANIFEST_SCHEMA_MALFORMED",
                 "blocking",
                 "plugin_manifest_schema",
-                "Schema mapping does not expose the canonical plugin-manifest identity and definitions.",
+                "Schema snapshot does not expose the canonical plugin-manifest identity and definitions.",
                 "Provide the already-loaded canonical plugin schema mapping.",
+            )
+        ]
+    schema_fingerprint = hashlib.sha256(schema_bytes).hexdigest()
+    if schema_fingerprint != CANONICAL_PLUGIN_SCHEMA_SHA256:
+        return [
+            _finding(
+                "PLUGIN_MANIFEST_SCHEMA_NOT_CANONICAL",
+                "blocking",
+                "plugin_manifest_schema",
+                "Schema mapping does not match the canonical plugin-manifest contract fingerprint.",
+                "Provide the exact already-loaded canonical plugin schema without weakened or altered rules.",
             )
         ]
     try:
         mismatches = _schema_mismatches(
             manifest,
-            plugin_schema,
-            plugin_schema,
+            schema_snapshot,
+            schema_snapshot,
             "plugin_manifest",
         )
     except _SchemaDefinitionError as error:

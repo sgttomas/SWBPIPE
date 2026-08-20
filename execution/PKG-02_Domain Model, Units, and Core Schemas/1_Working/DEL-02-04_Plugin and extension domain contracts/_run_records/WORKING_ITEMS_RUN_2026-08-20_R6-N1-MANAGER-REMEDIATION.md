@@ -73,3 +73,22 @@ ranking to require canonical classification plus explicit
 invalid, and unresolved manifest access plus missing/wrong-type adapter boolean
 regressions pass. Complete suite: `107 passed in 0.47s`; fresh V16 review
 required.
+
+## Integrated-review Amendment 2
+
+Integrated review v2 found schema authentication relied only on canonical
+identity markers and mapping shapes. Amendment 2 binds the caller-supplied,
+already-loaded plugin schema to the exact canonical structural/content SHA-256
+fingerprint before any manifest can verify; it does not load files or select a
+runtime. Regressions remove checksum/professional-boundary required rules,
+relax the checksum definition, and alter the professional-boundary definition;
+all are rejected as noncanonical. Complete suite: `111 passed in 0.49s`;
+fresh full amended-diff review required.
+
+V17 review found the authenticated bytes and executed object could diverge for
+a hostile Mapping accessor. Remediation serializes once, fingerprints those
+exact bytes, parses a plain JSON snapshot, and uses only the snapshot for
+identity and complete schema evaluation. A custom dict subclass whose
+`get("required")` lies while underlying serialized items remain canonical can
+no longer bypass root checksum/professional-boundary requirements. Complete
+suite: `112 passed in 0.79s`; fresh V18 review required.

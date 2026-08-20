@@ -169,3 +169,20 @@ Boundaries preserved:
 - The exact PDU-037 Remaining item is closed. Lifecycle remains `IN_PROGRESS`.
   Runtime loader/isolation, transport, capability grant, and permission
   persistence choices remain separately governed and dispatch remains blocked.
+
+### Integrated-review Amendment 2
+
+- Caller-supplied plugin schema evidence is serialized once in memory with a
+  deterministic canonical JSON form. Those exact bytes must match the pinned
+  canonical plugin-manifest SHA-256, are parsed into a plain snapshot, and only
+  that snapshot is used for identity and complete schema evaluation.
+- Lookalikes that remove checksum/professional-boundary requirements, alter
+  definitions, or expose hostile Mapping accessors fail closed before manifest
+  verification. No schema file or runtime is loaded by the verifier.
+- Evidence: complete focused/existing suite `112 passed in 0.79s`; composed
+  schema, containment, and diff checks PASS; V18 fresh review covered all 4,038
+  frozen lines and returned PASS with zero actionable findings. Integrated
+  review v2 and V17 findings are closed.
+- Any authorized future canonical plugin-schema revision must deliberately
+  update the pinned fingerprint and rerun the weakened/hostile-schema suite and
+  fresh full-diff review.

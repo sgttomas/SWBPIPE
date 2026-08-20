@@ -7,6 +7,7 @@
 - None for PDU-037's exact non-schema adapter/plugin verification-layer residual. Separately governed runtime, transport, capability, and permission-persistence choices remain owner-held and runtime dispatch stays blocked.
 
 ## History
+- 2026-08-20 - R6 N1 integrated-review Amendment 2 bound caller-supplied schema evidence to the exact canonical structural/content fingerprint and a snapshot-only evaluation path; weakened and hostile-accessor schemas fail closed. 112 tests passed and V18 full-diff review returned PASS with zero findings. Lifecycle remains IN_PROGRESS and runtime dispatch remains blocked.
 - 2026-08-20 - R6 N1 integrated-review Amendment 1 removed invented/public top-level result-envelope attribution, added conservative caller-bound privacy/provenance precedence, and closed all integrated/V13-V15 findings; 107 tests passed and V16 fresh full-diff review returned PASS with zero findings. Lifecycle remains IN_PROGRESS and runtime dispatch remains blocked.
 - 2026-08-20 - R6 N1 executed unit-safety, provenance, diagnostic-envelope, protected-content, malformed-input, and adapter/plugin regression layers; focused/adjacent tests passed and fresh 100% frozen-diff review returned PASS with zero findings. Exact PDU-037 residual closed; lifecycle remains IN_PROGRESS and runtime dispatch remains blocked.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 2 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
