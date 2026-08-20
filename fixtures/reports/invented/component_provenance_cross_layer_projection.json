@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0.0",
+  "present_component": {
+    "value": {
+      "value_id": "component-provenance:component:C-110",
+      "value_category": "component_provenance:bend",
+      "source": {
+        "ref_type": "component",
+        "ref_id": "component:C-110"
+      },
+      "quantity": null,
+      "provenance": {
+        "source_name": "Invented elbow marker component provenance",
+        "source_location": "component.provenance=invented_example_user_entered_bend_values_no_code_table; geometry.bend_geometry_source_reference=invented_user_entered_preview_geometry; modifiers.source_reference=invented_user_entered_preview_no_code_table",
+        "source_license": "user_supplied_or_private",
+        "contributor": "user_local_session",
+        "contributor_certification": "User-local component provenance metadata; redistribution remains private or pending until separately cleared.",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "privacy_classification": "private_project_data"
+      },
+      "privacy_classification": "private_project_data",
+      "required_for": [
+        "reporting",
+        "human_review"
+      ],
+      "review_status": "pending",
+      "missing_data_finding": false
+    },
+    "provenance_note": {
+      "source_name": "Invented elbow marker component provenance",
+      "source_location": "component.provenance=invented_example_user_entered_bend_values_no_code_table; geometry.bend_geometry_source_reference=invented_user_entered_preview_geometry; modifiers.source_reference=invented_user_entered_preview_no_code_table",
+      "source_license": "user_supplied_or_private",
+      "contributor": "user_local_session",
+      "contributor_certification": "User-local component provenance metadata; redistribution remains private or pending until separately cleared.",
+      "redistribution_status": "private_only",
+      "review_status": "pending",
+      "privacy_classification": "private_project_data"
+    }
+  },
+  "missing_component": {
+    "value": {
+      "value_id": "component-provenance:component:C-140",
+      "value_category": "component_provenance:terminal",
+      "source": {
+        "ref_type": "component",
+        "ref_id": "component:C-140"
+      },
+      "quantity": null,
+      "provenance": {
+        "source_name": "Invented tie-in marker component provenance",
+        "source_location": "component provenance missing",
+        "source_license": "user_supplied_or_private",
+        "contributor": "user_local_session",
+        "contributor_certification": "User-local component provenance metadata; redistribution remains private or pending until separately cleared.",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "privacy_classification": "private_project_data"
+      },
+      "privacy_classification": "private_project_data",
+      "required_for": [
+        "reporting",
+        "human_review"
+      ],
+      "review_status": "pending",
+      "missing_data_finding": true
+    },
+    "provenance_note": {
+      "source_name": "Invented tie-in marker component provenance",
+      "source_location": "component provenance missing",
+      "source_license": "user_supplied_or_private",
+      "contributor": "user_local_session",
+      "contributor_certification": "User-local component provenance metadata; redistribution remains private or pending until separately cleared.",
+      "redistribution_status": "private_only",
+      "review_status": "pending",
+      "privacy_classification": "private_project_data"
+    },
+    "diagnostic": {
+      "code": "COMPONENT_PROVENANCE_MISSING",
+      "class": "PROVENANCE_WARNING",
+      "severity": "warning",
+      "source": {
+        "ref_type": "component",
+        "ref_id": "component:C-140"
+      },
+      "affected_object": {
+        "ref_type": "component",
+        "ref_id": "component:C-140"
+      },
+      "message": "Component Invented tie-in marker has no component.provenance field; report provenance is incomplete for this component.",
+      "remediation": "Enter component source/provenance before relying on this report.",
+      "provenance": {
+        "source_name": "OpenPipeStress desktop session (Invented Utility Loop Preview)",
+        "source_location": "local desktop session",
+        "source_license": "user_supplied_or_private",
+        "contributor": "user_local_session",
+        "contributor_certification": "not_asserted",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "privacy_classification": "private_project_data"
+      }
+    }
+  }
+}

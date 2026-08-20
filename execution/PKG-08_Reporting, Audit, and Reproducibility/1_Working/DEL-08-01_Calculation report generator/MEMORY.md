@@ -1,5 +1,29 @@
 # MEMORY - DEL-08-01 Calculation Report Generator
 
+## 2026-08-20 - R6 N2 TypeScript-to-Rust component-provenance proof
+
+The report-package seam now has one exact shared invented projection proving
+that production TypeScript `buildReportPackageRequest` output carries present
+and missing component provenance into the Rust `ReportPackageRequest` wire,
+package assembly, and canonical rendered HTML member. The proof preserves
+`private_only`, `pending`, and `private_project_data`; missing provenance stays
+an explicit `COMPONENT_PROVENANCE_MISSING` warning with
+`missing_data_finding=true`; malformed provenance is rejected before assembly.
+
+The fixture contract itself is fail-closed: TypeScript compares the complete
+root and fixed schema version, while Rust uses version-checked
+`deny_unknown_fields` root/case wrappers and rejects unsupported versions and
+unexpected root fields. No production defect or production-source change was
+required.
+
+Evidence: `_run_records/WORKING_ITEMS_RUN_2026-08-20_R6-N2-COMPPROV-CROSS-LAYER.md`
+and manager records under
+`execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R6-ENGINEERING/WI-PKG08-DEL0801/`.
+Focused Vitest passed 6/6; report-package Cargo passed 19/19 plus doc tests;
+Cargo formatting, containment, diff checks, and fresh 100% review passed.
+Lifecycle remains IN_PROGRESS for the separate `.opsproj` compatibility-policy
+residual.
+
 ## 2026-06-21 - TP-R4-D8-COMPPROVREPORT-001 component provenance in rendered reports
 
 WORKING_ITEMS landed the DEL-08-01 renderer side of the R4 D8 component

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildAnalysisRunPreview, buildPreviewComparison, loadPreviewModel, runPreviewMechanics } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { buildReportPackageRequest } from "./reportPackageRequest";
+import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
 
 async function currentSession() {
   const model = await loadPreviewModel();
@@ -29,6 +30,53 @@ async function currentSession() {
 }
 
 describe("report-package current-session request", () => {
+  it("matches the shared component-provenance projection at the production package boundary", async () => {
+    const { model, result, inputManifest, analysisRun } = await currentSession();
+    const modelWithMissingProvenance = structuredClone(model);
+    const missingComponent = modelWithMissingProvenance.components.find(
+      (component) => component.id === "component:C-140"
+    );
+    expect(missingComponent).toBeDefined();
+    missingComponent!.provenance = "";
+
+    const request = await buildReportPackageRequest({
+      model: modelWithMissingProvenance,
+      result,
+      analysisRun,
+      inputManifest,
+      projectSummary: null,
+      comparison: null,
+      ruleCheckAggregate: null
+    });
+    const sections = request.report.report_sections;
+    const presentId = componentProvenanceProjection.present_component.value.value_id;
+    const missingId = componentProvenanceProjection.missing_component.value.value_id;
+
+    const actualProjection = {
+      schema_version: "1.0.0",
+      present_component: {
+        value: sections.user_supplied_values.find((value) => value.value_id === presentId),
+        provenance_note: sections.provenance_notes.find(
+          (note) => note.source_name === componentProvenanceProjection.present_component.provenance_note.source_name
+        )
+      },
+      missing_component: {
+        value: sections.user_supplied_values.find((value) => value.value_id === missingId),
+        provenance_note: sections.provenance_notes.find(
+          (note) => note.source_name === componentProvenanceProjection.missing_component.provenance_note.source_name
+        ),
+        diagnostic: sections.diagnostics.find(
+          (diagnostic) =>
+            diagnostic.code === "COMPONENT_PROVENANCE_MISSING" &&
+            diagnostic.affected_object.ref_id === "component:C-140"
+          )
+      }
+    };
+
+    expect(componentProvenanceProjection.schema_version).toBe("1.0.0");
+    expect(actualProjection).toEqual(componentProvenanceProjection);
+  });
+
   it("maps the actual manifest, source dimensions, private copies, and DEL-08-06 records without mutating sources", async () => {
     const { model, result, inputManifest, analysisRun } =
       await currentSession();

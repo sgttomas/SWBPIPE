@@ -693,6 +693,142 @@ pub fn assemble_wire_request(
 mod tests {
     use super::*;
 
+    const COMPONENT_PROVENANCE_PROJECTION: &str = include_str!(
+        "../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json"
+    );
+    const REPORT_PACKAGE_WITNESS: &str = include_str!(
+        "../../../../validation/witness/inputs/del1005_export_results_success_input.json"
+    );
+
+    #[derive(Debug, serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct ComponentProvenanceProjection {
+        schema_version: String,
+        present_component: PresentComponentProvenanceCase,
+        missing_component: MissingComponentProvenanceCase,
+    }
+
+    #[derive(Debug, serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct PresentComponentProvenanceCase {
+        value: serde_json::Value,
+        provenance_note: serde_json::Value,
+    }
+
+    #[derive(Debug, serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct MissingComponentProvenanceCase {
+        value: serde_json::Value,
+        provenance_note: serde_json::Value,
+        diagnostic: serde_json::Value,
+    }
+
+    fn parse_component_provenance_projection(
+        source: &str,
+    ) -> Result<ComponentProvenanceProjection, String> {
+        let projection: ComponentProvenanceProjection = serde_json::from_str(source)
+            .map_err(|error| format!("COMPONENT-PROVENANCE-PROJECTION-INVALID: {error}"))?;
+        if projection.schema_version != "1.0.0" {
+            return Err(format!(
+                "COMPONENT-PROVENANCE-PROJECTION-VERSION-UNSUPPORTED: {}",
+                projection.schema_version
+            ));
+        }
+        Ok(projection)
+    }
+
+    fn request_with_component_provenance_projection() -> serde_json::Value {
+        let projection = parse_component_provenance_projection(COMPONENT_PROVENANCE_PROJECTION)
+            .expect("shared component-provenance projection contract must validate");
+        let mut witness: serde_json::Value = serde_json::from_str(REPORT_PACKAGE_WITNESS)
+            .expect("invented report-package witness must parse");
+        let sections = witness
+            .pointer_mut("/export_results/report/report_sections")
+            .expect("report sections must exist in the report-package witness");
+        sections["user_supplied_values"] = serde_json::json!([
+            projection.present_component.value,
+            projection.missing_component.value
+        ]);
+        sections["provenance_notes"] = serde_json::json!([
+            projection.present_component.provenance_note,
+            projection.missing_component.provenance_note
+        ]);
+        sections["diagnostics"] = serde_json::json!([projection.missing_component.diagnostic]);
+        witness["export_results"].clone()
+    }
+
+    fn linked_product_solver() -> LinkedSolverIdentity<'static> {
+        LinkedSolverIdentity {
+            solver_name: "open_pipe_stress_product_physics",
+            solver_version: "0.1.0",
+            solver_build_ref: "open_pipe_stress_product_physics@0.1.0",
+        }
+    }
+
+    #[test]
+    fn component_provenance_projection_contract_rejects_root_drift() {
+        let unsupported_version = COMPONENT_PROVENANCE_PROJECTION.replacen(
+            "\"schema_version\": \"1.0.0\"",
+            "\"schema_version\": \"2.0.0\"",
+            1,
+        );
+        let version_error = parse_component_provenance_projection(&unsupported_version)
+            .expect_err("unsupported projection schema version must fail closed");
+        assert!(version_error.contains("VERSION-UNSUPPORTED"));
+
+        let mut unexpected_root: serde_json::Value =
+            serde_json::from_str(COMPONENT_PROVENANCE_PROJECTION)
+                .expect("shared component-provenance projection must parse as JSON");
+        unexpected_root["unexpected_root_field"] = serde_json::json!(true);
+        let unknown_error = parse_component_provenance_projection(
+            &serde_json::to_string(&unexpected_root).expect("mutated fixture must serialize"),
+        )
+        .expect_err("unexpected projection root field must fail closed");
+        assert!(unknown_error.contains("unknown field `unexpected_root_field`"));
+    }
+
+    #[test]
+    fn component_provenance_projection_crosses_wire_and_rendered_package_boundary() {
+        let source = request_with_component_provenance_projection();
+        let request: ReportPackageRequest = serde_json::from_value(source)
+            .expect("shared component-provenance projection must deserialize in the wire request");
+        let outcome = assemble_wire_request(request, &linked_product_solver())
+            .expect("shared component-provenance projection must assemble");
+        let html_member = outcome
+            .members
+            .iter()
+            .find(|member| member.role == package::ROLE_REPORT_HTML)
+            .expect("assembled package must contain its canonical HTML member");
+        let html = std::str::from_utf8(&html_member.bytes).expect("HTML member must be UTF-8");
+
+        assert!(html.contains("component-provenance:component:C-110"));
+        assert!(html.contains("component:C-110"));
+        assert!(html.contains(
+            "component.provenance=invented_example_user_entered_bend_values_no_code_table"
+        ));
+        assert!(html.contains("COMPONENT_PROVENANCE_MISSING"));
+        assert!(html.contains("component-provenance:component:C-140"));
+        assert!(html.contains("component provenance missing"));
+        assert!(
+            !outcome.export_blocked,
+            "missing provenance remains a warning"
+        );
+    }
+
+    #[test]
+    fn malformed_component_provenance_fails_closed_at_rust_consumer_validation() {
+        let mut source = request_with_component_provenance_projection();
+        source["report"]["report_sections"]["user_supplied_values"][0]["provenance"]
+            ["privacy_classification"] = serde_json::json!("public_permissive");
+        let request: ReportPackageRequest = serde_json::from_value(source)
+            .expect("outer wire request deliberately retains the report as untyped JSON");
+        let error = assemble_wire_request(request, &linked_product_solver())
+            .expect_err("malformed component provenance must fail closed");
+
+        assert!(error.contains("REPORT-PACKAGE-REPORT-DTO-INVALID"));
+        assert!(error.contains("public_permissive"), "{error}");
+    }
+
     #[test]
     fn sha256_wire_values_require_bare_lowercase_64_hex() {
         let valid = "a".repeat(64);
