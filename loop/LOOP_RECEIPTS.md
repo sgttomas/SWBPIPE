@@ -2942,3 +2942,13 @@
   - Checks: node-focused proofs, fresh node reviews, terminal integrated-diff review, desktop build and tests, full Piping tests, practitioner harness and self-check, complete five-surface DEC-025 host sweep, receipt contract, diff, and containment: PASS.
   - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS, bounded TASK implementation and fresh read-only review instances, and CHANGE; inherited GPT-5-based Codex runtime capability was used without substitution. Exact run parentage and evidence are recorded in the named AgentRuns package.
   - Gate-Outcome: `EXECUTED` — DEL-02-04 gains fail-closed adapter/plugin verification with runtime undispatched; DEL-08-01 gains cross-layer component provenance and exact report-model identity; DEL-14-04 gains deterministic bindings for seven result families. Owner-held runtime/transport/capability/permission choices, `.opsproj` policy, and PDU-011/PDU-047 holds remain parked. PR #587 is ready for review; no merge, lifecycle, stage, release, publication, or professional-reliance effect occurs.
+
+- **2026-08-20 — Receipt 118** (R7 packaged edited-load engineering tranche).
+  - Receipt-ID: `Receipt-118`
+  - Examined-Through: `8eea5d06d3f98dd91b56b53a2c7caec2f7ed5919`
+  - Parent-Receipt: `Receipt-117`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — “Steer (this run):  start a new branch for this work you are about to define, do not continue working in this current branch.”
+  - Pointers: branch `codex/piping-r7-engineering-20260820`; base `main`; predecessor PR #587 merged before publication, so no open PR dependency; PR #588; node commit `eddc974d124ee9270b3cb33996e79a9612fa5db9`; proof commit `a1958c7e19e375ceecfe69a5264c36d1bad88e90`; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R7-ENGINEERING/`; clean five-surface summary `validation/evidence/sweeps/SWEEP_20260820T165625Z_eddc974d124e.json`.
+  - Checks: focused and full desktop tests/builds, actual packaged-binary execution, fresh integrated-diff review, complete DEC-025 five-surface host sweep, repository self-check, full practitioner harness, receipt contract, diff, and containment: PASS.
+  - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS, three fresh read-only TASK review instances, and CHANGE; inherited GPT-5-family Codex runtime capability was used without substitution.
+  - Gate-Outcome: `EXECUTED` — the packaged executable now proves structured edited-load persistence, restore, identity, and solve behavior; the narrower packaged-GUI observation remains host-blocked and its exact DEL-07-06 Remaining item is preserved. No merge, lifecycle, stage, release, issuance, publication, or professional-reliance effect occurs.
