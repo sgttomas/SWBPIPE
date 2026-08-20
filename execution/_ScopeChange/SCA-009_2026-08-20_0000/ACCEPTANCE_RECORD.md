@@ -2,7 +2,7 @@
 
 **Amendment:** `SCA-009`
 
-**State:** `GATE 1 CONFIRMED — GATE 2 PENDING`
+**State:** `GATE 2 APPROVED — GATE 3 PENDING`
 
 ## Gate 1 — verbatim owner rulings
 
@@ -71,14 +71,56 @@ This confirmation opens Gate 2 only. It approves no impact assessment,
 amendment, propagation, implementation, dependency, estimate, schedule,
 pointer, lifecycle, release, or Git action.
 
-## Gate 2 — impact assessment acceptance
+## Gate 2 — verbatim owner rulings
 
-`PENDING` — awaiting the owner's Gate-2 ruling on `Impact_Assessment.md`
-(cited by its SHA-256).
+`APPROVED` — ruled in-session, in chat, on 2026-08-20. Actor: Ryan Tufts.
+Transcribed verbatim from the Agent 0 relay.
+
+Process direction (after the Gate-2 tranche had been opened as its own PR):
+
+> "we should only be doing on PR for when all of this lands, not at each
+> gate."
+
+Effect: PR #593 is the single landing PR for SCA-009; gates accumulate as
+commits on branch `claude/piping-sca-009-gate2-20260820` with one merge
+after Gate 5. (The Gate-1 package had already merged via PR #592 before
+this direction was given.)
+
+Gate-2 ruling (after the envelope M-vs-L rationale and the
+implementation-landing discussion):
+
+> "Yes, add the landing column and rule the envelope L.  On that, Gate 2 is
+> approved and you may proceed."
+
+Transcription note: the double spacing is preserved exactly as relayed.
+
+### Gate-2 effect
+
+The ruling was made on `Impact_Assessment.md` SHA-256
+`bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` at
+branch commit `f5112824f055b3b5584a852dd68923530dc6620b`; that ruled-upon
+commit remains intact and all later work lands as new commits on top of it.
+Gate 2 is `APPROVED` **with two owner modifications**:
+
+1. **Context envelope = `L`** for `DEL-07-09`, overriding the assessment's
+   `M` proposal. The expected post-change envelope distribution is
+   therefore `S=9, M=69, L=24, XL=0` (not the assessment's
+   `S=9, M=70, L=23, XL=0`). All other assessment content stands as
+   accepted.
+2. **Implementation-landing column.** `Vocabulary_Annex.md` gains an
+   "Implementation lands in" column on every NORMATIVE-NOW and ROADMAP
+   row, carrying the accepted mapping (principle: `DEL-07-09` never
+   dispatches implementation; its coverage ledger routes each vocabulary
+   item to the owning deliverable(s)).
+
+This approval opens Gate 3 only. It approves no amendment application,
+propagation, implementation, dependency, estimate, schedule, pointer,
+lifecycle, release, or Git action.
 
 ## Gate 3 — amendment approval
 
-`PENDING` — blocked by Gate 2.
+`PENDING` — awaiting the owner's Gate-3 ruling on the exact
+preimage/postimage set (`Amendment_Preview.md`, cited by its SHA-256).
 
 ## Gate 4 — propagation plan approval
 

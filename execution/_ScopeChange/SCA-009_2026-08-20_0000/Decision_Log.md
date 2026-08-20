@@ -1,6 +1,6 @@
 # Piping SCA-009 Decision Log
 
-**State: `GATE 1 CONFIRMED — GATE 2 PENDING`**
+**State: `GATE 2 APPROVED — GATE 3 PENDING`**
 
 ## Pending register (Gate-1 candidate package, historical)
 
@@ -30,6 +30,8 @@ chat rulings, 2026-08-20). Dispositions are human acts.
 | 2026-08-20 | D4 — palette ownership | Ryan Tufts | Accepted as recommended: single palette-surface owner — `DEL-07-09`. | `RULED` |
 | 2026-08-20 | D5 — adjacent residuals | Ryan Tufts | Accepted as recommended: fold the `DEL-07-03-R-005` (load-case editor) and `DEL-07-03-R-006` (support/restraint editor) landing into `DEL-07-09`; the `DEL-16-04` route/support candidate-generator ownership stays out, reserved to a separate decomposition act. | `RULED` |
 | 2026-08-20 | D6 — scope-row shape | Ryan Tufts | Accepted as recommended: new scope row `SOW-077`; no SOW-020/SOW-021 remap. | `RULED` |
+| 2026-08-20 | Process direction | Ryan Tufts | One landing PR only (PR #593): gates accumulate as commits on `claude/piping-sca-009-gate2-20260820`; single merge after Gate 5 — "we should only be doing on PR for when all of this lands, not at each gate." | `DIRECTED` |
+| 2026-08-20 | Gate 2 | Ryan Tufts | Approved the impact assessment `Impact_Assessment.md` SHA-256 `bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` at branch commit `f5112824f055b3b5584a852dd68923530dc6620b` — "Yes, add the landing column and rule the envelope L.  On that, Gate 2 is approved and you may proceed." — with two owner modifications: (1) `DEL-07-09` context envelope **L**, overriding the assessment's M proposal (post-change distribution S=9, M=69, L=24, XL=0); (2) `Vocabulary_Annex.md` gains the "Implementation lands in" column carrying the accepted landing mapping. Opens Gate 3 only. | `APPROVED — WITH MODIFICATIONS` |
 
 Notes:
 
