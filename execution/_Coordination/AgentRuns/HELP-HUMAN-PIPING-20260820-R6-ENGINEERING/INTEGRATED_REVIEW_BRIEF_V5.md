@@ -1,13 +1,13 @@
 # Integrated software-code-review brief — attempt 5
 
 RequestedBy: `HELP_HUMAN` / Agent 0
-WorkingRoot: `/Users/ryan/.codex/worktrees/4918/chirality/projects/chirality-piping`
-ScopePath: `/Users/ryan/.codex/worktrees/4918/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R6-ENGINEERING`
+WorkingRoot: `{WORKING_ROOT}`
+ScopePath: `{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R6-ENGINEERING`
 TaskProfile: `NONE`
 TaskSkill: `software-code-review`
 ApplyEdits: `false`
 AllowedWriteTargets: `[]`
-PROFILE_PATH: `/Users/ryan/.codex/worktrees/4918/chirality/docs/SOFTWARE_WORKFLOW_PROFILE.md`
+PROFILE_PATH: `{REPO_ROOT}/docs/SOFTWARE_WORKFLOW_PROFILE.md`
 
 ## ImplementationBrief
 
