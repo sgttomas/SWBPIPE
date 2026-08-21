@@ -20,7 +20,9 @@
     "harness_baseline_repair": "07909d7193de22b9edeacc686175d28500022b52",
     "failed_sweep_evidence": "f6064019f80298d1d3f1e475aece49fe28f478bc",
     "pre_sync_proof": "c6552d5bf2eadf08504b97a53b9a1e62ed29e7df",
-    "owner_authorized_main_sync": "5b98fc6b79f9f28f873dbdc8dd51c13953b55b72"
+    "owner_authorized_main_sync": "5b98fc6b79f9f28f873dbdc8dd51c13953b55b72",
+    "post_sync_proof": "fb5599c93920206c31913f18e79daebe0e5b7e0c",
+    "g4_ci_repair": "13891f8c0e9019f26a3de73d9395734c61e05c8a"
   },
   "pull_request": 599,
   "checks": [
@@ -42,7 +44,7 @@
     {
       "name": "exact-containment-and-cross-node-disjointness",
       "result": "PASS",
-      "detail": "CANDIDATE_FILES.txt records the exact 77-path post-N2/N3 closeout membership, including the baseline repair and failed/pre-sync/post-sync sweep evidence; N2/N3 remain separately bound by their pushed commit SHAs."
+      "detail": "CANDIDATE_FILES.txt records the exact 78-path post-N2/N3 closeout membership, including the baseline repair, failed/pre-sync/post-sync sweep evidence, and the PR-discovered G4 manifest repair; N2/N3 remain separately bound by their pushed commit SHAs."
     },
     {
       "name": "terminal-newline-normalization",
@@ -76,7 +78,8 @@
     "repository_self_check": "PASS exit 0 with only pre-existing REVIEW/WARN/INFO findings",
     "receipt_validator": "PASS",
     "g4_policy_tests": "PASS — 47 tests",
-    "g4_corpus": "PASS — 40 schema-valid manifests"
+    "g4_corpus": "PASS — 40 schema-valid manifests",
+    "g4_diff_after_ci_repair": "PASS — origin/main..HEAD covers all 4 changed instruction-surface paths; first PR run 32451967800 failure preserved"
   },
   "dec_025": {
     "status": "PASS",
@@ -87,6 +90,11 @@
     "pre_sync_pass": "validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json at f6064019f80298d1d3f1e475aece49fe28f478bc, SHA-256 d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c",
     "surfaces": "PASS — 36 Rust crates; Python 902; Vitest 541; Playwright dev 22 and dist 2; production build"
   },
+  "pr_checks": {
+    "first_post_sync_governance_run": "32451967800 — FAIL at G4 diff gate: practitioner baseline path undeclared",
+    "repair": "13891f8c0e9019f26a3de73d9395734c61e05c8a — manifest declaration added; local G4 policy/corpus/diff PASS",
+    "publication_gate": "required PR rerun must reach terminal success"
+  },
   "artifact_proof_label": "NOT_APPLICABLE",
-  "next_owner": "human review of PR #599"
+  "next_owner": "CHANGE waits for repaired PR #599 checks, then human review"
 }

@@ -10,7 +10,9 @@
 # Pre-sync proof: c6552d5bf2eadf08504b97a53b9a1e62ed29e7df
 # Owner-authorized README-only main sync: 5b98fc6b79f9f28f873dbdc8dd51c13953b55b72
 # Post-sync sweep binds 5b98fc6b79f9f28f873dbdc8dd51c13953b55b72 and SHA-256 513110e5c43007fb3cbdc753c02162c0173a1a15e395e60a42b4e3d8e372a2c2.
+# PR G4 manifest repair: 13891f8c0e9019f26a3de73d9395734c61e05c8a
 # One repository-relative closeout path per line; the final proof commit updates existing control paths below.
+docs/governance_harness/tranche_manifests/PIPING-CI-SLOW-OBJECT-HARDENING-20260821.yaml
 projects/chirality-piping/core/product_physics/src/lib.rs
 projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md
 projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv
