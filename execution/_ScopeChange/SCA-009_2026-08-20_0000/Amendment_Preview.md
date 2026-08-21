@@ -131,9 +131,9 @@ amendment.
  refs:
    - rel: depends_on
 @@ -38,6 +38,8 @@
- 
+
  Revision v0.11 records `SCA-008`, reconciling the accepted `D-58` current-effect disposition into forward decomposition truth without rewriting `D-30`, `D-31`, `D-58`, `DEC-041`, or `DEC-063`: current reliance on the App-era `D-APP-48` / `D-30` synchronized-consumption mechanism is retired; the automation-condition mechanism remains unresolved; Piping remains outside the Root-runtime and App-harness client sets; and PRD R7 and its product outcomes remain unchanged. The amendment adds `DEC-091`, corrects one current-gate clause in `DEL-16-04/_STATUS.md`, refreshes source, traceability, context-envelope, and coverage-revision metadata, and requires a complete current SCA snapshot. It changes no package, deliverable, scope item, objective, requirement, dependency edge, lifecycle, release, or professional-reliance state and adopts no successor mechanism or repin.
- 
+
 +Revision v0.12 records `SCA-009`, the interactive operation vocabulary and tool-palette ownership amendment ruled through SCA-009 Gates 1–2: new scope item `SOW-077` and new PKG-07 deliverable `DEL-07-09` "Interactive operation vocabulary and tool palette contract" (UX_UI_SLICE, context envelope L per owner ruling), mapped to `OBJ-006` and `OBJ-015`, with the ratified two-class vocabulary (NORMATIVE-NOW / ROADMAP, including the implementation-landing ledger) in the SCA-009 `Vocabulary_Annex.md` as the DEL-07-09 coverage contract bound to the implemented operation taxonomy. The single palette surface routes exclusively through the PKG-16 structured-operation layer; the `DEL-07-03-R-005`/`R-006` ownership landing re-points to DEL-07-09; the DEL-16-04 route/support candidate-generator ownership remains reserved to a separate act. The amendment adds `DEC-094` and changes no package, existing deliverable, requirement, dependency edge, lifecycle, release, or professional-reliance state.
 +
  Revision v0.8 records `SCA-005`, which propagates the accepted `D-21` /
@@ -144,9 +144,9 @@ amendment.
  |SOW-075|IN|The product shall support external-prover workflow metadata without forcing a formal prover-status lifecycle, automatic professional acceptance record, or comprehensive commercial-tool result ingestion in the MVP.|PRD v0.2 §4.2, §16.2-§16.4, §23|Use flexible names, tags, notes, external references, comparison reports, and optional user-owned external harness metadata instead of hard-coded approval statuses; SCA-004 permits CAEPIPE harness records only as non-authoritative external-run evidence.|
  |SOW-076|IN|The GUI shall support design-authoring and comparison workflows, including design knowledge panels, constraint/warning panels, state/run browsers, comparison tables, and graphical comparison overlays.|PRD v0.2 §11.3, §14.5, §15.3|Expands GUI from stress input editing into design iteration and review.|
 +|SOW-077|IN|The GUI shall provide a ratified interactive model-building operation vocabulary and a governing tool-palette contract that organizes the human command surface for building and modifying the piping model, with every palette command routed through structured model operations.|PRD v0.3 §14; SCA-009 owner request 2026-08-20|Vocabulary classes NORMATIVE-NOW / ROADMAP per SCA-009 D3 (Vocabulary_Annex); binds to the implemented operation taxonomy; single palette owner DEL-07-09; no second mutation route.|
- 
+
  ## 5. Objectives
- 
+
 @@ -191,7 +194,7 @@
  |OBJ-003|Implement a robust global centerline/frame solver for practical piping flexibility analysis.|SOW-005, SOW-006, SOW-011, SOW-012, SOW-013, SOW-014, SOW-015, SOW-035, SOW-052, SOW-053|DEL-04-01, DEL-04-02, DEL-04-03, DEL-04-04, DEL-04-05, DEL-04-06, DEL-05-01, DEL-05-02, DEL-05-03, DEL-05-05, DEL-11-03|
  |OBJ-004|Support piping-specific components and private libraries without bundling protected data.|SOW-007, SOW-008, SOW-009, SOW-010, SOW-017, SOW-018, SOW-019, SOW-044, SOW-051|DEL-03-01, DEL-03-02, DEL-03-03, DEL-03-04, DEL-03-05, DEL-03-06, DEL-03-07, DEL-03-08|
@@ -179,18 +179,18 @@ amendment.
  |DEL-07-07|Solve execution UX: progress, cancellation, and diagnostics|UX_UI_SLICE|SOW-055|OBJ-006,OBJ-007|M|Single GUI workflow slice for running and inspecting solves.|
  |DEL-07-08|Design-authoring state and comparison workspace|UX_UI_SLICE|SOW-076|OBJ-015,OBJ-016|L|Adds design knowledge panels, operation/diff review, state/run browsers, comparison tables, and graphical overlays to the GUI workflow.|
 +|DEL-07-09|Interactive operation vocabulary and tool palette contract|UX_UI_SLICE|SOW-077|OBJ-006,OBJ-015|L|Owns the ratified two-class operation-vocabulary coverage contract (SCA-009 Vocabulary_Annex incl. implementation-landing ledger) and the single tool-palette surface organization over the DEL-07-01/DEL-07-02 surfaces; all palette commands route through the PKG-16 operation layer; accepted landing zone for the DEL-07-03-R-005/R-006 editor residuals.|
- 
+
  ### PKG-08 — Reporting, Audit, and Reproducibility
- 
+
 @@ -539,22 +543,23 @@
  |SOW-074|IN|The product shall generate schema-compliant handoff packages with model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, and unsupported-target flags.|PRD v0.2 §16.1, FR-HAND-001 through FR-HAND-004|PKG-15, PKG-17|DEL-15-01, DEL-15-02, DEL-15-03, DEL-17-01, DEL-17-02, DEL-17-03, DEL-17-04, DEL-17-06, DEL-17-07, DEL-17-08, DEL-17-09|OBJ-017, OBJ-018|FALSE|Handoff quality is central; SCA-004 makes stable ID maps, export manifests, loss reports, target mapping metadata, unsupported/approximated/delegated behavior reporting, CAEPIPE MBF, conservative PCF, GLB/glTF review geometry, and native JSON export packages explicit scope.|
  |SOW-075|IN|The product shall support external-prover workflow metadata without forcing a formal prover-status lifecycle, automatic professional acceptance record, or comprehensive commercial-tool result ingestion in the MVP.|PRD v0.2 §4.2, §16.2-§16.4, §23|PKG-15, PKG-17|DEL-15-04, DEL-17-01, DEL-17-04, DEL-17-05, DEL-17-09|OBJ-017, OBJ-018|FALSE|Use flexible names, tags, notes, external references, comparison reports, and optional user-owned external harness metadata instead of hard-coded approval statuses; SCA-004 permits CAEPIPE harness records only as non-authoritative external-run evidence.|
  |SOW-076|IN|The GUI shall support design-authoring and comparison workflows, including design knowledge panels, constraint/warning panels, state/run browsers, comparison tables, and graphical comparison overlays.|PRD v0.2 §11.3, §14.5, §15.3|PKG-07|DEL-07-08|OBJ-015, OBJ-016|FALSE|Expands GUI from stress input editing into design iteration and review.|
 +|SOW-077|IN|The GUI shall provide a ratified interactive model-building operation vocabulary and a governing tool-palette contract that organizes the human command surface for building and modifying the piping model, with every palette command routed through structured model operations.|PRD v0.3 §14; SCA-009 owner request 2026-08-20|PKG-07|DEL-07-09|OBJ-006, OBJ-015|FALSE|Vocabulary classes NORMATIVE-NOW / ROADMAP per SCA-009 D3; single palette owner DEL-07-09; no second mutation route.|
- 
+
  ## 10. Coverage and telemetry
- 
- 
+
+
  |Metric|Value|
  |---|---|
 -|ScopeItemCount|76|
@@ -207,20 +207,20 @@ amendment.
  |OpenIssues|17|
 -|Revision|0.11 — 2026-07-27|
 +|Revision|0.12 — 2026-08-20|
- 
+
  ## 11. Open issues
- 
+
 @@ -677,9 +682,10 @@
  |DEC-091|D-58 current-effect reconciliation: preserve `D-30`, `D-31`, `D-58`, `DEC-041`, and `DEC-063` as historical acts while retiring current reliance on the App-era `D-APP-48` / `D-30` synchronized-consumption mechanism. That mechanism no longer supplies a current basis for the `D-31` declaration that the `DEC-041` no-manual-toil automation condition is met; the automation-condition mechanism remains unresolved. Piping remains outside the Root-runtime and App-harness client sets; PRD R7 and its product outcomes remain unchanged; and no successor mechanism, repin, client obligation, package, deliverable, scope item, objective, requirement, dependency edge, lifecycle, release, or professional-reliance effect is adopted.|`execution/_Coordination/_DECISIONS/D-58_current_mechanism_retirement.md`; `D-58_RULING_2026-07-27.md`; `D-58_EFFECTIVE_STATE_CLOSEOUT_2026-07-27.md`; D-58 decision-register row; SCA-008 Gate-1 confirmation and accepted Gate-2 impact assessment.|Accepted as the forward current-effect row through SCA-008 Gate 3, effective in decomposition revision 0.11 only after separately approved Gate-5 application and validation. Historical rows remain byte-identical; the exact automation-condition mechanism remains unresolved; no product, runtime, client, lifecycle, release, or professional authority follows.|
  |DEC-092|D-45 ruling — temperature-indexed shear modulus: adopt **Option O-B** from `execution/_Coordination/_DECISIONS/D-45_temperature_indexed_shear_modulus.md`. Add a new explicit user-entered shear-modulus G quantity to material temperature points and apply the `DEC-077` method to G: exact-id basis selection remains available; a declared solve temperature linearly interpolates G only between qualifying adjacent user-entered points; every derived G value carries provenance naming both source points and the declared method; and the solve blocks rather than extrapolates when a qualifying bracket is absent or the temperature is at or beyond stored range edges. Base G remains the no-temperature-basis value; a selected temperature basis must consume explicit point G without hidden base-G fallback. All values remain user-entered; no material curve, catalog, code table, protected value, or default is authorized.|Human project authority ruling on 2026-08-01: `2) D-45 ruling: O-B.` Exact 20 UTF-8 bytes without trailing newline, SHA-256 `f4a43267fc5c7e16ed9de5ee736520eedd518866d66d12d74860b279d1e20557`; durable record `execution/_Coordination/_DECISIONS/D-45_RULING_2026-08-01.md`; pre-ruling proposal SHA-256 `c7e2cb465df438c413e56beaaeb1e13fdbf85bb46e88b400c01ef1697590d371`.|Accepted; D-45 register row is `RULED` with packet, ruling, and this row as pointers. Implementation remains a separately bounded DEL-05-02 tranche behind schema/authoring/operation/solver, independent hand-calculation, benchmark, unit, exact-id, provenance, mutual-selection, missing/invalid-input, and edge/no-extrapolation evidence. At codification, live temperature-point inputs still contain E and alpha but no G, and the solve still clones base G; no implementation or lifecycle, stage, release-readiness, professional, certification, sealing, authentication, or code-compliance claim is made.|
  |DEC-093|D-65 ruling — CI-produced surface-4 evidence accepted with binding. Prospectively amend and succeed only the surface-4 execution alternative of `DEC-025`: a five-surface sweep may satisfy surface 4 with evidence from `.github/workflows/piping-desktop-e2e.yml` when its summary records `execution_capability: ci`, the workflow path, Actions run ID and run attempt, exact run head SHA, run conclusion, and `working_tree_dirty=false`; the bound head SHA must equal the sweep `commit_hash`, the conclusion must be `success`, and the registered e2e specs must have executed across both registered viewport projects. The existing `execution_capability: host` path remains permitted with unchanged semantics and is not deprecated. Exact-SHA CI checkout satisfies the clean-tree intent by construction. An infrastructure-failed run may be replaced by a successful rerun of the same workflow on the same SHA; a spec failure remains a genuine blocking surface-4 failure. Acceptance covers the current registered desktop e2e surface only; a future macOS-specific packaged-desktop surface may be designated host-mandatory when registered. Exploratory and agent-as-user testing are excluded from all sweep surfaces. `DEC-025` remains immutable history and governs except where this row expressly supplies the CI alternative.|Human project authority ruling on 2026-08-19, recorded verbatim in `execution/_Coordination/_DECISIONS/D-65_RULING_2026-08-19.md`.|Accepted as the forward surface-4 execution rule. The separately bounded DEL-10-04 Remaining item must teach `tools/release/run_evidence_sweep.py` and its summary schema/validator to record and validate the CI binding, including rejecting a bound head SHA that differs from `commit_hash`; that engineering is not executed here. Until it lands, sweeps continue on the host path. No workflow, sweep tool, schema, validator, manifest, lifecycle, release, publication, or professional-reliance change occurs in this recording tranche.|
 +|DEC-094|SCA-009 ruling — interactive operation vocabulary and tool-palette ownership: adopt Option A from the SCA-009 candidate package. Add SOW-077 and DEL-07-09 "Interactive operation vocabulary and tool palette contract" (PKG-07, UX_UI_SLICE, context envelope L per owner ruling), mapped to OBJ-006 and OBJ-015. The ratified two-class vocabulary (NORMATIVE-NOW / ROADMAP, with the implementation-landing ledger) in `execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md` is the DEL-07-09 coverage contract and binds to the implemented operation taxonomy, not the schema OperationKind enum. Single palette-surface owner DEL-07-09; every palette command routes through the PKG-16 structured-operation layer. DEL-07-03-R-005/R-006 ownership landing re-points to DEL-07-09; the DEL-16-04 route/support candidate-generator ownership remains reserved to a separate act. No package, existing deliverable, requirement, dependency edge, lifecycle, release, or professional-reliance state changes.|Human project authority rulings on 2026-08-20, transcribed in the SCA-009 ACCEPTANCE_RECORD: Gate 1 "D1 is confirmed."; Gate 2 "Yes, add the landing column and rule the envelope L.  On that, Gate 2 is approved and you may proceed."|Accepted through SCA-009 Gates 1–2; exact application governed by Gates 3–5. Downstream DAG rebuild, targeted reconciliation refresh, DEL-07-09 dependency extraction, and PREPARATION scaffold remain explicit post-amendment work.|
- 
+
  ## 13. Gate posture
- 
+
 -This v0.11 decomposition is the accepted current decomposition basis after SCA-008.
 +This v0.12 decomposition is the accepted current decomposition basis after SCA-009.
- 
+
  PREPARATION may scaffold package and deliverable folders from this decomposition and the companion registers after ORCHESTRATOR plans the accepted downstream refreshes. `PKG-00` is retained architecture-basis reference context per HUMAN-STEER-PKG00-EXCLUSION-001 and `D-43`, not a production package awaiting issuance, and its SCA-001 architecture basis as amended through SCA-008 may be injected into `PKG-01` through `PKG-17` sealed contexts and future TASK briefs. Type 2 execution still requires one sealed deliverable context, explicit write scope, applicable invariants, and acceptance criteria. Existing DEV-001 dispatch, immutable DAG snapshots, lifecycle history, implementation evidence, schemas, docs, and code may predate revision 0.11 until refreshed by their owning workflows; SCA-008 does not itself approve a DAG successor, adopt an automation mechanism or client status, change lifecycle, create implementation authority, or make release/professional claims. `D-30`, `D-31`, `D-58`, `DEC-041`, and `DEC-063` remain historical records; `D-58` and `DEC-091` govern current effect.
 ```
 
@@ -267,16 +267,16 @@ amendment.
 +++ b/postimages/DEL-07-03_STATUS.md
 @@ -1,13 +1,14 @@
  # Status: DEL-07-03 Material, component, and rule-pack editors
- 
+
  **Current State:** IN_PROGRESS
 -**Last Updated:** 2026-07-12
 +**Last Updated:** 2026-08-20
- 
+
  ## Remaining
 -- Preserve PDU-041 / `DEL-07-03-R-005` and `R-006` as documented GUI absences until an accepted ownership/scope binding authorizes load-case and support/restraint editors in this deliverable; adjacent DEL-07-02/other GUI authoring does not silently close them.
 +- `DEL-07-03-R-005` and `R-006` (load-case, support/restraint editors) are re-pointed by SCA-009 (decomposition revision 0.12, DEC-094): their accepted ownership landing is the `DEL-07-09` interactive operation vocabulary and tool palette contract. They remain documented GUI absences on this deliverable's surfaces until DEL-07-09-governed coverage work closes them through the owning implementation deliverables; adjacent DEL-07-02/other GUI authoring still does not silently close them. PDU-041 evidence is preserved unchanged.
  - Obtain a separately authorized independent usability/security validation basis before upgrading PDU-049 / `DEL-07-03-R-011` beyond `VERIFIED_NOT_VALIDATED`; project-owned verification does not supply that basis (source: DEC-074 O7-before-E5; PDU-049, 2026-07-12)
- 
+
  ## History
 +- 2026-08-20 - SCA-009 (decomposition revision 0.12, DEC-094) re-pointed the R-005/R-006 ownership landing to DEL-07-09 per the owner's D5 ruling; documented absences and PDU-041 evidence preserved; no lifecycle change (state remains IN_PROGRESS).
  - 2026-07-12 - D-41 R5 T5 PDU-008 recorded current cross-surface GUI interaction evidence while preserving PDU-041's DEL-07-03 load-case/support editor ownership absences; no silent closure or lifecycle change.
@@ -292,7 +292,7 @@ amendment.
 @@ -54,6 +54,9 @@
  - **Still TBD:** Exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, import/export format list, CI provider/coverage thresholds, and physical project package/container remain implementation-level decisions unless this deliverable explicitly resolves one under human approval.
  - **Dispatch Rule:** Future TASK execution must apply only the applicable architecture-basis constraints and must not copy full PKG-00 prose into deliverable artifacts.
- 
+
 +## Boundary Note (SCA-009)
 +- SCA-009 (decomposition revision 0.12, DEC-094) assigns the ownership landing for `DEL-07-03-R-005`/`R-006` (load-case, support/restraint editors) to `DEL-07-09` — the PKG-07 interactive operation vocabulary and tool palette contract. This deliverable's scope coverage, envelope, and lifecycle are unchanged; the WATCH advice to split rather than expand stands. Boundary metadata only.
 +

@@ -2,7 +2,7 @@
 
 **Amendment:** `SCA-009`
 
-**State:** `GATE 2 APPROVED — GATE 3 PENDING`
+**State:** `GATE 3 APPROVED — GATE 4 OPEN`
 
 ## Gate 1 — verbatim owner rulings
 
@@ -117,10 +117,36 @@ This approval opens Gate 3 only. It approves no amendment application,
 propagation, implementation, dependency, estimate, schedule, pointer,
 lifecycle, release, or Git action.
 
-## Gate 3 — amendment approval
+## Gate 3 — verbatim owner ruling
 
-`PENDING` — awaiting the owner's Gate-3 ruling on the exact
-preimage/postimage set (`Amendment_Preview.md`, cited by its SHA-256).
+`APPROVED` — ruled in-session, in chat, on 2026-08-20. Actor: Ryan Tufts.
+Transcribed verbatim from the Agent 0 relay:
+
+> "I APPROVE Piping SCA-009 Gate 3 using Amendment_Preview SHA-256
+> 802c2ce92c5a48651f4d06312d4ba26593f0134e3b7c443988e74b79c0e170d4 at
+> branch commit d50e72c4b. Apply exactly the six preimage→postimage pairs
+> recorded there, DEC-094, and no other surface. This opens Gate 4 only."
+
+### Whitespace-remediation note
+
+The ruling's cited `Amendment_Preview.md` SHA-256 `802c2ce9…` refers to the
+version at branch commit `d50e72c4bd4b8c58fd5ddcc9637d077806dfc55c`, which
+remains immutable in history. After the ruling, the governance harness's
+candidate-whitespace check (`tools/validation/
+validate_candidate_whitespace.py`, run by the `governance-harness.yml`
+"Candidate whitespace" step) flagged 18 trailing-whitespace lines in that
+file — all blank/context lines of the embedded diffs, an artifact of
+inlining `diff -u` output. This commit applies a whitespace-only cleanup
+(trailing spaces stripped on those 18 lines; no other character changed).
+The operative approved content — the six preimage → postimage pair
+SHA-256 values and the `postimages/` files themselves, which are the
+byte-exact application targets — is byte-identical before and after the
+cleanup. Post-cleanup `Amendment_Preview.md` SHA-256:
+`44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab`.
+
+Gate-4 application executes exactly the six approved pairs by their
+recorded postimage hashes; the ruling's authorization is unaffected by the
+cleanup.
 
 ## Gate 4 — propagation plan approval
 

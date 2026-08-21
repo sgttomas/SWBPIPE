@@ -355,3 +355,50 @@ approval opens Gate 4 only. Zero applied effect: the live decomposition,
 registers, DEL-07-03 metadata, pointers, and all implementation surfaces
 are byte-identical to the basis. Standard claim fence applies (F-PIP-2;
 DEC-081 claims taxonomy).
+
+---
+
+# Gate-3 approval and whitespace remediation
+
+The owner ruled Gate 3 `APPROVED` (verbatim in `ACCEPTANCE_RECORD.md`) on
+`Amendment_Preview.md` SHA-256 `802c2ce9…` at branch commit `d50e72c4b`,
+authorizing application of exactly the six preimage → postimage pairs,
+`DEC-094`, and no other surface. After the ruling, the governance
+harness's candidate-whitespace check
+(`tools/validation/validate_candidate_whitespace.py`, invoked by the
+`.github/workflows/governance-harness.yml` "Candidate whitespace" step)
+failed on the pushed range with 18 trailing-whitespace findings, all
+blank/context lines of the diffs embedded in `Amendment_Preview.md`. The
+failure was reproduced locally over `origin/main...HEAD` and remediated in
+this commit by stripping trailing whitespace from those 18 lines — a
+whitespace-only change; the six pair hashes and every `postimages/` byte
+are unchanged. Post-cleanup `Amendment_Preview.md` SHA-256:
+`44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab`. The
+ruled-upon commit `d50e72c4b` remains intact in history; this tranche and
+the Gate-4 application land as new commits on top.
+
+## Refreshed package integrity (post-remediation, pre-application)
+
+| File | SHA-256 |
+|---|---|
+| `ACCEPTANCE_RECORD.md` | `5ff23893cf02c879b1ba7ce795b4fc28ce63d1770774f35015df38981ad049dd` |
+| `Amendment_Actions.csv` | `07388b81883a0d8758d27b22784fa7420d8fd4be86c8bc8b34c18b106c065901` |
+| `Amendment_Preview.md` | `44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab` |
+| `Brief.md` | `ad36f600c0bb796e1029c11f0f70370413c7864e343625da3988f9010bb64ffd` |
+| `Decision_Log.md` | `3c479488ca402f6cf2814199f845672c047999596a7e71738b68a8d7781aa195` |
+| `Handoff_State.md` | `1021f1a052af0956fe2257e012cbf997b9ab04dd0d3ef8812e98892e1e568e24` |
+| `Impact_Assessment.md` | `bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` |
+| `Impact_Sketch.md` | `7ac40e4e6a94b9276f0bc4a5501e59998c4bbf0db8eb17e51bff538eadfaad77` |
+| `Vocabulary_Annex.md` | `f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c` |
+| `postimages/ContextBudgetQA.csv` | `84497efb81d4b31b085e016d37a285aed3755be7740a632794e355dad259468d` |
+| `postimages/DEL-07-03_CONTEXT.md` | `e69a8d7d832b5af0f15e08c3c242e9d5ace98f26a752ee41fda06855f528ae10` |
+| `postimages/DEL-07-03_STATUS.md` | `41039f77e6c0d86dcd013e0c17f09bf51889fbc1aef3a9a68e54d834f8e95596` |
+| `postimages/Deliverables.csv` | `f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539` |
+| `postimages/SOFTWARE_DECOMP.md` | `a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3` |
+| `postimages/ScopeLedger.csv` | `97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238` |
+
+**Package SHA-256 (same sorted-lines method, fifteen files):**
+`5d19c18461326cc8084b0d523afe31d73985987fad2466e2a8828d8a01e2549a`
+
+All `postimages/` hashes are unchanged from the Gate-3 table — the
+approved application targets are byte-identical.
