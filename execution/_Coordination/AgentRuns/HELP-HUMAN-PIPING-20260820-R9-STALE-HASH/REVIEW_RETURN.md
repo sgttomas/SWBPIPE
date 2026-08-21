@@ -8,9 +8,9 @@ TaskProfile: `NONE`
 
 TaskSkill: `software-code-review`
 
-ScopePath: `/Users/ryan/.codex/worktrees/4918/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R9-STALE-HASH`
+ScopePath: `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R9-STALE-HASH`
 
-ResolvedSkillPath: `/Users/ryan/.codex/worktrees/4918/chirality/skills/software-code-review`
+ResolvedSkillPath: `skills/software-code-review`
 
 ResolvedSkillVersion: `1`
 

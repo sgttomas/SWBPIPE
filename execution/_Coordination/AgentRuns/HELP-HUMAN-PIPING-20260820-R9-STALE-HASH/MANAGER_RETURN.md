@@ -2,12 +2,14 @@
 
 ## Verdict
 
-`IMPLEMENTATION_COMPLETE` / `VALIDATED_UNCOMMITTED_CHANGES`
+`IMPLEMENTATION_COMPLETE` / `PROOF_PASS`
 
 N1 closes the exact DEL-05-04 PDU-037 runtime stale-hash residual in product
 code and deterministic native/Wasm evidence. Mandatory independent review is
-PASS with zero actionable findings. Publication closeout is not complete:
-`FINAL_CLEAN_COMMIT_DEC025_REQUIRED`.
+PASS with zero actionable findings. Candidate commit
+`b65b388f678fd7d005a5b0338af666c4a06a52f3` passed the complete clean
+commit-bound DEC-025 + DEC-093 five-surface sweep. The prior
+`FINAL_CLEAN_COMMIT_DEC025_REQUIRED` condition is satisfied.
 
 ## Coverage and accepted outputs
 
@@ -52,16 +54,32 @@ PASS with zero actionable findings. Publication closeout is not complete:
 | Original corpus cases 01–03 vs HEAD | PASS — byte-identical |
 | `git diff --check` | PASS |
 | Fresh TASK + software-code-review | PASS — 100% of 19 frozen files, 19/19 hashes, zero findings |
+| Clean commit-bound DEC-025 + DEC-093 five-surface sweep | PASS — all five surfaces; canonical summary `validation/evidence/sweeps/SWEEP_20260821T023229Z_b65b388f678f.json` |
 
 The first direct local-Python full pytest attempt lacked `jsonschema` and
 reported 813 passed / 30 failed / 5 collection errors / 17 skipped. The same
 registered surface rerun with the pinned requirements passed 902; this is a
 superseded environment-dependency attempt, not an unresolved product failure.
 
-After review PASS, a dirty-candidate DEC-025 invocation was started but stopped
-during the cargo surface on `HELP_HUMAN` direction because the required gate is
-the clean commit-bound run, not a full dirty-worktree expenditure. It produced
-no accepted sweep summary and makes no DEC-025 pass claim.
+The passing sweep is bound to candidate commit
+`b65b388f678fd7d005a5b0338af666c4a06a52f3`, recorded
+`working_tree_dirty=false`, and passed: cargo crate sweep; 902 Python tests;
+Wasm build plus 539 desktop tests; host Playwright with 22 dev-server and 2
+production-dist tests; and desktop production build. Its canonical summary is
+`projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260821T023229Z_b65b388f678f.json`.
+
+Superseded environment-only proof attempts are retained transparently:
+
+- System Python 3.9 failed prerequisite resolution before execution and
+  produced no summary.
+- Bare Python 3.13 without `jsonschema` failed at surface 2; its failed summary
+  was retained only as a temporary artifact outside the worktree and is not
+  canonical evidence.
+- The earlier reviewed dirty-candidate invocation was stopped during cargo on
+  `HELP_HUMAN` direction and produced no accepted summary.
+
+None is current gate evidence; the pinned offline uv/Python 3.13 clean run
+supersedes them and passed all five surfaces.
 
 ## Accepted child return
 
@@ -80,8 +98,10 @@ no accepted sweep summary and makes no DEC-025 pass claim.
 - Decisions: none; N1 v2 was an Agent 0 in-place brief/write-fence amendment,
   not a new node or acceptance change.
 - Engineering blockers: none.
-- Publication blocker: `FINAL_CLEAN_COMMIT_DEC025_REQUIRED`.
+- Publication blockers: none in WORKING_ITEMS scope;
+  `FINAL_CLEAN_COMMIT_DEC025_REQUIRED` is satisfied.
 - Waivers: none.
+- Reruns: none required for the proven candidate state.
 - Human corpus-review disposition: case 15's regenerated expectation and new
   cases 79–81 remain pending their own human corpus-review entry. This does not
   invalidate the runtime/code-review result and is not lifecycle acceptance.
@@ -98,9 +118,10 @@ no accepted sweep summary and makes no DEC-025 pass claim.
 
 ## Requested Agent 0 action
 
-Route CHANGE to create the scoped N1 candidate commit from these validated
-uncommitted changes. Then run the complete clean commit-bound DEC-025 sweep,
-including host/CI surface 4, and resume closeout only if all five surfaces pass.
-Do not treat the interrupted dirty-candidate attempt as gate evidence.
+Route CHANGE for the remaining Git/iteration closeout: record the receipt,
+push candidate commit `b65b388f678fd7d005a5b0338af666c4a06a52f3`, and open the PR with the
+governing base/dependency declaration. The code, independent review, and exact
+commit-bound DEC-025 + DEC-093 proof are complete; no additional proof rerun is
+required unless the candidate state changes.
 
 Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).
