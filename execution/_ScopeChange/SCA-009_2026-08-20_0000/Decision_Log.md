@@ -1,6 +1,6 @@
 # Piping SCA-009 Decision Log
 
-**State: `GATE 4 APPLIED — GATE 5 PENDING`**
+**State: `GATE 5 CANDIDATE — CLOSURE RULING PENDING`**
 
 ## Pending register (Gate-1 candidate package, historical)
 
@@ -34,11 +34,17 @@ chat rulings, 2026-08-20). Dispositions are human acts.
 | 2026-08-20 | Gate 2 | Ryan Tufts | Approved the impact assessment `Impact_Assessment.md` SHA-256 `bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` at branch commit `f5112824f055b3b5584a852dd68923530dc6620b` — "Yes, add the landing column and rule the envelope L.  On that, Gate 2 is approved and you may proceed." — with two owner modifications: (1) `DEL-07-09` context envelope **L**, overriding the assessment's M proposal (post-change distribution S=9, M=69, L=24, XL=0); (2) `Vocabulary_Annex.md` gains the "Implementation lands in" column carrying the accepted landing mapping. Opens Gate 3 only. | `APPROVED — WITH MODIFICATIONS` |
 | 2026-08-20 | Gate 3 | Ryan Tufts | "I APPROVE Piping SCA-009 Gate 3 using Amendment_Preview SHA-256 802c2ce92c5a48651f4d06312d4ba26593f0134e3b7c443988e74b79c0e170d4 at branch commit d50e72c4b. Apply exactly the six preimage→postimage pairs recorded there, DEC-094, and no other surface. This opens Gate 4 only." (Ruled-upon commit `d50e72c4b` immutable; a post-ruling whitespace-only cleanup of the preview's embedded-diff lines is recorded in `ACCEPTANCE_RECORD.md` — the six pair hashes and the `postimages/` bytes are unchanged; post-cleanup preview SHA-256 `44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab`.) | `APPROVED` |
 | 2026-08-20 | Gate 4 application | SCOPE_CHANGE support (Agent 0-dispatched bounded generalist) | Applied exactly the six approved preimage→postimage pairs to the live surfaces; every live-file SHA-256 proven equal to its approved postimage hash (proof table in `RUN_SUMMARY.md`); live decomposition now revision 0.12 with `SOW-077`, `DEL-07-09` (envelope L), `DEC-094`; registers 77/102/102 rows, CSV-parse verified; no pointer moved (pointer-last, Gate 5); candidate-whitespace check clean over the full branch range. | `APPLIED` |
+| 2026-08-20 | Gate 5 direction | Ryan Tufts | "proceed to Gate 5. CI is still running, which is fine." | `DIRECTED` |
+| 2026-08-20 | Gate 5 candidate staging | SCOPE_CHANGE support (Agent 0-dispatched bounded generalist) | Completed the snapshot artifact set (pre/post coverage computed from actual files — 76/18/101/101/18 `S=9,M=69,L=23` at basis vs 77/18/102/102/18 `S=9,M=69,L=24` applied, declared==found both sides; supersession delta/map; propagation plan; validation record) and routed the Piping-loop coordination notice. Deterministic validation pass recorded in `Validation_Record.md` (whitespace PASS, claims-language VALID, register-estate findings all pre-existing, ID sweep clean, six-file re-proof exact). Pointers untouched. Closure and pointer advance reserved for the post-ruling closing commit. | `STAGED — AWAITING CLOSURE RULING` |
 
 Notes:
 
-- These rulings open Gate 2 only. No amendment, propagation, implementation,
-  dependency, estimate, schedule, pointer, lifecycle, release, or Git action
-  is approved by them.
+- Ruling effects to date: Gates 1–3 confirmed/approved the parsed request,
+  the impact assessment (with the envelope-L and landing-column
+  modifications), and the exact six-pair amendment; Gate 4 applied exactly
+  those pairs to the live surfaces; the Gate-5 validation-and-closure
+  candidate is staged. No pointer advance, closure state, lifecycle,
+  release, estimate, schedule, or further Git effect is approved until the
+  owner's Gate-5 closure ruling.
 - Gate-2 and later rulings, when they occur, are appended to this table and
   transcribed verbatim in `ACCEPTANCE_RECORD.md`.

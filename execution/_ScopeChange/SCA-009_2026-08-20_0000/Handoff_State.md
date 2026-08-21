@@ -1,95 +1,94 @@
 # Piping SCA-009 Handoff State
 
-**Current state:** `GATE 4 APPLIED — GATE 5 VALIDATION AND CLOSURE PENDING`
+**Current state:** `GATE 5 CANDIDATE — CLOSURE RULING PENDING`
 
-**Current basis:** `main@89758a32634ee6cedbd1dbadf35e3728fb48d2eb` (merge of
-PR #591), with the SCA-009 gate commits accumulated on
-`claude/piping-sca-009-gate2-20260820` (single landing PR #593 per the
-owner's process direction; ruled-upon commits `f5112824f` and `d50e72c4b`
-intact in history).
+## Accepted upstream basis
 
-**Original durable basis (Gate-1 package):**
-`7584de0a8d53d69a135c22fe39a78cb4a30b6cb2`; Gate-1 package merged as PR #592
-(merge `01a8dd4c0aabd4fe1f71bba7201a4345f9e6cfdc`)
+- Branch basis: `main@89758a32634ee6cedbd1dbadf35e3728fb48d2eb` (merge of
+  PR #591); gates accumulated on `claude/piping-sca-009-gate2-20260820`
+  (single landing PR #593 per the owner's process direction). Ruled-upon
+  commits `f5112824f` (Gate 2) and `d50e72c4b` (Gate 3) intact in history.
+- Original durable basis (Gate-1 package):
+  `7584de0a8d53d69a135c22fe39a78cb4a30b6cb2`; Gate-1 package merged as
+  PR #592 (merge `01a8dd4c0aabd4fe1f71bba7201a4345f9e6cfdc`).
 
-**Gate 1:** `CONFIRMED` per `ACCEPTANCE_RECORD.md` — D1 confirmed; D2
-Option A (ADD `DEL-07-09`); D3 two-class vocabulary ratified; D4 single
-palette owner; D5 fold R-005/R-006, DEL-16-04 generator out; D6 `SOW-077`.
+## Gate rulings (verbatim in `ACCEPTANCE_RECORD.md`)
 
-**Gate 2:** `APPROVED` — on `Impact_Assessment.md`
-`bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` at
-commit `f5112824f`, with envelope-L override and the implementation-landing
-column.
+| Gate | Ruling target | State |
+|---|---|---|
+| 1 | Gate-1 package SHA-256 `2458c1dce9b175330c8b28a4a0e4647988213539ee4edb8d27f7ae74e0e9adc0` | `CONFIRMED` (D1; D2 Option A; D3 vocabulary ratified; D4 single owner; D5 fold with DEL-16-04 generator out; D6 SOW-077) |
+| 2 | `Impact_Assessment.md` SHA-256 `bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` at `f5112824f` | `APPROVED` with envelope-L override and landing column |
+| 3 | `Amendment_Preview.md` SHA-256 `802c2ce92c5a48651f4d06312d4ba26593f0134e3b7c443988e74b79c0e170d4` at `d50e72c4b` (post-cleanup `44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab`; six pair hashes unchanged) | `APPROVED` — apply exactly the six pairs, DEC-094, no other surface |
+| 4 | The six approved postimage hashes | `APPLIED` — all six live files hash-proven (`RUN_SUMMARY.md` proof table; re-proven in `Validation_Record.md` §8) |
+| 5 | This candidate tranche | `STAGED — AWAITING CLOSURE RULING` (owner direction: "proceed to Gate 5. CI is still running, which is fine.") |
 
-**Gate 3:** `APPROVED` — verbatim ruling on `Amendment_Preview.md`
-`802c2ce92c5a48651f4d06312d4ba26593f0134e3b7c443988e74b79c0e170d4` at
-commit `d50e72c4b`: apply exactly the six preimage→postimage pairs,
-`DEC-094`, and no other surface. (Post-ruling whitespace-only preview
-cleanup recorded in `ACCEPTANCE_RECORD.md`; post-cleanup preview SHA-256
-`44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab`; the
-six pair hashes and `postimages/` bytes unchanged.)
+## Decomposition and pointer state
 
-**Gate 4:** `APPLIED` — the six approved postimages were copied
-byte-for-byte onto their live paths and every live-file SHA-256 was proven
-equal to its approved postimage hash (proof table in `RUN_SUMMARY.md`). No
-other surface was touched.
-
-**Decomposition state:** the live
-`execution/_Decomposition/SOFTWARE_DECOMP.md` on this branch is now
-**revision 0.12** (with `SOW-077`, `DEL-07-09` at envelope L, the
-OBJ-006/OBJ-015 and PKG-07 mappings, telemetry 77/102 and
-`S=9, M=69, L=24, XL=0`, and `DEC-094`), while
+Live `SOFTWARE_DECOMP.md` on this branch is **revision 0.12** (`SOW-077`;
+`DEL-07-09` at envelope L; OBJ-006/OBJ-015 and PKG-07 mappings; telemetry
+77/102, `S=9, M=69, L=24, XL=0`; `DEC-094`). Both pointers are untouched:
 `_Decomposition/_LATEST.md` still cites revision 0.11 and
-`_ScopeChange/_LATEST.md` still points to SCA-008. **This divergence is
-the expected mid-amendment state under the pointer-last rule**: pointers
-advance only at Gate 5 after snapshot completion and validation. Until
-then, consumers resolving through `_LATEST.md` continue to see the
-accepted 0.11/SCA-008 state.
+`_ScopeChange/_LATEST.md` still points to `SCA-008_2026-07-27_2301/` —
+the expected mid-amendment posture under the pointer-last rule. The
+pointer advance and the final `CLOSED_FOR_SCOPE_CHANGE_ONLY` state happen
+only in the post-ruling closing commit. SCA-008 and all prior snapshots
+remain byte-identical history.
 
-**DecompositionTruthState:** `AMENDED_PENDING_VALIDATION` (live working
-surfaces carry the approved postimage bytes; acceptance as validated truth
-and pointer advance are Gate 5)
+## State fields
 
-**DerivativePackageState:** `STALE_PENDING_GATE5_RERUNS` (per
-`Impact_Assessment.md` and `Amendment_Actions.csv`: AUDIT_DECOMP pre/post
-recompute, DAG-008 rebuild, targeted RECONCILIATION refresh, DEL-07-09
-dependency extraction, PREPARATION scaffold — none run yet)
+**DecompositionTruthState:** `AMENDED_PENDING_CLOSURE_RULING` (applied
+bytes proven equal to the Gate-3 approved postimages; deterministic
+validation recorded in `Validation_Record.md`; owner acceptance
+outstanding)
+
+**DerivativePackageState:** `STALE_PENDING_DOWNSTREAM_RERUNS` (see table
+below)
 
 **ContentRemediationState:** `NOT_APPLICABLE`
 
 **DownstreamRerunState:** `NONE_RUN — OBLIGATIONS RECORDED`
+(`Propagation_Plan.md`)
 
 **MetadataAlignmentState:** `NOT_APPLICABLE`
 
-**AuditState:** `NOT_RUN` (pre-change baseline capture and post-change
-comparison are Gate-5 entry work)
+**AuditState:** `SYNTHESIZED_BASELINES_ONLY` — deterministic pre/post
+coverage computed from the actual files
+(`Pre_Change_Coverage.json` / `Post_Change_Coverage.json`); the formal
+AUDIT_DECOMP pre/post comparison is a recorded downstream obligation, not
+run by SCA-009
 
-**ReadyForNextPhase:** `NO — GATE 5 REQUIRED` (snapshot completion:
-Pre/Post_Change_Coverage, supersession artifacts, Propagation_Plan
-consolidation; pre/post AUDIT_DECOMP; pointer advances pointer-last;
-Piping dev-loop coordination notice; owner closure confirmation)
+**ReadyForNextPhase:** `NO — AWAITING GATE-5 CLOSURE RULING`
 
-**ClosureVerdict:** `NOT_CLOSED — GATE 4 APPLIED ONLY`
+**ClosureVerdict:** `PENDING OWNER RULING`
 
-**NextOwner:** `Ryan Tufts` (Gate-5 closure confirmation after validation
-evidence is assembled)
+**NextOwner:** `Ryan Tufts`
 
-**NextAction:** run Gate 5 — capture the pre-change audit baseline
-recorded against the pre-application commit, complete the immutable
-SCA-009 snapshot artifact set, run post-change AUDIT_DECOMP against the
-applied state, advance `_Decomposition/_LATEST.md` and then
-`_ScopeChange/_LATEST.md` pointer-last, route the Piping dev-loop
-coordination notice, and present the closure state for the owner's
-confirmation.
+**NextAction:** rule Gate-5 closure on this candidate (snapshot contents
+per the `RUN_SUMMARY.md` Gate-5 hash table; validation evidence in
+`Validation_Record.md`). On acceptance, the closing commit advances
+`_Decomposition/_LATEST.md` then `_ScopeChange/_LATEST.md`
+(pointer-last), transcribes the ruling into `ACCEPTANCE_RECORD.md`, and
+sets `CLOSED_FOR_SCOPE_CHANGE_ONLY`.
 
-Applied-effect inventory (exactly six live surfaces, per the Gate-3
-ruling): `SOFTWARE_DECOMP.md`, `ScopeLedger.csv`, `Deliverables.csv`,
-`ContextBudgetQA.csv`, `DEL-07-03/_STATUS.md`, `DEL-07-03/_CONTEXT.md`.
-Nothing else changed: no pointer, no other deliverable folder (all
-DEL-16-04 surfaces untouched), no implementation tree, no PRD, no
-historical snapshot, no dependency edge of any existing deliverable, no
-lifecycle value (DEL-07-03 remains `IN_PROGRESS`). No estimate, schedule,
-release, or professional-reliance effect. No professional-reliance,
-certification, sealing, authentication, or code-compliance claim is
-created. SCA-008's snapshot and all prior snapshots remain exactly as they
-were.
+## Derivative-package status
+
+| Derivative package / consumer | Owner instrument | Status | Required action |
+|---|---|---|---|
+| Formal pre/post `AUDIT_DECOMP` comparison | AUDIT_DECOMP under SCOPE_CHANGE / owning loop | `RECOMPUTE REQUIRED` | Run against the pre-application basis and the applied state; the synthesized baselines are inputs, not substitutes |
+| `_DAG/DAG-008` | PROJECT_SETUP / dependency-extract workflow | `STALE_REBUILD_REQUIRED` | Rebuild (topology change: +1 DEL, +1 SOW; proposed DEL-07-09 edges) |
+| Deliverable-corpus concordance rows | RECONCILIATION | `STALE_REBUILD_REQUIRED` (targeted) | Current-authority refresh: DEL-07-09 (new), DEL-07-03 (re-pointed, supersession binding), boundary-adjacent DEL-07-01/02, DEL-16-01 |
+| `Dependencies.csv` for DEL-07-09 | `dependency-extract` via TASK | `STALE_REBUILD_REQUIRED` (targeted) | Extract after PREPARATION scaffold |
+| DEL-07-09 folder scaffold | PREPARATION | `REQUIRED` | Scaffold post-closure |
+| Estimate / schedule surfaces | estimate owner / PROJECT_SETUP | `ADVISORY_STALE` | Revision-basis revalidation only |
+| Piping dev-loop coordination | receiving loop | `NOTICE ROUTED` | `NOTICE_2026-08-20_PIPING_SCA-009_DEL-07-09_VOCABULARY_PALETTE.md`; adoption under the loop's own instruments; acknowledgment tracked, not gating |
+
+No derivative package may be represented as authoritative decomposition
+truth.
+
+## Boundary statements
+
+No professional-reliance, certification, sealing, authentication, or
+code-compliance claim is created. No lifecycle value changed (DEL-07-03
+remains `IN_PROGRESS`). No estimate, schedule, release, implementation,
+or dependency-edge effect on any existing deliverable. Standard claim
+fence applies (F-PIP-2; DEC-081 claims taxonomy).

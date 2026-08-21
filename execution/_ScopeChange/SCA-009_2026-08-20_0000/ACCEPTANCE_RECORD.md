@@ -2,7 +2,7 @@
 
 **Amendment:** `SCA-009`
 
-**State:** `GATE 4 APPLIED — GATE 5 PENDING`
+**State:** `GATE 5 CANDIDATE — CLOSURE RULING PENDING`
 
 ## Gate 1 — verbatim owner rulings
 
@@ -162,8 +162,52 @@ decomposition is now revision 0.12 on this branch. **No pointer moved**:
 per the pointer-last rule — pointer advances, snapshot completion, and
 validation are Gate 5.
 
-## Gate 5 — execute and validate
+## Gate 5 — validation and closure candidate
 
-`PENDING` — snapshot completion (pre/post coverage, supersession
-artifacts), pre/post AUDIT_DECOMP, pointer advances (pointer-last), the
-Piping dev-loop coordination notice, and the owner's closure confirmation.
+`CANDIDATE — CLOSURE RULING PENDING` (staged 2026-08-20 on the owner's
+"proceed to Gate 5" direction). This tranche completed the snapshot
+artifact set and the deterministic validation pass; the pointer advance
+and the final `CLOSED` state are explicitly reserved for a separate
+closing commit made only after the owner's Gate-5 closure ruling.
+
+Validation summary (full commands and outputs in `Validation_Record.md`):
+
+- Pre/post coverage computed from the actual files (not transcribed):
+  pre at basis `89758a326` = 76 SOW / 18 PKG / 101 DEL / 101 context rows
+  / 18 OBJ, `S=9, M=69, L=23, XL=0`; post at HEAD applied state = 77 /
+  18 / 102 / 102 / 18, `S=9, M=69, L=24, XL=0`; declared == found on both
+  sides; forward/reverse/objective coverage 100% both sides — exactly the
+  approved additive delta.
+- Six-file application re-proof: all live hashes equal the approved
+  postimage hashes.
+- ID-uniqueness sweep: `DEL-07-09` / `SOW-077` / `DEC-094` each appear
+  exactly where expected and nowhere else; no stray `DEL-07-10`.
+- Validators: candidate whitespace `PASS` over the full branch range
+  (incl. the new notice); DEC-081 claims-language `VALID` (269 files, 0
+  findings); decomposition-register estate validator **exit 1** with 2090
+  ERROR findings — identical at basis `89758a326` and at HEAD, all
+  pre-existing in the untouched `Dependencies.csv` family (0 such files
+  changed in the range), zero attributable to SCA-009; the tool exits
+  nonzero on any error regardless of provenance, so its exit code is not
+  a pass/fail signal for this candidate (`Validation_Record.md` §3).
+- Supersession artifacts minted: `Supersession_Delta.csv` (one binding —
+  the DEL-07-03 R-005/R-006 ownership-landing re-pointing) and the
+  cumulative `Supersession_Map.csv` (SCA-005's three active rows +
+  SCA-009's one). `Amendment_Actions.csv` row 11 corrected
+  `SupersessionBindingPresent NO → YES` to match (disclosed;
+  `Validation_Record.md` §10).
+- Coordination: one notice routed on the Piping loop's own surface
+  (`execution/_Coordination/NOTICE_2026-08-20_PIPING_SCA-009_DEL-07-09_VOCABULARY_PALETTE.md`);
+  SCA-009 is Piping-internal, so no Root/App/Tier-0 notice is required.
+- Pointers untouched: both `_LATEST.md` files still cite the
+  0.11/SCA-008 state (expected mid-amendment posture, pointer-last).
+
+The formal pre/post AUDIT_DECOMP comparison, DAG-008 rebuild, targeted
+RECONCILIATION refresh, DEL-07-09 dependency extraction, and PREPARATION
+scaffold remain explicit downstream obligations (`Propagation_Plan.md`);
+none is executed by SCA-009.
+
+**Awaiting owner act:** the Gate-5 closure ruling. On acceptance, the
+closing commit advances `_Decomposition/_LATEST.md` then
+`_ScopeChange/_LATEST.md` (pointer-last), transcribes the ruling here, and
+sets the final `CLOSED_FOR_SCOPE_CHANGE_ONLY` state.

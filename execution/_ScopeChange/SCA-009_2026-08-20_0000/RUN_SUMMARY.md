@@ -489,3 +489,112 @@ Piping dev-loop coordination notice, owner closure confirmation. The
 decomposition is revision 0.12 on this branch while both `_LATEST.md`
 pointers still cite the 0.11/SCA-008 state — the expected mid-amendment
 posture. Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).
+
+---
+
+# Gate-5 tranche — validation and closure candidate
+
+**Current state:** `GATE 5 CANDIDATE — CLOSURE RULING PENDING`
+
+## Execution
+
+Staged on 2026-08-20 by the Agent 0-dispatched bounded generalist on the
+owner's direction ("proceed to Gate 5. CI is still running, which is
+fine."), as one new commit on top of the Gate-4 application commit
+`8d622e4c8`. Pointer advances and the final `CLOSED` state are reserved
+for a separate post-ruling closing commit; both `_LATEST.md` files are
+untouched by this tranche.
+
+## What was produced
+
+- `Pre_Change_Coverage.json` / `Post_Change_Coverage.json`: synthesized
+  deterministic baselines computed from the actual files (SCA-008 schema
+  mirrored where deterministically computable; audit-only fields marked
+  `NOT_RUN`). Pre at basis `89758a326` (rev 0.11): **76 SOW / 18 PKG /
+  101 DEL / 101 context rows / 18 OBJ, `S=9, M=69, L=23, XL=0`**. Post at
+  HEAD applied state (rev 0.12): **77 / 18 / 102 / 102 / 18,
+  `S=9, M=69, L=24, XL=0`**. Declared == found on both sides;
+  forward/reverse/objective coverage 100% both sides; no mismatch against
+  the approved deltas.
+- `Supersession_Delta.csv` (1 row — the DEL-07-03 R-005/R-006
+  ownership-landing re-pointing, old Remaining wording → re-pointed
+  wording, per the SCA-008 schema) and `Supersession_Map.csv` (cumulative:
+  SCA-005's 3 active rows + SCA-009's 1). New entities DEL-07-09 /
+  SOW-077 / DEC-094 are structural additions with no superseded
+  predecessor and carry no rows. `Amendment_Actions.csv` row 11 corrected
+  `SupersessionBindingPresent NO → YES` to match (disclosed in
+  `Validation_Record.md` §10).
+- `Propagation_Plan.md`: applied-vs-remaining write scope (closing commit
+  = the two pointer advances only) and the downstream-rerun obligation
+  table (DAG-008 REBUILD; formal pre/post AUDIT_DECOMP; targeted
+  RECONCILIATION refresh; DEL-07-09 Dependencies extract after
+  PREPARATION scaffold; PREPARATION scaffold; estimate/schedule
+  ADVISORY_STALE) — each with owner instrument and trigger; none executed
+  by SCA-009.
+- Coordination notice (the one live-surface write of this tranche):
+  `execution/_Coordination/NOTICE_2026-08-20_PIPING_SCA-009_DEL-07-09_VOCABULARY_PALETTE.md`
+  on the Piping loop's own coordination surface (SCA-009 is
+  Piping-internal; no Root/App/Tier-0 notice required). Coordination, not
+  authority.
+- `Validation_Record.md`: validator inventory (what exists, what ran,
+  what is N/A and why) and all deterministic check outputs — candidate
+  whitespace, decomposition-register estate (exit 1 with 2090 ERROR
+  findings, identical at basis and HEAD, all pre-existing in the
+  untouched `Dependencies.csv` family; the exit code is not a pass/fail
+  signal for this candidate), DEC-081 claims-language `VALID`, coverage
+  computation, ID-uniqueness sweep, CSV parses, six-file application
+  re-proof, pointer non-advance.
+- `ACCEPTANCE_RECORD.md` Gate-5 section, `Decision_Log.md` rows, and the
+  full SCA-008-style `Handoff_State.md` (closure verdict
+  `PENDING OWNER RULING`).
+
+## Package integrity (Gate-5 tranche, final for this commit)
+
+Per-file SHA-256 of every package file except this `RUN_SUMMARY.md`:
+
+| File | SHA-256 |
+|---|---|
+| `ACCEPTANCE_RECORD.md` | `cb2acd242a4d90d033a9488434d34a5262f0353765381651a417216241de1075` |
+| `Amendment_Actions.csv` | `1a6df9177205e227b67ac9e2c7cf10b185ec88a323cbd8bfb03781b41232b37c` |
+| `Amendment_Preview.md` | `44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab` |
+| `Brief.md` | `ad36f600c0bb796e1029c11f0f70370413c7864e343625da3988f9010bb64ffd` |
+| `Decision_Log.md` | `42e0875ea9af837198401f64546233d69a172065f49ba85b77c71d820c149c91` |
+| `Handoff_State.md` | `3fdc3203b507d198d2682eed6280d497aeee81b43690228b7f2cf7bf5b19c891` |
+| `Impact_Assessment.md` | `bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` |
+| `Impact_Sketch.md` | `7ac40e4e6a94b9276f0bc4a5501e59998c4bbf0db8eb17e51bff538eadfaad77` |
+| `Post_Change_Coverage.json` | `b28a13fbdfcdf89be13e65c72293867388fac1c1c949e3c6d7d6a6b070b9e565` |
+| `Pre_Change_Coverage.json` | `664800428731ada0bf70bd0e9179d428991d0901032fd63f91307283d32128c0` |
+| `Propagation_Plan.md` | `62abeb91a3dee79c6064075a8f7de025e3b38c7158217d3caa01ef32c82ac93a` |
+| `Supersession_Delta.csv` | `d0714e661b03c0236cc33cccf6a2732dd2ac49a240a3776f24c26a1fb2d8ed34` |
+| `Supersession_Map.csv` | `29a4e4d96f0f27117a1ceadee3bd0d470ec6668ac58c35180839e33c181fc2cc` |
+| `Validation_Record.md` | `adb5f900e929924ea337fd9a56d17570f61ba5f1f740c605c948de9e803ba4d8` |
+| `Vocabulary_Annex.md` | `f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c` |
+| `postimages/ContextBudgetQA.csv` | `84497efb81d4b31b085e016d37a285aed3755be7740a632794e355dad259468d` |
+| `postimages/DEL-07-03_CONTEXT.md` | `e69a8d7d832b5af0f15e08c3c242e9d5ace98f26a752ee41fda06855f528ae10` |
+| `postimages/DEL-07-03_STATUS.md` | `41039f77e6c0d86dcd013e0c17f09bf51889fbc1aef3a9a68e54d834f8e95596` |
+| `postimages/Deliverables.csv` | `f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539` |
+| `postimages/SOFTWARE_DECOMP.md` | `a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3` |
+| `postimages/ScopeLedger.csv` | `97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238` |
+
+**Package SHA-256 (same sorted-lines method, twenty-one files):**
+`0b07defec01a794659e891a0ff792aea615be442673e97b70b3ef453bd32e8fa`
+
+(Amend disclosure: this tranche's commit supersedes the withdrawn
+first-form commit `ff91cee32`, which was amended — it was unpushed and no
+ruling cites it — to correct an honesty defect found in review: the
+register-estate validator's outcome had been recorded as "exit 0
+(report-only)" when the tool in fact exited 1 on its 2090 pre-existing
+findings, identically at the basis; the exit status had been read from a
+`| tail` pipeline. The correction, its details, and the sweep of every
+echo of the claim are in `Validation_Record.md` §3; the stale Gate-1-era
+first Notes bullet in `Decision_Log.md` was refreshed in the same amend.)
+
+## Handoff
+
+**NextOwner:** Ryan Tufts. **NextAction:** the Gate-5 closure ruling on
+this candidate. On acceptance, the closing commit advances
+`_Decomposition/_LATEST.md` then `_ScopeChange/_LATEST.md`
+(pointer-last), transcribes the ruling, and sets
+`CLOSED_FOR_SCOPE_CHANGE_ONLY`. Downstream reruns remain explicit
+obligations per `Propagation_Plan.md`. Standard claim fence applies
+(F-PIP-2; DEC-081 claims taxonomy).
