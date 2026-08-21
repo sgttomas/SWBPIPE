@@ -15041,76 +15041,100 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("1 pending operation");
   });
 
-  it("queues explicit bend geometry and connectivity from the Inspector creation form", async () => {
+  function setComponentField(panel: HTMLElement, testId: string, value: string) {
+    fireEvent.change(within(panel).getByTestId(testId), { target: { value } });
+  }
+
+  function fillComponentForm(panel: HTMLElement, prefix: "create" | "viewport-create", kind: string) {
+    setComponentField(panel, `${prefix}-component-kind`, kind);
+    if (kind === "tee") {
+      setComponentField(panel, `${prefix}-component-node`, "node:N-110");
+      setComponentField(panel, `${prefix}-component-run-size`, "0.114");
+      setComponentField(panel, `${prefix}-component-header-size`, "0.168");
+      setComponentField(panel, `${prefix}-component-connection-angle`, "1.5708");
+      setComponentField(panel, `${prefix}-component-connection-type`, "user_entered_tee");
+      setComponentField(panel, `${prefix}-component-reinforcement`, "user_ref:tee-reinforcement");
+      return;
+    }
+    if (kind === "bend") {
+      setComponentField(panel, `${prefix}-component-radius`, "0.45");
+      setComponentField(panel, `${prefix}-component-angle`, "1.5708");
+      setComponentField(panel, `${prefix}-component-plane`, "+Z");
+      return;
+    }
+    setComponentField(panel, `${prefix}-component-body-length`, "0.35");
+    setComponentField(panel, `${prefix}-component-end-a-size`, "0.114");
+    setComponentField(panel, `${prefix}-component-end-b-size`, kind === "reducer" ? "0.089" : "0.114");
+    setComponentField(panel, `${prefix}-component-weight`, "245");
+    setComponentField(panel, `${prefix}-component-cog-x`, "0.175");
+    setComponentField(panel, `${prefix}-component-cog-y`, "0");
+    setComponentField(panel, `${prefix}-component-cog-z`, "0");
+    setComponentField(panel, `${prefix}-component-end-a-ref`, "user_ref:end-a");
+    setComponentField(panel, `${prefix}-component-end-b-ref`, "user_ref:end-b");
+    setComponentField(panel, `${prefix}-component-stiffness-ref`, "user_ref:rigid-behavior");
+  }
+
+  it.each([
+    ["tee", '"branch_branch_pipe_ref":"pipe:P-110"'],
+    ["reducer", '"kind":"reducer"'],
+    ["valve", '"kind":"valve"'],
+    ["flange", '"kind":"flange"'],
+    ["bend", '"bend_radius":{"value":0.45,"unit":"m"}'],
+  ])("queues explicit %s geometry and connectivity from the Inspector creation form", async (kind, previewNeedle) => {
     render(<App />);
 
     const inspector = await screen.findByLabelText("Property inspector");
-    const panel = within(inspector).getByLabelText("Create bend component intent");
-    expect(within(panel).getByTestId("create-component-kind")).toHaveValue("bend");
-    expect(within(panel).getByTestId("create-component-node")).toHaveValue("node:N-100");
-    expect(within(panel).getByTestId("create-component-pipe")).toHaveValue("pipe:P-100");
-    expect(within(panel).getByTestId("queue-create-component-intent")).toBeDisabled();
+    const panel = within(inspector).getByLabelText("Create component intent");
+    fillComponentForm(panel, "create", kind);
 
-    fireEvent.change(within(panel).getByTestId("create-component-radius"), { target: { value: "0.45" } });
-    fireEvent.change(within(panel).getByTestId("create-component-angle"), { target: { value: "1.5708" } });
-    fireEvent.change(within(panel).getByTestId("create-component-plane"), { target: { value: "+Z" } });
-
-    expect(within(panel).getByTestId("queue-create-component-intent")).not.toBeDisabled();
-    expect(within(panel).getByTestId("editor-operation-preview").textContent).toContain(
-      "insert_component_symbol",
-    );
-    expect(within(panel).getByTestId("editor-operation-preview").textContent).toContain(
-      '"bend_pipe_ref":"pipe:P-100"',
-    );
-    expect(within(panel).getByTestId("editor-operation-preview").textContent).toContain(
-      '"bend_radius":{"value":0.45,"unit":"m"}',
-    );
-    fireEvent.click(within(panel).getByTestId("queue-create-component-intent"));
+    const queueButton = within(panel).getByTestId("queue-create-component-intent");
+    expect(queueButton).not.toBeDisabled();
+    const preview = within(panel).getByTestId("editor-operation-preview");
+    expect(preview.textContent).toContain("insert_component_symbol");
+    expect(preview.textContent).toContain(previewNeedle);
+    if (kind === "tee") {
+      expect(preview.textContent).toContain('"branch_header_pipe_ref":"pipe:P-100"');
+      expect(preview.textContent).toContain('"branch_geometry_source_reference":"user_entered_component_form"');
+    } else if (kind === "bend") {
+      expect(preview.textContent).toContain('"bend_pipe_ref":"pipe:P-100"');
+      expect(preview.textContent).toContain('"bend_geometry_source_reference":"user_entered_component_form"');
+    } else {
+      expect(preview.textContent).toContain('"rigid_component_source_reference":"user_entered_component_form"');
+      expect(preview.textContent).toContain('"center_of_gravity":{"x":0.175,"y":0,"z":0,"unit":"m"}');
+    }
+    fireEvent.click(queueButton);
     expect(within(screen.getByTestId("operation-apply-panel")).getByTestId("operation-apply-summary")).toHaveTextContent(
       "1 queued; 0 applied",
     );
-    const viewportForm = screen.getByTestId("viewport-create-component-form");
-    expect(within(viewportForm).getByTestId("viewport-create-component-id")).toHaveValue("component:C-1");
-    fireEvent.change(within(viewportForm).getByTestId("viewport-create-component-radius"), {
-      target: { value: "0.45" },
-    });
-    fireEvent.change(within(viewportForm).getByTestId("viewport-create-component-angle"), {
-      target: { value: "1.5708" },
-    });
-    fireEvent.change(within(viewportForm).getByTestId("viewport-create-component-plane"), {
-      target: { value: "+Z" },
-    });
-    expect(within(viewportForm).getByTestId("queue-explicit-component-intent")).toBeDisabled();
   });
 
-  it("creates a bend end-to-end from the explicit viewport component tool", async () => {
-    render(<App />);
+  it.each(["tee", "reducer", "valve", "flange", "bend"])(
+    "creates a %s end-to-end from the explicit viewport component tool",
+    async (kind) => {
+      render(<App />);
 
-    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
-    const commandBar = screen.getByTestId("command-bar");
-    fireEvent.click(within(commandBar).getByRole("button", { name: /Component/i }));
-    const panel = screen.getByTestId("viewport-create-component-form");
-    expect(within(panel).getByTestId("viewport-create-component-node")).toHaveValue("node:N-100");
-    expect(within(panel).getByTestId("viewport-create-component-pipe")).toHaveValue("pipe:P-100");
+      expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+      const commandBar = screen.getByTestId("command-bar");
+      fireEvent.click(within(commandBar).getByRole("button", { name: /Component/i }));
+      const panel = screen.getByTestId("viewport-create-component-form");
+      fillComponentForm(panel, "viewport-create", kind);
 
-    fireEvent.change(within(panel).getByTestId("viewport-create-component-radius"), { target: { value: "0.45" } });
-    fireEvent.change(within(panel).getByTestId("viewport-create-component-angle"), { target: { value: "1.5708" } });
-    fireEvent.change(within(panel).getByTestId("viewport-create-component-plane"), { target: { value: "+Z" } });
-    const queueButton = within(panel).getByTestId("queue-explicit-component-intent");
-    expect(queueButton).not.toBeDisabled();
-    fireEvent.click(queueButton);
+      const queueButton = within(panel).getByTestId("queue-explicit-component-intent");
+      expect(queueButton).not.toBeDisabled();
+      fireEvent.click(queueButton);
 
-    const applyPanel = screen.getByTestId("operation-apply-panel");
-    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
-    await waitFor(() =>
-      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
-        "Applied op:create-bend-component-C-1-001",
-      ),
-    );
-    expect(screen.getByTestId("tree-row-component:C-1").textContent).toContain("Bend C-1");
-    expect(screen.getByTestId("viewport-select-component:C-1")).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByLabelText("Property inspector").textContent).toContain("pipe:P-100");
-    expect(screen.getByLabelText("Property inspector").textContent).toContain("0.45 m");
-    expect(screen.getByLabelText("Property inspector").textContent).toContain("1.5708 rad");
-  });
+      const applyPanel = screen.getByTestId("operation-apply-panel");
+      fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+      await waitFor(() =>
+        expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+          `Applied op:create-${kind}-component-C-1-001`,
+        ),
+      );
+      expect(screen.getByTestId("tree-row-component:C-1").textContent).toContain(
+        `${kind.charAt(0).toUpperCase()}${kind.slice(1)} C-1`,
+      );
+      expect(screen.getByTestId("viewport-select-component:C-1")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByLabelText("Property inspector").textContent).toContain(kind === "tee" ? "pipe:P-110" : "pipe:P-100");
+    },
+  );
 });

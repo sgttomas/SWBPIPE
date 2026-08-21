@@ -19,10 +19,14 @@ import {
 import { entityLabel, selectedProperties } from "../model-workspace/modelView";
 import { dualUnitDisplay } from "../../services/unitConversion";
 import {
-  buildCreateBendComponentIntent,
-  defaultBendComponentDraft,
-  isBendComponentDraftValid,
-  type BendComponentDraft
+  buildCreateComponentIntent,
+  componentDraftForKind,
+  componentDraftForNode,
+  creatableComponentKinds,
+  defaultComponentDraft,
+  isComponentDraftValid,
+  type ComponentDraft,
+  type CreatableComponentKind
 } from "../component-creation/componentIntent";
 
 export function PropertyInspector({
@@ -52,7 +56,7 @@ export function PropertyInspector({
   const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const [componentDraft, setComponentDraft] = useState(() =>
-    defaultBendComponentDraft(model, selection, queuedIntents)
+    defaultComponentDraft(model, selection, queuedIntents)
   );
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const selectedNode = selection.type === "node" ? model.nodes.find((node) => node.id === selection.id) : null;
@@ -84,6 +88,11 @@ export function PropertyInspector({
     "angle",
     componentDraft.angleUnit || model.project.units.angle || "rad"
   );
+  const componentForceUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "force",
+    componentDraft.forceUnit || model.project.units.force || "TBD"
+  );
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const selectedFieldUnitOptions = selectedField
     ? unitOptions(unitCatalogRoute, selectedField.dimension, selectedField.unit)
@@ -111,12 +120,12 @@ export function PropertyInspector({
   const supportCreateIntent = isSupportDraftValid(model, supportDraft)
     ? buildCreateSupportIntent(supportDraft, model, unitCatalogRoute)
     : null;
-  const componentCreateIntent = isBendComponentDraftValid(model, componentDraft, queuedIntents)
-    ? buildCreateBendComponentIntent({
+  const componentCreateIntent = isComponentDraftValid(model, componentDraft, queuedIntents)
+    ? buildCreateComponentIntent({
         draft: componentDraft,
         sourceRef: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
         sourceRole: "gui_editor",
-        unitValidation: `length=${propertyUnitValidationStatus(unitCatalogRoute, componentDraft.radiusUnit, "length")}; angle=${propertyUnitValidationStatus(unitCatalogRoute, componentDraft.angleUnit, "angle")}`
+        unitValidation: componentUnitValidation(componentDraft, unitCatalogRoute)
       })
     : null;
   const nodeDeleteIntent = selectedNode ? buildDeleteNodeIntent(selectedNode, model) : null;
@@ -145,7 +154,7 @@ export function PropertyInspector({
   }, [model.project.id, model.nodes.length, model.supports.length, selection.id]);
 
   useEffect(() => {
-    setComponentDraft(defaultBendComponentDraft(model, selection, queuedIntents));
+    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
   }, [model.project.id, model.nodes.length, model.pipe_segments.length, model.components.length, selection.id]);
 
   useEffect(() => {
@@ -195,7 +204,9 @@ export function PropertyInspector({
   function handleQueueComponentIntent() {
     if (!componentCreateIntent) return;
     onQueueIntent(componentCreateIntent);
-    setComponentDraft(defaultBendComponentDraft(model, selection, [...queuedIntents, componentCreateIntent]));
+    setComponentDraft(
+      defaultComponentDraft(model, selection, [...queuedIntents, componentCreateIntent], componentDraft.kind)
+    );
   }
 
   function handleQueueDeleteSupportIntent() {
@@ -237,7 +248,7 @@ export function PropertyInspector({
     setSupportDraft((current) => ({ ...current, [key]: value }));
   }
 
-  function updateComponentDraft<K extends keyof BendComponentDraft>(key: K, value: BendComponentDraft[K]) {
+  function updateComponentDraft<K extends keyof ComponentDraft>(key: K, value: ComponentDraft[K]) {
     setComponentDraft((current) => ({ ...current, [key]: value }));
   }
 
@@ -655,13 +666,13 @@ export function PropertyInspector({
         </div>
         {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
       </section>
-      <section className="editor-intent" aria-label="Create bend component intent" data-testid="create-component-intent-panel">
-        <h3>Create bend component</h3>
+      <section className="editor-intent" aria-label="Create component intent" data-testid="create-component-intent-panel">
+        <h3>Create component</h3>
         <div className="editor-intent-controls">
           <label>
             <span>Component ID</span>
             <input
-              aria-label="New bend component ID"
+              aria-label="New component ID"
               data-testid="create-component-id"
               onChange={(event) => updateComponentDraft("id", event.target.value)}
               value={componentDraft.id}
@@ -670,7 +681,7 @@ export function PropertyInspector({
           <label>
             <span>Label</span>
             <input
-              aria-label="New bend component label"
+              aria-label="New component label"
               data-testid="create-component-label"
               onChange={(event) => updateComponentDraft("label", event.target.value)}
               value={componentDraft.label}
@@ -678,32 +689,39 @@ export function PropertyInspector({
           </label>
           <label>
             <span>Kind</span>
-            <select aria-label="New component kind" data-testid="create-component-kind" value="bend" onChange={() => {}}>
-              <option value="bend">bend</option>
+            <select
+              aria-label="New component kind"
+              data-testid="create-component-kind"
+              value={componentDraft.kind}
+              onChange={(event) =>
+                setComponentDraft((current) =>
+                  componentDraftForKind(current, event.target.value as CreatableComponentKind)
+                )
+              }
+            >
+              {creatableComponentKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
             </select>
           </label>
           <label>
             <span>Node</span>
             <select
-              aria-label="New bend component node"
+              aria-label="New component node"
               data-testid="create-component-node"
-              onChange={(event) => {
-                const node = event.target.value;
-                const connected = model.pipe_segments.find((pipe) => pipe.from === node || pipe.to === node);
-                setComponentDraft((current) => ({ ...current, node, pipeRef: connected?.id ?? "" }));
-              }}
+              onChange={(event) =>
+                setComponentDraft((current) => componentDraftForNode(model, current, event.target.value))
+              }
               value={componentDraft.node}
             >
               {model.nodes.map((node) => <option key={node.id} value={node.id}>{node.label} ({node.id})</option>)}
             </select>
           </label>
           <label>
-            <span>Realized pipe</span>
+            <span>{componentDraft.kind === "tee" ? "Header pipe" : "Realized pipe"}</span>
             <select
-              aria-label="New bend realized pipe"
+              aria-label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"}
               data-testid="create-component-pipe"
-              onChange={(event) => updateComponentDraft("pipeRef", event.target.value)}
-              value={componentDraft.pipeRef}
+              onChange={(event) => updateComponentDraft("primaryPipeRef", event.target.value)}
+              value={componentDraft.primaryPipeRef}
             >
               <option value="">Select connected pipe</option>
               {model.pipe_segments
@@ -711,62 +729,62 @@ export function PropertyInspector({
                 .map((pipe) => <option key={pipe.id} value={pipe.id}>{pipe.label} ({pipe.id})</option>)}
             </select>
           </label>
-          <label>
-            <span>Radius</span>
-            <input
-              aria-label="New bend radius"
-              data-testid="create-component-radius"
-              inputMode="decimal"
-              onChange={(event) => updateComponentDraft("radius", event.target.value)}
-              value={componentDraft.radius}
-            />
-          </label>
-          <label>
-            <span>Radius unit</span>
-            <select
-              aria-label="New bend radius unit"
-              data-testid="create-component-radius-unit"
-              onChange={(event) => updateComponentDraft("radiusUnit", event.target.value)}
-              value={componentDraft.radiusUnit}
-            >
-              {lengthUnitOptions.map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>Angle</span>
-            <input
-              aria-label="New bend angle"
-              data-testid="create-component-angle"
-              inputMode="decimal"
-              onChange={(event) => updateComponentDraft("angle", event.target.value)}
-              value={componentDraft.angle}
-            />
-          </label>
-          <label>
-            <span>Angle unit</span>
-            <select
-              aria-label="New bend angle unit"
-              data-testid="create-component-angle-unit"
-              onChange={(event) => updateComponentDraft("angleUnit", event.target.value)}
-              value={componentDraft.angleUnit}
-            >
-              {componentAngleUnitOptions.map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>Plane orientation</span>
-            <input
-              aria-label="New bend plane orientation"
-              data-testid="create-component-plane"
-              onChange={(event) => updateComponentDraft("planeOrientation", event.target.value)}
-              placeholder="+Z"
-              value={componentDraft.planeOrientation}
-            />
-          </label>
+          {componentDraft.kind === "tee" ? (
+            <label>
+              <span>Branch pipe</span>
+              <select
+                aria-label="New tee branch pipe"
+                data-testid="create-component-secondary-pipe"
+                onChange={(event) => updateComponentDraft("secondaryPipeRef", event.target.value)}
+                value={componentDraft.secondaryPipeRef}
+              >
+                <option value="">Select connected branch pipe</option>
+                {model.pipe_segments
+                  .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
+                  .map((pipe) => <option key={pipe.id} value={pipe.id}>{pipe.label} ({pipe.id})</option>)}
+              </select>
+            </label>
+          ) : null}
+          {componentDraft.kind === "bend" ? (
+            <>
+              <ComponentTextInput label="Radius" testId="create-component-radius" value={componentDraft.bendRadius} onChange={(value) => updateComponentDraft("bendRadius", value)} />
+              <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="Angle" testId="create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+              <ComponentTextInput label="Plane orientation" testId="create-component-plane" value={componentDraft.bendPlaneOrientation} onChange={(value) => updateComponentDraft("bendPlaneOrientation", value)} />
+            </>
+          ) : null}
+          {componentDraft.kind === "tee" ? (
+            <>
+              <ComponentTextInput label="Run size" testId="create-component-run-size" value={componentDraft.branchRunSize} onChange={(value) => updateComponentDraft("branchRunSize", value)} />
+              <ComponentTextInput label="Header size" testId="create-component-header-size" value={componentDraft.branchHeaderSize} onChange={(value) => updateComponentDraft("branchHeaderSize", value)} />
+              <ComponentUnitSelect label="Size unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="Connection angle" testId="create-component-connection-angle" value={componentDraft.branchConnectionAngle} onChange={(value) => updateComponentDraft("branchConnectionAngle", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+              <ComponentTextInput label="Connection type" testId="create-component-connection-type" value={componentDraft.branchConnectionType} onChange={(value) => updateComponentDraft("branchConnectionType", value)} />
+              <ComponentTextInput label="Reinforcement reference" testId="create-component-reinforcement" value={componentDraft.branchReinforcementReference} onChange={(value) => updateComponentDraft("branchReinforcementReference", value)} />
+            </>
+          ) : null}
+          {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" ? (
+            <>
+              <ComponentTextInput label="Body length" testId="create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
+              <ComponentTextInput label="End A size" testId="create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
+              <ComponentTextInput label="End B size" testId="create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
+              <ComponentUnitSelect label="Length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="Weight" testId="create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
+              <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
+              <ComponentTextInput label="COG X" testId="create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
+              <ComponentTextInput label="COG Y" testId="create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
+              <ComponentTextInput label="COG Z" testId="create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
+              <ComponentTextInput label="End A reference" testId="create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
+              <ComponentTextInput label="End B reference" testId="create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
+              <ComponentTextInput label="Stiffness behavior reference" testId="create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
+            </>
+          ) : null}
           <label>
             <span>Geometry source</span>
             <input
-              aria-label="New bend geometry source"
+              aria-label="New component geometry source"
               data-testid="create-component-source"
               onChange={(event) => updateComponentDraft("geometrySourceReference", event.target.value)}
               value={componentDraft.geometrySourceReference}
@@ -776,11 +794,11 @@ export function PropertyInspector({
             data-testid="queue-create-component-intent"
             disabled={!componentCreateIntent}
             onClick={handleQueueComponentIntent}
-            title="Queue explicit bend component creation intent"
+            title={`Queue explicit ${componentDraft.kind} component creation intent`}
             type="button"
           >
             <PlusCircle size={14} aria-hidden="true" />
-            Queue bend
+            Queue {componentDraft.kind}
           </button>
         </div>
         {componentCreateIntent ? <OperationIntentPreview intent={componentCreateIntent} /> : null}
@@ -932,6 +950,58 @@ type UnitOption = {
   symbol: string;
   label: string;
 };
+
+function ComponentTextInput({
+  label,
+  onChange,
+  testId,
+  value
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  testId: string;
+  value: string;
+}) {
+  return (
+    <label>
+      <span>{label}</span>
+      <input
+        aria-label={`New component ${label.toLowerCase()}`}
+        data-testid={testId}
+        onChange={(event) => onChange(event.target.value)}
+        value={value}
+      />
+    </label>
+  );
+}
+
+function ComponentUnitSelect({
+  label,
+  onChange,
+  options,
+  testId,
+  value
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  options: UnitOption[];
+  testId: string;
+  value: string;
+}) {
+  return (
+    <label>
+      <span>{label}</span>
+      <select
+        aria-label={`New component ${label.toLowerCase()}`}
+        data-testid={testId}
+        onChange={(event) => onChange(event.target.value)}
+        value={value}
+      >
+        {options.map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}
+      </select>
+    </label>
+  );
+}
 
 const RESTRAINT_OPTIONS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 
@@ -2225,6 +2295,16 @@ function materialDraftUnitValidationStatus(draft: MaterialDraft, route: UnitCata
     ? propertyUnitValidationStatus(route, draft.thermalExpansionUnit, "thermal_expansion_coefficient")
     : "not_provided";
   return `stress=${stressStatus}; thermal_expansion_coefficient=${thermalStatus}`;
+}
+
+function componentUnitValidation(draft: ComponentDraft, route: UnitCatalogRoute | null): string {
+  const length = propertyUnitValidationStatus(route, draft.lengthUnit, "length");
+  if (draft.kind === "bend" || draft.kind === "tee") {
+    const angle = propertyUnitValidationStatus(route, draft.angleUnit, "angle");
+    return `length=${length}; angle=${angle}`;
+  }
+  const force = propertyUnitValidationStatus(route, draft.forceUnit, "force");
+  return `length=${length}; force=${force}`;
 }
 
 function propertyUnitValidationStatus(route: UnitCatalogRoute | null, unit: string, dimension: string): string {
