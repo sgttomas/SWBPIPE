@@ -24,7 +24,7 @@ running the Rust engine, and the TypeScript engine is held to them.
 | provenance_class | `PUBLIC_DOMAIN_OR_ORIGINAL` |
 | contributor_certification | Nothing in this corpus derives from protected standards content, vendor-proprietary data, or real project data. No code-specific allowables, SIFs, flexibility factors, or load-combination defaults appear anywhere in the corpus; numeric values are arbitrary invented scalars used only to exercise validation mechanics. |
 | engineering_status | Non-engineering test data. The corpus makes no release-readiness, professional-approval, certification, sealing, authentication, or code-compliance claim. |
-| review_status | Cases 01–57: human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12). Cases 58–65 (added by `TP-APP-R2-COMBEXPR-001`): human-reviewed and accepted 2026-06-12 (`DEC-032`, same register). Cases 66–75 (added by `TP-APP-R5-FIELDRULES-001`: component-geometry and load-case optional-slot field rules): blessed from the Rust contract reference on 2026-07-10; **pending their own human review entry**. Cases 76–78 (DEC-092 material temperature-point shear-modulus editing): generated from the Rust contract reference in this tranche and **pending their own human review entry**. Future case additions require their own review entry; they do not ride prior acceptances. |
+| review_status | Cases 01–57 were human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12). Case 15's claimed hash and corresponding binding-status expectation were regenerated so its accepted apply now carries a matching current backend hash; that changed expectation is **pending its own human review entry**. Cases 58–65 (added by `TP-APP-R2-COMBEXPR-001`): human-reviewed and accepted 2026-06-12 (`DEC-032`, same register). Cases 66–75 (added by `TP-APP-R5-FIELDRULES-001`: component-geometry and load-case optional-slot field rules): blessed from the Rust contract reference on 2026-07-10; **pending their own human review entry**. Cases 76–78 (DEC-092 material temperature-point shear-modulus editing): generated from the Rust contract reference and **pending their own human review entry**. Cases 79–81 add stale, malformed, and unsupported claimed-model-hash negatives for DEL-05-04; they are generated from the Rust contract reference and **pending their own human review entry**. Future case additions require their own review entry; they do not ride prior acceptances. |
 
 ## Case file format
 
@@ -134,6 +134,10 @@ internal canonicalization, not the operation semantics:
   (`OP-STALE-BEFORE-VALUE`), deferred field (`OP-FIELD-EDIT-DEFERRED`),
   unsupported field path (`OP-FIELD-PATH-UNSUPPORTED`), non-finite magnitude
   (`OP-VALUE-NOT-NUMERIC`), empty required text (`OP-VALUE-EMPTY`),
+  stale claimed model snapshots (`OP-CLAIMED-MODEL-HASH-MISMATCH`), malformed
+  claimed-hash evidence (`OP-CLAIMED-MODEL-HASH-METADATA-INVALID`),
+  incomparable claimed-hash metadata
+  (`OP-CLAIMED-MODEL-HASH-METADATA-UNSUPPORTED`),
   node deletion with dependent model entities (`OP-NODE-DELETE-REFERENCED`),
   support deletion with dependent loads (`OP-SUPPORT-DELETE-REFERENCED`), load
   case deletion with dependent combinations
@@ -174,7 +178,7 @@ files); the ambiguity is reported for human ruling instead of being silently
 reconciled. Quarantined cases as of 2026-06-12: none — the TypeScript engine
 reproduces all 57 cases exactly, with no alignment fixes.
 
-## Case inventory (78 cases)
+## Case inventory (81 cases)
 
 Cases 01–57 are the corpus accepted under `DEC-030`. Cases 58–65 were added
 by `TP-APP-R2-COMBEXPR-001` (subtraction/range combination authoring,
@@ -274,3 +278,6 @@ acceptance or human-review claim from cases 01–65 or the blessing of 66–75.
 | `case_76_accept_set_field_material_temperature_point_shear_modulus.json` | `set_field` | apply | applied_to_session_model | — |
 | `case_77_block_set_field_material_temperature_point_shear_modulus_missing_point.json` | `set_field` | apply | blocked | `OP-MATERIAL-TEMPERATURE-POINT-NOT-FOUND` |
 | `case_78_block_set_field_material_temperature_point_shear_modulus_invalid.json` | `set_field` | apply | blocked | `OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE` |
+| `case_79_block_stale_claimed_model_hash.json` | `set_field` | apply | blocked | `OP-CLAIMED-MODEL-HASH-MISMATCH` |
+| `case_80_block_malformed_claimed_model_hash.json` | `set_field` | apply | blocked | `OP-CLAIMED-MODEL-HASH-METADATA-INVALID` |
+| `case_81_block_unsupported_claimed_model_hash.json` | `update_load` | apply | blocked | `OP-CLAIMED-MODEL-HASH-METADATA-UNSUPPORTED` |

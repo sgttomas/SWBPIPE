@@ -126,7 +126,10 @@ def test_operation_outcome_closed_vocabularies():
     basis = schema["$defs"]["ModelBasisEvidence"]["properties"]
     assert basis["backend_canonicalization"]["const"] == "rfc8785_jcs"
     assert basis["binding_status"]["enum"] == [
-        "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated",
+        "claimed_model_hash_matches_current_backend_model",
+        "claimed_model_hash_mismatch_current_backend_model",
+        "claimed_model_hash_metadata_invalid",
+        "claimed_model_hash_metadata_unsupported",
         "no_claimed_hash_before_state_check_is_the_staleness_guard",
     ]
     acceptance = schema["$defs"]["AcceptanceRecord"]["properties"]

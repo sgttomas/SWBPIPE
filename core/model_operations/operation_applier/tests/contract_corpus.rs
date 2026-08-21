@@ -68,25 +68,30 @@ const REQUIRED_ACCEPTED_KINDS: [&str; 19] = [
     "delete_combination_term",
 ];
 
-const REQUIRED_BLOCK_CODES: [&str; 18] = [
-    "OP-TARGET-ALREADY-EXISTS",                // duplicate id
-    "OP-TARGET-NOT-FOUND",                     // missing target
-    "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE", // unit mismatch
-    "OP-UNIT-DIMENSION-UNKNOWN",               // invalid dimension
-    "OP-STALE-BEFORE-VALUE",                   // stale before-value
-    "OP-FIELD-EDIT-DEFERRED",                  // deferred field
-    "OP-FIELD-PATH-UNSUPPORTED",               // unsupported field path
-    "OP-VALUE-NOT-NUMERIC",                    // non-finite magnitude
-    "OP-VALUE-EMPTY",                          // empty required text
-    "OP-UNIT-DIMENSION-MISMATCH",              // dynamic terms.N.factor block
-    "OP-NODE-DELETE-REFERENCED",               // node still referenced by model entities
-    "OP-SUPPORT-DELETE-REFERENCED",            // support still referenced by primitive load
-    "OP-LOAD-CASE-DELETE-REFERENCED",          // load case still referenced by combination
-    "OP-PIPE-DELETE-REFERENCED",               // pipe still referenced by primitive load
-    "OP-REFERENCE-NOT-FOUND",                  // dangling entity reference on an optional slot
-    "OP-VALUE-NEGATIVE",                       // negative mill-tolerance reduction
-    "OP-ID-PATTERN-INVALID",                   // malformed schema-Id slot value
-    "OP-ENUM-TOKEN-INVALID",                   // closed-vocabulary token violation
+const EXPECTED_CORPUS_CASES: usize = 81;
+
+const REQUIRED_BLOCK_CODES: [&str; 21] = [
+    "OP-TARGET-ALREADY-EXISTS",                   // duplicate id
+    "OP-TARGET-NOT-FOUND",                        // missing target
+    "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",    // unit mismatch
+    "OP-UNIT-DIMENSION-UNKNOWN",                  // invalid dimension
+    "OP-STALE-BEFORE-VALUE",                      // stale before-value
+    "OP-FIELD-EDIT-DEFERRED",                     // deferred field
+    "OP-FIELD-PATH-UNSUPPORTED",                  // unsupported field path
+    "OP-VALUE-NOT-NUMERIC",                       // non-finite magnitude
+    "OP-VALUE-EMPTY",                             // empty required text
+    "OP-UNIT-DIMENSION-MISMATCH",                 // dynamic terms.N.factor block
+    "OP-NODE-DELETE-REFERENCED",                  // node still referenced by model entities
+    "OP-SUPPORT-DELETE-REFERENCED",               // support still referenced by primitive load
+    "OP-LOAD-CASE-DELETE-REFERENCED",             // load case still referenced by combination
+    "OP-PIPE-DELETE-REFERENCED",                  // pipe still referenced by primitive load
+    "OP-REFERENCE-NOT-FOUND",                     // dangling entity reference on an optional slot
+    "OP-VALUE-NEGATIVE",                          // negative mill-tolerance reduction
+    "OP-ID-PATTERN-INVALID",                      // malformed schema-Id slot value
+    "OP-ENUM-TOKEN-INVALID",                      // closed-vocabulary token violation
+    "OP-CLAIMED-MODEL-HASH-MISMATCH",             // stale claimed model snapshot
+    "OP-CLAIMED-MODEL-HASH-METADATA-INVALID",     // malformed claimed hash evidence
+    "OP-CLAIMED-MODEL-HASH-METADATA-UNSUPPORTED", // incomparable hash basis
 ];
 
 fn corpus_dir() -> PathBuf {
@@ -102,9 +107,10 @@ fn case_paths() -> Vec<PathBuf> {
         })
         .collect();
     paths.sort();
-    assert!(
-        !paths.is_empty(),
-        "contract corpus must contain at least one case file"
+    assert_eq!(
+        paths.len(),
+        EXPECTED_CORPUS_CASES,
+        "contract corpus completeness drifted: existing accepted cases must not be deleted or repurposed when new coverage is added"
     );
     paths
 }

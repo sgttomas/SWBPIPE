@@ -1,0 +1,39 @@
+{
+  "schema": "chirality-working-items-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R9-STALE-HASH",
+  "package_id": "PKG-05",
+  "selected_deliverables": ["DEL-05-04"],
+  "version": 1,
+  "selection_authority": "HELP_HUMAN launch brief applying the owner-directed Step 0 steer and exact open DEL-05-04 Remaining item",
+  "posture": "MIXED",
+  "integration_owner": "HELP_HUMAN",
+  "nodes": [
+    {
+      "node_id": "N1",
+      "deliverable_id": "DEL-05-04",
+      "package_id": "PKG-05",
+      "objective": "Implement and prove runtime stale/malformed/unsupported claimed-model-hash fail-closed behavior in the authoritative Rust operation applier while preserving matching and no-claim behavior.",
+      "dependencies": [],
+      "concurrency": "none",
+      "implementation_owner": "WORKING_ITEMS-PKG05-DEL0504-STALE-HASH",
+      "write_ownership": "exclusive within the activation write fence",
+      "checks": {
+        "in_session": [
+          "focused Rust operation_applier tests",
+          "native-to-Wasm contract corpus parity",
+          "registered piping-pytest",
+          "registered harness-self-check and harness-pytest",
+          "applicable non-host DEC-025 surfaces"
+        ],
+        "host_or_ci": ["DEC-025 surface 4 Playwright e2e"],
+        "review": "fresh read-only TASK + software-code-review over 100% frozen diff; PASS required"
+      },
+      "expected_return": "validated uncommitted implementation, deterministic tests/corpus evidence, exact command results, review PASS, and any host rerun requirement",
+      "fan_in_gate": "all focused and applicable profile checks pass; independent review PASS; write containment verified",
+      "escalation": "scope or acceptance change only"
+    }
+  ],
+  "edges": [],
+  "human_decision_points": [],
+  "discovery_rule": "discoveries belonging to N1 amend N1 in place; all others are registered and stopped without creating another node"
+}

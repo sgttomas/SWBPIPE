@@ -1,0 +1,29 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260820-R9-STALE-HASH",
+  "instance_id": "WORKING-ITEMS-PKG05-DEL0504-STALE-HASH",
+  "parent": "HELP_HUMAN",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-05",
+  "selected_deliverables": ["DEL-05-04"],
+  "node": "N1",
+  "status": "IMPLEMENTATION_COMPLETE_PROOF_PASS",
+  "implementation_checks": "PASS",
+  "independent_review": "PASS",
+  "review_findings": 0,
+  "final_clean_commit_dec025": "SATISFIED",
+  "candidate_commit": "b65b388f678fd7d005a5b0338af666c4a06a52f3",
+  "canonical_sweep_summary": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260821T023229Z_b65b388f678f.json",
+  "sweep_decision_basis": ["DEC-025", "DEC-093"],
+  "sweep_overall_status": "pass",
+  "sweep_surfaces_passed": 5,
+  "commit_created": true,
+  "push_or_pr": false,
+  "blockers": [],
+  "waivers": [],
+  "reruns_required": [],
+  "next_owner": "CHANGE",
+  "model_attribution": {
+    "manager": "inherited GPT-5-based Codex runtime; exact variant not exposed",
+    "reviewer": "inherited GPT-5-based Codex runtime; exact variant not exposed"
+  }
+}
