@@ -18,7 +18,9 @@
     "N4": "a166e30b9f58b8470d96e33d95c12e104b8f01bc",
     "shared_control_pre_sweep": "f7148f9b97e37babee19e18f5588a4122705ae5b",
     "harness_baseline_repair": "07909d7193de22b9edeacc686175d28500022b52",
-    "failed_sweep_evidence": "f6064019f80298d1d3f1e475aece49fe28f478bc"
+    "failed_sweep_evidence": "f6064019f80298d1d3f1e475aece49fe28f478bc",
+    "pre_sync_proof": "c6552d5bf2eadf08504b97a53b9a1e62ed29e7df",
+    "owner_authorized_main_sync": "5b98fc6b79f9f28f873dbdc8dd51c13953b55b72"
   },
   "pull_request": 599,
   "checks": [
@@ -40,7 +42,7 @@
     {
       "name": "exact-containment-and-cross-node-disjointness",
       "result": "PASS",
-      "detail": "CANDIDATE_FILES.txt records the exact 76-path post-N2/N3 closeout membership, including the baseline repair and failed/passing sweep evidence; N2/N3 remain separately bound by their pushed commit SHAs."
+      "detail": "CANDIDATE_FILES.txt records the exact 77-path post-N2/N3 closeout membership, including the baseline repair and failed/pre-sync/post-sync sweep evidence; N2/N3 remain separately bound by their pushed commit SHAs."
     },
     {
       "name": "terminal-newline-normalization",
@@ -78,10 +80,11 @@
   },
   "dec_025": {
     "status": "PASS",
-    "commit_hash": "f6064019f80298d1d3f1e475aece49fe28f478bc",
+    "commit_hash": "5b98fc6b79f9f28f873dbdc8dd51c13953b55b72",
     "working_tree_dirty": false,
-    "summary": "validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json",
-    "sha256": "d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c",
+    "summary": "validation/evidence/sweeps/SWEEP_20260821T054123Z_5b98fc6b79f9.json",
+    "sha256": "513110e5c43007fb3cbdc753c02162c0173a1a15e395e60a42b4e3d8e372a2c2",
+    "pre_sync_pass": "validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json at f6064019f80298d1d3f1e475aece49fe28f478bc, SHA-256 d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c",
     "surfaces": "PASS — 36 Rust crates; Python 902; Vitest 541; Playwright dev 22 and dist 2; production build"
   },
   "artifact_proof_label": "NOT_APPLICABLE",

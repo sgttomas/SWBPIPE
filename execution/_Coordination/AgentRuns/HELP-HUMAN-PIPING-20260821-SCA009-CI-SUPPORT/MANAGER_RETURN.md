@@ -24,6 +24,7 @@ N1 and N4 are accepted success after bounded owner-resumed resolutions; N2 and N
 ## Closeout verification
 
 - Required clean-commit gates passed: Piping pytest 902; practitioner harness 350; repository self-check exit 0; receipt validator; G4 policy tests 47; G4 corpus 40 manifests.
-- DEC-025 passed all five surfaces at clean commit `f6064019f80298d1d3f1e475aece49fe28f478bc`. Summary: `validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json`; SHA-256 `d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c`.
+- DEC-025 passed all five surfaces pre-sync at clean commit `f6064019f80298d1d3f1e475aece49fe28f478bc`. Summary: `validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json`; SHA-256 `d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c`.
+- After `origin/main` advanced through PR #600, owner-authorized non-rewriting sync merge `5b98fc6b79f9f28f873dbdc8dd51c13953b55b72` added exactly the upstream `README.md` change without conflicts. Post-sync governance gates and DEC-025 passed again; summary `validation/evidence/sweeps/SWEEP_20260821T054123Z_5b98fc6b79f9.json`, SHA-256 `513110e5c43007fb3cbdc753c02162c0173a1a15e395e60a42b4e3d8e372a2c2`.
 - The earlier missing-`jsonschema` failure summary is preserved at `validation/evidence/sweeps/SWEEP_20260821T053152Z_07909d7193de.json`; the proven offline uv requirements environment resolved it.
-- CHANGE must commit this proof/receipt update, verify upstream ancestry, push to PR #599, and wait for required PR checks. No merge is authorized by this fan-in.
+- CHANGE must commit this post-sync proof/receipt update, push to PR #599, and wait for required PR checks. No merge of PR #599 is authorized by this fan-in.

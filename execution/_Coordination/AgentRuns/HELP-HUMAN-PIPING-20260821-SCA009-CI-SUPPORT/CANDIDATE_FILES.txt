@@ -7,6 +7,9 @@
 # Harness baseline repair: 07909d7193de22b9edeacc686175d28500022b52
 # Failed sweep evidence: f6064019f80298d1d3f1e475aece49fe28f478bc
 # Passing sweep binds f6064019f80298d1d3f1e475aece49fe28f478bc and SHA-256 d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c.
+# Pre-sync proof: c6552d5bf2eadf08504b97a53b9a1e62ed29e7df
+# Owner-authorized README-only main sync: 5b98fc6b79f9f28f873dbdc8dd51c13953b55b72
+# Post-sync sweep binds 5b98fc6b79f9f28f873dbdc8dd51c13953b55b72 and SHA-256 513110e5c43007fb3cbdc753c02162c0173a1a15e395e60a42b4e3d8e372a2c2.
 # One repository-relative closeout path per line; the final proof commit updates existing control paths below.
 projects/chirality-piping/core/product_physics/src/lib.rs
 projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md
@@ -83,4 +86,5 @@ projects/chirality-piping/tests/test_release_readiness_script.py
 projects/chirality-piping/tools/validation/validate_architecture_basis.py
 projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260821T053152Z_07909d7193de.json
 projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json
+projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260821T054123Z_5b98fc6b79f9.json
 tools/practitioner_harness/test_live_baseline.py
