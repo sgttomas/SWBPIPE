@@ -3001,3 +3001,29 @@
   - Checks: all node-local terminal checks/reviews; terminal integrated read-only software-code-review PASS with no actionable findings over 100% of the seven-file final behavior diff and exact hash binding; Piping pytest 902; practitioner harness 350 after conscious 102-file baseline repair; repository self-check exit 0; receipt validator; G4 policy tests 47 and corpus 40 manifests; fan-in JSON/YAML/CSV/status consistency; DAG and Reconciliation manifest integrity; exact containment/disjointness; terminal-newline normalization; diff whitespace; pre-sync DEC-025 PASS at `f6064019f80298d1d3f1e475aece49fe28f478bc`; owner-authorized first sync first-parent delta exactly `README.md`; first post-sync clean-commit DEC-025 PASS at `5b98fc6b79f9f28f873dbdc8dd51c13953b55b72`; first PR governance run `32451967800` G4 declaration failure preserved, repaired by `13891f8c0e9019f26a3de73d9395734c61e05c8a`; repaired governance run `32452355719` and Desktop E2E run `32452355758` PASS; owner-authorized second sync `b8ac790948de7b84203c9265dbf71ff855d23029` first-parent delta exactly 82 upstream App files; fresh post-second-sync harness/self-check/receipt/G4 gates and clean-commit DEC-025 PASS with host Playwright dev 22 and dist 2. Final results are in `INTEGRATED_REVIEW.md`, `FAN_IN_CHECKS.json`, and the cited sweep summaries.
   - Model-Attribution: HELP_HUMAN supervised PROJECT_SETUP and WORKING_ITEMS Agent 1 roles plus fresh read-only TASK reviews; every recorded role used GPT-5.6 without substitution. Exact parentage and attribution are in the named AgentRuns package.
   - Gate-Outcome: `EXECUTED` — all four nodes are accepted after bounded repair; failure history is preserved. Clean offline-requirements DEC-025 retries passed all five registered surfaces after both authorized syncs. PR #599 is authorized for protected merge after green checks and current-main containment; no `artifact-proof`, lifecycle, release, reliance, or professional-approval effect is created.
+
+- **2026-08-21 — Receipt 123** (vocabulary round 2 terminal node-failure closeout).
+  - Receipt-ID: `Receipt-123`
+  - Examined-Through: `7d5a3f558dfa2e8e902df25fc9a3e813a9ab7048`
+  - Parent-Receipt: `Receipt-122`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — exact
+    owner steer is transcribed in
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R2/OWNER_DIRECTIONS.md`.
+  - Pointers: branch `codex/piping-vocabulary-r2-20260821`; PR #603; selected
+    commit `58ae603acd5f2a4c815059c8cf3a3ad6622d6f5a`; run
+    `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R2/`;
+    `N1_FAILURE.md`; `N1_INTEGRATED_REVIEW.md`; `N2_RETURN.md`;
+    `N3_RETURN.md`; `N3_CHECKS.json`.
+  - Checks: clean-isolated-checkout receipt validator PASS; practitioner
+    harness 350 PASS; focused G4 plus public-export-profile 49 PASS; G4 corpus
+    40 PASS; self-check exit 0 with standing non-BLOCK findings only; N3
+    deterministic export PASS; DEC-025 `NOT_APPLICABLE` because no code or
+    product file landed.
+  - Model-Attribution: HELP_HUMAN supervised CHANGE and two WORKING_ITEMS Agent
+    1 managers plus bounded N3 and read-only reviewer Agent 2 roles; inherited
+    GPT-5.6 was used without substitution.
+  - Gate-Outcome: `EXECUTED` — `EXECUTED_WITH_NODE_FAILURE`: N1 failed
+    integrated review, stopped, and its five product files are excluded; N2
+    was dependency-held and unstarted; N3 alone landed. PR #603 is open without
+    merge and creates no lifecycle, release, reliance, issuance, or
+    professional-approval effect.

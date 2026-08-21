@@ -1,6 +1,6 @@
 # Handoff state — vocabulary completion round 2
 
-- State: `N1_FAILED_N2_HELD_N3_PASS_PENDING_CHANGE_CLOSEOUT`.
+- State: `N1_FAILED_N2_HELD_N3_LANDED_PR_OPEN_CHECKS_PENDING`.
 - Accepted upstream basis: `main@7d5a3f558dfa2e8e902df25fc9a3e813a9ab7048` (PR #599 merge); DAG-010; accepted SCA-009 and DEL-07-09 coverage ledger.
 - Authoritative/derivative boundary: decomposition/SCA-009 and landed product bytes remain authoritative upstream truth. The public Chirality App export and this AgentRuns package are derivative evidence.
 
@@ -22,6 +22,8 @@
 ## Publication state
 
 - Branch: `codex/piping-vocabulary-r2-20260821`.
+- Selected commit: `58ae603acd5f2a4c815059c8cf3a3ad6622d6f5a`.
+- PR #603: `OPEN`; checks pending; no merge performed.
 - Selected landing: N3 export derivative plus truthful plan/returns/failure/handoff/receipt evidence only.
 - Explicit exclusions: all five dirty N1 product files; no unsigned-artifact lane or `artifact-proof` label; no lifecycle, release, issuance, reliance, or professional-approval effect.
-- Next owner: `CHANGE` for scoped commit, clean-checkout verification, push, and one PR against `main` without merge.
+- Next owner: PR checks and owner review; merge remains owner-gated.
