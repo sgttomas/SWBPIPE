@@ -1,0 +1,90 @@
+{
+  "schema": "chirality-working-items-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R3",
+  "instance_id": "WORKING-ITEMS-VOCAB-R3-N1-ENGINE",
+  "package_id": "PKG-16",
+  "deliverable_ids": ["DEL-16-01"],
+  "main_basis_sha": "66efaf6b95605ef69f3e405b505f48506d3cbada",
+  "pre_repair_lineage_sha": "2bee267300e571e4e8686f73aba6ad4ba8be4c54",
+  "branch": "codex/piping-vocabulary-r3-20260821",
+  "overall_status": "PASS_P2_REPAIR_PENDING_N1_INTEGRATED_REVIEW",
+  "failure_history": {
+    "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R2/N1_INTEGRATED_REVIEW.md",
+    "prior_verdict": "FAIL_TWO_ACTIONABLE_FINDINGS",
+    "finding": "P2",
+    "finding_status": "REPAIRED_PENDING_FRESH_REVIEW",
+    "original_content_sha256": "847bca37ad991b24a2e7dbd6315c9294a0ac305f427b78628a36b3b1e177b51d"
+  },
+  "production_file": {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "pre_repair_sha256": "847bca37ad991b24a2e7dbd6315c9294a0ac305f427b78628a36b3b1e177b51d",
+    "post_repair_sha256": "f6ecdc476482d8798591689770c4a87a318ec4765e0362b886ae46922b58be7f",
+    "repair_diff_insertions": 35,
+    "repair_diff_deletions": 0,
+    "repair_binary_diff_sha256": "4aa5147ba9e947a0a324a4b8481262a38531458fa8e2aef4ae4161453a26512d"
+  },
+  "checks": [
+    {
+      "id": "focused-creation-slice",
+      "command": "cargo test --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --lib creation",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "7 passed; 0 failed; 75 filtered out",
+      "required_regression": "tee_creation_blocks_equal_header_and_branch_pipe_refs_without_applied_model passed"
+    },
+    {
+      "id": "full-operation-applier-suite",
+      "command": "cargo test --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "82 unit + 1 canonical_hash_parity + 2 contract_corpus = 85 passed; 0 failed; doc tests 0"
+    },
+    {
+      "id": "wasm-release-build",
+      "command": "cargo build --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --target wasm32-unknown-unknown --features wasm --release",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "Finished release profile for wasm32-unknown-unknown"
+    },
+    {
+      "id": "rustfmt",
+      "command": "cargo fmt --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml -- --check",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "no formatting diff"
+    },
+    {
+      "id": "scoped-diff-check",
+      "command": "git diff --check -- projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "no whitespace errors"
+    }
+  ],
+  "acceptance": {
+    "equal_refs_emit_blocking_diagnostic": true,
+    "diagnostic_code": "OP-COMPONENT-CONNECTIVITY-INVALID",
+    "reference_validation_blocked": true,
+    "application_status_blocked": true,
+    "applied_model_absent": true,
+    "unrelated_behavior_changed": false
+  },
+  "write_containment": {
+    "status": "PASS",
+    "production_targets": [
+      "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs"
+    ],
+    "instance_records": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/N1_ENGINE_RETURN.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/N1_ENGINE_CHECKS.json"
+    ],
+    "git_state_modified": false
+  },
+  "blockers": [],
+  "p2_residuals": [],
+  "integrated_review": {
+    "required": true,
+    "status": "PENDING_PARENT_FANIN",
+    "scope": "100% of the complete five-file post-repair N1 lineage with refreshed hash inventory"
+  }
+}

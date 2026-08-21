@@ -1080,7 +1080,7 @@ export function PipeViewport({
                 value={componentDraft.kind}
                 onChange={(event) =>
                   setComponentDraft((current) =>
-                    componentDraftForKind(current, event.target.value as CreatableComponentKind)
+                    componentDraftForKind(model, current, event.target.value as CreatableComponentKind)
                   )
                 }
               >

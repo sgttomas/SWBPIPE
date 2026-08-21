@@ -1,0 +1,21 @@
+{
+  "schema": "chirality-help-human-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R3",
+  "version": 1,
+  "selection_authority": "HUMAN — vocabulary completion round 3",
+  "posture": "SERIAL_TWO_NODE_WITH_DISJOINT_N1_REPAIR_LANES",
+  "authorized_width": 2,
+  "branch": "codex/piping-vocabulary-r3-20260821",
+  "base_sha": "66efaf6b95605ef69f3e405b505f48506d3cbada",
+  "wip_backup_sha": "764a459a1ce3d23c777ec1d5610c9f7852c8131d",
+  "pre_repair_lineage_sha": "2bee267300e571e4e8686f73aba6ad4ba8be4c54",
+  "integration_owner": "HELP_HUMAN",
+  "nodes": [
+    {"node_id":"N1","role":"WORKING_ITEMS","objective":"Repair P1/P2 and complete tee, reducer, valve, flange end-to-end evidence for row 15.","dependencies":[],"concurrency":"P1 UI and P2 engine writes disjoint; one integrated fan-in","repair_cycles_allowed":2,"status":"READY"},
+    {"node_id":"N2","role":"WORKING_ITEMS","objective":"Implement expansion-joint creation with explicit 4-axis stiffness and pressure-thrust refs.","dependencies":["N1:ACCEPTED_AND_COMMITTED"],"concurrency":"strictly serialized after N1","repair_cycles_allowed":2,"status":"HELD"}
+  ],
+  "shared_surface_policy": "status, coverage, handoff, and receipt written once at final fan-in",
+  "labels_excluded": ["artifact-proof"],
+  "audit_decomp": "PARKED_NOT_SELECTABLE",
+  "parked_holds": ["PKG-02 runtime/transport/permission choices", ".opsproj policy", "PDU-011", "PDU-047", "MAINTAINER_REVIEWED promotion"]
+}

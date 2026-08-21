@@ -1,0 +1,19 @@
+# Owner directions — vocabulary completion round 3
+
+The exact 2026-08-21 in-session steer is transcribed as `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING`:
+
+> STANDING DIRECTION — Piping iteration steer (vocabulary completion round 3: N1 repair and completion). Owner-directed shape; measure against this direction, not default Step-0 selection. N=2. Continue in this worktree — the uncommitted N1 diff is the starting material.
+>
+> Step A — preserve the N1 diff now, before anything else. The five dirty N1 product files are uncommitted and exist nowhere else. Commit them as-is to a local branch codex/piping-vocabulary-r3-wip-20260821 (message: "wip(piping): N1 pre-repair state as reviewed in HELP-HUMAN-PIPING-20260821-VOCABULARY-R2"), verify the committed blobs match the content hashes frozen in N1_INTEGRATED_REVIEW.md, and push that branch as a backup. Do not open a PR on it. Report the commit SHA.
+>
+> Basis gate. PR #603 is accepted and is being merged by the owner as a merge commit. Do not begin round-3 work until origin/main contains PR #603's merge commit; branch codex/piping-vocabulary-r3-20260821 from that main. Your basis must show Receipt-123, the VOCABULARY-R2 AgentRuns package, and the regenerated G4 export. Re-read N1_INTEGRATED_REVIEW.md in full before dispatching.
+>
+> Node 1 — N1 repair and completion (row 15; the product of this iteration). Carry the preserved N1 diff onto the round-3 branch and repair exactly the two review findings against the review's five-point minimum repair matrix: P1 — the new kinds must not infer pipe roles from model array order. Initialize/clear tee header/branch and rigid-span selectors after kind selection and after node change; keep queueing disabled until the user explicitly selects the required role(s); prove it with negative tests including a node with three or more incident spans, and a positive test that the exact user-selected roles — not collection order — are serialized and applied. Preserve the accepted bend behavior. P2 — enforce the distinct header/branch invariant in the operation applier with a negative Rust regression (blocking diagnostic, no applied_model). Do not choose the alternative of declaring equality valid; that would require a domain ruling this direction does not give. Then rerun the focused Rust creation slice, rebuild the browser WASM, rerun the affected Inspector/viewport matrix plus the new cases, desktop build, scoped git diff --check, and obtain a fresh 100%-diff read-only review with a refreshed hash inventory. Commit shape is yours, but evidence must cite the pre-repair hashes from the R2 review so the lineage is checkable. Close row 15 only when all four kinds point at landed evidence; otherwise record the remainder.
+>
+> Node 2 — expansion-joint creation (row 14; dependant, sequenced after accepted-and-committed Node 1, same applier surface, never in parallel). Implement through the same seam with 4-axis stiffness and pressure-thrust refs as explicit user inputs; apply the same no-inferred-role discipline P1 establishes. If the geometry/connectivity contract raises a genuine design question your instruments cannot settle, record the exact question against row 14 and stop the node — do not invent values.
+>
+> Failure rule replaces round 2's hard stop: repair enumerated review findings and re-review with a fresh reviewer, up to two repair cycles per node; after a second failed cycle land what passed, record the refreshed matrix, and stop. Preserve every failed review/hash inventory.
+>
+> AUDIT_DECOMP remains parked and not selectable. No artifact-proof label. DEC-025 applies. Named owner holds remain parked. Request authorization before any mid-PR main sync. One tranche, one working branch, one PR against main, commits N1 then N2, shared surfaces once at fan-in, receipt after the fact with Step A WIP SHA, and no merge.
+
+This transcription is evidence of the owner's direction; it is not an independent authority surface.

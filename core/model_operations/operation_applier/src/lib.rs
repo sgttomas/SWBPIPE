@@ -2103,6 +2103,19 @@ fn resolve_tee_creation_geometry(
         );
         return None;
     }
+    if header_pipe_ref == branch_pipe_ref {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMPONENT-CONNECTIVITY-INVALID",
+            "blocking",
+            format!(
+                "Tee `{target_ref}` must reference distinct header and branch pipe spans; both fields currently name `{header_pipe_ref}`."
+            ),
+            "Select different incident pipe spans for the tee header and branch roles.",
+            vec![target_ref.to_string(), header_pipe_ref.to_string()],
+        );
+        return None;
+    }
     if !referenced_pipe_is_incident(model, target_ref, "tee", node, header_pipe_ref, checker)
         || !referenced_pipe_is_incident(model, target_ref, "tee", node, branch_pipe_ref, checker)
     {
@@ -11318,6 +11331,28 @@ mod tests {
         let invalid_cog_unit = apply_operation(&model, &rigid_intent, None);
         assert!(codes(&invalid_cog_unit).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
         assert!(invalid_cog_unit.applied_model.is_none());
+    }
+
+    #[test]
+    fn tee_creation_blocks_equal_header_and_branch_pipe_refs_without_applied_model() {
+        let model = sample_model();
+        let mut intent = modify_intent(
+            "Component",
+            "component:C-tee",
+            "insert_component_symbol",
+            "components",
+            "not_present",
+            r#"{"id":"component:C-tee","label":"Tee","kind":"tee","node":"node:N-2","geometry":{"branch_header_pipe_ref":"pipe:P-1","branch_branch_pipe_ref":"pipe:P-1","branch_run_size":{"value":0.168,"unit":"m"},"branch_header_size":{"value":0.114,"unit":"m"},"branch_connection_angle":{"value":90,"unit":"deg"},"branch_connection_type":"user","branch_reinforcement_reference":"user","branch_geometry_source_reference":"user"},"provenance":"user"}"#,
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("insert");
+
+        let outcome = apply_operation(&model, &intent, None);
+        assert!(codes(&outcome).contains(&"OP-COMPONENT-CONNECTIVITY-INVALID"));
+        assert_eq!(outcome.validation.reference_validation, "blocked");
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
     }
 
     #[test]

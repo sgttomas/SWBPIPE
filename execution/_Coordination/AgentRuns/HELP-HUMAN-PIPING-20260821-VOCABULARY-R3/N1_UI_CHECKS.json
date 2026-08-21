@@ -1,0 +1,224 @@
+{
+  "schema": "chirality-working-items-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R3",
+  "instance_id": "WORKING-ITEMS-VOCAB-R3-N1-UI",
+  "package_id": "PKG-07",
+  "deliverable_ids": ["DEL-07-01", "DEL-07-02"],
+  "main_basis_sha": "66efaf6b95605ef69f3e405b505f48506d3cbada",
+  "pre_repair_lineage_sha": "2bee267300e571e4e8686f73aba6ad4ba8be4c54",
+  "branch": "codex/piping-vocabulary-r3-20260821",
+  "overall_status": "REPAIR_CYCLE_1_READY_FOR_FRESH_REVIEW",
+  "failure_history": [
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R2/N1_INTEGRATED_REVIEW.md",
+      "verdict": "FAIL_TWO_ACTIONABLE_FINDINGS",
+      "finding": "P1",
+      "summary": "new component kinds inferred pipe connectivity roles from model collection order"
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/N1_REVIEW_V1.md",
+      "verdict": "FAIL_ONE_ACTIONABLE_P1_RESIDUAL",
+      "finding": "P1_POST_QUEUE_RESET",
+      "summary": "successful Inspector and viewport queues recreated the next same-kind non-bend draft through defaultComponentDraft with inferred incident-pipe roles",
+      "disposition": "REPAIRED_CYCLE_1_PENDING_FRESH_REVIEW"
+    }
+  ],
+  "review_v1_frozen_inventory": {
+    "aggregate_base_to_current_binary_diff_sha256": "5441ee541bfe1b1b18ec080724aabae758e3bf78c18fb170b076a6f7857cbf10",
+    "base_diff_insertions": 1314,
+    "base_diff_deletions": 333,
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+        "content_sha256": "f6ecdc476482d8798591689770c4a87a318ec4765e0362b886ae46922b58be7f",
+        "base_to_current_binary_diff_sha256": "d88d79619f5f6e6f0caf5cfc0ef0a7fb22bf075b05e350c948bbf53f3b15bef1"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+        "content_sha256": "5c191db66a7c6d4e61bbdddbb549d3d4ebc2c3a2927a7d75ea83f52468025859",
+        "base_to_current_binary_diff_sha256": "d2b68dd53a96ad68a70b133c8fba5764a814f08464b10d119a999c14fe95ba71"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+        "content_sha256": "07162a3ba9d2a43b9a3a95f9b1af9b891559149d7fd408044250caa9a394b14f",
+        "base_to_current_binary_diff_sha256": "e30ac162e120f15c6dd3fc6c4a4f0406e8e288d8d5960434de98d9e0a8f28f6b"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+        "content_sha256": "ae5e770d512508859bf340401b49b13d322bbdf53071e0c940a58a217002bb4a",
+        "base_to_current_binary_diff_sha256": "50782a01714c595f3d40c7a81eaac472e76b80589ec420203e5c6daa92f29903"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+        "content_sha256": "a8938b4a96c9a746b1057c41a005f457aaad406436d18de7798a284a14d98c14",
+        "base_to_current_binary_diff_sha256": "d5fb30d4839ea693f25733f17156a3f53ce47c35267abbbb6bf874eedca14dcd"
+      }
+    ]
+  },
+  "repair_cycle_1": {
+    "policy_change": "defaultComponentDraft now initializes pipe roles from incident spans only for bend; every non-bend kind starts with both pipe-role fields empty",
+    "changed_owned_files": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+        "review_v1_sha256": "5c191db66a7c6d4e61bbdddbb549d3d4ebc2c3a2927a7d75ea83f52468025859",
+        "post_cycle_1_sha256": "19ebce4104c8b7900a004526c71769bc4ce8cfec0036342f5cdd643bb47e98d6",
+        "cycle_1_insertions": 1,
+        "cycle_1_deletions": 1
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+        "review_v1_sha256": "a8938b4a96c9a746b1057c41a005f457aaad406436d18de7798a284a14d98c14",
+        "post_cycle_1_sha256": "19d1aa176a447a3d6c491164cba007471a8e7cbc819b8141a485028e89a396cb",
+        "cycle_1_insertions": 85,
+        "cycle_1_deletions": 0
+      }
+    ],
+    "unchanged_owned_files": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+        "sha256": "07162a3ba9d2a43b9a3a95f9b1af9b891559149d7fd408044250caa9a394b14f"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+        "sha256": "ae5e770d512508859bf340401b49b13d322bbdf53071e0c940a58a217002bb4a"
+      }
+    ]
+  },
+  "r2_pre_repair_hashes_preserved": {
+    "componentIntent.ts": "43dd7c07e807c5028e24878098b127a3bca7d947a982c44b9af3d96789d529d3",
+    "PropertyInspector.tsx": "ff2977446b090b46a4c3131fe252df750669a185a7e9139b6a6971d596fcea32",
+    "PipeViewport.tsx": "4c208376cc98248aa7f8842f2ba2d07bd024898393814a4a1e9c73c032955474",
+    "App.test.tsx": "5ba8d88f5f03f517ef3af571113208c95f5376404321ac0a0f5b4512144e6846",
+    "operation_applier_lib.rs": "847bca37ad991b24a2e7dbd6315c9294a0ac305f427b78628a36b3b1e177b51d"
+  },
+  "current_five_file_inventory": {
+    "aggregate_base_to_current_binary_diff_sha256": "5445faa5739064714e98ce11d8cb8c20d68d9ab55dd88e06cab4231b9b6505d3",
+    "base_diff_insertions": 1399,
+    "base_diff_deletions": 333,
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+        "content_sha256": "f6ecdc476482d8798591689770c4a87a318ec4765e0362b886ae46922b58be7f",
+        "base_diff_insertions": 553,
+        "base_diff_deletions": 61,
+        "base_to_current_binary_diff_sha256": "d88d79619f5f6e6f0caf5cfc0ef0a7fb22bf075b05e350c948bbf53f3b15bef1"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+        "content_sha256": "19ebce4104c8b7900a004526c71769bc4ce8cfec0036342f5cdd643bb47e98d6",
+        "base_diff_insertions": 204,
+        "base_diff_deletions": 46,
+        "base_to_current_binary_diff_sha256": "235ae9341329752ee572a7e042d8da3ec6139e709bdb28352624083da2011617"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+        "content_sha256": "07162a3ba9d2a43b9a3a95f9b1af9b891559149d7fd408044250caa9a394b14f",
+        "base_diff_insertions": 162,
+        "base_diff_deletions": 82,
+        "base_to_current_binary_diff_sha256": "e30ac162e120f15c6dd3fc6c4a4f0406e8e288d8d5960434de98d9e0a8f28f6b"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+        "content_sha256": "ae5e770d512508859bf340401b49b13d322bbdf53071e0c940a58a217002bb4a",
+        "base_diff_insertions": 164,
+        "base_diff_deletions": 92,
+        "base_to_current_binary_diff_sha256": "50782a01714c595f3d40c7a81eaac472e76b80589ec420203e5c6daa92f29903"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+        "content_sha256": "19d1aa176a447a3d6c491164cba007471a8e7cbc819b8141a485028e89a396cb",
+        "base_diff_insertions": 316,
+        "base_diff_deletions": 52,
+        "base_to_current_binary_diff_sha256": "b89cad63145d2cf3c4b22adf00165cc40e74c6309049b233147175ad61a6f64f"
+      }
+    ]
+  },
+  "repair_acceptance": {
+    "new_kinds_start_with_empty_pipe_roles": true,
+    "new_kinds_clear_pipe_roles_after_node_change": true,
+    "new_kinds_clear_pipe_roles_after_successful_queue": true,
+    "next_draft_retains_same_kind": true,
+    "queue_disabled_until_fresh_deliberate_required_selections": true,
+    "inspector_post_queue_tee_and_rigid_negative_cases": true,
+    "viewport_post_queue_tee_and_rigid_negative_cases": true,
+    "three_incident_next_draft_reset_proven": true,
+    "tee_exact_selected_header_ref": "pipe:P-110",
+    "tee_exact_selected_branch_ref": "pipe:P-150",
+    "rigid_exact_selected_span": "pipe:P-120",
+    "bend_accepted_behavior_preserved": true,
+    "payload_keys_changed": false,
+    "engineering_defaults_added": false
+  },
+  "checks": [
+    {
+      "id": "browser-wasm-rebuild-current-resolver",
+      "command": "npm run build:wasm:desktop",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "id": "focused-repair-cycle-1-ui-matrix",
+      "command": "npm test --workspace apps/desktop -- App.test.tsx -t '(pipe roles empty|pipe roles after queue|queues explicit (tee|reducer|valve|flange|bend)|creates a (tee|reducer|valve|flange|bend)|three-incident)'",
+      "status": "PASS",
+      "tests_passed": 23,
+      "tests_failed": 0,
+      "tests_skipped": 67,
+      "duration_seconds": 19.27
+    },
+    {
+      "id": "desktop-test-exact-final",
+      "command": "npm run test:desktop",
+      "status": "PASS",
+      "test_files_passed": 29,
+      "tests_passed": 562,
+      "tests_failed": 0,
+      "duration_seconds": 104.01
+    },
+    {
+      "id": "desktop-build-final",
+      "command": "npm run build:desktop",
+      "status": "PASS",
+      "exit_code": 0,
+      "advisories": ["existing Vite chunk-size advisory"]
+    },
+    {
+      "id": "harness-self-check",
+      "command": "python3 tools/practitioner_harness/harness.py self-check",
+      "status": "PASS_WITH_STANDING_FINDINGS",
+      "exit_code": 0,
+      "standing_findings": {"INFO": 14, "NOT_APPLICABLE": 1, "REVIEW": 4, "WARN": 40},
+      "scope_effect": "unrelated pre-existing cross-project inventory; no owned path implicated"
+    },
+    {
+      "id": "five-file-base-scoped-diff-check",
+      "command": "git diff --check 66efaf6b95605ef69f3e405b505f48506d3cbada -- <five N1 product paths>",
+      "status": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "write_containment": {
+    "status": "PASS",
+    "production_targets": [
+      "projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+      "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx"
+    ],
+    "instance_records": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/N1_UI_RETURN.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/N1_UI_CHECKS.json"
+    ],
+    "resolver_modified_by_this_instance": false,
+    "shared_surfaces_modified_by_this_instance": false,
+    "git_state_modified": false
+  },
+  "blockers": [],
+  "p1_residuals": [],
+  "waivers": [],
+  "integrated_review": {
+    "required": true,
+    "status": "PENDING_FRESH_REVIEW_AFTER_REPAIR_CYCLE_1",
+    "scope": "100% of the complete five-file post-cycle-1 N1 lineage using the refreshed inventory"
+  },
+  "next_owner": "HELP_HUMAN"
+}

@@ -51,8 +51,8 @@ export function defaultComponentDraft(
     label: `${componentKindLabel(kind)} ${shortEntityToken(id)}`,
     kind,
     node,
-    primaryPipeRef: connectedPipes[0]?.id ?? "",
-    secondaryPipeRef: connectedPipes[1]?.id ?? "",
+    primaryPipeRef: kind === "bend" ? (connectedPipes[0]?.id ?? "") : "",
+    secondaryPipeRef: "",
     lengthUnit: model.project.units.length ?? "TBD",
     angleUnit: model.project.units.angle ?? "rad",
     forceUnit: model.project.units.force ?? "TBD",
@@ -79,11 +79,18 @@ export function defaultComponentDraft(
   };
 }
 
-export function componentDraftForKind(draft: ComponentDraft, kind: CreatableComponentKind): ComponentDraft {
+export function componentDraftForKind(
+  model: PreviewModel,
+  draft: ComponentDraft,
+  kind: CreatableComponentKind
+): ComponentDraft {
+  const primaryPipeRef = kind === "bend" ? (incidentPipes(model, draft.node)[0]?.id ?? "") : "";
   return {
     ...draft,
     kind,
-    label: `${componentKindLabel(kind)} ${shortEntityToken(draft.id)}`
+    label: `${componentKindLabel(kind)} ${shortEntityToken(draft.id)}`,
+    primaryPipeRef,
+    secondaryPipeRef: ""
   };
 }
 
@@ -92,8 +99,8 @@ export function componentDraftForNode(model: PreviewModel, draft: ComponentDraft
   return {
     ...draft,
     node,
-    primaryPipeRef: connectedPipes[0]?.id ?? "",
-    secondaryPipeRef: connectedPipes[1]?.id ?? ""
+    primaryPipeRef: draft.kind === "bend" ? (connectedPipes[0]?.id ?? "") : "",
+    secondaryPipeRef: ""
   };
 }
 
