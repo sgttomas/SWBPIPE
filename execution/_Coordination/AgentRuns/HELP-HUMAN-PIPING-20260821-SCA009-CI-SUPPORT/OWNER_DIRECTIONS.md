@@ -29,3 +29,15 @@ The amendment applies only to the two N2 review findings enumerated in `N2_AMEND
 > Good. I shouldn't have said that though. Try to close everything out. Resolve failures.
 
 This direction withdraws the earlier stop rule for ordinary bounded repair and closeout. It does not erase the recorded N1/N4 failures, authorize unrelated scope, merge PR #599, select parked owner holds, require the unsigned-artifact lane, or create lifecycle/release/professional-reliance effects.
+
+## Merge and second upstream-sync authorization
+
+Owner direction relayed through HELP_HUMAN after PR #599 reached green required checks:
+
+> User explicitly authorizes merging PR #599.
+
+When the merge gate found that `main` had advanced substantively through PR #601, the owner then explicitly authorized:
+
+> A non-rewriting sync of current main into PR #599, revalidation, and merge.
+
+This authorizes the exact protected PR merge after current-main containment and all required post-sync checks pass. It does not authorize a rebase, force push, protection bypass, `artifact-proof` label, branch deletion, or any lifecycle/release/professional-reliance effect.

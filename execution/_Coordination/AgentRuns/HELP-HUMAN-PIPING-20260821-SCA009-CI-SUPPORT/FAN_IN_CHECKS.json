@@ -22,7 +22,9 @@
     "pre_sync_proof": "c6552d5bf2eadf08504b97a53b9a1e62ed29e7df",
     "owner_authorized_main_sync": "5b98fc6b79f9f28f873dbdc8dd51c13953b55b72",
     "post_sync_proof": "fb5599c93920206c31913f18e79daebe0e5b7e0c",
-    "g4_ci_repair": "13891f8c0e9019f26a3de73d9395734c61e05c8a"
+    "g4_ci_repair": "13891f8c0e9019f26a3de73d9395734c61e05c8a",
+    "g4_ci_repair_receipt": "4775e02795290a427d5de3df250fad7fcda26450",
+    "owner_authorized_pr601_main_sync": "b8ac790948de7b84203c9265dbf71ff855d23029"
   },
   "pull_request": 599,
   "checks": [
@@ -44,7 +46,7 @@
     {
       "name": "exact-containment-and-cross-node-disjointness",
       "result": "PASS",
-      "detail": "CANDIDATE_FILES.txt records the exact 78-path post-N2/N3 closeout membership, including the baseline repair, failed/pre-sync/post-sync sweep evidence, and the PR-discovered G4 manifest repair; N2/N3 remain separately bound by their pushed commit SHAs."
+      "detail": "CANDIDATE_FILES.txt records the exact 79-path post-N2/N3 closeout membership, including the baseline repair, failed/pre-sync/post-sync/final-pre-merge sweep evidence, and the PR-discovered G4 manifest repair; upstream-only sync paths are excluded; N2/N3 remain separately bound by their pushed commit SHAs."
     },
     {
       "name": "terminal-newline-normalization",
@@ -83,18 +85,20 @@
   },
   "dec_025": {
     "status": "PASS",
-    "commit_hash": "5b98fc6b79f9f28f873dbdc8dd51c13953b55b72",
+    "commit_hash": "b8ac790948de7b84203c9265dbf71ff855d23029",
     "working_tree_dirty": false,
-    "summary": "validation/evidence/sweeps/SWEEP_20260821T054123Z_5b98fc6b79f9.json",
-    "sha256": "513110e5c43007fb3cbdc753c02162c0173a1a15e395e60a42b4e3d8e372a2c2",
+    "summary": "validation/evidence/sweeps/SWEEP_20260821T154509Z_b8ac790948de.json",
+    "sha256": "9026f1bff34671179fa14e92551fb4a34e76b10431589d4f804fe5ec91f94d55",
     "pre_sync_pass": "validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json at f6064019f80298d1d3f1e475aece49fe28f478bc, SHA-256 d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c",
+    "first_main_sync_pass": "validation/evidence/sweeps/SWEEP_20260821T054123Z_5b98fc6b79f9.json at 5b98fc6b79f9f28f873dbdc8dd51c13953b55b72, SHA-256 513110e5c43007fb3cbdc753c02162c0173a1a15e395e60a42b4e3d8e372a2c2",
     "surfaces": "PASS — 36 Rust crates; Python 902; Vitest 541; Playwright dev 22 and dist 2; production build"
   },
   "pr_checks": {
     "first_post_sync_governance_run": "32451967800 — FAIL at G4 diff gate: practitioner baseline path undeclared",
     "repair": "13891f8c0e9019f26a3de73d9395734c61e05c8a — manifest declaration added; local G4 policy/corpus/diff PASS",
-    "publication_gate": "required PR rerun must reach terminal success"
+    "repaired_head": "4775e02795290a427d5de3df250fad7fcda26450 — governance 32452355719 PASS; Desktop E2E 32452355758 PASS",
+    "publication_gate": "second-sync required PR rerun must reach terminal success before the owner-authorized merge"
   },
   "artifact_proof_label": "NOT_APPLICABLE",
-  "next_owner": "CHANGE waits for repaired PR #599 checks, then human review"
+  "next_owner": "CHANGE publishes second-sync proof, waits for PR #599 checks, verifies current main, then executes the owner-authorized protected merge"
 }
