@@ -1,0 +1,20 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260820-R9-STALE-HASH",
+  "instance_id": "WORKING-ITEMS-PKG05-DEL0504-STALE-HASH",
+  "parent": "HELP_HUMAN",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-05",
+  "selected_deliverables": ["DEL-05-04"],
+  "node": "N1",
+  "status": "IMPLEMENTATION_COMPLETE_HANDOFF_REQUIRED",
+  "implementation_checks": "PASS",
+  "independent_review": "PASS",
+  "review_findings": 0,
+  "final_clean_commit_dec025": "REQUIRED",
+  "commit_created": false,
+  "push_or_pr": false,
+  "model_attribution": {
+    "manager": "inherited GPT-5-based Codex runtime; exact variant not exposed",
+    "reviewer": "inherited GPT-5-based Codex runtime; exact variant not exposed"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "chirality-working-items-work-graph-amendment/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260820-R9-STALE-HASH",
+  "amends_version": 1,
+  "version": 2,
+  "node_id": "N1",
+  "disposition": "AMEND_IN_PLACE",
+  "reason": "truthful runtime binding_status requires direct coupled output-contract schema/type alignment",
+  "added_write_targets": [
+    "projects/chirality-piping/schemas/operation_outcome.schema.json",
+    "directly coupled focused schema test/type expectation"
+  ],
+  "added_acceptance": [
+    "binding_status truthfully distinguishes matched, mismatched, invalid, unsupported, and absent/no-claim states"
+  ],
+  "nodes_added": [],
+  "edges_added": [],
+  "concurrency_change": "none",
+  "integration_owner": "HELP_HUMAN",
+  "human_decision_point": "none"
+}

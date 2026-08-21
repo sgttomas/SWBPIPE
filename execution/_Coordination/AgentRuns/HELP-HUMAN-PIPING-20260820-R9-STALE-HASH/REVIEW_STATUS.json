@@ -1,0 +1,32 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260820-R9-STALE-HASH",
+  "parent_instance_id": "WORKING-ITEMS-PKG05-DEL0504-STALE-HASH",
+  "child_instance_id": "task_code_review",
+  "role": "TASK",
+  "task_skill": "software-code-review",
+  "status": "SUCCESS",
+  "review_verdict": "PASS",
+  "apply_edits": false,
+  "write_authorization": "ALLOWED_WRITE_TARGETS",
+  "base_sha": "cd823be3badd034c86390f2707dcf01952c782f0",
+  "branch": "codex/piping-product-20260820b",
+  "blocking_findings": 0,
+  "non_blocking_findings": 0,
+  "frozen_hashes_verified": 19,
+  "frozen_hashes_total": 19,
+  "frozen_scope_reviewed_percent": 100,
+  "scope_validation": "PASS",
+  "tool_policy_compliance": "PASS",
+  "fan_in_validity": "VALID",
+  "deferred_gate": "DEC-025 sweep and closeout evidence remain required",
+  "model_attribution": "Inherited GPT-5-based Codex runtime; exact model variant not exposed; no substitution recorded",
+  "capability_attribution": [
+    "repository file reading",
+    "read-only shell and Git inspection",
+    "SHA-256 manifest verification",
+    "registered change-scope validation",
+    "registered affected-check selection",
+    "authorized managed-return writes only"
+  ],
+  "completed_utc": "2026-08-21T02:23:46Z"
+}

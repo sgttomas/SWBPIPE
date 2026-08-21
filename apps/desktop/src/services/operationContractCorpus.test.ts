@@ -68,6 +68,8 @@ const REQUIRED_ACCEPTED_KINDS = [
   "delete_combination_term"
 ] as const;
 
+const EXPECTED_CORPUS_CASES = 81;
+
 const REQUIRED_BLOCK_CODES = [
   "OP-TARGET-ALREADY-EXISTS", // duplicate id
   "OP-TARGET-NOT-FOUND", // missing target
@@ -82,7 +84,10 @@ const REQUIRED_BLOCK_CODES = [
   "OP-NODE-DELETE-REFERENCED", // node still referenced by model entities
   "OP-SUPPORT-DELETE-REFERENCED", // support still referenced by primitive load
   "OP-LOAD-CASE-DELETE-REFERENCED", // load case still referenced by combination
-  "OP-PIPE-DELETE-REFERENCED" // pipe still referenced by primitive load
+  "OP-PIPE-DELETE-REFERENCED", // pipe still referenced by primitive load
+  "OP-CLAIMED-MODEL-HASH-MISMATCH", // stale claimed model snapshot
+  "OP-CLAIMED-MODEL-HASH-METADATA-INVALID", // malformed claimed hash evidence
+  "OP-CLAIMED-MODEL-HASH-METADATA-UNSUPPORTED" // incomparable hash basis
 ] as const;
 
 type SemanticDiagnostic = {
@@ -114,7 +119,10 @@ function loadCases(): CorpusCase[] {
     .filter((name) => name.endsWith(".json"))
     .filter((name) => statSync(path.join(corpusDir, name)).isFile())
     .sort();
-  expect(files.length).toBeGreaterThan(0);
+  expect(
+    files.length,
+    "contract corpus completeness drifted: retain existing accepted cases when adding coverage"
+  ).toBe(EXPECTED_CORPUS_CASES);
   return files.map((name) => JSON.parse(readFileSync(path.join(corpusDir, name), "utf8")) as CorpusCase);
 }
 

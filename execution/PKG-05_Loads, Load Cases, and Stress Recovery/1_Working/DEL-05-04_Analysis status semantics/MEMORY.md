@@ -186,3 +186,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
 
 - Analysis-status, persistence, and model-state schema verification refreshed within the 19/19 Python set. Declaration-level hash invalidation remains verified; a runtime stale-acceptance-reuse negative and release gates remain absent.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
+## 2026-08-20 - Runtime claimed-model-hash invalidation
+
+- Closed the exact PDU-037 stale-hash runtime residual in the authoritative
+  `core/model_operations/operation_applier` engine selected by `DEC-020`.
+- Supported `sha256` / `rfc8785_jcs` / `model_payload` claims are compared to
+  the current backend RFC8785/JCS hash before preview/application. Matching
+  claims preserve normal behavior; mismatches block with
+  `OP-CLAIMED-MODEL-HASH-MISMATCH` and return no applied model or acceptance.
+- Missing/malformed evidence and incomparable algorithm, canonicalization, or
+  payload-scope metadata fail closed with stable invalid/unsupported
+  diagnostics and truthful model-basis binding statuses.
+- An absent claim preserves the existing before-state staleness guard.
+- Existing accepted corpus cases 01–03 remain byte-identical. The matching
+  claimed-hash accepted apply remains case 15; new cases 79–81 cover stale,
+  malformed, and unsupported negatives across native and Wasm lanes. Both
+  runners enforce the 81-case completeness floor.
+- Runtime, schema, corpus, desktop, piping pytest, and practitioner-harness
+  evidence is recorded in
+  `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R9-STALE-HASH/`
+  and the adjacent run record.
+- Lifecycle remains `IN_PROGRESS`. Standard claim fence applies (F-PIP-2;
+  claims taxonomy per DEC-081).

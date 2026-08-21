@@ -265,10 +265,13 @@
         "binding_status": {
           "type": "string",
           "enum": [
-            "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated",
+            "claimed_model_hash_matches_current_backend_model",
+            "claimed_model_hash_mismatch_current_backend_model",
+            "claimed_model_hash_metadata_invalid",
+            "claimed_model_hash_metadata_unsupported",
             "no_claimed_hash_before_state_check_is_the_staleness_guard"
           ],
-          "description": "Hash equality is recorded side by side, not evaluated and not claimed; the before-state check remains the staleness guard (lib.rs:5185-5203)."
+          "description": "Terminal runtime binding status. Supported SHA-256/RFC8785-JCS/model_payload claims are compared to the current backend model hash; malformed, unsupported, or mismatched claims fail closed. An absent claim retains before-state staleness validation."
         }
       },
       "description": "Model-basis hash evidence (lib.rs:93-99; model_basis_evidence :5167-5203)."

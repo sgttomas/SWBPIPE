@@ -967,7 +967,13 @@ fn run(
     check_audit_boundary(intent, &operation_id, &mut checker);
     check_kinds(&operation_kind, &change_kind, &operation_id, &mut checker);
 
-    let model_basis = model_basis_evidence(model, claimed_model_hash);
+    let mut model_basis = model_basis_evidence(model, claimed_model_hash);
+    check_claimed_model_hash(
+        claimed_model_hash,
+        &mut model_basis,
+        &operation_id,
+        &mut checker,
+    );
 
     // Field-level resolution proceeds only for supported structured payloads;
     // underspecified viewport gestures are held rather than invented.
@@ -6159,13 +6165,10 @@ fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> Mo
                 claimed_hash_canonicalization: claimed_canonicalization,
                 backend_model_hash,
                 backend_canonicalization: BACKEND_CANONICALIZATION.to_string(),
-                // Both lanes share the RFC 8785 form since H5, but a claimed
-                // hash may still describe an older document state or an older
-                // canonicalization, so the two hashes are recorded side by
-                // side; equality is not evaluated and not claimed — the
-                // before-state check remains the staleness guard.
-                binding_status: "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated"
-                    .to_string(),
+                // Conservative initial state. `run` replaces it with the
+                // exact matched, mismatched, invalid, or unsupported terminal
+                // status in `check_claimed_model_hash` before returning.
+                binding_status: "claimed_model_hash_metadata_invalid".to_string(),
             }
         }
         _ => ModelBasisEvidence {
@@ -6175,6 +6178,116 @@ fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> Mo
             backend_canonicalization: BACKEND_CANONICALIZATION.to_string(),
             binding_status: "no_claimed_hash_before_state_check_is_the_staleness_guard".to_string(),
         },
+    }
+}
+
+/// Fail closed before preview/application when a caller supplies model-hash
+/// evidence that is malformed, cannot be compared to this engine's current
+/// hash basis, or describes a different model snapshot.
+///
+/// An absent claim deliberately preserves the established before-state
+/// staleness guard. Equality is meaningful only for SHA-256 over the complete
+/// RFC 8785/JCS `model_payload`, which is exactly the backend hash computed in
+/// `model_basis_evidence`.
+fn check_claimed_model_hash(
+    claimed_model_hash: Option<&Value>,
+    model_basis: &mut ModelBasisEvidence,
+    operation_id: &str,
+    checker: &mut Checker,
+) {
+    let Some(claim) = claimed_model_hash.filter(|claim| !claim.is_null()) else {
+        return;
+    };
+    let Some(claim) = claim.as_object() else {
+        model_basis.binding_status = "claimed_model_hash_metadata_invalid".to_string();
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CLAIMED-MODEL-HASH-METADATA-INVALID",
+            "blocking",
+            "Claimed model hash evidence must be an object with string algorithm, canonicalization, payload_scope, and value fields.".to_string(),
+            "Recompute the current model-payload hash through the authoritative engine and retry with complete hash evidence.",
+            vec![operation_id.to_string()],
+        );
+        return;
+    };
+
+    let string_field = |name: &str| {
+        claim
+            .get(name)
+            .and_then(Value::as_str)
+            .filter(|value| !value.is_empty())
+    };
+    let (Some(algorithm), Some(canonicalization), Some(payload_scope), Some(value)) = (
+        string_field("algorithm"),
+        string_field("canonicalization"),
+        string_field("payload_scope"),
+        string_field("value"),
+    ) else {
+        model_basis.binding_status = "claimed_model_hash_metadata_invalid".to_string();
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CLAIMED-MODEL-HASH-METADATA-INVALID",
+            "blocking",
+            "Claimed model hash evidence must provide non-empty string algorithm, canonicalization, payload_scope, and value fields.".to_string(),
+            "Recompute the current model-payload hash through the authoritative engine and retry with complete hash evidence.",
+            vec![operation_id.to_string()],
+        );
+        return;
+    };
+
+    if algorithm != "sha256"
+        || canonicalization != BACKEND_CANONICALIZATION
+        || payload_scope != "model_payload"
+    {
+        model_basis.binding_status = "claimed_model_hash_metadata_unsupported".to_string();
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CLAIMED-MODEL-HASH-METADATA-UNSUPPORTED",
+            "blocking",
+            format!(
+                "Claimed model hash metadata `{algorithm}` / `{canonicalization}` / `{payload_scope}` cannot be compared with the backend `sha256` / `{BACKEND_CANONICALIZATION}` / `model_payload` basis."
+            ),
+            "Recompute the complete model payload with SHA-256 over RFC 8785/JCS canonical JSON before retrying.",
+            vec![operation_id.to_string()],
+        );
+        return;
+    }
+
+    let digest = value.strip_prefix("sha256:");
+    let hash_is_well_formed = digest.is_some_and(|digest| {
+        digest.len() == 64
+            && digest
+                .bytes()
+                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+    });
+    if !hash_is_well_formed {
+        model_basis.binding_status = "claimed_model_hash_metadata_invalid".to_string();
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CLAIMED-MODEL-HASH-METADATA-INVALID",
+            "blocking",
+            "Claimed SHA-256 model hash value must use the `sha256:` prefix followed by exactly 64 lowercase hexadecimal characters.".to_string(),
+            "Recompute the current model-payload hash through the authoritative engine and retry with a well-formed value.",
+            vec![operation_id.to_string()],
+        );
+        return;
+    }
+
+    if value != model_basis.backend_model_hash {
+        model_basis.binding_status =
+            "claimed_model_hash_mismatch_current_backend_model".to_string();
+        checker.push(
+            "OP-CLAIMED-MODEL-HASH-MISMATCH",
+            "blocking",
+            format!(
+                "Claimed model hash `{value}` does not match the current backend model hash `{}`; the operation is stale and was not applied.",
+                model_basis.backend_model_hash
+            ),
+            "Refresh from the current model snapshot, review the regenerated diff, and explicitly accept a new operation before applying.",
+            vec![operation_id.to_string()],
+        );
+    } else {
+        model_basis.binding_status = "claimed_model_hash_matches_current_backend_model".to_string();
     }
 }
 
@@ -10422,12 +10535,13 @@ mod tests {
     }
 
     #[test]
-    fn model_basis_evidence_echoes_claimed_hash_without_cross_canonicalization_equality_claims() {
+    fn claimed_model_hash_gate_accepts_only_the_current_supported_model_basis() {
         let model = sample_model();
-        let claimed = json!({
+        let current_hash = format!("sha256:{}", sha256_hex(&canonical_json(&model)));
+        let matching = json!({
             "algorithm": "sha256",
             "canonicalization": "rfc8785_jcs",
-            "value": "sha256:abc123",
+            "value": current_hash,
             "payload_scope": "model_payload"
         });
         let intent = modify_intent(
@@ -10440,20 +10554,96 @@ mod tests {
             "none",
             "dimensionless",
         );
-        let outcome = validate_operation(&model, &intent, Some(&claimed));
-        assert_eq!(outcome.model_basis.claimed_model_hash, "sha256:abc123");
+        let matching_outcome = apply_operation(&model, &intent, Some(&matching));
         assert_eq!(
-            outcome.model_basis.backend_canonicalization,
+            matching_outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert!(matching_outcome.applied_model.is_some());
+        assert!(matching_outcome.diagnostics.is_empty());
+        assert_eq!(
+            matching_outcome.model_basis.backend_canonicalization,
             BACKEND_CANONICALIZATION
         );
-        assert!(outcome
-            .model_basis
-            .backend_model_hash
-            .starts_with("sha256:"));
         assert_eq!(
-            outcome.model_basis.binding_status,
-            "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated"
+            matching_outcome.model_basis.binding_status,
+            "claimed_model_hash_matches_current_backend_model"
         );
+
+        let stale = json!({
+            "algorithm": "sha256",
+            "canonicalization": "rfc8785_jcs",
+            "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "payload_scope": "model_payload"
+        });
+        let stale_outcome = apply_operation(&model, &intent, Some(&stale));
+        assert!(codes(&stale_outcome).contains(&"OP-CLAIMED-MODEL-HASH-MISMATCH"));
+        assert_eq!(stale_outcome.validation.application_status, "blocked");
+        assert_eq!(
+            stale_outcome.model_basis.binding_status,
+            "claimed_model_hash_mismatch_current_backend_model"
+        );
+        assert!(stale_outcome.applied_model.is_none());
+        assert!(stale_outcome.applied_model_backend_hash.is_none());
+        assert_eq!(
+            stale_outcome.acceptance.acceptance_basis,
+            "none_validation_only"
+        );
+
+        for malformed in [
+            json!({
+                "algorithm": "sha256",
+                "canonicalization": "rfc8785_jcs",
+                "payload_scope": "model_payload"
+            }),
+            json!({
+                "algorithm": "sha256",
+                "canonicalization": "rfc8785_jcs",
+                "value": "sha256:not-a-digest",
+                "payload_scope": "model_payload"
+            }),
+        ] {
+            let outcome = apply_operation(&model, &intent, Some(&malformed));
+            assert!(codes(&outcome).contains(&"OP-CLAIMED-MODEL-HASH-METADATA-INVALID"));
+            assert_eq!(outcome.validation.schema_validation, "blocked");
+            assert_eq!(outcome.validation.application_status, "blocked");
+            assert_eq!(
+                outcome.model_basis.binding_status,
+                "claimed_model_hash_metadata_invalid"
+            );
+            assert!(outcome.applied_model.is_none());
+        }
+
+        for unsupported in [
+            json!({
+                "algorithm": "sha512",
+                "canonicalization": "rfc8785_jcs",
+                "value": "sha512:1111",
+                "payload_scope": "model_payload"
+            }),
+            json!({
+                "algorithm": "sha256",
+                "canonicalization": "sorted_json",
+                "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                "payload_scope": "model_payload"
+            }),
+            json!({
+                "algorithm": "sha256",
+                "canonicalization": "rfc8785_jcs",
+                "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                "payload_scope": "model_state_record"
+            }),
+        ] {
+            let outcome = apply_operation(&model, &intent, Some(&unsupported));
+            assert!(codes(&outcome).contains(&"OP-CLAIMED-MODEL-HASH-METADATA-UNSUPPORTED"));
+            assert_eq!(outcome.validation.schema_validation, "blocked");
+            assert_eq!(outcome.validation.application_status, "blocked");
+            assert_eq!(
+                outcome.model_basis.binding_status,
+                "claimed_model_hash_metadata_unsupported"
+            );
+            assert!(outcome.applied_model.is_none());
+        }
 
         let without = validate_operation(&model, &intent, None);
         assert_eq!(without.model_basis.claimed_model_hash, "not_provided");
