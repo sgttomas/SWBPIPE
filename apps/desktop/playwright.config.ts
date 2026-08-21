@@ -30,6 +30,10 @@ const workers =
 export default defineConfig({
   testDir: "./e2e",
   workers,
+  // CI run identity is bound by the evidence sweep's workflow/run/head-SHA
+  // record. Disable Playwright's implicit GitCommitInfo collector so startup
+  // never tries to fetch a shallow checkout's merge base from the network.
+  captureGitInfo: { commit: false, diff: false },
   // `*-dist.spec.ts` specs run against the built dist via
   // playwright.dist.config.ts (`npm run test:e2e:dist`), not against this
   // dev-server lane. (A `dist/` subfolder would match the repo .gitignore.)
