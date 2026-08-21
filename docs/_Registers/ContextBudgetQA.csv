@@ -100,3 +100,4 @@ DEL-17-06,PKG-17,M,OK,Proceed with bounded Type 2 brief,Result/export assurance 
 DEL-17-07,PKG-17,L,WATCH,Confirm scope and split if it expands,PCF is useful for interoperability but not the first validation backbone; translator behavior remains explicitly bounded.
 DEL-17-08,PKG-17,M,OK,Proceed with bounded Type 2 brief,"Review geometry is visual handoff support only, not solver geometry or professional validation."
 DEL-17-09,PKG-17,L,WATCH,Confirm scope and split if it expands,Adapter extensibility target sequenced after common profile and package contracts.
+DEL-07-09,PKG-07,L,WATCH,Confirm scope and split if it expands,Contract/coverage slice owning the SCA-009 ratified operation vocabulary and single palette surface; envelope L per owner ruling; watch scope if editor implementation (R-005/R-006 successors) lands here rather than in sibling slices.

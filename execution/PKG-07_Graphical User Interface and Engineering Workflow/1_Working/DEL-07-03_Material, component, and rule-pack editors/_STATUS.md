@@ -1,13 +1,14 @@
 # Status: DEL-07-03 Material, component, and rule-pack editors
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-08-20
 
 ## Remaining
-- Preserve PDU-041 / `DEL-07-03-R-005` and `R-006` as documented GUI absences until an accepted ownership/scope binding authorizes load-case and support/restraint editors in this deliverable; adjacent DEL-07-02/other GUI authoring does not silently close them.
+- `DEL-07-03-R-005` and `R-006` (load-case, support/restraint editors) are re-pointed by SCA-009 (decomposition revision 0.12, DEC-094): their accepted ownership landing is the `DEL-07-09` interactive operation vocabulary and tool palette contract. They remain documented GUI absences on this deliverable's surfaces until DEL-07-09-governed coverage work closes them through the owning implementation deliverables; adjacent DEL-07-02/other GUI authoring still does not silently close them. PDU-041 evidence is preserved unchanged.
 - Obtain a separately authorized independent usability/security validation basis before upgrading PDU-049 / `DEL-07-03-R-011` beyond `VERIFIED_NOT_VALIDATED`; project-owned verification does not supply that basis (source: DEC-074 O7-before-E5; PDU-049, 2026-07-12)
 
 ## History
+- 2026-08-20 - SCA-009 (decomposition revision 0.12, DEC-094) re-pointed the R-005/R-006 ownership landing to DEL-07-09 per the owner's D5 ruling; documented absences and PDU-041 evidence preserved; no lifecycle change (state remains IN_PROGRESS).
 - 2026-07-12 - D-41 R5 T5 PDU-008 recorded current cross-surface GUI interaction evidence while preserving PDU-041's DEL-07-03 load-case/support editor ownership absences; no silent closure or lifecycle change.
 - 2026-07-12 - D-41 R5 T5/PDU-041 added focused blocking evidence for unsupported DEL-07-03 load-case/support editor kinds and preserved the absence without scope creation; lifecycle remains IN_PROGRESS.
 - 2026-04-30 - State set to OPEN (PREPARATION)

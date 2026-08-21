@@ -402,3 +402,90 @@ the Gate-4 application land as new commits on top.
 
 All `postimages/` hashes are unchanged from the Gate-3 table — the
 approved application targets are byte-identical.
+
+---
+
+# Gate-4 tranche — application of the approved amendment to live surfaces
+
+**Current state:** `GATE 4 APPLIED — GATE 5 VALIDATION AND CLOSURE PENDING`
+
+## Execution
+
+Executed on 2026-08-20 by the Agent 0-dispatched bounded generalist under
+the Gate-3 ruling's own authorization ("Apply exactly the six
+preimage→postimage pairs recorded there, DEC-094, and no other surface"),
+as a new commit on top of the intact ruled-upon commits `d50e72c4b` and the
+whitespace-remediation commit. Each approved `postimages/` file was copied
+byte-for-byte onto its live path. Nothing else was touched: no pointer
+(`_Decomposition/_LATEST.md`, `_ScopeChange/_LATEST.md` unchanged — Gate 5,
+pointer-last), no other deliverable folder, no implementation surface.
+
+## Application proof
+
+Live-file SHA-256 after application versus the approved postimage hash
+from the `Amendment_Preview.md` table (paths relative to
+`projects/chirality-piping/`):
+
+| Live path | Live SHA-256 after application | Approved postimage hash | Match |
+|---|---|---|---|
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | `a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3` | `a1bf1148…da48a3` | YES |
+| `docs/_Registers/ScopeLedger.csv` | `97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238` | `97f5a113…553238` | YES |
+| `docs/_Registers/Deliverables.csv` | `f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539` | `f46ea92a…f03539` | YES |
+| `docs/_Registers/ContextBudgetQA.csv` | `84497efb81d4b31b085e016d37a285aed3755be7740a632794e355dad259468d` | `84497efb…459468d` | YES |
+| `execution/PKG-07_…/DEL-07-03_…/_STATUS.md` | `41039f77e6c0d86dcd013e0c17f09bf51889fbc1aef3a9a68e54d834f8e95596` | `41039f77…e95596` | YES |
+| `execution/PKG-07_…/DEL-07-03_…/_CONTEXT.md` | `e69a8d7d832b5af0f15e08c3c242e9d5ace98f26a752ee41fda06855f528ae10` | `e69a8d7d…528ae10` | YES |
+
+## Post-application verification
+
+- Live `SOFTWARE_DECOMP.md`: exactly 1 `DEL-07-09` row, exactly 2
+  `SOW-077` rows (the §4 register / §9 ledger pair), exactly 1 `DEC-094`
+  row; revision 0.12; telemetry 77/102, `S=9, M=69, L=24, XL=0`.
+- Live registers parsed with Python `csv`: `ScopeLedger.csv` 77 data rows,
+  `Deliverables.csv` 102, `ContextBudgetQA.csv` 102 — uniform column
+  widths (10/10/6), exactly one new target row each.
+- `tools/validation/validate_candidate_whitespace.py --base-ref
+  origin/main` over the full branch range including the applied files:
+  `PASS: candidate whitespace is clean`.
+- No `_LATEST.md` in the diff; `git status` showed exactly the six live
+  files plus the SCA-009 record updates.
+
+## Package integrity (Gate-4 tranche, final for this commit)
+
+Per-file SHA-256 of every package file except this `RUN_SUMMARY.md`:
+
+| File | SHA-256 |
+|---|---|
+| `ACCEPTANCE_RECORD.md` | `e43fb752d0927cd935e9d1c0c0df16a7c37c732ac7f530cb9eb51d179b5dae03` |
+| `Amendment_Actions.csv` | `07388b81883a0d8758d27b22784fa7420d8fd4be86c8bc8b34c18b106c065901` |
+| `Amendment_Preview.md` | `44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab` |
+| `Brief.md` | `ad36f600c0bb796e1029c11f0f70370413c7864e343625da3988f9010bb64ffd` |
+| `Decision_Log.md` | `701112eff7a714b0c9972eeb21c042a0d9cf3c3d8ad8b78658d839f0b9160001` |
+| `Handoff_State.md` | `41f92f956b61684e0da68978473696be9c0f10530b660140c4f2e3612a8148cd` |
+| `Impact_Assessment.md` | `bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` |
+| `Impact_Sketch.md` | `7ac40e4e6a94b9276f0bc4a5501e59998c4bbf0db8eb17e51bff538eadfaad77` |
+| `Vocabulary_Annex.md` | `f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c` |
+| `postimages/ContextBudgetQA.csv` | `84497efb81d4b31b085e016d37a285aed3755be7740a632794e355dad259468d` |
+| `postimages/DEL-07-03_CONTEXT.md` | `e69a8d7d832b5af0f15e08c3c242e9d5ace98f26a752ee41fda06855f528ae10` |
+| `postimages/DEL-07-03_STATUS.md` | `41039f77e6c0d86dcd013e0c17f09bf51889fbc1aef3a9a68e54d834f8e95596` |
+| `postimages/Deliverables.csv` | `f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539` |
+| `postimages/SOFTWARE_DECOMP.md` | `a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3` |
+| `postimages/ScopeLedger.csv` | `97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238` |
+
+**Package SHA-256 (same sorted-lines method, fifteen files):**
+`ce645fae06dd31952bb722669e7ac864b99e5dacb5e52c09d84a8939fdf95ed9`
+
+(One in-tranche correction before this commit finalized: the Gate-4 edits
+had left a blank line at the end of `ACCEPTANCE_RECORD.md`, which the
+candidate-whitespace check flags as "new blank line at EOF"; it was
+removed and the two affected hashes above reflect the corrected file.)
+
+## Handoff
+
+**NextOwner:** Ryan Tufts (after Gate-5 evidence assembly).
+**NextAction:** Gate 5 — pre-change audit baseline, snapshot completion
+(Pre/Post_Change_Coverage, supersession artifacts, Propagation_Plan
+consolidation), post-change AUDIT_DECOMP, pointer advances pointer-last,
+Piping dev-loop coordination notice, owner closure confirmation. The
+decomposition is revision 0.12 on this branch while both `_LATEST.md`
+pointers still cite the 0.11/SCA-008 state — the expected mid-amendment
+posture. Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).

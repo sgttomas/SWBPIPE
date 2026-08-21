@@ -2,7 +2,7 @@
 
 **Amendment:** `SCA-009`
 
-**State:** `GATE 3 APPROVED — GATE 4 OPEN`
+**State:** `GATE 4 APPLIED — GATE 5 PENDING`
 
 ## Gate 1 — verbatim owner rulings
 
@@ -148,10 +148,22 @@ Gate-4 application executes exactly the six approved pairs by their
 recorded postimage hashes; the ruling's authorization is unaffected by the
 cleanup.
 
-## Gate 4 — propagation plan approval
+## Gate 4 — application
 
-`PENDING` — blocked by Gate 3.
+`APPLIED` (2026-08-20, executed by the Agent 0-dispatched bounded
+generalist under the Gate-3 ruling's own authorization: "Apply exactly the
+six preimage→postimage pairs recorded there, DEC-094, and no other
+surface."). Each of the six approved `postimages/` files was copied
+byte-for-byte onto its live path, and each live file's SHA-256 was proven
+equal to the approved postimage hash from the `Amendment_Preview.md` table
+(proof table in `RUN_SUMMARY.md`, Gate-4 tranche section). The live
+decomposition is now revision 0.12 on this branch. **No pointer moved**:
+`_Decomposition/_LATEST.md` and `_ScopeChange/_LATEST.md` are untouched
+per the pointer-last rule — pointer advances, snapshot completion, and
+validation are Gate 5.
 
 ## Gate 5 — execute and validate
 
-`PENDING` — blocked by Gate 4.
+`PENDING` — snapshot completion (pre/post coverage, supersession
+artifacts), pre/post AUDIT_DECOMP, pointer advances (pointer-last), the
+Piping dev-loop coordination notice, and the owner's closure confirmation.

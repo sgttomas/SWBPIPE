@@ -54,6 +54,9 @@ Implement editors for private materials, components, and rule-pack references.
 - **Still TBD:** Exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, import/export format list, CI provider/coverage thresholds, and physical project package/container remain implementation-level decisions unless this deliverable explicitly resolves one under human approval.
 - **Dispatch Rule:** Future TASK execution must apply only the applicable architecture-basis constraints and must not copy full PKG-00 prose into deliverable artifacts.
 
+## Boundary Note (SCA-009)
+- SCA-009 (decomposition revision 0.12, DEC-094) assigns the ownership landing for `DEL-07-03-R-005`/`R-006` (load-case, support/restraint editors) to `DEL-07-09` — the PKG-07 interactive operation vocabulary and tool palette contract. This deliverable's scope coverage, envelope, and lifecycle are unchanged; the WATCH advice to split rather than expand stands. Boundary metadata only.
+
 ## PREPARATION Notes
 - Structural scaffold only.
 - No Type 2 implementation artifacts are drafted in this folder by PREPARATION.
