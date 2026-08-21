@@ -1,7 +1,7 @@
 # Status: DEL-07-02 Model tree and property inspector
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-08-21
 
 ## Remaining
 - Add GUI entry/emission of the model-level modulus_basis_records table (schema model.schema.yaml; per-load-case modulus_basis_ref selection plus bend_pipe_ref/mill-tolerance/equivalent-static entry landed via TP-PMM-GUIEMIT-001 PR #156 and applier acceptance TP-APP-R5-FIELDRULES-001 PR #162) (source: Receipt 10 delta / model.schema.yaml)
@@ -10,6 +10,7 @@
 - Complete broader canvas gestures and full model-tree/property-editor UX beyond landed selection/creation/drafting (source: PRD plan §4 FR-003/FR-013/FR-014 A3 residuals)
 
 ## History
+- 2026-08-21 - Accepted the owner-amended N2 bend-only Property Inspector creation form and shared queued-target reservation evidence. Focused UI/build checks and fresh 100%-diff review passed; tee, reducer, valve, flange, and expansion-joint creation remain open. Existing Remaining items and lifecycle are unchanged.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

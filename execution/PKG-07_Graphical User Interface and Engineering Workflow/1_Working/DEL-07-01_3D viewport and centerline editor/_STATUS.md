@@ -1,12 +1,13 @@
 # Status: DEL-07-01 3D viewport and centerline editor
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-08-21
 
 ## Remaining
-- Add dedicated bend authoring and any separately selected full component-symbol authoring; current PDU-008 evidence covers structured node/straight-pipe authoring and reference-only component insertion, not those absent behaviors.
+- Add separately selected tee, reducer, valve, and flange component-symbol authoring. Dedicated bend authoring now has owner-amended N2 viewport/operation evidence; broader component coverage remains partial.
 
 ## History
+- 2026-08-21 - Accepted the owner-amended N2 bend-only viewport component tool and structured-operation emission slice, including cross-surface target-ID reservation and fresh 100%-diff review PASS. Multi-kind component creation remains partial; state remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T5 PDU-008 recorded focused current interaction evidence and explicitly bounded absent bend/full-component authoring; no GUI scope or lifecycle expansion.
 - 2026-04-30 - State set to OPEN (PREPARATION)

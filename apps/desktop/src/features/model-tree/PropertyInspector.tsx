@@ -18,6 +18,12 @@ import {
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties } from "../model-workspace/modelView";
 import { dualUnitDisplay } from "../../services/unitConversion";
+import {
+  buildCreateBendComponentIntent,
+  defaultBendComponentDraft,
+  isBendComponentDraftValid,
+  type BendComponentDraft
+} from "../component-creation/componentIntent";
 
 export function PropertyInspector({
   model,
@@ -45,6 +51,9 @@ export function PropertyInspector({
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
+  const [componentDraft, setComponentDraft] = useState(() =>
+    defaultBendComponentDraft(model, selection, queuedIntents)
+  );
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const selectedNode = selection.type === "node" ? model.nodes.find((node) => node.id === selection.id) : null;
   const selectedPipe = selection.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === selection.id) : null;
@@ -69,6 +78,11 @@ export function PropertyInspector({
     unitCatalogRoute,
     "thermal_expansion_coefficient",
     thermalExpansionUnit(model)
+  );
+  const componentAngleUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "angle",
+    componentDraft.angleUnit || model.project.units.angle || "rad"
   );
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const selectedFieldUnitOptions = selectedField
@@ -97,6 +111,14 @@ export function PropertyInspector({
   const supportCreateIntent = isSupportDraftValid(model, supportDraft)
     ? buildCreateSupportIntent(supportDraft, model, unitCatalogRoute)
     : null;
+  const componentCreateIntent = isBendComponentDraftValid(model, componentDraft, queuedIntents)
+    ? buildCreateBendComponentIntent({
+        draft: componentDraft,
+        sourceRef: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+        sourceRole: "gui_editor",
+        unitValidation: `length=${propertyUnitValidationStatus(unitCatalogRoute, componentDraft.radiusUnit, "length")}; angle=${propertyUnitValidationStatus(unitCatalogRoute, componentDraft.angleUnit, "angle")}`
+      })
+    : null;
   const nodeDeleteIntent = selectedNode ? buildDeleteNodeIntent(selectedNode, model) : null;
   const pipeDeleteIntent = selectedPipe ? buildDeletePipeIntent(selectedPipe, model) : null;
   const supportDeleteIntent = selectedSupport ? buildDeleteSupportIntent(selectedSupport, model) : null;
@@ -121,6 +143,10 @@ export function PropertyInspector({
   useEffect(() => {
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents));
   }, [model.project.id, model.nodes.length, model.supports.length, selection.id]);
+
+  useEffect(() => {
+    setComponentDraft(defaultBendComponentDraft(model, selection, queuedIntents));
+  }, [model.project.id, model.nodes.length, model.pipe_segments.length, model.components.length, selection.id]);
 
   useEffect(() => {
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents));
@@ -166,6 +192,12 @@ export function PropertyInspector({
     setSupportDraft(defaultSupportDraftWithReserved(model, selection, [...queuedIntents, supportCreateIntent]));
   }
 
+  function handleQueueComponentIntent() {
+    if (!componentCreateIntent) return;
+    onQueueIntent(componentCreateIntent);
+    setComponentDraft(defaultBendComponentDraft(model, selection, [...queuedIntents, componentCreateIntent]));
+  }
+
   function handleQueueDeleteSupportIntent() {
     if (!supportDeleteIntent) return;
     onQueueIntent(supportDeleteIntent);
@@ -203,6 +235,10 @@ export function PropertyInspector({
 
   function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
     setSupportDraft((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateComponentDraft<K extends keyof BendComponentDraft>(key: K, value: BendComponentDraft[K]) {
+    setComponentDraft((current) => ({ ...current, [key]: value }));
   }
 
   function toggleSupportRestraint(restraint: string) {
@@ -618,6 +654,136 @@ export function PropertyInspector({
           </button>
         </div>
         {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
+      </section>
+      <section className="editor-intent" aria-label="Create bend component intent" data-testid="create-component-intent-panel">
+        <h3>Create bend component</h3>
+        <div className="editor-intent-controls">
+          <label>
+            <span>Component ID</span>
+            <input
+              aria-label="New bend component ID"
+              data-testid="create-component-id"
+              onChange={(event) => updateComponentDraft("id", event.target.value)}
+              value={componentDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New bend component label"
+              data-testid="create-component-label"
+              onChange={(event) => updateComponentDraft("label", event.target.value)}
+              value={componentDraft.label}
+            />
+          </label>
+          <label>
+            <span>Kind</span>
+            <select aria-label="New component kind" data-testid="create-component-kind" value="bend" onChange={() => {}}>
+              <option value="bend">bend</option>
+            </select>
+          </label>
+          <label>
+            <span>Node</span>
+            <select
+              aria-label="New bend component node"
+              data-testid="create-component-node"
+              onChange={(event) => {
+                const node = event.target.value;
+                const connected = model.pipe_segments.find((pipe) => pipe.from === node || pipe.to === node);
+                setComponentDraft((current) => ({ ...current, node, pipeRef: connected?.id ?? "" }));
+              }}
+              value={componentDraft.node}
+            >
+              {model.nodes.map((node) => <option key={node.id} value={node.id}>{node.label} ({node.id})</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Realized pipe</span>
+            <select
+              aria-label="New bend realized pipe"
+              data-testid="create-component-pipe"
+              onChange={(event) => updateComponentDraft("pipeRef", event.target.value)}
+              value={componentDraft.pipeRef}
+            >
+              <option value="">Select connected pipe</option>
+              {model.pipe_segments
+                .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
+                .map((pipe) => <option key={pipe.id} value={pipe.id}>{pipe.label} ({pipe.id})</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Radius</span>
+            <input
+              aria-label="New bend radius"
+              data-testid="create-component-radius"
+              inputMode="decimal"
+              onChange={(event) => updateComponentDraft("radius", event.target.value)}
+              value={componentDraft.radius}
+            />
+          </label>
+          <label>
+            <span>Radius unit</span>
+            <select
+              aria-label="New bend radius unit"
+              data-testid="create-component-radius-unit"
+              onChange={(event) => updateComponentDraft("radiusUnit", event.target.value)}
+              value={componentDraft.radiusUnit}
+            >
+              {lengthUnitOptions.map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Angle</span>
+            <input
+              aria-label="New bend angle"
+              data-testid="create-component-angle"
+              inputMode="decimal"
+              onChange={(event) => updateComponentDraft("angle", event.target.value)}
+              value={componentDraft.angle}
+            />
+          </label>
+          <label>
+            <span>Angle unit</span>
+            <select
+              aria-label="New bend angle unit"
+              data-testid="create-component-angle-unit"
+              onChange={(event) => updateComponentDraft("angleUnit", event.target.value)}
+              value={componentDraft.angleUnit}
+            >
+              {componentAngleUnitOptions.map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Plane orientation</span>
+            <input
+              aria-label="New bend plane orientation"
+              data-testid="create-component-plane"
+              onChange={(event) => updateComponentDraft("planeOrientation", event.target.value)}
+              placeholder="+Z"
+              value={componentDraft.planeOrientation}
+            />
+          </label>
+          <label>
+            <span>Geometry source</span>
+            <input
+              aria-label="New bend geometry source"
+              data-testid="create-component-source"
+              onChange={(event) => updateComponentDraft("geometrySourceReference", event.target.value)}
+              value={componentDraft.geometrySourceReference}
+            />
+          </label>
+          <button
+            data-testid="queue-create-component-intent"
+            disabled={!componentCreateIntent}
+            onClick={handleQueueComponentIntent}
+            title="Queue explicit bend component creation intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue bend
+          </button>
+        </div>
+        {componentCreateIntent ? <OperationIntentPreview intent={componentCreateIntent} /> : null}
       </section>
       {nodeDeleteIntent ? (
         <section className="editor-intent" aria-label="Delete node intent" data-testid="delete-node-intent-panel">

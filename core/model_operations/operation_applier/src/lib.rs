@@ -146,6 +146,19 @@ struct EnteredQuantity {
     unit: String,
 }
 
+fn parse_positive_quantity(value: &Value) -> Option<EnteredQuantity> {
+    let record = value.as_object()?;
+    let magnitude = record.get("value")?.as_f64()?;
+    let unit = record.get("unit")?.as_str()?.trim();
+    if !magnitude.is_finite() || magnitude <= 0.0 || unit.is_empty() {
+        return None;
+    }
+    Some(EnteredQuantity {
+        value: magnitude,
+        unit: unit.to_string(),
+    })
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum UnitSource {
     /// Quantity stored as `{ value, unit }`; the unit lives next to the value.
@@ -1033,6 +1046,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_component: Option<Value> = None;
+    if !checker.schema_blocked && change_kind == "insert_component_symbol" {
+        created_component = resolve_create_component(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut deleted_pipe: Option<String> = None;
     if !checker.schema_blocked && change_kind == "delete_pipe_run" {
         deleted_pipe = resolve_delete_pipe_run(
@@ -1231,6 +1258,7 @@ fn run(
     } else if (created_node.is_some()
         || deleted_node.is_some()
         || created_pipe.is_some()
+        || created_component.is_some()
         || deleted_pipe.is_some()
         || created_section.is_some()
         || created_material.is_some()
@@ -1308,6 +1336,15 @@ fn run(
         } else if let Some(pipe_id) = &deleted_pipe {
             let mut next_model = model.clone();
             if apply_deleted_pipe(&mut next_model, pipe_id) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(component) = &created_component {
+            let mut next_model = model.clone();
+            if apply_created_component(&mut next_model, component) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1680,19 +1717,243 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             vec![operation_id.to_string()],
         );
     }
+}
 
-    if matches!(change_kind, "insert_component_symbol") {
+#[allow(clippy::too_many_arguments)]
+fn resolve_create_component(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    if object_type != "Component" || field_path != "components" {
         checker.schema_blocked = true;
         checker.push(
-            "OP-GEOMETRY-INPUT-INCOMPLETE",
+            "OP-CREATE-COMPONENT-SHAPE-INVALID",
             "blocking",
-            format!(
-                "Viewport gesture intent `{change_kind}` does not yet carry explicit geometry/connectivity inputs; values are not invented on the user's behalf."
-            ),
-            "Capture explicit geometry inputs in the viewport editing tools (completion plan A3) before applying this intent kind.",
-            vec![operation_id.to_string()],
+            "Component-creation intents must target object_type `Component` with field_path `components`.".to_string(),
+            "Refresh the component intent from an explicit component-creation form.",
+            vec![target_ref.to_string()],
         );
+        return None;
     }
+    check_before("not_present", before, target_ref, field_path, checker);
+    checker.unit_state = "passed";
+    if unit != "none" || dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-CREATE-COMPONENT-ENVELOPE-UNIT-INVALID",
+            "blocking",
+            "Component creation is an aggregate record and must use unit `none` with dimension `dimensionless`; every geometry quantity carries its own explicit unit.".to_string(),
+            "Queue the component record with dimensionless envelope metadata and explicit units inside each geometry quantity.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "components", target_ref).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-CREATE-ID-CONFLICT",
+            "blocking",
+            format!("Component `{target_ref}` already exists in the current model."),
+            "Choose a new component id before queuing the creation intent.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Ok(record) = serde_json::from_str::<Value>(after) else {
+        checker.push(
+            "OP-CREATE-COMPONENT-PAYLOAD-INVALID",
+            "blocking",
+            "Component-creation payload must be a JSON object with explicit identity, connectivity, geometry, and provenance.".to_string(),
+            "Refresh the component intent from an explicit component-creation form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = record.as_object() else {
+        checker.push(
+            "OP-CREATE-COMPONENT-PAYLOAD-INVALID",
+            "blocking",
+            "Component-creation payload must be a JSON object.".to_string(),
+            "Refresh the component intent from an explicit component-creation form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let label = record
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let kind = record
+        .get("kind")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let node = record
+        .get("node")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if id != target_ref || label.is_empty() || node.is_empty() || provenance.is_empty() {
+        checker.push(
+            "OP-CREATE-COMPONENT-PAYLOAD-INVALID",
+            "blocking",
+            "Component payload must include matching id and non-empty label, node, and provenance.".to_string(),
+            "Provide explicit identity, connectivity, and provenance in the component-creation form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if kind != "bend" {
+        checker.push(
+            "OP-CREATE-COMPONENT-KIND-UNSUPPORTED",
+            "blocking",
+            format!("Component kind `{kind}` is not implemented by the bounded component-creation resolver."),
+            "Create a bend, or use a future kind-specific resolver with its own explicit geometry/connectivity contract.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "nodes", node).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMPONENT-NODE-NOT-FOUND",
+            "blocking",
+            format!("Component `{target_ref}` references node `{node}`, which is absent from the current model."),
+            "Select an existing node before creating the component.",
+            vec![target_ref.to_string(), node.to_string()],
+        );
+        return None;
+    }
+    let Some(geometry) = record.get("geometry").and_then(Value::as_object) else {
+        checker.push(
+            "OP-CREATE-BEND-GEOMETRY-INVALID",
+            "blocking",
+            "Bend creation requires an explicit geometry object.".to_string(),
+            "Provide bend pipe mapping, radius, angle, plane orientation, and source reference.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let pipe_ref = geometry
+        .get("bend_pipe_ref")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let plane = geometry
+        .get("bend_plane_orientation")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let source = geometry
+        .get("bend_geometry_source_reference")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let radius = geometry
+        .get("bend_radius")
+        .and_then(parse_positive_quantity);
+    let angle = geometry.get("bend_angle").and_then(parse_positive_quantity);
+    if pipe_ref.is_empty()
+        || plane.is_empty()
+        || source.is_empty()
+        || radius.is_none()
+        || angle.is_none()
+    {
+        checker.push(
+            "OP-CREATE-BEND-GEOMETRY-INVALID",
+            "blocking",
+            "Bend geometry requires non-empty bend_pipe_ref, bend_plane_orientation, bend_geometry_source_reference, and finite positive bend_radius and bend_angle quantities.".to_string(),
+            "Complete every explicit bend geometry field; geometry is never inferred from the viewport symbol.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let Some(pipe) = find_entity(model, "pipe_segments", pipe_ref) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMPONENT-PIPE-NOT-FOUND",
+            "blocking",
+            format!("Bend `{target_ref}` references pipe `{pipe_ref}`, which is absent from the current model."),
+            "Select an existing realized pipe span before creating the bend.",
+            vec![target_ref.to_string(), pipe_ref.to_string()],
+        );
+        return None;
+    };
+    let pipe_from = pipe.get("from").and_then(Value::as_str);
+    let pipe_to = pipe.get("to").and_then(Value::as_str);
+    if pipe_from != Some(node) && pipe_to != Some(node) {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMPONENT-CONNECTIVITY-INVALID",
+            "blocking",
+            format!("Bend node `{node}` is not an endpoint of realized pipe span `{pipe_ref}`."),
+            "Select a component node that is an endpoint of the referenced bend pipe span.",
+            vec![
+                target_ref.to_string(),
+                node.to_string(),
+                pipe_ref.to_string(),
+            ],
+        );
+        return None;
+    }
+    let radius = radius.unwrap();
+    let angle = angle.unwrap();
+    if quantity_value_in_unit(&radius, radius.unit.as_str(), Dimension::Length).is_none() {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            "Bend radius must use an accepted DEC-018 length unit.".to_string(),
+            "Select an accepted length unit for bend radius.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if quantity_value_in_unit(&angle, angle.unit.as_str(), Dimension::Angle).is_none() {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            "Bend angle must use an accepted DEC-018 angle unit.".to_string(),
+            "Select an accepted angle unit for bend angle.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+    Some(serde_json::json!({
+        "id": id,
+        "label": label,
+        "kind": "bend",
+        "node": node,
+        "geometry": {
+            "bend_pipe_ref": pipe_ref,
+            "bend_radius": { "value": radius.value, "unit": radius.unit },
+            "bend_angle": { "value": angle.value, "unit": angle.unit },
+            "bend_plane_orientation": plane,
+            "bend_geometry_source_reference": source,
+        },
+        "provenance": provenance,
+    }))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -5968,6 +6229,14 @@ fn apply_created_pipe(model: &mut Value, pipe: &Value) -> bool {
         return false;
     };
     pipes.push(pipe.clone());
+    true
+}
+
+fn apply_created_component(model: &mut Value, component: &Value) -> bool {
+    let Some(components) = model.get_mut("components").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    components.push(component.clone());
     true
 }
 
@@ -10465,6 +10734,133 @@ mod tests {
         assert!(codes(&outcome).contains(&"OP-CREATE-NODE-SHAPE-INVALID"));
         assert_eq!(outcome.validation.application_status, "blocked");
         assert!(outcome.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_bend_creation_applies_with_geometry_connectivity_and_claimed_hash_gate() {
+        let model = sample_model();
+        let payload = json!({
+            "id": "component:C-2",
+            "label": "User bend",
+            "kind": "bend",
+            "node": "node:N-2",
+            "geometry": {
+                "bend_pipe_ref": "pipe:P-1",
+                "bend_radius": { "value": 0.45, "unit": "m" },
+                "bend_angle": { "value": 90.0, "unit": "deg" },
+                "bend_plane_orientation": "+Z",
+                "bend_geometry_source_reference": "user_entered_component_form"
+            },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Component",
+            "component:C-2",
+            "insert_component_symbol",
+            "components",
+            "not_present",
+            &payload.to_string(),
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("insert");
+        let current_hash = format!("sha256:{}", sha256_hex(&canonical_json(&model)));
+        let matching = json!({
+            "algorithm": "sha256",
+            "canonicalization": "rfc8785_jcs",
+            "value": current_hash,
+            "payload_scope": "model_payload"
+        });
+
+        let outcome = apply_operation(&model, &intent, Some(&matching));
+        assert!(outcome.diagnostics.is_empty(), "{:?}", outcome.diagnostics);
+        assert_eq!(
+            outcome.model_basis.binding_status,
+            "claimed_model_hash_matches_current_backend_model"
+        );
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["components"].as_array().unwrap().len(), 2);
+        assert_eq!(applied["components"][1], payload);
+
+        let padded_payload = json!({
+            "id": " component:C-3 ",
+            "label": " User bend with padded input ",
+            "kind": "bend",
+            "node": " node:N-2 ",
+            "geometry": {
+                "bend_pipe_ref": " pipe:P-1 ",
+                "bend_radius": { "value": 0.5, "unit": "m" },
+                "bend_angle": { "value": 1.5708, "unit": "rad" },
+                "bend_plane_orientation": " +Z ",
+                "bend_geometry_source_reference": " user_form "
+            },
+            "provenance": " user_entered "
+        });
+        let mut padded_intent = modify_intent(
+            "Component",
+            "component:C-3",
+            "insert_component_symbol",
+            "components",
+            "not_present",
+            &padded_payload.to_string(),
+            "none",
+            "dimensionless",
+        );
+        padded_intent["operation_kind"] = json!("insert");
+        let padded_outcome = apply_operation(&model, &padded_intent, None);
+        assert!(padded_outcome.diagnostics.is_empty());
+        let canonical = &padded_outcome.applied_model.unwrap()["components"][1];
+        assert_eq!(canonical["id"], json!("component:C-3"));
+        assert_eq!(canonical["label"], json!("User bend with padded input"));
+        assert_eq!(canonical["node"], json!("node:N-2"));
+        assert_eq!(canonical["geometry"]["bend_pipe_ref"], json!("pipe:P-1"));
+        assert_eq!(canonical["geometry"]["bend_plane_orientation"], json!("+Z"));
+        assert_eq!(
+            canonical["geometry"]["bend_geometry_source_reference"],
+            json!("user_form")
+        );
+        assert_eq!(canonical["provenance"], json!("user_entered"));
+    }
+
+    #[test]
+    fn bend_creation_blocks_missing_and_inconsistent_explicit_connectivity() {
+        let model = sample_model();
+        let mut intent = modify_intent(
+            "Component",
+            "component:C-2",
+            "insert_component_symbol",
+            "components",
+            "not_present",
+            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-1","geometry":{"bend_pipe_ref":"pipe:missing","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_plane_orientation":"+Z","bend_geometry_source_reference":"user"},"provenance":"user"}"#,
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("insert");
+        let missing = apply_operation(&model, &intent, None);
+        assert!(codes(&missing).contains(&"OP-COMPONENT-PIPE-NOT-FOUND"));
+        assert!(missing.applied_model.is_none());
+
+        intent["change"]["after"] = json!(
+            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-1","geometry":{"bend_pipe_ref":"pipe:P-1","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_plane_orientation":"+Z","bend_geometry_source_reference":"user"},"provenance":"user"}"#
+        );
+        // node:N-1 is a valid endpoint; use a third node to exercise the
+        // explicit endpoint relationship rather than mere reference presence.
+        let mut disconnected_model = model.clone();
+        disconnected_model["nodes"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({
+                "id": "node:N-3",
+                "label": "Disconnected",
+                "position": { "x": 5.0, "y": 0.0, "z": 0.0 },
+                "provenance": "invented_example"
+            }));
+        intent["change"]["after"] = json!(
+            r#"{"id":"component:C-2","label":"Bend","kind":"bend","node":"node:N-3","geometry":{"bend_pipe_ref":"pipe:P-1","bend_radius":{"value":0.45,"unit":"m"},"bend_angle":{"value":90,"unit":"deg"},"bend_plane_orientation":"+Z","bend_geometry_source_reference":"user"},"provenance":"user"}"#
+        );
+        let disconnected = apply_operation(&disconnected_model, &intent, None);
+        assert!(codes(&disconnected).contains(&"OP-COMPONENT-CONNECTIVITY-INVALID"));
+        assert!(disconnected.applied_model.is_none());
     }
 
     #[test]

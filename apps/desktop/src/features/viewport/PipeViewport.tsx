@@ -18,6 +18,12 @@ import type {
   PreviewModel,
   Vec3
 } from "../../types";
+import {
+  buildCreateBendComponentIntent,
+  defaultBendComponentDraft,
+  isBendComponentDraftValid,
+  type BendComponentDraft
+} from "../component-creation/componentIntent";
 
 type Props = {
   armedCreationTool?: CreationTool | null;
@@ -106,6 +112,9 @@ export function PipeViewport({
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
+  const [componentDraft, setComponentDraft] = useState<BendComponentDraft>(() =>
+    defaultBendComponentDraft(model, selection, queuedIntents)
+  );
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
   const [showLabels, setShowLabels] = useState(true);
@@ -116,10 +125,24 @@ export function PipeViewport({
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const nodeDraftValid = isNodeDraftValid(nodeDraft);
   const pipeDraftValid = isPipeDraftValid(pipeDraft);
+  const componentDraftValid = isBendComponentDraftValid(model, componentDraft, [
+    ...queuedIntents,
+    ...localIntents
+  ]);
   const nodeUnitBasis = describeUnitBasis(unitCatalogRoute, nodeDraft.coordinateUnit, "length");
   const pipeUnitBasis = describeUnitBasis(unitCatalogRoute, pipeDraft.lengthUnit, "length");
   const nodeLengthUnitOptions = unitOptions(unitCatalogRoute, "length", nodeDraft.coordinateUnit || defaultLengthUnit);
   const pipeLengthUnitOptions = unitOptions(unitCatalogRoute, "length", pipeDraft.lengthUnit || defaultLengthUnit);
+  const componentLengthUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "length",
+    componentDraft.radiusUnit || defaultLengthUnit
+  );
+  const componentAngleUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "angle",
+    componentDraft.angleUnit || model.project.units.angle || "rad"
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -414,6 +437,19 @@ export function PipeViewport({
     setPipeEndpointPickMode(null);
   }
 
+  function addExplicitComponentIntent() {
+    if (!componentDraftValid) return;
+    const intent = buildCreateBendComponentIntent({
+      draft: componentDraft,
+      sourceRef: "apps/desktop/src/features/viewport/PipeViewport.tsx",
+      sourceRole: "viewport_editor",
+      sequence: queuedIntents.length + localIntents.length + 1,
+      unitValidation: `length=${unitDimensionValidationStatus(unitCatalogRoute, componentDraft.radiusUnit, "length")}; angle=${unitDimensionValidationStatus(unitCatalogRoute, componentDraft.angleUnit, "angle")}`
+    });
+    queueIntent(intent);
+    setComponentDraft(defaultBendComponentDraft(model, selection, [...queuedIntents, ...localIntents, intent]));
+  }
+
   function queueIntent(intent: EditorOperationIntent) {
     if (onQueueIntent) {
       onQueueIntent(intent);
@@ -433,6 +469,10 @@ export function PipeViewport({
     }
   }
 
+  function updateComponentDraft<K extends keyof BendComponentDraft>(field: K, value: BendComponentDraft[K]) {
+    setComponentDraft((current) => ({ ...current, [field]: value }));
+  }
+
   function armPipeEndpointPick(mode: Exclude<PipeEndpointPickMode, null>) {
     setPipeEndpointPickMode((current) => (current === mode ? null : mode));
   }
@@ -442,6 +482,16 @@ export function PipeViewport({
       const mode = pipeEndpointPickMode;
       setPipeDraft((current) => nextPipeDraftWithEndpoint(current, mode, target.ref.id));
       setPipeEndpointPickMode(mode === "from" ? "to" : null);
+    }
+    if (armedCreationTool === "component" && target.kind === "node") {
+      const connectedPipe = model.pipe_segments.find(
+        (pipe) => pipe.from === target.ref.id || pipe.to === target.ref.id
+      );
+      setComponentDraft((current) => ({
+        ...current,
+        node: target.ref.id,
+        pipeRef: connectedPipe?.id ?? ""
+      }));
     }
     onSelect(target.ref);
   }
@@ -469,6 +519,10 @@ export function PipeViewport({
         setPipeDraft((current) => nextPipeDraftWithEndpoint(current, pipeEndpointPickMode, picked.id));
         setPipeEndpointPickMode(pipeEndpointPickMode === "from" ? "to" : null);
       }
+      if (armedCreationTool === "component" && picked.type === "node") {
+        const connectedPipe = model.pipe_segments.find((pipe) => pipe.from === picked.id || pipe.to === picked.id);
+        setComponentDraft((current) => ({ ...current, node: picked.id, pipeRef: connectedPipe?.id ?? "" }));
+      }
       onSelect(picked);
       return;
     }
@@ -479,7 +533,8 @@ export function PipeViewport({
 
   const nodeToolActive = armedCreationTool === "node";
   const pipeToolActive = armedCreationTool === "pipe";
-  const viewportIntentPanelActive = nodeToolActive || pipeToolActive || visibleIntents.length > 0;
+  const componentToolActive = armedCreationTool === "component";
+  const viewportIntentPanelActive = nodeToolActive || pipeToolActive || componentToolActive || visibleIntents.length > 0;
 
   return (
     <div className="viewport-shell">
@@ -937,6 +992,138 @@ export function PipeViewport({
             >
               <GitBranch size={15} aria-hidden="true" />
               Queue pipe
+            </button>
+          </div>
+          <div
+            className={`viewport-pipe-form${componentToolActive ? " active" : ""}`}
+            aria-label="Explicit bend component geometry and connectivity"
+            data-testid="viewport-create-component-form"
+          >
+            <label>
+              <span>Component ID</span>
+              <input
+                aria-label="New bend component ID"
+                data-testid="viewport-create-component-id"
+                onChange={(event) => updateComponentDraft("id", event.target.value)}
+                value={componentDraft.id}
+              />
+            </label>
+            <label>
+              <span>Label</span>
+              <input
+                aria-label="New bend component label"
+                data-testid="viewport-create-component-label"
+                onChange={(event) => updateComponentDraft("label", event.target.value)}
+                value={componentDraft.label}
+              />
+            </label>
+            <label>
+              <span>Kind</span>
+              <select aria-label="New component kind" data-testid="viewport-create-component-kind" value="bend" onChange={() => {}}>
+                <option value="bend">bend</option>
+              </select>
+            </label>
+            <label>
+              <span>Node</span>
+              <select
+                aria-label="New bend component node"
+                data-testid="viewport-create-component-node"
+                onChange={(event) => {
+                  const node = event.target.value;
+                  const connected = model.pipe_segments.find((pipe) => pipe.from === node || pipe.to === node);
+                  setComponentDraft((current) => ({ ...current, node, pipeRef: connected?.id ?? "" }));
+                }}
+                value={componentDraft.node}
+              >
+                {model.nodes.map((node) => (
+                  <option key={node.id} value={node.id}>{node.label} ({node.id})</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Realized pipe</span>
+              <select
+                aria-label="New bend realized pipe"
+                data-testid="viewport-create-component-pipe"
+                onChange={(event) => updateComponentDraft("pipeRef", event.target.value)}
+                value={componentDraft.pipeRef}
+              >
+                <option value="">Select connected pipe</option>
+                {model.pipe_segments
+                  .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
+                  .map((pipe) => <option key={pipe.id} value={pipe.id}>{pipe.label} ({pipe.id})</option>)}
+              </select>
+            </label>
+            <label>
+              <span>Radius</span>
+              <input
+                aria-label="New bend radius"
+                data-testid="viewport-create-component-radius"
+                inputMode="decimal"
+                onChange={(event) => updateComponentDraft("radius", event.target.value)}
+                value={componentDraft.radius}
+              />
+            </label>
+            <label>
+              <span>Radius unit</span>
+              <select
+                aria-label="New bend radius unit"
+                data-testid="viewport-create-component-radius-unit"
+                onChange={(event) => updateComponentDraft("radiusUnit", event.target.value)}
+                value={componentDraft.radiusUnit}
+              >
+                {componentLengthUnitOptions.map((option) => <option key={option.symbol} value={option.symbol}>{option.symbol}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>Angle</span>
+              <input
+                aria-label="New bend angle"
+                data-testid="viewport-create-component-angle"
+                inputMode="decimal"
+                onChange={(event) => updateComponentDraft("angle", event.target.value)}
+                value={componentDraft.angle}
+              />
+            </label>
+            <label>
+              <span>Angle unit</span>
+              <select
+                aria-label="New bend angle unit"
+                data-testid="viewport-create-component-angle-unit"
+                onChange={(event) => updateComponentDraft("angleUnit", event.target.value)}
+                value={componentDraft.angleUnit}
+              >
+                {componentAngleUnitOptions.map((option) => <option key={option.symbol} value={option.symbol}>{option.symbol}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>Plane orientation</span>
+              <input
+                aria-label="New bend plane orientation"
+                data-testid="viewport-create-component-plane"
+                onChange={(event) => updateComponentDraft("planeOrientation", event.target.value)}
+                placeholder="+Z"
+                value={componentDraft.planeOrientation}
+              />
+            </label>
+            <label>
+              <span>Geometry source</span>
+              <input
+                aria-label="New bend geometry source"
+                data-testid="viewport-create-component-source"
+                onChange={(event) => updateComponentDraft("geometrySourceReference", event.target.value)}
+                value={componentDraft.geometrySourceReference}
+              />
+            </label>
+            <button
+              data-testid="queue-explicit-component-intent"
+              disabled={!componentDraftValid}
+              onClick={addExplicitComponentIntent}
+              title="Queue explicit bend creation intent"
+              type="button"
+            >
+              <Box size={15} aria-hidden="true" />
+              Queue bend
             </button>
           </div>
           <small data-testid="viewport-unit-catalog-status">

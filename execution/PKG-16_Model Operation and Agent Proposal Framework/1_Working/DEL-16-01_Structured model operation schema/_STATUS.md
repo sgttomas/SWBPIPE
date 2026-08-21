@@ -1,12 +1,13 @@
 # Status: DEL-16-01 Structured model operation schema
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-08-21
 
 ## Remaining
 - Obtain owning human dispositions for `PKG16-DEL1601-PKG02-001` and `PKG16-DEL1601-PKG02-002`; both remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`, notwithstanding current model-basis/hash and fixture evidence (PDU-060).
 
 ## History
+- 2026-08-21 - Accepted the owner-amended N2 bend-only `create_component` resolver slice: explicit geometry/connectivity inputs, canonical persisted references, claimed-model-hash gating, and structured-operation-only mutation all passed focused native/Wasm/UI/build checks and fresh 100%-diff review. Tee, reducer, valve, flange, and expansion-joint creation remain open; existing PKG-02 human dispositions are unchanged. No lifecycle change.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed both structured-operation finding dispositions without changing technical evidence, review state, or lifecycle.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.

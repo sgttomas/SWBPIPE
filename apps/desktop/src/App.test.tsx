@@ -15040,4 +15040,77 @@ describe("OpenPipeStress desktop preview", () => {
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("1 pending operation");
   });
+
+  it("queues explicit bend geometry and connectivity from the Inspector creation form", async () => {
+    render(<App />);
+
+    const inspector = await screen.findByLabelText("Property inspector");
+    const panel = within(inspector).getByLabelText("Create bend component intent");
+    expect(within(panel).getByTestId("create-component-kind")).toHaveValue("bend");
+    expect(within(panel).getByTestId("create-component-node")).toHaveValue("node:N-100");
+    expect(within(panel).getByTestId("create-component-pipe")).toHaveValue("pipe:P-100");
+    expect(within(panel).getByTestId("queue-create-component-intent")).toBeDisabled();
+
+    fireEvent.change(within(panel).getByTestId("create-component-radius"), { target: { value: "0.45" } });
+    fireEvent.change(within(panel).getByTestId("create-component-angle"), { target: { value: "1.5708" } });
+    fireEvent.change(within(panel).getByTestId("create-component-plane"), { target: { value: "+Z" } });
+
+    expect(within(panel).getByTestId("queue-create-component-intent")).not.toBeDisabled();
+    expect(within(panel).getByTestId("editor-operation-preview").textContent).toContain(
+      "insert_component_symbol",
+    );
+    expect(within(panel).getByTestId("editor-operation-preview").textContent).toContain(
+      '"bend_pipe_ref":"pipe:P-100"',
+    );
+    expect(within(panel).getByTestId("editor-operation-preview").textContent).toContain(
+      '"bend_radius":{"value":0.45,"unit":"m"}',
+    );
+    fireEvent.click(within(panel).getByTestId("queue-create-component-intent"));
+    expect(within(screen.getByTestId("operation-apply-panel")).getByTestId("operation-apply-summary")).toHaveTextContent(
+      "1 queued; 0 applied",
+    );
+    const viewportForm = screen.getByTestId("viewport-create-component-form");
+    expect(within(viewportForm).getByTestId("viewport-create-component-id")).toHaveValue("component:C-1");
+    fireEvent.change(within(viewportForm).getByTestId("viewport-create-component-radius"), {
+      target: { value: "0.45" },
+    });
+    fireEvent.change(within(viewportForm).getByTestId("viewport-create-component-angle"), {
+      target: { value: "1.5708" },
+    });
+    fireEvent.change(within(viewportForm).getByTestId("viewport-create-component-plane"), {
+      target: { value: "+Z" },
+    });
+    expect(within(viewportForm).getByTestId("queue-explicit-component-intent")).toBeDisabled();
+  });
+
+  it("creates a bend end-to-end from the explicit viewport component tool", async () => {
+    render(<App />);
+
+    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    const commandBar = screen.getByTestId("command-bar");
+    fireEvent.click(within(commandBar).getByRole("button", { name: /Component/i }));
+    const panel = screen.getByTestId("viewport-create-component-form");
+    expect(within(panel).getByTestId("viewport-create-component-node")).toHaveValue("node:N-100");
+    expect(within(panel).getByTestId("viewport-create-component-pipe")).toHaveValue("pipe:P-100");
+
+    fireEvent.change(within(panel).getByTestId("viewport-create-component-radius"), { target: { value: "0.45" } });
+    fireEvent.change(within(panel).getByTestId("viewport-create-component-angle"), { target: { value: "1.5708" } });
+    fireEvent.change(within(panel).getByTestId("viewport-create-component-plane"), { target: { value: "+Z" } });
+    const queueButton = within(panel).getByTestId("queue-explicit-component-intent");
+    expect(queueButton).not.toBeDisabled();
+    fireEvent.click(queueButton);
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:create-bend-component-C-1-001",
+      ),
+    );
+    expect(screen.getByTestId("tree-row-component:C-1").textContent).toContain("Bend C-1");
+    expect(screen.getByTestId("viewport-select-component:C-1")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("pipe:P-100");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("0.45 m");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("1.5708 rad");
+  });
 });
