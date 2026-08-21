@@ -1,6 +1,6 @@
 # Handoff state — vocabulary completion round 2
 
-- State: `N1_FAILED_N2_HELD_N3_LANDED_PR_OPEN_CHECKS_PENDING`.
+- State: `N1_FAILED_N2_HELD_N3_LANDED_PR_OPEN_CHECKS_GREEN`.
 - Accepted upstream basis: `main@7d5a3f558dfa2e8e902df25fc9a3e813a9ab7048` (PR #599 merge); DAG-010; accepted SCA-009 and DEL-07-09 coverage ledger.
 - Authoritative/derivative boundary: decomposition/SCA-009 and landed product bytes remain authoritative upstream truth. The public Chirality App export and this AgentRuns package are derivative evidence.
 
@@ -23,7 +23,10 @@
 
 - Branch: `codex/piping-vocabulary-r2-20260821`.
 - Selected commit: `58ae603acd5f2a4c815059c8cf3a3ad6622d6f5a`.
-- PR #603: `OPEN`; checks pending; no merge performed.
+- PR #603: `OPEN / CLEAN` at checked head `0262b318f39dce1c36d342d5c348b6fc4341708f`; no merge performed.
+- Current PR base: `origin/main@7d5a3f558dfa2e8e902df25fc9a3e813a9ab7048`, unchanged from the accepted basis.
+- Green checks at the checked head: Desktop E2E run `32505795587` (`11m07s`); Harness pre-merge run `32505795721` (`2m18s`); governance harness run `32505795689` (`1m16s`).
+- This final handoff-proof commit is intentionally non-self-referential: it records the checked predecessor head above, and its own PR checks remain an external final publication gate.
 - Selected landing: N3 export derivative plus truthful plan/returns/failure/handoff/receipt evidence only.
 - Explicit exclusions: all five dirty N1 product files; no unsigned-artifact lane or `artifact-proof` label; no lifecycle, release, issuance, reliance, or professional-approval effect.
-- Next owner: PR checks and owner review; merge remains owner-gated.
+- Next owner: final external PR checks and owner review; merge remains owner-gated.
