@@ -1,0 +1,117 @@
+{
+  "schema": "chirality-working-items-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R2",
+  "instance_id": "WORKING-ITEMS-VOCAB-R2-N1-UI",
+  "package_id": "PKG-07",
+  "deliverable_ids": ["DEL-07-01", "DEL-07-02"],
+  "basis_sha": "7d5a3f558dfa2e8e902df25fc9a3e813a9ab7048",
+  "verdict": "ACCEPTED_FOR_N1_FAN_IN",
+  "changed_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+      "sha256": "43dd7c07e807c5028e24878098b127a3bca7d947a982c44b9af3d96789d529d3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "ff2977446b090b46a4c3131fe252df750669a185a7e9139b6a6971d596fcea32"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "4c208376cc98248aa7f8842f2ba2d07bd024898393814a4a1e9c73c032955474"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "5ba8d88f5f03f517ef3af571113208c95f5376404321ac0a0f5b4512144e6846"
+    }
+  ],
+  "kind_results": [
+    {"kind": "tee", "inspector_intent": "PASS", "viewport_apply": "PASS", "residual": null},
+    {"kind": "reducer", "inspector_intent": "PASS", "viewport_apply": "PASS", "residual": null},
+    {"kind": "valve", "inspector_intent": "PASS", "viewport_apply": "PASS", "residual": null},
+    {"kind": "flange", "inspector_intent": "PASS", "viewport_apply": "PASS", "residual": null},
+    {"kind": "bend", "inspector_regression": "PASS", "viewport_regression": "PASS", "residual": null}
+  ],
+  "checks": [
+    {
+      "id": "wasm-operation-engine-build",
+      "command": "npm run build:wasm:desktop",
+      "status": "PASS"
+    },
+    {
+      "id": "focused-four-kind-ui",
+      "command": "npm test --workspace apps/desktop -- App.test.tsx -t (queues explicit (tee|reducer|valve|flange)|creates a (tee|reducer|valve|flange))",
+      "status": "PASS",
+      "tests_passed": 8,
+      "tests_failed": 0
+    },
+    {
+      "id": "focused-bend-regression",
+      "command": "npm test --workspace apps/desktop -- App.test.tsx -t (queues explicit bend|creates a bend)",
+      "status": "PASS",
+      "tests_passed": 2,
+      "tests_failed": 0
+    },
+    {
+      "id": "desktop-test-final",
+      "command": "npm run test:desktop",
+      "status": "PASS",
+      "test_files_passed": 29,
+      "tests_passed": 549,
+      "tests_failed": 0,
+      "duration_seconds": 98.98
+    },
+    {
+      "id": "desktop-build-final",
+      "command": "npm run build:desktop",
+      "status": "PASS",
+      "advisories": ["existing Vite chunk-size advisory"]
+    },
+    {
+      "id": "harness-self-check",
+      "command": "python3 tools/practitioner_harness/harness.py self-check",
+      "status": "PASS_WITH_STANDING_FINDINGS",
+      "exit_code": 0,
+      "standing_findings": {"INFO": 14, "NOT_APPLICABLE": 1, "REVIEW": 4, "WARN": 40},
+      "scope_effect": "unrelated pre-existing cross-project inventory; no owned path implicated"
+    },
+    {
+      "id": "scoped-diff-check",
+      "command": "git diff --check -- <four N1 UI owned paths>",
+      "status": "PASS"
+    },
+    {
+      "id": "fresh-software-code-review",
+      "status": "PASS",
+      "coverage_percent": 100,
+      "diff_insertions": 607,
+      "diff_deletions": 280,
+      "remaining_actionable_findings": 0
+    }
+  ],
+  "retries": [
+    {
+      "attempt": 1,
+      "detection_layer": "focused App Vitest",
+      "failure_class": "STALE_GENERATED_TEST_RUNTIME",
+      "reason_code": "STALE_BROWSER_WASM_PRE_RESOLVER_BUILD",
+      "affected_members": ["tee", "reducer", "valve", "flange"],
+      "observed": "4 Inspector cases passed; 4 viewport apply cases blocked",
+      "disposition": "rebuild local WASM operation engine and rerun",
+      "terminal_status": "PASS_8_OF_8"
+    },
+    {
+      "attempt": 1,
+      "detection_layer": "fresh read-only software code review",
+      "failure_class": "TEST_REGRESSION",
+      "reason_code": "BEND_UI_REGRESSION_COVERAGE_REMOVED_DURING_REFACTOR",
+      "affected_members": ["bend"],
+      "disposition": "restore Inspector and viewport bend cases; focused and full rerun",
+      "terminal_status": "REVIEW_PASS"
+    }
+  ],
+  "blockers": [],
+  "residual_kinds": [],
+  "waivers": [],
+  "git_state_modified": false,
+  "next_owner": "HELP_HUMAN"
+}

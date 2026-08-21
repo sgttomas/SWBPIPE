@@ -1,0 +1,103 @@
+{
+  "schema": "chirality-node-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R2",
+  "node_id": "N3",
+  "instance_id": "TASK-VOCAB-R2-N3-G4-EXPORT",
+  "recorded_at": "2026-08-21T16:25:01Z",
+  "basis": "7d5a3f558dfa2e8e902df25fc9a3e813a9ab7048",
+  "verdict": "PASS",
+  "blockers": [],
+  "export": {
+    "command": "python3 exports/chirality-app/export_public.py",
+    "working_directory": "{REPO_ROOT}",
+    "apply_target_supplied": false,
+    "manifest_rows": 834,
+    "boundary_findings": 0,
+    "tracked_staging_files": 0,
+    "ignored_working_staging_files": 834
+  },
+  "changed_tracked_derivatives": [
+    {
+      "path": "exports/chirality-app/export-manifest.csv",
+      "added_lines": 8,
+      "removed_lines": 7,
+      "size_bytes": 99760,
+      "sha256": "bfa4040b5bec25059e343a31662c4e94efb2fb22e2c4d0a35a01d7289a0d5abf"
+    },
+    {
+      "path": "exports/chirality-app/export-report.md",
+      "added_lines": 2,
+      "removed_lines": 2,
+      "size_bytes": 593,
+      "sha256": "12027e3361143e79a1c873382c4013df496877d629393ac42176e4f1633afbd0"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Public exporter first invocation",
+      "command": "python3 exports/chirality-app/export_public.py",
+      "exit_code": 0,
+      "result": "834 staged files; manifest/report written; zero boundary findings"
+    },
+    {
+      "name": "Public exporter deterministic rerun",
+      "command": "python3 exports/chirality-app/export_public.py",
+      "exit_code": 0,
+      "result": "Manifest SHA-256 bfa4040b5bec25059e343a31662c4e94efb2fb22e2c4d0a35a01d7289a0d5abf and report SHA-256 12027e3361143e79a1c873382c4013df496877d629393ac42176e4f1633afbd0 unchanged from first run"
+    },
+    {
+      "name": "Manifest/staging membership, size, and hash integrity",
+      "command": "read-only Python csv/hashlib validation of export-manifest.csv against exports/chirality-app/staging",
+      "exit_code": 0,
+      "result": "manifest_rows=834 staged_files=834 issues=0"
+    },
+    {
+      "name": "Deferred workflow mirror currency",
+      "command": "cmp -s .github/workflows/governance-harness.yml exports/chirality-app/staging/.github/workflows/governance-harness.yml",
+      "exit_code": 0,
+      "result": "byte-identical"
+    },
+    {
+      "name": "Deferred G4 policy-test mirror currency",
+      "command": "cmp -s tools/validation/test_validate_instruction_tranche_manifest.py exports/chirality-app/staging/tools/validation/test_validate_instruction_tranche_manifest.py",
+      "exit_code": 0,
+      "result": "byte-identical"
+    },
+    {
+      "name": "Accepted tranche-manifest mirror currency",
+      "command": "cmp -s docs/governance_harness/tranche_manifests/PIPING-CI-SLOW-OBJECT-HARDENING-20260821.yaml exports/chirality-app/staging/docs/governance_harness/tranche_manifests/PIPING-CI-SLOW-OBJECT-HARDENING-20260821.yaml",
+      "exit_code": 0,
+      "result": "present and byte-identical"
+    },
+    {
+      "name": "Focused G4 policy tests",
+      "command": "python3 -m pytest -q tools/validation/test_validate_instruction_tranche_manifest.py",
+      "exit_code": 0,
+      "result": "47 passed in 1.78s"
+    },
+    {
+      "name": "Whole-corpus G4 validation",
+      "command": "python3 tools/validation/validate_instruction_tranche_manifest.py",
+      "exit_code": 0,
+      "result": "40 schema-valid tranche manifests; PIPING-CI-SLOW-OBJECT-HARDENING-20260821 present"
+    },
+    {
+      "name": "Scoped derivative whitespace check",
+      "command": "git diff --check -- exports/chirality-app/export-manifest.csv exports/chirality-app/export-report.md",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "name": "Source/authority preservation",
+      "command": "before/after SHA-256 comparison and scoped git diff inspection",
+      "exit_code": 0,
+      "result": "Four pinned source/policy hashes unchanged; no source/authority diff created by N3"
+    }
+  ],
+  "excluded_actions": [
+    "No --apply-target or external target",
+    "No source/authority, exporter-policy, product, deliverable, coverage, receipt, or shared-handoff edit",
+    "No Git index, branch, commit, push, merge, or PR action",
+    "No unsigned-artifact lane or artifact-proof label"
+  ]
+}

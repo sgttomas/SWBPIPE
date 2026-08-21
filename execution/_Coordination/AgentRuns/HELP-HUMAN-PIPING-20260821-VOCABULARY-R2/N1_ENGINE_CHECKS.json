@@ -1,0 +1,94 @@
+{
+  "schema": "chirality-working-items-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R2",
+  "instance_id": "WORKING-ITEMS-VOCAB-R2-N1-ENGINE",
+  "package_id": "PKG-16",
+  "deliverable_ids": ["DEL-16-01"],
+  "base_sha": "7d5a3f558dfa2e8e902df25fc9a3e813a9ab7048",
+  "branch": "codex/piping-vocabulary-r2-20260821",
+  "overall_status": "PASS_ENGINE_SCOPE_PENDING_FRESH_READ_ONLY_REVIEW",
+  "production_file": {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "sha256": "847bca37ad991b24a2e7dbd6315c9294a0ac305f427b78628a36b3b1e177b51d",
+    "diff_insertions": 518,
+    "diff_deletions": 61
+  },
+  "checks": [
+    {
+      "id": "focused-creation-tests",
+      "command": "cargo test --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --lib creation",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "6 passed; 0 failed; 75 filtered out",
+      "coverage": [
+        "bend regression and invalid connectivity",
+        "tee explicit two-pipe geometry apply",
+        "tee missing-pipe block",
+        "reducer explicit rigid geometry apply",
+        "valve explicit rigid geometry apply",
+        "flange explicit rigid geometry apply",
+        "rigid COG unit mismatch block"
+      ]
+    },
+    {
+      "id": "full-operation-applier-suite",
+      "command": "cargo test --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "81 unit + 1 canonical_hash_parity + 2 contract_corpus = 84 passed; 0 failed; doc tests 0"
+    },
+    {
+      "id": "wasm-release-build",
+      "command": "cargo build --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --target wasm32-unknown-unknown --features wasm --release",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "Finished release profile for wasm32-unknown-unknown"
+    },
+    {
+      "id": "rustfmt",
+      "command": "cargo fmt --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml -- --check",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "no formatting diff"
+    },
+    {
+      "id": "scoped-diff-check",
+      "command": "git diff --check -- projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "no whitespace errors"
+    },
+    {
+      "id": "exploratory-clippy",
+      "command": "cargo clippy --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --all-targets -- -D warnings",
+      "status": "NON_GATING_BASELINE_FAILURE",
+      "exit_code": 101,
+      "result": "five findings on unchanged pre-existing lines: question_mark x3 in node creation; too_many_arguments on existing modify_intent test helper; approx_constant on existing bend 1.5708 test value",
+      "disposition": "recorded; no out-of-scope repair; focused/full tests, Wasm build, rustfmt, and scoped diff check pass"
+    }
+  ],
+  "per_kind": {
+    "tee": "PASS",
+    "reducer": "PASS",
+    "valve": "PASS",
+    "flange": "PASS"
+  },
+  "write_containment": {
+    "status": "PASS",
+    "production_targets": [
+      "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs"
+    ],
+    "instance_records": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R2/N1_ENGINE_RETURN.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R2/N1_ENGINE_CHECKS.json"
+    ],
+    "git_state_modified": false
+  },
+  "fresh_review": {
+    "required": true,
+    "status": "PENDING_PARENT_FANIN",
+    "scope": "100% of the frozen N1 core/product diff before publication"
+  },
+  "blockers": [],
+  "engine_residual_kinds": []
+}

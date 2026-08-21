@@ -1,0 +1,21 @@
+{
+  "schema": "chirality-help-human-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R2",
+  "version": 2,
+  "selection_authority": "HUMAN — owner-directed vocabulary completion round 2",
+  "posture": "MIXED",
+  "authorized_width": 3,
+  "branch": "codex/piping-vocabulary-r2-20260821",
+  "base_sha": "7d5a3f558dfa2e8e902df25fc9a3e813a9ab7048",
+  "integration_owner": "HELP_HUMAN",
+  "nodes": [
+    {"node_id":"N1","role":"WORKING_ITEMS","objective":"Complete row 15 for tee, reducer, valve, and flange through the proven structured-operation seam.","dependencies":[],"concurrency":"PKG-16 resolver and PKG-07 UI managers have disjoint writes; one N1 fan-in","status":"FAILED_INTEGRATED_REVIEW_STOPPED"},
+    {"node_id":"N2","role":"WORKING_ITEMS","objective":"Create expansion joints through the same seam with explicit 4-axis stiffness and pressure-thrust refs.","dependencies":["N1:ACCEPTED_AND_COMMITTED"],"concurrency":"serialized after N1","status":"NOT_STARTED_DEPENDENCY_HELD"},
+    {"node_id":"N3","role":"EPHEMERAL_GENERALIST_AGENT2","objective":"Regenerate the deferred public Chirality App G4 derivative export mechanically from accepted post-merge source bytes.","dependencies":[],"concurrency":"parallel with N1; write-disjoint","status":"PASS"}
+  ],
+  "shared_surface_policy": "coverage, status, handoff, and receipt written once at fan-in",
+  "labels_excluded": ["artifact-proof"],
+  "audit_decomp": "PARKED_THIRD_TIME_UNLESS_APPLICABLE_RUNNER_FOUND",
+  "parked_holds": ["PKG-02 runtime/transport/permission choices", ".opsproj policy", "PDU-011", "PDU-047", "MAINTAINER_REVIEWED promotion"],
+  "failure_disposition": "N1 terminal integrated review failed; repair dispatch interrupted before repair writes; no N1 product/status/coverage landing; N2 held; N3 only passing node"
+}
