@@ -2,7 +2,7 @@
 
 **Amendment:** `SCA-009`
 
-**State:** `GATE 5 CANDIDATE — CLOSURE RULING PENDING`
+**State:** `CLOSED_FOR_SCOPE_CHANGE_ONLY`
 
 ## Gate 1 — verbatim owner rulings
 
@@ -207,7 +207,34 @@ RECONCILIATION refresh, DEL-07-09 dependency extraction, and PREPARATION
 scaffold remain explicit downstream obligations (`Propagation_Plan.md`);
 none is executed by SCA-009.
 
-**Awaiting owner act:** the Gate-5 closure ruling. On acceptance, the
-closing commit advances `_Decomposition/_LATEST.md` then
-`_ScopeChange/_LATEST.md` (pointer-last), transcribes the ruling here, and
-sets the final `CLOSED_FOR_SCOPE_CHANGE_ONLY` state.
+The owner act awaited by this candidate — the Gate-5 closure ruling —
+was issued the same day and is transcribed in the next section; the
+closing commit executed exactly the acts it authorizes.
+
+## Gate 5 — verbatim owner closure ruling
+
+`ACCEPTED — CLOSED` — ruled in-session, in chat, on 2026-08-20. Actor:
+Ryan Tufts. Transcribed verbatim from the Agent 0 relay:
+
+> "I ACCEPT Piping SCA-009 Gate-5 validation and CLOSE the amendment, per
+> package SHA-256
+> 0b07defec01a794659e891a0ff792aea615be442673e97b70b3ef453bd32e8fa at
+> branch commit a08701951. Advance _Decomposition/_LATEST.md to revision
+> 0.12 and _ScopeChange/_LATEST.md to SCA-009, pointer-last, and set the
+> amendment state CLOSED_FOR_SCOPE_CHANGE_ONLY. Downstream reruns remain
+> obligations of their owning instruments. Then merge PR #593."
+
+### Closure effect
+
+The ruled-upon commit `a08701951` remains intact; this closing commit
+lands on top of it and executes exactly the authorized acts: advance
+`_Decomposition/_LATEST.md` to revision 0.12, advance
+`_ScopeChange/_LATEST.md` to the SCA-009 snapshot (staged pointer-last),
+and set the amendment state **`CLOSED_FOR_SCOPE_CHANGE_ONLY`**. The
+ruling additionally authorizes the merge of PR #593, executed by Agent 0
+after CI. Downstream reruns (DAG-008 rebuild, formal AUDIT_DECOMP
+pre/post comparison, targeted RECONCILIATION refresh, PREPARATION
+scaffold, DEL-07-09 Dependencies extract) remain obligations of their
+owning instruments per `Propagation_Plan.md`. This record closes SCA-009
+for scope change only: it authorizes no implementation, lifecycle,
+release, professional-reliance, dependency, estimate, or schedule effect.

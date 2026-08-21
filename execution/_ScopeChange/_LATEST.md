@@ -2,12 +2,12 @@
 
 |Field|Value|
 |---|---|
-|AmendmentID|SCA-008|
-|Snapshot|`execution/_ScopeChange/SCA-008_2026-07-27_2301/`|
+|AmendmentID|SCA-009|
+|Snapshot|`execution/_ScopeChange/SCA-009_2026-08-20_0000/`|
 |Status|accepted|
-|Created|2026-07-27|
-|Summary|D-58 / DEC-091 current-effect reconciliation: preserve D-30, D-31, D-58, DEC-041, and DEC-063 as historical acts; retire current reliance on the App-era D-APP-48 / D-30 synchronized-consumption mechanism; leave the automation-condition mechanism unresolved; preserve PRD R7, Piping's non-client posture, every existing stable ID, topology, and dependency edge; advance SOFTWARE_DECOMP to revision v0.11; correct one DEL-16-04 current-gate sentence without lifecycle change; and establish a complete active SCA-008 snapshot. No successor mechanism, repin, implementation, lifecycle, release, professional-reliance, dependency, estimate, or schedule effect is created.|
+|Created|2026-08-20|
+|Summary|Interactive operation vocabulary and tool-palette ownership: add DEL-07-09 "Interactive operation vocabulary and tool palette contract" (PKG-07, UX_UI_SLICE, context envelope L per owner ruling) with new scope row SOW-077 and decision row DEC-094; advance SOFTWARE_DECOMP to revision 0.12; ratify the two-class vocabulary (NORMATIVE-NOW / ROADMAP) with its implementation-landing ledger, binding to the implemented operation taxonomy rather than the schema OperationKind enum, every palette command routing through the PKG-16 structured-operation layer; re-point the DEL-07-03 R-005/R-006 editor-ownership landing to the DEL-07-09 contract without lifecycle change; reserve the DEL-16-04 route/support candidate-generator ownership to a separate act; preserve every existing stable ID, topology row, and dependency edge; downstream reruns (DAG-008 rebuild, AUDIT_DECOMP pre/post comparison, targeted RECONCILIATION refresh, PREPARATION scaffold, DEL-07-09 Dependencies extract) remain obligations of their owning instruments. No lifecycle, release, professional-reliance, dependency, estimate, or schedule effect is created.|
 
-Historical residue: SCA-007 remains immutable and incomplete under its own
-snapshot contract. SCA-008 replaces it only as the active current snapshot;
-it does not rewrite SCA-007 or its historical closure claims.
+Historical residue: SCA-008 remains immutable and complete under its own
+snapshot contract. SCA-009 replaces it only as the active current snapshot;
+it does not rewrite SCA-008 or its closure record.

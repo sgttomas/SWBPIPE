@@ -1,6 +1,6 @@
 # Piping SCA-009 Decision Log
 
-**State: `GATE 5 CANDIDATE — CLOSURE RULING PENDING`**
+**State: `CLOSED_FOR_SCOPE_CHANGE_ONLY`**
 
 ## Pending register (Gate-1 candidate package, historical)
 
@@ -36,6 +36,8 @@ chat rulings, 2026-08-20). Dispositions are human acts.
 | 2026-08-20 | Gate 4 application | SCOPE_CHANGE support (Agent 0-dispatched bounded generalist) | Applied exactly the six approved preimage→postimage pairs to the live surfaces; every live-file SHA-256 proven equal to its approved postimage hash (proof table in `RUN_SUMMARY.md`); live decomposition now revision 0.12 with `SOW-077`, `DEL-07-09` (envelope L), `DEC-094`; registers 77/102/102 rows, CSV-parse verified; no pointer moved (pointer-last, Gate 5); candidate-whitespace check clean over the full branch range. | `APPLIED` |
 | 2026-08-20 | Gate 5 direction | Ryan Tufts | "proceed to Gate 5. CI is still running, which is fine." | `DIRECTED` |
 | 2026-08-20 | Gate 5 candidate staging | SCOPE_CHANGE support (Agent 0-dispatched bounded generalist) | Completed the snapshot artifact set (pre/post coverage computed from actual files — 76/18/101/101/18 `S=9,M=69,L=23` at basis vs 77/18/102/102/18 `S=9,M=69,L=24` applied, declared==found both sides; supersession delta/map; propagation plan; validation record) and routed the Piping-loop coordination notice. Deterministic validation pass recorded in `Validation_Record.md` (whitespace PASS, claims-language VALID, register-estate findings all pre-existing, ID sweep clean, six-file re-proof exact). Pointers untouched. Closure and pointer advance reserved for the post-ruling closing commit. | `STAGED — AWAITING CLOSURE RULING` |
+| 2026-08-20 | Gate 5 closure | Ryan Tufts | "I ACCEPT Piping SCA-009 Gate-5 validation and CLOSE the amendment, per package SHA-256 0b07defec01a794659e891a0ff792aea615be442673e97b70b3ef453bd32e8fa at branch commit a08701951. Advance _Decomposition/_LATEST.md to revision 0.12 and _ScopeChange/_LATEST.md to SCA-009, pointer-last, and set the amendment state CLOSED_FOR_SCOPE_CHANGE_ONLY. Downstream reruns remain obligations of their owning instruments. Then merge PR #593." | `ACCEPTED — CLOSED` |
+| 2026-08-20 | Gate 5 pointer advance | SCOPE_CHANGE support (Agent 0-dispatched bounded generalist) | Advanced `_Decomposition/_LATEST.md` to revision 0.12 and `_ScopeChange/_LATEST.md` to the SCA-009 snapshot (staged pointer-last) in the closing commit, exactly as authorized; no other live surface touched. PR #593 merge executes post-CI under the ruling's authorization. | `APPLIED — CLOSED_FOR_SCOPE_CHANGE_ONLY` |
 
 Notes:
 

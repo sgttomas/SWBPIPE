@@ -589,6 +589,90 @@ findings, identically at the basis; the exit status had been read from a
 echo of the claim are in `Validation_Record.md` §3; the stale Gate-1-era
 first Notes bullet in `Decision_Log.md` was refreshed in the same amend.)
 
+---
+
+# Closing tranche — Gate-5 acceptance, closure, and pointer advance
+
+**Current state:** `CLOSED_FOR_SCOPE_CHANGE_ONLY`
+
+## Execution
+
+Executed on 2026-08-20 by the Agent 0-dispatched bounded generalist under
+the owner's Gate-5 closure ruling (verbatim in `ACCEPTANCE_RECORD.md`):
+Gate-5 validation `ACCEPTED` on package SHA-256 `0b07defe…` at the intact
+ruled-upon commit `a08701951`; amendment `CLOSED`; both pointer advances
+and the PR #593 merge authorized. This closing commit lands on top of
+`a08701951` and performs exactly the authorized acts.
+
+## What was written
+
+- `execution/_Decomposition/_LATEST.md` → revision 0.12 (existing
+  one-line format preserved).
+- `execution/_ScopeChange/_LATEST.md` → SCA-009
+  (`SCA-009_2026-08-20_0000/`, status accepted, created 2026-08-20;
+  SCA-008-format field table with the closure summary; historical-residue
+  paragraph: SCA-008 remains immutable and complete, superseded only as
+  the active current snapshot). Staged pointer-last.
+- `ACCEPTANCE_RECORD.md` (verbatim Gate-5 ruling; state
+  `CLOSED_FOR_SCOPE_CHANGE_ONLY`), `Decision_Log.md` (Gate-5
+  `ACCEPTED — CLOSED` and pointer-advance rows), `Handoff_State.md`
+  (final closure handoff), and this `RUN_SUMMARY.md` (written last).
+
+Nothing else was touched: the two pointer files are the only live-surface
+writes; no deliverable folder, register, implementation tree, or
+historical snapshot changed in this commit.
+
+## Post-closure obligations
+
+Per `Propagation_Plan.md` and `Handoff_State.md`: PR #593 merge (Agent 0,
+post-CI, per the ruling); then DAG-008 rebuild, formal AUDIT_DECOMP
+pre/post comparison, targeted RECONCILIATION refresh, PREPARATION
+scaffold for DEL-07-09, and the DEL-07-09 `Dependencies.csv` extract —
+each owned by its own instrument; none executed by SCA-009.
+
+## Final package integrity
+
+Per-file SHA-256 of every package file except this `RUN_SUMMARY.md`:
+
+| File | SHA-256 |
+|---|---|
+| `ACCEPTANCE_RECORD.md` | `0e4b789920f9a0f8f6f3776555a44352de051f4542e750aa9bc6e8604a785771` |
+| `Amendment_Actions.csv` | `1a6df9177205e227b67ac9e2c7cf10b185ec88a323cbd8bfb03781b41232b37c` |
+| `Amendment_Preview.md` | `44eaf63ab9de9a4703972acdedc39b65a760dce4f1b2b566134e861512a71eab` |
+| `Brief.md` | `ad36f600c0bb796e1029c11f0f70370413c7864e343625da3988f9010bb64ffd` |
+| `Decision_Log.md` | `5179da7e4ab566d7f20d42611119e0b2346e0f82f18ac0378f2ad8afc77ff98d` |
+| `Handoff_State.md` | `92df402801ebe6a451f5fb068c56703f70db7f29cadbfae5a5f557ff9e024d7f` |
+| `Impact_Assessment.md` | `bfa25d898e65b82012b2a93988432a121d5f2b842a5469cf7d53593a1a2ba6d0` |
+| `Impact_Sketch.md` | `7ac40e4e6a94b9276f0bc4a5501e59998c4bbf0db8eb17e51bff538eadfaad77` |
+| `Post_Change_Coverage.json` | `b28a13fbdfcdf89be13e65c72293867388fac1c1c949e3c6d7d6a6b070b9e565` |
+| `Pre_Change_Coverage.json` | `664800428731ada0bf70bd0e9179d428991d0901032fd63f91307283d32128c0` |
+| `Propagation_Plan.md` | `62abeb91a3dee79c6064075a8f7de025e3b38c7158217d3caa01ef32c82ac93a` |
+| `Supersession_Delta.csv` | `d0714e661b03c0236cc33cccf6a2732dd2ac49a240a3776f24c26a1fb2d8ed34` |
+| `Supersession_Map.csv` | `29a4e4d96f0f27117a1ceadee3bd0d470ec6668ac58c35180839e33c181fc2cc` |
+| `Validation_Record.md` | `adb5f900e929924ea337fd9a56d17570f61ba5f1f740c605c948de9e803ba4d8` |
+| `Vocabulary_Annex.md` | `f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c` |
+| `postimages/ContextBudgetQA.csv` | `84497efb81d4b31b085e016d37a285aed3755be7740a632794e355dad259468d` |
+| `postimages/DEL-07-03_CONTEXT.md` | `e69a8d7d832b5af0f15e08c3c242e9d5ace98f26a752ee41fda06855f528ae10` |
+| `postimages/DEL-07-03_STATUS.md` | `41039f77e6c0d86dcd013e0c17f09bf51889fbc1aef3a9a68e54d834f8e95596` |
+| `postimages/Deliverables.csv` | `f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539` |
+| `postimages/SOFTWARE_DECOMP.md` | `a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3` |
+| `postimages/ScopeLedger.csv` | `97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238` |
+
+**Final package SHA-256 (same sorted-lines method, twenty-one files):**
+`f0e3bbdf272e354ffae621c47df3b676c9ac35949e6e95c917031056658e4eba`
+
+The Gate-5 ruled-upon package hash `0b07defe…` identifies the candidate as
+ruled at commit `a08701951`; this final hash covers the same files after
+the closure transcription (only `ACCEPTANCE_RECORD.md`,
+`Decision_Log.md`, and `Handoff_State.md` changed).
+
+## Handoff
+
+**State:** `CLOSED_FOR_SCOPE_CHANGE_ONLY`. **NextOwner:** Agent 0
+(HELP_HUMAN) for the authorized PR #593 merge post-CI; thereafter the
+owning instruments for the post-closure obligations. Standard claim fence
+applies (F-PIP-2; DEC-081 claims taxonomy).
+
 ## Handoff
 
 **NextOwner:** Ryan Tufts. **NextAction:** the Gate-5 closure ruling on
