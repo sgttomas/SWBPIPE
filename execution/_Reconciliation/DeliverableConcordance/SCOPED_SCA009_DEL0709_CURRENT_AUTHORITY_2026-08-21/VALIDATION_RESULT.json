@@ -1,0 +1,16 @@
+{
+  "run_id": "SCOPED_SCA009_DEL0709_CURRENT_AUTHORITY_2026-08-21",
+  "status": "PASS",
+  "accepted_upstream": "SCA-009 / SOFTWARE_DECOMP revision 0.12",
+  "historical_package_preserved": true,
+  "authority_current_effect_rows": 6,
+  "targeted_claim_refresh_rows": 8,
+  "targeted_deliverables": ["DEL-07-09", "DEL-07-03", "DEL-07-01", "DEL-07-02", "DEL-16-01"],
+  "supersession_bindings": ["DEL-07-03-R-005", "DEL-07-03-R-006"],
+  "out_of_scope_deliverables": [],
+  "historical_claim_rows_edited": 0,
+  "lifecycle_changes": 0,
+  "implementation_closures": 0,
+  "pointer_updates": 0,
+  "closure_verdict": "CLOSED_FOR_TARGETED_RECONCILIATION / IMPLEMENTATION_OPEN"
+}

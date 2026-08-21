@@ -1,0 +1,36 @@
+{
+  "snapshot_id": "DAG-010",
+  "generated": "2026-08-21",
+  "status": "APPROVED_ACTIVE_GRAPH_AUTHORITY",
+  "frozen_git_base": "b1876a5e0f0083e10c0c18255cd92ed0079b63a2",
+  "branch": "codex/piping-sca009-ci-support-20260821",
+  "approved_parent": {
+    "path": "execution/_DAG/DAG-009/",
+    "dependency_edges_sha256": "4293cbe39ff794f74da7031c2f0e2706003fadb666ca4d85f0e7d3ec25baa9cc",
+    "nodes_sha256": "6e5050c4e578f6ff9819ee7a11dbb395b3f0a163b4fb0c48e88c3d084d9b0732",
+    "manifest_sha256": "a9cbf0ec7c8ac245f834131823bc31a59082f9c2c47d80988fd3168cc323d979"
+  },
+  "accepted_upstream": {
+    "decomposition_path": "execution/_Decomposition/SOFTWARE_DECOMP.md",
+    "decomposition_revision": "0.12",
+    "decomposition_sha256": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+    "scope_change": "execution/_ScopeChange/SCA-009_2026-08-20_0000/",
+    "scope_change_pointer": "execution/_ScopeChange/_LATEST.md",
+    "owner_direction": "2026-08-21 Piping iteration steer, N1 mechanical obligation",
+    "basis_amendment": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_DAG_BASIS_AMENDMENT.md"
+  },
+  "delta": {
+    "deliverable_nodes_added": ["DEL-07-09"],
+    "scope_items_added_to_graph_nodes": ["SOW-077"],
+    "anchor_rows_added": ["DAG-010-DEL-07-09-A001", "DAG-010-DEL-07-09-A002", "DAG-010-DEL-07-09-A003", "DAG-010-DEL-07-09-A004"],
+    "execution_rows_added": ["DAG-010-DEL-07-09-E001", "DAG-010-DEL-07-09-E002", "DAG-010-DEL-07-09-E003"],
+    "normalized_execution_edges_added": [["DEL-07-09", "DEL-16-01"], ["DEL-07-09", "DEL-07-01"], ["DEL-07-09", "DEL-07-02"]],
+    "existing_nodes_changed": 0,
+    "existing_rows_changed": 0,
+    "existing_rows_removed": 0
+  },
+  "transformation": "Preserve approved DAG-009 nodes and rows exactly; add the accepted SCA-009 DEL-07-09 node carrying SOW-077, four decomposition anchors, and exactly three upstream execution rows; regenerate machine graph, audit, topology, cycle, and manifest derivatives.",
+  "estimate_or_schedule_recomputation": false,
+  "lifecycle_change": false,
+  "product_change": false
+}
