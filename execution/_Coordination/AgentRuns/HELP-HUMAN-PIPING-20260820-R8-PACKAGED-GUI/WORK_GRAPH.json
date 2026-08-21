@@ -1,0 +1,136 @@
+{
+  "schema": "chirality-managed-work-graph/v1",
+  "version": 9,
+  "run_id": "HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI",
+  "status": "PASS_CHECKS_AWAITING_REVIEW_8",
+  "frozen": true,
+  "selection_authority": "HELP_HUMAN under explicit owner development-pressure steer",
+  "accepted_basis": "fae5e38ee60fd4c8d4a52ac7f663036a83cdbd7d",
+  "receipt_basis": "Receipt-118",
+  "dependency_authority": "DAG-009",
+  "target_stage": "R5",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "id": "N1",
+      "instance_id": "WI-PKG07-DEL0706",
+      "agent_type": 1,
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-07",
+      "deliverable_id": "DEL-07-06",
+      "status": "PASS_CHECKS_AWAITING_REVIEW_8",
+      "objective": "Close only the exact packaged-Tauri saved-project edited-load GUI smoke residual through actual packaged macOS GUI operation.",
+      "write_owner": "WI-PKG07-DEL0706",
+      "write_targets": [
+        "projects/chirality-piping/apps/desktop/**",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/**",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI/**",
+        "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214752Z_a9b1fbef90f3.json",
+        "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json"
+      ],
+      "checks": [
+        "host-capability actual packaged macOS GUI operation",
+        "desktop-test and desktop-build if code changes",
+        "harness-self-check",
+        "harness-pytest for execution/evidence changes",
+        "scoped focused checks",
+        "fresh read-only software-code-review over 100% frozen integrated diff if product code changes"
+      ],
+      "expected_return": "Observed GUI predicates, exact changed paths, checks, containment, blockers/reruns, derivative status, and requested Agent0 action."
+    }
+  ],
+  "edges": [],
+  "concurrency": "single selected package node",
+  "fan_in_gate": [
+    "actual packaged GUI journey observes 350 N edited to 425 N and applied",
+    "save then quit/relaunch/reopen observes persisted 425 N",
+    "no pending edit or stale solved state is represented as current",
+    "post-reopen solve observes MECHANICS_SOLVED through native backend with matching identity and non-empty rows",
+    "all triggered deterministic checks and independent review pass",
+    "writes remain contained"
+  ],
+  "exclusions": [
+    "receipts and shared registers",
+    "DAG, decomposition, root governance",
+    "Git commit, push, or PR",
+    "lifecycle, release, or professional-reliance claims",
+    "headless proof substituted for GUI observation"
+  ],
+  "runtime_attribution": {
+    "manager": "WORKING_ITEMS WI-PKG07-DEL0706 on Codex GPT-5",
+    "gui_capability": "computer-use skill with @oai/sky on macOS",
+    "context_occupancy": "unavailable unless exposed by runtime"
+  },
+  "attempt_history": [
+    {
+      "attempt": 1,
+      "status": "BLOCKED_HOST_COMPUTER_USE_STATE_CAPTURE_HUNG",
+      "record": "WI-PKG07-DEL0706/MANAGER_RETURN.md#attempt-1--preserved-blocked-history"
+    },
+    {
+      "attempt": 2,
+      "status": "PASS_VALIDATED_TERMINAL_FAN_IN",
+      "amendments": [
+        "WI-PKG07-DEL0706/AMENDMENT_1.md",
+        "WI-PKG07-DEL0706/AMENDMENT_2.md",
+        "WI-PKG07-DEL0706/AMENDMENT_3.md",
+        "WI-PKG07-DEL0706/AMENDMENT_4.md",
+        "WI-PKG07-DEL0706/AMENDMENT_5.md",
+        "WI-PKG07-DEL0706/AMENDMENT_6.md"
+      ],
+      "review_history": [
+        {
+          "review": 1,
+          "status": "FAIL_ACTIONABLE_FINDINGS_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW/RETURN.md"
+        },
+        {
+          "review": 2,
+          "status": "FAIL_ACTIONABLE_FINDINGS_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-2/RETURN.md"
+        },
+        {
+          "review": 3,
+          "status": "FAIL_ACTIONABLE_FINDINGS_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-3/RETURN.md"
+        },
+        {
+          "review": 4,
+          "status": "FAIL_ACTIONABLE_FINDINGS_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-4/RETURN.md"
+        },
+        {
+          "review": 5,
+          "status": "PASS_VALID_FOR_TERMINAL_FAN_IN",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-5/RETURN.md"
+        },
+        {
+          "review": 6,
+          "status": "PASS_VALID_FOR_TERMINAL_FAN_IN",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-6/RETURN.md"
+        }
+      ]
+    },
+    {
+      "attempt": 3,
+      "status": "PASS_CHECKS_AWAITING_REVIEW_8",
+      "basis_commit": "a9b1fbef90f3bb9a894054c22f6fc77572fedd0d",
+      "amendment": "WI-PKG07-DEL0706/AMENDMENT_7.md",
+      "trigger_evidence": [
+        "validation/evidence/sweeps/SWEEP_20260820T214752Z_a9b1fbef90f3.json",
+        "validation/evidence/sweeps/SWEEP_20260820T214858Z_a9b1fbef90f3.json"
+      ],
+      "review_history": [
+        {
+          "review": 7,
+          "status": "FAIL_ACTIONABLE_CONTAINMENT_FINDING_REMEDIATED",
+          "record": "WI-PKG07-DEL0706/TASK-REVIEW-7/RETURN.md"
+        }
+      ],
+      "control_remediation": "WI-PKG07-DEL0706/AMENDMENT_8.md",
+      "review_gate": "fresh read-only non-delegating review 8 over 100% adjacent remediation diff"
+    }
+  ]
+}

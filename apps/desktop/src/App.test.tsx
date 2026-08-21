@@ -6,8 +6,18 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { App } from "./App";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+
+import {
+  App,
+  SolveRunGenerationGate,
+  commitModelAfterSolveInvalidation,
+  solveProofStatus,
+  type SolveProofEvidence,
+} from "./App";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
@@ -23,7 +33,81 @@ import {
   runPreviewMechanics,
 } from "./services/previewService";
 import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
-import type { EditorOperationIntent, MechanicsResult } from "./types";
+import type {
+  EditorOperationIntent,
+  LocalProjectEnvelope,
+  MechanicsResult,
+  ModelHashEvidence,
+  PreviewModel,
+  SolveJobAuditState,
+} from "./types";
+
+afterEach(() => {
+  invokeMock.mockReset();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((onResolve, onReject) => {
+    resolve = onResolve;
+    reject = onReject;
+  });
+  return { promise, reject, resolve };
+}
+
+function nativeMenuCommand(command: string) {
+  window.dispatchEvent(
+    new CustomEvent("openpipestress-native-menu-command", { detail: command }),
+  );
+}
+
+function inventedOpenEnvelope(model: PreviewModel): LocalProjectEnvelope {
+  const openedModel = JSON.parse(JSON.stringify(model)) as PreviewModel;
+  openedModel.project.id = "project:invented-race-safe-open";
+  openedModel.project.name = "Invented race-safe open";
+  return {
+    summary: {
+      project_id: openedModel.project.id,
+      project_name: openedModel.project.name,
+      database_path: "/invented/local/race-safe.sqlite",
+      storage_mode: "local_sqlite",
+      migration_status: "current",
+      migration_framework: "application_service_separate_db_and_product_schema",
+      store_schema_version: 1,
+      store_schema_target_version: 1,
+      migrations_applied_on_open: [],
+      fts_indexed: true,
+      copied_external_files: false,
+      editor_intent_count: 0,
+      proposal_count: 0,
+      selected_review_target_count: 0,
+      selected_review_target_ref: "none",
+      persisted_mechanics_result_count: 0,
+      persisted_analysis_run_count: 0,
+      persisted_analysis_run_ref: "none",
+      persisted_model_hash_count: 0,
+      persisted_model_hash_ref: "none",
+      persisted_project_envelope_hash_count: 0,
+      persisted_project_envelope_hash_ref: "none",
+      unit_round_trip_status: "not_checked_in_invented_test",
+      unit_round_trip_checked_ref_count: 0,
+      unit_round_trip_signature: "none",
+      message: "Opened invented race-safe project.",
+    },
+    model: openedModel,
+    editor_intents: [],
+    proposal: null,
+    selected_review_target: null,
+    mechanics_result: null,
+    analysis_run: null,
+    model_hash: null,
+    project_envelope_hash: null,
+    model_document_migration: null,
+    model_migration_ledger: [],
+  };
+}
 
 function deformationResultRows(
   results: MechanicsResult["results"],
@@ -84,6 +168,373 @@ function displacementComponentRows(
 }
 
 describe("OpenPipeStress desktop preview", () => {
+  it("suppresses solve proof unless the completed job, result, and exact model version remain bound", async () => {
+    const model = await loadPreviewModel();
+    const result = await runPreviewMechanics(model);
+    const modelHash: ModelHashEvidence = {
+      algorithm: "sha256",
+      canonicalization: "rfc8785_jcs",
+      payload_scope: "model_payload",
+      payload_ref: model.project.id,
+      value: `sha256:${"a".repeat(64)}`,
+      hash_status: "computed_local_preview",
+    };
+    const solveJob: SolveJobAuditState = {
+      job_id: "job:test-completed",
+      state: "completed",
+      progress_basis: "preview_service_event_state_only_no_percent_stream",
+      percentages_synthesized: false,
+      backend_percent_stream_available: false,
+      cancellation_requested: false,
+      cancellation_status: "not_requested",
+      backend_job_seam: "tauri_backend_job",
+      backend_job_id: "job:test-completed",
+      backend_cancellation_token: "token:test",
+      events: [],
+      error_message: null,
+    };
+    const proof: SolveProofEvidence = {
+      state: "completed",
+      run_generation: 7,
+      job_id: solveJob.job_id,
+      backend_job_seam: solveJob.backend_job_seam,
+      project_ref: model.project.id,
+      model_sha256: modelHash.value,
+      input_manifest_sha256: "b".repeat(64),
+      result_run_id: result.run_id,
+      result_model_ref: result.model_ref,
+      result_row_count: result.results.length,
+    };
+
+    expect(solveProofStatus(model, modelHash, result, solveJob, proof)).toContain(
+      "identity=match",
+    );
+
+    for (const state of ["running", "cancelling", "cancelled", "failed"] as const) {
+      expect(
+        solveProofStatus(model, modelHash, result, { ...solveJob, state }, proof),
+      ).toBeNull();
+    }
+    expect(
+      solveProofStatus(
+        model,
+        modelHash,
+        result,
+        { ...solveJob, job_id: "job:different-rerun" },
+        proof,
+      ),
+    ).toBeNull();
+    expect(
+      solveProofStatus(
+        model,
+        { ...modelHash, value: `sha256:${"c".repeat(64)}` },
+        result,
+        solveJob,
+        proof,
+      ),
+    ).toBeNull();
+    expect(
+      solveProofStatus(
+        model,
+        modelHash,
+        { ...result, run_id: "run:late-different-model-version" },
+        solveJob,
+        proof,
+      ),
+    ).toBeNull();
+  });
+
+  it("rejects overlap and invalidates an active generation before model commit", () => {
+    const gate = new SolveRunGenerationGate();
+    const first = gate.tryStart();
+    expect(first).not.toBeNull();
+    expect(gate.tryStart()).toBeNull();
+
+    const revision = { current: 4 };
+    let tokenWasCurrentInsideCommit = true;
+    commitModelAfterSolveInvalidation(gate, revision, () => {
+      tokenWasCurrentInsideCommit = gate.isCurrent(first!);
+    });
+    expect(tokenWasCurrentInsideCommit).toBe(false);
+    expect(revision.current).toBe(5);
+    expect(gate.finish(first!)).toBe(false);
+  });
+
+  it("suppresses a real delayed backend completion when native open commits a new model", async () => {
+    const originalModel = await loadPreviewModel();
+    const oldResult = await runPreviewMechanics(originalModel);
+    const openedEnvelope = inventedOpenEnvelope(originalModel);
+    const start = deferred<unknown>();
+    const terminal = deferred<unknown>();
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "start_preview_mechanics_job_with_solver_mode") return start.promise;
+      if (command === "poll_preview_mechanics_job") return terminal.promise;
+      if (command === "open_local_project") return Promise.resolve(openedEnvelope);
+      throw new Error(`Unexpected native command ${command}`);
+    });
+
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() =>
+      expect(invokeMock).toHaveBeenCalledWith(
+        "start_preview_mechanics_job_with_solver_mode",
+        expect.any(Object),
+      ),
+    );
+    await act(async () => {
+      start.resolve({
+        job_id: "backend-solve-job-reused",
+        backend_cancellation_token: "cancel-token-reused",
+        state: "queued",
+        cancellation_scope: "invented_test_checkpoint",
+      });
+      await Promise.resolve();
+    });
+    await waitFor(() =>
+      expect(invokeMock).toHaveBeenCalledWith("poll_preview_mechanics_job", {
+        jobId: "backend-solve-job-reused",
+      }),
+    );
+
+    act(() => nativeMenuCommand("file.open-local"));
+    expect(await screen.findByText("Opened invented race-safe project.")).toBeInTheDocument();
+    await act(async () => {
+      terminal.resolve({
+        job_id: "backend-solve-job-reused",
+        state: "completed",
+        cancellation_requested: false,
+        cancellation_status: "not_requested",
+        cancellation_scope: "invented_test_checkpoint",
+        result: oldResult,
+        error_message: null,
+      });
+      await Promise.resolve();
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId("solve-job-summary").textContent).toContain(
+        "state=not_started",
+      ),
+    );
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(
+      "not started; result rows=0",
+    );
+    expect(screen.queryByText(/identity=match/)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/project:invented-race-safe-open/).length).toBeGreaterThan(0);
+  });
+
+  it.each(["failed", "cancelled"] as const)(
+    "suppresses a real delayed backend %s terminal after native open",
+    async (terminalState) => {
+      const originalModel = await loadPreviewModel();
+      const openedEnvelope = inventedOpenEnvelope(originalModel);
+      const start = deferred<unknown>();
+      const terminal = deferred<unknown>();
+      invokeMock.mockImplementation((command: string) => {
+        if (command === "start_preview_mechanics_job_with_solver_mode") return start.promise;
+        if (command === "poll_preview_mechanics_job") return terminal.promise;
+        if (command === "open_local_project") return Promise.resolve(openedEnvelope);
+        throw new Error(`Unexpected native command ${command}`);
+      });
+
+      render(<App />);
+      await screen.findByTestId("desktop-preview-shell");
+      (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+      act(() => nativeMenuCommand("analyze.run"));
+      await waitFor(() =>
+        expect(invokeMock).toHaveBeenCalledWith(
+          "start_preview_mechanics_job_with_solver_mode",
+          expect.any(Object),
+        ),
+      );
+      await act(async () => {
+        start.resolve({
+          job_id: "backend-solve-job-reused",
+          backend_cancellation_token: "cancel-token-reused",
+          state: "queued",
+          cancellation_scope: "invented_test_checkpoint",
+        });
+        await Promise.resolve();
+      });
+      await waitFor(() =>
+        expect(invokeMock).toHaveBeenCalledWith("poll_preview_mechanics_job", {
+          jobId: "backend-solve-job-reused",
+        }),
+      );
+      act(() => nativeMenuCommand("file.open-local"));
+      expect(await screen.findByText(/Opened invented race-safe project/)).toBeInTheDocument();
+      await act(async () => {
+        terminal.resolve({
+          job_id: "backend-solve-job-reused",
+          state: terminalState,
+          cancellation_requested: terminalState === "cancelled",
+          cancellation_status:
+            terminalState === "cancelled" ? "cancelled_at_checkpoint" : "not_requested",
+          cancellation_scope: "invented_test_checkpoint",
+          result: null,
+          error_message: terminalState === "failed" ? "invented late failure" : null,
+        });
+        await Promise.resolve();
+      });
+      await waitFor(() =>
+        expect(screen.getByTestId("solve-job-summary").textContent).toContain(
+          "state=not_started",
+        ),
+      );
+      expect(screen.queryByText(/invented late failure/)).not.toBeInTheDocument();
+      expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(
+        "not started; result rows=0",
+      );
+    },
+  );
+
+  it("persists native immediate-cancel intent until the backend start receipt exists", async () => {
+    const start = deferred<unknown>();
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "start_preview_mechanics_job_with_solver_mode") return start.promise;
+      if (command === "cancel_preview_mechanics_job") {
+        return Promise.resolve({
+          job_id: "backend-solve-job-immediate-cancel",
+          accepted: true,
+          cancellation_status: "request_recorded",
+          job_state: "running",
+          cancellation_scope: "invented_test_checkpoint",
+          cancellation_success_claimed: false,
+        });
+      }
+      if (command === "poll_preview_mechanics_job") {
+        return Promise.resolve({
+          job_id: "backend-solve-job-immediate-cancel",
+          state: "cancelled",
+          cancellation_requested: true,
+          cancellation_status: "cancelled_at_checkpoint",
+          cancellation_scope: "invented_test_checkpoint",
+          result: null,
+          error_message: null,
+        });
+      }
+      throw new Error(`Unexpected native command ${command}`);
+    });
+
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() =>
+      expect(invokeMock).toHaveBeenCalledWith(
+        "start_preview_mechanics_job_with_solver_mode",
+        expect.any(Object),
+      ),
+    );
+    act(() => nativeMenuCommand("analyze.cancel"));
+    await waitFor(() =>
+      expect(screen.getByTestId("solve-job-summary").textContent).toContain(
+        "state=cancelling",
+      ),
+    );
+
+    await act(async () => {
+      start.resolve({
+        job_id: "backend-solve-job-immediate-cancel",
+        backend_cancellation_token: "cancel-token-immediate",
+        state: "queued",
+        cancellation_scope: "invented_test_checkpoint",
+      });
+      await Promise.resolve();
+    });
+    await waitFor(() =>
+      expect(invokeMock).toHaveBeenCalledWith("cancel_preview_mechanics_job", {
+        jobId: "backend-solve-job-immediate-cancel",
+        cancellationToken: "cancel-token-immediate",
+      }),
+    );
+    expect(
+      invokeMock.mock.calls.filter(([command]) =>
+        command === "cancel_preview_mechanics_job",
+      ),
+    ).toHaveLength(1);
+    await waitFor(() =>
+      expect(screen.getByTestId("solve-job-summary").textContent).toContain(
+        "state=cancelled",
+      ),
+    );
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(
+      "not started; result rows=0",
+    );
+  });
+
+  it("dispatches detached pre-start cancellation once after native open invalidates the run", async () => {
+    const originalModel = await loadPreviewModel();
+    const openedEnvelope = inventedOpenEnvelope(originalModel);
+    const start = deferred<unknown>();
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "start_preview_mechanics_job_with_solver_mode") return start.promise;
+      if (command === "open_local_project") return Promise.resolve(openedEnvelope);
+      if (command === "cancel_preview_mechanics_job") {
+        return Promise.resolve({
+          job_id: "backend-solve-job-detached-cancel",
+          accepted: true,
+          cancellation_status: "request_recorded",
+          job_state: "running",
+          cancellation_scope: "invented_test_checkpoint",
+          cancellation_success_claimed: false,
+        });
+      }
+      throw new Error(`Unexpected native command ${command}`);
+    });
+
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() =>
+      expect(invokeMock).toHaveBeenCalledWith(
+        "start_preview_mechanics_job_with_solver_mode",
+        expect.any(Object),
+      ),
+    );
+    act(() => nativeMenuCommand("analyze.cancel"));
+    await waitFor(() =>
+      expect(screen.getByTestId("solve-job-summary").textContent).toContain(
+        "state=cancelling",
+      ),
+    );
+
+    act(() => nativeMenuCommand("file.open-local"));
+    expect(await screen.findByText("Opened invented race-safe project.")).toBeInTheDocument();
+    await act(async () => {
+      start.resolve({
+        job_id: "backend-solve-job-detached-cancel",
+        backend_cancellation_token: "cancel-token-detached",
+        state: "queued",
+        cancellation_scope: "invented_test_checkpoint",
+      });
+      await Promise.resolve();
+    });
+
+    await waitFor(() =>
+      expect(invokeMock).toHaveBeenCalledWith("cancel_preview_mechanics_job", {
+        jobId: "backend-solve-job-detached-cancel",
+        cancellationToken: "cancel-token-detached",
+      }),
+    );
+    expect(
+      invokeMock.mock.calls.filter(([command]) =>
+        command === "cancel_preview_mechanics_job",
+      ),
+    ).toHaveLength(1);
+    expect(
+      invokeMock.mock.calls.some(([command]) => command === "poll_preview_mechanics_job"),
+    ).toBe(false);
+    expect(screen.getByTestId("solve-job-summary")).toHaveTextContent("state=not_started");
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(
+      "not started; result rows=0",
+    );
+    expect(screen.queryByText(/identity=match/)).not.toBeInTheDocument();
+  });
+
   it("surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states", async () => {
     const model = await loadPreviewModel();
     const result = await runPreviewMechanics(model);
@@ -9333,6 +9784,18 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(solvedReadiness).getByTestId("readiness-professional").textContent,
     ).toContain("no professional acceptance record");
+    const visibleSolveProof = screen.getByTestId("status-pill-solve-proof");
+    expect(visibleSolveProof.textContent).toContain(
+      "seam=browser_fixture_no_backend_job",
+    );
+    expect(visibleSolveProof.textContent).toContain(
+      "project=project:invented-loop-01",
+    );
+    expect(visibleSolveProof.textContent).toContain(
+      "result_model=project:invented-loop-01",
+    );
+    expect(visibleSolveProof.textContent).toContain("identity=match");
+    expect(visibleSolveProof.textContent).toContain("rows=830");
     expect(screen.getByTestId("solve-job-summary").textContent).toContain(
       "state=completed",
     );

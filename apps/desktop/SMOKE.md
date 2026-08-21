@@ -9767,6 +9767,65 @@ notes:
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
 
+## TP-MAC-286 packaged-Tauri saved edited-load GUI smoke - PASSED (`HELP-HUMAN-PIPING-20260820-R8-PACKAGED-GUI`, 2026-08-20)
+
+- Operator/surface: WORKING_ITEMS `WI-PKG07-DEL0706` through Computer Use
+  (`@oai/sky`) against the actual macOS Tauri `.app`; no browser or headless
+  proof was substituted. The run used only invented repository data.
+- Edit/apply/save leg: selected `load:L-100/load:L-100-Y`, observed `350 N`,
+  entered `425`, queued the structured magnitude operation, and applied it.
+  The GUI reported `tauri_backend_apply`, one applied operation, zero pending
+  operations, cleared prior solve state, and session-only persistence before
+  local save. `Create local` and `Save local` wrote the SQLite snapshot.
+- Quit/reopen leg: after `super+q`, relaunch started with no local store open.
+  `List local` returned one project and explicit reopen of
+  `project:invented-loop-01` showed `425 N`, no changed magnitude queued,
+  zero pending/applied/editor/proposal state, and
+  `not started; result rows=0`.
+- Product repair: the existing backend-seam/model-result identity values were
+  not reliably visible after solve. A bounded global `Solve proof` status row
+  now renders the existing state-envelope values without changing contracts.
+  Fresh review 1 rejected the first happy-path-only implementation because it
+  could combine a retained old result with a new running/cancelled/failed job.
+  The remediated row now requires a completed matching job, exact current model
+  SHA-256, input-manifest SHA-256, result run/model identity, row count, and a
+  synchronous solve generation. Adverse Vitest coverage proves superseded and
+  mismatched callbacks suppress the row; Playwright covers completed bound
+  visibility in both viewport profiles. Review 4 then found that immediate
+  cancellation followed by a model/open transition could leave the eventual
+  detached backend job running. A generation-bound cancellation tombstone now
+  survives only until the delayed start receipt, dispatches cancellation
+  exactly once, and never republishes stale UI state.
+- Final rebuilt package: bundle
+  `apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`;
+  executable SHA-256
+  `3a95da3d2269b124734bc22a0e46d820e3fdb6870630159757ff8bab30507a8c`.
+  Source-tree base was local commit
+  `91b92f949b8d808b61268baca9a54f4f716c99ff`; the reviewed R8 node diff was
+  uncommitted at execution and is assigned its integration commit by CHANGE.
+- Final post-reopen solve: before Run, the reopened snapshot remained
+  unsolved with zero result rows. Packaged Run then exposed
+  `MECHANICS_SOLVED`, an available 5-node viewport result, and exactly
+  `seam=tauri_backend_job; project=project:invented-loop-01; result_model=project:invented-loop-01; identity=match; rows=830; generation=6; job=backend-solve-job-1`,
+  model SHA-256
+  `sha256:0f92378afb16d87c6b2e29c1c7dcdcf30ef555eda6c6c814e64c70bb5a231ea5`,
+  and input-manifest SHA-256
+  `0b49bea1cbf6126a0d5ff896297b30cf2b84d4a212d7c538bcbfa137041d22c3`.
+- Checks: focused Vitest PASS (7 selected / 60 skipped); focused Playwright
+  PASS in desktop and compact profiles; registered desktop Vitest PASS (29
+  files / 533 tests); registered
+  desktop build PASS; fresh Tauri `.app` build PASS. Harness and independent
+  frozen-diff review evidence are recorded in the DEL-07-06 run record.
+- Evidence: DEL-07-06
+  `_run_records/WORKING_ITEMS_RUN_2026-08-20_R8_PACKAGED_GUI_EDITED_LOAD.md`;
+  R8 AgentRuns `PACKAGED_REOPENED_UNSOLVED_V6.jpeg` and
+  `PACKAGED_SOLVED_PROOF_V6.jpeg`. Earlier screenshots and all four prior
+  reviewer FAIL returns remain preserved as proof-loop history.
+- Boundary: this closes only the exact packaged edited-load GUI residual.
+  PDU-045/PDU-046 holds remain unchanged. No accessibility-conformance,
+  lifecycle, release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim is made.
+
 ## DEL-08-01 report-package native save seam - PASSED (`R16-N4`, 2026-07-22)
 
 - Scope: final packaged-debug native smoke for the adopted DEL-08-01 report
