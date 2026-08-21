@@ -1,7 +1,13 @@
-# Exact uncommitted candidate files for HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT
+# Exact final closeout files after the already-pushed N2/N3 commits
 # Already committed/pushed N2: b988d9d0e4a7048ac28a73bbe53ce045c631dff8
 # Already committed/pushed N3: ffbc4834389f3095d22896e126b39085c3e00369
-# One repository-relative uncommitted path per line.
+# N1: cef84d954ac2b2c6faa19e4a3f04e43b94c86200
+# N4: a166e30b9f58b8470d96e33d95c12e104b8f01bc
+# Shared/control pre-sweep: f7148f9b97e37babee19e18f5588a4122705ae5b
+# Harness baseline repair: 07909d7193de22b9edeacc686175d28500022b52
+# Failed sweep evidence: f6064019f80298d1d3f1e475aece49fe28f478bc
+# Passing sweep binds f6064019f80298d1d3f1e475aece49fe28f478bc and SHA-256 d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c.
+# One repository-relative closeout path per line; the final proof commit updates existing control paths below.
 projects/chirality-piping/core/product_physics/src/lib.rs
 projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md
 projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv
@@ -75,3 +81,6 @@ projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/SCOPE
 projects/chirality-piping/loop/LOOP_RECEIPTS.md
 projects/chirality-piping/tests/test_release_readiness_script.py
 projects/chirality-piping/tools/validation/validate_architecture_basis.py
+projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260821T053152Z_07909d7193de.json
+projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json
+tools/practitioner_harness/test_live_baseline.py

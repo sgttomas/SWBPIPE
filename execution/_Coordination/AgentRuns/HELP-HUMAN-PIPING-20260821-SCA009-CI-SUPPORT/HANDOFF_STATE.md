@@ -1,17 +1,17 @@
 # Final handoff state — owner-resolved all-node fan-in
 
-- State: `ALL_NODES_ACCEPTED_PENDING_CHANGE_VERIFICATION`.
+- State: `ALL_NODES_ACCEPTED_CLOSEOUT_COMPLETE`.
 - Basis: `b1876a5e0f0083e10c0c18255cd92ed0079b63a2`; SOFTWARE_DECOMP revision 0.12; accepted SCA-009.
 - Owner resolution: exact text and effect are in `OWNER_DIRECTIONS.md`; closeout history is in `CLOSEOUT_RESOLUTION_V2.md`.
 - Authoritative/derivative boundary: accepted decomposition/SCA-009 remain upstream truth. DAG-010, the DEL-07-09 dependency/coverage mirrors, scoped Reconciliation, G4 manifest, and AgentRuns package are derivative evidence.
 
 ## Accepted nodes
 
-- N1: `SUCCESS_CLOSEOUT_RESOLVED_V2`; DAG-010 is the current derivative successor to live-basis DAG-009, and N1's exact failed-then-resolved closeout history is preserved.
+- N1: `SUCCESS_CLOSEOUT_RESOLVED_V2`; committed as `cef84d954ac2b2c6faa19e4a3f04e43b94c86200`. DAG-010 is the current derivative successor to live-basis DAG-009, and N1's exact failed-then-resolved closeout history is preserved.
 - N2: `SUCCESS_OWNER_AMENDED`; committed/pushed as `b988d9d0e4a7048ac28a73bbe53ce045c631dff8`.
 - N3: `SUCCESS`; committed/pushed as `ffbc4834389f3095d22896e126b39085c3e00369`.
-- N4: `SUCCESS_AFTER_OWNER_RESOLUTION_V2`; current V2 checks/review supersede the initial failed-gate disposition without deleting it.
-- Terminal integrated review: `PASS`, with no actionable findings over 100% of the seven-file N2/N4 behavior diff. Exact reviewed hashes and invariants are frozen in `INTEGRATED_REVIEW.md`; DEC-025 remains pending the integrated clean commit.
+- N4: `SUCCESS_AFTER_OWNER_RESOLUTION_V2`; committed as `a166e30b9f58b8470d96e33d95c12e104b8f01bc`. Current V2 checks/review supersede the initial failed-gate disposition without deleting it.
+- Terminal integrated review: `PASS`, with no actionable findings over 100% of the seven-file N2/N4 behavior diff. Exact reviewed hashes and invariants are frozen in `INTEGRATED_REVIEW.md`.
 
 ## Coverage and deferrals
 
@@ -25,7 +25,9 @@
 ## Git closeout
 
 - Branch: `codex/piping-sca009-ci-support-20260821`; PR [#599](https://github.com/sgttomas/chirality/pull/599) against `main`.
-- Already committed/pushed: N2 then N3 at the exact SHAs above.
-- Current uncommitted candidate: `CANDIDATE_FILES.txt`; it contains N1, N4, the integrated review record, and final shared/control/receipt paths only.
-- Next owner: CHANGE. Required order: stage exact candidate; pass staged whitespace/containment; commit N1 then N4 then shared/control as appropriate; run integrated clean-commit DEC-025; verify PR checks and upstream ancestry; push; record exact commit and sweep bindings.
-- No broad project test or DEC-025 sweep was run in final fan-in. No `artifact-proof` label applies. No merge, lifecycle, release, issuance, publication, or professional-reliance effect is created.
+- Ordered commits after the already-pushed N2/N3 pair: N1 `cef84d954ac2b2c6faa19e4a3f04e43b94c86200`; N4 `a166e30b9f58b8470d96e33d95c12e104b8f01bc`; shared/control pre-sweep `f7148f9b97e37babee19e18f5588a4122705ae5b`; harness baseline repair `07909d7193de22b9edeacc686175d28500022b52`; failed-sweep evidence `f6064019f80298d1d3f1e475aece49fe28f478bc`.
+- Required closeout gates: registered Piping pytest 902 PASS; practitioner harness 350 PASS; repository self-check exit 0; receipt validator PASS; G4 policy tests 47 PASS; G4 corpus 40 manifests PASS.
+- Commit-bound DEC-025: PASS at `f6064019f80298d1d3f1e475aece49fe28f478bc`; clean tree; summary `validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json`; SHA-256 `d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c`; all five surfaces passed, including host Playwright dev 22 and dist 2.
+- Failed attempt history remains in `validation/evidence/sweeps/SWEEP_20260821T053152Z_07909d7193de.json`: Rust passed and Python collection failed because the bare interpreter lacked `jsonschema`; the offline uv requirements retry resolved it.
+- `CANDIDATE_FILES.txt` records the final post-N2/N3 closeout membership. The final proof commit contains this updated handoff and Receipt-122 and is intentionally not self-referential.
+- Next owner: human review of PR #599 after required checks pass. No `artifact-proof` label applies. No merge, lifecycle, release, issuance, publication, or professional-reliance effect is created.

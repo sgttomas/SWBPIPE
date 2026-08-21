@@ -2,7 +2,7 @@
   "schema": "chirality-help-human-fan-in-checks/v1",
   "run_id": "HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT",
   "basis": "b1876a5e0f0083e10c0c18255cd92ed0079b63a2",
-  "verdict": "PASS_ALL_NODES_ACCEPTED_PENDING_CHANGE_VERIFICATION",
+  "verdict": "PASS_ALL_NODES_CLOSEOUT_COMPLETE",
   "accepted_nodes": ["N1", "N2", "N3", "N4"],
   "preserved_failure_records": [
     "N1_CLOSEOUT_FAILURE.md",
@@ -12,6 +12,13 @@
   "committed_pushed_nodes": {
     "N2": "b988d9d0e4a7048ac28a73bbe53ce045c631dff8",
     "N3": "ffbc4834389f3095d22896e126b39085c3e00369"
+  },
+  "closeout_commits": {
+    "N1": "cef84d954ac2b2c6faa19e4a3f04e43b94c86200",
+    "N4": "a166e30b9f58b8470d96e33d95c12e104b8f01bc",
+    "shared_control_pre_sweep": "f7148f9b97e37babee19e18f5588a4122705ae5b",
+    "harness_baseline_repair": "07909d7193de22b9edeacc686175d28500022b52",
+    "failed_sweep_evidence": "f6064019f80298d1d3f1e475aece49fe28f478bc"
   },
   "pull_request": 599,
   "checks": [
@@ -33,7 +40,7 @@
     {
       "name": "exact-containment-and-cross-node-disjointness",
       "result": "PASS",
-      "detail": "The final uncommitted candidate contains exactly the 73 paths frozen in CANDIDATE_FILES.txt; already committed N2/N3 paths are absent from that uncommitted set."
+      "detail": "CANDIDATE_FILES.txt records the exact 76-path post-N2/N3 closeout membership, including the baseline repair and failed/passing sweep evidence; N2/N3 remain separately bound by their pushed commit SHAs."
     },
     {
       "name": "terminal-newline-normalization",
@@ -61,8 +68,22 @@
       "detail": "Exit 0. The first final run's new active-surface absolute-path finding was resolved in N4_CHECKS_V2.json; the follow-up run reported only pre-existing findings (REVIEW=4, WARN=40, INFO=14, NOT_APPLICABLE=1)."
     }
   ],
-  "broad_project_tests": "NOT_RUN_FINAL_FAN_IN",
-  "dec_025": "PENDING_INTEGRATED_CLEAN_COMMIT_CHANGE_CLOSEOUT",
+  "resolved_closeout_checks": {
+    "registered_piping_pytest": "PASS — 902 tests at clean HEAD 07909d7193de22b9edeacc686175d28500022b52",
+    "practitioner_harness_pytest": "PASS — 350 tests after conscious 102-file Piping baseline repair",
+    "repository_self_check": "PASS exit 0 with only pre-existing REVIEW/WARN/INFO findings",
+    "receipt_validator": "PASS",
+    "g4_policy_tests": "PASS — 47 tests",
+    "g4_corpus": "PASS — 40 schema-valid manifests"
+  },
+  "dec_025": {
+    "status": "PASS",
+    "commit_hash": "f6064019f80298d1d3f1e475aece49fe28f478bc",
+    "working_tree_dirty": false,
+    "summary": "validation/evidence/sweeps/SWEEP_20260821T053243Z_f6064019f802.json",
+    "sha256": "d4f726255e8d57f9aae851748ad863e1a5c0d094f5ae07ca62dcdc6540cf559c",
+    "surfaces": "PASS — 36 Rust crates; Python 902; Vitest 541; Playwright dev 22 and dist 2; production build"
+  },
   "artifact_proof_label": "NOT_APPLICABLE",
-  "next_owner": "CHANGE"
+  "next_owner": "human review of PR #599"
 }
