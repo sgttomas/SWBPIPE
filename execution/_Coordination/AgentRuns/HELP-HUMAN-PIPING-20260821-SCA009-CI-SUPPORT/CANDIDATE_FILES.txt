@@ -1,0 +1,77 @@
+# Exact uncommitted candidate files for HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT
+# Already committed/pushed N2: b988d9d0e4a7048ac28a73bbe53ce045c631dff8
+# Already committed/pushed N3: ffbc4834389f3095d22896e126b39085c3e00369
+# One repository-relative uncommitted path per line.
+projects/chirality-piping/core/product_physics/src/lib.rs
+projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_DEPENDENCIES.md
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_REFERENCES.md
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_SEMANTIC.md
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/CANDIDATE_FILES.txt
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/CLOSEOUT_RESOLUTION_V2.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/FAN_IN_CHECKS.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/HANDOFF_STATE.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/INTEGRATED_REVIEW.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/MANAGER_RETURN.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_CLOSEOUT_FAILURE.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_DAG_BASIS_AMENDMENT.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_DEPENDENCY_MATERIALIZATION.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_LAUNCH_BRIEF.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_RELEASE_READINESS_TEST_AMENDMENT.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_RESOLUTION_V2.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_RETURN.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N1_STATUS.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N2_AMENDMENT_V2.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N2_CHECKS.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N2_LAUNCH_BRIEF.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N2_RETURN.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N2_REVIEW_RETURN.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N2_REVIEW_RETURN_V2.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N2_STATUS.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N3_CHECKS.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N3_LAUNCH_BRIEF.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N3_RETURN.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N3_STATUS.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_CHECKS.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_CHECKS_V2.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_FROZEN_DIFF.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_FROZEN_DIFF_V2.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_LAUNCH_BRIEF.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_RESOLUTION_V2.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_RETURN.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_REVIEW.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_REVIEW_V2.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/N4_STATUS.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/ORCHESTRATION_PLAN.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/OWNER_DIRECTIONS.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT/WORK_GRAPH.json
+projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md
+projects/chirality-piping/execution/_DAG/DAG-010/Cycle_Report.md
+projects/chirality-piping/execution/_DAG/DAG-010/DAG-010_APPROVAL_REVIEW_PACKET.md
+projects/chirality-piping/execution/_DAG/DAG-010/DAG-010_CandidateEdgeWorklist.csv
+projects/chirality-piping/execution/_DAG/DAG-010/DAG-010_DuplicateEdgeWorklist.csv
+projects/chirality-piping/execution/_DAG/DAG-010/DAG_Audit.json
+projects/chirality-piping/execution/_DAG/DAG-010/DAG_Audit.md
+projects/chirality-piping/execution/_DAG/DAG-010/DeliverableNodes.csv
+projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv
+projects/chirality-piping/execution/_DAG/DAG-010/HANDOFF.md
+projects/chirality-piping/execution/_DAG/DAG-010/MANIFEST.sha256
+projects/chirality-piping/execution/_DAG/DAG-010/PROPOSAL_RECORD.md
+projects/chirality-piping/execution/_DAG/DAG-010/PROVENANCE.json
+projects/chirality-piping/execution/_DAG/DAG-010/TopologicalWaves.md
+projects/chirality-piping/execution/_DAG/DAG-010/_LATEST.md
+projects/chirality-piping/execution/_DAG/DAG-010/dag.json
+projects/chirality-piping/execution/_DAG/_LATEST.md
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/SCOPED_SCA009_DEL0709_CURRENT_AUTHORITY_2026-08-21/ARTIFACT_HASHES.sha256
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/SCOPED_SCA009_DEL0709_CURRENT_AUTHORITY_2026-08-21/AUTHORITY_CURRENT_EFFECT.csv
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/SCOPED_SCA009_DEL0709_CURRENT_AUTHORITY_2026-08-21/HANDOFF_STATE.md
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/SCOPED_SCA009_DEL0709_CURRENT_AUTHORITY_2026-08-21/RUN_BASIS.md
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/SCOPED_SCA009_DEL0709_CURRENT_AUTHORITY_2026-08-21/TARGETED_CLAIM_REFRESH.csv
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/SCOPED_SCA009_DEL0709_CURRENT_AUTHORITY_2026-08-21/VALIDATION_RESULT.json
+projects/chirality-piping/loop/LOOP_RECEIPTS.md
+projects/chirality-piping/tests/test_release_readiness_script.py
+projects/chirality-piping/tools/validation/validate_architecture_basis.py

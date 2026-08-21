@@ -1,0 +1,68 @@
+{
+  "schema": "chirality-help-human-fan-in-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT",
+  "basis": "b1876a5e0f0083e10c0c18255cd92ed0079b63a2",
+  "verdict": "PASS_ALL_NODES_ACCEPTED_PENDING_CHANGE_VERIFICATION",
+  "accepted_nodes": ["N1", "N2", "N3", "N4"],
+  "preserved_failure_records": [
+    "N1_CLOSEOUT_FAILURE.md",
+    "N4_CHECKS.json",
+    "N4_REVIEW.md"
+  ],
+  "committed_pushed_nodes": {
+    "N2": "b988d9d0e4a7048ac28a73bbe53ce045c631dff8",
+    "N3": "ffbc4834389f3095d22896e126b39085c3e00369"
+  },
+  "pull_request": 599,
+  "checks": [
+    {
+      "name": "json-yaml-csv-status-consistency",
+      "result": "PASS",
+      "detail": "Control JSON, touched workflow/manifests YAML, the DEL-07-09 coverage CSV, node statuses, and deliverable lifecycle/status claims are parseable and mutually consistent; rows 14/15/16 are OPEN/PARTIAL/CLOSED with NOT_LANDED/PARTIALLY_LANDED/LANDED evidence posture."
+    },
+    {
+      "name": "dag-010-manifest",
+      "result": "PASS",
+      "detail": "15 of 15 entries verified against MANIFEST.sha256."
+    },
+    {
+      "name": "scoped-reconciliation-manifest",
+      "result": "PASS",
+      "detail": "5 of 5 entries verified against ARTIFACT_HASHES.sha256."
+    },
+    {
+      "name": "exact-containment-and-cross-node-disjointness",
+      "result": "PASS",
+      "detail": "The final uncommitted candidate contains exactly the 73 paths frozen in CANDIDATE_FILES.txt; already committed N2/N3 paths are absent from that uncommitted set."
+    },
+    {
+      "name": "terminal-newline-normalization",
+      "result": "PASS",
+      "detail": "The four node launch briefs, ORCHESTRATION_PLAN.md, and the six previously hash-pinned N1 files each end with exactly one newline."
+    },
+    {
+      "name": "whitespace",
+      "result": "PASS",
+      "detail": "git diff --check, git diff --cached --check, and no-index checks for untracked candidate files all passed."
+    },
+    {
+      "name": "terminal-integrated-software-code-review",
+      "result": "PASS",
+      "detail": "INTEGRATED_REVIEW.md records no actionable findings over 100% of the seven-file final behavior diff from basis b1876a5e0f0083e10c0c18255cd92ed0079b63a2 (1,083 insertions, 24 deletions), with all named N2/N4 invariants and exact hashes verified and scoped diff check passing."
+    },
+    {
+      "name": "receipt-validator",
+      "result": "PASS",
+      "detail": "validate_piping_loop_receipts.py accepted Receipt-122 and the complete ledger."
+    },
+    {
+      "name": "governance-harness-self-check",
+      "result": "PASS",
+      "detail": "Exit 0. The first final run's new active-surface absolute-path finding was resolved in N4_CHECKS_V2.json; the follow-up run reported only pre-existing findings (REVIEW=4, WARN=40, INFO=14, NOT_APPLICABLE=1)."
+    }
+  ],
+  "broad_project_tests": "NOT_RUN_FINAL_FAN_IN",
+  "dec_025": "PENDING_INTEGRATED_CLEAN_COMMIT_CHANGE_CLOSEOUT",
+  "artifact_proof_label": "NOT_APPLICABLE",
+  "next_owner": "CHANGE"
+}

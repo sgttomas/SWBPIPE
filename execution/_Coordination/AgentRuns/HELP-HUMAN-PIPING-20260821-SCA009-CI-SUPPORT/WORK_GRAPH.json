@@ -1,0 +1,83 @@
+{
+  "schema": "chirality-help-human-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT",
+  "version": 3,
+  "selection_authority": "HUMAN — owner-directed 2026-08-21 Piping iteration steer",
+  "posture": "MIXED",
+  "authorized_width": 4,
+  "branch": "codex/piping-sca009-ci-support-20260821",
+  "base_sha": "b1876a5e0f0083e10c0c18255cd92ed0079b63a2",
+  "integration_owner": "HELP_HUMAN",
+  "commit_policy": "one branch/one PR; N2 and N3 are already committed and pushed in dependency order; CHANGE owns remaining N1/N4/shared commits and integrated verification",
+  "shared_surface_policy": "deliverable statuses, coverage-ledger closure, final AgentRuns returns/handoff, and receipt are written exactly once at fan-in by HELP_HUMAN",
+  "nodes": [
+    {
+      "node_id": "N1",
+      "role": "PROJECT_SETUP",
+      "objective": "Execute only SCA-009's bounded mechanical downstream obligations and establish current derivative instruments.",
+      "dependencies": [],
+      "concurrency": "prerequisite and shared-instrument owner",
+      "brief": "N1_LAUNCH_BRIEF.md",
+      "status": "SUCCESS_CLOSEOUT_RESOLVED_V2"
+    },
+    {
+      "node_id": "N2",
+      "role": "WORKING_ITEMS",
+      "objective": "Land the first bounded vocabulary-coverage product slice that unblocks component creation across DEL-16-01, DEL-07-01, and DEL-07-02.",
+      "dependencies": ["N1:PLAN_FROZEN"],
+      "concurrency": "parallel with N3 and N4 after plan freeze",
+      "brief": "N2_LAUNCH_BRIEF.md",
+      "status": "SUCCESS_OWNER_AMENDED"
+    },
+    {
+      "node_id": "N3",
+      "role": "WORKING_ITEMS",
+      "objective": "Preventively harden desktop E2E git-info collection and governance-harness Candidate whitespace timeout behavior, with G4 manifests and coupled policy tests.",
+      "dependencies": ["N1:PLAN_FROZEN"],
+      "concurrency": "parallel with N2 and N4 after plan freeze",
+      "brief": "N3_LAUNCH_BRIEF.md",
+      "status": "SUCCESS"
+    },
+    {
+      "node_id": "N4",
+      "role": "WORKING_ITEMS",
+      "objective": "Emit named LineStop and VerticalSupport support families from product_physics with focused tests.",
+      "dependencies": ["N1:PLAN_FROZEN"],
+      "concurrency": "parallel with N2 and N3 after plan freeze",
+      "brief": "N4_LAUNCH_BRIEF.md",
+      "status": "SUCCESS_AFTER_OWNER_RESOLUTION_V2"
+    }
+  ],
+  "edges": [
+    {"from": "N1:PLAN_FROZEN", "to": "N2"},
+    {"from": "N1:PLAN_FROZEN", "to": "N3"},
+    {"from": "N1:PLAN_FROZEN", "to": "N4"},
+    {"from": "N1", "to": "HELP_HUMAN:FAN_IN"},
+    {"from": "N2", "to": "HELP_HUMAN:FAN_IN"},
+    {"from": "N3", "to": "HELP_HUMAN:FAN_IN"},
+    {"from": "N4", "to": "HELP_HUMAN:FAN_IN"}
+  ],
+  "human_decision_points": [
+    {
+      "decision": "OWNER_RESOLUTION_V3",
+      "direction": "Good. I shouldn't have said that though. Try to close everything out. Resolve failures.",
+      "effect": "withdraws the earlier stop rule for ordinary repair and closeout; preserves failure history"
+    }
+  ],
+  "failure_rule": "The initial stop rule remains historical; OWNER_RESOLUTION_V3 authorizes ordinary bounded repair and closeout while preserving failures.",
+  "labels_excluded": ["artifact-proof"],
+  "parked_holds": ["PKG-02 runtime/transport/permission choices", ".opsproj policy", "PDU-011", "PDU-047", "MAINTAINER_REVIEWED promotion"],
+  "fan_in": {
+    "status": "ALL_NODES_ACCEPTED_PENDING_CHANGE_VERIFICATION",
+    "accepted_nodes": ["N1", "N2", "N3", "N4"],
+    "failed_nodes": [],
+    "preserved_failure_records": ["N1_CLOSEOUT_FAILURE.md", "N4_CHECKS.json", "N4_REVIEW.md"],
+    "committed_nodes": {
+      "N2": "b988d9d0e4a7048ac28a73bbe53ce045c631dff8",
+      "N3": "ffbc4834389f3095d22896e126b39085c3e00369"
+    },
+    "pull_request": 599,
+    "final_evidence_sweep": "PENDING_INTEGRATED_CLEAN_COMMIT_CHANGE_CLOSEOUT",
+    "next_owner": "CHANGE"
+  }
+}

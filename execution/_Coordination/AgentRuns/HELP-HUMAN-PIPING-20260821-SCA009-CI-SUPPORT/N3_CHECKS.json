@@ -1,0 +1,65 @@
+{
+  "schema": "chirality-node-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT",
+  "node_id": "N3",
+  "instance_id": "WORKING-ITEMS-CI-HARDENING",
+  "recorded_at": "2026-08-21T04:08:00Z",
+  "basis": "b1876a5e0f0083e10c0c18255cd92ed0079b63a2",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "name": "G4 focused policy tests",
+      "command": "python3 -m pytest -q tools/validation/test_validate_instruction_tranche_manifest.py",
+      "exit_code": 0,
+      "result": "47 passed in 2.30s"
+    },
+    {
+      "name": "G4 whole-corpus manifest validation",
+      "command": "python3 tools/validation/validate_instruction_tranche_manifest.py",
+      "exit_code": 0,
+      "result": "40 schema-valid tranche manifests; PIPING-CI-SLOW-OBJECT-HARDENING-20260821 present"
+    },
+    {
+      "name": "Workflow and manifest YAML parse",
+      "command": "python3 yaml.safe_load over governance-harness.yml, piping-desktop-e2e.yml, and the N3 tranche manifest",
+      "exit_code": 0,
+      "result": "3 of 3 parsed"
+    },
+    {
+      "name": "Desktop Playwright config TypeScript check",
+      "command": "./node_modules/.bin/tsc --noEmit --module ESNext --target ES2022 --moduleResolution Bundler --skipLibCheck apps/desktop/playwright.config.ts",
+      "working_directory": "projects/chirality-piping",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "name": "CI-shaped Playwright config/list check",
+      "command": "GITHUB_ACTIONS=1 DEBUG_GIT_COMMIT_INFO=1 CI=true PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test --list --project=chromium-desktop --project=chromium-compact",
+      "working_directory": "projects/chirality-piping/apps/desktop",
+      "exit_code": 0,
+      "result": "22 tests listed across both projects; no GitCommitInfo git operation or fetch output"
+    },
+    {
+      "name": "Scoped candidate whitespace",
+      "command": "python3 tools/validation/validate_candidate_whitespace.py --repo-root . --paths <seven N3 paths>",
+      "exit_code": 0,
+      "result": "PASS; zero untracked binary or symlink skips"
+    },
+    {
+      "name": "Scoped diff whitespace check",
+      "command": "git diff --check -- <four N3 production/policy paths>",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "operational_invocation_corrections": [
+    "The first Playwright list invocation used the project root, so Playwright did not discover the app-local config and reported no named projects. Re-running the same config check from apps/desktop passed.",
+    "A combined tsc/list command used the app-relative Playwright binary path from the project root and exited 127 after tsc had completed. The TypeScript check and corrected Playwright list check were then run separately and both passed."
+  ],
+  "prohibited_or_unnecessary_checks_not_run": [
+    "No slow-object-serving reproduction",
+    "No browser execution",
+    "No CI rerun",
+    "No unsigned-artifact macOS lane"
+  ]
+}

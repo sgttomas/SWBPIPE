@@ -1,0 +1,81 @@
+{
+  "node": "N2",
+  "basis_commit": "b1876a5e0f0083e10c0c18255cd92ed0079b63a2",
+  "status": "SUCCESS",
+  "checks": [
+    {
+      "name": "operation_applier_full_native",
+      "command": "cargo test --offline --manifest-path core/model_operations/operation_applier/Cargo.toml",
+      "result": "PASS",
+      "evidence": "78 unit tests, 1 canonical-hash parity test, and 2 contract-corpus tests passed"
+    },
+    {
+      "name": "desktop_wasm_build",
+      "command": "npm run build:wasm --workspace apps/desktop",
+      "result": "PASS",
+      "evidence": "wasm-bindgen operation engine rebuilt successfully"
+    },
+    {
+      "name": "desktop_focused_component_creation",
+      "command": "npm test --workspace apps/desktop -- --run src/App.test.tsx -t queues explicit bend geometry|creates a bend end-to-end",
+      "result": "PASS",
+      "evidence": "2 passed"
+    },
+    {
+      "name": "desktop_full",
+      "command": "npm run test:desktop",
+      "result": "PASS",
+      "evidence": "29 test files, 541 tests passed"
+    },
+    {
+      "name": "desktop_build",
+      "command": "npm run build:desktop",
+      "result": "PASS",
+      "evidence": "TypeScript and Vite production build passed; only the pre-existing chunk-size warning was emitted"
+    },
+    {
+      "name": "viewport_contract_pytest",
+      "command": "python3 -m pytest -q tests/test_viewport_editor_contract.py",
+      "result": "FAIL_ENVIRONMENT",
+      "evidence": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named pytest; not rerun after owner stop rule"
+    },
+    {
+      "name": "scoped_diff_check",
+      "command": "git diff --check -- <N2 paths>",
+      "result": "PASS"
+    },
+    {
+      "name": "pre_amendment_fresh_code_review",
+      "result": "FAIL",
+      "evidence": "Two P1 actionable findings; see N2_REVIEW_RETURN.md"
+    },
+    {
+      "name": "post_amendment_native_canonicalization_regression",
+      "command": "cargo test --offline --manifest-path core/model_operations/operation_applier/Cargo.toml explicit_bend_creation_applies_with_geometry_connectivity_and_claimed_hash_gate",
+      "result": "PASS",
+      "evidence": "1 passed; includes whitespace-padded payload canonicalization"
+    },
+    {
+      "name": "post_amendment_wasm_build",
+      "command": "npm run build:wasm --workspace apps/desktop",
+      "result": "PASS"
+    },
+    {
+      "name": "post_amendment_cross_surface_ui_regression",
+      "command": "npm test --workspace apps/desktop -- --run src/App.test.tsx -t queues explicit bend geometry|creates a bend end-to-end",
+      "result": "PASS",
+      "evidence": "2 passed; sibling-surface duplicate component:C-1 remains disabled"
+    },
+    {
+      "name": "post_amendment_desktop_build",
+      "command": "npm run build:desktop",
+      "result": "PASS"
+    },
+    {
+      "name": "mandatory_fresh_code_review_v2",
+      "result": "PASS",
+      "evidence": "100% amended N2 diff; no actionable findings; see N2_REVIEW_RETURN_V2.md"
+    }
+  ],
+  "final_evidence_sweep": "NOT_RUN_OWNER_STOP_RULE"
+}

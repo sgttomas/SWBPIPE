@@ -1,0 +1,38 @@
+{
+  "edges_path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+  "nodes_path": "projects/chirality-piping/execution/_DAG/DAG-010/DeliverableNodes.csv",
+  "source_label": "DAG-010",
+  "filtered_deliverable_ids": [
+    "DEL-07-09"
+  ],
+  "execution_root": "projects/chirality-piping/execution",
+  "dry_run": false,
+  "refresh_pointers": true,
+  "canonical_output": true,
+  "canonical_finding_count": 0,
+  "canonical_findings": [],
+  "edge_row_width_issue_count": 0,
+  "node_row_width_issue_count": 0,
+  "written_count": 1,
+  "total_rows": 7,
+  "total_active_rows": 7,
+  "total_candidate_rows": 0,
+  "written": [
+    {
+      "DeliverableID": "DEL-07-09",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv",
+      "DependenciesPointer": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_DEPENDENCIES.md",
+      "Rows": 7,
+      "ActiveRows": 7,
+      "CandidateRows": 0
+    }
+  ],
+  "skipped_pkg00_count": 0,
+  "skipped_pkg00": [],
+  "missing_execution_path_count": 0,
+  "missing_execution_paths": [],
+  "skipped_status_counts": {
+    "RETIRED": 85
+  }
+}

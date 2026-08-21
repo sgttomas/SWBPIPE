@@ -1,0 +1,55 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT",
+  "node_id": "N4",
+  "checks": [
+    {
+      "name": "cargo-fmt-check",
+      "command": "cargo fmt --manifest-path core/product_physics/Cargo.toml -- --check",
+      "status": "PASS_AFTER_FORMAT"
+    },
+    {
+      "name": "focused-product-physics-regressions",
+      "command": "cargo test --manifest-path core/product_physics/Cargo.toml --locked <each of three named support-family tests>",
+      "status": "PASS",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "name": "product-physics-crate",
+      "command": "cargo test --manifest-path core/product_physics/Cargo.toml --locked",
+      "status": "PASS",
+      "passed": 101,
+      "failed": 0
+    },
+    {
+      "name": "harness-self-check",
+      "command": "python3 tools/practitioner_harness/harness.py self-check",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "name": "piping-pytest-profile",
+      "command": "python3 -m pytest -q tests -n auto --dist loadscope",
+      "status": "FAILED_ENVIRONMENT_AND_STALE_POLICY_ASSERTION",
+      "details": "Profile python resolved to the Xcode interpreter without pytest. The available mise Python fallback ran 812 passing tests and 17 skips but lacks jsonschema, producing 31 failures and 5 collection errors; one independent test also pins obsolete SOFTWARE_DECOMP revision 0.11 while the required basis is revision 0.12."
+    },
+    {
+      "name": "evidence-sweep",
+      "command": "python3 tools/release/run_evidence_sweep.py --execute",
+      "status": "NOT_RUN_AFTER_FAILED_PROFILE_CHECK",
+      "details": "Steer failure rule requires preserving passed work, recording the failed check, and stopping without reruns or scope expansion."
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check -- projects/chirality-piping/core/product_physics/src/lib.rs",
+      "status": "PASS"
+    },
+    {
+      "name": "independent-code-review",
+      "status": "PASS",
+      "coverage_percent": 100,
+      "actionable_findings": 0,
+      "evidence": "N4_REVIEW.md"
+    }
+  ]
+}

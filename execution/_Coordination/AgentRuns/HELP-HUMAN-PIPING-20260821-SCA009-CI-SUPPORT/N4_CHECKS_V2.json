@@ -1,0 +1,69 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260821-SCA009-CI-SUPPORT",
+  "node_id": "N4",
+  "resolution": "V2",
+  "environment": {
+    "method": "offline ephemeral uv environment from requirements-dev.txt",
+    "python": "host-local cached Python 3.13 (machine path intentionally not persisted)",
+    "network_used": false,
+    "declared_dependencies": {
+      "jsonschema": "4.26.0",
+      "pytest_xdist": "3.8.0",
+      "coverage": "7.15.3",
+      "pyyaml": "6.0.3"
+    },
+    "test_runner": "pytest 8.4.2 from the existing local uv cache"
+  },
+  "checks": [
+    {
+      "name": "cargo-fmt-check",
+      "command": "cargo fmt --manifest-path core/product_physics/Cargo.toml -- --check",
+      "status": "PASS"
+    },
+    {
+      "name": "focused-product-physics-regressions",
+      "command": "cargo test --manifest-path core/product_physics/Cargo.toml --locked <each named family test>",
+      "status": "PASS",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "name": "product-physics-crate",
+      "command": "cargo test --manifest-path core/product_physics/Cargo.toml --locked",
+      "status": "PASS",
+      "unit_tests_passed": 101,
+      "doc_tests_failed": 0
+    },
+    {
+      "name": "architecture-basis-validator",
+      "command": "/usr/bin/python3 tools/validation/validate_architecture_basis.py",
+      "status": "PASS",
+      "members": 8
+    },
+    {
+      "name": "registered-piping-pytest-profile",
+      "command": "uv run --offline --python <host-local-cached-python-3.13> --with-requirements requirements-dev.txt --with pytest==8.4.2 python -m pytest -q tests -n auto --dist loadscope",
+      "status": "PASS",
+      "passed": 902,
+      "failed": 0,
+      "duration_seconds": 6.29
+    },
+    {
+      "name": "git-diff-check",
+      "command": "git diff --check -- core/product_physics/src/lib.rs tools/validation/validate_architecture_basis.py",
+      "status": "PASS"
+    },
+    {
+      "name": "fresh-independent-code-review-v2",
+      "status": "PASS",
+      "coverage_percent": 100,
+      "actionable_findings": 0,
+      "evidence": "N4_REVIEW_V2.md"
+    },
+    {
+      "name": "dec-025-evidence-sweep",
+      "status": "NOT_RUN_BY_DIRECTION",
+      "details": "Owner-resumption brief explicitly says not to run DEC-025 yet."
+    }
+  ]
+}
