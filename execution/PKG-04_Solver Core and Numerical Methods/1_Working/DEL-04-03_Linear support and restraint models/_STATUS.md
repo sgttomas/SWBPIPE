@@ -1,11 +1,12 @@
 # Status: DEL-04-03 Linear support and restraint models
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-19
+**Last Updated:** 2026-08-21
 
 ## Remaining
 
 ## History
+- 2026-08-21 - Accepted N4 V2 support-family emission evidence: canonical `line_stop` and `vertical_support` preview inputs now reach matching solver families while explicit DOFs and existing Anchor/Guide fallbacks remain intact. Focused and complete crate tests, the registered Piping profile, architecture-basis validation, diff check, and fresh 100%-diff review passed. Vocabulary row 16 is landed and closed; state remains IN_PROGRESS.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

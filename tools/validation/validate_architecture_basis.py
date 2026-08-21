@@ -24,12 +24,12 @@ FORMER_PRODUCTION_FILES = (
     "ScopeOfWork.md",
 )
 CONTEXT_NOTICE = "Preserved setup context — superseded for current consumption."
-# Conscious pin update (2026-07-31): SOFTWARE_DECOMP.md advanced 0.9 -> 0.10 ->
-# 0.11 through accepted amendments, most recently SCA-008 (commit 9b5207670,
-# "docs: accept Piping decomposition revision 0.11", with its
-# ACCEPTANCE_RECORD.md). The D-43 reading contract itself is unchanged; only
-# the accepted-revision pin moves.
-EXPECTED_DECOMP_REVISION = "0.11"
+# Conscious pin update (2026-08-21): SOFTWARE_DECOMP.md advanced 0.11 -> 0.12
+# through accepted SCA-009. The owner accepted Gate 5 and advanced the live
+# decomposition pointer to revision 0.12; see SCA-009 ACCEPTANCE_RECORD.md and
+# Handoff_State.md. The D-43 reading contract itself is unchanged; only the
+# accepted-revision pin moves.
+EXPECTED_DECOMP_REVISION = "0.12"
 
 
 def _read(path: Path, errors: list[str]) -> str:

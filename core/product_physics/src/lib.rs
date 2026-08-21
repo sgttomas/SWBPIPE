@@ -3159,17 +3159,8 @@ fn build_model(
                         .unwrap_or(FrameDof::Uz),
                     stiffness,
                 ))
-            } else if dofs.len() == 6 {
-                Some(LinearSupport::anchor(&support.id, node))
             } else {
-                Some(LinearSupport {
-                    support_id: support.id.clone(),
-                    family: SupportFamily::Guide,
-                    node_index: node,
-                    restrained_dofs: dofs,
-                    stiffness: None,
-                    imposed_displacement: None,
-                })
+                Some(rigid_linear_support_from_preview(support, node, dofs))
             }
         })
         .collect::<Vec<_>>();
@@ -3187,6 +3178,28 @@ fn build_model(
         nonlinear_derived_friction_normal_reactions: nonlinear.derived_friction_normal_reactions,
         sections,
     })
+}
+
+fn rigid_linear_support_from_preview(
+    support: &PreviewSupport,
+    node_index: usize,
+    restrained_dofs: Vec<FrameDof>,
+) -> LinearSupport {
+    let family = match support.family.as_deref() {
+        Some("line_stop") => SupportFamily::LineStop,
+        Some("vertical_support") => SupportFamily::VerticalSupport,
+        _ if restrained_dofs.len() == 6 => SupportFamily::Anchor,
+        _ => SupportFamily::Guide,
+    };
+
+    LinearSupport {
+        support_id: support.id.clone(),
+        family,
+        node_index,
+        restrained_dofs,
+        stiffness: None,
+        imposed_displacement: None,
+    }
 }
 
 fn build_expansion_joint_user_stiffness_elements(
@@ -8933,6 +8946,50 @@ mod nonlinear_context_passthrough_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn rigid_preview_support(family: &str, restraints: &[&str]) -> PreviewSupport {
+        PreviewSupport {
+            id: format!("support:{family}"),
+            node: "node:N-100".to_string(),
+            restraints: restraints.iter().map(|dof| (*dof).to_string()).collect(),
+            family: Some(family.to_string()),
+            stiffness: None,
+            hanger: None,
+            nonlinear: None,
+            provenance: Some("invented_example_user_input".to_string()),
+        }
+    }
+
+    #[test]
+    fn named_line_stop_reaches_solver_family_with_entered_dof() {
+        let support = rigid_preview_support("line_stop", &["UX"]);
+        let mapped = rigid_linear_support_from_preview(&support, 2, vec![FrameDof::Ux]);
+
+        assert_eq!(mapped.family, SupportFamily::LineStop);
+        assert_eq!(mapped.node_index, 2);
+        assert_eq!(mapped.restrained_dofs, vec![FrameDof::Ux]);
+    }
+
+    #[test]
+    fn named_vertical_support_reaches_solver_family_with_entered_dof() {
+        let support = rigid_preview_support("vertical_support", &["UZ"]);
+        let mapped = rigid_linear_support_from_preview(&support, 3, vec![FrameDof::Uz]);
+
+        assert_eq!(mapped.family, SupportFamily::VerticalSupport);
+        assert_eq!(mapped.node_index, 3);
+        assert_eq!(mapped.restrained_dofs, vec![FrameDof::Uz]);
+    }
+
+    #[test]
+    fn guide_preview_mapping_remains_guide_with_entered_dofs() {
+        let support = rigid_preview_support("guide", &["UY", "UZ"]);
+        let mapped =
+            rigid_linear_support_from_preview(&support, 4, vec![FrameDof::Uy, FrameDof::Uz]);
+
+        assert_eq!(mapped.family, SupportFamily::Guide);
+        assert_eq!(mapped.node_index, 4);
+        assert_eq!(mapped.restrained_dofs, vec![FrameDof::Uy, FrameDof::Uz]);
+    }
 
     fn request() -> LinearStaticPreviewRequest {
         serde_json::from_str(include_str!(
