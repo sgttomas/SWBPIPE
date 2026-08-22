@@ -26,7 +26,44 @@
     "receipt_validator": "PASS_RECEIPT_124",
     "csv_json_diff_check": "PASS"
   },
+  "sync": {
+    "authorization": "yes perform a pure sync merge of that origin/main into the clean branch, then rerun G4/DEC-025 and open the PR",
+    "status": "PASS",
+    "merge_commit": "721503365c2b7aae99998ec81167a86b7fc3b464",
+    "parents": [
+      "4f101737508957981875d2bf58fdae246a42de0b",
+      "adf805e0d9ac55787e8ac815c3018467babb7f50"
+    ],
+    "first_parent_incoming_paths": 48,
+    "first_parent_delta_matches_inventoried_upstream": true,
+    "conflicts": 0,
+    "five_product_blobs_unchanged": true,
+    "r3_node_review_evidence_hashes_unchanged": true,
+    "precedent": ["Receipt-116", "Receipt-122"]
+  },
+  "post_sync_g4": {
+    "status": "PASS",
+    "bound_commit": "721503365c2b7aae99998ec81167a86b7fc3b464",
+    "policy_tests": 47,
+    "corpus_manifests": 41,
+    "origin_main_to_head_paths": 39,
+    "instruction_surface_paths": 0,
+    "working_tree_clean": true
+  },
+  "post_sync_dec025": {
+    "status": "PASS",
+    "bound_commit": "721503365c2b7aae99998ec81167a86b7fc3b464",
+    "working_tree_clean": true,
+    "summary": "validation/evidence/sweeps/SWEEP_20260822T011539Z_721503365c2b.json",
+    "summary_sha256": "755cc3838b08f81344a02d589446f60eddbdc9228ee7afd7cb94ff1ea9db49f4",
+    "rust_crates": 36,
+    "python_tests": 902,
+    "desktop_tests": 573,
+    "playwright_dev_tests": 22,
+    "playwright_dist_tests": 2,
+    "production_build": "PASS"
+  },
   "audit_decomp": "PARKED_NOT_SELECTABLE_OWNER_RUNNER_RULING_PENDING",
   "artifact_proof": "NOT_APPLICABLE",
-  "merge": "NOT_AUTHORIZED"
+  "merge": "FINAL_PR_MERGE_NOT_AUTHORIZED"
 }
