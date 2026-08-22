@@ -426,3 +426,9 @@ Durable context preserved after reconciliation review:
   content, private data, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-08-21 - vocabulary round 3 component-tool completion
+
+- Tee, reducer, valve, and flange viewport creation now use the same structured-operation seam as bend. Non-bend connectivity roles initialize and reset empty; a three-incident-node regression proves the exact deliberate selections are serialized and applied rather than inferred from collection order.
+- Evidence is in `HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/N1_UI_RETURN.md`, terminal `N1_REVIEW_V2.md`, and commit `8ca1984db45a9a8f6f3111a905b07c7d3da47c33`.
+- Vocabulary row 15 is closed. DEL-07-01 remains IN_PROGRESS; no lifecycle or professional/release effect is created.

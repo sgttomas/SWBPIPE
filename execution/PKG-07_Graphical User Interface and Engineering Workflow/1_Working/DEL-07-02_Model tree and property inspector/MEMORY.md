@@ -932,3 +932,9 @@ Durable context preserved after reconciliation review:
   content, private data, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-08-21 - vocabulary round 3 explicit component-creation forms
+
+- Inspector forms now cover tee, reducer, valve, flange, and expansion joint. Non-bend pipe roles are deliberate; expansion-joint entry requires explicit area, movement, four stiffness axes and units, hardware/manufacturer/pressure-thrust/geometry-source/stiffness-source references, and provenance.
+- Failed N1/N2 review V1 records and their repaired terminal V2 reviews are preserved in `HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/`; accepted commits are `8ca1984db45a9a8f6f3111a905b07c7d3da47c33` and `d1a8e20ae413be040b82428cdd0bdbef0809e8de`.
+- Vocabulary rows 14 and 15 are closed. Existing Remaining items and IN_PROGRESS lifecycle remain unchanged.

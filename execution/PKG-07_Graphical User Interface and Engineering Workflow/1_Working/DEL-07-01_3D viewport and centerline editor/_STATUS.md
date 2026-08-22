@@ -4,9 +4,10 @@
 **Last Updated:** 2026-08-21
 
 ## Remaining
-- Add separately selected tee, reducer, valve, and flange component-symbol authoring. Dedicated bend authoring now has owner-amended N2 viewport/operation evidence; broader component coverage remains partial.
+- Broader viewport gesture/editor UX beyond the landed explicit component-creation tools remains separately selectable. Vocabulary row 15 component-symbol authoring is complete; no lifecycle promotion is inferred.
 
 ## History
+- 2026-08-21 - Vocabulary round 3 landed tee, reducer, valve, and flange viewport creation after explicit pipe-role repair, preserving bend behavior and proving exact selected roles at a three-incident node. Fresh N1 review V2 passed after one preserved failed review/repair cycle; committed evidence is `8ca1984db45a9a8f6f3111a905b07c7d3da47c33`. Row 15 is closed; state remains IN_PROGRESS.
 - 2026-08-21 - Accepted the owner-amended N2 bend-only viewport component tool and structured-operation emission slice, including cross-surface target-ID reservation and fresh 100%-diff review PASS. Multi-kind component creation remains partial; state remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T5 PDU-008 recorded focused current interaction evidence and explicitly bounded absent bend/full-component authoring; no GUI scope or lifecycle expansion.

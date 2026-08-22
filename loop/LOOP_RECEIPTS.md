@@ -3027,3 +3027,13 @@
     was dependency-held and unstarted; N3 alone landed. PR #603 is open without
     merge and creates no lifecycle, release, reliance, issuance, or
     professional-approval effect.
+
+- **2026-08-21 — Receipt 124** (vocabulary round 3 N1 repair and completion).
+  - Receipt-ID: `Receipt-124`
+  - Examined-Through: `66efaf6b95605ef69f3e405b505f48506d3cbada`
+  - Parent-Receipt: `Receipt-123`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — exact round-3 direction is transcribed in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/OWNER_DIRECTIONS.md`.
+  - Pointers: branch `codex/piping-vocabulary-r3-20260821`; WIP backup `764a459a1ce3d23c777ec1d5610c9f7852c8131d` with no PR; working lineage `2bee267300e571e4e8686f73aba6ad4ba8be4c54`; N1 `8ca1984db45a9a8f6f3111a905b07c7d3da47c33`; N2 `d1a8e20ae413be040b82428cdd0bdbef0809e8de`; failed-sweep evidence commit `5a73d9f0d2b21506ccd6b16564b00167f98a3690`; run `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/`; immutable failed reviews `N1_REVIEW_V1.md` and `N2_REVIEW_V1.md`; terminal reviews `N1_REVIEW_V2.md` and `N2_REVIEW_V2.md`; coverage ledger rows 14–16; clean DEC-025 summary `validation/evidence/sweeps/SWEEP_20260822T002452Z_5a73d9f0d2b2.json` (SHA-256 `db7111fc6a3ff629061ba879e2bc89ac9751668c28d570579527ac11495c136a`).
+  - Checks: node-local focused/full validation and fresh terminal reviews passed after one preserved repair cycle per node; practitioner harness, repository self-check, receipt validation, and the clean DEC-025 retry passed. Exact measurements and command outcomes are owned by `FAN_IN_CHECKS.json`, the node check records, and the cited sweep summaries. The first clean DEC-025 attempt remains preserved as an environment-dependency failure rather than a product finding.
+  - Model-Attribution: HELP_HUMAN supervised CHANGE and WORKING_ITEMS Agent 1 roles plus fresh bounded read-only Agent 2 reviews; inherited GPT-5.6 Codex runtime was used without substitution. Exact parentage and attribution are in the named AgentRuns package.
+  - Gate-Outcome: `EXECUTED` — N1 repaired and completed tee/reducer/valve/flange creation, N2 landed explicit expansion-joint creation, and vocabulary rows 14 and 15 are now `CLOSED / CLOSED / LANDED` while row 16 remains closed and unchanged. AUDIT_DECOMP remains parked pending an owner-ruled runner; no `artifact-proof`, lifecycle promotion, release, reliance, issuance, professional approval, certification, sealing, authentication, code-compliance, sync merge, or final merge effect is created.

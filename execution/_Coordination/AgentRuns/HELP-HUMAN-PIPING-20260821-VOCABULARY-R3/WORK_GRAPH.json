@@ -1,7 +1,7 @@
 {
   "schema": "chirality-help-human-work-graph/v1",
   "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R3",
-  "version": 2,
+  "version": 3,
   "selection_authority": "HUMAN — vocabulary completion round 3",
   "posture": "SERIAL_TWO_NODE_WITH_DISJOINT_N1_REPAIR_LANES",
   "authorized_width": 2,
@@ -12,10 +12,11 @@
   "integration_owner": "HELP_HUMAN",
   "nodes": [
     {"node_id":"N1","role":"WORKING_ITEMS","objective":"Repair P1/P2 and complete tee, reducer, valve, flange end-to-end evidence for row 15.","dependencies":[],"concurrency":"P1 UI and P2 engine writes disjoint; one integrated fan-in","repair_cycles_allowed":2,"repair_cycles_used":1,"review":"N1_REVIEW_V2.md: PASS","accepted_commit":"8ca1984db45a9a8f6f3111a905b07c7d3da47c33","status":"ACCEPTED_AND_COMMITTED"},
-    {"node_id":"N2","role":"WORKING_ITEMS","objective":"Implement expansion-joint creation with explicit 4-axis stiffness and pressure-thrust refs.","dependencies":["N1:ACCEPTED_AND_COMMITTED"],"concurrency":"strictly serialized after N1; engine and UI writes are disjoint within N2 and converge at one integrated fan-in","repair_cycles_allowed":2,"status":"READY"}
+    {"node_id":"N2","role":"WORKING_ITEMS","objective":"Implement expansion-joint creation with explicit 4-axis stiffness and pressure-thrust refs.","dependencies":["N1:ACCEPTED_AND_COMMITTED"],"concurrency":"strictly serialized after N1; engine and UI writes are disjoint within N2 and converge at one integrated fan-in","repair_cycles_allowed":2,"repair_cycles_used":1,"review":"N2_REVIEW_V2.md: PASS","accepted_commit":"d1a8e20ae413be040b82428cdd0bdbef0809e8de","status":"ACCEPTED_AND_COMMITTED"}
   ],
   "shared_surface_policy": "status, coverage, handoff, and receipt written once at final fan-in",
   "labels_excluded": ["artifact-proof"],
-  "audit_decomp": "PARKED_NOT_SELECTABLE",
+  "audit_decomp": "PARKED_NOT_SELECTABLE_OWNER_RUNNER_RULING_PENDING",
+  "dec025": {"status":"PASS","bound_commit":"5a73d9f0d2b21506ccd6b16564b00167f98a3690","summary":"validation/evidence/sweeps/SWEEP_20260822T002452Z_5a73d9f0d2b2.json","failed_attempt_preserved":"validation/evidence/sweeps/SWEEP_20260822T002108Z_d1a8e20ae413.json"},
   "parked_holds": ["PKG-02 runtime/transport/permission choices", ".opsproj policy", "PDU-011", "PDU-047", "MAINTAINER_REVIEWED promotion"]
 }

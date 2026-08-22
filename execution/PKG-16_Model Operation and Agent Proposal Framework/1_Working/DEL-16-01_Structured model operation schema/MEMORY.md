@@ -115,3 +115,10 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-08-21 - vocabulary round 3 component resolver completion
+
+- The operation applier now resolves tee, reducer, valve, flange, and expansion-joint creation through structured `insert_component_symbol` intents. It requires explicit incident roles, enforces distinct tee header/branch spans, validates entered dimensions/units/references, and blocks without an applied model on invalid input.
+- Expansion joints persist only explicit geometry and four-axis stiffness inputs; no pipe role, mechanics interface, or engineering value is inferred.
+- Evidence is in `HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/`, terminal `N1_REVIEW_V2.md`/`N2_REVIEW_V2.md`, and commits `8ca1984db45a9a8f6f3111a905b07c7d3da47c33`/`d1a8e20ae413be040b82428cdd0bdbef0809e8de`.
+- Existing PKG-02 human dispositions and IN_PROGRESS lifecycle remain unchanged.

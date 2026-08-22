@@ -10,6 +10,7 @@
 - Complete broader canvas gestures and full model-tree/property-editor UX beyond landed selection/creation/drafting (source: PRD plan §4 FR-003/FR-013/FR-014 A3 residuals)
 
 ## History
+- 2026-08-21 - Vocabulary round 3 completed Inspector creation forms for tee, reducer, valve, flange, and expansion joint. Required connectivity roles initialize/reset empty for non-bend kinds; expansion joints require explicit geometry, 4-axis stiffness, units, pressure-thrust/source references, and provenance. Fresh N1/N2 reviews passed after one preserved repair cycle each; commits `8ca1984db45a9a8f6f3111a905b07c7d3da47c33` and `d1a8e20ae413be040b82428cdd0bdbef0809e8de`. Rows 14 and 15 are closed; existing Remaining items and IN_PROGRESS lifecycle are unchanged.
 - 2026-08-21 - Accepted the owner-amended N2 bend-only Property Inspector creation form and shared queued-target reservation evidence. Focused UI/build checks and fresh 100%-diff review passed; tee, reducer, valve, flange, and expansion-joint creation remain open. Existing Remaining items and lifecycle are unchanged.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)

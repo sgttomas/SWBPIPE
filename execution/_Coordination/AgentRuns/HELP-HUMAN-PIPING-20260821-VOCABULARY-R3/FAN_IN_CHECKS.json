@@ -1,0 +1,32 @@
+{
+  "schema": "chirality-help-human-fan-in/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R3",
+  "basis_sha": "66efaf6b95605ef69f3e405b505f48506d3cbada",
+  "wip_backup_sha": "764a459a1ce3d23c777ec1d5610c9f7852c8131d",
+  "n1": {"commit": "8ca1984db45a9a8f6f3111a905b07c7d3da47c33", "review": "N1_REVIEW_V2.md", "status": "PASS", "repair_cycles_used": 1},
+  "n2": {"commit": "d1a8e20ae413be040b82428cdd0bdbef0809e8de", "review": "N2_REVIEW_V2.md", "status": "PASS", "repair_cycles_used": 1},
+  "vocabulary_rows": {"14": "CLOSED_LANDED", "15": "CLOSED_LANDED", "16": "CLOSED_LANDED_UNCHANGED"},
+  "dec025": {
+    "status": "PASS",
+    "bound_commit": "5a73d9f0d2b21506ccd6b16564b00167f98a3690",
+    "summary": "validation/evidence/sweeps/SWEEP_20260822T002452Z_5a73d9f0d2b2.json",
+    "summary_sha256": "db7111fc6a3ff629061ba879e2bc89ac9751668c28d570579527ac11495c136a",
+    "rust_crates": 36,
+    "python_tests": 902,
+    "desktop_tests": 573,
+    "playwright_dev_tests": 22,
+    "playwright_dist_tests": 2,
+    "production_build": "PASS"
+  },
+  "failed_dec025_attempt": {"summary": "validation/evidence/sweeps/SWEEP_20260822T002108Z_d1a8e20ae413.json", "summary_sha256": "516fcc3df0c2a2195801925c8a053cf7e73ace13fbc1ffa44bcfa22f0d51e5ba", "reason": "host Python dependency jsonschema absent after Rust PASS"},
+  "final_closeout": {
+    "practitioner_harness_tests": 350,
+    "practitioner_harness_status": "PASS",
+    "repository_self_check": "PASS_EXIT_0_STANDING_NON_BLOCK_FINDINGS_ONLY",
+    "receipt_validator": "PASS_RECEIPT_124",
+    "csv_json_diff_check": "PASS"
+  },
+  "audit_decomp": "PARKED_NOT_SELECTABLE_OWNER_RUNNER_RULING_PENDING",
+  "artifact_proof": "NOT_APPLICABLE",
+  "merge": "NOT_AUTHORIZED"
+}
