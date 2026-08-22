@@ -2,7 +2,7 @@
 
 - Node commit: `51e7f1e543d8ec46a1b4e677e07a6faae999fcd5`
 - Branch: `codex/piping-local-first-runtime-20260821`
-- Command: `/private/tmp/chirality-piping-dec025-venv/bin/python3 tools/release/run_evidence_sweep.py --execute`
+- Command: `{PINNED_PYTHON} tools/release/run_evidence_sweep.py --execute`; the exact interpreter and dependency pins are preserved in the cited sweep summary.
 - Execution: host-capability run by HELP_HUMAN.
 - Result: PASS; all five DEC-025/DEC-093 surfaces passed.
 - Summary: `validation/evidence/sweeps/SWEEP_20260822T041718Z_51e7f1e543d8.json`
