@@ -130,6 +130,7 @@ function ViewportComponentUnitSelect({
         onChange={(event) => onChange(event.target.value)}
         value={value}
       >
+        {value === "" ? <option value="">Select unit</option> : null}
         {options.map((option) => <option key={option.symbol} value={option.symbol}>{option.symbol}</option>)}
       </select>
     </label>
@@ -203,6 +204,14 @@ export function PipeViewport({
     unitCatalogRoute,
     "force",
     componentDraft.forceUnit || model.project.units.force || "TBD"
+  );
+  const componentAreaUnitOptions = unitOptions(unitCatalogRoute, "area", "m^2");
+  const componentMovementUnitOptions = unitOptions(unitCatalogRoute, "length", defaultLengthUnit);
+  const componentLinearStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", "N/m");
+  const componentRotationalStiffnessUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "rotational_stiffness",
+    "N*m/rad"
   );
 
   useEffect(() => {
@@ -1152,7 +1161,25 @@ export function PipeViewport({
                 <ViewportComponentTextInput label="Reinforcement reference" testId="viewport-create-component-reinforcement" value={componentDraft.branchReinforcementReference} onChange={(value) => updateComponentDraft("branchReinforcementReference", value)} />
               </>
             ) : null}
-            {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" ? (
+            {componentDraft.kind === "expansion_joint" ? (
+              <>
+                <ViewportComponentTextInput label="Effective area" testId="viewport-create-component-effective-area" value={componentDraft.effectiveArea} onChange={(value) => updateComponentDraft("effectiveArea", value)} />
+                <ViewportComponentUnitSelect label="Effective area unit" testId="viewport-create-component-area-unit" value={componentDraft.areaUnit} options={componentAreaUnitOptions} onChange={(value) => updateComponentDraft("areaUnit", value)} />
+                <ViewportComponentTextInput label="Movement limit" testId="viewport-create-component-movement-limit" value={componentDraft.movementLimit} onChange={(value) => updateComponentDraft("movementLimit", value)} />
+                <ViewportComponentUnitSelect label="Movement limit unit" testId="viewport-create-component-movement-unit" value={componentDraft.movementUnit} options={componentMovementUnitOptions} onChange={(value) => updateComponentDraft("movementUnit", value)} />
+                <ViewportComponentTextInput label="Hardware reference" testId="viewport-create-component-hardware-ref" value={componentDraft.hardwareReference} onChange={(value) => updateComponentDraft("hardwareReference", value)} />
+                <ViewportComponentTextInput label="Manufacturer reference" testId="viewport-create-component-manufacturer-ref" value={componentDraft.manufacturerReference} onChange={(value) => updateComponentDraft("manufacturerReference", value)} />
+                <ViewportComponentTextInput label="Pressure thrust reference" testId="viewport-create-component-pressure-thrust-ref" value={componentDraft.pressureThrustReference} onChange={(value) => updateComponentDraft("pressureThrustReference", value)} />
+                <ViewportComponentTextInput label="Axial stiffness" testId="viewport-create-component-axial-stiffness" value={componentDraft.axialStiffness} onChange={(value) => updateComponentDraft("axialStiffness", value)} />
+                <ViewportComponentTextInput label="Lateral stiffness" testId="viewport-create-component-lateral-stiffness" value={componentDraft.lateralStiffness} onChange={(value) => updateComponentDraft("lateralStiffness", value)} />
+                <ViewportComponentUnitSelect label="Linear stiffness unit" testId="viewport-create-component-linear-stiffness-unit" value={componentDraft.linearStiffnessUnit} options={componentLinearStiffnessUnitOptions} onChange={(value) => updateComponentDraft("linearStiffnessUnit", value)} />
+                <ViewportComponentTextInput label="Angular stiffness" testId="viewport-create-component-angular-stiffness" value={componentDraft.angularStiffness} onChange={(value) => updateComponentDraft("angularStiffness", value)} />
+                <ViewportComponentTextInput label="Torsional stiffness" testId="viewport-create-component-torsional-stiffness" value={componentDraft.torsionalStiffness} onChange={(value) => updateComponentDraft("torsionalStiffness", value)} />
+                <ViewportComponentUnitSelect label="Rotational stiffness unit" testId="viewport-create-component-rotational-stiffness-unit" value={componentDraft.rotationalStiffnessUnit} options={componentRotationalStiffnessUnitOptions} onChange={(value) => updateComponentDraft("rotationalStiffnessUnit", value)} />
+                <ViewportComponentTextInput label="Stiffness source reference" testId="viewport-create-component-stiffness-source" value={componentDraft.stiffnessSourceReference} onChange={(value) => updateComponentDraft("stiffnessSourceReference", value)} />
+              </>
+            ) : null}
+            {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
               <>
                 <ViewportComponentTextInput label="Body length" testId="viewport-create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
                 <ViewportComponentTextInput label="End A size" testId="viewport-create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
@@ -1175,6 +1202,15 @@ export function PipeViewport({
                 data-testid="viewport-create-component-source"
                 onChange={(event) => updateComponentDraft("geometrySourceReference", event.target.value)}
                 value={componentDraft.geometrySourceReference}
+              />
+            </label>
+            <label>
+              <span>Provenance</span>
+              <input
+                aria-label="New component provenance"
+                data-testid="viewport-create-component-provenance"
+                onChange={(event) => updateComponentDraft("provenance", event.target.value)}
+                value={componentDraft.provenance}
               />
             </label>
             <button
@@ -1343,6 +1379,17 @@ function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallba
 }
 
 function componentUnitValidation(draft: ComponentDraft, route: UnitCatalogRoute | null): string {
+  if (draft.kind === "expansion_joint") {
+    const area = unitDimensionValidationStatus(route, draft.areaUnit, "area");
+    const movement = unitDimensionValidationStatus(route, draft.movementUnit, "length");
+    const linearStiffness = unitDimensionValidationStatus(route, draft.linearStiffnessUnit, "linear_stiffness");
+    const rotationalStiffness = unitDimensionValidationStatus(
+      route,
+      draft.rotationalStiffnessUnit,
+      "rotational_stiffness"
+    );
+    return `area=${area}; movement=${movement}; linear_stiffness=${linearStiffness}; rotational_stiffness=${rotationalStiffness}`;
+  }
   const length = unitDimensionValidationStatus(route, draft.lengthUnit, "length");
   if (draft.kind === "bend" || draft.kind === "tee") {
     const angle = unitDimensionValidationStatus(route, draft.angleUnit, "angle");

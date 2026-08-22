@@ -1,0 +1,115 @@
+{
+  "schema": "chirality-piping-agent-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R3",
+  "instance_id": "WORKING-ITEMS-VOCAB-R3-N2-UI",
+  "basis_sha": "8ca1984db45a9a8f6f3111a905b07c7d3da47c33",
+  "verdict": "PASS",
+  "review_readiness": "REPAIR_CYCLE_1_READY_FOR_FRESH_INTEGRATED_N2_REVIEW",
+  "repair_cycle": {
+    "number": 1,
+    "failed_review": "N2_REVIEW_V1.md",
+    "failed_review_sha256": "20c56ac4e25ff36ef38901d131a697b92f329b223721a015c65b573243ad9bc2",
+    "finding": "N2-F1",
+    "disposition": "FIXED_AND_REGRESSION_TESTED"
+  },
+  "checks": [
+    {
+      "name": "browser_wasm_rebuild_after_engine_fan_in",
+      "command": "npm run build:wasm --workspace apps/desktop",
+      "result": "PASS"
+    },
+    {
+      "name": "focused_affected_app_matrix",
+      "command": "npm exec vitest -- run src/App.test.tsx -t 'component|tee|reducer|valve|flange|expansion'",
+      "result": "PASS",
+      "summary": "36 passed; 65 skipped"
+    },
+    {
+      "name": "desktop_full_attempt_1",
+      "command": "npm run test:desktop",
+      "result": "FAIL_UNRELATED_REPRODUCED_AS_FLAKE",
+      "summary": "568 passed; one DeclarationsEditor stored-unit assertion failed"
+    },
+    {
+      "name": "unrelated_exact_failure_retry",
+      "command": "npm exec vitest -- run src/features/rule-packs/DeclarationsEditor.test.tsx -t 'keeps an out-of-catalog stored unit visible as current instead of snapping it'",
+      "result": "PASS",
+      "summary": "1 passed; 28 skipped"
+    },
+    {
+      "name": "desktop_full_retry",
+      "command": "npm run test:desktop",
+      "result": "PASS",
+      "summary": "29 files; 569 tests"
+    },
+    {
+      "name": "desktop_full_exact_final",
+      "command": "npm run test:desktop",
+      "result": "PASS",
+      "summary": "29 files; 569 tests"
+    },
+    {
+      "name": "repair_cycle_1_desktop_full_exact_final",
+      "command": "npm run test:desktop",
+      "result": "PASS",
+      "summary": "29 files; 573 tests"
+    },
+    {
+      "name": "desktop_production_build",
+      "command": "npm run build:desktop",
+      "result": "PASS",
+      "summary": "standing Vite large-chunk warning only"
+    },
+    {
+      "name": "practitioner_harness",
+      "command": "python3 -m pytest -q tools/practitioner_harness",
+      "result": "PASS",
+      "summary": "350 passed"
+    },
+    {
+      "name": "harness_self_check",
+      "command": "python3 tools/practitioner_harness/harness.py self-check",
+      "result": "PASS_WITH_STANDING_FINDINGS",
+      "summary": "exit 0; unrelated standing findings unchanged"
+    },
+    {
+      "name": "scoped_diff_check",
+      "command": "git diff --check -- <four authorized UI/test paths>",
+      "result": "PASS"
+    }
+  ],
+  "behavior_evidence": {
+    "kind_node_post_queue_reset_negatives": "PASS",
+    "three_incident_exact_selected_pipe": "pipe:P-150 serialized and applied",
+    "collection_order_not_used": true,
+    "exact_positive_inputs_and_units_preserved": true,
+    "expansion_to_bend_transition": "Inspector and viewport applied with accepted bend behavior",
+    "expansion_to_valve_transition": "Inspector and viewport kept pipe empty until deliberate selection, then applied",
+    "existing_kind_common_defaults_restored": true,
+    "prior_component_kinds_preserved": ["bend", "tee", "reducer", "valve", "flange"]
+  },
+  "hashes": {
+    "componentIntent.ts": {
+      "basis": "19ebce4104c8b7900a004526c71769bc4ce8cfec0036342f5cdd643bb47e98d6",
+      "current": "9fe80410d9694f843cd7276029f98ec094302b3bddc3fd2131935a16a046e3b7",
+      "diff": "40e082fbc6bcd68376e2d0561c957631aa539bf668211b64631d7671bc4a77a9"
+    },
+    "PropertyInspector.tsx": {
+      "basis": "07162a3ba9d2a43b9a3a95f9b1af9b891559149d7fd408044250caa9a394b14f",
+      "current": "ff95ef6b76fd9d2eac338a7f30ccbdc4285d70a0fe715cc5a4e03b88dac0c1e6",
+      "diff": "9c8d05b6ac69e13af1a4838a4fbb8f254b2cf1a023b0b1e7346cecbf34f197f8"
+    },
+    "PipeViewport.tsx": {
+      "basis": "ae5e770d512508859bf340401b49b13d322bbdf53071e0c940a58a217002bb4a",
+      "current": "ad8f1ef826bbd153bcb8f9252afbc1262641a869cbacf4489b8e466dfc7f03ce",
+      "diff": "2b55b74f9c7ebd909c16db3aff904375255cf6613a93398898c53e6722e5f3de"
+    },
+    "App.test.tsx": {
+      "basis": "19d1aa176a447a3d6c491164cba007471a8e7cbc819b8141a485028e89a396cb",
+      "current": "d66cb3ccccb9ac621812d35e0c864719888ce395447a9921246fc7a2d8829f8c",
+      "diff": "e983f287218c33232a2a263f8d47289e986517ed07c86740ced1eee7cb95fb83"
+    }
+  },
+  "blockers": [],
+  "rerun_requirements": []
+}

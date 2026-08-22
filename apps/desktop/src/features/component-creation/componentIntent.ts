@@ -1,6 +1,6 @@
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 
-export const creatableComponentKinds = ["bend", "tee", "reducer", "valve", "flange"] as const;
+export const creatableComponentKinds = ["bend", "tee", "reducer", "valve", "flange", "expansion_joint"] as const;
 export type CreatableComponentKind = (typeof creatableComponentKinds)[number];
 
 export type ComponentDraft = {
@@ -13,6 +13,10 @@ export type ComponentDraft = {
   lengthUnit: string;
   angleUnit: string;
   forceUnit: string;
+  areaUnit: string;
+  movementUnit: string;
+  linearStiffnessUnit: string;
+  rotationalStiffnessUnit: string;
   bendRadius: string;
   bendAngle: string;
   bendPlaneOrientation: string;
@@ -31,6 +35,16 @@ export type ComponentDraft = {
   connectionEndAReference: string;
   connectionEndBReference: string;
   stiffnessBehaviorReference: string;
+  effectiveArea: string;
+  movementLimit: string;
+  hardwareReference: string;
+  manufacturerReference: string;
+  pressureThrustReference: string;
+  axialStiffness: string;
+  lateralStiffness: string;
+  angularStiffness: string;
+  torsionalStiffness: string;
+  stiffnessSourceReference: string;
   geometrySourceReference: string;
   provenance: string;
 };
@@ -56,6 +70,10 @@ export function defaultComponentDraft(
     lengthUnit: model.project.units.length ?? "TBD",
     angleUnit: model.project.units.angle ?? "rad",
     forceUnit: model.project.units.force ?? "TBD",
+    areaUnit: "",
+    movementUnit: "",
+    linearStiffnessUnit: "",
+    rotationalStiffnessUnit: "",
     bendRadius: "",
     bendAngle: "",
     bendPlaneOrientation: "",
@@ -74,8 +92,18 @@ export function defaultComponentDraft(
     connectionEndAReference: "",
     connectionEndBReference: "",
     stiffnessBehaviorReference: "",
-    geometrySourceReference: "user_entered_component_form",
-    provenance: "user_entered_local_preview"
+    effectiveArea: "",
+    movementLimit: "",
+    hardwareReference: "",
+    manufacturerReference: "",
+    pressureThrustReference: "",
+    axialStiffness: "",
+    lateralStiffness: "",
+    angularStiffness: "",
+    torsionalStiffness: "",
+    stiffnessSourceReference: "",
+    geometrySourceReference: kind === "expansion_joint" ? "" : "user_entered_component_form",
+    provenance: kind === "expansion_joint" ? "" : "user_entered_local_preview"
   };
 }
 
@@ -85,12 +113,41 @@ export function componentDraftForKind(
   kind: CreatableComponentKind
 ): ComponentDraft {
   const primaryPipeRef = kind === "bend" ? (incidentPipes(model, draft.node)[0]?.id ?? "") : "";
+  const leavingExpansionJoint = draft.kind === "expansion_joint" && kind !== "expansion_joint";
   return {
     ...draft,
+    ...(kind === "expansion_joint" ? emptyExpansionJointInputs() : {}),
+    ...(leavingExpansionJoint
+      ? {
+          geometrySourceReference: "user_entered_component_form",
+          provenance: "user_entered_local_preview"
+        }
+      : {}),
     kind,
     label: `${componentKindLabel(kind)} ${shortEntityToken(draft.id)}`,
     primaryPipeRef,
     secondaryPipeRef: ""
+  };
+}
+
+function emptyExpansionJointInputs(): Partial<ComponentDraft> {
+  return {
+    areaUnit: "",
+    movementUnit: "",
+    linearStiffnessUnit: "",
+    rotationalStiffnessUnit: "",
+    effectiveArea: "",
+    movementLimit: "",
+    hardwareReference: "",
+    manufacturerReference: "",
+    pressureThrustReference: "",
+    axialStiffness: "",
+    lateralStiffness: "",
+    angularStiffness: "",
+    torsionalStiffness: "",
+    stiffnessSourceReference: "",
+    geometrySourceReference: "",
+    provenance: ""
   };
 }
 
@@ -150,6 +207,25 @@ export function isComponentDraftValid(
         draft.branchReinforcementReference.trim()
     );
   }
+  if (draft.kind === "expansion_joint") {
+    return Boolean(
+      incidentPipe(model, draft.node, draft.primaryPipeRef) &&
+        positiveFinite(draft.effectiveArea) &&
+        validUnit(draft.areaUnit) &&
+        positiveFinite(draft.movementLimit) &&
+        validUnit(draft.movementUnit) &&
+        draft.hardwareReference.trim() &&
+        draft.manufacturerReference.trim() &&
+        draft.pressureThrustReference.trim() &&
+        positiveFinite(draft.axialStiffness) &&
+        positiveFinite(draft.lateralStiffness) &&
+        validUnit(draft.linearStiffnessUnit) &&
+        positiveFinite(draft.angularStiffness) &&
+        positiveFinite(draft.torsionalStiffness) &&
+        validUnit(draft.rotationalStiffnessUnit) &&
+        draft.stiffnessSourceReference.trim()
+    );
+  }
   return Boolean(
     incidentPipe(model, draft.node, draft.primaryPipeRef) &&
       positiveFinite(draft.rigidBodyLength) &&
@@ -183,12 +259,14 @@ export function buildCreateComponentIntent({
   const componentId = draft.id.trim();
   const kind = draft.kind;
   const suffix = sequence === undefined ? "" : `-${sequence.toString().padStart(3, "0")}`;
+  const modifiers = componentModifiers(draft);
   const payload = {
     id: componentId,
     label: draft.label.trim(),
     kind,
     node: draft.node.trim(),
     geometry: componentGeometry(draft),
+    ...(modifiers ? { modifiers } : {}),
     provenance: draft.provenance.trim()
   };
   return {
@@ -260,6 +338,17 @@ function componentGeometry(draft: ComponentDraft): Record<string, unknown> {
       branch_geometry_source_reference: draft.geometrySourceReference.trim()
     };
   }
+  if (draft.kind === "expansion_joint") {
+    return {
+      expansion_joint_pipe_ref: draft.primaryPipeRef.trim(),
+      effective_area: { value: Number(draft.effectiveArea), unit: draft.areaUnit.trim() },
+      movement_limit: { value: Number(draft.movementLimit), unit: draft.movementUnit.trim() },
+      hardware_reference: draft.hardwareReference.trim(),
+      manufacturer_reference: draft.manufacturerReference.trim(),
+      pressure_thrust_reference: draft.pressureThrustReference.trim(),
+      expansion_joint_source_reference: draft.geometrySourceReference.trim()
+    };
+  }
   return {
     rigid_pipe_ref: draft.primaryPipeRef.trim(),
     rigid_body_length: { value: Number(draft.rigidBodyLength), unit: draft.lengthUnit.trim() },
@@ -279,12 +368,38 @@ function componentGeometry(draft: ComponentDraft): Record<string, unknown> {
   };
 }
 
+function componentModifiers(draft: ComponentDraft): Record<string, unknown> | null {
+  if (draft.kind !== "expansion_joint") return null;
+  return {
+    axial_stiffness_user_value: {
+      value: Number(draft.axialStiffness),
+      unit: draft.linearStiffnessUnit.trim()
+    },
+    lateral_stiffness_user_value: {
+      value: Number(draft.lateralStiffness),
+      unit: draft.linearStiffnessUnit.trim()
+    },
+    angular_stiffness_user_value: {
+      value: Number(draft.angularStiffness),
+      unit: draft.rotationalStiffnessUnit.trim()
+    },
+    torsional_stiffness_user_value: {
+      value: Number(draft.torsionalStiffness),
+      unit: draft.rotationalStiffnessUnit.trim()
+    },
+    source_reference: draft.stiffnessSourceReference.trim()
+  };
+}
+
 function componentSourceNote(kind: CreatableComponentKind): string {
   if (kind === "bend") {
     return "explicit user-entered bend node, realized pipe connectivity, radius, angle, plane orientation, and geometry source";
   }
   if (kind === "tee") {
     return "explicit user-entered tee node, two-pipe connectivity, run/header sizes, connection angle/type, reinforcement reference, and geometry source";
+  }
+  if (kind === "expansion_joint") {
+    return "explicit user-entered expansion-joint node, realized pipe connectivity, effective area, movement limit, hardware/manufacturer/pressure-thrust references, four-axis stiffness quantities, geometry/stiffness sources, and provenance";
   }
   return `explicit user-entered ${kind} node, realized pipe connectivity, dimensions, weight, center of gravity, connection references, stiffness behavior, and geometry source`;
 }

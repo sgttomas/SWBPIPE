@@ -1,0 +1,70 @@
+{
+  "schema": "chirality-piping-agent-run-checks/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R3",
+  "instance_id": "WORKING-ITEMS-VOCAB-R3-N2-ENGINE",
+  "package_id": "PKG-16",
+  "deliverable_id": "DEL-16-01",
+  "accepted_basis_sha": "8ca1984db45a9a8f6f3111a905b07c7d3da47c33",
+  "result": "PASS",
+  "review_readiness": "READY",
+  "geometry_contract_question": null,
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "basis_content_sha256": "f6ecdc476482d8798591689770c4a87a318ec4765e0362b886ae46922b58be7f",
+      "current_content_sha256": "13246f843fa9673b2de3fe8758695672d974f91bdd9be03e2e8b0698247f5bc8",
+      "basis_to_current_binary_diff_sha256": "6f2fb76572c079ffc5c5c2b1f12a05dc687602cc346124885150ec93c1ba109e"
+    }
+  ],
+  "checks": [
+    {
+      "name": "focused_expansion_joint_creation",
+      "command": "cargo test --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml expansion_joint_creation -- --nocapture",
+      "result": "PASS",
+      "evidence": "4 passed; 0 failed"
+    },
+    {
+      "name": "focused_component_creation_slice",
+      "command": "cargo test --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml creation -- --nocapture",
+      "result": "PASS",
+      "evidence": "11 passed; 0 failed; includes bend, tee, reducer, valve, flange, and expansion_joint creation regressions"
+    },
+    {
+      "name": "full_operation_applier_crate",
+      "command": "cargo test --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+      "result": "PASS",
+      "evidence": "86 unit tests, 1 canonical-hash integration test, and 2 contract-corpus integration tests passed; doc tests passed"
+    },
+    {
+      "name": "wasm32_release_build",
+      "command": "cargo build --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --target wasm32-unknown-unknown --release --features wasm",
+      "result": "PASS"
+    },
+    {
+      "name": "rustfmt_check",
+      "command": "cargo fmt --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml -- --check",
+      "result": "PASS"
+    },
+    {
+      "name": "scoped_diff_check",
+      "command": "git diff --check -- projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "result": "PASS"
+    }
+  ],
+  "blocking_regression_matrix": {
+    "missing_data": "PASS",
+    "unknown_selected_pipe": "PASS",
+    "nonincident_selected_pipe": "PASS",
+    "invalid_quantity_dimension": "PASS",
+    "nonpositive_quantity_value": "PASS",
+    "no_applied_model_on_blocking": "PASS"
+  },
+  "write_containment": {
+    "result": "PASS",
+    "product_write": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "run_local_writes": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/N2_ENGINE_RETURN.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-VOCABULARY-R3/N2_ENGINE_CHECKS.json"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schema": "chirality-help-human-work-graph/v1",
   "run_id": "HELP-HUMAN-PIPING-20260821-VOCABULARY-R3",
-  "version": 1,
+  "version": 2,
   "selection_authority": "HUMAN — vocabulary completion round 3",
   "posture": "SERIAL_TWO_NODE_WITH_DISJOINT_N1_REPAIR_LANES",
   "authorized_width": 2,
@@ -11,8 +11,8 @@
   "pre_repair_lineage_sha": "2bee267300e571e4e8686f73aba6ad4ba8be4c54",
   "integration_owner": "HELP_HUMAN",
   "nodes": [
-    {"node_id":"N1","role":"WORKING_ITEMS","objective":"Repair P1/P2 and complete tee, reducer, valve, flange end-to-end evidence for row 15.","dependencies":[],"concurrency":"P1 UI and P2 engine writes disjoint; one integrated fan-in","repair_cycles_allowed":2,"status":"READY"},
-    {"node_id":"N2","role":"WORKING_ITEMS","objective":"Implement expansion-joint creation with explicit 4-axis stiffness and pressure-thrust refs.","dependencies":["N1:ACCEPTED_AND_COMMITTED"],"concurrency":"strictly serialized after N1","repair_cycles_allowed":2,"status":"HELD"}
+    {"node_id":"N1","role":"WORKING_ITEMS","objective":"Repair P1/P2 and complete tee, reducer, valve, flange end-to-end evidence for row 15.","dependencies":[],"concurrency":"P1 UI and P2 engine writes disjoint; one integrated fan-in","repair_cycles_allowed":2,"repair_cycles_used":1,"review":"N1_REVIEW_V2.md: PASS","accepted_commit":"8ca1984db45a9a8f6f3111a905b07c7d3da47c33","status":"ACCEPTED_AND_COMMITTED"},
+    {"node_id":"N2","role":"WORKING_ITEMS","objective":"Implement expansion-joint creation with explicit 4-axis stiffness and pressure-thrust refs.","dependencies":["N1:ACCEPTED_AND_COMMITTED"],"concurrency":"strictly serialized after N1; engine and UI writes are disjoint within N2 and converge at one integrated fan-in","repair_cycles_allowed":2,"status":"READY"}
   ],
   "shared_surface_policy": "status, coverage, handoff, and receipt written once at final fan-in",
   "labels_excluded": ["artifact-proof"],

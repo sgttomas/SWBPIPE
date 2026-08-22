@@ -1,0 +1,9 @@
+# N2 expansion-joint engine brief
+
+- Instance: `WORKING-ITEMS-VOCAB-R3-N2-ENGINE`; role `WORKING_ITEMS`; package `PKG-16`; deliverable `DEL-16-01`.
+- Basis: accepted N1 commit `8ca1984db45a9a8f6f3111a905b07c7d3da47c33`; active run plan v2; row 14 owner authorization.
+- Objective: add `expansion_joint` to structured `insert_component_symbol` creation in the operation applier. Canonically resolve only a deliberately supplied incident `expansion_joint_pipe_ref`; positive `effective_area` and `movement_limit`; non-empty `hardware_reference`, `manufacturer_reference`, `pressure_thrust_reference`, and `expansion_joint_source_reference`; and modifiers containing positive axial/lateral/angular/torsional stiffness quantities plus non-empty stiffness `source_reference`. Preserve exact entered units and references. Never infer a pipe role or engineering value.
+- Geometry contract evidence: accepted product-physics types and validation already require exactly those fields; the existing invented preview fixture demonstrates the canonical persisted shape. If implementation reveals a genuine contradiction or missing connectivity choice, stop and record the exact question rather than choosing a value.
+- Allowed writes: `projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs` and instance-local `N2_ENGINE_RETURN.md` / `N2_ENGINE_CHECKS.json` only.
+- Required evidence: focused positive creation/application; negative missing/invalid/foreign-or-nonincident pipe and dimension/unit cases; no `applied_model` on blocking inputs; accepted N1 tee/bend/rigid regressions unchanged; focused and full operation-applier tests; wasm32 release build with wasm feature; format and scoped diff checks; pre/post content and diff hashes.
+- Prohibited: UI, shared status/coverage/handoff/receipt, Git, or unrelated writes.
