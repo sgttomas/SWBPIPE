@@ -19,3 +19,7 @@ I approve exporting the branch’s 58 Piping source, test, deliverable, AgentRun
 ## Receipt correction direction
 
 Receipt 125 verified except two pointer/transcription items. (1) Correct the Pointers base: the branch base is main@1b375af4f1219ecfc00fc2755854aa7fd4220901, synced through 33e871fc38d8ef4bb51f7c25cdc6ca2e8dcb69e0; bc1228ca1 was never incorporated. (2) Add OWNER_DIRECTIONS.md to the run root transcribing the development-pressure standing direction verbatim as CHAT_TRANSCRIPTION (the sync and publication approvals may be repeated there). Rerun the receipt validator, push, report SHA. No merge.
+
+## Final sync and merge approval
+
+I authorize a pure, non-rewriting merge of origin/main@9f95250e4091a789ca82fb207deec6471d7044d1 into codex/piping-local-first-runtime-20260821, followed by checks, push, and merge of PR #608
