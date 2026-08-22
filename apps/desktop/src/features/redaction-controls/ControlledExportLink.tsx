@@ -94,7 +94,12 @@ export function ControlledExportLink({ href, children, ...anchorProps }: Props) 
     : encodeDataHref(controlledPayload, decoded.mediaType, decoded.isJson);
 
   return (
-    <span className="controlled-export-control" data-route-id={binding.routeId}>
+    <span
+      className="controlled-export-control"
+      data-local-first-blocked={String(controlled.summary.local_first?.blocked ?? true)}
+      data-local-first-reason={controlled.summary.local_first?.reason_code ?? "LOCAL_FIRST_EVIDENCE_MISSING"}
+      data-route-id={binding.routeId}
+    >
       {binding.context === "local_private" ? (
         <label>
           <input

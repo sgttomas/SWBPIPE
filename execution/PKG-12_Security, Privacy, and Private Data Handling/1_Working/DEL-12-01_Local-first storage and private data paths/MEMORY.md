@@ -199,3 +199,11 @@ Durable context preserved after reconciliation review:
 - DEL-10-02's deny-only declaration gate rejects an adapter declaration that permits private transmission by default and prevents dispatch for every rejected, quarantined, or currently conforming declaration.
 - This does not bind actual storage, result, report, plugin, or transport consumers and is not whole-product privacy/security assurance.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.
+
+## 2026-08-21 - Local-first runtime route binding
+
+- The current Python handoff writers and desktop controlled-export/report projectors now compose local-first route control from wrapper-owned route metadata. Unknown routes or contexts fail closed; public/shared/downstream routes preserve redaction, and local-private writes require exact Boolean `true` intent.
+- The desktop report save service rejects missing, mismatched, or blocked evidence before native invocation. The Tauri `save_report_package` command validates the full evidence tuple before assembly, picker display, or persistence and returns the evidence in its receipt.
+- A first independent review found that Python truthiness could authorize malformed intent values. The repair normalizes once with `is True`; route and writer regressions prove `"false"`, `1`, `None`, and mapping values remain blocked without creating an output directory.
+- Focused suites, pinned full Piping (`913 passed`), the registered host DEC-025 evidence sweep, and a fresh 13-path 100%-diff review passed. Evidence is rooted at `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-LOCAL-FIRST-RUNTIME/instances/WI-PKG12-001/`.
+- This tranche did not inspect payloads or add network, cloud, telemetry, storage-root, physical-container, or plugin-runtime selection behavior. LFSP-REQ-011 implementation-dependent families and owner dispositions RF-001/RF-002 remain open; lifecycle stays `IN_PROGRESS`.

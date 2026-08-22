@@ -206,9 +206,18 @@ describe("route projection", () => {
       expect((controlled.payload as { opaque_sibling: string }).opaque_sibling).toBe(REDACTED_VALUE);
     }
 
-    const local = controlRouteExport(payload, {
+    const blockedLocal = controlRouteExport(payload, {
       routeId: "DOTH-HANDOFF-002",
       exportContext: "local_private"
+    });
+    expect(blockedLocal.blocked).toBe(true);
+    expect(blockedLocal.payload).toBeNull();
+    expect(blockedLocal.summary.local_first?.reason_code).toBe("LOCAL_PRIVATE_INTENT_REQUIRED");
+
+    const local = controlRouteExport(payload, {
+      routeId: "DOTH-HANDOFF-002",
+      exportContext: "local_private",
+      explicitLocalPrivateIntent: true
     });
     const localDecision = local.decisions.find((item) => item.path.endsWith("opaque_sibling"));
     expect(localDecision).toMatchObject({
@@ -266,7 +275,8 @@ describe("route projection", () => {
 
     const local = controlRouteExport(payload, {
       routeId: "DOTH-HANDOFF-002",
-      exportContext: "local_private"
+      exportContext: "local_private",
+      explicitLocalPrivateIntent: true
     });
     const nestedLocal = local.decisions.filter((item) => item.path.endsWith("opaque_leaf"));
     expect(nestedLocal).toHaveLength(2);
@@ -284,6 +294,35 @@ describe("route projection", () => {
         nested_record: { opaque_leaf: payload.public_record.nested_record.opaque_leaf },
         nested_list: [{ opaque_leaf: payload.public_record.nested_list[0].opaque_leaf }]
       }
+    });
+  });
+
+  it("emits metadata-only local-first evidence and fails closed for an unknown route", () => {
+    const governed = controlRouteExport(
+      { invented: "opaque" },
+      { routeId: "DOTH-HANDOFF-002", exportContext: "downstream_tool" }
+    );
+    const unknown = controlRouteExport(
+      { invented: "opaque" },
+      { routeId: "INVENTED-UNKNOWN-ROUTE", exportContext: "downstream_tool" }
+    );
+
+    expect(governed.summary.local_first).toEqual({
+      route_id: "DOTH-HANDOFF-002",
+      export_context: "downstream_tool",
+      storage_context: "downstream_tool",
+      action: "include_metadata_only",
+      reason_code: "SAFE_PUBLIC_METADATA",
+      blocked: false,
+      metadata_only: true,
+      explicit_local_private_intent: false
+    });
+    expect(unknown.blocked).toBe(true);
+    expect(unknown.payload).toBeNull();
+    expect(unknown.summary.local_first).toMatchObject({
+      reason_code: "LOCAL_FIRST_ROUTE_UNKNOWN",
+      blocked: true,
+      metadata_only: true
     });
   });
 

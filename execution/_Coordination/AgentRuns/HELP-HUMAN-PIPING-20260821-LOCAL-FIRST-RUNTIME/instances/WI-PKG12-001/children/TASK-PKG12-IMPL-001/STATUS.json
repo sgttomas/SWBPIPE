@@ -1,0 +1,10 @@
+{
+  "schema": "chirality-agent-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-LOCAL-FIRST-RUNTIME",
+  "parent_instance_id": "WI-PKG12-001",
+  "child_instance_id": "TASK-PKG12-IMPL-001",
+  "status": "accepted",
+  "attempts": 3,
+  "accepted_return": "RETURN_AFTER_AMENDMENT_v3.md",
+  "model": "Codex, GPT-5 family (more-specific slug unavailable)"
+}

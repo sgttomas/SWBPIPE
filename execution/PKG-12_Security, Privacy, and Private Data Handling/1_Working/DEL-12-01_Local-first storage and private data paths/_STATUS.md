@@ -10,14 +10,14 @@ Surviving deliverable-local residuals and gates are those recorded in `_STATUS.m
 PDU-055 cited claim(s): `DEL-12-01-DECL-005`.
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-08-21
 
 ## Remaining
-- Bind all applicable adapter/plugin and result/report runtime surfaces to governed local-first/private-data enforcement; the selected deny-only declaration gate does not create those runtime bindings.
 - Complete LFSP-REQ-011's runtime path-resolution, storage round-trip/migration, and report/export integration test families only when their owning implementations exist. PDU-036's transform trace-gap fixture is adjacent verification evidence and does not validate or substitute for these absent storage families.
 - Obtain owner/human-review dispositions for open `RF-001` and `RF-002`; current status wording and T3/T4 runtime/storage residual homes do not close either finding, and `HumanDisposition` remains `TBD` (PDU-060).
 
 ## History
+- 2026-08-21 - Bound the current applicable core and desktop adapter/result/report export routes, desktop report-package service, and native report persistence boundary to governed local-first evidence. Exact-Boolean intent repair, focused checks, pinned full Piping/DEC-025 checks, and a fresh 100%-diff review passed; lifecycle remains IN_PROGRESS for the residuals above.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001/RF-002 human dispositions while retaining the deduplicated T3/T4 technical residuals and IN_PROGRESS state.
 - 2026-07-12 - D-41 R5 T4 PDU-036 recorded the bounded adjacent trace-gap fixture while preserving LFSP-REQ-011's absent runtime storage/package/migration/report-export test families; no validation promotion.
@@ -52,3 +52,4 @@ PDU-055 cited claim(s): `DEL-12-01-DECL-005`.
 - Physical project package/container remains `TBD`.
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-07 — State set to CHECKING (REVIEW)
+- 2026-08-21 - Product source and tests were changed within the authorized local-first runtime-binding slice. No payload inspection, network/cloud/telemetry behavior, storage-root selection, physical-container selection, or lifecycle promotion was introduced.

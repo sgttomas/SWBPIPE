@@ -1,0 +1,48 @@
+{
+  "schema": "chirality-working-items-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-LOCAL-FIRST-RUNTIME",
+  "instance_id": "WI-PKG12-001",
+  "package_id": "PKG-12",
+  "selected_deliverables": ["DEL-12-01"],
+  "version": 4,
+  "selection_authority": "HELP_HUMAN frozen launch brief plus DEL-12-01 Remaining item 1",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "id": "TASK-PKG12-IMPL-001",
+      "role": "ephemeral Agent 2 generalist using software-bounded-implementation method",
+      "objective": "Compose local-first route enforcement into the current core and desktop controlled-export choke points and make both the desktop service and native report-package persistence command reject missing/blocked local-first evidence.",
+      "dependencies": [],
+      "concurrency": "serialized",
+      "write_owner": "TASK-PKG12-IMPL-001",
+      "expected_return": "product/test diff plus focused check evidence",
+      "gate": "focused checks pass and write containment holds"
+    },
+    {
+      "id": "TASK-PKG12-REVIEW-001",
+      "role": "fresh read-only Agent 2 software-code-review",
+      "objective": "Review 100% of the frozen integrated product diff using exact SHA-256 inventory.",
+      "dependencies": ["TASK-PKG12-IMPL-001"],
+      "concurrency": "serialized",
+      "write_owner": null,
+      "expected_return": "PASS or actionable findings with exact hash inventory",
+      "gate": "PASS with no actionable finding"
+    }
+  ],
+  "edges": [
+    {"from": "TASK-PKG12-IMPL-001", "to": "TASK-PKG12-REVIEW-001", "type": "accepted_return"}
+  ],
+  "fan_in_gates": [
+    "focused and registered checks pass",
+    "fresh 100%-diff review passes",
+    "exact path containment",
+    "truthful DEL-12-01 residual update"
+  ],
+  "escalation_points": [
+    "new owner policy/value",
+    "hard fence or cross-package write",
+    "cloud/network/telemetry behavior",
+    "payload inspection",
+    "storage-root or physical-container selection"
+  ]
+}

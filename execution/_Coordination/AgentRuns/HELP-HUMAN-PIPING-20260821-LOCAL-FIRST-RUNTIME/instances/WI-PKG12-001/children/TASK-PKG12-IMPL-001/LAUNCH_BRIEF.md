@@ -1,0 +1,32 @@
+# TASK-PKG12-IMPL-001 Launch Brief v1
+
+- RequestedBy: `WI-PKG12-001`
+- RunID: `HELP-HUMAN-PIPING-20260821-LOCAL-FIRST-RUNTIME`
+- ParentInstanceID: `WI-PKG12-001`
+- ChildInstanceID: `TASK-PKG12-IMPL-001`
+- AgentType: `2` ephemeral generalist; apply `software-bounded-implementation`; do not delegate.
+- PackageID: `PKG-12`
+- DeliverableID: `DEL-12-01`
+- Objective: bind the existing core and desktop controlled export/report persistence choke points to governed local-first/private-data route enforcement.
+- ScopePath: `projects/chirality-piping`
+- AcceptedBasis: `1b375af4f`, frozen WI activation/work graph, DEL-12-01 SOW and Remaining item 1.
+- Dependencies: none.
+- DeclaredReads: DEL-12-01 SOW/status/context/memory; `core/security/local_first_storage/**`; `core/security/redaction/**`; current core handoff writers; desktop redaction controls, controlled export link, report projector/save service, and their tests; registered workflow profile.
+- AllowedTools: read, search, `apply_patch`, focused shell tests. No Git mutation.
+- AllowedWriteTargets:
+  - `projects/chirality-piping/core/security/local_first_storage/**`
+  - `projects/chirality-piping/core/security/redaction/route_control.py`
+  - `projects/chirality-piping/apps/desktop/src/features/redaction-controls/**`
+  - `projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.ts`
+  - `projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.test.ts`
+  - `projects/chirality-piping/tests/security/test_local_first_storage_policy.py`
+  - `projects/chirality-piping/tests/security/test_redaction_export_controls.py`
+- ExpectedOutputs: implementation and focused tests proving that core adapter/result/report writers and desktop controlled downloads invoke local-first route enforcement; report-package persistence rejects missing or blocked local-first evidence; public/downstream compatibility remains governed by the existing redaction route; local-private exposure still requires wrapper-owned explicit intent.
+- AcceptanceCriteria:
+  - Enforcement is metadata-only and does not inspect payload values.
+  - No network/cloud/telemetry operation or storage-root/container selection.
+  - Unknown/invalid route metadata fails closed.
+  - Existing route IDs and public APIs remain compatible unless a fail-closed evidence field is intentionally added.
+  - Focused Python and desktop tests pass; `git diff --check` passes.
+- EXCLUSIONS: no Tauri/Rust backend redesign; no new storage service; no plugin runtime selection; no policy value; no payload scan; no docs/status/run-record writes; no commits, push, PR, receipt, DAG, decision, release, or lifecycle edits.
+- Escalation: scope expansion, owner policy/value, hard fence, cross-package write, or need to inspect/store/transmit payloads.

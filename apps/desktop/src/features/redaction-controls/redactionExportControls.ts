@@ -100,10 +100,27 @@ export type RedactionRunResult = {
   summary: RedactionSummary;
 };
 
+export type LocalFirstRouteEvidence = {
+  route_id: string;
+  export_context: string;
+  storage_context: string;
+  action: "include_metadata_only" | "block_storage";
+  reason_code:
+    | "SAFE_PUBLIC_METADATA"
+    | "PRIVATE_LOCAL_METADATA_ALLOWED"
+    | "LOCAL_PRIVATE_INTENT_REQUIRED"
+    | "LOCAL_FIRST_ROUTE_UNKNOWN"
+    | "LOCAL_FIRST_EXPORT_CONTEXT_INVALID";
+  blocked: boolean;
+  metadata_only: true;
+  explicit_local_private_intent: boolean;
+};
+
 export type ControlledRouteExport = RedactionRunResult & {
   summary: RedactionSummary & {
     route_id: string;
     materialization_withheld: boolean;
+    local_first?: LocalFirstRouteEvidence;
   };
 };
 
@@ -114,6 +131,80 @@ export const EXPORT_CONTEXTS: RedactionExportContext[] = [
   "downstream_tool",
   "local_private"
 ];
+
+const GOVERNED_LOCAL_FIRST_ROUTE_IDS = new Set([
+  "DOTH-CAEPIPE-LOCAL-006",
+  "DOTH-FORMAT-003",
+  "DOTH-HANDOFF-002",
+  "DOTH-JSON-001",
+  "DOTH-PRIVATE-004",
+  "DREP-HTML-SAVE-005",
+  "DREP-IPC-003",
+  "DREP-JSON-002",
+  "DREP-LINT-JSON-007",
+  "DREP-PACKAGE-SAVE-009",
+  "DREP-UI-001/DREP-JSON-002"
+]);
+
+export function enforceLocalFirstRoute(options: {
+  routeId: unknown;
+  exportContext: unknown;
+  explicitLocalPrivateIntent?: boolean;
+}): LocalFirstRouteEvidence {
+  const routeId = typeof options.routeId === "string" ? options.routeId : "";
+  const exportContext = typeof options.exportContext === "string" ? options.exportContext : "";
+  const validContext = (EXPORT_CONTEXTS as string[]).includes(exportContext);
+  const explicitIntent = options.explicitLocalPrivateIntent === true;
+  if (!GOVERNED_LOCAL_FIRST_ROUTE_IDS.has(routeId)) {
+    return {
+      route_id: routeId,
+      export_context: exportContext,
+      storage_context: validContext ? exportContext : "invalid",
+      action: "block_storage",
+      reason_code: "LOCAL_FIRST_ROUTE_UNKNOWN",
+      blocked: true,
+      metadata_only: true,
+      explicit_local_private_intent: explicitIntent
+    };
+  }
+  if (!validContext) {
+    return {
+      route_id: routeId,
+      export_context: exportContext,
+      storage_context: "invalid",
+      action: "block_storage",
+      reason_code: "LOCAL_FIRST_EXPORT_CONTEXT_INVALID",
+      blocked: true,
+      metadata_only: true,
+      explicit_local_private_intent: explicitIntent
+    };
+  }
+  if (exportContext === "local_private" && !explicitIntent) {
+    return {
+      route_id: routeId,
+      export_context: exportContext,
+      storage_context: exportContext,
+      action: "block_storage",
+      reason_code: "LOCAL_PRIVATE_INTENT_REQUIRED",
+      blocked: true,
+      metadata_only: true,
+      explicit_local_private_intent: false
+    };
+  }
+  return {
+    route_id: routeId,
+    export_context: exportContext,
+    storage_context: exportContext,
+    action: "include_metadata_only",
+    reason_code:
+      exportContext === "local_private"
+        ? "PRIVATE_LOCAL_METADATA_ALLOWED"
+        : "SAFE_PUBLIC_METADATA",
+    blocked: false,
+    metadata_only: true,
+    explicit_local_private_intent: explicitIntent
+  };
+}
 
 const SAFE_PRIVACY_CLASSES = new Set(["public", "public_metadata", "invented_public_example"]);
 const PRIVATE_PRIVACY_CLASSES = new Set([
@@ -857,6 +948,7 @@ export function controlRouteExport(
     requireLosslessMaterialization?: boolean;
   }
 ): ControlledRouteExport {
+  const localFirst = enforceLocalFirstRoute(options);
   const structuralProjection = structuralProjectionFor(payload, options.routeId);
   const projected = projectRouteValue(stripRouteIntent(payload), {
     routeId: options.routeId,
@@ -872,7 +964,7 @@ export function controlRouteExport(
     ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
   );
   const materializationWithheld = Boolean(options.requireLosslessMaterialization && destructive);
-  const blocked = controlled.blocked || materializationWithheld;
+  const blocked = controlled.blocked || materializationWithheld || localFirst.blocked;
   return {
     ...controlled,
     payload: blocked ? null : materializeRouteValue(controlled.payload),
@@ -880,7 +972,8 @@ export function controlRouteExport(
     summary: {
       ...controlled.summary,
       route_id: options.routeId,
-      materialization_withheld: materializationWithheld
+      materialization_withheld: materializationWithheld,
+      local_first: localFirst
     }
   };
 }

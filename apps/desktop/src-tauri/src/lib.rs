@@ -38,6 +38,42 @@ struct ReportPackageRedactionEvidence {
     blocking_count: usize,
 }
 
+#[derive(Debug, Deserialize)]
+struct ReportPackageLocalFirstEvidence {
+    route_id: String,
+    export_context: String,
+    storage_context: String,
+    action: String,
+    reason_code: String,
+    blocked: bool,
+    metadata_only: bool,
+    explicit_local_private_intent: bool,
+}
+
+fn validate_report_package_local_first_evidence(
+    evidence: Option<&ReportPackageLocalFirstEvidence>,
+) -> Result<(), &'static str> {
+    let Some(evidence) = evidence else {
+        return Err(
+            "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-INVALID: metadata-only local-first route evidence is missing or blocked",
+        );
+    };
+    if evidence.route_id != "DREP-PACKAGE-SAVE-009"
+        || evidence.export_context != "local_private"
+        || evidence.storage_context != "local_private"
+        || evidence.action != "include_metadata_only"
+        || evidence.reason_code != "PRIVATE_LOCAL_METADATA_ALLOWED"
+        || evidence.blocked
+        || !evidence.metadata_only
+        || !evidence.explicit_local_private_intent
+    {
+        return Err(
+            "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-INVALID: metadata-only local-first route evidence is missing or blocked",
+        );
+    }
+    Ok(())
+}
+
 #[derive(Debug, Serialize)]
 struct ReportPackageMemberSummary {
     role: String,
@@ -62,6 +98,14 @@ struct ReportPackageSaveReceipt {
     redaction_decision_count: usize,
     redaction_finding_count: usize,
     redaction_blocking_count: usize,
+    local_first_route_id: String,
+    local_first_export_context: String,
+    local_first_storage_context: String,
+    local_first_action: String,
+    local_first_reason_code: String,
+    local_first_blocked: bool,
+    local_first_metadata_only: bool,
+    local_first_explicit_local_private_intent: bool,
     selected_basename: String,
     path_containment: String,
     limitation: String,
@@ -127,6 +171,7 @@ async fn save_report_package(
     app: AppHandle,
     request: report_package_bridge::ReportPackageRequest,
     redaction_evidence: ReportPackageRedactionEvidence,
+    local_first_evidence: Option<ReportPackageLocalFirstEvidence>,
 ) -> Result<ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
     if redaction_evidence.route_id != "DREP-PACKAGE-SAVE-009"
         || redaction_evidence.blocking_count != 0
@@ -135,6 +180,8 @@ async fn save_report_package(
             "REPORT-PACKAGE-REDACTION-EVIDENCE-INVALID: controlled route evidence is missing or blocked".to_string(),
         ));
     }
+    validate_report_package_local_first_evidence(local_first_evidence.as_ref())
+        .map_err(|message| ReportPackageSaveCommandError::bridge(message.to_string()))?;
     let package = report_package_bridge::assemble_request(request)
         .map_err(ReportPackageSaveCommandError::bridge)?;
     if package.export_blocked {
@@ -175,6 +222,43 @@ async fn save_report_package(
             redaction_decision_count: redaction_evidence.decision_count,
             redaction_finding_count: redaction_evidence.finding_count,
             redaction_blocking_count: redaction_evidence.blocking_count,
+            local_first_route_id: local_first_evidence
+                .as_ref()
+                .expect("validated local-first evidence")
+                .route_id
+                .clone(),
+            local_first_export_context: local_first_evidence
+                .as_ref()
+                .expect("validated local-first evidence")
+                .export_context
+                .clone(),
+            local_first_storage_context: local_first_evidence
+                .as_ref()
+                .expect("validated local-first evidence")
+                .storage_context
+                .clone(),
+            local_first_action: local_first_evidence
+                .as_ref()
+                .expect("validated local-first evidence")
+                .action
+                .clone(),
+            local_first_reason_code: local_first_evidence
+                .as_ref()
+                .expect("validated local-first evidence")
+                .reason_code
+                .clone(),
+            local_first_blocked: local_first_evidence
+                .as_ref()
+                .expect("validated local-first evidence")
+                .blocked,
+            local_first_metadata_only: local_first_evidence
+                .as_ref()
+                .expect("validated local-first evidence")
+                .metadata_only,
+            local_first_explicit_local_private_intent: local_first_evidence
+                .as_ref()
+                .expect("validated local-first evidence")
+                .explicit_local_private_intent,
             selected_basename: String::new(),
             path_containment: atomic_report_package_save::PATH_CONTAINMENT.to_string(),
             limitation: atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
@@ -215,6 +299,43 @@ async fn save_report_package(
         redaction_decision_count: redaction_evidence.decision_count,
         redaction_finding_count: redaction_evidence.finding_count,
         redaction_blocking_count: redaction_evidence.blocking_count,
+        local_first_route_id: local_first_evidence
+            .as_ref()
+            .expect("validated local-first evidence")
+            .route_id
+            .clone(),
+        local_first_export_context: local_first_evidence
+            .as_ref()
+            .expect("validated local-first evidence")
+            .export_context
+            .clone(),
+        local_first_storage_context: local_first_evidence
+            .as_ref()
+            .expect("validated local-first evidence")
+            .storage_context
+            .clone(),
+        local_first_action: local_first_evidence
+            .as_ref()
+            .expect("validated local-first evidence")
+            .action
+            .clone(),
+        local_first_reason_code: local_first_evidence
+            .as_ref()
+            .expect("validated local-first evidence")
+            .reason_code
+            .clone(),
+        local_first_blocked: local_first_evidence
+            .as_ref()
+            .expect("validated local-first evidence")
+            .blocked,
+        local_first_metadata_only: local_first_evidence
+            .as_ref()
+            .expect("validated local-first evidence")
+            .metadata_only,
+        local_first_explicit_local_private_intent: local_first_evidence
+            .as_ref()
+            .expect("validated local-first evidence")
+            .explicit_local_private_intent,
         selected_basename: save.selected_basename,
         path_containment: save.path_containment,
         limitation: save.limitation,
@@ -3773,6 +3894,52 @@ pub fn run() {
 mod tests {
     use super::*;
     use std::collections::BTreeSet;
+
+    fn allowed_report_package_local_first_evidence() -> ReportPackageLocalFirstEvidence {
+        ReportPackageLocalFirstEvidence {
+            route_id: "DREP-PACKAGE-SAVE-009".to_string(),
+            export_context: "local_private".to_string(),
+            storage_context: "local_private".to_string(),
+            action: "include_metadata_only".to_string(),
+            reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED".to_string(),
+            blocked: false,
+            metadata_only: true,
+            explicit_local_private_intent: true,
+        }
+    }
+
+    #[test]
+    fn report_package_local_first_evidence_validator_allows_exact_evidence() {
+        let evidence = allowed_report_package_local_first_evidence();
+        assert_eq!(
+            validate_report_package_local_first_evidence(Some(&evidence)),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn report_package_local_first_evidence_validator_rejects_missing_or_mismatched_evidence() {
+        assert!(validate_report_package_local_first_evidence(None).is_err());
+
+        let mut evidence = allowed_report_package_local_first_evidence();
+        evidence.route_id = "DREP-JSON-002".to_string();
+        assert!(validate_report_package_local_first_evidence(Some(&evidence)).is_err());
+
+        let mut evidence = allowed_report_package_local_first_evidence();
+        evidence.metadata_only = false;
+        assert!(validate_report_package_local_first_evidence(Some(&evidence)).is_err());
+    }
+
+    #[test]
+    fn report_package_local_first_evidence_validator_rejects_blocked_evidence() {
+        let mut evidence = allowed_report_package_local_first_evidence();
+        evidence.blocked = true;
+        evidence.action = "block_storage".to_string();
+        evidence.reason_code = "LOCAL_PRIVATE_INTENT_REQUIRED".to_string();
+        evidence.explicit_local_private_intent = false;
+
+        assert!(validate_report_package_local_first_evidence(Some(&evidence)).is_err());
+    }
 
     #[test]
     fn packaged_binary_self_test_persists_restores_and_solves_edited_load() {

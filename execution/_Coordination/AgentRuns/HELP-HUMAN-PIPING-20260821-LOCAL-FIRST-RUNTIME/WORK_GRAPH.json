@@ -1,0 +1,42 @@
+{
+  "schema": "help-human-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-LOCAL-FIRST-RUNTIME",
+  "version": 1,
+  "selection_authority": "AGENT_0",
+  "posture": "MIXED",
+  "nodes": [
+    {
+      "id": "CHANGE-001",
+      "role": "CHANGE",
+      "kind": "branch_setup",
+      "depends_on": [],
+      "write_owner": "git_refs"
+    },
+    {
+      "id": "N1",
+      "role": "WORKING_ITEMS",
+      "instance_id": "WI-PKG12-001",
+      "package_id": "PKG-12",
+      "deliverable_id": "DEL-12-01",
+      "objective": "Close the applicable adapter/plugin and result/report runtime local-first/private-data enforcement gap.",
+      "depends_on": ["CHANGE-001"],
+      "concurrency": "SERIAL",
+      "checks": [
+        "focused security/runtime tests (in-session)",
+        "full Piping pytest (in-session)",
+        "fresh 100%-diff read-only review and hash inventory (in-session)",
+        "DEC-025 five-surface sweep (registered capability, including host where required)"
+      ],
+      "write_owner": "WI-PKG12-001"
+    },
+    {
+      "id": "CHANGE-002",
+      "role": "CHANGE",
+      "kind": "closeout",
+      "depends_on": ["N1"],
+      "write_owner": "git_and_shared_fan_in"
+    }
+  ],
+  "fan_in_gate": "N1 package return accepted; terminal review PASS; registered checks PASS; scoped containment PASS",
+  "owner_gates": ["new authority", "hard-fence finding", "main advancement requiring sync"]
+}

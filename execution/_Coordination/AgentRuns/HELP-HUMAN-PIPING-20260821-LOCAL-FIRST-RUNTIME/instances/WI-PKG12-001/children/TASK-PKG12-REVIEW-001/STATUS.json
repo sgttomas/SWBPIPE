@@ -1,0 +1,14 @@
+{
+  "schema": "chirality-agent-status/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260821-LOCAL-FIRST-RUNTIME",
+  "parent_instance_id": "WI-PKG12-001",
+  "child_instance_id": "TASK-PKG12-REVIEW-001",
+  "attempt": 2,
+  "attempts": 2,
+  "status": "accepted_pass",
+  "hash_inventory": "../../FROZEN_HASH_INVENTORY_ATTEMPT_002.md",
+  "coverage": "13/13 paths, 100% diff",
+  "accepted_return": "ATTEMPT_002_RETURN.md",
+  "prior_failed_attempt": "ATTEMPT_001_RETURN.md",
+  "model": "Codex, GPT-5 family (more-specific slug unavailable)"
+}

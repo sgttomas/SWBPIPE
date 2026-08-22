@@ -36,8 +36,16 @@ describe("ControlledExportLink", () => {
       </ControlledExportLink>
     );
     expect(screen.getByTestId("secret-private-library-export-link").getAttribute("href")).toBeNull();
+    expect(screen.getByTestId("secret-private-library-export-link").closest("[data-route-id]")).toHaveAttribute(
+      "data-local-first-reason",
+      "LOCAL_PRIVATE_INTENT_REQUIRED"
+    );
     fireEvent.click(screen.getByTestId("secret-private-library-export-link-local-private-intent"));
     expect(screen.getByTestId("secret-private-library-export-link").getAttribute("href")).toContain("data:application/json");
+    expect(screen.getByTestId("secret-private-library-export-link").closest("[data-route-id]")).toHaveAttribute(
+      "data-local-first-reason",
+      "PRIVATE_LOCAL_METADATA_ALLOWED"
+    );
   });
 
   it("binds the native package to downstream-tool control without local-private fallback", () => {
@@ -60,6 +68,10 @@ describe("ControlledExportLink", () => {
     expect(screen.getByTestId("native-package-link").closest("[data-route-id]")).toHaveAttribute(
       "data-route-id",
       "DOTH-HANDOFF-002"
+    );
+    expect(screen.getByTestId("native-package-link").closest("[data-route-id]")).toHaveAttribute(
+      "data-local-first-reason",
+      "SAFE_PUBLIC_METADATA"
     );
     expect(screen.queryByTestId("native-package-link-local-private-intent")).not.toBeInTheDocument();
     expect(screen.getByTestId("native-package-link-redaction-summary")).toHaveTextContent("blocked=false");

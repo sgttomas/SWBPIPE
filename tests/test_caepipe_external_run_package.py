@@ -8,6 +8,8 @@ from pathlib import Path
 import re
 import sys
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -358,6 +360,31 @@ def test_writer_creates_no_directory_without_wrapper_owned_intent(tmp_path):
     )
 
     assert controlled.blocked is True
+    assert not output.exists()
+
+
+@pytest.mark.parametrize(
+    "malformed_intent",
+    ("false", 1, None, {"explicit": True}),
+    ids=("string-false", "integer-one", "none", "mapping"),
+)
+def test_writer_creates_no_directory_for_malformed_truthy_intent(
+    tmp_path, malformed_intent
+):
+    output = tmp_path / "malformed-intent-run"
+    controlled = write_caepipe_external_run_package(
+        output,
+        parser_only_package(),
+        explicit_local_private_intent=malformed_intent,
+    )
+
+    assert controlled.blocked is True
+    assert controlled.payload is None
+    assert controlled.summary["route_id"] == "REXC-CORE-007"
+    assert controlled.summary["local_first"]["explicit_local_private_intent"] is False
+    assert controlled.summary["local_first"]["reason_code"] == (
+        "LOCAL_PRIVATE_INTENT_REQUIRED"
+    )
     assert not output.exists()
 
 

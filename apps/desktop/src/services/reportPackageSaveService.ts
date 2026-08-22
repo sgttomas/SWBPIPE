@@ -24,6 +24,14 @@ export type ReportPackageSaveReceipt = {
   redaction_decision_count: number;
   redaction_finding_count: number;
   redaction_blocking_count: number;
+  local_first_route_id: string;
+  local_first_export_context: string;
+  local_first_storage_context: string;
+  local_first_action: string;
+  local_first_reason_code: string;
+  local_first_blocked: boolean;
+  local_first_metadata_only: boolean;
+  local_first_explicit_local_private_intent: boolean;
   selected_basename: string;
   path_containment: "best_effort_non_adversarial";
   limitation: string;
@@ -49,12 +57,33 @@ function isControlledPackageRequest(value: unknown): value is ControlledRouteExp
   );
 }
 
+function hasAllowedLocalFirstEvidence(input: ControlledRouteExport): boolean {
+  const evidence = input.summary.local_first;
+  return (
+    evidence?.route_id === REPORT_PACKAGE_SAVE_ROUTE_ID &&
+    evidence.export_context === "local_private" &&
+    evidence.storage_context === "local_private" &&
+    evidence.action === "include_metadata_only" &&
+    evidence.reason_code === "PRIVATE_LOCAL_METADATA_ALLOWED" &&
+    evidence.blocked === false &&
+    evidence.metadata_only === true &&
+    evidence.explicit_local_private_intent === true
+  );
+}
+
 export async function saveReportPackage(input: unknown): Promise<ReportPackageSaveRoute> {
   if (!isControlledPackageRequest(input)) {
     return {
       route: "redaction_blocked",
       diagnostic:
         "REPORT-PACKAGE-REDACTION-CONTROL-REQUIRED: save requires a DREP-PACKAGE-SAVE-009 controlled request."
+    };
+  }
+  if (!hasAllowedLocalFirstEvidence(input)) {
+    return {
+      route: "redaction_blocked",
+      diagnostic:
+        "REPORT-PACKAGE-LOCAL-FIRST-EVIDENCE-REQUIRED: save requires allowed metadata-only local-first route evidence."
     };
   }
   if (input.blocked || input.payload === null) {
@@ -66,6 +95,7 @@ export async function saveReportPackage(input: unknown): Promise<ReportPackageSa
   if (!isTauriRuntime()) {
     return { route: "unavailable_browser", diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY" };
   }
+  const localFirstEvidence = input.summary.local_first!;
   const receipt = await invoke<ReportPackageSaveReceipt>("save_report_package", {
     request: input.payload,
     redactionEvidence: {
@@ -73,7 +103,8 @@ export async function saveReportPackage(input: unknown): Promise<ReportPackageSa
       decision_count: input.summary.decision_count,
       finding_count: input.summary.finding_count,
       blocking_count: input.summary.blocking_count
-    }
+    },
+    localFirstEvidence
   });
   return { route: "tauri_report_package_save", receipt };
 }

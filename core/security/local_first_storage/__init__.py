@@ -9,6 +9,11 @@ from .controls import (
     guard_storage_records,
     storage_record,
 )
+from .route_control import (
+    GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+    LocalFirstRouteDecision,
+    enforce_local_first_route,
+)
 
 __all__ = [
     "StorageDecision",
@@ -18,4 +23,7 @@ __all__ = [
     "classify_storage_record",
     "guard_storage_records",
     "storage_record",
+    "GOVERNED_LOCAL_FIRST_ROUTE_IDS",
+    "LocalFirstRouteDecision",
+    "enforce_local_first_route",
 ]

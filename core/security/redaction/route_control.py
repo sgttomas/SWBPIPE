@@ -11,6 +11,8 @@ from dataclasses import asdict, dataclass
 from typing import Any, Mapping, Sequence
 import copy
 
+from core.security.local_first_storage import enforce_local_first_route
+
 from .controls import RedactionDecision, RedactionFinding, redact_export_payload
 
 
@@ -93,7 +95,13 @@ def control_route_export(
     with ``export_context``.
     """
 
+    normalized_local_private_intent = explicit_local_private_intent is True
     source = copy.deepcopy(payload)
+    local_first = enforce_local_first_route(
+        route_id=route_id,
+        export_context=export_context,
+        explicit_local_private_intent=normalized_local_private_intent,
+    )
     source_findings_copy = tuple(copy.deepcopy(dict(item)) for item in source_findings)
     source_blocking_count = sum(
         1
@@ -108,7 +116,7 @@ def control_route_export(
     result = redact_export_payload(
         projected,
         export_context=export_context,
-        explicit_local_private_intent=explicit_local_private_intent,
+        explicit_local_private_intent=normalized_local_private_intent,
     )
     destructive = any(
         decision.action in {"redact_value", "redact_field", "omit_field", "block_export"}
@@ -116,12 +124,15 @@ def control_route_export(
     )
     blocked = (
         result.blocked
+        or local_first.blocked
         or source_blocking_count > 0
         or (require_lossless_materialization and destructive)
     )
     payload_out = None if blocked else _materialize(result.payload)
     summary = result.summary()
     summary["route_id"] = route_id
+    summary["local_first"] = local_first.as_schema_dict()
+    summary["local_first_blocking_count"] = int(local_first.blocked)
     summary["source_finding_count"] = len(source_findings_copy)
     summary["source_blocking_count"] = source_blocking_count
     summary["redaction_blocking_count"] = summary["blocking_count"]
@@ -133,6 +144,7 @@ def control_route_export(
         source_blocking_count
         + summary["redaction_blocking_count"]
         + lossless_blocking_count
+        + summary["local_first_blocking_count"]
     )
     summary["materialization_withheld"] = bool(lossless_blocking_count)
     return ControlledExport(

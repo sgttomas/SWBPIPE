@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 import sys
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -469,10 +471,22 @@ def test_route_public_envelope_does_not_promote_opaque_sibling():
         assert decision.reason_code == "REDISTRIBUTION_STATUS_UNKNOWN"
         assert controlled.payload["opaque_sibling"] == REDACTED_VALUE
 
+    blocked_local = control_route_export(
+        payload,
+        route_id="DOTH-HANDOFF-002",
+        export_context="local_private",
+    )
+    assert blocked_local.blocked is True
+    assert blocked_local.payload is None
+    assert blocked_local.summary["local_first"]["reason_code"] == (
+        "LOCAL_PRIVATE_INTENT_REQUIRED"
+    )
+
     local = control_route_export(
         payload,
         route_id="DOTH-HANDOFF-002",
         export_context="local_private",
+        explicit_local_private_intent=True,
     )
     local_decision = next(
         item for item in local.decisions if item.path.endswith("opaque_sibling")
@@ -535,6 +549,7 @@ def test_route_public_basis_is_exact_record_local_and_never_inherited():
         payload,
         route_id="DOTH-HANDOFF-002",
         export_context="local_private",
+        explicit_local_private_intent=True,
     )
     nested_local = [
         item for item in local.decisions if item.path.endswith("opaque_leaf")
@@ -553,6 +568,89 @@ def test_route_public_basis_is_exact_record_local_and_never_inherited():
     )
     assert local.payload["public_record"]["nested_list"][0]["opaque_leaf"] == (
         payload["public_record"]["nested_list"][0]["opaque_leaf"]
+    )
+
+
+def test_route_control_emits_local_first_evidence_and_unknown_route_fails_closed():
+    governed = control_route_export(
+        {"invented": "opaque"},
+        route_id="DOTH-HANDOFF-002",
+        export_context="downstream_tool",
+    )
+    unknown = control_route_export(
+        {"invented": "opaque"},
+        route_id="INVENTED-UNKNOWN-ROUTE",
+        export_context="downstream_tool",
+    )
+
+    assert governed.summary["local_first"] == {
+        "route_id": "DOTH-HANDOFF-002",
+        "export_context": "downstream_tool",
+        "storage_context": "downstream_tool",
+        "action": "include_metadata_only",
+        "reason_code": "SAFE_PUBLIC_METADATA",
+        "blocked": False,
+        "metadata_only": True,
+        "explicit_local_private_intent": False,
+    }
+    assert governed.summary["local_first_blocking_count"] == 0
+    assert unknown.blocked is True
+    assert unknown.payload is None
+    assert unknown.summary["local_first"]["reason_code"] == "LOCAL_FIRST_ROUTE_UNKNOWN"
+    assert unknown.summary["local_first"]["metadata_only"] is True
+    assert unknown.summary["local_first_blocking_count"] == 1
+
+
+def test_route_control_preserves_public_example_context_compatibility():
+    controlled = control_route_export(
+        {
+            "field_id": "invented.public.example",
+            "privacy_classification": "invented_public_example",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "accepted",
+            "value": "Invented public example",
+        },
+        route_id="DOTH-JSON-001",
+        export_context="public_example",
+    )
+
+    assert controlled.blocked is False
+    assert controlled.payload["value"] == "Invented public example"
+    assert controlled.summary["local_first"]["storage_context"] == "public_example"
+    assert controlled.summary["local_first"]["reason_code"] == "SAFE_PUBLIC_METADATA"
+
+
+@pytest.mark.parametrize(
+    "malformed_intent",
+    ("false", 1, None, {"explicit": True}),
+    ids=("string-false", "integer-one", "none", "mapping"),
+)
+def test_route_control_rejects_malformed_truthy_local_private_intent(
+    malformed_intent,
+):
+    controlled = control_route_export(
+        {
+            "field_id": "invented.private.route",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "review_status": "accepted",
+            "value": "Invented private value",
+        },
+        route_id="REXC-CORE-007",
+        export_context="local_private",
+        explicit_local_private_intent=malformed_intent,
+    )
+
+    assert controlled.blocked is True
+    assert controlled.payload is None
+    assert controlled.summary["local_first"]["explicit_local_private_intent"] is False
+    assert controlled.summary["local_first"]["reason_code"] == (
+        "LOCAL_PRIVATE_INTENT_REQUIRED"
+    )
+    assert any(
+        decision.reason_code == "LOCAL_PRIVATE_INTENT_REQUIRED"
+        and decision.action == "block_export"
+        for decision in controlled.decisions
     )
 
 

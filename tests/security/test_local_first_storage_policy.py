@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT))
 
 from core.security.local_first_storage import (  # noqa: E402
     classify_storage_record,
+    enforce_local_first_route,
     guard_storage_records,
     storage_record,
 )
@@ -280,6 +281,46 @@ def test_local_private_storage_requires_explicit_user_intent_for_private_metadat
     assert "PRIVATE_LOCAL_METADATA_ALLOWED" in decision_codes(allowed)
     assert allowed.safe_manifest[0]["record_id"] == "invented.project.metadata"
     assert allowed.safe_manifest[0]["contains_payload"] is False
+
+
+def test_governed_route_enforcement_is_metadata_only_and_fails_closed():
+    public = enforce_local_first_route(
+        route_id="REXC-CORE-001",
+        export_context="downstream_tool",
+    )
+    public_example = enforce_local_first_route(
+        route_id="DOTH-JSON-001",
+        export_context="public_example",
+    )
+    blocked_local = enforce_local_first_route(
+        route_id="REXC-CORE-007",
+        export_context="local_private",
+    )
+    allowed_local = enforce_local_first_route(
+        route_id="REXC-CORE-007",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+    )
+    unknown = enforce_local_first_route(
+        route_id="INVENTED-UNKNOWN-ROUTE",
+        export_context="downstream_tool",
+        explicit_local_private_intent=True,
+    )
+
+    assert public.blocked is False
+    assert public.reason_code == "SAFE_PUBLIC_METADATA"
+    assert public_example.blocked is False
+    assert public_example.reason_code == "SAFE_PUBLIC_METADATA"
+    assert blocked_local.blocked is True
+    assert blocked_local.reason_code == "LOCAL_PRIVATE_INTENT_REQUIRED"
+    assert allowed_local.blocked is False
+    assert allowed_local.reason_code == "PRIVATE_LOCAL_METADATA_ALLOWED"
+    assert unknown.blocked is True
+    assert unknown.reason_code == "LOCAL_FIRST_ROUTE_UNKNOWN"
+    assert all(
+        decision.metadata_only
+        for decision in (public, public_example, blocked_local, allowed_local, unknown)
+    )
 
 
 def test_public_repository_locality_blocks_even_with_local_private_intent():
