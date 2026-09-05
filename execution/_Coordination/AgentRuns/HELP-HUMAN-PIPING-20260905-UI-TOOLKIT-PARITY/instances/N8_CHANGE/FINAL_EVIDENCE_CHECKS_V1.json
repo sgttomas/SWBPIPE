@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "harness_pytest": {
+    "exit_code": 0,
+    "passed": 350
+  },
+  "selfcheck": {
+    "exit_code": 0,
+    "REVIEW": 4,
+    "WARN": 43,
+    "INFO": 14,
+    "NOT_APPLICABLE": 1,
+    "comparison": "same baseline-only severities as accepted N_ENV V7; no new active portability finding"
+  },
+  "receipt_validator": {
+    "exit_code": 0,
+    "receipt": "Receipt-126"
+  },
+  "swept_source_commit": "d6a313fc41db10b7e992381b173ce1ac5cbc956e",
+  "source_equality": "FINAL_SOURCE_EQUALITY_V1.json",
+  "evidence_logs_sha256": {
+    "harness.log": "aa31aff265b0d331c570f63d99e61351f90c4435729caf3ef3200cdd98aa1a96",
+    "selfcheck.log": "801befb5e215c466d61c548434aa135e9cd003cd31a2e690a9eb74e5cfe64862"
+  },
+  "final_commit_pending": true
+}
