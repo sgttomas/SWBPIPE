@@ -1,0 +1,50 @@
+{
+  "recorded_at": "2026-09-05T14:29:35.535458+00:00",
+  "role": "HELPS_HUMANS",
+  "agent_type": 1,
+  "parent": "HELP_HUMAN",
+  "runtime": "delegated-harness-native /root/helps_humans_ci_manifest",
+  "model": "GPT-6 (runtime developer identity; exact backend identifier unavailable)",
+  "enforcement": "instruction-asserted role and scope within harness outer envelope",
+  "objective": "Package accepted dual-WASM CI repair provenance in one new G4-readable derivative manifest",
+  "scope": "Bounded project CI integration evidence; no new normative policy or product implementation",
+  "path_anchors": "REPO_ROOT = git rev-parse --show-toplevel; WORKING_ROOT = {REPO_ROOT}/projects/chirality-piping",
+  "allowed_write_targets": [
+    "{REPO_ROOT}/docs/governance_harness/tranche_manifests/PIPING-DUAL-WASM-CI-20260905.yaml",
+    "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/"
+  ],
+  "declared_reads": [
+    "AGENTS.md",
+    "agents/AGENT_HELPS_HUMANS.md",
+    "docs/{DIRECTIVE,CONTRACT,SPEC,TYPES,WORKFLOW_COMPONENT_STANDARD}.md",
+    "projects/chirality-piping/AGENTS.md",
+    "tools/validation/validate_instruction_tranche_manifest.py",
+    "docs/governance_harness/tranche_manifests/",
+    "existing parent run evidence",
+    "/tmp/piping-ui-g4-manifest-plan.json",
+    "/tmp/piping-ui-pr715-g4-failed.log"
+  ],
+  "tools": [
+    "read",
+    "write exact targets",
+    "read-only git",
+    "python deterministic validator and hash checks"
+  ],
+  "prohibited": [
+    "Git mutations",
+    "network",
+    "push",
+    "source/config/policy edits",
+    "binding approval invention"
+  ],
+  "authorization": "Parent relays actual user UI/toolkit implementation direction and explicit Yes push and open the PR; parent now grants this exact new derivative evidence file. Does not assert a separate human root-manifest ruling.",
+  "acceptance": [
+    "full corpus schema PASS",
+    "exact declared workflow plus manifest self coverage",
+    "actual PR-base diff coverage precommit with named tranche",
+    "added-manifests-only exact check deferred until CHANGE commits",
+    "source111 and three config hashes preserved",
+    "immutable local snapshot and handoff"
+  ],
+  "construction": "Existing Agent1 HELPS_HUMANS directly performs its bounded metadata maintenance under Phase5; no new component or Agent2 needed. Mandatory product source independent review is inapplicable."
+}

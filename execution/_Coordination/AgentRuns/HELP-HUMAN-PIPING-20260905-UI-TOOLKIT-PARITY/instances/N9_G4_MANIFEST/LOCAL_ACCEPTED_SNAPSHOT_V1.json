@@ -1,0 +1,45 @@
+{
+  "status": "ACCEPTED_LOCAL_DERIVATIVE_EVIDENCE_PENDING_PARENT_FAN_IN_AND_COMMIT_G4",
+  "recorded_at": "2026-09-05T14:31:40.385538+00:00",
+  "role": "HELPS_HUMANS Agent1",
+  "parent": "HELP_HUMAN",
+  "derivative_package": true,
+  "authority_calibration": "Records existing user implementation/publication direction as relayed by parent and exact parent scope grant; no independent human root-manifest ruling asserted. Human actor identified by actual session role, no unsupported personal identity inferred.",
+  "accepted_upstream": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/POST_PUBLICATION_CI_REPAIR_FAN_IN_V1.md",
+      "sha256": "3e9f3745b06cdd3e73af1ca9d16d84418efb9f9f1a1fff2ba275d45e9fbce774"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/ACCEPTED_CI_REPAIR_SNAPSHOT_V1.json",
+      "sha256": "4e5b1b496765adbf467915dcedef701b258b14d0df515553ca0d82504036bafd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/CI_REPAIR/ATTRIBUTE_ACCEPTED_SNAPSHOT_V1.json",
+      "sha256": "a17317892b7e1afd952f78ad4af53c5d0670c95e4b11551e2760501de22b4a92"
+    }
+  ],
+  "output": {
+    "path": "docs/governance_harness/tranche_manifests/PIPING-DUAL-WASM-CI-20260905.yaml",
+    "sha256": "fb78c268d3967d31345e599f69a995ffe306a56234c93e8a9aa9ba4a3ef438d2"
+  },
+  "evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/BRIEF_RUNTIME_V1.json",
+      "sha256": "29d67f271a6ea09d3e48e89220267d04d5f1b3fe950b8aa3891d1caad72c18f1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/LOCAL_VALIDATION_V1.json",
+      "sha256": "a8d1bd83a1b2b4ba4c27bba1382676c53f3db40b880bceb45d906a44bd2334c6"
+    }
+  ],
+  "m6": "none-required: assessed actual no agent/policy/skill/tool consumer-contract change; parent accepted disposition in actual message",
+  "closure": "Local metadata packaging complete; publication and exact committed-diff G4 not closed",
+  "required_next_owner": "HELP_HUMAN fan-in then CHANGE exact scoped commit and actual --added-manifests-only validation before push",
+  "remaining_gates": [
+    "python3 tools/validation/validate_instruction_tranche_manifest.py --base d66395d101143df68d956984f7ab93f5027418ec --head HEAD --added-manifests-only after commit",
+    "Exact new-commit applicable hosted CI after authorized branch push; owner merge"
+  ],
+  "unchanged": "111 reviewed source members and 3 accepted configs verified against existing snapshots",
+  "checks_scope": "Full corpus 51 schema-valid; actual PR-base named-tranche diff PASS; anticipated two protected paths covered; candidate whitespace PASS. No new validator tests authored or existing fixture tests run: no validator implementation changed and fixture tests create Git repositories outside this narrow write scope."
+}

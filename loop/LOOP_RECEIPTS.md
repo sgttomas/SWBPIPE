@@ -3065,3 +3065,12 @@
   - Checks: fresh independent configuration reviews, exact attribute scope and artifact/source equality, cold-cache locked offline builds, candidate whitespace, practitioner harness, baseline self-check and receipt contract: PASS.
   - Model-Attribution: HELP_HUMAN supervised CHANGE, WORKING_ITEMS PKG07 and fresh independent Agent2 reviews; exact available attribution and native instruction/config enforcement calibration remain in the named AgentRuns records.
   - Gate-Outcome: `EXECUTED` — parent accepted exact evidence attributes and the project-specific CI provisioning repair after actual failed PR checks. All reviewed product members preserve the clean DEC-025 source proof at `d6a313fc41db10b7e992381b173ce1ac5cbc956e`; the configuration commit is not represented as swept. Subsequent hosted CI remains required before merge; owner merges. Prior failures and residuals remain preserved.
+
+- **2026-09-05 — Receipt 128** (PR715 workflow manifest packaging).
+  - Receipt-ID: `Receipt-128`
+  - Examined-Through: `3c47362cc4663e8579475fefa00150b48c15b4fc`
+  - Parent-Receipt: `Receipt-127`
+  - Pointers: PR #715; `docs/governance_harness/tranche_manifests/PIPING-DUAL-WASM-CI-20260905.yaml`; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/LOCAL_ACCEPTED_SNAPSHOT_V1.json` and `HANDOFF_V1.md`; owning CHANGE `instances/N8_CHANGE/G4_MANIFEST_CLOSEOUT_V1.md` in the same run.
+  - Checks: manifest corpus/schema, exact named-tranche coverage, whitespace, receipt and protected source/configuration equality: PASS. Actual committed-range added-manifests-only validation remains required before push; hosted CI remains required before merge.
+  - Model-Attribution: HELP_HUMAN supervised HELPS_HUMANS for bounded derivative manifest packaging and CHANGE for serialized closeout; actual available model and native enforcement calibration are preserved in the owning AgentRuns records.
+  - Gate-Outcome: `EXECUTED` — parent accepted a minimal derivative manifest recording prior authority after hosted G4 exposed the missing packaging. Precommit added-manifests-only BLOCK is preserved as expected; no new policy, product/configuration change, owner ruling or lifecycle promotion. User-authorized ordinary publication remains conditional on committed-range validation; owner merges.
