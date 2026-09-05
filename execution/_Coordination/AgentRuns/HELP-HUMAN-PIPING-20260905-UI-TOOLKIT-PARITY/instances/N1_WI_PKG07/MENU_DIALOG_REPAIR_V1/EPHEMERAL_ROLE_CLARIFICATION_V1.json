@@ -1,0 +1,7 @@
+{
+  "scope": "DIAGNOSE sealed brief",
+  "role": "ephemeral Agent2 generalist",
+  "clarification": "TASK and diagnosis skill are method context, not an instantiated TASK runtime. Resolve instructions via explicit repository paths in sealed brief. Missing CHIRALITY_INSTRUCTION_ROOT does not block ephemeral execution. Record instruction+config asserted nondelegation; no TASK runtime claim.",
+  "source_writes": "HELD",
+  "additional_tools_or_scope": false
+}

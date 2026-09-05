@@ -261,9 +261,13 @@ button:focus-visible {
   padding: 3px 10px;
   border-bottom: 1px solid #c8d0cb;
   background: #edf2ef;
-  /* Own stacking context above the click-catcher backdrop so open dropdowns
-     receive clicks (the backdrop only covers the surface behind the bar). */
+  /* Keep a closed menu below drawers; raise an open menu above the
+     click-catcher backdrop so its dropdowns continue to receive clicks. */
   position: relative;
+  z-index: 20;
+}
+
+.app-menu-bar.menu-open {
   z-index: 50;
 }
 

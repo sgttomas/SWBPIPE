@@ -1,0 +1,1986 @@
+[
+  {
+    "lane": "negative",
+    "project": "chromium-desktop",
+    "name": "issues-home-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "negative",
+    "project": "chromium-desktop",
+    "name": "issues-home-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 138.875
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 123.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 123.875,
+        "right": 1409,
+        "bottom": 153.875,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 105.375,
+        "width": 760,
+        "height": 720,
+        "top": 105.375,
+        "right": 1422,
+        "bottom": 825.375,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "nav.app-menu-bar",
+      "closeReceivesHit": false,
+      "menuReceivesHit": true,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "negative",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "negative",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 138.875
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 123.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 123.875,
+        "right": 1409,
+        "bottom": 153.875,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 105.375,
+        "width": 760,
+        "height": 720,
+        "top": 105.375,
+        "right": 1422,
+        "bottom": 825.375,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "nav.app-menu-bar",
+      "closeReceivesHit": false,
+      "menuReceivesHit": true,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "negative",
+    "project": "chromium-compact",
+    "name": "issues-home-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "negative",
+    "project": "chromium-compact",
+    "name": "issues-home-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 176.875
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 161.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 161.875,
+        "right": 1249,
+        "bottom": 191.875,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 143.375,
+        "width": 760,
+        "height": 680,
+        "top": 143.375,
+        "right": 1262,
+        "bottom": 823.375,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "nav.app-menu-bar",
+      "closeReceivesHit": false,
+      "menuReceivesHit": true,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "negative",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "negative",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 176.875
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 161.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 161.875,
+        "right": 1249,
+        "bottom": 191.875,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 143.375,
+        "width": 760,
+        "height": 680,
+        "top": 143.375,
+        "right": 1262,
+        "bottom": 823.375,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "nav.app-menu-bar",
+      "closeReceivesHit": false,
+      "menuReceivesHit": true,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "issues-home-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "issues-home-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 138.875
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 123.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 123.875,
+        "right": 1409,
+        "bottom": 153.875,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 105.375,
+        "width": 760,
+        "height": 720,
+        "top": 105.375,
+        "right": 1422,
+        "bottom": 825.375,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "issues-home-active-view-command",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 338.9375,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "div.app-menu-backdrop",
+      "closeReceivesHit": false,
+      "menuReceivesHit": false,
+      "menuExpanded": true
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "issues-home-backdrop-hit",
+    "geometry": {
+      "point": {
+        "x": 1392,
+        "y": 832
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720
+      },
+      "backdrop": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "app-menu-backdrop"
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 138.875
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 123.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 123.875,
+        "right": 1409,
+        "bottom": 153.875,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 105.375,
+        "width": 760,
+        "height": 720,
+        "top": 105.375,
+        "right": 1422,
+        "bottom": 825.375,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-active-view-command",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 338.9375,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "div.app-menu-backdrop",
+      "closeReceivesHit": false,
+      "menuReceivesHit": false,
+      "menuExpanded": true
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-backdrop-hit",
+    "geometry": {
+      "point": {
+        "x": 1392,
+        "y": 832
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720
+      },
+      "backdrop": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "app-menu-backdrop"
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "issues-home-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "issues-home-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 176.875
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 161.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 161.875,
+        "right": 1249,
+        "bottom": 191.875,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 143.375,
+        "width": 760,
+        "height": 680,
+        "top": 143.375,
+        "right": 1262,
+        "bottom": 823.375,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "issues-home-active-view-command",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 338.9375,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "div.app-menu-backdrop",
+      "closeReceivesHit": false,
+      "menuReceivesHit": false,
+      "menuExpanded": true
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "issues-home-backdrop-hit",
+    "geometry": {
+      "point": {
+        "x": 1232,
+        "y": 712
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680
+      },
+      "backdrop": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "app-menu-backdrop"
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 176.875
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 161.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 161.875,
+        "right": 1249,
+        "bottom": 191.875,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 143.375,
+        "width": 760,
+        "height": 680,
+        "top": 143.375,
+        "right": 1262,
+        "bottom": 823.375,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-active-view-command",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 338.9375,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "div.app-menu-backdrop",
+      "closeReceivesHit": false,
+      "menuReceivesHit": false,
+      "menuExpanded": true
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-backdrop-hit",
+    "geometry": {
+      "point": {
+        "x": 1232,
+        "y": 712
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680
+      },
+      "backdrop": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "app-menu-backdrop"
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-desktop",
+    "name": "workspace-status-geometry",
+    "geometry": {
+      "targetTestId": "result-row-result:force:pipe-P-120:axial",
+      "targetBox": {
+        "x": 21,
+        "y": 644.46875,
+        "width": 442,
+        "height": 47
+      },
+      "statusBox": {
+        "x": 0,
+        "y": 755,
+        "width": 1440,
+        "height": 131
+      },
+      "dock": {
+        "top": 541.375,
+        "bottom": 747,
+        "width": 1424,
+        "height": 205.625,
+        "clientHeight": 206
+      },
+      "body": {
+        "top": 588.375,
+        "bottom": 747,
+        "width": 1424,
+        "height": 158.625,
+        "clientHeight": 159
+      },
+      "modeling": {
+        "top": 165.375,
+        "bottom": 533.375,
+        "width": 1424,
+        "height": 368,
+        "clientHeight": 368
+      },
+      "viewport": {
+        "top": 165.375,
+        "bottom": 533.375,
+        "width": 714,
+        "height": 368,
+        "clientHeight": 368
+      }
+    }
+  },
+  {
+    "lane": "source",
+    "project": "chromium-compact",
+    "name": "workspace-status-geometry",
+    "geometry": {
+      "targetTestId": "result-row-result:force:pipe-P-120:axial",
+      "targetBox": {
+        "x": 21,
+        "y": 520.46875,
+        "width": 388.65625,
+        "height": 62
+      },
+      "statusBox": {
+        "x": 0,
+        "y": 622,
+        "width": 1280,
+        "height": 144
+      },
+      "dock": {
+        "top": 441.375,
+        "bottom": 614,
+        "width": 1264,
+        "height": 172.625,
+        "clientHeight": 173
+      },
+      "body": {
+        "top": 488.375,
+        "bottom": 614,
+        "width": 1264,
+        "height": 125.625,
+        "clientHeight": 126
+      },
+      "modeling": {
+        "top": 203.375,
+        "bottom": 433.375,
+        "width": 1264,
+        "height": 230,
+        "clientHeight": 230
+      },
+      "viewport": {
+        "top": 203.375,
+        "bottom": 433.375,
+        "width": 654,
+        "height": 230,
+        "clientHeight": 230
+      }
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "issues-home-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "issues-home-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 138.875
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 123.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 123.875,
+        "right": 1409,
+        "bottom": 153.875,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 105.375,
+        "width": 760,
+        "height": 720,
+        "top": 105.375,
+        "right": 1422,
+        "bottom": 825.375,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "issues-home-active-view-command",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 338.9375,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "div.app-menu-backdrop",
+      "closeReceivesHit": false,
+      "menuReceivesHit": false,
+      "menuExpanded": true
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "issues-home-backdrop-hit",
+    "geometry": {
+      "point": {
+        "x": 1392,
+        "y": 832
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720
+      },
+      "backdrop": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "app-menu-backdrop"
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 138.875
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 123.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 123.875,
+        "right": 1409,
+        "bottom": 153.875,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 105.375,
+        "width": 760,
+        "height": 720,
+        "top": 105.375,
+        "right": 1422,
+        "bottom": 825.375,
+        "left": 662
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-active-view-command",
+    "geometry": {
+      "center": {
+        "x": 1378.546875,
+        "y": 175.5
+      },
+      "close": {
+        "x": 1348.09375,
+        "y": 160.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 160.5,
+        "right": 1409,
+        "bottom": 190.5,
+        "left": 1348.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 120.375,
+        "width": 1440,
+        "height": 37,
+        "top": 120.375,
+        "right": 1440,
+        "bottom": 157.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720,
+        "top": 142,
+        "right": 1422,
+        "bottom": 862,
+        "left": 662
+      },
+      "lastTriggerRight": 338.9375,
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "div.app-menu-backdrop",
+      "closeReceivesHit": false,
+      "menuReceivesHit": false,
+      "menuExpanded": true
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "audit-boundary-drawer-backdrop-hit",
+    "geometry": {
+      "point": {
+        "x": 1392,
+        "y": 832
+      },
+      "drawer": {
+        "x": 662,
+        "y": 142,
+        "width": 760,
+        "height": 720
+      },
+      "backdrop": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920
+      },
+      "hit": "app-menu-backdrop"
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "issues-home-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "issues-home-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 176.875
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 161.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 161.875,
+        "right": 1249,
+        "bottom": 191.875,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 143.375,
+        "width": 760,
+        "height": 680,
+        "top": 143.375,
+        "right": 1262,
+        "bottom": 823.375,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "issues-home-active-view-command",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 338.9375,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "div.app-menu-backdrop",
+      "closeReceivesHit": false,
+      "menuReceivesHit": false,
+      "menuExpanded": true
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "issues-home-backdrop-hit",
+    "geometry": {
+      "point": {
+        "x": 1232,
+        "y": 712
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680
+      },
+      "backdrop": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "app-menu-backdrop"
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-ordinary-layout",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-controlled-closed-menu",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 176.875
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 161.875,
+        "width": 60.90625,
+        "height": 30,
+        "top": 161.875,
+        "right": 1249,
+        "bottom": 191.875,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 143.375,
+        "width": 760,
+        "height": 680,
+        "top": 143.375,
+        "right": 1262,
+        "bottom": 823.375,
+        "left": 502
+      },
+      "lastTriggerRight": 312.828125,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "button.",
+      "closeReceivesHit": true,
+      "menuReceivesHit": false,
+      "menuExpanded": false
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-active-view-command",
+    "geometry": {
+      "center": {
+        "x": 1218.546875,
+        "y": 95.5
+      },
+      "close": {
+        "x": 1188.09375,
+        "y": 80.5,
+        "width": 60.90625,
+        "height": 30,
+        "top": 80.5,
+        "right": 1249,
+        "bottom": 110.5,
+        "left": 1188.09375
+      },
+      "menu": {
+        "x": 0,
+        "y": 158.375,
+        "width": 1280,
+        "height": 37,
+        "top": 158.375,
+        "right": 1280,
+        "bottom": 195.375,
+        "left": 0
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680,
+        "top": 62,
+        "right": 1262,
+        "bottom": 742,
+        "left": 502
+      },
+      "lastTriggerRight": 338.9375,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "div.app-menu-backdrop",
+      "closeReceivesHit": false,
+      "menuReceivesHit": false,
+      "menuExpanded": true
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "audit-boundary-drawer-backdrop-hit",
+    "geometry": {
+      "point": {
+        "x": 1232,
+        "y": 712
+      },
+      "drawer": {
+        "x": 502,
+        "y": 62,
+        "width": 760,
+        "height": 680
+      },
+      "backdrop": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 800
+      },
+      "hit": "app-menu-backdrop"
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-desktop",
+    "name": "workspace-status-geometry",
+    "geometry": {
+      "targetTestId": "result-row-result:force:pipe-P-120:axial",
+      "targetBox": {
+        "x": 21,
+        "y": 644.46875,
+        "width": 442,
+        "height": 47
+      },
+      "statusBox": {
+        "x": 0,
+        "y": 755,
+        "width": 1440,
+        "height": 131
+      },
+      "dock": {
+        "top": 541.375,
+        "bottom": 747,
+        "width": 1424,
+        "height": 205.625,
+        "clientHeight": 206
+      },
+      "body": {
+        "top": 588.375,
+        "bottom": 747,
+        "width": 1424,
+        "height": 158.625,
+        "clientHeight": 159
+      },
+      "modeling": {
+        "top": 165.375,
+        "bottom": 533.375,
+        "width": 1424,
+        "height": 368,
+        "clientHeight": 368
+      },
+      "viewport": {
+        "top": 165.375,
+        "bottom": 533.375,
+        "width": 714,
+        "height": 368,
+        "clientHeight": 368
+      }
+    }
+  },
+  {
+    "lane": "dist",
+    "project": "chromium-compact",
+    "name": "workspace-status-geometry",
+    "geometry": {
+      "targetTestId": "result-row-result:force:pipe-P-120:axial",
+      "targetBox": {
+        "x": 21,
+        "y": 520.46875,
+        "width": 388.65625,
+        "height": 62
+      },
+      "statusBox": {
+        "x": 0,
+        "y": 622,
+        "width": 1280,
+        "height": 144
+      },
+      "dock": {
+        "top": 441.375,
+        "bottom": 614,
+        "width": 1264,
+        "height": 172.625,
+        "clientHeight": 173
+      },
+      "body": {
+        "top": 488.375,
+        "bottom": 614,
+        "width": 1264,
+        "height": 125.625,
+        "clientHeight": 126
+      },
+      "modeling": {
+        "top": 203.375,
+        "bottom": 433.375,
+        "width": 1264,
+        "height": 230,
+        "clientHeight": 230
+      },
+      "viewport": {
+        "top": 203.375,
+        "bottom": 433.375,
+        "width": 654,
+        "height": 230,
+        "clientHeight": 230
+      }
+    }
+  }
+]

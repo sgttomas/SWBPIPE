@@ -1,0 +1,10 @@
+{
+  "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "548312d97d471f59d2a91cc57aa48971fcc1d1e90d24bfbcd3cfd45b0d11f3de",
+  "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+  "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f",
+  "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+  "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+  "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+  "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+  "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "4a614335c9ee1e081d79c57d8bac6f4fca8cb0fed531c78917e97a7a4fc35e9c"
+}

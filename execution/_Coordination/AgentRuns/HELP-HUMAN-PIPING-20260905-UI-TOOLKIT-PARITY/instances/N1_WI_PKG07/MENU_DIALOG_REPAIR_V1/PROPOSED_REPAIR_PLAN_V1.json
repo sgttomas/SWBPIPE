@@ -1,0 +1,30 @@
+{
+  "verdict": "PROPOSED_SOURCE_FENCE_PENDING_PARENT_RELEASE",
+  "accepted_evidence": "Hosted exact HEAD ade1d502 log reports nav.app-menu-bar intercepting ordinary Close; independently hash-verified official two error contexts show collapsed menu and Issues Close. Parent waived unavailable visual prerequisite.",
+  "cause": "Closed menu retains z-index50 above nonmodal drawer30. This permits menu to intercept drawer controls wherever geometry overlaps. Exact hosted pixel geometry/platform font trigger unmeasured. Prior local passes do not refute conditional overlap defect.",
+  "source_fence": [
+    "apps/desktop/src/styles.css",
+    "apps/desktop/e2e/gui-workflow-validation.spec.ts"
+  ],
+  "css_rule": {
+    "base": ".app-menu-bar z-index20",
+    "open": ".app-menu-bar:has(.app-menu-trigger.open) z-index50",
+    "preserve": "drawer30, backdrop40, dropdown41; all unrelated layout/pins/CI/source unchanged"
+  },
+  "test_fence": "Dedicated shared Issues/Audit regression in existing GUI spec; no changes to original R2 journey or Close guard. Test-only controlled top/bottom positioning aligns existing drawer Close center with closed menu right-hand blank area without changing stacking, visibility or pointer events. Verify geometric overlap and elementFromPoint hit, ordinary Close. Also open View dropdown with drawer present, select command and dismiss through ordinary backdrop click; confirm menu removed and drawer remains, then Close. Keep default-layout full journeys.",
+  "prerequisite": "Before product CSS edit run new controlled-overlap regression against unchanged source; preserve expected closed-menu hit failure. Manager then author changes only accepted CSS and reruns same test.",
+  "verification": [
+    "Source and production-dist at 1440x920 and1280x800: new focused regression plus original GUI workflow and R2 failing journey",
+    "Existing R2 compact containment regression unchanged",
+    "Full desktop build and Vitest",
+    "Fresh independent 100% two-file diff review after freeze",
+    "Parent-owned new source commit/full clean DEC025/hosted exact-commit CI"
+  ],
+  "rejected_alternatives": [
+    "Blanket drawer z60 changes active-menu/backdrop priority",
+    "Hardcoded drawer below guessed chrome height introduces geometry coupling",
+    "Forced clicks, longer timeouts or guard weakening"
+  ],
+  "product_writes": "HELD",
+  "derivative_package": true
+}

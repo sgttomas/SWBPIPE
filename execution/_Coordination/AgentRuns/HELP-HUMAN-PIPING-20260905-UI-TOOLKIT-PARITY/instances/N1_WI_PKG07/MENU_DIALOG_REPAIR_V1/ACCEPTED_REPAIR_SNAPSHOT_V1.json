@@ -1,0 +1,309 @@
+{
+  "schema": "piping.menu-drawer.accepted-repair/v1",
+  "verdict": "ACCEPTED_LOCAL_REPAIR",
+  "timestamp_utc": "2026-09-05T15:40:26.994608+00:00",
+  "parent_package": "PKG-07",
+  "basis_commit": "ade1d502abc43014948b94f4bd309ff1f0aee83f",
+  "accepted_plan": {
+    "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/PROPOSED_REPAIR_PLAN_V2.json",
+    "sha256": "ddd3238cd85eb95ae472926122dd21eff6b4849c6aed2005438d2618f973b7ec"
+  },
+  "derivative_package": true,
+  "authority": "Parent exact three-file release; no decomposition/lifecycle/Git authority",
+  "source": [
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "554469a251861b9fd0baa898dfc89649c49a4487f1640f999da0238232976934"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "6d181c362aa148a1e122d0b99d2cf6b34ae080e249868789906a7ff1e3eeafe6"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "0d912f6687f2c89035bf55e553b6e22cbea3c1624aac0d788ffcf8d7f5459e8f"
+    }
+  ],
+  "change": "Closed menu z20, existing openMenu class raises open menu to original50. Shared drawer30/backdrop40/dropdown41 and state/actions/ARIA preserved. Two meaningful controlled-overlap tests added; original GUI prefix and R2 unchanged.",
+  "checks": {
+    "pre_fix": "Four measured controlled nav interception failures, original CSS/App bytes bound; genuine default Close passed first",
+    "source": "8/8 PASS at1440x920 and1280x800",
+    "production_dist": "8/8 PASS same viewports; actual preview server fresh dist source bound",
+    "desktop_build": "PASS",
+    "desktop_test": "43 files/732 tests PASS",
+    "independent_review": "100% frozen three-file diff/source plus terminal execution-evidence backcheck PASS, no findings",
+    "manager_author_manifest_files_verified": 41,
+    "source_current_matches_freeze": true,
+    "engines": "Existing generated assets reused unchanged; no engine build"
+  },
+  "calibration": "Hosted actual log/context grounds interception. Exact hosted pixel rectangles/platform/font trigger unmeasured. Controlled geometry is local regression proof. Review inspected author execution evidence, not independent execution.",
+  "superseded_pending_gate": "This accepted fan-in supersedes immutable author pending independent review wording only; historical snapshots unchanged",
+  "remaining_gates": [
+    "Parent global V4 backcheck",
+    "New source commit and full clean DEC025/harness checks",
+    "Exact repaired commit hosted CI"
+  ],
+  "runtime": "Own ledger only; transient model capacity retry resumed same author; exact model/token metrics unavailable, nondelegation instruction+config asserted",
+  "evidence": [
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/EPHEMERAL_ROLE_CLARIFICATION_V1.json",
+      "sha256": "cbafb5ff52f627b40ef7486167f8d8bbbf2538953ca988885a87780a03261e9d"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/MANAGER_DIAGNOSIS_DISPOSITION_V2.json",
+      "sha256": "304fee62b736d0c124c9bd0b9ca36f2298105f6c7ba72d6d30a704b69cd75087"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/MANAGER_SOURCE_INTAKE_V1.json",
+      "sha256": "ec9e0047de1d694843bfe665bed1518e40f07a376b3ba8dd36c6e2951f0f3719"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/PLAN_V1.json",
+      "sha256": "798f0de8fb21234a623a7eb2ebcbccd397e38611c3a725a70e5286667b893c70"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/PROPOSED_REPAIR_PLAN_V1.json",
+      "sha256": "f4d9b35fed222d8e678e64e725b2a15819d5e8b0acdbb792d93dbcc750b69296"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/PROPOSED_REPAIR_PLAN_V2.json",
+      "sha256": "ddd3238cd85eb95ae472926122dd21eff6b4849c6aed2005438d2618f973b7ec"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/REVIEW_PREPARATION.md",
+      "sha256": "5b830e72c3168a1e06f1685c00fe986b7387040a17a79a4f9c58e68b23d81442"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/RUNTIME_EVENTS.jsonl",
+      "sha256": "4b44cba4f2598a9b2570be2783c5ebb14de681b93484ac24aeb428c42846cfb8"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/RUNTIME_SUMMARY.json",
+      "sha256": "3cfc562bb737ca47c490ea0c17fd64886feddbc164cb41fe8f4dc21c8682cba9"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/VISUAL_PREREQUISITE_AMENDMENT_V2.json",
+      "sha256": "1a413064a9bcc5bfcffa62df662973543bb9d4882d96109143f8ef78a5486b66"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/EVIDENCE_MANIFEST.json",
+      "sha256": "a18937819c2a47d60a13e8ffe4a31ee655430c523cb626b57bcaafe20617150c"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/HOSTED_LOG_ENCODED.json",
+      "sha256": "e229d2d63afa729a5723be30091388a2f9f6f704071bf14e43e9dd82f3460ff3"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/LAUNCH_BRIEF.md",
+      "sha256": "85e3365233284f46e02d7477c5aa95eccbf88f97d2668cbae4fe79a8fe95cf92"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/OFFICIAL_CONTEXTS_ENCODED.json",
+      "sha256": "24cf03add66dd4b23e954ebfcce4aa519358a56c764bc9829203528097f706cf"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/PROVISIONAL_FINDINGS.md",
+      "sha256": "2a08ec49794311f39370c0331ab2b94850b0f8f2b46fdb12060d999521beae2c"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/RETURN.md",
+      "sha256": "f548d9f4df5e49ad2a710cdfc88d033a1f37c81d249c1c5d65880b5520d456b2"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/SOURCE_MANIFEST.json",
+      "sha256": "53d7001c1ca09aafd0b8b68bad60908ae810a5d7c123dcc49331757983ba15f9"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/STATUS.json",
+      "sha256": "50a6b6a63be01303dda594b6a35cd2e9b9fd5ca22a66f7790fb8030929cce70a"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/DIAGNOSE/TEST_FENCE_PROPOSAL.md",
+      "sha256": "6b5bdcdc57232182f9084182875fee355e4033d1b1cf4cdf02d6c11f57514be8"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/COMMANDS.json",
+      "sha256": "a703c4c309d51bfd9040df53d858d7ccb57518389cdf787d3a8e510eef41ba1d"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/DIST-STDERR_LOG_ENCODED.json",
+      "sha256": "9444e8345a36493449cd59878e9d4821e476804a44b7bd17c40f16b8c59fb038"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/DIST_BEFORE_MATRIX.json",
+      "sha256": "a6abe0f353423b784d454b73e3866fff743f1b3057361f58745bc9322aacdd90"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/DIST_JSON_ENCODED.json",
+      "sha256": "4c19b52a24c9ef3bd1121afad291b05713547900404c3ba4aedae608560b4df6"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/DIST_RUNTIME.json",
+      "sha256": "add3d0f6cf2b3ebea670a73f30891560127160d01e1326ff2e3b59dec55d7b24"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/ENGINE_AFTER.json",
+      "sha256": "e7c2aaecc8a9c989a42c0a4fef71d9ca56ad58baeaaa8faaa161af60ac8dc5c9"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/ENGINE_BEFORE.json",
+      "sha256": "f2b2a072c062cd7dc9896e7f5fa5410661984175beef4a22481bbf93901b77bd"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/FREEZE.json",
+      "sha256": "184b8d6863b6b47d321710ee83058f20e064c673ef0c01036221564b001dbf48"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/FROZEN_DIFF_ENCODED.json",
+      "sha256": "7d756898e1ad3106eb8b6d80f39867a0c16d943e1a6e400537a8ef0aff6bba6b"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/GEOMETRY_SUMMARY.json",
+      "sha256": "9810877397bc6ec517fb31724ff3c86d356cc3b29f03992a47cfbdf0fdd46d32"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/INTAKE.json",
+      "sha256": "07bcf9414e420f4ccde7bcc02b1d9c437c2d1ad680988c64b625d2f525d03f5d"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/LAUNCH_BRIEF.md",
+      "sha256": "7694dccab3845088df7b713e29366e92a13930cdca17a387d300c0941e35a243"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/MATRIX_SUMMARY.json",
+      "sha256": "5b9ba195f146b7b95ad81a52a1fbb76067229a27255e64d1c3b029ed23f1c425"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/NEGATIVE-STDERR_LOG_ENCODED.json",
+      "sha256": "9444e8345a36493449cd59878e9d4821e476804a44b7bd17c40f16b8c59fb038"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/NEGATIVE_CONTROL_BINDING.json",
+      "sha256": "6be93b55e614bfd0c0f2aa5f534a2f6ce5741f003c046244d0f44db5d0376612"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/NEGATIVE_JSON_ENCODED.json",
+      "sha256": "6485b04c13ca007c1dc35dce7fddb26ac1e8721c9269af7b77f4048747717452"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/NEGATIVE_LOG_ENCODED.json",
+      "sha256": "e96b150a672e67e40eca33cd460206bdde93597e2661c3794895c300c7e65da0"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/NEGATIVE_RUNTIME.json",
+      "sha256": "27b41d1a367a33db9bc5f4d7cc9eb3ae0918d00ddb43d00ac0cb7b0d24c62412"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/REGISTERED_CHECKS_ENCODED.json",
+      "sha256": "7e934c1d9989cded2550a45feaf56d86aab325036c735d61416a8f7e96fdedf7"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/REGISTERED_CHECKS_SUMMARY.json",
+      "sha256": "021d72a49fe526bf141a087afebe687f949689d49511f0e8ccee9c8322ec9124"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/REGISTERED_LOG_ENCODED.json",
+      "sha256": "ab627a45061bfff2678f6069cd858b352955d04d414852697f3e27928d124523"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/RETURN.md",
+      "sha256": "8aff028ac4aafe455abd9041eec7c001e82479adf34ef518707f1f6aeca974be"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/SCOPE_CHECK.json",
+      "sha256": "2de77b75ef1fa43f55580382be0f8025f14231eff066ceb1c90043a53f5fd8db"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/SCOPE_COMMAND.json",
+      "sha256": "243dec5efeebf5b76448c5469a16ef1e3e9867143f73608b0651d0181b6852f8"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/SETUP_FAILURE_ENCODED.json",
+      "sha256": "d105c960efec39006501a2a5885fabfac9ee0b540c12117ab8d62bb6fef2ab01"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/SHA256SUMS",
+      "sha256": "bb20001840d2ec8b6d17c7aa5f69eff12aadd1f3daa14a927e4a9f18344408e3"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/SOURCE-STDERR_LOG_ENCODED.json",
+      "sha256": "9444e8345a36493449cd59878e9d4821e476804a44b7bd17c40f16b8c59fb038"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/SOURCE_JSON_ENCODED.json",
+      "sha256": "bff92ecbbfb87dcb6b3d03bf4c1d5f7ab9a6b5263f387ea602b33bd9809640b8"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/SOURCE_MATRIX_SUMMARY.json",
+      "sha256": "866cbebb4a15de1dae3a74f5c4e060d98c47e235a76fb6d8cdfef7a010133e7b"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/SOURCE_RUNTIME.json",
+      "sha256": "a306eab65c5561d82cabaa4fc3c27906934b2489841fc3da96e359f8613abe73"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/STABILITY.json",
+      "sha256": "54b3d1da02bf9e67653ea9e146a50cc7b1c04359a632a21543ba066a6822148e"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/STATUS.json",
+      "sha256": "9a2db55ad311ad876666bd817977c21fc2816f98ed7fc04e32d5c7cbc2569a7b"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/WHITESPACE_CHECK_ENCODED.json",
+      "sha256": "a7a29a07cb59994127bb74f5763f2a83a754d7e0aac5df7fb57c40073f748f19"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/before/App.tsx",
+      "sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/before/gui-workflow-validation.spec.ts",
+      "sha256": "c0454c2c50ccdabfac502371dba94b102a9e84ce19207c6c0667bae7cb3e94c2"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/before/r2-smoke.spec.ts",
+      "sha256": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/before/styles.css",
+      "sha256": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/frozen/App.tsx",
+      "sha256": "6d181c362aa148a1e122d0b99d2cf6b34ae080e249868789906a7ff1e3eeafe6"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/frozen/gui-workflow-validation.spec.ts",
+      "sha256": "0d912f6687f2c89035bf55e553b6e22cbea3c1624aac0d788ffcf8d7f5459e8f"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/frozen/styles.css",
+      "sha256": "554469a251861b9fd0baa898dfc89649c49a4487f1640f999da0238232976934"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/playwright.dist.config.mts",
+      "sha256": "6a8f1241a2687714ae52769890afd66e3c81ca8ae459b5d7fa2a6e52df01a473"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/playwright.source.config.mts",
+      "sha256": "38c4c55e097996242b4e867c279989b3bf279b3514255e328f8613ff8bb7da33"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/REVIEW/HASH_VERIFICATION.json",
+      "sha256": "08a9553613378ecdc9f59477a636bb19fb819107d0f673dfa93f562305d354ae"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/REVIEW/LAUNCH_BRIEF.md",
+      "sha256": "2d582445c4dae6f8d23a5cff09a054dd5b5bf698491f36e18e3e5016344fe259"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/REVIEW/RETURN.md",
+      "sha256": "42a62d42e388059789aa133d0228731fa4ba5d1769dc927edcf7f21bc03f5a1e"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/REVIEW/STATUS.json",
+      "sha256": "2b2a106c99b9cdfc53654ecf7e6c2f88945ac6841911cd6ea3e639131dcc51ad"
+    }
+  ]
+}

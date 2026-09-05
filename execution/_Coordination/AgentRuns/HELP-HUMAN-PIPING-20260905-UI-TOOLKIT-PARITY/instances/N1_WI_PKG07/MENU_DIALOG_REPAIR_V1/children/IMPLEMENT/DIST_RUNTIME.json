@@ -1,0 +1,32 @@
+{
+  "webServer": {
+    "command": "npm run preview -- --host 127.0.0.1 --port 4186",
+    "cwd": "{WORKING_ROOT}/apps/desktop",
+    "url": "http://127.0.0.1:4186",
+    "reuseExistingServer": false,
+    "timeout": 30000
+  },
+  "baseURL": "http://127.0.0.1:4186",
+  "baseURL_basis": "Exact executed evidence config use.baseURL equals webServer.url; preserved config and raw reporter webServer corroborate source/dist lane.",
+  "viewport_matrix": [
+    {
+      "project": "chromium-desktop",
+      "width": 1440,
+      "height": 920
+    },
+    {
+      "project": "chromium-compact",
+      "width": 1280,
+      "height": 800
+    }
+  ],
+  "stats": {
+    "startTime": "2026-09-05T15:33:12.651Z",
+    "duration": 65399.19699999999,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "config_sha256": "6a8f1241a2687714ae52769890afd66e3c81ca8ae459b5d7fa2a6e52df01a473"
+}

@@ -1,0 +1,14 @@
+{
+  "started_utc": "2026-09-05T15:48:39.872622+00:00",
+  "status": "RUNNING",
+  "role": "Agent2 TASK software-code-review",
+  "model": "unavailable/inherited",
+  "nondelegation": "instruction+config asserted",
+  "parent": "/root",
+  "bindings": {
+    "GLOBAL_PRODUCT_FREEZE_V4.json": "1affd8b788170729fe722acc8a542fd0cb9b188f4560a8aa87d91eb8af283d1b",
+    "GLOBAL_PRODUCT_DIFF_V4_ENCODED.json": "758a35b657ab9f84892b13930d413678f36ee1306e80b7d5239449faf2307f6c",
+    "GLOBAL_REPAIR_DELTA_V4_ENCODED.json": "13b14362bdeccd328cf022b4cea0f84eb9b491a0c0a029f73ed9b2061d93f52b",
+    "GLOBAL_REVIEW_PARTITION_V4.json": "ddeacd5edb52813ca751d405177d55f0153c5585f63d926a3b69664dac5c2986"
+  }
+}

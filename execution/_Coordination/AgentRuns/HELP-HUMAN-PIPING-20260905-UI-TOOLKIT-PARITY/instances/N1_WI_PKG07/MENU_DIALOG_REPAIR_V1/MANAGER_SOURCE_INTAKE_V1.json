@@ -1,0 +1,19 @@
+{
+  "source_held": true,
+  "checks": "read-only inspection",
+  "observed_source": {
+    "menu": "position relative z-index50 even when no dropdown",
+    "drawer": "nonmodal sibling fixed z-index30 bottom58px max-height min(720px,100vh - 120px)",
+    "desktop_full_drawer_top_inferred_px": 142,
+    "compact_full_drawer_top_inferred_px": 62
+  },
+  "limit": "Actual hosted geometry pending, no fix selected; no claim source-only inference proves platform trigger",
+  "source_hashes": {
+    "apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+    "apps/desktop/src/App.tsx": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e",
+    "apps/desktop/e2e/gui-workflow-validation.spec.ts": "c0454c2c50ccdabfac502371dba94b102a9e84ce19207c6c0667bae7cb3e94c2",
+    "apps/desktop/e2e/r2-smoke.spec.ts": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18",
+    "apps/desktop/playwright.config.ts": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0",
+    "apps/desktop/playwright.dist.config.ts": "d53c01817b11718850b2b2b52e0132825931741998d4214a0d0c7e533c2b5756"
+  }
+}

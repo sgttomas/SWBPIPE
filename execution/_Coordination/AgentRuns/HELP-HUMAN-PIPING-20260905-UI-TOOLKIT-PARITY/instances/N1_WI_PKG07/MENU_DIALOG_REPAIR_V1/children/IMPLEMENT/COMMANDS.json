@@ -1,0 +1,104 @@
+[
+  {
+    "id": "setup",
+    "cwd": "{WORKING_ROOT}/apps/desktop",
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/playwright.source.config.ts",
+      "--grep",
+      "shared drawer menu overlap"
+    ],
+    "capability": "host",
+    "sandbox_permissions": "require_escalated",
+    "exit_code": 1,
+    "meaning": "Setup failure ESM config suffix; corrected only own evidence config"
+  },
+  {
+    "id": "negative-list",
+    "cwd": "{WORKING_ROOT}/apps/desktop",
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/playwright.source.config.mts",
+      "--grep",
+      "shared drawer menu overlap"
+    ],
+    "capability": "host",
+    "sandbox_permissions": "require_escalated",
+    "exit_code": 1,
+    "meaning": "Expected pre-fix closed nav interception"
+  },
+  {
+    "id": "negative",
+    "cwd": "{WORKING_ROOT}/apps/desktop",
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/playwright.source.config.mts",
+      "--grep",
+      "shared drawer menu overlap",
+      "--reporter=json"
+    ],
+    "capability": "host",
+    "sandbox_permissions": "require_escalated",
+    "exit_code": 1,
+    "meaning": "Expected pre-fix closed nav interception"
+  },
+  {
+    "id": "source",
+    "cwd": "{WORKING_ROOT}/apps/desktop",
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/playwright.source.config.mts",
+      "--grep",
+      "shared drawer menu overlap|DEL-09-04 invented fixture|R2 desktop preview smoke",
+      "--reporter=json"
+    ],
+    "capability": "host",
+    "sandbox_permissions": "require_escalated",
+    "exit_code": 0,
+    "meaning": "Full positive8-case matrix PASS"
+  },
+  {
+    "id": "dist",
+    "cwd": "{WORKING_ROOT}/apps/desktop",
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/playwright.dist.config.mts",
+      "--grep",
+      "shared drawer menu overlap|DEL-09-04 invented fixture|R2 desktop preview smoke",
+      "--reporter=json"
+    ],
+    "capability": "host",
+    "sandbox_permissions": "require_escalated",
+    "exit_code": 0,
+    "meaning": "Full positive8-case matrix PASS"
+  },
+  {
+    "id": "registered-build-test",
+    "cwd": "{REPO_ROOT}",
+    "argv": [
+      "python3",
+      "tools/software_workflow/run_registered_checks.py",
+      "projects/chirality-piping/software-workflow.json",
+      "--check",
+      "desktop-build",
+      "--check",
+      "desktop-test",
+      "--output",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT/REGISTERED_CHECKS.json"
+    ],
+    "capability": "host",
+    "sandbox_permissions": "require_escalated",
+    "exit_code": 0,
+    "output_note": "Runner emitted REGISTERED_CHECKS.json; encoded losslessly as REGISTERED_CHECKS_ENCODED.json and raw file removed."
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "desktop-build",
+      "command": [
+        "npm",
+        "run",
+        "build:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "duration_seconds": 3.828,
+      "status": "PASS"
+    },
+    {
+      "id": "desktop-test",
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "duration_seconds": 116.19,
+      "status": "PASS"
+    }
+  ],
+  "desktop_test": {
+    "files": 43,
+    "tests": 732,
+    "all_passed": true
+  },
+  "logs": "REGISTERED_CHECKS_ENCODED.json",
+  "log_calibration": "Runner normalizes workspace paths in stdout/stderr by design. Original runner JSON bytes preserved losslessly; this is the full emitted report, without tail truncation."
+}

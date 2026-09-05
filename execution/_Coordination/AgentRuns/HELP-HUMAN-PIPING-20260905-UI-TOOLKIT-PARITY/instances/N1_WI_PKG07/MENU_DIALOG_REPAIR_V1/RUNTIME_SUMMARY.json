@@ -1,0 +1,75 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 4
+  },
+  "counts": {
+    "category": {
+      "RUNTIME": 1
+    },
+    "event_type": {
+      "FINISH": 4,
+      "RETRY": 1,
+      "START": 4
+    },
+    "outcome": {
+      "PASS": 4,
+      "STARTED": 5
+    },
+    "reason_code": {
+      "MODEL_CAPACITY": 1
+    }
+  },
+  "events": 9,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 811.048,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_MENU_DIALOG_DIAGNOSE",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "menu-diagnose"
+    },
+    {
+      "duration_seconds": 964.199,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "A2_MENU_DIALOG_IMPLEMENT",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 1,
+      "role": "Agent2",
+      "session_id": "menu-implement"
+    },
+    {
+      "duration_seconds": 1856.386,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N1_MENU_DIALOG",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent1",
+      "session_id": "menu-manager"
+    },
+    {
+      "duration_seconds": 547.317,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_MENU_DIALOG_REVIEW",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "menu-review"
+    }
+  ],
+  "sessions": 4,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

@@ -2285,7 +2285,7 @@ function MenuBar({
       {openMenu ? (
         <div className="app-menu-backdrop" data-testid="app-menu-backdrop" onClick={() => onOpenMenu(null)} />
       ) : null}
-      <nav className="app-menu-bar" data-testid="app-menu-bar" aria-label="Application menu">
+      <nav className={openMenu ? "app-menu-bar menu-open" : "app-menu-bar"} data-testid="app-menu-bar" aria-label="Application menu">
         {menus.map((menu) => (
           <div className="app-menu" key={menu.id}>
             <button

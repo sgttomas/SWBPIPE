@@ -1,0 +1,17 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

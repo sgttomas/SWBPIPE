@@ -1,0 +1,17 @@
+{
+  "status": "SUCCESS",
+  "verdict": "DIAGNOSIS_COMPLETE_REPAIR_PROPOSED",
+  "source_held": true,
+  "source_head": "ade1d502abc43014948b94f4bd309ff1f0aee83f",
+  "brief_sha256": "85e3365233284f46e02d7477c5aa95eccbf88f97d2668cbae4fe79a8fe95cf92",
+  "role": "ephemeral Agent 2",
+  "model": "unavailable",
+  "nondelegation": "instruction+config asserted",
+  "evidence_basis": "official CI log and error contexts plus source; actual visuals prerequisite removed by parent",
+  "missing": [
+    "exact hosted pixel geometry",
+    "platform trigger attribution",
+    "controlled pre-fix and post-fix reproduction"
+  ],
+  "product_closure": "OPEN"
+}

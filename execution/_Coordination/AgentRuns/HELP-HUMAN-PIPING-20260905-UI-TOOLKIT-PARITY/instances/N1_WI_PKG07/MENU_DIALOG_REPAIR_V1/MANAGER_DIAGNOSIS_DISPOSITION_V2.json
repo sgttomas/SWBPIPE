@@ -1,0 +1,19 @@
+{
+  "verdict": "DIAGNOSIS_ACCEPTED_AND_IMPLEMENTATION_RELEASED",
+  "parent_release": "Formal exact3file release of PROPOSED_REPAIR_PLAN_V2.json SHA ddd3238cd85eb95ae472926122dd21eff6b4849c6aed2005438d2618f973b7ec",
+  "diagnosis_return_sha256": "f548d9f4df5e49ad2a710cdfc88d033a1f37c81d249c1c5d65880b5520d456b2",
+  "all_evidence_manifest_hashes_verified": true,
+  "official_contexts_manager_verified": true,
+  "calibration": "High confidence closed menu stacking permits observed interception; no hosted pixels/platform trigger claimed. :has proposal superseded by explicit class compatibility decision.",
+  "implementation_child": "/root/wi_pkg07/repair_menu_dialog",
+  "implementation_brief_sha256": "7694dccab3845088df7b713e29366e92a13930cdca17a387d300c0941e35a243",
+  "acceptance_dependencies": [
+    "Pre-fix controlled regression fails on original product",
+    "Exact3file repair and positive source/dist/default viewports",
+    "Full desktop build/Vitest",
+    "Fresh independent full3file review",
+    "Manager accepted snapshot",
+    "Parent final backcheck, source commit, clean DEC025, hosted exact-commit CI"
+  ],
+  "derivative_package": true
+}

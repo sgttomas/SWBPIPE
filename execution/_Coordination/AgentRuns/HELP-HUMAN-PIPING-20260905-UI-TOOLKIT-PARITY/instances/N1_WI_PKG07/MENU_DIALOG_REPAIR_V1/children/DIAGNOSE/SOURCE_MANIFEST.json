@@ -1,0 +1,61 @@
+{
+  "source_head": "ade1d502abc43014948b94f4bd309ff1f0aee83f",
+  "files": {
+    "AGENTS.md": {
+      "sha256": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+      "bytes": 18466
+    },
+    "projects/chirality-piping/AGENTS.md": {
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    "agents/AGENT_TASK.md": {
+      "sha256": "80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983",
+      "bytes": 28842
+    },
+    "skills/software-defect-diagnosis/SKILL.md": {
+      "sha256": "6924d5a3fb05b590e0a34677618a9d64d48714f563e1d58fe97e7e3f79206e3c",
+      "bytes": 1349
+    },
+    "skills/software-defect-diagnosis/BRIEF_SCHEMA.md": {
+      "sha256": "326b825cbf4fd4c67f11ed1a7e649cfd070710a8e92b4b4b76ad31d3a3fd2fb8",
+      "bytes": 284
+    },
+    "skills/software-defect-diagnosis/TOOL_POLICY.md": {
+      "sha256": "0e8bfaa95f962a1b73c111c01af4e5fa67a89a1e0e4c338b057994243cd94d06",
+      "bytes": 348
+    },
+    "skills/software-defect-diagnosis/QA_CHECKS.md": {
+      "sha256": "563a954f28e8b3be742618c302abe94408c22e8a45de67e8bbcc1abd8ac5aedf",
+      "bytes": 364
+    },
+    "projects/chirality-piping/software-workflow.json": {
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "bytes": 1101
+    },
+    "projects/chirality-piping/apps/desktop/src/styles.css": {
+      "sha256": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+      "bytes": 60481
+    },
+    "projects/chirality-piping/apps/desktop/src/App.tsx": {
+      "sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e",
+      "bytes": 127168
+    },
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts": {
+      "sha256": "c0454c2c50ccdabfac502371dba94b102a9e84ce19207c6c0667bae7cb3e94c2",
+      "bytes": 13571
+    },
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": {
+      "sha256": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18",
+      "bytes": 96869
+    },
+    "projects/chirality-piping/apps/desktop/playwright.config.ts": {
+      "sha256": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0",
+      "bytes": 3290
+    },
+    "projects/chirality-piping/apps/desktop/playwright.dist.config.ts": {
+      "sha256": "d53c01817b11718850b2b2b52e0132825931741998d4214a0d0c7e533c2b5756",
+      "bytes": 2567
+    }
+  }
+}

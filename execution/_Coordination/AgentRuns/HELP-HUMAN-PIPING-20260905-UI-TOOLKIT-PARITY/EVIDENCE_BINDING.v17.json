@@ -1,0 +1,17 @@
+{
+  "plan": {
+    "path": "instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/PROPOSED_REPAIR_PLAN_V2.json",
+    "sha256": "ddd3238cd85eb95ae472926122dd21eff6b4849c6aed2005438d2618f973b7ec"
+  },
+  "authority": "actual parent exact3file release",
+  "hosted": "ade1d502 governancePASS/Desktop20PASS2FAIL parentreported",
+  "contexts": "official bounded contexts and hashes held by N8 external evidence; no standalonePNG",
+  "geometry": "unmeasured hostedpixelgeometry",
+  "scope": [
+    "apps/desktop/src/styles.css",
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/e2e/gui-workflow-validation.spec.ts"
+  ],
+  "prerequisite": "controlledregression oldCSS expectedFAIL before productCSSedit",
+  "history": "preserved"
+}

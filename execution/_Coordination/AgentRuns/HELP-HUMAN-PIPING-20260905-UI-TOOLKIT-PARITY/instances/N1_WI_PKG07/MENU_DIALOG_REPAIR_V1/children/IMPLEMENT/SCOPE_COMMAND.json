@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "python3",
+    "tools/software_workflow/validate_change_scope.py",
+    ".",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+    "--allowed",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT",
+    "--path",
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "--path",
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "--path",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/IMPLEMENT"
+  ],
+  "cwd": "{REPO_ROOT}",
+  "calibration": "Git diff of apps/desktop must contain exactly the3released files; additional manager-owned coordination paths are external state. Explicit path list includes own evidence root."
+}

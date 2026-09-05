@@ -1,0 +1,168 @@
+{
+  "negative": [
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+      "project": "chromium-desktop",
+      "status": "unexpected",
+      "results": [
+        "failed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+      "project": "chromium-desktop",
+      "status": "unexpected",
+      "results": [
+        "failed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+      "project": "chromium-compact",
+      "status": "unexpected",
+      "results": [
+        "failed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+      "project": "chromium-compact",
+      "status": "unexpected",
+      "results": [
+        "failed"
+      ]
+    }
+  ],
+  "source": [
+    {
+      "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+      "project": "chromium-desktop",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+      "project": "chromium-desktop",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+      "project": "chromium-desktop",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+      "project": "chromium-compact",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+      "project": "chromium-compact",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+      "project": "chromium-compact",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "project": "chromium-desktop",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "project": "chromium-compact",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    }
+  ],
+  "dist": [
+    {
+      "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+      "project": "chromium-desktop",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+      "project": "chromium-desktop",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+      "project": "chromium-desktop",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions",
+      "project": "chromium-compact",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home",
+      "project": "chromium-compact",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer",
+      "project": "chromium-compact",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "project": "chromium-desktop",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "project": "chromium-compact",
+      "status": "expected",
+      "results": [
+        "passed"
+      ]
+    }
+  ]
+}

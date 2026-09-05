@@ -235,3 +235,105 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(finalAudit.getByTestId("local-project-status")).toContainText("telemetry=false");
   expect(externalRequests).toEqual([]);
 });
+
+for (const { drawerId, toggleId, contentId, contentText } of [
+  { drawerId: "issues-home", toggleId: "issues-drawer-toggle", contentId: "missing-data-summary", contentText: "solve_blocked=false" },
+  { drawerId: "audit-boundary-drawer", toggleId: "audit-drawer-toggle", contentId: "local-project-status", contentText: "network=false" }
+]) {
+  test(`shared drawer menu overlap preserves ordinary Close and active menu priority: ${drawerId}`, async ({ page }, testInfo) => {
+    await page.goto("/");
+    await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+    await openWorkspaceSection(page, "solve");
+    await page.getByTestId("run-mechanics-preview").click();
+    await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+    await expect(page.getByTestId("solve-job-summary")).toContainText(`result_rows=${resultFixture.results.length}`);
+
+    const drawer = page.getByTestId(drawerId);
+    const close = drawer.getByRole("button", { name: /Close/i });
+    const menu = page.getByTestId("app-menu-bar");
+    const measure = async (phase: string) => {
+      const geometry = await close.evaluate((button) => {
+        const nav = document.querySelector<HTMLElement>('[data-testid="app-menu-bar"]')!;
+        const aside = button.closest<HTMLElement>(".workspace-drawer")!;
+        const rect = button.getBoundingClientRect();
+        const center = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+        const hit = document.elementFromPoint(center.x, center.y);
+        return {
+          center, close: rect.toJSON(), menu: nav.getBoundingClientRect().toJSON(),
+          drawer: aside.getBoundingClientRect().toJSON(),
+          lastTriggerRight: Math.max(...Array.from(nav.querySelectorAll("button")).map((item) => item.getBoundingClientRect().right)),
+          viewport: { width: innerWidth, height: innerHeight },
+          hit: hit ? `${hit.tagName.toLowerCase()}.${hit.className}` : null,
+          closeReceivesHit: hit === button || button.contains(hit),
+          menuReceivesHit: hit === nav || nav.contains(hit),
+          menuExpanded: nav.querySelector('[aria-expanded="true"]') !== null
+        };
+      });
+      await testInfo.attach(`${drawerId}-${phase}`, { body: JSON.stringify(geometry, null, 2), contentType: "application/json" });
+      return geometry;
+    };
+
+    // Exercise the ordinary fixture layout before imposing the controlled overlap.
+    await page.getByTestId(toggleId).click();
+    await expect(drawer.getByTestId(contentId)).toContainText(contentText);
+    const ordinary = await measure("ordinary-layout");
+    expect(ordinary.closeReceivesHit, `ordinary Close intercepted by ${ordinary.hit}`).toBe(true);
+    await close.click();
+    await expect(drawer).toHaveCount(0);
+
+    await page.getByTestId(toggleId).click();
+    await expect(drawer).toBeVisible();
+    // Position only this existing drawer: no stacking, pointer-event, visibility,
+    // or handler changes. This geometry is deterministic, not a hosted-pixel claim.
+    await drawer.evaluate((aside) => {
+      const nav = document.querySelector('[data-testid="app-menu-bar"]')!.getBoundingClientRect();
+      const button = Array.from(aside.querySelectorAll("button")).find((item) => /Close/i.test(item.textContent ?? ""))!;
+      const rect = button.getBoundingClientRect();
+      const offset = rect.y + rect.height / 2 - aside.getBoundingClientRect().top;
+      aside.style.top = `${nav.y + nav.height / 2 - offset}px`;
+      aside.style.bottom = "auto";
+    });
+    const overlap = await measure("controlled-closed-menu");
+    expect(overlap.menuExpanded).toBe(false);
+    expect(overlap.center.x).toBeGreaterThan(overlap.lastTriggerRight);
+    expect(overlap.center.x).toBeGreaterThan(overlap.menu.left);
+    expect(overlap.center.x).toBeLessThan(overlap.menu.right);
+    expect(overlap.center.y).toBeGreaterThan(overlap.menu.top);
+    expect(overlap.center.y).toBeLessThan(overlap.menu.bottom);
+    expect(overlap.close.left).toBeGreaterThanOrEqual(0);
+    expect(overlap.close.top).toBeGreaterThanOrEqual(0);
+    expect(overlap.close.right).toBeLessThanOrEqual(overlap.viewport.width);
+    expect(overlap.close.bottom).toBeLessThanOrEqual(overlap.viewport.height);
+    expect(overlap.closeReceivesHit, `closed menu intercepts Close: hit=${overlap.hit}`).toBe(true);
+    await close.click();
+    await expect(drawer).toHaveCount(0);
+
+    // Reopen with ordinary positioning; command and click-catcher dismiss only
+    // the menu, and a regular Close still dismisses the nonmodal drawer.
+    await page.getByTestId(toggleId).click();
+    await page.getByTestId("menu-view").click();
+    await expect(page.getByTestId("menu-view")).toHaveAttribute("aria-expanded", "true");
+    await expect(menu).toHaveCSS("z-index", "50");
+    await measure("active-view-command");
+    await page.getByTestId("menu-item-view.section.operations").click();
+    await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+    await expect(page.getByTestId("menu-dropdown-view")).toHaveCount(0);
+    await expect(drawer).toBeVisible();
+    await page.getByTestId("menu-view").click();
+    const bounds = await drawer.boundingBox();
+    expect(bounds).not.toBeNull();
+    const point = { x: bounds!.x + bounds!.width - 30, y: bounds!.y + bounds!.height - 30 };
+    const backdrop = page.getByTestId("app-menu-backdrop");
+    const backdropBounds = await backdrop.boundingBox();
+    expect(backdropBounds).not.toBeNull();
+    const hit = await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.getAttribute("data-testid"), point);
+    await testInfo.attach(`${drawerId}-backdrop-hit`, { body: JSON.stringify({ point, drawer: bounds, backdrop: backdropBounds, hit }), contentType: "application/json" });
+    expect(hit).toBe("app-menu-backdrop");
+    await backdrop.click({ position: { x: point.x - backdropBounds!.x, y: point.y - backdropBounds!.y } });
+    await expect(page.getByTestId("menu-dropdown-view")).toHaveCount(0);
+    await expect(backdrop).toHaveCount(0);
+    await expect(drawer).toBeVisible();
+    await close.click();
+    await expect(drawer).toHaveCount(0);
+  });
+}

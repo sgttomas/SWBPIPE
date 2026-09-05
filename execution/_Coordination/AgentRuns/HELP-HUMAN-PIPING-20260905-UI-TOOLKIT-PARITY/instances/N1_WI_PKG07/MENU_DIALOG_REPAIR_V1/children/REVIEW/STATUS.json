@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "run_status": "SUCCESS",
+  "source_verdict": "PASS",
+  "evidence_backcheck": "PASS",
+  "findings": [],
+  "source_coverage": "100% frozen three-file diff",
+  "independent_execution": false,
+  "author_proof_reviewed": {
+    "negative_control": "4 intended failures",
+    "source_matrix": "8/8 PASS",
+    "dist_matrix": "8/8 PASS",
+    "desktop_build": "PASS",
+    "desktop_test": "43 files / 732 tests PASS"
+  },
+  "source_hashes_unchanged": true,
+  "dist_artifact_hashes_match": true,
+  "derivative_package": true,
+  "remaining_parent_gates": [
+    "Manager snapshot acceptance",
+    "Parent final backcheck and source commit",
+    "Clean full DEC-025",
+    "Hosted exact-commit CI"
+  ],
+  "runtime": "delegated-harness-native ephemeral Agent2; exact model unavailable; nondelegation instruction+config asserted"
+}

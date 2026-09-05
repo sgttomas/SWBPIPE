@@ -1,0 +1,30 @@
+{
+  "source_basis": "ade1d502abc43014948b94f4bd309ff1f0aee83f",
+  "predecessors_verified": true,
+  "source_files": {
+    "projects/chirality-piping/apps/desktop/src/styles.css": {
+      "sha256": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+      "bytes": 60481
+    },
+    "projects/chirality-piping/apps/desktop/src/App.tsx": {
+      "sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e",
+      "bytes": 127168
+    },
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts": {
+      "sha256": "c0454c2c50ccdabfac502371dba94b102a9e84ce19207c6c0667bae7cb3e94c2",
+      "bytes": 13571
+    },
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": {
+      "sha256": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18",
+      "bytes": 96869
+    },
+    "projects/chirality-piping/apps/desktop/playwright.config.ts": {
+      "sha256": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0",
+      "bytes": 3290
+    },
+    "projects/chirality-piping/apps/desktop/playwright.dist.config.ts": {
+      "sha256": "d53c01817b11718850b2b2b52e0132825931741998d4214a0d0c7e533c2b5756",
+      "bytes": 2567
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "files": {
+    "HOSTED_LOG_ENCODED.json": {
+      "sha256": "e229d2d63afa729a5723be30091388a2f9f6f704071bf14e43e9dd82f3460ff3",
+      "bytes": 31564
+    },
+    "LAUNCH_BRIEF.md": {
+      "sha256": "85e3365233284f46e02d7477c5aa95eccbf88f97d2668cbae4fe79a8fe95cf92",
+      "bytes": 2761
+    },
+    "OFFICIAL_CONTEXTS_ENCODED.json": {
+      "sha256": "24cf03add66dd4b23e954ebfcce4aa519358a56c764bc9829203528097f706cf",
+      "bytes": 663622
+    },
+    "PROVISIONAL_FINDINGS.md": {
+      "sha256": "2a08ec49794311f39370c0331ab2b94850b0f8f2b46fdb12060d999521beae2c",
+      "bytes": 4773
+    },
+    "RETURN.md": {
+      "sha256": "f548d9f4df5e49ad2a710cdfc88d033a1f37c81d249c1c5d65880b5520d456b2",
+      "bytes": 9108
+    },
+    "SOURCE_MANIFEST.json": {
+      "sha256": "53d7001c1ca09aafd0b8b68bad60908ae810a5d7c123dcc49331757983ba15f9",
+      "bytes": 2432
+    },
+    "STATUS.json": {
+      "sha256": "50a6b6a63be01303dda594b6a35cd2e9b9fd5ca22a66f7790fb8030929cce70a",
+      "bytes": 642
+    },
+    "TEST_FENCE_PROPOSAL.md": {
+      "sha256": "6b5bdcdc57232182f9084182875fee355e4033d1b1cf4cdf02d6c11f57514be8",
+      "bytes": 3432
+    }
+  }
+}

@@ -1,0 +1,17 @@
+# Exact provisional source and regression fence
+
+Source held; no implementation authorized by this document. Preferred fence: apps/desktop/src/styles.css plus apps/desktop/e2e/gui-workflow-validation.spec.ts. Keep apps/desktop/e2e/r2-smoke.spec.ts unchanged, including its line509 ordinary Close click. Optional alternative adds App.tsx solely for an explicit open-menu class instead of CSS :has; manager must choose before implementation.
+
+Add a dedicated GUI test using the existing fixture-loading helpers: goto /, wait desktop-preview-shell and operation-engine-chip Engine ready, open Solve, run-mechanics-preview, verify completed and fixture result count, open Results. This reproduces the current solved default invented fixture and its disclosure-rich chrome without adding test-only content or styles.
+
+For each pair (issues-drawer-toggle,issues-home) and (audit-drawer-toggle,audit-boundary-drawer):
+
+1. Open via visible toggle, verify expected unique heading/disclosure and Close. Capture actual drawer bounding rect/clientHeight/scrollHeight/computed maxHeight, menu rect/state and Close rect. Verify the fixture actually yields a tall internally scrolling drawer; if it does not, report that coverage gap rather than silently declaring the tall case covered. A font-sensitive fixed pixel-height assertion is unnecessary; compare actual clientHeight to its computed maximum with a small rounding allowance if that invariant is desired.
+2. Verify Close rectangle is within the viewport and document.elementFromPoint at its center belongs to the Close element; record returned element identity and all rectangles. Keep ordinary locator.click and expect drawer absent. Do not assert mere CSS z-index values as the functional test.
+3. Reopen drawer. Open the visible left-hand View trigger outside the right-hand drawer. Choose a real section item (Solve/Results, alternating from current state), verify section visible, dropdown absent, drawer still present.
+4. Reopen View menu. Obtain the current drawer Close center and click app-menu-backdrop at that measured point using normal locator click, without force. This intentionally targets the actual topmost click-catcher: verify dropdown disappears and drawer stays open. Then repeat Close center hit test and normal Close, verifying removal.
+5. Preserve attachments for geometry in each state. No synthetic CSS, hidden content, direct onClose invocation, forced click, timeout increase, or assertion weakening.
+
+Run the new dedicated test and original GUI test plus unchanged affected R2 preview journey at source1440x920 and1280x800, then the same exact source specs against newly built production dist using the authorized evidence-only config override with those two viewports. Existing dist config alone is1280x900 and is not this matrix. Source fixture equivalence does not guarantee identical cross-platform font metrics: an old-source failure on actual hosted dimensions plus repaired pass is the required negative/positive proof; a locally passing old-source geometry is not evidence the hosted failure is absent.
+
+Applicable checks: desktop-test, desktop-build, harness-self-check plus manager-selected coordination/harness and complete clean source-bound DEC025 obligations. Fresh independent review of the frozen exact product/test diff is mandatory before publication. Existing compact-layout repair and other accepted snapshots remain historical evidence.

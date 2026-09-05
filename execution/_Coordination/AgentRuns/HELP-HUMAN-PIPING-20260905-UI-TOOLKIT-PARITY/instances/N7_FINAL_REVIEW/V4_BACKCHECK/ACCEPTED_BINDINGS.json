@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "manager": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/ACCEPTED_REPAIR_SNAPSHOT_V1.json",
+      "sha256": "5decd798dbc70a57ea9af4146566f560a2fc850a4d370ac0c794799d83bf59c3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/MANAGER_HANDOFF_V1.md",
+      "sha256": "e4dd01442585ce00327d1cd804d9c67be3192f4521f1942914798c8c23327ec0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/MENU_DIALOG_REPAIR_V1/children/REVIEW/RETURN.md",
+      "sha256": "42a62d42e388059789aa133d0228731fa4ba5d1769dc927edcf7f21bc03f5a1e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/CI_REPAIR/ATTRIBUTE_ACCEPTED_SNAPSHOT_V1.json",
+      "sha256": "a17317892b7e1afd952f78ad4af53c5d0670c95e4b11551e2760501de22b4a92"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/ACCEPTED_CI_REPAIR_SNAPSHOT_V1.json",
+      "sha256": "4e5b1b496765adbf467915dcedef701b258b14d0df515553ca0d82504036bafd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/LOCAL_ACCEPTED_SNAPSHOT_V1.json",
+      "sha256": "eaf009021c23ed4085171b249a885a68f71095f0fd8e7cf14b61edf00aa756ff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/HANDOFF_V1.md",
+      "sha256": "c92d4655ac55d4991980dd6ee7f5f09414d5931492bb82d0ea969e24c52b939c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ACCEPTED_LOCAL_REPAIR.json",
+      "sha256": "c95d5709947ccdbaf140fb47b4db6d65d55a3656e171c9a603fa88ecd3627386"
+    }
+  ],
+  "separate_configs": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes": "729bc98d0dd5888b78da58464b4bc6b96c7a3c9d2eb3063651240b4564903739",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/.gitattributes": "2a3fe991eac45f500c1c975056a4f9cb1f2daf40cff177fd462b63a43b9d84e0",
+    ".github/workflows/piping-desktop-e2e.yml": "4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f"
+  },
+  "G4": {
+    "path": "docs/governance_harness/tranche_manifests/PIPING-DUAL-WASM-CI-20260905.yaml",
+    "sha256": "fb78c268d3967d31345e599f69a995ffe306a56234c93e8a9aa9ba4a3ef438d2"
+  },
+  "loop_receipt": {
+    "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+    "sha256": "63374c8b9004f91398331765d0e1f7dc42f469a753d1a51fe6e11cbaa3926312",
+    "role": "coordination evidence not product"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "authority": "Parent formal instruction after bounded official artifact extraction",
+  "removed_prerequisite": "Actual screenshot inspection: official archive has no standalone screenshots and nested traces are too large for bounded extraction",
+  "accepted_evidence": "Actual hosted log identifies nav.app-menu-bar pointer interception; official error contexts confirm real visible Close target and menu state; source stacking semantics",
+  "prohibited_claim": "Do not assert exact hosted pixel geometry or viewed screenshots",
+  "regression_direction": "Deterministic locally controlled overlap plus unmodified original ordinary Close actions at real default desktop/compact viewports",
+  "source_writes": "HELD",
+  "official_manifest_sha256": "8c4e1f71a230454f0d36afc8b9c1cebcfa184a802aab4d3e172da859d3bb6364"
+}

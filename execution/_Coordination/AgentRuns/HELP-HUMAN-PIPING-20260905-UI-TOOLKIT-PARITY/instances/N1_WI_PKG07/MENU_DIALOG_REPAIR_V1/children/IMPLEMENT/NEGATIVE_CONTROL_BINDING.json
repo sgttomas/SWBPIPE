@@ -1,0 +1,28 @@
+{
+  "source_basis": "ade1d502abc43014948b94f4bd309ff1f0aee83f",
+  "pre_edit_product_sha256": {
+    "apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+    "apps/desktop/src/App.tsx": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e"
+  },
+  "regression_sha256": "0d912f6687f2c89035bf55e553b6e22cbea3c1624aac0d788ffcf8d7f5459e8f",
+  "recorded_execution_order": [
+    "intake: verified all exact predecessors against diagnostic SOURCE_MANIFEST and git show ade1d502",
+    "added regression only; CSS/App untouched",
+    "initial evidence config ESM error; corrected evidence-only suffix .ts to .mts",
+    "first negative control list reporter:4 expected nav hit failures",
+    "unchanged negative control JSON reporter:4 expected nav hit failures; geometry attached",
+    "after terminal negative result: encoded original logs/report, asserted CSS/App current bytes equal exact before snapshots, then performed exact released CSS/App edits",
+    "froze three files at recorded FREEZE timestamp; no source mutation since"
+  ],
+  "negative_json_stats": {
+    "startTime": "2026-09-05T15:29:05.701Z",
+    "duration": 20494.608,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  },
+  "freeze_timestamp_utc": "2026-09-05T15:30:09.068699+00:00",
+  "evidence": "NEGATIVE_JSON_ENCODED.json",
+  "mechanism_calibration": "Pre-edit binding derives from executed byte equality assertions and tool-call ordering, corroborated by report start/duration and post-edit freeze timestamp; no synthetic pre-edit filesystem timestamp is asserted."
+}

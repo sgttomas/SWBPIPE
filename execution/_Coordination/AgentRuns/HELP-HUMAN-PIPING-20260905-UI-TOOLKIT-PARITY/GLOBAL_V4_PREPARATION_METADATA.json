@@ -1,0 +1,16 @@
+{
+  "status": "PREPARATION_ONLY_NOT_FROZEN",
+  "recorded_utc": "2026-09-05T15:33:43.556273+00:00",
+  "prior_v3_manifest_sha256": "9c6d9d3002fe1f64eca40d3f9c3e2ce5eec91ac4410857bcc99853580ed06505",
+  "expected_repair_files": [
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src/styles.css",
+    "apps/desktop/e2e/gui-workflow-validation.spec.ts"
+  ],
+  "gui_test_present_in_v3_membership": false,
+  "final_membership": "derive only after terminal sourcefreeze",
+  "new_raw_artifacts": "lossless base64 JSON only; decodedSHA/count and separate containerSHA",
+  "source_attributes_git_receipt_writes": false,
+  "oldCSS_failure_proofs": "four preserved parentreported; no hosted pixel claim",
+  "postrepair_tests_review": "pending"
+}

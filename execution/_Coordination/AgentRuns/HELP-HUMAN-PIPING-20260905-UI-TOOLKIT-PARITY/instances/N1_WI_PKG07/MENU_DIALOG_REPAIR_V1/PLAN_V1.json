@@ -1,0 +1,17 @@
+{
+  "scope": "PKG-07 desktop menu/dialog interception read-only diagnosis",
+  "basis": "Parent source-held diagnosis; exact HEAD ade1d502 hosted failures",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "id": "DIAGNOSE",
+      "role": "Agent2",
+      "writes": "own evidence only",
+      "dependencies": [],
+      "gate": "manager validation then parent source-fence release"
+    }
+  ],
+  "manager_work": "independent source layering and configuration inspection",
+  "product_writes": "HELD",
+  "derivative_package": true
+}

@@ -1,0 +1,37 @@
+{
+  "source_freeze": {
+    "status": "SOURCE_FROZEN",
+    "timestamp_utc": "2026-09-05T15:30:09.068699+00:00",
+    "files": {
+      "apps/desktop/src/styles.css": "554469a251861b9fd0baa898dfc89649c49a4487f1640f999da0238232976934",
+      "apps/desktop/src/App.tsx": "6d181c362aa148a1e122d0b99d2cf6b34ae080e249868789906a7ff1e3eeafe6",
+      "apps/desktop/e2e/gui-workflow-validation.spec.ts": "0d912f6687f2c89035bf55e553b6e22cbea3c1624aac0d788ffcf8d7f5459e8f"
+    },
+    "negative_control": "4/4 failed exclusively at closed menu hit assertion before product edits; same regression frozen unchanged"
+  },
+  "artifacts": {
+    "apps/desktop/dist/index.html": "d70ad8485906110c0434f416436666f1d6ce403749b7c56929cb2ffa01b1e16d",
+    "apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "548312d97d471f59d2a91cc57aa48971fcc1d1e90d24bfbcd3cfd45b0d11f3de",
+    "apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.d.ts": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+    "apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f",
+    "apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.js": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+    "apps/desktop/dist/assets/invented_mechanics_result-DftuaeNr.js": "d8ff1aaef6fbe6c74852f3d1377a392dc3f5a5384d737a2defdfc2d77492e4fc",
+    "apps/desktop/dist/assets/invented_agent_proposal-Bm57LVt-.js": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+    "apps/desktop/dist/assets/index-Cz4ZjP1y.css": "c224a505652dede88641f34a77e7c26f7505589714254a803049d6d58d5f0c7d",
+    "apps/desktop/dist/assets/invented_demo_rule_pack-dhX9tvT1.js": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+    "apps/desktop/dist/assets/vendor-7OC5HNn7.js": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+    "apps/desktop/dist/assets/vendor-tauri-DlQNAQKj.js": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+    "apps/desktop/dist/assets/index-BTOC9eBU.js": "4acc7a0e5eb987ee00fbc037f496b1865a270643861972b88647ba4fec94ace0",
+    "apps/desktop/dist/assets/invented_preview_model-pJA3_nB8.js": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+    "apps/desktop/dist/assets/vendor-icons-NIB71rxH.js": "5b88406df376b7b45624f898637063402f800ea2717faaedb89592e1a6ef03b8",
+    "apps/desktop/dist/assets/vendor-react-BT_8sX57.js": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4",
+    "apps/desktop/dist/assets/vendor-three-C7YCSTwK.js": "74160b63cdc8eb80afb5e0289dc06e966135449097eef41daf960c66d0fcbce5",
+    "apps/desktop/dist/assets/invented_design_knowledge-H12r-oKQ.js": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+    "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+    "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+    "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+    "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "4a614335c9ee1e081d79c57d8bac6f4fca8cb0fed531c78917e97a7a4fc35e9c"
+  },
+  "build_receipt": "REGISTERED_CHECKS_ENCODED.json",
+  "runtime": "vite preview serves built dist; evidence-only config sets cwd apps/desktop, port4186, reuseExistingServer=false; original source matrix uses Vite dev port5186."
+}

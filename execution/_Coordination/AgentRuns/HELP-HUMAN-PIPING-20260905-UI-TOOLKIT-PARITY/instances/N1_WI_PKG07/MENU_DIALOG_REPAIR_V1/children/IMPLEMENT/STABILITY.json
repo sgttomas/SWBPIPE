@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checked_at_utc": "2026-09-05T15:37:02.510278+00:00",
+  "source_hashes": {
+    "apps/desktop/src/styles.css": "554469a251861b9fd0baa898dfc89649c49a4487f1640f999da0238232976934",
+    "apps/desktop/src/App.tsx": "6d181c362aa148a1e122d0b99d2cf6b34ae080e249868789906a7ff1e3eeafe6",
+    "apps/desktop/e2e/gui-workflow-validation.spec.ts": "0d912f6687f2c89035bf55e553b6e22cbea3c1624aac0d788ffcf8d7f5459e8f"
+  },
+  "original_gui_journey_byte_prefix_preserved": true,
+  "r2_original_bytes_preserved": true,
+  "generated_engines_unchanged": true,
+  "dist_hashes_unchanged_after_matrix": true,
+  "no_source_writes_after_freeze": true
+}
