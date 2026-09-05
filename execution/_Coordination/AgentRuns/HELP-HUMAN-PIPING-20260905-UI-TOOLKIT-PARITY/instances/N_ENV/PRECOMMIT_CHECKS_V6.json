@@ -1,0 +1,37 @@
+{
+  "status": "FAIL_HARNESS",
+  "started_at": "2026-09-05T06:46:19.162482+00:00",
+  "basis": "Compact layout repair accepted; source held; root harness/self-check only",
+  "accepted_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/ACCEPTED_REPAIR_SNAPSHOT_V2.json",
+  "accepted_snapshot_sha256": "6b93a1a05dfafaeb2e3950a20c449598ad1d61c93af0c738e8939d9f25591f14",
+  "prior_evidence": "V5 PASS and failed DEC025 preserved as separate facts",
+  "source_hashes_before": {
+    "projects/chirality-piping/apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18"
+  },
+  "baseline": {
+    "REVIEW": 4,
+    "WARN": 43,
+    "INFO": 14
+  },
+  "source_hashes_after": {
+    "projects/chirality-piping/apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18"
+  },
+  "source_unchanged": true,
+  "results": {
+    "harness-pytest": {
+      "exit_code": 1,
+      "tail": [
+        "=========================== short test summary info ============================",
+        "FAILED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants",
+        "1 failed, 349 passed in 20.16s"
+      ]
+    },
+    "harness-self-check": {
+      "exit_code": 0,
+      "comparison": "PRECOMMIT_SELFCHECK_COMPARISON_V6.json"
+    }
+  },
+  "finished_at": "2026-09-05T06:46:46.247754+00:00"
+}

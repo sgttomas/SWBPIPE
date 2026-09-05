@@ -1,0 +1,74 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/ACCEPTED_HANDOFF_V2.md",
+    "sha256": "38d504cdf5eff4e25e7845c85bb098f4983fa60aeab88724405c293f85b98ee0"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/ACCEPTED_REPAIR_SNAPSHOT_V2.json",
+    "sha256": "6b93a1a05dfafaeb2e3950a20c449598ad1d61c93af0c738e8939d9f25591f14"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/MANAGER_DIAGNOSIS_DISPOSITION.json",
+    "sha256": "d993d8c2044efcf728a2eb34cea186ba0de498c9aa28f8d0a35174802c7fc7e8"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/RUNTIME_EVENTS.jsonl",
+    "sha256": "02bcdb3d2b1a77001a28db6a58e79614214c95317d47919c02e880eeb4033b34"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/RUNTIME_SUMMARY.json",
+    "sha256": "3858f3f1bc32683da78c9a45b54bd4f62890a389bccdb94b3c33dd7de2d55551"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/DIAGNOSE/RETURN.md",
+    "sha256": "3488c854cd39865b6770b4c1b2fc4bf536756c452b4f0e540df6ed42e2c84a37"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/AMENDMENT_V2.md",
+    "sha256": "3ce4ad11c85d25831b085d044d9d3dd7666c231dabae343f25872f85edef7bfd"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/EVIDENCE_SHA256.json",
+    "sha256": "51cd5fa4267618212b7fc1d8104b5ce3929833c66fe9751ba991aa902741d11a"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/FROZEN_SOURCE_SHA256.json",
+    "sha256": "d5d2458313f4ed085e56c127b0a00eba67832352d1ed3d56c29c453d72d3f516"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/RETURN.md",
+    "sha256": "791dc7c22fe9b5fc5ed519f4f3a88ca04f257cc92988a4477d3433b4838e4447"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/TWO_FILE_DIFF.patch",
+    "sha256": "7ac0857c69021002b3cd066406227b75fa7f92f9f441bd22222fc822c8da8d9f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/REVIEW/HASH_VERIFICATION.json",
+    "sha256": "388218232411a379d35edcedd65b68b8194f9cd406a9e1d66f6e688520a5c87c"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/REVIEW/RETURN.md",
+    "sha256": "63e1748454c23400b577310822491dcedb62416c5bd6f7990c977c6d6b96cf7f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_DIFF_V2.patch",
+    "sha256": "a7e9e8c7621a7a6620a567329019e2b891aa2832d4051e9475eaa9780fecda43"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_FREEZE_V2.json",
+    "sha256": "af4f6fdbc7e841b77bd4b382d1dd066d009bdab84c6f942af7dc0dafbd9669cf"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md",
+    "sha256": "3f11e7e1be3a350e436e0a1ff40ca6c4725eeff02c78e7dc831194e0a4a20676"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/DEC025_ATTEMPT1_RETURN.json",
+    "sha256": "944081569b373a093f9485d172e802a407a5fec28be77cf14e0a8296f8c8d608"
+  },
+  {
+    "path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260905T061913Z_46f3aed341c0.json",
+    "sha256": "dba448dfb3247b7e24b734a64b43567721a2cb4c18762c03d3d721d66ec2ee40"
+  }
+]

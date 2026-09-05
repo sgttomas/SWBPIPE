@@ -1,0 +1,24 @@
+{
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "project_root": "projects/chirality-piping",
+  "results": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 117.812,
+      "exit_code": 0,
+      "id": "desktop-test",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "\n> openpipestress-workspace@0.1.0 test:desktop\n> npm test --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.10 {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\n\n\n Test Files  43 passed (43)\n      Tests  732 passed (732)\n   Start at  00:41:16\n   Duration  117.49s (transform 8.00s, setup 2.93s, import 11.10s, tests 159.28s, environment 10.79s)\n\n",
+      "timeout_seconds": 600.0
+    }
+  ],
+  "schema": "chirality-software-check-evidence/v1",
+  "status": "PASS",
+  "workspace_root": "."
+}

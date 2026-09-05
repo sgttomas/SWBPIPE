@@ -1,0 +1,14 @@
+{
+  "baseline_counts": {
+    "REVIEW": 4,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "current_counts": {
+    "REVIEW": 4,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "new_findings": [],
+  "active_path_findings": []
+}

@@ -1,0 +1,15 @@
+# Final second-source-commit fan-in and CHANGE release
+
+RunID: HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY
+Status: COMPACT_REPAIR_FINAL_FAN_IN_ACCEPTED_CHANGE_RELEASED_WITH_CONDITIONS
+Authority: parent HELP_HUMAN accepted exact final N7V3 and N1 acknowledgement, releasing second-source-commit gate. This final immutable handoff supersedes only the repair commitgate in v11 and the pending second-source draft; all earlier reviews, failures and residuals remain preserved.
+
+Verified N7 V3_BACKCHECK/REVIEW_RETURN_V3.md SHA3eae57fe8769ee471c196a8bf3efc24855e531b0b089d72d9e68e250e849907e PASS, no actionable findings. Verified N1 COMPACT_REPAIR_V1/FINAL_MANAGER_FAN_IN_V3.json SHA5c6303f437f1e4134395e809834d09ec784c183a47e960390e1d441379c89635 acknowledges full report/current2source and accepted snapshot6b93a1a05dfafaeb2e3950a20c449598ad1d61c93af0c738e8939d9f25591f14. All111 V3product/contracts/docs hashes reverified unchanged. V3manifest SHA9c6d9d3002fe1f64eca40d3f9c3e2ce5eec91ac4410857bcc99853580ed06505;109prior members unchanged, CSSchanged and r2smoke newly included existing tracked file, true2file delta.
+
+CHANGE may now perform exact scoped repair/evidence staging and NEW sourcecommit after fresh source111/membership/status/scoped staging/receipt structural validations PASS. No unrelated files, force/rebase/merge, or product changes permitted. Existing source46f3aed341c07046bd0f1ccc1c64f704971bebf1 and its cleanDEC025FAIL stay historical; do not amend away failure. Preserve initial short-height source3PASS1FAIL/dist3PASS1FAIL and evidence relocations. Latest source4/dist4/build732/freshreviewPASS and V7harness350/baseline-only are supporting bounded evidence, NOT full clean sweep success.
+
+After new reviewed sourcecommit, execute FULL clean committed-source DEC025. NO PUSH before completePASS; no partial surface/dirty override or old checks substitute. Preserve exact new executedSHA and every failed attempt. Host-capability commands follow exact authorization. Product/source changes require another freeze/backcheck/newsourcecommit.
+
+Following sweepPASS, perform evidence-only closeout with exact equality proof for ALL111 reviewed source/product/contract/doc members from sweptSHA to final evidence containerSHA. Distinguish sourceSHA actually tested from later evidencecommit; revalidate evidence/status/receipt and relevant checks. Freshly verify origin/refs/heads/codex/piping-ui-toolkit-parity absent or ancestor before ordinary push. Owner merges; no agent merge/rebase/force.
+
+Bounded compact repair does not guarantee all viewport/chrome/native-packaged combinations. Prior residuals remain: mixed family/payload matrix not solved; exact stiffness equality no tolerance; full applied-batch SQLite history distinct from proposed context; D58 held; manual/native-only hanger and bounded display/geometry/selfweight/UX/independent-validation limits; R1-R3 deferred. No lifecycle/release/professional/code-compliance acceptance. Derivative implementation/control evidence only under accepted base/SCA009/decomp012/DAG010. Recorder performs no source/Git/receipt edits.

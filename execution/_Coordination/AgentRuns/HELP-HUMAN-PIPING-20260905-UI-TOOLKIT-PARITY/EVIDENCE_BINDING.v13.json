@@ -1,0 +1,14 @@
+{
+  "diagnosis": {
+    "path": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/MANAGER_DIAGNOSIS_DISPOSITION.json",
+    "sha256": "d993d8c2044efcf728a2eb34cea186ba0de498c9aa28f8d0a35174802c7fc7e8"
+  },
+  "authority": "actual parent compact repair release message",
+  "predecessor_source": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "scope": [
+    "apps/desktop/src/styles.css",
+    "apps/desktop/e2e/r2-smoke.spec.ts"
+  ],
+  "push_authorized": false,
+  "prior_snapshots": "preserved"
+}

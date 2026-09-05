@@ -1,0 +1,18 @@
+{
+  "started_utc": "2026-09-05T06:49:26.275396+00:00",
+  "parent": "/root",
+  "role": "Agent2 TASK software-code-review",
+  "status": "RUNNING",
+  "model": "unavailable/inherited",
+  "nondelegation": "instruction+config asserted",
+  "instruction_root": "{REPO_ROOT}",
+  "bindings": {
+    "LAUNCH_BRIEF_V3_BACKCHECK.md": "052da7126631cf5da8264feb283b3b889cef4833e505711cf9963f5649a41ea3",
+    "GLOBAL_PRODUCT_FREEZE_V3.json": "9c6d9d3002fe1f64eca40d3f9c3e2ce5eec91ac4410857bcc99853580ed06505",
+    "GLOBAL_PRODUCT_DIFF_V3.patch": "0f6e1d226b767340e1155d62015387f2d1d06a642190d5b2115e6f41f4c65cf5",
+    "GLOBAL_REPAIR_DELTA_V3.patch": "2ea62f62fac74bd7d5a075b0c5f545b2f506b31bee55256c2e95b82b5bf4f331",
+    "GLOBAL_REVIEW_PARTITION_V3.json": "648273064282e73915c1226d6ca0b076bd7c5c8e61b1b866dac44173ad3bb6dd",
+    "GLOBAL_EVIDENCE_INVENTORY_V3.json": "433260a3f9ad76b65552deb5164637a97f2ae914ee71369fe1212e875580379c",
+    "GLOBAL_EVIDENCE_SUPPLEMENT_V3.json": "04ca1e0850b8f765067c869616a324a688eb29b1f57bdf1f84af20b376eda5c7"
+  }
+}

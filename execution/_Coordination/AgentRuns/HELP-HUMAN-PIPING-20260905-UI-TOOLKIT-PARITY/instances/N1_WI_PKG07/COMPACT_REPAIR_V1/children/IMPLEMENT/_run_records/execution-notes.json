@@ -1,0 +1,34 @@
+{
+  "basis": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "sourceConfig": {
+    "server": "npm run dev -- --port 5174",
+    "baseURL": "http://127.0.0.1:5174",
+    "cwd": "{REPO_ROOT}/projects/chirality-piping/apps/desktop"
+  },
+  "distConfig": {
+    "server": "npm run preview -- --host 127.0.0.1 --port 5175 --strictPort",
+    "baseURL": "http://127.0.0.1:5175",
+    "cwd": "{REPO_ROOT}/projects/chirality-piping/apps/desktop"
+  },
+  "matrices": {
+    "spec": "actual apps/desktop/e2e/r2-smoke.spec.ts",
+    "grep": "R2 (desktop preview smoke|from-blank GUI journey)",
+    "viewports": [
+      "1440x920",
+      "1280x800"
+    ],
+    "timeout_ms": 120000,
+    "workers": 1
+  },
+  "initialAttempts": [
+    {
+      "result": "sandbox EPERM binding127.0.0.1:5174; host escalation accepted"
+    },
+    {
+      "result": "host no tests found; anchored grep corrected, no source/test changes"
+    }
+  ],
+  "noEngineBuild": true,
+  "noGitMutation": true,
+  "firstChecksScheduling": "Registered desktop build/test launched while source R2 was active; no source mutations during either check. Built dist tested only after registered build completed. Final amendment checks will follow source then build then dist."
+}

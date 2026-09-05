@@ -1,0 +1,23 @@
+{
+  "apps/desktop/dist/index.html": "08704732495999fb8bbf4ad76e77197b7d317e64042dd91832523a285c4771a4",
+  "apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "91f47297b35131d18307e4f1a5bff2eccb0ebe7cd05b611d6e70488742f19cc8",
+  "apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.d.ts": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+  "apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f",
+  "apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.js": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+  "apps/desktop/dist/assets/invented_mechanics_result-DftuaeNr.js": "d8ff1aaef6fbe6c74852f3d1377a392dc3f5a5384d737a2defdfc2d77492e4fc",
+  "apps/desktop/dist/assets/invented_agent_proposal-Bm57LVt-.js": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+  "apps/desktop/dist/assets/invented_demo_rule_pack-dhX9tvT1.js": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+  "apps/desktop/dist/assets/vendor-7OC5HNn7.js": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+  "apps/desktop/dist/assets/vendor-tauri-DlQNAQKj.js": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+  "apps/desktop/dist/assets/invented_preview_model-pJA3_nB8.js": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+  "apps/desktop/dist/assets/vendor-icons-NIB71rxH.js": "5b88406df376b7b45624f898637063402f800ea2717faaedb89592e1a6ef03b8",
+  "apps/desktop/dist/assets/vendor-react-BT_8sX57.js": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4",
+  "apps/desktop/dist/assets/vendor-three-C7YCSTwK.js": "74160b63cdc8eb80afb5e0289dc06e966135449097eef41daf960c66d0fcbce5",
+  "apps/desktop/dist/assets/invented_design_knowledge-H12r-oKQ.js": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+  "apps/desktop/dist/assets/index-elcQ-KgX.js": "de17fa8483d1da3e8c10f25c3ceed9bb566dabab61f4a03c6f7ba33b00e65f20",
+  "apps/desktop/dist/assets/index-CG7hxFpN.css": "dd71898d3250799b3cb69efd5d89734627955902a42fe42102efc1e6e5f44ddf",
+  "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+  "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+  "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+  "apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "61d1e06e60310f1fd488ebe6bd7d1369f086edd5ee07a73eb066181b52206e02"
+}

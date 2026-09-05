@@ -1,0 +1,22 @@
+{
+  "checks": [
+    "desktop-build",
+    "desktop-test",
+    "harness-self-check"
+  ],
+  "paths": [
+    "apps/desktop/e2e/r2-smoke.spec.ts",
+    "apps/desktop/src/styles.css"
+  ],
+  "reasons": {
+    "desktop-build": [
+      "apps/desktop/e2e/r2-smoke.spec.ts",
+      "apps/desktop/src/styles.css"
+    ],
+    "desktop-test": [
+      "apps/desktop/e2e/r2-smoke.spec.ts",
+      "apps/desktop/src/styles.css"
+    ]
+  },
+  "schema": "chirality-affected-checks/v1"
+}

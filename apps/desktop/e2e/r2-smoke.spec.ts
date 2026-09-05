@@ -85,7 +85,30 @@ async function expectWorkspaceStatusClearOfTarget(
     targetBox!.x + targetBox!.width > statusBox!.x &&
     targetBox!.y < statusBox!.y + statusBox!.height &&
     targetBox!.y + targetBox!.height > statusBox!.y;
-  expect(overlaps, `${targetTestId} must not be covered by workspace status`).toBe(false);
+  const geometry = await page.evaluate(() => {
+    const measure = (selector: string) => {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (!element) return null;
+      const box = element.getBoundingClientRect();
+      return { top: box.top, bottom: box.bottom, width: box.width, height: box.height, clientHeight: element.clientHeight };
+    };
+    return {
+      dock: measure(".workspace-dock"),
+      body: measure(".workspace-dock-body"),
+      modeling: measure(".modeling-workspace"),
+      viewport: measure(".workspace-pane-viewport"),
+    };
+  });
+  const diagnostics = JSON.stringify({ targetTestId, targetBox, statusBox, ...geometry });
+  await test.info().attach("workspace-status-geometry", { body: diagnostics, contentType: "application/json" });
+  expect(overlaps, `${targetTestId} must not be covered by workspace status; ${diagnostics}`).toBe(false);
+  for (const [name, box] of Object.entries(geometry)) {
+    expect(box, `${name} must exist; ${diagnostics}`).not.toBeNull();
+    expect(box!.width, `${name} must have usable width; ${diagnostics}`).toBeGreaterThan(64);
+    expect(box!.clientHeight, `${name} must have usable height; ${diagnostics}`).toBeGreaterThan(64);
+  }
+  expect(geometry.dock!.bottom, `dock must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);
+  expect(geometry.body!.bottom, `dock body must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);
 }
 
 test("guided workbench shell keeps journey steps, details, and compact status reachable", async ({ page }) => {

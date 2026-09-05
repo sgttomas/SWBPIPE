@@ -1,0 +1,74 @@
+[
+  {
+    "stage": "v1",
+    "kind": "source",
+    "cwd": "{REPO_ROOT}/projects/chirality-piping/apps/desktop",
+    "env": {
+      "PLAYWRIGHT_WORKERS": "1"
+    },
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/source.config.ts",
+      "--grep",
+      "R2 (desktop preview smoke|from-blank GUI journey)"
+    ],
+    "capability": "host",
+    "result": "3 passed/1 failed"
+  },
+  {
+    "stage": "v1",
+    "kind": "dist",
+    "cwd": "{REPO_ROOT}/projects/chirality-piping/apps/desktop",
+    "env": {
+      "PLAYWRIGHT_WORKERS": "1"
+    },
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/dist.config.ts",
+      "--grep",
+      "R2 (desktop preview smoke|from-blank GUI journey)"
+    ],
+    "capability": "host",
+    "result": "3 passed/1 failed"
+  },
+  {
+    "stage": "v2",
+    "kind": "source",
+    "cwd": "{REPO_ROOT}/projects/chirality-piping/apps/desktop",
+    "env": {
+      "PLAYWRIGHT_WORKERS": "1"
+    },
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/source.config.ts",
+      "--grep",
+      "R2 (desktop preview smoke|from-blank GUI journey)"
+    ],
+    "capability": "host",
+    "result": "4 passed"
+  },
+  {
+    "stage": "v2",
+    "kind": "dist",
+    "cwd": "{REPO_ROOT}/projects/chirality-piping/apps/desktop",
+    "env": {
+      "PLAYWRIGHT_WORKERS": "1"
+    },
+    "argv": [
+      "../../node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/dist.config.ts",
+      "--grep",
+      "R2 (desktop preview smoke|from-blank GUI journey)"
+    ],
+    "capability": "host",
+    "result": "4 passed"
+  }
+]

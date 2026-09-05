@@ -1,0 +1,44 @@
+{
+  "recorded_utc": "2026-09-05T06:26:59.686713+00:00",
+  "sha256": {
+    "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260905T061913Z_46f3aed341c0.json": "dba448dfb3247b7e24b734a64b43567721a2cb4c18762c03d3d721d66ec2ee40",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/DEC025_ATTEMPT1_RETURN.json": "bfcfc6747d2197b314f0a7b88fabd90ef740b781c1b9d0e16caa811f781b2726"
+  },
+  "sweep_git": {
+    "commit_hash": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+    "branch": "codex/piping-ui-toolkit-parity",
+    "status_capture_failed": false,
+    "working_tree_dirty": false,
+    "dirty_paths": []
+  },
+  "surfaces": [
+    {
+      "id": "cargo_crate_sweep",
+      "status": "pass"
+    },
+    {
+      "id": "python_pytest",
+      "status": "pass"
+    },
+    {
+      "id": "desktop_vitest",
+      "status": "pass"
+    },
+    {
+      "id": "desktop_playwright_e2e",
+      "status": "fail"
+    },
+    {
+      "id": "desktop_production_build",
+      "status": "not_run"
+    }
+  ],
+  "failure_trace_bindings": {
+    "console.log": "5cb8af47701b94653d749e2e5d24189a2583376e09c5892884b5586914fc543d",
+    "trace.zip": "e5c604eef6a7f69bef5c63012b82b2461e467ae5e8e86b415fed2fa155eee3d8",
+    "error-context.md": "5cac1e8d2c1fac2a13c1237a43e124f493e68548d3ac991bfcb99ba95a491f1c"
+  },
+  "parent_reported": "21/22 source e2ePASS; dist not_run; N1 actual read-only reactivation",
+  "source_write_release": false,
+  "push_authorized": false
+}

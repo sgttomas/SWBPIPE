@@ -1,0 +1,18 @@
+{
+  "review": {
+    "path": "instances/N7_FINAL_REVIEW/V3_BACKCHECK/REVIEW_RETURN_V3.md",
+    "sha256": "3eae57fe8769ee471c196a8bf3efc24855e531b0b089d72d9e68e250e849907e"
+  },
+  "manager_ack": {
+    "path": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/FINAL_MANAGER_FAN_IN_V3.json",
+    "sha256": "5c6303f437f1e4134395e809834d09ec784c183a47e960390e1d441379c89635"
+  },
+  "manifest": {
+    "path": "instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_FREEZE_V3.json",
+    "sha256": "9c6d9d3002fe1f64eca40d3f9c3e2ce5eec91ac4410857bcc99853580ed06505",
+    "all111_current_hashes_verified": true
+  },
+  "source_predecessor": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "failed_sweep": "preserved",
+  "authority": "actual parent final release; exact scoped validations precede commit, full clean sweep precedes push"
+}

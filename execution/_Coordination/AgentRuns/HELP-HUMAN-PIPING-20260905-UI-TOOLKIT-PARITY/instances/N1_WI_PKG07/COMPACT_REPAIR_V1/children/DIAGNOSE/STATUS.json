@@ -1,0 +1,12 @@
+{
+  "status": "DIAGNOSIS_COMPLETE_SOURCE_HELD",
+  "source_commit": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "confidence": "high cause; repair unverified",
+  "timestamp": "2026-09-05T06:29:38.253574+00:00",
+  "product_edits": false,
+  "checks_rerun": false,
+  "delegated": false,
+  "model": "unavailable",
+  "evidence": "derivative",
+  "closure": "diagnosis only"
+}

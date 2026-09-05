@@ -1,0 +1,11 @@
+{
+  "apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+  "apps/desktop/e2e/r2-smoke.spec.ts": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18",
+  "apps/desktop/scripts/build-wasm-engine.test.mjs": "12eff93bb013f9ec4fd259e03e192f0ac7e64a22b3260d0d162b13eda05603ff",
+  "apps/desktop/scripts/build-wasm-engine.mjs": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+  "apps/desktop/e2e/wasm-engine-dist.spec.ts": "94b3477e83d958d0763f0d7ffed3101bc80a9d93dda05e2b0bd5d54a7a9fa4ec",
+  "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "91f47297b35131d18307e4f1a5bff2eccb0ebe7cd05b611d6e70488742f19cc8",
+  "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+  "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f",
+  "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7"
+}

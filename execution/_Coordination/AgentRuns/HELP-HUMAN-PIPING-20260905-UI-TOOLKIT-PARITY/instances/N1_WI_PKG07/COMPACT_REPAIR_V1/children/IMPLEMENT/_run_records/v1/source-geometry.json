@@ -1,0 +1,190 @@
+[
+  {
+    "project": "chromium-desktop",
+    "test": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+    "geometry": {
+      "targetTestId": "result-row-result:force:pipe-P-120:axial",
+      "targetBox": {
+        "x": 21,
+        "y": 646.46875,
+        "width": 442,
+        "height": 47
+      },
+      "statusBox": {
+        "x": 0,
+        "y": 755,
+        "width": 1440,
+        "height": 131
+      },
+      "dock": {
+        "top": 541.375,
+        "bottom": 751.375,
+        "width": 1424,
+        "height": 210,
+        "clientHeight": 210
+      },
+      "body": {
+        "top": 588.375,
+        "bottom": 751.375,
+        "width": 1424,
+        "height": 163,
+        "clientHeight": 163
+      },
+      "modeling": {
+        "top": 165.375,
+        "bottom": 533.375,
+        "width": 1424,
+        "height": 368,
+        "clientHeight": 368
+      },
+      "viewport": {
+        "top": 165.375,
+        "bottom": 533.375,
+        "width": 714,
+        "height": 368,
+        "clientHeight": 368
+      }
+    }
+  },
+  {
+    "project": "chromium-desktop",
+    "test": "R2 from-blank GUI journey authors the A12 rehearsal script",
+    "geometry": {
+      "targetTestId": "rendered-report-render",
+      "targetBox": {
+        "x": 21,
+        "y": 627.375,
+        "width": 116.484375,
+        "height": 24
+      },
+      "statusBox": {
+        "x": 0,
+        "y": 742,
+        "width": 1440,
+        "height": 144
+      },
+      "dock": {
+        "top": 541.375,
+        "bottom": 751.375,
+        "width": 1424,
+        "height": 210,
+        "clientHeight": 210
+      },
+      "body": {
+        "top": 588.375,
+        "bottom": 751.375,
+        "width": 1424,
+        "height": 163,
+        "clientHeight": 163
+      },
+      "modeling": {
+        "top": 165.375,
+        "bottom": 533.375,
+        "width": 1424,
+        "height": 368,
+        "clientHeight": 368
+      },
+      "viewport": {
+        "top": 165.375,
+        "bottom": 533.375,
+        "width": 630,
+        "height": 368,
+        "clientHeight": 368
+      }
+    }
+  },
+  {
+    "project": "chromium-compact",
+    "test": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+    "geometry": {
+      "targetTestId": "result-row-result:force:pipe-P-120:axial",
+      "targetBox": {
+        "x": 21,
+        "y": 520.46875,
+        "width": 388.65625,
+        "height": 62
+      },
+      "statusBox": {
+        "x": 0,
+        "y": 622,
+        "width": 1280,
+        "height": 144
+      },
+      "dock": {
+        "top": 441.375,
+        "bottom": 614,
+        "width": 1264,
+        "height": 172.625,
+        "clientHeight": 173
+      },
+      "body": {
+        "top": 488.375,
+        "bottom": 614,
+        "width": 1264,
+        "height": 125.625,
+        "clientHeight": 126
+      },
+      "modeling": {
+        "top": 203.375,
+        "bottom": 433.375,
+        "width": 1264,
+        "height": 230,
+        "clientHeight": 230
+      },
+      "viewport": {
+        "top": 203.375,
+        "bottom": 433.375,
+        "width": 654,
+        "height": 230,
+        "clientHeight": 230
+      }
+    }
+  },
+  {
+    "project": "chromium-compact",
+    "test": "R2 from-blank GUI journey authors the A12 rehearsal script",
+    "geometry": {
+      "targetTestId": "rendered-report-render",
+      "targetBox": {
+        "x": 21,
+        "y": 527.375,
+        "width": 116.484375,
+        "height": 24
+      },
+      "statusBox": {
+        "x": 0,
+        "y": 622,
+        "width": 1280,
+        "height": 144
+      },
+      "dock": {
+        "top": 441.375,
+        "bottom": 614,
+        "width": 1264,
+        "height": 172.625,
+        "clientHeight": 173
+      },
+      "body": {
+        "top": 488.375,
+        "bottom": 614,
+        "width": 1264,
+        "height": 125.625,
+        "clientHeight": 126
+      },
+      "modeling": {
+        "top": 203.375,
+        "bottom": 433.375,
+        "width": 1264,
+        "height": 230,
+        "clientHeight": 230
+      },
+      "viewport": {
+        "top": 203.375,
+        "bottom": 433.375,
+        "width": 540,
+        "height": 230,
+        "clientHeight": 230
+      }
+    }
+  }
+]

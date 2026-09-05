@@ -2959,6 +2959,11 @@ th {
   }
 }
 
+/* Let the dock body scroll within the workspace track as chrome grows. */
+.workspace-dock {
+  min-height: 0;
+}
+
 .operation-apply-panel .muted {
   margin-bottom: 8px;
 }

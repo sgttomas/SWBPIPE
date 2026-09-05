@@ -1,0 +1,17 @@
+{
+  "status": "SUCCESS",
+  "source": "FROZEN_V2",
+  "basis": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "amendment": "AMENDMENT_V2.md",
+  "model": "unavailable",
+  "nondelegation": "instruction+config asserted",
+  "role": "Agent2; role not mechanically enforced",
+  "derivative": true,
+  "acceptance": "not claimed",
+  "v1": "source3PASS1FAIL; dist3PASS1FAIL; desktopbuildPASS; Vitest732PASS",
+  "v2": "source4PASS; dist4PASS; desktopbuildPASS; Vitest43files/732testsPASS",
+  "blockers": [
+    "parent fresh-review acceptance",
+    "parent sourcecommit/fullDEC025"
+  ]
+}

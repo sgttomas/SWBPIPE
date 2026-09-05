@@ -1,0 +1,20 @@
+{
+  "baseline_counts": {
+    "REVIEW": 4,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "current_counts": {
+    "REVIEW": 5,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "new_findings": [
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/DEC025_ATTEMPT1_RETURN.json:21",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 21. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    }
+  ]
+}

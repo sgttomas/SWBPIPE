@@ -1,0 +1,3 @@
+# Attempt 1 trace local retention
+
+Parent authorized relocation of CHANGE's new untracked 54MB trace duplicate only. `DEC025_ATTEMPT1_RETURN.json` remains unchanged and records the original preservation hash. The exact trace was copied to a unique task-specific directory under the OS temporary root and SHA-256 verified before removing that untracked N8 duplicate. `_run_records/DEC025_ATTEMPT1/TRACE_RETENTION.json` records the portable local-retention reference, size and hash. The original ignored `apps/desktop/test-results/` trace remains untouched for diagnosis. Console, error context and clean-commit sweep summary remain canonical failure evidence. No Git, source, tests, or original test-results cleanup occurred.

@@ -1,0 +1,20 @@
+{
+  "status": "SUCCESS",
+  "source_verdict": "PASS",
+  "evidence_verdict": "SOURCE_REVIEW_ONLY",
+  "actionable_findings": 0,
+  "source_commit": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "source_hashes": {
+    "apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+    "apps/desktop/e2e/r2-smoke.spec.ts": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18"
+  },
+  "remaining": [
+    "final dist4case matrix",
+    "desktop-test/harness terminal receipts",
+    "implementation terminal return",
+    "parent source commit and full DEC025"
+  ],
+  "model": "exact identifier unavailable",
+  "nondelegation": "instruction+config asserted",
+  "derivative_package": true
+}

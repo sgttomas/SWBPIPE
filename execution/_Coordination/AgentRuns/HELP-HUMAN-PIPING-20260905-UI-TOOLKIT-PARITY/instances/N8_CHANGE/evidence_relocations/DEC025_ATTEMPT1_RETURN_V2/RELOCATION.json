@@ -1,0 +1,10 @@
+{
+  "original_sha256": "bfcfc6747d2197b314f0a7b88fabd90ef740b781c1b9d0e16caa811f781b2726",
+  "active_sha256": "944081569b373a093f9485d172e802a407a5fec28be77cf14e0a8296f8c8d608",
+  "mapping": {
+    "provisioned_temporary_python_bin_python3": "{PY313_BIN}/python3"
+  },
+  "replacements": 2,
+  "semantic_change": false,
+  "original_snapshots_edited": false
+}

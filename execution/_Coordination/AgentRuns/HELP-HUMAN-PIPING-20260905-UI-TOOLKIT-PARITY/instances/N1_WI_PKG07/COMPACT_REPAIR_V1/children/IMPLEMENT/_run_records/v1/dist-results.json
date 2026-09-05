@@ -1,0 +1,295 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/dist.config.ts",
+    "rootDir": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/dist-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/r2-smoke.spec.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/dist-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/r2-smoke.spec.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/dist-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run preview -- --host 127.0.0.1 --port 5175 --strictPort",
+      "reuseExistingServer": false,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5175",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop"
+    }
+  },
+  "suites": [
+    {
+      "title": "r2-smoke.spec.ts",
+      "file": "r2-smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 24351,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T06:37:24.977Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "workspace-status-geometry",
+                      "contentType": "application/json",
+                      "body": "eyJ0YXJnZXRUZXN0SWQiOiJyZXN1bHQtcm93LXJlc3VsdDpmb3JjZTpwaXBlLVAtMTIwOmF4aWFsIiwidGFyZ2V0Qm94Ijp7IngiOjIxLCJ5Ijo2NDYuNDY4NzUsIndpZHRoIjo0NDIsImhlaWdodCI6NDd9LCJzdGF0dXNCb3giOnsieCI6MCwieSI6NzU1LCJ3aWR0aCI6MTQ0MCwiaGVpZ2h0IjoxMzF9LCJkb2NrIjp7InRvcCI6NTQxLjM3NSwiYm90dG9tIjo3NTEuMzc1LCJ3aWR0aCI6MTQyNCwiaGVpZ2h0IjoyMTAsImNsaWVudEhlaWdodCI6MjEwfSwiYm9keSI6eyJ0b3AiOjU4OC4zNzUsImJvdHRvbSI6NzUxLjM3NSwid2lkdGgiOjE0MjQsImhlaWdodCI6MTYzLCJjbGllbnRIZWlnaHQiOjE2M30sIm1vZGVsaW5nIjp7InRvcCI6MTY1LjM3NSwiYm90dG9tIjo1MzMuMzc1LCJ3aWR0aCI6MTQyNCwiaGVpZ2h0IjozNjgsImNsaWVudEhlaWdodCI6MzY4fSwidmlld3BvcnQiOnsidG9wIjoxNjUuMzc1LCJib3R0b20iOjUzMy4zNzUsIndpZHRoIjo3MTQsImhlaWdodCI6MzY4LCJjbGllbnRIZWlnaHQiOjM2OH19"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-e53bc32a6da0ec03a248",
+          "file": "r2-smoke.spec.ts",
+          "line": 203,
+          "column": 1
+        },
+        {
+          "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10829,
+                  "error": {
+                    "message": "Error: dock must fit above status; {\"targetTestId\":\"rendered-report-render\",\"targetBox\":{\"x\":21,\"y\":627.375,\"width\":116.484375,\"height\":24},\"statusBox\":{\"x\":0,\"y\":742,\"width\":1440,\"height\":144},\"dock\":{\"top\":541.375,\"bottom\":751.375,\"width\":1424,\"height\":210,\"clientHeight\":210},\"body\":{\"top\":588.375,\"bottom\":751.375,\"width\":1424,\"height\":163,\"clientHeight\":163},\"modeling\":{\"top\":165.375,\"bottom\":533.375,\"width\":1424,\"height\":368,\"clientHeight\":368},\"viewport\":{\"top\":165.375,\"bottom\":533.375,\"width\":630,\"height\":368,\"clientHeight\":368}}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m742\u001b[39m\nReceived:    \u001b[31m751.375\u001b[39m",
+                    "stack": "Error: dock must fit above status; {\"targetTestId\":\"rendered-report-render\",\"targetBox\":{\"x\":21,\"y\":627.375,\"width\":116.484375,\"height\":24},\"statusBox\":{\"x\":0,\"y\":742,\"width\":1440,\"height\":144},\"dock\":{\"top\":541.375,\"bottom\":751.375,\"width\":1424,\"height\":210,\"clientHeight\":210},\"body\":{\"top\":588.375,\"bottom\":751.375,\"width\":1424,\"height\":163,\"clientHeight\":163},\"modeling\":{\"top\":165.375,\"bottom\":533.375,\"width\":1424,\"height\":368,\"clientHeight\":368},\"viewport\":{\"top\":165.375,\"bottom\":533.375,\"width\":630,\"height\":368,\"clientHeight\":368}}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m742\u001b[39m\nReceived:    \u001b[31m751.375\u001b[39m\n    at expectWorkspaceStatusClearOfTarget (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:110:79)\n    at /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:966:3",
+                    "location": {
+                      "file": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+                      "column": 79,
+                      "line": 110
+                    },
+                    "snippet": "  108 |     expect(box!.clientHeight, `${name} must have usable height; ${diagnostics}`).toBeGreaterThan(64);\n  109 |   }\n> 110 |   expect(geometry.dock!.bottom, `dock must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);\n      |                                                                               ^\n  111 |   expect(geometry.body!.bottom, `dock body must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);\n  112 | }\n  113 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+                        "column": 79,
+                        "line": 110
+                      },
+                      "message": "Error: dock must fit above status; {\"targetTestId\":\"rendered-report-render\",\"targetBox\":{\"x\":21,\"y\":627.375,\"width\":116.484375,\"height\":24},\"statusBox\":{\"x\":0,\"y\":742,\"width\":1440,\"height\":144},\"dock\":{\"top\":541.375,\"bottom\":751.375,\"width\":1424,\"height\":210,\"clientHeight\":210},\"body\":{\"top\":588.375,\"bottom\":751.375,\"width\":1424,\"height\":163,\"clientHeight\":163},\"modeling\":{\"top\":165.375,\"bottom\":533.375,\"width\":1424,\"height\":368,\"clientHeight\":368},\"viewport\":{\"top\":165.375,\"bottom\":533.375,\"width\":630,\"height\":368,\"clientHeight\":368}}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m742\u001b[39m\nReceived:    \u001b[31m751.375\u001b[39m\n\n  108 |     expect(box!.clientHeight, `${name} must have usable height; ${diagnostics}`).toBeGreaterThan(64);\n  109 |   }\n> 110 |   expect(geometry.dock!.bottom, `dock must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);\n      |                                                                               ^\n  111 |   expect(geometry.body!.bottom, `dock body must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);\n  112 | }\n  113 |\n    at expectWorkspaceStatusClearOfTarget (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:110:79)\n    at /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:966:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T06:37:49.399Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "workspace-status-geometry",
+                      "contentType": "application/json",
+                      "body": "eyJ0YXJnZXRUZXN0SWQiOiJyZW5kZXJlZC1yZXBvcnQtcmVuZGVyIiwidGFyZ2V0Qm94Ijp7IngiOjIxLCJ5Ijo2MjcuMzc1LCJ3aWR0aCI6MTE2LjQ4NDM3NSwiaGVpZ2h0IjoyNH0sInN0YXR1c0JveCI6eyJ4IjowLCJ5Ijo3NDIsIndpZHRoIjoxNDQwLCJoZWlnaHQiOjE0NH0sImRvY2siOnsidG9wIjo1NDEuMzc1LCJib3R0b20iOjc1MS4zNzUsIndpZHRoIjoxNDI0LCJoZWlnaHQiOjIxMCwiY2xpZW50SGVpZ2h0IjoyMTB9LCJib2R5Ijp7InRvcCI6NTg4LjM3NSwiYm90dG9tIjo3NTEuMzc1LCJ3aWR0aCI6MTQyNCwiaGVpZ2h0IjoxNjMsImNsaWVudEhlaWdodCI6MTYzfSwibW9kZWxpbmciOnsidG9wIjoxNjUuMzc1LCJib3R0b20iOjUzMy4zNzUsIndpZHRoIjoxNDI0LCJoZWlnaHQiOjM2OCwiY2xpZW50SGVpZ2h0IjozNjh9LCJ2aWV3cG9ydCI6eyJ0b3AiOjE2NS4zNzUsImJvdHRvbSI6NTMzLjM3NSwid2lkdGgiOjYzMCwiaGVpZ2h0IjozNjgsImNsaWVudEhlaWdodCI6MzY4fX0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/dist-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/dist-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+                    "column": 79,
+                    "line": 110
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-88653e668605347c6f65",
+          "file": "r2-smoke.spec.ts",
+          "line": 788,
+          "column": 1
+        },
+        {
+          "title": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 24159,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T06:38:01.240Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "workspace-status-geometry",
+                      "contentType": "application/json",
+                      "body": "eyJ0YXJnZXRUZXN0SWQiOiJyZXN1bHQtcm93LXJlc3VsdDpmb3JjZTpwaXBlLVAtMTIwOmF4aWFsIiwidGFyZ2V0Qm94Ijp7IngiOjIxLCJ5Ijo1MjAuNDY4NzUsIndpZHRoIjozODguNjU2MjUsImhlaWdodCI6NjJ9LCJzdGF0dXNCb3giOnsieCI6MCwieSI6NjIyLCJ3aWR0aCI6MTI4MCwiaGVpZ2h0IjoxNDR9LCJkb2NrIjp7InRvcCI6NDQxLjM3NSwiYm90dG9tIjo2MTQsIndpZHRoIjoxMjY0LCJoZWlnaHQiOjE3Mi42MjUsImNsaWVudEhlaWdodCI6MTczfSwiYm9keSI6eyJ0b3AiOjQ4OC4zNzUsImJvdHRvbSI6NjE0LCJ3aWR0aCI6MTI2NCwiaGVpZ2h0IjoxMjUuNjI1LCJjbGllbnRIZWlnaHQiOjEyNn0sIm1vZGVsaW5nIjp7InRvcCI6MjAzLjM3NSwiYm90dG9tIjo0MzMuMzc1LCJ3aWR0aCI6MTI2NCwiaGVpZ2h0IjoyMzAsImNsaWVudEhlaWdodCI6MjMwfSwidmlld3BvcnQiOnsidG9wIjoyMDMuMzc1LCJib3R0b20iOjQzMy4zNzUsIndpZHRoIjo2NTQsImhlaWdodCI6MjMwLCJjbGllbnRIZWlnaHQiOjIzMH19"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-6ac6ecaad09abe729ff5",
+          "file": "r2-smoke.spec.ts",
+          "line": 203,
+          "column": 1
+        },
+        {
+          "title": "R2 from-blank GUI journey authors the A12 rehearsal script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7460,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T06:38:25.470Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "workspace-status-geometry",
+                      "contentType": "application/json",
+                      "body": "eyJ0YXJnZXRUZXN0SWQiOiJyZW5kZXJlZC1yZXBvcnQtcmVuZGVyIiwidGFyZ2V0Qm94Ijp7IngiOjIxLCJ5Ijo1MjcuMzc1LCJ3aWR0aCI6MTE2LjQ4NDM3NSwiaGVpZ2h0IjoyNH0sInN0YXR1c0JveCI6eyJ4IjowLCJ5Ijo2MjIsIndpZHRoIjoxMjgwLCJoZWlnaHQiOjE0NH0sImRvY2siOnsidG9wIjo0NDEuMzc1LCJib3R0b20iOjYxNCwid2lkdGgiOjEyNjQsImhlaWdodCI6MTcyLjYyNSwiY2xpZW50SGVpZ2h0IjoxNzN9LCJib2R5Ijp7InRvcCI6NDg4LjM3NSwiYm90dG9tIjo2MTQsIndpZHRoIjoxMjY0LCJoZWlnaHQiOjEyNS42MjUsImNsaWVudEhlaWdodCI6MTI2fSwibW9kZWxpbmciOnsidG9wIjoyMDMuMzc1LCJib3R0b20iOjQzMy4zNzUsIndpZHRoIjoxMjY0LCJoZWlnaHQiOjIzMCwiY2xpZW50SGVpZ2h0IjoyMzB9LCJ2aWV3cG9ydCI6eyJ0b3AiOjIwMy4zNzUsImJvdHRvbSI6NDMzLjM3NSwid2lkdGgiOjU0MCwiaGVpZ2h0IjoyMzAsImNsaWVudEhlaWdodCI6MjMwfX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5a96c9872934abd9c53-0af10443a1135dbc5a28",
+          "file": "r2-smoke.spec.ts",
+          "line": 788,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-05T06:37:24.391Z",
+    "duration": 68609.546,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

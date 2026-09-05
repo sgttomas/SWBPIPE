@@ -1,0 +1,19 @@
+[2m[WebServer] [22m(node:20181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:20183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/r2-smoke.spec.ts:203:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (26.4s)
+  ✓  2 [chromium-desktop] › e2e/r2-smoke.spec.ts:788:1 › R2 from-blank GUI journey authors the A12 rehearsal script (11.0s)
+(node:20859) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20859) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium-compact] › e2e/r2-smoke.spec.ts:203:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (24.5s)
+  ✓  4 [chromium-compact] › e2e/r2-smoke.spec.ts:788:1 › R2 from-blank GUI journey authors the A12 rehearsal script (7.7s)
+
+  4 passed (1.2m)

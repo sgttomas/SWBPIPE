@@ -1,0 +1,13 @@
+{
+  "artifact": "Playwright original trace",
+  "sha256": "e5c604eef6a7f69bef5c63012b82b2461e467ae5e8e86b415fed2fa155eee3d8",
+  "bytes": 54060823,
+  "retention": "LOCAL_EXTERNAL_TRACE_NOT_VERSIONED",
+  "portable_reference": "{TASK_SCRATCH}/piping-ui-parity-dec025-attempt1-ci4omjgr/trace.zip",
+  "task_scratch_resolution": "OS temporary root used for this task; exact resolved path relayed to parent",
+  "original_ignored_reference": "{WORKING_ROOT}/apps/desktop/test-results/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/trace.zip",
+  "original_retained": true,
+  "copy_verified_before_untracked_duplicate_removal": true,
+  "source_sha": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "utc": "2026-09-05T06:26:58.850826+00:00"
+}

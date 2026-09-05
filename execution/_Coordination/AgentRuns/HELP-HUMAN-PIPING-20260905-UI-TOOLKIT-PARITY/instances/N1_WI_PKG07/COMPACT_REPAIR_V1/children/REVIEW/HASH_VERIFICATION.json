@@ -1,0 +1,42 @@
+{
+  "baseline": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "method": "Read-only branch ref and SHA256; reverse unified patch in memory, no Git command",
+  "manifest_sha256": "d5d2458313f4ed085e56c127b0a00eba67832352d1ed3d56c29c453d72d3f516",
+  "diff_sha256": "7ac0857c69021002b3cd066406227b75fa7f92f9f441bd22222fc822c8da8d9f",
+  "files": {
+    "apps/desktop/src/styles.css": {
+      "expected": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+      "actual": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+      "frozen": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+      "reversed_preimage": "557fa62b1315b7a84298b58545fae0fc5560d33c98e8f01cca76b49f5eee506b",
+      "expected_preimage": "557fa62b1315b7a84298b58545fae0fc5560d33c98e8f01cca76b49f5eee506b"
+    },
+    "apps/desktop/e2e/r2-smoke.spec.ts": {
+      "expected": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18",
+      "actual": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18",
+      "frozen": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18",
+      "reversed_preimage": "3fd5c60009cf74da7ced6f841e58a796aa92535b38ee7d7ed3e66bddd7a4e727",
+      "expected_preimage": "3fd5c60009cf74da7ced6f841e58a796aa92535b38ee7d7ed3e66bddd7a4e727"
+    }
+  },
+  "unchanged_engine_and_scripts": {
+    "apps/desktop/scripts/build-wasm-engine.test.mjs": true,
+    "apps/desktop/scripts/build-wasm-engine.mjs": true,
+    "apps/desktop/e2e/wasm-engine-dist.spec.ts": true,
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": true,
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts": true,
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": true,
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js": true
+  },
+  "diagnosis_manifest_matches": {
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/DIAGNOSE/RETURN.md": true,
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/DIAGNOSE/STATUS.json": true,
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/DIAGNOSE/_run_records/final-frame.jpeg": true,
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/DIAGNOSE/_run_records/failure-events.json": true,
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/_run_records/DEC025_ATTEMPT1/console.log": true,
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/_run_records/DEC025_ATTEMPT1/error-context.md": true
+  },
+  "source_results_sha256": "23582587d9c45538318807bca502f7ae2e5bd59911040d0a1b7bdc7e59eef2bf",
+  "source_geometry_sha256": "c1c24e1fbb206e3bc77ea5127e0952f6fc70c4a7e929c2d9f610a3c59e906b55",
+  "registered_build_sha256": "a7c21c89942e60b66cb6cecc17f02e61e327f706216204fe6ad73aa03174cea0"
+}

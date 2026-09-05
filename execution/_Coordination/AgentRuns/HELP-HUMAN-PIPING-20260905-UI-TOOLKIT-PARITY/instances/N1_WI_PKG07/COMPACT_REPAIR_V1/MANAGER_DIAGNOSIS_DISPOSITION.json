@@ -1,0 +1,28 @@
+{
+  "status": "DIAGNOSIS_VALIDATED_REPAIR_PROPOSED_SOURCE_HELD",
+  "source_commit": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "child_return": "children/DIAGNOSE/RETURN.md",
+  "child_return_sha256": "3488c854cd39865b6770b4c1b2fc4bf536756c452b4f0e540df6ed42e2c84a37",
+  "manager_visual_inspection": "Inspected exact final captured screenshot; actual results/status overlap confirmed",
+  "geometry_calibration": "Screenshot estimates only; numerical trace bounding-box return unavailable",
+  "requested_fence": [
+    "apps/desktop/src/styles.css",
+    "apps/desktop/e2e/r2-smoke.spec.ts"
+  ],
+  "css_proposal": "After max-width1320 media block, append max-height840 .workspace-dock min-height0, preserve internal body scrolling/header/status/modeling rules and taller layouts",
+  "test_proposal": "Preserve exact row intersection+click/details checks; assert dock/body bottom at/before status top and positive usable body/viewport geometry in same solved-state helper; cover existing1280x800 and1440x920 projects with actual controls",
+  "excluded": [
+    "test weakening",
+    "forced interaction",
+    "overflow hidden masking",
+    "App/React/data changes",
+    "engine rebuild",
+    "Git/DEC025 by N1"
+  ],
+  "remaining": [
+    "parent exact fence release",
+    "bounded implementation with focused both-viewport host tests",
+    "fresh independent review",
+    "parent new source commit and full DEC025 rerun"
+  ]
+}

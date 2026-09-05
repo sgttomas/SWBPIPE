@@ -1,0 +1,14 @@
+{
+  "recorded_utc": "2026-09-05T06:52:25.747932+00:00",
+  "status": "PENDING_PARENT_EXACT_N7_VERDICT",
+  "evidence_sha256": {
+    "instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_FREEZE_V3.json": "9c6d9d3002fe1f64eca40d3f9c3e2ce5eec91ac4410857bcc99853580ed06505",
+    "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/ACCEPTED_REPAIR_SNAPSHOT_V2.json": "6b93a1a05dfafaeb2e3950a20c449598ad1d61c93af0c738e8939d9f25591f14",
+    "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/ACCEPTED_HANDOFF_V2.md": "38d504cdf5eff4e25e7845c85bb098f4983fa60aeab88724405c293f85b98ee0",
+    "instances/N_ENV/PRECOMMIT_CHECKS_V7.json": "e9b0416607715ef07454d5d69299b7bfe8334c2493ae8f9e6f6f9cc375036367"
+  },
+  "source_head": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "review_progress": "parent-reported111reconstruction/46bindings/no findings sofar; not finalPASS",
+  "missing": "exact final N7V3 return hash and parent acceptance",
+  "change_release": false
+}

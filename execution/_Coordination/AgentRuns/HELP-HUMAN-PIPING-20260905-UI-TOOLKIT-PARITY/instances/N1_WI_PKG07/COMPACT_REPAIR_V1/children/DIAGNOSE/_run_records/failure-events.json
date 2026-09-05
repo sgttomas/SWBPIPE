@@ -1,0 +1,233 @@
+[
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466731.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132692.244,
+    "frameSwapWallTime": 1788589466725.727
+  },
+  {
+    "type": "before",
+    "callId": "call@897",
+    "startTime": 132695.459,
+    "title": "Scroll into view",
+    "class": "Frame",
+    "method": "waitForSelector",
+    "params": {
+      "selector": "internal:testid=[data-testid=\"result-row-result:force:pipe-P-120:axial\"s]",
+      "strict": true,
+      "timeout": 0,
+      "state": "attached"
+    },
+    "stepId": "pw:api@259",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "beforeSnapshot": "before@call@897"
+  },
+  {
+    "type": "log",
+    "callId": "call@897",
+    "time": 132703.78,
+    "message": "waiting for getByTestId('result-row-result:force:pipe-P-120:axial')"
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466745.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132706.028,
+    "frameSwapWallTime": 1788589466743.3628
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466754.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132714.872,
+    "frameSwapWallTime": 1788589466752.2458
+  },
+  {
+    "type": "log",
+    "callId": "call@897",
+    "time": 132718.07,
+    "message": "  locator resolved to visible <tr class=\"\" tabindex=\"0\" aria-selected=\"false\" data-testid=\"result-row-result:force:pipe-P-120:axial\">\u2026</tr>"
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466761.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132722.712,
+    "frameSwapWallTime": 1788589466760.0168
+  },
+  {
+    "type": "after",
+    "callId": "call@897",
+    "endTime": 132731.438,
+    "result": {
+      "element": "<ElementHandle>"
+    },
+    "afterSnapshot": "after@call@897"
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466775.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132736.382,
+    "frameSwapWallTime": 1788589466773.69
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466783.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132744.592,
+    "frameSwapWallTime": 1788589466781.919
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466791.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132752.371,
+    "frameSwapWallTime": 1788589466789.729
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466808.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132768.995,
+    "frameSwapWallTime": 1788589466806.3281
+  },
+  {
+    "type": "before",
+    "callId": "call@901",
+    "startTime": 132771.445,
+    "title": "Bounding box",
+    "class": "Frame",
+    "method": "waitForSelector",
+    "params": {
+      "selector": "internal:testid=[data-testid=\"result-row-result:force:pipe-P-120:axial\"s]",
+      "strict": true,
+      "timeout": 0,
+      "state": "attached"
+    },
+    "stepId": "pw:api@260",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "beforeSnapshot": "before@call@901"
+  },
+  {
+    "type": "before",
+    "callId": "call@903",
+    "startTime": 132771.563,
+    "title": "Bounding box",
+    "class": "Frame",
+    "method": "waitForSelector",
+    "params": {
+      "selector": "internal:testid=[data-testid=\"workspace-status-bar\"s]",
+      "strict": true,
+      "timeout": 0,
+      "state": "attached"
+    },
+    "stepId": "pw:api@261",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "beforeSnapshot": "before@call@903"
+  },
+  {
+    "type": "log",
+    "callId": "call@901",
+    "time": 132774.53,
+    "message": "waiting for getByTestId('result-row-result:force:pipe-P-120:axial')"
+  },
+  {
+    "type": "log",
+    "callId": "call@903",
+    "time": 132776.902,
+    "message": "waiting for getByTestId('workspace-status-bar')"
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466817.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132778.093,
+    "frameSwapWallTime": 1788589466815.444
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466829.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132790.683,
+    "frameSwapWallTime": 1788589466828.047
+  },
+  {
+    "type": "log",
+    "callId": "call@901",
+    "time": 132792.497,
+    "message": "  locator resolved to visible <tr class=\"\" tabindex=\"0\" aria-selected=\"false\" data-testid=\"result-row-result:force:pipe-P-120:axial\">\u2026</tr>"
+  },
+  {
+    "type": "log",
+    "callId": "call@903",
+    "time": 132792.737,
+    "message": "  locator resolved to visible <section class=\"status-bar\" aria-label=\"Workspace status\" data-testid=\"workspace-status-bar\">\u2026</section>"
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466836.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132797.341,
+    "frameSwapWallTime": 1788589466834.707
+  },
+  {
+    "type": "after",
+    "callId": "call@901",
+    "endTime": 132806.297,
+    "result": {
+      "element": "<ElementHandle>"
+    },
+    "afterSnapshot": "after@call@901"
+  },
+  {
+    "type": "after",
+    "callId": "call@903",
+    "endTime": 132806.527,
+    "result": {
+      "element": "<ElementHandle>"
+    },
+    "afterSnapshot": "after@call@903"
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466850.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132811.311,
+    "frameSwapWallTime": 1788589466848.6582
+  },
+  {
+    "type": "screencast-frame",
+    "pageId": "page@e3b89264c422e9fb1bce68c067106e82",
+    "sha1": "page@e3b89264c422e9fb1bce68c067106e82-1788589466859.jpeg",
+    "width": 1280,
+    "height": 800,
+    "timestamp": 132820.266,
+    "frameSwapWallTime": 1788589466857.7002
+  }
+]

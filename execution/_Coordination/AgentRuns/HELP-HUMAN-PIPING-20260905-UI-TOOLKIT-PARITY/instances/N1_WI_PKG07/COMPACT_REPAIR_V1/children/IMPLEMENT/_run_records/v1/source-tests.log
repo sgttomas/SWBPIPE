@@ -1,0 +1,51 @@
+[2m[WebServer] [22m(node:15652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:15654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/r2-smoke.spec.ts:203:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (33.2s)
+  ✘  2 [chromium-desktop] › e2e/r2-smoke.spec.ts:788:1 › R2 from-blank GUI journey authors the A12 rehearsal script (15.2s)
+(node:17133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium-compact] › e2e/r2-smoke.spec.ts:203:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (31.3s)
+  ✓  4 [chromium-compact] › e2e/r2-smoke.spec.ts:788:1 › R2 from-blank GUI journey authors the A12 rehearsal script (10.0s)
+
+
+  1) [chromium-desktop] › e2e/r2-smoke.spec.ts:788:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+
+    Error: dock must fit above status; {"targetTestId":"rendered-report-render","targetBox":{"x":21,"y":627.375,"width":116.484375,"height":24},"statusBox":{"x":0,"y":742,"width":1440,"height":144},"dock":{"top":541.375,"bottom":751.375,"width":1424,"height":210,"clientHeight":210},"body":{"top":588.375,"bottom":751.375,"width":1424,"height":163,"clientHeight":163},"modeling":{"top":165.375,"bottom":533.375,"width":1424,"height":368,"clientHeight":368},"viewport":{"top":165.375,"bottom":533.375,"width":630,"height":368,"clientHeight":368}}
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: <= [32m742[39m
+    Received:    [31m751.375[39m
+
+      108 |     expect(box!.clientHeight, `${name} must have usable height; ${diagnostics}`).toBeGreaterThan(64);
+      109 |   }
+    > 110 |   expect(geometry.dock!.bottom, `dock must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);
+          |                                                                               ^
+      111 |   expect(geometry.body!.bottom, `dock body must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);
+      112 | }
+      113 |
+        at expectWorkspaceStatusClearOfTarget (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:110:79)
+        at /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:966:3
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/source-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/source-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/source-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:788:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+  3 passed (1.5m)

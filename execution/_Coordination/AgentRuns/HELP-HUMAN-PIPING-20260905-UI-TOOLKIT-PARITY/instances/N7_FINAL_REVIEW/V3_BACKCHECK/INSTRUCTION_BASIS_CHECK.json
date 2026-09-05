@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "prior_actual_read_basis": {
+    "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "agents/AGENT_TASK.md": "80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983",
+    "skills/software-code-review/SKILL.md": "aae98f44d3f5d923e0879872a5c71e7133e9d109b0142dd9ff19aaac6e1fd031",
+    "skills/software-code-review/BRIEF_SCHEMA.md": "f4622f020e60cd9e99958cf992f1acb7bd87145c212ff634d485745e03bbe8d8",
+    "skills/software-code-review/TOOL_POLICY.md": "c06c32c9b08fe0e98329c1c670660135f84c1795a07a237a84f74e80306a5b26",
+    "skills/software-code-review/QA_CHECKS.md": "b6fd4756bbf2775baedc83488bc88219362715f0aec79e9f9330ebf19a5e2dc8",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "projects/chirality-piping/docs/CONTRACT.md": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/ACCEPTANCE_RECORD.md": "0e4b789920f9a0f8f6f3776555a44352de051f4542e750aa9bc6e8604a785771",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+    "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd",
+    "projects/chirality-piping/execution/_DAG/DAG-010/HANDOFF.md": "c5f84bb77fb3f4e21fac6a5ac22e0309d4309c803242869e42b1589cc0d27cc8"
+  }
+}

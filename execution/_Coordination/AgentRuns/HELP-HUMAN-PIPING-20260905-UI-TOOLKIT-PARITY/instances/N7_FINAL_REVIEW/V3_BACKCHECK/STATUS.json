@@ -1,0 +1,19 @@
+{
+  "runtime_status": "SUCCESS",
+  "review_verdict": "PASS",
+  "findings": [],
+  "coverage_members": 111,
+  "coverage_percent": 100,
+  "source_hashes_unchanged": true,
+  "started_utc": "2026-09-05T06:49:26.275396+00:00",
+  "source_observation_utc": "2026-09-05T06:53:22.345104+00:00",
+  "model": "unavailable/inherited",
+  "nondelegation": "instruction+config asserted",
+  "report": "REVIEW_RETURN_V3.md",
+  "parent_remaining": [
+    "manager fan-in",
+    "new source commit",
+    "full clean DEC025 sweep",
+    "owning closeout"
+  ]
+}

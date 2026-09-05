@@ -1,0 +1,32 @@
+{
+  "status": "ACCEPTED_BOUNDED_REPAIR",
+  "baseline_commit": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "source_hashes": {
+    "apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+    "apps/desktop/e2e/r2-smoke.spec.ts": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18"
+  },
+  "bindings": {
+    "MANAGER_DIAGNOSIS_DISPOSITION.json": "d993d8c2044efcf728a2eb34cea186ba0de498c9aa28f8d0a35174802c7fc7e8",
+    "children/DIAGNOSE/RETURN.md": "3488c854cd39865b6770b4c1b2fc4bf536756c452b4f0e540df6ed42e2c84a37",
+    "children/IMPLEMENT/AMENDMENT_V2.md": "3ce4ad11c85d25831b085d044d9d3dd7666c231dabae343f25872f85edef7bfd",
+    "children/IMPLEMENT/FROZEN_SOURCE_SHA256.json": "d5d2458313f4ed085e56c127b0a00eba67832352d1ed3d56c29c453d72d3f516",
+    "children/IMPLEMENT/TWO_FILE_DIFF.patch": "7ac0857c69021002b3cd066406227b75fa7f92f9f441bd22222fc822c8da8d9f",
+    "children/IMPLEMENT/EVIDENCE_SHA256.json": "51cd5fa4267618212b7fc1d8104b5ce3929833c66fe9751ba991aa902741d11a",
+    "children/IMPLEMENT/RETURN.md": "791dc7c22fe9b5fc5ed519f4f3a88ca04f257cc92988a4477d3433b4838e4447",
+    "children/REVIEW/RETURN.md": "63e1748454c23400b577310822491dcedb62416c5bd6f7990c977c6d6b96cf7f",
+    "children/REVIEW/HASH_VERIFICATION.json": "388218232411a379d35edcedd65b68b8194f9cd406a9e1d66f6e688520a5c87c",
+    "RUNTIME_SUMMARY.json": "3858f3f1bc32683da78c9a45b54bd4f62890a389bccdb94b3c33dd7de2d55551",
+    "RUNTIME_EVENTS.jsonl": "02bcdb3d2b1a77001a28db6a58e79614214c95317d47919c02e880eeb4033b34",
+    "ACCEPTED_HANDOFF_V2.md": "38d504cdf5eff4e25e7845c85bb098f4983fa60aeab88724405c293f85b98ee0"
+  },
+  "review": "fresh full2file sourcePASS nofindings, terminal managerreceipt faninPASS",
+  "checks": "source4PASS;dist4PASS;buildPASS;43files732testsPASS;all8geometry states8pxclearance",
+  "parent_remaining": [
+    "finalbackcheck",
+    "newsourcecommit",
+    "fullcleanDEC025rerun",
+    "Gitcloseout"
+  ],
+  "source_writers": "none",
+  "derivative_status": "boundedrepair evidence, no lifecycle/release approval"
+}

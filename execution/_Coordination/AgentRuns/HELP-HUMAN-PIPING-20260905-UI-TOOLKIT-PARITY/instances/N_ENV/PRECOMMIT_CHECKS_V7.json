@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "started_at": "2026-09-05T06:48:09.729012+00:00",
+  "basis": "N8 portable DEC025 attempt return repaired; V6 failure retained",
+  "source_hashes_before": {
+    "projects/chirality-piping/apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18"
+  },
+  "repair": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/DEC025_ATTEMPT1_RETURN.json",
+  "repair_sha256": "944081569b373a093f9485d172e802a407a5fec28be77cf14e0a8296f8c8d608",
+  "scope": "root harness pytest and self-check only",
+  "source_hashes_after": {
+    "projects/chirality-piping/apps/desktop/src/styles.css": "2257fc74e61c5b6b3e8f07c0c6fa1a4ae7db5921bfd92452993042743f8f2963",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18"
+  },
+  "source_unchanged": true,
+  "results": {
+    "harness-pytest": {
+      "exit_code": 0,
+      "summary": "350 passed in 18.39s"
+    },
+    "harness-self-check": {
+      "exit_code": 0,
+      "comparison": "PRECOMMIT_SELFCHECK_COMPARISON_V7.json",
+      "baseline_counts": {
+        "REVIEW": 4,
+        "INFO": 14,
+        "WARN": 43
+      },
+      "current_counts": {
+        "REVIEW": 4,
+        "INFO": 14,
+        "WARN": 43
+      },
+      "new_findings": [],
+      "active_path_findings": []
+    }
+  },
+  "finished_at": "2026-09-05T06:48:35.270863+00:00"
+}

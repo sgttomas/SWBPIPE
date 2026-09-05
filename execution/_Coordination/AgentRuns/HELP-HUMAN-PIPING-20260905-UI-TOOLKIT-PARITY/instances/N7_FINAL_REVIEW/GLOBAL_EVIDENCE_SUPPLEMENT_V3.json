@@ -1,0 +1,13 @@
+{
+  "status": "EVIDENCE_ONLY_PORTABILITY_SUCCESSOR",
+  "active": {
+    "path": "instances/N8_CHANGE/DEC025_ATTEMPT1_RETURN.json",
+    "sha256": "944081569b373a093f9485d172e802a407a5fec28be77cf14e0a8296f8c8d608"
+  },
+  "original_encoded": {
+    "path": "instances/N8_CHANGE/evidence_relocations/DEC025_ATTEMPT1_RETURN_V2/ORIGINAL_ENCODED.json",
+    "sha256": "2e87879147064b12a447ee469d10d1e0c376e46e64d94e4d26770e4443ae0d63",
+    "decoded_original_sha256_parent_reported": "bfcfc6747d2197b314f0a7b88fabd90ef740b781c1b9d0e16caa811f781b2726"
+  },
+  "calibration": "Preserves failed sweep; active argv portability only. Product freeze unchanged. N_ENV V7 harness rerun active, no PASS inferred. Earlier inventory hashes remain capture evidence; use relocation for prior bytes."
+}
