@@ -1,0 +1,5 @@
+# Sealed R1 fresh review brief
+RequestedBy WORKING_ITEMS; RunID HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY; Parent N2_WI_PKG16; Child R1_REVIEW; PKG16 DEL1601/02/03. Role TASK + software-code-review, fresh read-only, no delegation.
+Read root/project AGENTS, AGENT_TASK, software-code-review, B1_BRIEF.md, B1_RETURN.md, B1_CHECKS.json, B1_FROZEN.diff. Review 100% B1 diff and caller/schema/reference integrity. Test evidence 91 Rust tests pass; schema test needs parent interpreter.
+Tools read/bash only; no source writes or tests needed. AllowedWriteTargets only instance R1_RETURN.md for evidence (no product writes). Check deletion reference completeness, no hidden cascade, section candidate geometry and mixed-unit validation, schema consistency and failure immutability. B2 rich_authoring/display_units are later disjoint source not part B1 review. lib.rs may be integrated later; frozen diff is scope, compare original source via git show as needed.
+Return PASS iff no actionable findings; otherwise precise priority/path/evidence/remediation. No lifecycle/publication authority.

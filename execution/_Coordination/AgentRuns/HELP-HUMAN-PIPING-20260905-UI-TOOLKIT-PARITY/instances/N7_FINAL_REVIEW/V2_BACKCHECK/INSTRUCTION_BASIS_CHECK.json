@@ -1,0 +1,15 @@
+{
+  "AGENTS.md": true,
+  "agents/AGENT_TASK.md": true,
+  "skills/software-code-review/SKILL.md": true,
+  "skills/software-code-review/BRIEF_SCHEMA.md": true,
+  "skills/software-code-review/TOOL_POLICY.md": true,
+  "skills/software-code-review/QA_CHECKS.md": true,
+  "projects/chirality-piping/AGENTS.md": true,
+  "projects/chirality-piping/docs/CONTRACT.md": true,
+  "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md": true,
+  "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/ACCEPTANCE_RECORD.md": true,
+  "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md": true,
+  "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md": true,
+  "projects/chirality-piping/execution/_DAG/DAG-010/HANDOFF.md": true
+}

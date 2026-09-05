@@ -1,0 +1,9 @@
+{
+  "status": "IMPLEMENTED_VERIFICATION_PARTIAL",
+  "desktop_test": "PASS: 580 tests",
+  "desktop_build": "FAIL: concurrent B2 MaterialTemperatureForm type errors",
+  "scope": "PASS",
+  "review": "PENDING",
+  "no_delegation": true,
+  "evidence": "RETURN_V1.md"
+}

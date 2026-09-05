@@ -1,0 +1,57 @@
+{
+  "status": "FROZEN_FOR_ROOT_N7_FINAL_REREVIEW",
+  "supersedes_current_docs_manifest": "CHANGED_DOCS_MANIFEST.json (preserved)",
+  "docs": [
+    {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+      "preimage_sha256": "384cc52616708c9674f4ede4034be9cda8504fc3c9f61ead209e82b188b708b7",
+      "sha256": "9a06660400720a75340710491052a2512a47d175ee7895573ef91fade07efc94",
+      "changed_in_v2": true
+    },
+    {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+      "preimage_sha256": "6933b3222935b55d5137829b05eb2c26e064f7bc2cd711e14ca910da3b7b57e4",
+      "sha256": "7d65541d1cc9a99f85e972f80ae8113283d48e0937e953851ad3cc8f388ccd79",
+      "changed_in_v2": true
+    },
+    {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md",
+      "preimage_sha256": "1eda24c12713df70943c04fa23bb1a268f20aec9111e78dd2696c007281c6d3f",
+      "sha256": "fa87653ae52947b845a7d8fb20a499f1c6c5b963911b798f2b0035d385bd6620",
+      "changed_in_v2": true
+    },
+    {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Organization_Contract.md",
+      "preimage_sha256": "8b7fabb30c1a8be56d6da8ac65ec2afa91cf0d650da14c7aaa06f04efe83edc1",
+      "sha256": "2a35b68cd8ad3696bcef564d8f744920935c4b221ede56b11e2d3e0b5e1e7a06",
+      "changed_in_v2": true
+    },
+    {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "preimage_sha256": "1f60e58c6117f50c04bb55491ac1bd260880a90854bc7da2756bc6cbf4e89886",
+      "sha256": "1f60e58c6117f50c04bb55491ac1bd260880a90854bc7da2756bc6cbf4e89886",
+      "changed_in_v2": false
+    },
+    {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "preimage_sha256": "b5084f85d4fc1815991b83d5817785238c06045230fa0f64109609e8cab618e3",
+      "sha256": "f85a8e1a5e5baa5b7b1ffa407ac2935c26ea674b286d49ec6504449b6894088e",
+      "changed_in_v2": true
+    },
+    {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+      "preimage_sha256": "320a6869edf2bffab8a41921bfc55e366cd053f8fc941561693a2908a9f6b610",
+      "sha256": "1e19832a2a39dc2b7fdfb24a57293e4fe676cafa8bca674eb4c1a97f354742dc",
+      "changed_in_v2": true
+    },
+    {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "preimage_sha256": "183b059ad1cc60ea2dc550ab1d57a2078f56bb2fd133af09962bbe7c3aed50cc",
+      "sha256": "367eed3b0c3a2b365ba9c456468936f8ad159263ce1c5da6313be2756abfc09e",
+      "changed_in_v2": true
+    }
+  ],
+  "source_freeze": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V9.json",
+  "derivative_status": "bounded repair evidence; not decomposition or lifecycle truth",
+  "remaining": "root N7 final rereview and parent fan-in"
+}

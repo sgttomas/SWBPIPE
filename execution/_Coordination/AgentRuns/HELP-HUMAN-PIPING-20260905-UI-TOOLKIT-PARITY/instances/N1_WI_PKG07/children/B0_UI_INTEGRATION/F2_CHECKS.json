@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "tests": [
+    {
+      "command": "npm run test:desktop -- -- src/features/toolkit/DisplayIntegration.test.tsx",
+      "result": "PASS51/51",
+      "exit_code": 0,
+      "log": "_run_records/f2/display-attempt1.log"
+    },
+    {
+      "command": "npm run test:desktop -- -- src/App.test.tsx -t 'selects rendered viewport entities into the shared model inspector'",
+      "result": "PASS1/1 (117 skipped)",
+      "exit_code": 0,
+      "log": "_run_records/f2/inspector-regression.log"
+    }
+  ],
+  "accepted_operation_wasm_sha256": "e9590a97b6ff9f965262ec1567457b98ccff5183d8539607b68ec14e4af6a30d",
+  "raw_log_manifest": [
+    {
+      "path": "_run_records/f2/display-attempt1.log",
+      "sha256": "385975bb6dbf5375c39ab1ab1957bf30a92035f2616f44ccb6b105b5f2429390"
+    },
+    {
+      "path": "_run_records/f2/inspector-regression.log",
+      "sha256": "d2b9aff6c3d16047c41733870127ab8fa690f03009c717c30bd3072856002fe0"
+    }
+  ],
+  "builds_run": false
+}

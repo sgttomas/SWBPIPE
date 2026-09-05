@@ -1,0 +1,24 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FOCUSED_ATTEMPT_1.log",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/AFTER.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FOCUSED_CHECK.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FULL.log",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/F3_REPAIR.patch",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FOCUSED_ATTEMPT_1.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/BEFORE.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/START.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FULL_CHECK.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FOCUSED.log",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/_run_records/TASK_RUN_F3_IMPLEMENTATION.md"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": [],
+  "basis": "Explicit child write inventory, not aggregate shared worktree diff."
+}

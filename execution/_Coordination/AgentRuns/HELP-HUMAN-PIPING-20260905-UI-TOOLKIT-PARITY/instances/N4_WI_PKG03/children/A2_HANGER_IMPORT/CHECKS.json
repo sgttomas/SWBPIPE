@@ -1,0 +1,215 @@
+{
+  "checks": [
+    {
+      "command": "python3 -m pytest -q tests/test_hanger_library_schema.py tests/test_library_import_provenance.py",
+      "cwd": "{REPO_ROOT}",
+      "exit_code": 4,
+      "output": "ERROR: file or directory not found: tests/test_hanger_library_schema.py\nno tests ran in 0.00s",
+      "remediation": "Corrected cwd to project root."
+    },
+    {
+      "command": "python3 -m pytest -q tests/test_hanger_library_schema.py tests/test_library_import_provenance.py",
+      "cwd": "{WORKING_ROOT}",
+      "exit_code": 1,
+      "output": "{APPLE_DEVELOPER_ROOT}/usr/bin/python3: No module named pytest",
+      "remediation": "Parent authorized existing {PIPING_UI_PARITY_PYTHON_ENV}/bin/python3 substitution; no installation."
+    },
+    {
+      "command": [
+        "{PIPING_UI_PARITY_PYTHON_ENV}/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_hanger_library_schema.py",
+        "tests/test_library_import_provenance.py"
+      ],
+      "cwd": "{WORKING_ROOT}",
+      "environment": {
+        "CARGO_TARGET_DIR": "{PIPING_HANGER_IMPORT_TARGET}"
+      },
+      "exit_code": 0,
+      "stdout": "........................................................................ [ 98%]\n.                                                                        [100%]\n73 passed in 0.09s\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "core/library_import/library_import_document/Cargo.toml"
+      ],
+      "cwd": "{WORKING_ROOT}",
+      "environment": {
+        "CARGO_TARGET_DIR": "{PIPING_HANGER_IMPORT_TARGET}"
+      },
+      "exit_code": 0,
+      "stdout": "\nrunning 11 tests\ntest tests::missing_library_metadata_and_records_block ... ok\ntest tests::non_object_record_is_rejected ... ok\ntest tests::rejected_source_disposition_blocks_import ... ok\ntest tests::item_level_status_overrides_provenance_status ... ok\ntest tests::nested_value_without_units_or_provenance_is_flagged ... ok\ntest tests::private_privacy_class_blocks_public_import_even_with_permissive_redistribution ... ok\ntest tests::token_parsers_reject_unsupported_inputs ... ok\ntest tests::private_only_is_blocked_for_public_visibility ... ok\ntest tests::incomplete_provenance_lists_sorted_missing_fields ... ok\ntest tests::unaccepted_public_redistribution_is_flagged ... ok\ntest tests::diagnostic_envelope_carries_pkg02_shape ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 8 tests\ntest public_material_import_with_tbd_rights_is_rejected_for_review ... ok\ntest protected_suspected_metadata_quarantines_import ... ok\ntest missing_provenance_blocks_import_without_defaults ... ok\ntest private_material_import_can_remain_local_with_tbd_rights ... ok\ntest import_findings_map_to_pkg02_diagnostic_envelope ... ok\ntest public_component_import_requires_accepted_public_provenance ... ok\ntest unit_metadata_is_preserved_for_imported_values ... ok\ntest hanger_shared_cases_match_python_codes_paths_severities_and_outcomes ... ok\n\ntest result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling open_pipe_stress_library_import_document v0.1.0 ({WORKING_ROOT}/core/library_import/library_import_document)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s\n     Running unittests src/lib.rs ({PIPING_HANGER_IMPORT_TARGET}/debug/deps/open_pipe_stress_library_import_document-971432d65e15a783)\n     Running tests/provenance_parity.rs ({PIPING_HANGER_IMPORT_TARGET}/debug/deps/provenance_parity-61d57708c31a4cf8)\n   Doc-tests open_pipe_stress_library_import_document\n"
+    }
+  ],
+  "omitted": {
+    "piping-pytest": "parent-owned broad check",
+    "evidence-sweep": "parent-owned integrated gate",
+    "fresh-independent-review": "manager dispatch after source freeze"
+  },
+  "scope_validation": {
+    "command": [
+      "python3",
+      "tools/software_workflow/validate_change_scope.py",
+      "{REPO_ROOT}",
+      "--allowed",
+      "projects/chirality-piping/core/library_import/provenance_checker.py",
+      "--path",
+      "projects/chirality-piping/core/library_import/provenance_checker.py",
+      "--allowed",
+      "projects/chirality-piping/core/library_import/README.md",
+      "--path",
+      "projects/chirality-piping/core/library_import/README.md",
+      "--allowed",
+      "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs",
+      "--path",
+      "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs",
+      "--allowed",
+      "projects/chirality-piping/core/library_import/library_import_document/tests/provenance_parity.rs",
+      "--path",
+      "projects/chirality-piping/core/library_import/library_import_document/tests/provenance_parity.rs",
+      "--allowed",
+      "projects/chirality-piping/core/library_import/library_import_document/README.md",
+      "--path",
+      "projects/chirality-piping/core/library_import/library_import_document/README.md",
+      "--allowed",
+      "projects/chirality-piping/tests/test_library_import_provenance.py",
+      "--path",
+      "projects/chirality-piping/tests/test_library_import_provenance.py",
+      "--allowed",
+      "projects/chirality-piping/schemas/hanger.schema.yaml",
+      "--path",
+      "projects/chirality-piping/schemas/hanger.schema.yaml",
+      "--allowed",
+      "projects/chirality-piping/tests/test_hanger_library_schema.py",
+      "--path",
+      "projects/chirality-piping/tests/test_hanger_library_schema.py",
+      "--allowed",
+      "projects/chirality-piping/fixtures/hanger/invented_hanger_cases.json",
+      "--path",
+      "projects/chirality-piping/fixtures/hanger/invented_hanger_cases.json",
+      "--allowed",
+      "projects/chirality-piping/fixtures/hanger/invented_hanger_library_valid.json",
+      "--path",
+      "projects/chirality-piping/fixtures/hanger/invented_hanger_library_valid.json",
+      "--allowed",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/RETURN.md",
+      "--path",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/RETURN.md",
+      "--allowed",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/STATUS.json",
+      "--path",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/STATUS.json",
+      "--allowed",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/CHECKS.json",
+      "--path",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/CHECKS.json",
+      "--allowed",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/SOURCE_HASHES.json",
+      "--path",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/SOURCE_HASHES.json"
+    ],
+    "exit_code": 0,
+    "output": {
+      "allowed": [
+        "projects/chirality-piping/core/library_import/provenance_checker.py",
+        "projects/chirality-piping/core/library_import/README.md",
+        "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs",
+        "projects/chirality-piping/core/library_import/library_import_document/tests/provenance_parity.rs",
+        "projects/chirality-piping/core/library_import/library_import_document/README.md",
+        "projects/chirality-piping/tests/test_library_import_provenance.py",
+        "projects/chirality-piping/schemas/hanger.schema.yaml",
+        "projects/chirality-piping/tests/test_hanger_library_schema.py",
+        "projects/chirality-piping/fixtures/hanger/invented_hanger_cases.json",
+        "projects/chirality-piping/fixtures/hanger/invented_hanger_library_valid.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/RETURN.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/STATUS.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/CHECKS.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/SOURCE_HASHES.json"
+      ],
+      "paths": [
+        "projects/chirality-piping/core/library_import/provenance_checker.py",
+        "projects/chirality-piping/core/library_import/README.md",
+        "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs",
+        "projects/chirality-piping/core/library_import/library_import_document/tests/provenance_parity.rs",
+        "projects/chirality-piping/core/library_import/library_import_document/README.md",
+        "projects/chirality-piping/tests/test_library_import_provenance.py",
+        "projects/chirality-piping/schemas/hanger.schema.yaml",
+        "projects/chirality-piping/tests/test_hanger_library_schema.py",
+        "projects/chirality-piping/fixtures/hanger/invented_hanger_cases.json",
+        "projects/chirality-piping/fixtures/hanger/invented_hanger_library_valid.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/RETURN.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/STATUS.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/CHECKS.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/SOURCE_HASHES.json"
+      ],
+      "schema": "chirality-change-scope/v1",
+      "status": "PASS",
+      "violations": []
+    }
+  },
+  "check_selection": {
+    "command": [
+      "python3",
+      "tools/software_workflow/select_affected_checks.py",
+      "{WORKING_ROOT}/software-workflow.json",
+      "core/library_import/provenance_checker.py",
+      "core/library_import/README.md",
+      "core/library_import/library_import_document/src/lib.rs",
+      "core/library_import/library_import_document/tests/provenance_parity.rs",
+      "core/library_import/library_import_document/README.md",
+      "tests/test_library_import_provenance.py",
+      "schemas/hanger.schema.yaml",
+      "tests/test_hanger_library_schema.py",
+      "fixtures/hanger/invented_hanger_cases.json",
+      "fixtures/hanger/invented_hanger_library_valid.json"
+    ],
+    "exit_code": 0,
+    "output": {
+      "checks": [
+        "evidence-sweep",
+        "harness-self-check",
+        "piping-pytest"
+      ],
+      "paths": [
+        "core/library_import/provenance_checker.py",
+        "core/library_import/README.md",
+        "core/library_import/library_import_document/src/lib.rs",
+        "core/library_import/library_import_document/tests/provenance_parity.rs",
+        "core/library_import/library_import_document/README.md",
+        "tests/test_library_import_provenance.py",
+        "schemas/hanger.schema.yaml",
+        "tests/test_hanger_library_schema.py",
+        "fixtures/hanger/invented_hanger_cases.json",
+        "fixtures/hanger/invented_hanger_library_valid.json"
+      ],
+      "reasons": {
+        "evidence-sweep": [
+          "core/library_import/README.md",
+          "core/library_import/library_import_document/README.md",
+          "core/library_import/library_import_document/src/lib.rs",
+          "core/library_import/library_import_document/tests/provenance_parity.rs",
+          "core/library_import/provenance_checker.py",
+          "tests/test_hanger_library_schema.py",
+          "tests/test_library_import_provenance.py"
+        ],
+        "piping-pytest": [
+          "core/library_import/README.md",
+          "core/library_import/library_import_document/README.md",
+          "core/library_import/library_import_document/src/lib.rs",
+          "core/library_import/library_import_document/tests/provenance_parity.rs",
+          "core/library_import/provenance_checker.py",
+          "tests/test_hanger_library_schema.py",
+          "tests/test_library_import_provenance.py"
+        ]
+      },
+      "schema": "chirality-affected-checks/v1"
+    }
+  }
+}

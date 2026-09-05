@@ -1,0 +1,16 @@
+{
+  "child_instance_id": "A2_MAP",
+  "parent_instance_id": "N1_WI_PKG07",
+  "role": "ephemeral Agent 2",
+  "execution_class": "delegated-harness-native",
+  "enforcement": "instruction+config asserted",
+  "actual_model": "unavailable",
+  "status": "completed_for_parent_review",
+  "scope": "DEL-07-09 Phase A contract production only",
+  "artifacts_sha256": {
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Organization_Contract.md": "20a64553271a9f8d1de39a1b12b5c3574363bb05dd97474c6436e38fab44fe29",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md": "9a4294e7681dba4e5cfe7f7d007780a0847aa117047ef4f842cdb1deff182e50",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv": "d1b72116fa359f8ee4740cf69cbfe4b3f789db68bc37dd8a5ab36403eddf2ea8"
+  },
+  "validation": "27 unique rows; complete IDs 1..24,R1..R3; 13 columns; every evidence path exists; no product source writes or broad tests"
+}

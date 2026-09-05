@@ -1,0 +1,11 @@
+
+> openpipestress-workspace@0.1.0 build:wasm:desktop
+> npm run build:wasm --workspace apps/desktop
+
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-15530
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)

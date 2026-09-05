@@ -1,0 +1,7 @@
+# F2 stiffness display remediation — sealed draft, SOURCE_HELD
+RequestedBy N1 WORKING_ITEMS; Parent HELP_HUMAN. RunID HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY. Agent2 ephemeral; no delegation.
+Activation gate: DO NOT execute source/test/build writes until explicit N1 parent release after N7 full return. This brief records scope only.
+AcceptedBasis: V5 global freeze and N7 F2 read-only confirmed plan N1/N7_F2_READONLY_PLAN.md; existing source/module contracts unchanged.
+Objective: Correct typed support stiffness selected-property label/dimension using chosen top-level/hanger DOF, preserve source precedence and legacy properties.linear_stiffness behavior. Valid U DOFs linear; valid R DOFs rotational; unrecognized DOF neutral/unknown fallback. No guessed dimensional conversion or source normalization.
+AllowedWriteTargets after release: apps/desktop/src/features/model-workspace/modelView.ts; apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx; own evidence files only. No other source, renderer, types, operation backend, artifacts, docs, Git mutation or delegation.
+Checks: focused display integration, actual accepted Rust conversion SI rotational converted, US rotational honest unavailable/entered source, translational US lbf/in; parameterized6DOF top/hanger, precedence, legacy/unknown cases; JSON/hash unchanged, editable drafts entered-units. Freeze complete changed source/diff+hashes and return. Final root N7 backcheck required.

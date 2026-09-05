@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-05T03:57:01.768871+00:00",
+  "status": "complete",
+  "authorization": "Parent read-only-source evidence hygiene directive",
+  "changes": [
+    {
+      "active": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/return.json",
+      "historical_copy": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/_run_records/environment_return_v1.json",
+      "old_sha256": "1ab458eaa989e05048bb452aa402cbecf8dc3329be3ee3a1a30f36b94d62d4ad",
+      "new_sha256": "814942a4e394246a69012a0399daac2d797b9eb1565b67020648a3f678b17ece"
+    },
+    {
+      "active": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/RETURN.md",
+      "historical_copy": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/_run_records/environment_return_v1.md",
+      "old_sha256": "893b50d41234136fcc252f4bbd330c27e2952e6d12d3a5a467e810217b6d3765",
+      "new_sha256": "b206167a3ee388814d8df522b206a695d285fdc8a2d04d2003f3f969fadb7174"
+    }
+  ],
+  "external_hash_references_found": false,
+  "N_CROSS_CONTRACT_REFUTE": "unchanged; contains no machine-absolute paths",
+  "logs": "unchanged",
+  "scope": "N_ENV evidence only",
+  "checks": [
+    "Both historical return copies classified SurfaceRole.EVIDENCE by current classifier",
+    "No machine-absolute paths in active Markdown/JSON of N_ENV or N_CROSS_CONTRACT_REFUTE",
+    "harness.py self-check exit 0; raw result _run_records/portability_refresh_self_check_v2.txt"
+  ]
+}

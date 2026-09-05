@@ -1,0 +1,2 @@
+# Parent acceptance / amendment B1
+Parent HELP_HUMAN accepted Phase A narrow repair interface through runtime message. Source release: Section set_field exact current grid fields, safe delete_material/delete_section/delete_component, complete reference checks, canonical before and optional current hash guards. No assignment/product_physics/desktop. Native child implementation and fresh 100% diff review required.

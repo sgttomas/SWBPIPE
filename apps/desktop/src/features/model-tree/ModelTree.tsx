@@ -1,3 +1,4 @@
+import { QuantityReadout } from "../display-units";
 import { Box, CircleDot, GitBranch, ListTree, Search, SquareStack, Table2, X, Zap } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -501,7 +502,9 @@ type GridColumn = {
   unit: (row: GridRow) => string;
   value: (row: GridRow) => string;
   unitEditable?: boolean;
+  quantity?: boolean;
   readonly?: boolean;
+  options?: readonly string[];
 };
 
 type GridRow = {
@@ -628,10 +631,15 @@ function EntityGrid({
                   const value = drafts[key] ?? column.value(row);
                   return (
                     <td key={column.key}>
-                      {column.readonly ? (
+                      {gridCellReadonly(column, row) ? (
                         <span data-testid={`entity-grid-cell-${safeToken(row.id)}-${safeToken(column.key)}`}>
-                          {value}
+                          {column.quantity ? <QuantityReadout quantity={{ value: numericGridValue(column.value(row)), unit: column.unit(row), dimension_id: column.dimension }} /> : value}
                         </span>
+                      ) : column.options ? (
+                        <select aria-label={`${row.id} ${column.label}`} data-testid={`entity-grid-input-${safeToken(row.id)}-${safeToken(column.key)}`} value={value} onChange={(event) => updateCell(row, column, event.target.value)}>
+                          {!column.options.includes(value) ? <option value={value} disabled>{value} (existing)</option> : null}
+                          {column.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                        </select>
                       ) : (
                         <input
                           aria-label={`${row.id} ${column.label}`}
@@ -640,6 +648,7 @@ function EntityGrid({
                           value={value}
                         />
                       )}
+                      {column.quantity && !gridCellReadonly(column, row) ? <small aria-label="Quantity readout"><QuantityReadout quantity={{ value: numericGridValue(column.value(row)), unit: column.unit(row), dimension_id: column.dimension }} /></small> : null}
                     </td>
                   );
                 })}
@@ -787,6 +796,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
   if (entityType === "pipes") {
     return [
       scalarGridColumn("label", "Label", "label", "Element", "pipe segment label only"),
+      readonlyGridColumn("section-ref", "Shared section", "section_ref", "Element"),
       readonlyGridColumn("from", "From", "from", "Element"),
       readonlyGridColumn("to", "To", "to", "Element"),
       quantityGridColumn(
@@ -844,7 +854,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
   if (entityType === "sections") {
     return [
       scalarGridColumn("name", "Name", "name", "Section", "section label only"),
-      scalarGridColumn("type", "Type", "section_type", "Section", "section type"),
+      { ...scalarGridColumn("type", "Type", "section_type", "Section", "section type"), options: ["pipe"] },
       quantityGridColumn(
         "outside",
         "Outside dia.",
@@ -1170,6 +1180,7 @@ function quantityGridColumn(
     dimension,
     sourceNote: "unit metadata required; entered unit captured explicitly",
     unitEditable: false,
+    quantity: true,
     unit: (gridRow) => quantityUnitValue(gridRow.raw, fieldPath, fallbackUnit),
     value: (gridRow) => stringValueAtPath(gridRow.raw, fieldPath)
   };
@@ -1187,6 +1198,11 @@ function readonlyGridColumn(
   };
 }
 
+function gridCellReadonly(column: GridColumn, row: GridRow): boolean {
+  // Structured provenance must never be flattened into a user-entered string.
+  return Boolean(column.readonly || (row.type === "section" && column.fieldPath === "provenance" && typeof (row.raw as { provenance?: unknown }).provenance === "object"));
+}
+
 function changedGridCells({
   columns,
   drafts,
@@ -1198,10 +1214,10 @@ function changedGridCells({
 }): Array<{ row: GridRow; column: GridColumn; value: string }> {
   return rows.flatMap((row) =>
     columns.flatMap((column) => {
-      if (column.readonly) return [];
+      if (gridCellReadonly(column, row)) return [];
       const key = draftKey(row, column);
       const value = drafts[key];
-      if (value === undefined || value === column.value(row)) return [];
+      if (value === undefined || value === column.value(row) || (column.options && !column.options.includes(value))) return [];
       return [{ row, column, value }];
     })
   );
@@ -1323,4 +1339,8 @@ function parseQuantityPayloadValue(raw: string): number | string {
 
 function safeToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9:_-]+/g, "-").replace(/^-+|-+$/g, "") || "entity";
+}
+
+function numericGridValue(value: string): string | number {
+  return value.trim() !== "" && Number.isFinite(Number(value)) ? Number(value) : value;
 }

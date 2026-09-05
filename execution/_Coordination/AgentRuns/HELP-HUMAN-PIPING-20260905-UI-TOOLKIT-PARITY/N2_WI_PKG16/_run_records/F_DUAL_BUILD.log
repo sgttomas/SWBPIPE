@@ -1,0 +1,10 @@
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-88104
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-88104
+[build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)

@@ -1,0 +1,31 @@
+{
+  "status": "PASS_SOURCE_FROZEN_FRESH_REVIEW_PENDING",
+  "accepted_basis": [
+    "F_REPAIR_IMPLEMENTATION_BRIEF_V1.md",
+    "F1_F3_COMBINED_REPAIR_PLAN_V1.md",
+    "F_REPAIR_PREDECESSOR_V1.json"
+  ],
+  "predecessor_verification": "source hash, plan hash, N7 immutable review hash, absent new-test path verified",
+  "source_hashes": {
+    "core/model_operations/operation_applier/src/rich_authoring.rs": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282",
+    "core/model_operations/operation_applier/tests/support_authoring_conflicts.rs": "ef036a20ef61ae87b8a6366d616392da4bf31d5b9b864b88b7a516c1f6611239"
+  },
+  "checks": [
+    {
+      "command": "CARGO_TARGET_DIR={CARGO_TARGET_DIR} cargo test --offline --manifest-path {WORKING_ROOT}/core/model_operations/operation_applier/Cargo.toml --quiet",
+      "exit_code": 0,
+      "unit_tests_passed": 137,
+      "canonical_hash_integration_passed": 1,
+      "contract_corpus_integration_passed": 2,
+      "support_authoring_conflicts_integration_passed": 5,
+      "total_tests_passed": 145
+    },
+    {
+      "command": "rustfmt --edition 2021 {WORKING_ROOT}/core/model_operations/operation_applier/src/rich_authoring.rs {WORKING_ROOT}/core/model_operations/operation_applier/tests/support_authoring_conflicts.rs",
+      "exit_code": 0
+    }
+  ],
+  "initial_test_correction": "Public batch regression initially asserted absent application_status; corrected assertion to documented simulation_status. Source implementation unchanged after this test expectation correction.",
+  "schema_check": "manager-reported PASS; not rerun by this bounded child",
+  "wasm": "not rebuilt; parent-coordinated reproduction pending"
+}

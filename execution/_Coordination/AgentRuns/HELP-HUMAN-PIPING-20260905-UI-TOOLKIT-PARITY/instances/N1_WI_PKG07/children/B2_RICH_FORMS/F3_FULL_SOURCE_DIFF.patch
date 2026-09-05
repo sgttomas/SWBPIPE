@@ -1,0 +1,857 @@
+--- /dev/null
++++ projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx
+@@ -0,0 +1,314 @@
++import { useEffect, useState } from "react";
++import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
++const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
++const FAMILIES = [
++  { value: "anchor", label: "Anchor" },
++  { value: "guide", label: "Guide" },
++  { value: "line_stop", label: "Line stop" },
++  { value: "vertical_support", label: "Vertical support" },
++  { value: "spring", label: "Spring" },
++  { value: "variable_spring_hanger", label: "Variable spring hanger" },
++  { value: "spring_hanger", label: "Spring hanger" },
++  { value: "constant_effort_support", label: "Constant-effort support" },
++  { value: "nonlinear", label: "Nonlinear support" }
++] as const;
++
++function FamilyField({ value, onChange }: { value: unknown; onChange: (value: string) => void }) {
++  const recognized = FAMILIES.some(family => family.value === value);
++  const preservedLabel = value === undefined
++    ? "Not provided (preserved)"
++    : value === null
++      ? "Null source value (preserved)"
++      : `Unsupported source value ${JSON.stringify(value)} (preserved)`;
++  return <label>Support family
++    <select
++      aria-label="Support family"
++      value={recognized ? String(value) : ""}
++      onChange={event => {
++        const selected = event.target.value;
++        if (FAMILIES.some(family => family.value === selected)) onChange(selected);
++      }}
++    >
++      {!recognized && <option value="" disabled>{preservedLabel}</option>}
++      {FAMILIES.map(family => <option key={family.value} value={family.value}>{family.label}</option>)}
++    </select>
++  </label>;
++}
++const CONFIG = ["family", "restraints", "stiffness", "hanger", "nonlinear", "provenance"];
++function projection(support: unknown): DraftRecord {
++  const s = record(support);
++  return Object.fromEntries(CONFIG.filter(k => s[k] !== undefined).map(k => [k, clone(s[k])]));
++}
++export function SupportConfigurationForm(props: RichFormProps) {
++  if (!["support", "node", "project"].includes(props.selection.type))
++    return null;
++  const support = props.selection.type === "support" ? props.model.supports.find(s => s.id === props.selection.id) : undefined;
++  if (props.selection.type === "support" && !support)
++    return null;
++  return <SupportEditor
++    key={`${props.selection.type}:${props.selection.id}`}
++    {...props}
++    support={support}
++  />;
++}
++function StiffnessFields({ label, value, onChange }: {
++  label: string;
++  value: unknown;
++  onChange: (value: unknown) => void;
++}) {
++  const s = record(value);
++  return <fieldset>
++    <legend>{label}</legend>
++    <TextField
++      label={`${label} DOF`}
++      value={s.dof}
++      choices={DOFS}
++      onChange={dof => onChange(setMember(s, "dof", dof))}
++    />
++    <QuantityField
++      dimension={String(s.dof).toUpperCase().startsWith("R") ? "rotational stiffness (moment per angle)" : String(s.dof).toUpperCase().startsWith("U") ? "linear stiffness (force per length)" : "stiffness — select a DOF"}
++      label={`${label} quantity`}
++      value={s.value}
++      onChange={q => onChange(setMember(s, "value", q))}
++    />
++    <button type="button" onClick={() => onChange(undefined)}>Remove {label.toLowerCase()}</button>
++  </fieldset>;
++}
++function SupportEditor(props: RichFormProps & {
++  support?: RichFormProps["model"]["supports"][number];
++}) {
++  const { support } = props;
++  const [create, setCreate] = useState(!support);
++  const initial = () => support && !create ? projection(support) : { restraints: [] };
++  const [draft, setDraft] = useState<DraftRecord>(initial);
++  const [id, setId] = useState("");
++  const [label, setLabel] = useState("");
++  const [node, setNode] = useState(props.selection.type === "node" ? props.selection.id : "");
++  useEffect(() => {
++    setDraft(support && !create ? projection(support) : { restraints: [] });
++  }, [support, create]);
++  const state = useRichQueue(props);
++  const set = (key: string, value: unknown) => setDraft(d => setMember(d, key, value));
++  const hanger = record(draft.hanger), nonlinear = record(draft.nonlinear);
++  const setH = (key: string, value: unknown) => set("hanger", setMember(hanger, key, value));
++  const setN = (key: string, value: unknown) => set("nonlinear", setMember(nonlinear, key, value));
++  const restraints = Array.isArray(draft.restraints) ? draft.restraints as string[] : [];
++  const source = record(nonlinear.normal_reaction_source);
++  const eligible = props.model.supports.filter(s => s.id !== (create ? id : support?.id) && !record(s).nonlinear && s.restraints.some(d => ["UX", "UY", "UZ"].includes(d.toUpperCase())));
++  const selectedSource = eligible.find(s => s.id === source.support_ref);
++  const collisions = [props.model.nodes, props.model.pipe_segments, props.model.supports, props.model.components, props.model.materials ?? [], props.model.sections ?? [], props.model.load_cases, props.model.combinations ?? []].flat().some(e => e.id === id) || Boolean(props.queuedIntents?.some(i => i.target.ref === id && i.operation_kind === "create"));
++  async function submit() {
++    try {
++      const after = record(parseQuantities(draft));
++      for (const key of ["stiffness"]) {
++        if (after[key] !== undefined) {
++          const stiffness = record(after[key]);
++          requireText(stiffness.dof, "Stiffness DOF");
++          if (stiffness.value === undefined)
++            throw new Error("Enter stiffness value and unit, or remove stiffness.");
++        }
++      }
++      if (after.hanger !== undefined && record(after.hanger).stiffness !== undefined) {
++        const s = record(record(after.hanger).stiffness);
++        requireText(s.dof, "Hanger stiffness DOF");
++        if (s.value === undefined)
++          throw new Error("Enter hanger stiffness value and unit, or remove hanger stiffness.");
++      }
++      if (after.nonlinear !== undefined) {
++        const n = record(after.nonlinear);
++        requireText(n.behavior, "Nonlinear behavior");
++        requireText(n.dof, "Nonlinear DOF");
++        requireText(n.initial_state, "Initial state");
++        if (n.normal_reaction_source !== undefined) {
++          const src = record(n.normal_reaction_source);
++          requireText(src.support_ref, "Reaction source support");
++          requireText(src.dof, "Reaction source DOF");
++          if (!selectedSource || !selectedSource.restraints.some(d => d.toUpperCase() === String(src.dof).toUpperCase()))
++            throw new Error("Select an existing linear support and one of its restrained translational DOFs.");
++        }
++        if (n.normal_reaction !== undefined && n.normal_reaction_source !== undefined)
++          throw new Error("Use either an entered normal reaction or a derived source, not both.");
++      }
++      if (create) {
++        requireText(id, "Support ID");
++        requireText(label, "Support label");
++        requireText(node, "Support node");
++        requireText(after.provenance, "Support provenance");
++        if (collisions)
++          throw new Error("Support ID already exists or is queued. Enter a unique ID.");
++        await state.queue(
++          { object_type: "Support", ref: id },
++          "create_support",
++          "supports",
++          undefined,
++          {
++            id,
++            label,
++            node,
++            ...after
++          },
++          "Support creation",
++          true
++        );
++      }
++      else if (support)
++        await state.queue(
++          { object_type: "Support", ref: support.id },
++          "update_support",
++          "configuration",
++          projection(support),
++          after,
++          "Support configuration"
++        );
++    }
++    catch (e) {
++      state.setError(e instanceof Error ? e.message : String(e));
++    }
++  }
++  return <section id="rich-support-form" tabIndex={-1} aria-label="Support configuration">
++    <h3>Support configuration</h3>
++    <p>Choose the support family and enter its physical inputs. Family names do not supply restraints or engineering values. Missing inputs remain missing; validation determines readiness.</p>
++    <fieldset disabled={state.busy}>
++      <legend>{create ? "Create support" : "Edit support"}</legend>{support && <label>
++        <input
++          type="checkbox"
++          checked={create}
++          onChange={e => setCreate(e.target.checked)}
++        />Create a new support</label>}
++      {create ? <>
++        <TextField
++          label="Support ID"
++          value={id}
++          onChange={setId}
++        />
++        {id && collisions && <p role="alert">Support ID already exists or is queued.</p>}
++        <TextField
++          label="Support label"
++          value={label}
++          onChange={setLabel}
++        />
++        <TextField
++          label="Support node"
++          value={node}
++          choices={props.model.nodes.map(n => n.id)}
++          onChange={setNode}
++        />
++      </> : <p>{support?.label} — {support?.id}, node {support?.node}</p>}
++      <FamilyField value={draft.family} onChange={value => set("family", value)} />
++      <fieldset>
++        <legend>Restrained degrees of freedom</legend>{DOFS.map(dof => <label key={dof}>
++          <input
++            type="checkbox"
++            aria-label={`Restrain ${dof}`}
++            checked={restraints.some(r => r.toUpperCase() === dof)}
++            onChange={e => set("restraints", e.target.checked ? [...restraints, dof] : restraints.filter(r => r.toUpperCase() !== dof))}
++          />
++          {dof}</label>)}</fieldset>
++      <TextField
++        label="Support provenance"
++        value={draft.provenance}
++        onChange={v => set("provenance", v)}
++      />
++      {draft.stiffness !== undefined ? <StiffnessFields
++        label="Support stiffness"
++        value={draft.stiffness}
++        onChange={v => set("stiffness", v)}
++      /> : <button type="button" onClick={() => set("stiffness", {})}>Add support stiffness</button>}
++      <label>
++        <input
++          type="checkbox"
++          checked={draft.hanger !== undefined}
++          onChange={e => set("hanger", e.target.checked ? {} : undefined)}
++        />Include hanger data</label>
++      {draft.hanger !== undefined && <fieldset>
++        <legend>Hanger</legend>
++        <TextField
++          label="Hanger type"
++          value={hanger.hanger_type}
++          choices={["variable_spring_hanger", "spring_hanger", "constant_effort_support"]}
++          onChange={v => setH("hanger_type", v)}
++        />
++        <p>Variable hangers require explicit stiffness, installed/cold/hot loads, travel or movement limit, and source. Constant-effort supports require constant load, travel or movement limit, and source.</p>{hanger.stiffness !== undefined ? <StiffnessFields
++          label="Hanger stiffness"
++          value={hanger.stiffness}
++          onChange={v => setH("stiffness", v)}
++        /> : <button type="button" onClick={() => setH("stiffness", {})}>Add hanger stiffness</button>}
++        {["installed_load", "cold_load", "hot_load", "constant_load", "travel_range", "movement_limit"].map(key => <QuantityField
++          dimension={["travel_range", "movement_limit"].includes(key) ? "length" : "force"}
++          key={key}
++          label={`Hanger ${key.replaceAll("_", " ")}`}
++          value={hanger[key]}
++          onChange={v => setH(key, v)}
++        />)}
++        {["manufacturer_reference", "source_reference", "load_side_review_reference", "mechanics_consumption"].map(key => <TextField
++          key={key}
++          label={`Hanger ${key.replaceAll("_", " ")}`}
++          value={hanger[key]}
++          onChange={v => setH(key, v)}
++        />)}</fieldset>}
++      <label>
++        <input
++          type="checkbox"
++          checked={draft.nonlinear !== undefined}
++          onChange={e => set("nonlinear", e.target.checked ? {} : undefined)}
++        />Include nonlinear behavior</label>
++      {draft.nonlinear !== undefined && <fieldset>
++        <legend>Nonlinear behavior</legend>
++        <TextField
++          label="Nonlinear behavior"
++          value={nonlinear.behavior}
++          choices={["one_way", "gap", "lift_off", "friction"]}
++          onChange={v => setN("behavior", v)}
++        />
++        <TextField
++          label="Nonlinear DOF"
++          value={nonlinear.dof}
++          choices={DOFS}
++          onChange={v => setN("dof", v)}
++        />
++        <TextField
++          label="Initial state"
++          value={nonlinear.initial_state}
++          choices={["active", "inactive", "sticking", "sliding"]}
++          onChange={v => setN("initial_state", v)}
++        />
++        {["active_when", "contact_when", "closes_when"].map(key => <TextField
++          key={key}
++          label={key.replaceAll("_", " ")}
++          value={nonlinear[key]}
++          choices={key === "closes_when" ? ["positive_displacement", "negative_displacement"] : ["positive_reaction", "negative_reaction"]}
++          onChange={v => setN(key, v)}
++        />)}
++        {["gap", "friction_coefficient", "normal_reaction"].map(key => <QuantityField
++          dimension={key === "gap" ? "length" : key === "normal_reaction" ? "force" : "dimensionless coefficient"}
++          key={key}
++          label={key.replaceAll("_", " ")}
++          value={nonlinear[key]}
++          onChange={v => setN(key, v)}
++        />)}
++        <label>
++          <input
++            type="checkbox"
++            checked={nonlinear.normal_reaction_source !== undefined}
++            onChange={e => setN("normal_reaction_source", e.target.checked ? {} : undefined)}
++          />Derive normal reaction from a support</label>{nonlinear.normal_reaction_source !== undefined && <>
++            <TextField
++              label="Reaction source support"
++              value={source.support_ref}
++              choices={eligible.map(s => s.id)}
++              onChange={v => setN("normal_reaction_source", setMember(setMember(source, "dof", undefined), "support_ref", v))}
++            />
++            <TextField
++              label="Reaction source DOF"
++              value={source.dof}
++              choices={selectedSource?.restraints.filter(d => ["UX", "UY", "UZ"].includes(d.toUpperCase())) ?? []}
++              onChange={v => setN("normal_reaction_source", setMember(source, "dof", v))}
++            />
++            <p>Choose a linear support’s restrained translational DOF. Clear any entered normal reaction to use this source.</p>
++          </>}
++      </fieldset>}
++      <button type="button" onClick={() => void submit()}>{create ? "Queue support creation" : "Queue support configuration"}</button>
++    </fieldset>
++    <QueueFeedback {...state} />
++  </section>;
++}
+--- /dev/null
++++ projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx
+@@ -0,0 +1,376 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
++import { WindExposureForm } from "../wind-exposure/WindExposureForm";
++import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
++import type { PreviewModel, EditorOperationIntent } from "../../types";
++import { canonicalJsonString } from "../../services/hashService";
++vi.mock("../../services/hashService", () => ({ canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value)) }));
++afterEach(() => {
++  cleanup();
++  vi.mocked(canonicalJsonString).mockReset();
++  vi.mocked(canonicalJsonString).mockImplementation(async (value) => JSON.stringify(value));
++});
++function model(): PreviewModel {
++  return {
++    schema_version: "test",
++    document_kind: "test",
++    data_boundary: {},
++    project: {
++      id: "project:test",
++      name: "Invented",
++      description: "Original synthetic test data",
++      units: {}
++    },
++    analysis_status: {
++      mechanics: "not_run",
++      rule_check: "not_run",
++      professional_acceptance: "not_run"
++    },
++    nodes: [{
++      id: "node:a",
++      label: "A",
++      provenance: "invented",
++      position: {
++        x: 0,
++        y: 0,
++        z: 0
++      }
++    }],
++    supports: [{
++      id: "support:a",
++      label: "A",
++      node: "node:a",
++      restraints: ["UY"],
++      provenance: "invented"
++    }],
++    materials: [{
++      id: "material:a",
++      label: "A",
++      elastic_modulus: { value: 2, unit: "MPa" },
++      shear_modulus: { value: 1, unit: "MPa" },
++      provenance: "invented"
++    }],
++    pipe_segments: [{
++      id: "pipe:a",
++      label: "A",
++      from: "node:a",
++      to: "node:b",
++      material: "material:a",
++      section: {},
++      provenance: "invented"
++    }],
++    components: [],
++    diagnostics: [],
++    load_cases: [{
++      id: "load:a",
++      label: "Wind",
++      kind: "wind",
++      status: "draft",
++      provenance: "invented",
++      equivalent_static: { wind: { exposed_pipe_refs: ["pipe:a"] } }
++    }]
++  };
++}
++const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
++function quantity(label: string, value: string, unit: string) {
++  enter(`${label} value`, value);
++  enter(`${label} unit`, unit);
++}
++describe("rich authoring structured forms", () => {
++  it("queues a partial material row with exact entered quantities and omitted unentered slots", async () => {
++    const m = model(), original = JSON.stringify(m), queued: EditorOperationIntent[] = [];
++    render(<MaterialTemperatureForm
++      model={m}
++      selection={{ type: "material", id: "material:a" }}
++      onQueueIntent={i => queued.push(i)}
++    />);
++    fireEvent.click(screen.getByText("Add temperature point"));
++    enter("Point 1 ID", "temperature:hot");
++    quantity("Point 1 Temperature", "275", "degC");
++    quantity("Point 1 Shear modulus", "123", "MPa");
++    enter("Point 1 provenance", "user entered");
++    fireEvent.click(screen.getByText("Queue temperature points"));
++    await waitFor(() => expect(queued).toHaveLength(1));
++    expect(queued[0].change).toMatchObject({
++      change_kind: "set_field",
++      field_path: "temperature_points",
++      before: "not_present",
++      unit: "none",
++      dimension: "dimensionless"
++    });
++    expect(JSON.parse(queued[0].change.after)).toEqual([{
++      id: "temperature:hot",
++      temperature: { value: 275, unit: "degC" },
++      shear_modulus: { value: 123, unit: "MPa" },
++      provenance: "user entered"
++    }]);
++    expect(JSON.stringify(m)).toBe(original);
++  });
++  it("rejects half-entered quantities and duplicate material IDs", async () => {
++    const queue = vi.fn();
++    render(<MaterialTemperatureForm
++      model={model()}
++      selection={{ type: "material", id: "material:a" }}
++      onQueueIntent={queue}
++    />);
++    fireEvent.click(screen.getByText("Add temperature point"));
++    enter("Point 1 ID", "hot");
++    enter("Point 1 Temperature unit", "K");
++    fireEvent.click(screen.getByText("Queue temperature points"));
++    expect(await screen.findByRole("alert")).toHaveTextContent("finite value");
++    expect(queue).not.toHaveBeenCalled();
++    fireEvent.click(screen.getByText("Clear point 1 temperature"));
++    fireEvent.click(screen.getByText("Add temperature point"));
++    enter("Point 2 ID", "hot");
++    fireEvent.click(screen.getByText("Queue temperature points"));
++    expect(await screen.findByRole("alert")).toHaveTextContent("unique");
++    expect(queue).not.toHaveBeenCalled();
++  });
++  it("removes an existing point while canonicalizing the exact previous array", async () => {
++    const m = model();
++    m.materials![0].temperature_points = [{ id: "old", shear_modulus: { value: 1, unit: "MPa" } }];
++    const queue = vi.fn();
++    render(<MaterialTemperatureForm
++      model={m}
++      selection={{ type: "material", id: "material:a" }}
++      onQueueIntent={queue}
++    />);
++    fireEvent.click(screen.getByText("Remove point 1"));
++    fireEvent.click(screen.getByText("Queue temperature points"));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    expect(canonicalJsonString).toHaveBeenCalledWith(m.materials![0].temperature_points);
++    expect(queue.mock.calls[0][0].change.after).toBe("[]");
++  });
++  it("drops an async result after selection changes", async () => {
++    let finish!: (value: string) => void;
++    vi.mocked(canonicalJsonString).mockImplementation(() => new Promise(resolve => {
++      finish = resolve;
++    }));
++    const m = model();
++    m.materials![0].temperature_points = [];
++    const queue = vi.fn();
++    const rendered = render(<MaterialTemperatureForm
++      model={m}
++      selection={{ type: "material", id: "material:a" }}
++      onQueueIntent={queue}
++    />);
++    fireEvent.click(screen.getByText("Queue temperature points"));
++    rendered.rerender(<MaterialTemperatureForm
++      model={m}
++      selection={{ type: "node", id: "node:a" }}
++      onQueueIntent={queue}
++    />);
++    finish("[]");
++    await Promise.resolve();
++    expect(queue).not.toHaveBeenCalled();
++  });
++  it("atomically switches whole-pipe wind exposure to an entered partial span", async () => {
++    const m = model(), queue = vi.fn(), original = JSON.stringify(m);
++    render(<WindExposureForm
++      model={m}
++      selection={{ type: "load", id: "load:a" }}
++      onQueueIntent={queue}
++    />);
++    fireEvent.click(screen.getByLabelText("Whole pipe pipe:a"));
++    fireEvent.click(screen.getByText("Add exposure span"));
++    enter("Span 1 pipe", "pipe:a");
++    quantity("Span 1 start fraction", "0", "1");
++    quantity("Span 1 end fraction", "0.75", "none");
++    fireEvent.click(screen.getByText("Queue wind exposure"));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    const intent = queue.mock.calls[0][0];
++    expect(intent.change.field_path).toBe("equivalent_static.wind.exposure");
++    expect(canonicalJsonString).toHaveBeenCalledWith({ exposed_pipe_refs: ["pipe:a"], exposed_spans: [] });
++    expect(JSON.parse(intent.change.after)).toEqual({
++      exposed_pipe_refs: [], exposed_spans: [{
++        pipe_ref: "pipe:a",
++        start_fraction: { value: 0, unit: "1" },
++        end_fraction: { value: 0.75, unit: "none" }
++      }]
++    });
++    expect(JSON.stringify(m)).toBe(original);
++  });
++  it("blocks overlapping wind spans before queuing", async () => {
++    const queue = vi.fn();
++    render(<WindExposureForm
++      model={model()}
++      selection={{ type: "load", id: "load:a" }}
++      onQueueIntent={queue}
++    />);
++    fireEvent.click(screen.getByLabelText("Whole pipe pipe:a"));
++    for (let i = 1; i <= 2; i++) {
++      fireEvent.click(screen.getByText("Add exposure span"));
++      enter(`Span ${i} pipe`, "pipe:a");
++      quantity(`Span ${i} start fraction`, "0", "1");
++      quantity(`Span ${i} end fraction`, "0.5", "1");
++    }
++    fireEvent.click(screen.getByText("Queue wind exposure"));
++    expect(await screen.findByRole("alert")).toHaveTextContent("overlap");
++    expect(queue).not.toHaveBeenCalled();
++  });
++  it("creates an explicitly named support with nested stiffness through the creation envelope", async () => {
++    const queue = vi.fn();
++    render(<SupportConfigurationForm
++      model={model()}
++      selection={{ type: "node", id: "node:a" }}
++      onQueueIntent={queue}
++    />);
++    enter("Support ID", "support:new");
++    enter("Support label", "New spring");
++    enter("Support provenance", "user entered");
++    enter("Support family", "spring");
++    fireEvent.click(screen.getByText("Add support stiffness"));
++    enter("Support stiffness DOF", "UY");
++    quantity("Support stiffness quantity", "2.5", "N/mm");
++    fireEvent.click(screen.getByText("Queue support creation"));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    const intent = queue.mock.calls[0][0];
++    expect(intent.change).toMatchObject({
++      change_kind: "create_support",
++      field_path: "supports",
++      before: "not_present"
++    });
++    expect(JSON.parse(intent.change.after)).toMatchObject({
++      id: "support:new",
++      node: "node:a",
++      family: "spring",
++      stiffness: { dof: "UY", value: { value: 2.5, unit: "N/mm" } }
++    });
++  });
++  it("preserves hanger quantities and removes optional support blocks explicitly", async () => {
++    const m = model();
++    m.supports[0].hanger = {
++      hanger_type: "constant_effort_support",
++      constant_load: { value: 7, unit: "lbf" },
++      movement_limit: { value: 1, unit: "in" },
++      source_reference: "user"
++    };
++    const original = JSON.stringify(m);
++    const queue = vi.fn();
++    render(<SupportConfigurationForm
++      model={m}
++      selection={{ type: "support", id: "support:a" }}
++      onQueueIntent={queue}
++    />);
++    enter("Support family", "vertical_support");
++    fireEvent.click(screen.getByLabelText("Restrain UY"));
++    fireEvent.click(screen.getByLabelText("Restrain UZ"));
++    fireEvent.click(screen.getByLabelText("Include hanger data"));
++    fireEvent.click(screen.getByText("Queue support configuration"));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    expect(canonicalJsonString).toHaveBeenCalledWith({
++      restraints: ["UY"],
++      hanger: m.supports[0].hanger,
++      provenance: "invented"
++    });
++    expect(JSON.parse(queue.mock.calls[0][0].change.after)).toEqual({
++      restraints: ["UZ"],
++      provenance: "invented",
++      family: "vertical_support"
++    });
++    expect(JSON.stringify(m)).toBe(original);
++  });
++  it("queues a friction support using a restrained source DOF and explicit coefficient", async () => {
++    const queue = vi.fn();
++    render(<SupportConfigurationForm
++      model={model()}
++      selection={{ type: "node", id: "node:a" }}
++      onQueueIntent={queue}
++    />);
++    enter("Support ID", "support:f");
++    enter("Support label", "Friction");
++    enter("Support provenance", "user");
++    fireEvent.click(screen.getByLabelText("Include nonlinear behavior"));
++    enter("Nonlinear behavior", "friction");
++    enter("Nonlinear DOF", "UX");
++    enter("Initial state", "sticking");
++    quantity("friction coefficient", "0.2", "1");
++    fireEvent.click(screen.getByLabelText("Derive normal reaction from a support"));
++    enter("Reaction source support", "support:a");
++    enter("Reaction source DOF", "UY");
++    fireEvent.click(screen.getByText("Queue support creation"));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    expect(JSON.parse(queue.mock.calls[0][0].change.after).nonlinear).toEqual({
++      behavior: "friction",
++      dof: "UX",
++      initial_state: "sticking",
++      friction_coefficient: { value: 0.2, unit: "1" },
++      normal_reaction_source: { support_ref: "support:a", dof: "UY" }
++    });
++  });
++  it("blocks duplicate support IDs and competing queued updates", async () => {
++    const m = model(), queue = vi.fn();
++    const rendered = render(<SupportConfigurationForm
++      model={m}
++      selection={{ type: "node", id: "node:a" }}
++      onQueueIntent={queue}
++    />);
++    enter("Support ID", "support:a");
++    enter("Support label", "Duplicate");
++    enter("Support provenance", "user");
++    fireEvent.click(screen.getByText("Queue support creation"));
++    expect(queue).not.toHaveBeenCalled();
++    rendered.unmount();
++    render(<SupportConfigurationForm
++      model={m}
++      selection={{ type: "support", id: "support:a" }}
++      onQueueIntent={queue}
++      queuedIntents={[{ target: { ref: "support:a" }, change: { field_path: "configuration" } } as EditorOperationIntent]}
++    />);
++    fireEvent.click(screen.getByText("Queue support configuration"));
++    expect(await screen.findByRole("alert")).toHaveTextContent("pending change");
++    expect(queue).not.toHaveBeenCalled();
++  });
++});
++
++describe("canonical support family authoring", () => {
++  it("offers exactly nine canonical choices with readable labels and no inferred configuration", () => {
++    render(<SupportConfigurationForm model={model()} selection={{ type: "support", id: "support:a" }} onQueueIntent={vi.fn()} />);
++    const select = screen.getByLabelText("Support family") as HTMLSelectElement;
++    expect(Array.from(select.options).filter(option => !option.disabled).map(option => [option.value, option.textContent])).toEqual([
++      ["anchor", "Anchor"], ["guide", "Guide"], ["line_stop", "Line stop"], ["vertical_support", "Vertical support"],
++      ["spring", "Spring"], ["variable_spring_hanger", "Variable spring hanger"], ["spring_hanger", "Spring hanger"],
++      ["constant_effort_support", "Constant-effort support"], ["nonlinear", "Nonlinear support"]
++    ]);
++    enter("Support family", "vertical_support");
++    expect(screen.getByLabelText("Restrain UY")).toBeChecked();
++    expect(screen.getByLabelText("Restrain UZ")).not.toBeChecked();
++    enter("Support family", "nonlinear");
++    expect(screen.getByLabelText("Include nonlinear behavior")).not.toBeChecked();
++    expect(screen.getByLabelText("Include hanger data")).not.toBeChecked();
++  });
++
++  it.each([undefined, null, "Unsupported family", "", " line_stop ", "LineStop"])("preserves the exact source family %s until an explicit canonical choice", async family => {
++    const m = model();
++    if (family !== undefined) Object.assign(m.supports[0], { family });
++    const original = JSON.stringify(m), queue = vi.fn();
++    render(<SupportConfigurationForm model={m} selection={{ type: "support", id: "support:a" }} onQueueIntent={queue} />);
++    const select = screen.getByLabelText("Support family") as HTMLSelectElement;
++    expect(select.selectedOptions[0]).toHaveTextContent(family === undefined ? "Not provided" : family === null ? "Null source value" : "Unsupported source value");
++    fireEvent.click(screen.getByText("Queue support configuration"));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    const intent = queue.mock.calls[0][0];
++    const before = JSON.parse(intent.change.before), after = JSON.parse(intent.change.after);
++    expect(after).toEqual(before);
++    if (family === undefined) expect(after).not.toHaveProperty("family"); else expect(after.family).toBe(family);
++    enter("Support family", "line_stop");
++    fireEvent.click(screen.getByText("Queue support configuration"));
++    await waitFor(() => expect(queue).toHaveBeenCalledTimes(2));
++    expect(JSON.parse(queue.mock.calls[1][0].change.after)).toEqual({ ...before, family: "line_stop" });
++    expect(JSON.stringify(m)).toBe(original);
++  });
++
++  it.each([["line_stop", "UX"], ["vertical_support", "UZ"]])("creates %s with only the explicitly selected %s restraint", async (family, dof) => {
++    const m = model(), original = JSON.stringify(m), queue = vi.fn();
++    render(<SupportConfigurationForm model={m} selection={{ type: "node", id: "node:a" }} onQueueIntent={queue} />);
++    enter("Support ID", "support:new"); enter("Support label", "Invented family"); enter("Support provenance", "original test");
++    enter("Support family", family);
++    for (const candidate of ["UX", "UY", "UZ", "RX", "RY", "RZ"]) expect(screen.getByLabelText(`Restrain ${candidate}`)).not.toBeChecked();
++    fireEvent.click(screen.getByLabelText(`Restrain ${dof}`));
++    fireEvent.click(screen.getByText("Queue support creation"));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    expect(JSON.parse(queue.mock.calls[0][0].change.after)).toEqual({ id: "support:new", label: "Invented family", node: "node:a", restraints: [dof], provenance: "original test", family });
++    expect(JSON.stringify(m)).toBe(original);
++  });
++});
+--- /dev/null
++++ projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx
+@@ -0,0 +1,98 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { describe, expect, it, vi } from "vitest";
++import { SectionAssignment } from "./SectionAssignment";
++import { GuardedRemoval } from "./GuardedRemoval";
++import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
++import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
++import { WindExposureForm } from "../wind-exposure/WindExposureForm";
++import { PropertyInspector } from "../model-tree/PropertyInspector";
++import { makeRichIntent } from "../rich-authoring/formSupport";
++import { loadPreviewModel } from "../../services/previewService";
++import { applyModelOperation } from "../../services/operationService";
++import type { EditorOperationIntent, PreviewModel } from "../../types";
++const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
++async function applied(model: PreviewModel, intent: EditorOperationIntent) {
++  const result = await applyModelOperation(model, intent, null);
++  expect(result.validation.application_status, JSON.stringify(result.diagnostics)).toBe("applied_to_session_model");
++  return result.applied_model!;
++}
++
++describe("existing toolkit shared engine", () => {
++  it("assigns a shared section, propagates edits to all bound pipes, then detaches without changing quantities", async () => {
++    let model = await loadPreviewModel();
++    model.sections = [{ id: "section:shared-test", name: "Invented shared section", section_type: "pipe", properties: { outside_diameter: { value: 170, unit: "mm" }, wall_thickness: { value: 7, unit: "mm" } }, provenance: "invented test" }];
++    for (const id of model.pipe_segments.slice(0, 2).map((pipe) => pipe.id)) {
++      const queue = vi.fn();
++      render(<SectionAssignment model={model} selection={{ type: "pipe", id }} onQueueIntent={queue} />);
++      enter("Shared section", "section:shared-test");
++      const button = screen.getByRole("button", { name: "Queue section assignment" });
++      await waitFor(() => expect(button).toBeEnabled()); fireEvent.click(button);
++      expect(queue.mock.calls[0][0].change.after).toBe('{"section_ref":"section:shared-test"}');
++      model = await applied(model, queue.mock.calls[0][0]); cleanup();
++    }
++    const edit = makeRichIntent({ object_type: "Section", ref: "section:shared-test" }, "set_field", "properties.outside_diameter.value", "170", { value: 190, unit: "mm" }, "Shared diameter");
++    edit.change.unit = "mm"; edit.change.dimension = "length";
++    model = await applied(model, edit);
++    for (const pipe of model.pipe_segments.slice(0, 2)) expect(pipe.section.outside_diameter).toEqual({ value: 190, unit: "mm" });
++    const bound = model.pipe_segments[0]; const exact = structuredClone(bound.section);
++    const blocked = makeRichIntent({ object_type: "Element", ref: bound.id }, "set_field", "section.outside_diameter.value", "190", { value: 180, unit: "mm" }, "Independent diameter");
++    blocked.change.unit = "mm"; blocked.change.dimension = "length";
++    expect((await applyModelOperation(model, blocked, null)).validation.application_status).not.toBe("applied_to_session_model");
++    const queue = vi.fn(); render(<SectionAssignment model={model} selection={{ type: "pipe", id: bound.id }} onQueueIntent={queue} />);
++    const detach = screen.getByRole("button", { name: "Queue detachment to local dimensions" });
++    await waitFor(() => expect(detach).toBeEnabled()); fireEvent.click(detach);
++    expect(queue.mock.calls[0][0].change.after).toBe('{"source_section_ref":"section:shared-test"}');
++    const detached = await applied(model, queue.mock.calls[0][0]);
++    expect(detached.pipe_segments[0].section_ref).toBeUndefined(); expect(detached.pipe_segments[0].section).toEqual(exact);
++  });
++  it("blocks a referenced material removal through the actual engine without changing the model", async () => {
++    const model = await loadPreviewModel(); const original = JSON.stringify(model); const queue = vi.fn();
++    render(<GuardedRemoval model={model} selection={{ type: "material", id: model.materials![0].id }} onQueueIntent={queue} />);
++    const button = screen.getByRole("button", { name: "Queue removal for review" });
++    await waitFor(() => expect(button).toBeEnabled()); fireEvent.click(button);
++    const result = await applyModelOperation(model, queue.mock.calls[0][0], null);
++    expect(result.validation.application_status).not.toBe("applied_to_session_model");
++    expect(result.diagnostics.some((diagnostic) => /REFERENCED/.test(diagnostic.code))).toBe(true);
++    expect(JSON.stringify(model)).toBe(original);
++  });
++  it("applies the reviewed support, material temperature and wind forms through the shared engine", async () => {
++    let model = await loadPreviewModel(); let queue = vi.fn();
++    render(<SupportConfigurationForm model={model} selection={{ type: "support", id: model.supports[0].id }} onQueueIntent={queue} />);
++    enter("Support family", "line_stop");
++    for (const dof of ["UX", "UY", "UZ", "RX", "RY", "RZ"]) {
++      const checkbox = screen.getByLabelText(`Restrain ${dof}`) as HTMLInputElement;
++      if (checkbox.checked !== (dof === "UX")) fireEvent.click(checkbox);
++    } fireEvent.click(screen.getByRole("button", { name: "Queue support configuration" }));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce()); model = await applied(model, queue.mock.calls[0][0]); expect(model.supports[0].family).toBe("line_stop"); expect(model.supports[0].restraints).toEqual(["UX"]); cleanup();
++    queue = vi.fn(); render(<MaterialTemperatureForm model={model} selection={{ type: "material", id: model.materials![0].id }} onQueueIntent={queue} />);
++    fireEvent.click(screen.getByRole("button", { name: "Add temperature point" })); enter("Point 1 ID", "temperature:invented");
++    for (const [label, value, unit] of [["Temperature", "20", "degC"], ["Elastic modulus", "200000", "MPa"], ["Shear modulus", "80000", "MPa"], ["Thermal expansion coefficient", "0.00001", "1/degC"]]) {
++      enter(`Point 1 ${label} value`, value); enter(`Point 1 ${label} unit`, unit);
++    }
++    enter("Point 1 provenance", "invented unit test"); fireEvent.click(screen.getByRole("button", { name: "Queue temperature points" }));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce()); model = await applied(model, queue.mock.calls[0][0]); expect(model.materials![0].temperature_points![0].temperature).toEqual({ value: 20, unit: "degC" }); cleanup();
++    model.load_cases[0].equivalent_static = { wind: {} }; queue = vi.fn();
++    render(<WindExposureForm model={model} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
++    fireEvent.click(screen.getByRole("button", { name: "Add exposure span" })); enter("Span 1 pipe", model.pipe_segments[0].id);
++    enter("Span 1 start fraction value", "0.1"); enter("Span 1 start fraction unit", "1"); enter("Span 1 end fraction value", "0.5"); enter("Span 1 end fraction unit", "1");
++    fireEvent.click(screen.getByRole("button", { name: "Queue wind exposure" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    model = await applied(model, queue.mock.calls[0][0]); expect(model.load_cases[0].equivalent_static!.wind!.exposed_spans![0].end_fraction).toEqual({ value: 0.5, unit: "1" });
++  });
++  it("queues explicit mass quantities including zero, retaining missing insulation as a warning", async () => {
++    let model = await loadPreviewModel(); const queue = vi.fn();
++    const view = render(<PropertyInspector model={model} selection={{ type: "pipe", id: model.pipe_segments[0].id }} onQueueIntent={queue} />);
++    for (const [key, value, unit, dimension] of [["material_density", "7800", "kg/m^3", "density"], ["contents_density", "0", "kg/m^3", "density"], ["insulation_thickness", "0", "mm", "length"]]) {
++      fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: `section.${key}.value` } });
++      expect(screen.getByTestId("editor-intent-unit")).toHaveValue("");
++      fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value } }); fireEvent.change(screen.getByTestId("editor-intent-unit"), { target: { value: unit } });
++      fireEvent.click(screen.getByTestId("queue-editor-intent")); const intent = queue.mock.calls.at(-1)![0];
++      expect(intent.change).toMatchObject({ before: "TBD", after: JSON.stringify({ value: Number(value), unit }), dimension, unit });
++      const result = await applyModelOperation(model, intent, null);
++      expect(result.validation.application_status, JSON.stringify(result.diagnostics)).toBe("applied_to_session_model");
++      if (key === "insulation_thickness") expect(result.diagnostics.some((diagnostic) => diagnostic.code === "OP-MASS-NOT-SOLVE-READY")).toBe(true);
++      model = result.applied_model!; view.rerender(<PropertyInspector model={model} selection={{ type: "pipe", id: model.pipe_segments[0].id }} onQueueIntent={queue} />);
++    }
++    expect(screen.getByTestId("mass-input-completeness")).toHaveTextContent("Insulation mass is incomplete");
++    expect(model.pipe_segments[0].section.insulation_density).toBeUndefined();
++  });
++});
+--- /dev/null
++++ projects/chirality-piping/apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx
+@@ -0,0 +1,57 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
++import { makeRichIntent } from "./formSupport";
++import { canonicalJsonString } from "../../services/hashService";
++import { applyModelOperation } from "../../services/operationService";
++import { loadPreviewModel } from "../../services/previewService";
++
++// No hash/operation mocks: these checks require the parent's accepted rebuilt Wasm.
++// Operation validation/application is covered here; native physics has separate evidence.
++afterEach(cleanup);
++const enter = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
++
++describe("support family shared-operation engine parity", () => {
++  it.each([["line_stop", "UX"], ["vertical_support", "UZ"]])("creates and updates canonical %s with explicit %s", async (family, dof) => {
++    const model = await loadPreviewModel(), original = JSON.stringify(model), queue = vi.fn();
++    render(<SupportConfigurationForm model={model} selection={{ type: "node", id: model.nodes[0].id }} onQueueIntent={queue} />);
++    enter("Support ID", "support:family-engine-test"); enter("Support label", "Invented family test"); enter("Support provenance", "original synthetic test");
++    enter("Support family", family);
++    fireEvent.click(screen.getByLabelText(`Restrain ${dof}`));
++    fireEvent.click(screen.getByText("Queue support creation"));
++    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
++    const creation = queue.mock.calls[0][0];
++    expect(creation.change.before).toBe("not_present");
++    const created = await applyModelOperation(model, creation, null);
++    expect(created.validation.application_status, JSON.stringify(created.diagnostics)).toBe("applied_to_session_model");
++    expect(created.applied_model!.supports.find(s => s.id === creation.target.ref)).toMatchObject({ family, restraints: [dof] });
++    expect(JSON.stringify(model)).toBe(original);
++    cleanup();
++
++    const updateModel = structuredClone(model);
++    const support = updateModel.supports[0];
++    support.family = "guide"; support.restraints = [dof];
++    const updateOriginal = JSON.stringify(updateModel), updateQueue = vi.fn();
++    render(<SupportConfigurationForm model={updateModel} selection={{ type: "support", id: support.id }} onQueueIntent={updateQueue} />);
++    enter("Support family", family);
++    fireEvent.click(screen.getByText("Queue support configuration"));
++    await waitFor(() => expect(updateQueue).toHaveBeenCalledOnce());
++    const intent = updateQueue.mock.calls[0][0];
++    const before = Object.fromEntries(["family", "restraints", "stiffness", "hanger", "nonlinear", "provenance"].filter(key => key in support).map(key => [key, (support as unknown as Record<string, unknown>)[key]]));
++    expect(intent.change.before).toBe(await canonicalJsonString(before));
++    const updated = await applyModelOperation(updateModel, intent, null);
++    expect(updated.validation.application_status, JSON.stringify(updated.diagnostics)).toBe("applied_to_session_model");
++    expect(updated.applied_model!.supports[0]).toMatchObject({ family, restraints: [dof] });
++    expect(JSON.stringify(updateModel)).toBe(updateOriginal);
++  });
++
++  it.each(["LineStop", "VerticalSupport", "", " line_stop ", "one_way", "gap", "lift_off", "friction"])("rejects noncanonical family %s without mutation", async family => {
++    const model = await loadPreviewModel(), support = model.supports[0], original = JSON.stringify(model);
++    const before = Object.fromEntries(["family", "restraints", "stiffness", "hanger", "nonlinear", "provenance"].filter(key => key in support).map(key => [key, (support as unknown as Record<string, unknown>)[key]]));
++    const intent = makeRichIntent({ object_type: "Support", ref: support.id }, "update_support", "configuration", await canonicalJsonString(before), { ...before, family }, "Unsupported source family");
++    const result = await applyModelOperation(model, intent, null);
++    expect(result.validation.application_status).not.toBe("applied_to_session_model");
++    expect(result.diagnostics.some(diagnostic => /family/i.test(diagnostic.message))).toBe(true);
++    expect(JSON.stringify(model)).toBe(original);
++  });
++});

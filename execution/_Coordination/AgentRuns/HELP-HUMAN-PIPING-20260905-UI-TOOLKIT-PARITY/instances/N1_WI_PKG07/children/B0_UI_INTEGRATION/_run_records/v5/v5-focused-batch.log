@@ -1,0 +1,17 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop -- src/App.test.tsx -t Tier3
+
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t Tier3
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed | 110 skipped (117)
+   Start at  23:01:29
+   Duration  7.35s (transform 683ms, setup 43ms, import 815ms, tests 6.30s, environment 120ms)
+

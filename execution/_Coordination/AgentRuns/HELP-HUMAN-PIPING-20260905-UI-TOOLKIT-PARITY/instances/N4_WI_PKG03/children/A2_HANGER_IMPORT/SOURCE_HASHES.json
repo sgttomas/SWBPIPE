@@ -1,0 +1,29 @@
+{
+  "before": {
+    "core/library_import/provenance_checker.py": "16175f386d479d1072152dfe10e3de54a1cb6ccc02949e08febb448a72d84f73",
+    "core/library_import/README.md": "eb2664c4f48a74ce4355d38060e822b9b1a64966e1e71b7c2956e940373ebc6e",
+    "core/library_import/library_import_document/src/lib.rs": "3636d39e07cf0b728803b8b44284d8571633f06cee4560fdf653de082e0986b5",
+    "core/library_import/library_import_document/tests/provenance_parity.rs": "42330f3abaa5a1c3f87d2ea6bf1f930a07f0c4f0058030e392477add40f692ae",
+    "core/library_import/library_import_document/README.md": "d744e59cfe2e36722e3d1ca2d29df3ad797c59dfcd8da124d5e1d62bdf304881",
+    "tests/test_library_import_provenance.py": "342d684a5d725f671162627cd86df285d056497e38c7681dcfbec1ce8367adac"
+  },
+  "after": {
+    "core/library_import/provenance_checker.py": "ccd6f0dd92c126aee59cdb146761a4656ae471eccd9da7da5cfe3a9990140966",
+    "core/library_import/README.md": "3ecc0271b3c4b2d31cb8566c955e66fa94d9e3406835beb4bb08a614fe96bd98",
+    "core/library_import/library_import_document/src/lib.rs": "ae7a177893969989813e3d30e59c884aee62ee60ab844a66a801c3479b927d6a",
+    "core/library_import/library_import_document/tests/provenance_parity.rs": "1b4adf304d9f093e245da9aa40e2f46d5cf85b98b65797864ea22288958b46c9",
+    "core/library_import/library_import_document/README.md": "c8d738bc1e903bef87d19f6ddc409defddb9303bfce202ac11821dccd48c1abb",
+    "tests/test_library_import_provenance.py": "fa478e37bebfc02c51a1fbb042af6b7129c0fb0623bbd6d957e0d14099620520",
+    "schemas/hanger.schema.yaml": "f7ada4cab2536cb0a8f952cbcc6de0e13f99a58ca4601c22441542b09c33c2f9",
+    "tests/test_hanger_library_schema.py": "cb9368135af07c49e86bed1c00a0b498a550465591d17feea3bbdaea88544f82",
+    "fixtures/hanger/invented_hanger_cases.json": "6eb443306391b93fc4edfa8d6c802865b692e52438e0ed87d60eeaf458280087",
+    "fixtures/hanger/invented_hanger_library_valid.json": "d722b59b338a54410438ec39150138556873a68874f3e77c0f8f421f93fbbfc3"
+  },
+  "new_files": [
+    "schemas/hanger.schema.yaml",
+    "tests/test_hanger_library_schema.py",
+    "fixtures/hanger/invented_hanger_cases.json",
+    "fixtures/hanger/invented_hanger_library_valid.json"
+  ],
+  "head": "740569598f9d00440636b8ea25264127f418e4ec"
+}

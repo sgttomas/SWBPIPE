@@ -90,6 +90,7 @@ export type WindEquivalentStaticGenerationInput = {
   shape_factor?: QuantityValue;
   direction?: string;
   exposed_pipe_refs?: string[];
+  exposed_spans?: Array<{ pipe_ref: string; start_fraction: QuantityValue; end_fraction: QuantityValue }>;
 };
 
 /** User-entered static-equivalent occasional-load generation inputs
@@ -122,6 +123,14 @@ export type PreviewModel = {
     elastic_modulus: { value: number; unit: string };
     shear_modulus: { value: number; unit: string };
     thermal_expansion_coefficient?: { value: number; unit: string };
+    temperature_points?: Array<{
+      id: string;
+      temperature?: QuantityValue;
+      elastic_modulus?: QuantityValue;
+      shear_modulus?: QuantityValue;
+      thermal_expansion_coefficient?: QuantityValue;
+      provenance?: string;
+    }>;
     provenance: string;
   }>;
   sections?: Array<{
@@ -153,11 +162,31 @@ export type PreviewModel = {
      * absolute mill-tolerance thickness reduction (length). Absence means no
      * reduction; absence is not a default value of zero. */
     section: Record<string, { value: number; unit: string }>;
+    section_ref?: string;
     material: string;
     y_reference?: Vec3;
     provenance: string;
   }>;
   supports: Array<{
+    boundary_association?: {
+      boundary_id: string;
+      kind: "equipment" | "equipment_nozzle";
+      equipment_reference: string;
+      nozzle_reference?: string;
+      coordinate_system: "global";
+    };
+    nonlinear?: {
+      behavior: string;
+      dof: string;
+      initial_state?: string;
+      active_when?: string;
+      contact_when?: string;
+      closes_when?: string;
+      gap?: QuantityValue;
+      friction_coefficient?: QuantityValue;
+      normal_reaction?: QuantityValue;
+      normal_reaction_source?: { support_ref: string; dof: string };
+    };
     id: string;
     label: string;
     node: string;
@@ -601,7 +630,7 @@ export type EditorOperationIntent = {
   operation_id: string;
   operation_kind: "create" | "connect" | "delete" | "insert" | "modify";
   operation_status: "proposed";
-  author_type: "user";
+  author_type: "user" | "agent";
   source?: EditorOperationSource;
   target: {
     object_type: EditorOperationObjectType;
@@ -628,6 +657,13 @@ export type EditorOperationIntent = {
       | "delete_combination"
       | "create_combination_term"
       | "delete_support"
+      | "delete_material"
+      | "delete_section"
+      | "delete_component"
+      | "assign_section"
+      | "detach_section"
+      | "split_pipe_run"
+      | "transform_pipe_run"
       | "delete_combination_term"
       | "insert_component_symbol";
     field_label: string;

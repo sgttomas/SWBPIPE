@@ -1,0 +1,310 @@
+[
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27
+    ],
+    "field": "current_basis",
+    "before": "rev0.12;DEC-094;SCA-009 accepted;DAG-010;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/MANIFEST.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T1_ACCEPTED_SNAPSHOT.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T2_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T3_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T4_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T4_RENDERER_ACCEPTED_SNAPSHOT_V3.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/PACKAGE_HANDOFF_V2.md;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/PKG03_ACCEPTED_SNAPSHOT_C2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V5.json",
+    "after": "rev0.12;DEC-094;SCA-009 accepted;DAG-010;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/MANIFEST.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T1_ACCEPTED_SNAPSHOT.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T2_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T3_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T4_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T4_RENDERER_ACCEPTED_SNAPSHOT_V3.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/PACKAGE_HANDOFF_V2.md;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/PKG03_ACCEPTED_SNAPSHOT_C2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V5.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/N7_UI_REPAIR_SOURCE_ACCEPTED_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V9.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/CHECKS_V9_TERMINAL.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_ACTUAL_ENGINE_GATE.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_REPAIR_ACCEPTED_SNAPSHOT_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_DUAL_BUILD_ACCEPTED_SNAPSHOT_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      2
+    ],
+    "field": "current_implementation_evidence",
+    "before": "Explicit named family, restraints and provenance with common rich validation",
+    "after": "Explicit named family, restraints and provenance with common rich validation F3 canonical family validation applies. F1 repaired: duplicate top-level/hanger stiffness must have the same accepted DOF and exactly equal Rust-normalized quantity; conflicts reject create/configuration and batch without publication. Existing lbf/in and lbf/ft compatibility preserved; no new tolerance or aliases."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      2,
+      12,
+      13
+    ],
+    "field": "current_source_evidence",
+    "before": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx;core/model_operations/operation_applier/src/rich_authoring.rs",
+    "after": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx;core/model_operations/operation_applier/src/rich_authoring.rs;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      12
+    ],
+    "field": "current_implementation_evidence",
+    "before": "Variable/constant-effort hanger type, loads, stiffness, travel/limits and provenance form",
+    "after": "Variable/constant-effort hanger type, loads, stiffness, travel/limits and provenance form F3 canonical family validation applies. F1 repaired: duplicate top-level/hanger stiffness must have the same accepted DOF and exactly equal Rust-normalized quantity; conflicts reject create/configuration and batch without publication. Existing lbf/in and lbf/ft compatibility preserved; no new tolerance or aliases."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      13
+    ],
+    "field": "current_implementation_evidence",
+    "before": "Explicit nonlinear behavior/DOF/gap/friction and reaction-source authoring; optional removal via whole configuration",
+    "after": "Explicit nonlinear behavior/DOF/gap/friction and reaction-source authoring; optional removal via whole configuration F3 canonical family validation applies. F1 repaired: duplicate top-level/hanger stiffness must have the same accepted DOF and exactly equal Rust-normalized quantity; conflicts reject create/configuration and batch without publication. Existing lbf/in and lbf/ft compatibility preserved; no new tolerance or aliases."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      16
+    ],
+    "field": "current_implementation_evidence",
+    "before": "LineStop/VerticalSupport explicit family choice and validated restraints preserve accepted backend family mapping",
+    "after": "F3 repaired: exactly nine canonical family tokens (anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear); readable UI labels emit these wire values. Explicit blank/padded/PascalCase/unknown family rejected by shared operation and physics boundaries; omitted/null legacy inference retained; explicit guide remains Guide. No new family/payload exclusivity matrix claimed."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      16
+    ],
+    "field": "current_residual",
+    "before": "Historical DEL-04-03 closure preserved; current UI implementation review remains pending",
+    "after": "Historical closure unchanged; root N7 final rereview pending; family/payload exclusivity beyond established rules remains unclaimed."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      16
+    ],
+    "field": "current_source_evidence",
+    "before": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs",
+    "after": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      21
+    ],
+    "field": "current_implementation_evidence",
+    "before": "Explicit equipment/nozzle references, global coordinate system, six free/rigid/spring choices; stable rigid/spring member IDs",
+    "after": "Explicit equipment/nozzle references, global coordinate system, six free/rigid/spring choices; stable rigid/spring member IDs F3 canonical family validation applies; F2 renders rotational boundary stiffness with its actual DOF dimension."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      21
+    ],
+    "field": "current_source_evidence",
+    "before": "apps/desktop/src/features/boundary-authoring/boundaryDraft.ts::boundaryMembers;core/model_operations/operation_applier/src/boundary_association.rs",
+    "after": "apps/desktop/src/features/boundary-authoring/boundaryDraft.ts::boundaryMembers;core/model_operations/operation_applier/src/boundary_association.rs;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      23
+    ],
+    "field": "current_implementation_evidence",
+    "before": "Human manually chooses validated user-imported hanger record; library/record identity, source and provenance retained",
+    "after": "Human manually chooses validated user-imported hanger record; library/record identity, source and provenance retained F3 canonical family validation applies. F1 repaired: duplicate top-level/hanger stiffness must have the same accepted DOF and exactly equal Rust-normalized quantity; conflicts reject create/configuration and batch without publication. Existing lbf/in and lbf/ft compatibility preserved; no new tolerance or aliases."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      23
+    ],
+    "field": "current_source_evidence",
+    "before": "apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx;apps/desktop/src/features/hanger-selection/hangerSelection.ts::buildHangerSelectionBatch;core/library_import/library_import_document/src/lib.rs",
+    "after": "apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx;apps/desktop/src/features/hanger-selection/hangerSelection.ts::buildHangerSelectionBatch;core/library_import/library_import_document/src/lib.rs;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      24
+    ],
+    "field": "current_implementation_evidence",
+    "before": "Common readout preference uses real native/Wasm Rust conversion in tree/inspector/viewport/results/comparison and diagnostic/knowledge/rule-check quantities",
+    "after": "Common readout preference uses real native/Wasm Rust conversion in tree/inspector/viewport/results/comparison and diagnostic/knowledge/rule-check quantities F2 repaired: chosen complete top-level stiffness, otherwise hanger stiffness, keeps its DOF and quantity together. UX/Ux/ux through UZ/Uz/uz are linear; RX/Rx/rx through RZ/Rz/rz are rotational. SI rotational readout converts to N*m/rad; absent US target or unknown DOF retains entered source with explanation. Legacy properties.linear_stiffness remains linear; model/hash/drafts unchanged."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+    "rows": [
+      24
+    ],
+    "field": "current_source_evidence",
+    "before": "apps/desktop/src/features/display-units/index.tsx::useDisplayQuantity;apps/desktop/src/features/display-units/targets.ts;apps/desktop/src/services/displayQuantityService.ts;apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+    "after": "apps/desktop/src/features/display-units/index.tsx::useDisplayQuantity;apps/desktop/src/features/display-units/targets.ts;apps/desktop/src/services/displayQuantityService.ts;apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx;apps/desktop/src/features/model-workspace/modelView.ts;apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27
+    ],
+    "field": "CurrentEvidenceBasis",
+    "before": "rev0.12;DEC-094;SCA-009 accepted;DAG-010;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/MANIFEST.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T1_ACCEPTED_SNAPSHOT.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T2_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T3_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T4_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T4_RENDERER_ACCEPTED_SNAPSHOT_V3.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/PACKAGE_HANDOFF_V2.md;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/PKG03_ACCEPTED_SNAPSHOT_C2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V5.json",
+    "after": "rev0.12;DEC-094;SCA-009 accepted;DAG-010;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/MANIFEST.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T1_ACCEPTED_SNAPSHOT.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T2_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T3_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T4_ACCEPTED_SNAPSHOT_V2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/T4_RENDERER_ACCEPTED_SNAPSHOT_V3.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/PACKAGE_HANDOFF_V2.md;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/PKG03_ACCEPTED_SNAPSHOT_C2.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V5.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/N7_UI_REPAIR_SOURCE_ACCEPTED_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V9.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/CHECKS_V9_TERMINAL.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_ACTUAL_ENGINE_GATE.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_REPAIR_ACCEPTED_SNAPSHOT_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_DUAL_BUILD_ACCEPTED_SNAPSHOT_V1.json;execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      2
+    ],
+    "field": "CurrentImplementationEvidence",
+    "before": "Explicit named family, restraints and provenance with common rich validation",
+    "after": "Explicit named family, restraints and provenance with common rich validation F3 canonical family validation applies. F1 repaired: duplicate top-level/hanger stiffness must have the same accepted DOF and exactly equal Rust-normalized quantity; conflicts reject create/configuration and batch without publication. Existing lbf/in and lbf/ft compatibility preserved; no new tolerance or aliases."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      2,
+      12,
+      13
+    ],
+    "field": "CurrentSourceEvidence",
+    "before": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx;core/model_operations/operation_applier/src/rich_authoring.rs",
+    "after": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx;core/model_operations/operation_applier/src/rich_authoring.rs;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      12
+    ],
+    "field": "CurrentImplementationEvidence",
+    "before": "Variable/constant-effort hanger type, loads, stiffness, travel/limits and provenance form",
+    "after": "Variable/constant-effort hanger type, loads, stiffness, travel/limits and provenance form F3 canonical family validation applies. F1 repaired: duplicate top-level/hanger stiffness must have the same accepted DOF and exactly equal Rust-normalized quantity; conflicts reject create/configuration and batch without publication. Existing lbf/in and lbf/ft compatibility preserved; no new tolerance or aliases."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      13
+    ],
+    "field": "CurrentImplementationEvidence",
+    "before": "Explicit nonlinear behavior/DOF/gap/friction and reaction-source authoring; optional removal via whole configuration",
+    "after": "Explicit nonlinear behavior/DOF/gap/friction and reaction-source authoring; optional removal via whole configuration F3 canonical family validation applies. F1 repaired: duplicate top-level/hanger stiffness must have the same accepted DOF and exactly equal Rust-normalized quantity; conflicts reject create/configuration and batch without publication. Existing lbf/in and lbf/ft compatibility preserved; no new tolerance or aliases."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      16
+    ],
+    "field": "CurrentImplementationEvidence",
+    "before": "LineStop/VerticalSupport explicit family choice and validated restraints preserve accepted backend family mapping",
+    "after": "F3 repaired: exactly nine canonical family tokens (anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear); readable UI labels emit these wire values. Explicit blank/padded/PascalCase/unknown family rejected by shared operation and physics boundaries; omitted/null legacy inference retained; explicit guide remains Guide. No new family/payload exclusivity matrix claimed."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      16
+    ],
+    "field": "CurrentSourceEvidence",
+    "before": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs",
+    "after": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      16
+    ],
+    "field": "CurrentResidual",
+    "before": "Historical DEL-04-03 closure preserved; current UI implementation review remains pending",
+    "after": "Historical closure unchanged; root N7 final rereview pending; family/payload exclusivity beyond established rules remains unclaimed."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      21
+    ],
+    "field": "CurrentImplementationEvidence",
+    "before": "Explicit equipment/nozzle references, global coordinate system, six free/rigid/spring choices; stable rigid/spring member IDs",
+    "after": "Explicit equipment/nozzle references, global coordinate system, six free/rigid/spring choices; stable rigid/spring member IDs F3 canonical family validation applies; F2 renders rotational boundary stiffness with its actual DOF dimension."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      21
+    ],
+    "field": "CurrentSourceEvidence",
+    "before": "apps/desktop/src/features/boundary-authoring/boundaryDraft.ts::boundaryMembers;core/model_operations/operation_applier/src/boundary_association.rs",
+    "after": "apps/desktop/src/features/boundary-authoring/boundaryDraft.ts::boundaryMembers;core/model_operations/operation_applier/src/boundary_association.rs;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      23
+    ],
+    "field": "CurrentImplementationEvidence",
+    "before": "Human manually chooses validated user-imported hanger record; library/record identity, source and provenance retained",
+    "after": "Human manually chooses validated user-imported hanger record; library/record identity, source and provenance retained F3 canonical family validation applies. F1 repaired: duplicate top-level/hanger stiffness must have the same accepted DOF and exactly equal Rust-normalized quantity; conflicts reject create/configuration and batch without publication. Existing lbf/in and lbf/ft compatibility preserved; no new tolerance or aliases."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      23
+    ],
+    "field": "CurrentSourceEvidence",
+    "before": "apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx;apps/desktop/src/features/hanger-selection/hangerSelection.ts::buildHangerSelectionBatch;core/library_import/library_import_document/src/lib.rs",
+    "after": "apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx;apps/desktop/src/features/hanger-selection/hangerSelection.ts::buildHangerSelectionBatch;core/library_import/library_import_document/src/lib.rs;core/model_operations/operation_applier/src/rich_authoring.rs;core/product_physics/src/lib.rs;apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx"
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      24
+    ],
+    "field": "CurrentImplementationEvidence",
+    "before": "Common readout preference uses real native/Wasm Rust conversion in tree/inspector/viewport/results/comparison and diagnostic/knowledge/rule-check quantities",
+    "after": "Common readout preference uses real native/Wasm Rust conversion in tree/inspector/viewport/results/comparison and diagnostic/knowledge/rule-check quantities F2 repaired: chosen complete top-level stiffness, otherwise hanger stiffness, keeps its DOF and quantity together. UX/Ux/ux through UZ/Uz/uz are linear; RX/Rx/rx through RZ/Rz/rz are rotational. SI rotational readout converts to N*m/rad; absent US target or unknown DOF retains entered source with explanation. Legacy properties.linear_stiffness remains linear; model/hash/drafts unchanged."
+  },
+  {
+    "file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+    "rows": [
+      24
+    ],
+    "field": "CurrentSourceEvidence",
+    "before": "apps/desktop/src/features/display-units/index.tsx::useDisplayQuantity;apps/desktop/src/features/display-units/targets.ts;apps/desktop/src/services/displayQuantityService.ts;apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+    "after": "apps/desktop/src/features/display-units/index.tsx::useDisplayQuantity;apps/desktop/src/features/display-units/targets.ts;apps/desktop/src/services/displayQuantityService.ts;apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx;apps/desktop/src/features/model-workspace/modelView.ts;apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx"
+  }
+]

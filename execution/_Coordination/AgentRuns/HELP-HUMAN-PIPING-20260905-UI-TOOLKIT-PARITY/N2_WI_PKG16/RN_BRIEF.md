@@ -1,0 +1,9 @@
+# RN sealed fresh native integration review
+
+Role TASK Agent2 with software-code-review; parent WORKING_ITEMS N2_WI_PKG16; same run. Actual delegated-harness-native execution, non-delegation instruction+config asserted. No child delegation. Read actual AGENT_TASK and skills/software-code-review/SKILL.md.
+
+Scope: fresh review of 100% native owned diff RN_FROZEN.diff and exact three hashes RN_FROZEN_HASHES.json. Review production batch/display/selfweight facades and registration/path dependency as accepted RC_RETURN context, plus new hanger metadata mapping and focused storage regression, and substantive inherited rule notice test-only correction. Read native context, NATIVE_BASELINE_DIAGNOSIS.md, NATIVE_AMENDMENT_BRIEF_V1.md, NATIVE_N4_ACCEPTED_BASIS.json, accepted N4 PKG03_ACCEPTED_SNAPSHOT_C2.json, accepted N5 SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json and ADAPTER_DESIGN_V2.md; exact contracts in C_ACCEPTED_SERVICE_WIRE_V1.md/C1_RETURN.md.
+
+Native full suite running; manager supplies exact result when available. All operation sources remain accepted C snapshot unchanged; this is native source-only amendment. No production notice change is authorized. Source accepts real shared adapter, no duplicate math; hanger metadata must retain imported source/record data through SQLite and correct index fields. Unknown/mismatched metadata still fail.
+
+Tools authorized read/search/hash/offline focused test if meaningful. No network, source edits, other evidence edits, or commits. Only write RN_RETURN.md in N2 directory with PASS/FAIL, findings with source lines/evidence, full diff coverage, hash verification, limitations and exact tests read/run. Use repo-relative paths or anchors in active text. Do not infer model identity/token telemetry or accepted lifecycle. Fresh independent review must not claim UI runtime tests not performed.

@@ -1,0 +1,6 @@
+# Fresh full T2 geometry/boundary module review
+Agent2 ephemeral read-only/no delegation; parent N1_WI_PKG07,PKG07DEL0701/02. Review100% seven frozen T2 SOURCE_MANIFEST_V1 files + RETURN/CHECKS tests against actual accepted N2geometry_operations/boundary_association/C1batch,C2/C3returns,N6BOUNDARY_WIRE contract. Read actual project/root instructions/software-code-review.
+
+Check explicit physical IDs and metadata, canonical before selection ordering, mode/copy map payload validity, dimensions/numeric quantities/no hidden engineering defaults, unsupported attachments and errors honest, entire boundary group member order/IDs/association fields exact in one batch with no forged private token. Validate async requestEpoch/model/selection/busy withdrawal, accessible missing-input states, no direct source mutation or partial application. Tests actual Wasm15passed; review adequacy and meaningful adverse cases. Hashes must match; B0 shared integration concurrent outside scope.
+
+Read-only tools incl git diff/show/status allowed; no Git mutation/network/source edits. Writes only own R_T2_GEOMETRY/RETURN.md,STATUS.json. Report PASS or concrete actionable defects with location/trigger/impact/remedy. No repair, no lifecycle/D58 claims, final integrated review still owed. Native instruction+config asserted, exact inherited model unavailable.

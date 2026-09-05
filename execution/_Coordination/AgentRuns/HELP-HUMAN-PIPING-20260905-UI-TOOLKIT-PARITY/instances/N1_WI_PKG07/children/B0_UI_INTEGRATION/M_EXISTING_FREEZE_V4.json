@@ -1,0 +1,39 @@
+{
+  "status": "FROZEN_FOR_FRESH_REREVIEW",
+  "own_source_hashes": {
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "59d7601c15c49182fc964487b356917a3d6e7664b852579b7094438e742d0213",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "10fe6836ce1f6cb48624820594a08002a0a2bb845677c782512c9bb07ce89af4",
+    "projects/chirality-piping/apps/desktop/src/types.ts": "0db53967b111f35e30b77bf9e88316e97d79975005bd2dac18c67e5d2582476f",
+    "projects/chirality-piping/apps/desktop/src/styles.css": "b0c90276cd31fee095cb574064899271b3bd6a21f0cbb36bf4517c250ce1497b",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx": "945e368d15534ad099aa496e55d1cd6e1561288f4e2549d5b402998de7a39ee9",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts": "c5026aef9c8d84ee63ceeb779c4d4c5fb75b7957967391b661289de150740cf1",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx": "3f55094a378143d2fa7a5eaeccee541205daece4be82f0f605643df990866672",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx": "5783c9bd73cbefccaab90f2fcdbd630e900a63fd00cac7dbc2353ec285921ca3",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "5d78e2cecec088ccabb0ff03f8751d2f321822406102b72e3cb8ef1ce480ab21",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx": "096b2c84fdaa81829f6e0e684d03ff18ef6c76aa45574926bd79a825172342dc",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.tsx": "63d6a894c12edad9492861ee8266f23a52411148fa76a9eaf0e1fe119edb5586",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx": "2caa86acdc185893aeb1495fff12fe8881fac7dc7f645d29a5b243218a9e675d",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/SectionAssignment.tsx": "d15ad7fc5978c907ee4b3198aa08094010405c5dcde98b38b8661fd90390983a",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx": "4c76b5dfaf456c44bbf87d3a47ff4a5dfead8fb0e53a4e8f2a38c80878249565"
+  },
+  "accepted_B2_module_hashes_verified": {
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx": "60454a2336f6f3695b128c4f1392b5f50216aa8c618a17b423218a5a3eb7f078",
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx": "15929b1f8e4670d66449cd5e90e32d5c38ded407fa2755c7f1f16ab9ec111665",
+    "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx": "052c5f7e621cf22263d735f9447d068092321bd13ab4714eabe5df5be5da91a2",
+    "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e",
+    "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx": "0a8727bb7d4bb034d6214de114adac85d5d6bc91d6f3821518f6455900562972"
+  },
+  "changed_since_v3": [
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx"
+  ],
+  "integrated_diff": "diff-v4-integrated.patch",
+  "diff_sha256": "fe90c461081a5397d52cddf37e5e63d5ca1af2bac35834cec8af84875138b8b0",
+  "scope": "PASS",
+  "focused_tests": "3PASS, after final test assertion augmentation included in full run",
+  "full_checks": "running checks-v4-full.json",
+  "engine_basis": "instances/N_ENV/C_WASM_BUILD.json",
+  "wasm_sha256": "e9590a97b6ff9f965262ec1567457b98ccff5183d8539607b68ec14e4af6a30d",
+  "derivative_status": "implementation evidence; no lifecycle/decomposition closure"
+}

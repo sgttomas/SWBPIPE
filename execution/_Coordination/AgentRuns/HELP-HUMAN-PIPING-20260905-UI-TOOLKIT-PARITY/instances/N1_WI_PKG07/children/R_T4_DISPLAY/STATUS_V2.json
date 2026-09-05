@@ -1,0 +1,11 @@
+{
+  "status": "COMPLETED",
+  "verdict": "PASS",
+  "actionable_findings": 0,
+  "resolved_findings": [
+    "P2 US volume_per_length target omission"
+  ],
+  "source_modified": false,
+  "return": "RETURN_V2.md",
+  "parent": "N1_WI_PKG07"
+}

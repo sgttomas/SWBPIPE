@@ -45,3 +45,18 @@ together; the parity test is the guard against silent divergence.
 ```sh
 cargo test --manifest-path core/library_import/library_import_document/Cargo.toml
 ```
+
+## Hanger imports
+
+`LibraryKind::Hanger` / `"hanger"` uses `hanger_library` and `hanger_records`.
+The runtime embeds `schemas/hanger.schema.yaml` directly with `include_str!`;
+its bounded keyword walker, duplicate-ID and provenance checks match Python.
+The shared invented case test invokes Python and compares full ordered
+code/path/severity tuples and outcomes. No Cargo dependency was added.
+
+See the parent library-import README for quantity/unit vocabulary, source
+snapshot requirements, and downstream manual-selection/whole-configuration
+replacement obligations. Import accepts missing optional engineering fields
+without filling them. Schema validity is not solve readiness. Public/private
+and quarantine decisions are checked at library, record and quantity level;
+no private data is published or transmitted by this validator.

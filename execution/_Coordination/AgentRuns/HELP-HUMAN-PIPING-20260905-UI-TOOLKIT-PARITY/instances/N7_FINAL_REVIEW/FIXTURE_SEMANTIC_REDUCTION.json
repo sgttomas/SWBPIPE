@@ -1,0 +1,1632 @@
+{
+  "method": "exact typed recursive delta against valid fixture; reconstructible; all 86 cases",
+  "cases": [
+    {
+      "name": "valid",
+      "visibility": "private",
+      "outcome": "PRIVATE_LOCAL_ONLY",
+      "required_code": null,
+      "payload_delta_from_valid_fixture": []
+    },
+    {
+      "name": "missing provenance ['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_name['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/source_name",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_location['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/source_location",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_license['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/source_license",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing contributor['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/contributor",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing contributor_certification['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/contributor_certification",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing redistribution_status['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/redistribution_status",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing review_status['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/review_status",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "typed provenance ['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/source_name",
+          "action": "replace",
+          "value": 7
+        }
+      ]
+    },
+    {
+      "name": "blank provenance ['hanger_library']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/source_location",
+          "action": "replace",
+          "value": "  "
+        }
+      ]
+    },
+    {
+      "name": "quarantine ['hanger_library']",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/redistribution_status",
+          "action": "replace",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "missing provenance ['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_name['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/source_name",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_location['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/source_location",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_license['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/source_license",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing contributor['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/contributor",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing contributor_certification['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/contributor_certification",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing redistribution_status['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/redistribution_status",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing review_status['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/review_status",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "typed provenance ['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/source_name",
+          "action": "replace",
+          "value": 7
+        }
+      ]
+    },
+    {
+      "name": "blank provenance ['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/source_location",
+          "action": "replace",
+          "value": "  "
+        }
+      ]
+    },
+    {
+      "name": "quarantine ['hanger_records', 0]",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance/redistribution_status",
+          "action": "replace",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "missing provenance ['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_name['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/source_name",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_location['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/source_location",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing source_license['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/source_license",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing contributor['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/contributor",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing contributor_certification['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/contributor_certification",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing redistribution_status['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/redistribution_status",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "missing review_status['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/review_status",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "typed provenance ['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/source_name",
+          "action": "replace",
+          "value": 7
+        }
+      ]
+    },
+    {
+      "name": "blank provenance ['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/source_location",
+          "action": "replace",
+          "value": "  "
+        }
+      ]
+    },
+    {
+      "name": "quarantine ['hanger_records', 0, 'hanger', 'stiffness', 'value']",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/redistribution_status",
+          "action": "replace",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "['schema_version']2.0.0",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/schema_version",
+          "action": "replace",
+          "value": "2.0.0"
+        }
+      ]
+    },
+    {
+      "name": "['extra']{}",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/extra",
+          "action": "add",
+          "value": {}
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records']{}",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records",
+          "action": "replace",
+          "value": {}
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0]7",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0",
+          "action": "replace",
+          "value": 7
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0, 'hanger', 'source_reference']  ",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/source_reference",
+          "action": "replace",
+          "value": "  "
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0, 'hanger', 'source_reference']None",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/source_reference",
+          "action": "replace",
+          "value": null
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0, 'hanger', 'hanger_type']spring",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/hanger_type",
+          "action": "replace",
+          "value": "spring"
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0, 'hanger', 'stiffness', 'dof']RX",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/dof",
+          "action": "replace",
+          "value": "RX"
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0, 'hanger', 'stiffness', 'value', 'magnitude']True",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/magnitude",
+          "action": "replace",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0, 'hanger', 'stiffness', 'value', 'magnitude']0",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/magnitude",
+          "action": "replace",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0, 'hanger', 'installed_load', 'unit']m",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/unit",
+          "action": "replace",
+          "value": "m"
+        }
+      ]
+    },
+    {
+      "name": "['hanger_records', 0, 'hanger', 'installed_load', 'dimension']length",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/dimension",
+          "action": "replace",
+          "value": "length"
+        }
+      ]
+    },
+    {
+      "name": "['hanger_library', 'provenance', 'redistribution_status'][]",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/redistribution_status",
+          "action": "replace",
+          "value": []
+        }
+      ]
+    },
+    {
+      "name": "['hanger_library', 'privacy_class']{}",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/privacy_class",
+          "action": "replace",
+          "value": {}
+        }
+      ]
+    },
+    {
+      "name": "duplicate ID",
+      "visibility": "private",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_HANGER_DUPLICATE_ID",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/1/hanger_id",
+          "action": "replace",
+          "value": "invented.variable"
+        }
+      ]
+    },
+    {
+      "name": "private blocked public",
+      "visibility": "public",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_PRIVATE_DATA_PUBLIC_BLOCKED",
+      "payload_delta_from_valid_fixture": []
+    },
+    {
+      "name": "incomplete optional allowed",
+      "visibility": "private",
+      "outcome": "PRIVATE_LOCAL_ONLY",
+      "required_code": null,
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load",
+          "action": "remove"
+        },
+        {
+          "path": "/hanger_records/0/hanger/source_reference",
+          "action": "replace",
+          "value": "invented:incomplete"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness",
+          "action": "remove"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range",
+          "action": "remove"
+        }
+      ]
+    },
+    {
+      "name": "accepted public",
+      "visibility": "public",
+      "outcome": "ACCEPTED_PUBLIC",
+      "required_code": null,
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/privacy_class",
+          "action": "replace",
+          "value": "public_permissive_reviewed"
+        },
+        {
+          "path": "/hanger_library/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_library/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/hanger/constant_load/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/hanger/constant_load/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/hanger/movement_limit/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/hanger/movement_limit/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        }
+      ]
+    },
+    {
+      "name": "nested private blocks public",
+      "visibility": "public",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_PRIVATE_DATA_PUBLIC_BLOCKED",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/privacy_class",
+          "action": "replace",
+          "value": "public_permissive_reviewed"
+        },
+        {
+          "path": "/hanger_library/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_library/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/hanger/constant_load/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/hanger/constant_load/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/hanger/movement_limit/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/hanger/movement_limit/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        }
+      ]
+    },
+    {
+      "name": "override cannot conceal quarantine",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance/redistribution_status",
+          "action": "replace",
+          "value": "protected_suspected"
+        },
+        {
+          "path": "/hanger_library/redistribution_status",
+          "action": "add",
+          "value": "private_only"
+        }
+      ]
+    },
+    {
+      "name": "C2 public project_private $.hanger_library",
+      "visibility": "public",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_PRIVATE_DATA_PUBLIC_BLOCKED",
+      "required_path": "$.hanger_library",
+      "required_severity": "blocking",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/privacy_class",
+          "action": "replace",
+          "value": "project_private"
+        },
+        {
+          "path": "/hanger_library/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_library/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/hanger/constant_load/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/hanger/constant_load/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/hanger/movement_limit/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/hanger/movement_limit/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        }
+      ]
+    },
+    {
+      "name": "C2 public project_private $.hanger_records[0]",
+      "visibility": "public",
+      "outcome": "REJECTED",
+      "required_code": "IMPORT_PRIVATE_DATA_PUBLIC_BLOCKED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "blocking",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/privacy_class",
+          "action": "replace",
+          "value": "public_permissive_reviewed"
+        },
+        {
+          "path": "/hanger_library/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_library/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/stiffness/value/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/hanger/travel_range/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/0/privacy_class",
+          "action": "add",
+          "value": "project_private"
+        },
+        {
+          "path": "/hanger_records/0/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/0/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/hanger/constant_load/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/hanger/constant_load/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/hanger/movement_limit/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/hanger/movement_limit/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        },
+        {
+          "path": "/hanger_records/1/provenance/redistribution_status",
+          "action": "replace",
+          "value": "public_permissive"
+        },
+        {
+          "path": "/hanger_records/1/provenance/review_status",
+          "action": "replace",
+          "value": "accepted"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library redistribution_status provenance missing",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "remove"
+        },
+        {
+          "path": "/hanger_library/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library redistribution_status provenance None",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "replace",
+          "value": null
+        },
+        {
+          "path": "/hanger_library/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library redistribution_status provenance []",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "replace",
+          "value": []
+        },
+        {
+          "path": "/hanger_library/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library redistribution_status provenance 7",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "replace",
+          "value": 7
+        },
+        {
+          "path": "/hanger_library/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library redistribution_status provenance not provenance",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "replace",
+          "value": "not provenance"
+        },
+        {
+          "path": "/hanger_library/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library review_status provenance missing",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "remove"
+        },
+        {
+          "path": "/hanger_library/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library review_status provenance None",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "replace",
+          "value": null
+        },
+        {
+          "path": "/hanger_library/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library review_status provenance []",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "replace",
+          "value": []
+        },
+        {
+          "path": "/hanger_library/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library review_status provenance 7",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "replace",
+          "value": 7
+        },
+        {
+          "path": "/hanger_library/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_library review_status provenance not provenance",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_library",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_library/provenance",
+          "action": "replace",
+          "value": "not provenance"
+        },
+        {
+          "path": "/hanger_library/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] redistribution_status provenance missing",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "remove"
+        },
+        {
+          "path": "/hanger_records/0/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] redistribution_status provenance None",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "replace",
+          "value": null
+        },
+        {
+          "path": "/hanger_records/0/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] redistribution_status provenance []",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "replace",
+          "value": []
+        },
+        {
+          "path": "/hanger_records/0/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] redistribution_status provenance 7",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "replace",
+          "value": 7
+        },
+        {
+          "path": "/hanger_records/0/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] redistribution_status provenance not provenance",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "replace",
+          "value": "not provenance"
+        },
+        {
+          "path": "/hanger_records/0/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] review_status provenance missing",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "remove"
+        },
+        {
+          "path": "/hanger_records/0/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] review_status provenance None",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "replace",
+          "value": null
+        },
+        {
+          "path": "/hanger_records/0/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] review_status provenance []",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "replace",
+          "value": []
+        },
+        {
+          "path": "/hanger_records/0/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] review_status provenance 7",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "replace",
+          "value": 7
+        },
+        {
+          "path": "/hanger_records/0/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0] review_status provenance not provenance",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0]",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/provenance",
+          "action": "replace",
+          "value": "not provenance"
+        },
+        {
+          "path": "/hanger_records/0/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load redistribution_status provenance missing",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "remove"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load redistribution_status provenance None",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "replace",
+          "value": null
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load redistribution_status provenance []",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "replace",
+          "value": []
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load redistribution_status provenance 7",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "replace",
+          "value": 7
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load redistribution_status provenance not provenance",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "replace",
+          "value": "not provenance"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/redistribution_status",
+          "action": "add",
+          "value": "protected_suspected"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load review_status provenance missing",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "remove"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load review_status provenance None",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "replace",
+          "value": null
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load review_status provenance []",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "replace",
+          "value": []
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load review_status provenance 7",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "replace",
+          "value": 7
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    },
+    {
+      "name": "C2 $.hanger_records[0].hanger.installed_load review_status provenance not provenance",
+      "visibility": "private",
+      "outcome": "QUARANTINE",
+      "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      "required_path": "$.hanger_records[0].hanger.installed_load",
+      "required_severity": "quarantine",
+      "payload_delta_from_valid_fixture": [
+        {
+          "path": "/hanger_records/0/hanger/installed_load/provenance",
+          "action": "replace",
+          "value": "not provenance"
+        },
+        {
+          "path": "/hanger_records/0/hanger/installed_load/review_status",
+          "action": "add",
+          "value": "quarantined"
+        }
+      ]
+    }
+  ]
+}

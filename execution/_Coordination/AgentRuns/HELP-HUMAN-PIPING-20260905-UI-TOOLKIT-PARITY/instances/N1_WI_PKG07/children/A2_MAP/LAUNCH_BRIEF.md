@@ -1,0 +1,13 @@
+# Sealed launch brief v1
+RequestedBy: HELP_HUMAN; RunID: HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY
+ParentInstanceID: N1_WI_PKG07; ChildInstanceID: A2_MAP; Role: ephemeral Agent 2 (no delegation)
+PackageID: PKG-07; DeliverableID: DEL-07-09; scope SOW-077; objectives OBJ-006/OBJ-015.
+Objective: Produce complete 24-row plus R1-R3 vocabulary capability/routing map and palette organization contract from accepted specs and live code; propose concrete UI implementation boundaries and backend dependency contracts. This is Phase A contract production only.
+Resolve REPO_ROOT using git rev-parse --show-toplevel; WORKING_ROOT={REPO_ROOT}/projects/chirality-piping.
+AcceptedBasis: decomposition revision 0.12; DEC-094/SCA-009 Vocabulary_Annex; DAG-010 approved snapshot. Read actual root AGENTS.md, project AGENTS.md, CONTRACT.md, PKG07 ScopeOfWork files and DEL0709 context/status/references, relevant PKG16 contracts before code.
+DeclaredReads: repository instructions; project execution, docs, apps/desktop, core/model_operations, model/schema, tests and software-workflow.json; relevant skills for reconnaissance. Read-only commands allowed, deterministic discovery allowed; do not run broad test suite.
+AllowedTools: read/search, shell, filesystem edits to exact targets below; no delegation, Git mutation, network, product source writes, lifecycle or register changes.
+AllowedWriteTargets: DEL-07-09/Palette_Organization_Contract.md; DEL-07-09/Palette_Operation_Routing.md; DEL-07-09/Capability_Comparison.csv (all within exact PKG07 working directory); own children/A2_MAP/RETURN.md and STATUS.json under this run instance.
+ExpectedOutputs: full 24-row plus R1-R3 map distinguishing runtime capability, UI capability, operation shape, owning implementation deliverable, evidence, missing contracts, gate state; humane palette organization and apply/preview/error behavior; return recommended disjoint source scopes and serialized dependencies.
+AcceptanceCriteria: every annex row explicit; claims cite actual paths/symbols; do not treat deferred backend semantics as supported; dimensional/provenance and stable ID constraints; every mutation PKG16-mediated; D58 gate held; no lifecycle acceptance or replacement of accepted decomposition. Files derivative to above authority. Preserve existing historical Vocabulary_Coverage.csv.
+Escalation: report cross-package required contracts to manager; no cross-package writes. Return evidence not permission requests. Runtime execution class delegated-harness-native; role enforcement instruction+config asserted; inherited actual model unavailable unless runtime exposes it, do not invent.

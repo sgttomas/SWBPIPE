@@ -1,0 +1,27 @@
+{
+  "parent": "HELP_HUMAN",
+  "role": "direct ephemeral Agent2",
+  "scope": "PKG05 self-weight thin native/Wasm adapter design only",
+  "basis": "Parent accepted SCA009 row22 and reviewed module interface; adapter candidate source held",
+  "read_scope": [
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_V1.md",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_SNAPSHOT_V1.json",
+    "core/product_physics/src/self_weight.rs",
+    "core/product_physics/Cargo.toml",
+    "core/serialization/canonical_json/src/lib.rs",
+    "core/model_operations/operation_applier/src/lib.rs",
+    "core/solver/frame_kernel/Cargo.toml",
+    "core/solver/sparse_direct/Cargo.toml"
+  ],
+  "write_scope": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_SELFWEIGHT_ADAPTER_REFUTE",
+  "tools": "read-only shell, own evidence writes",
+  "exclusions": [
+    "source edits",
+    "tests",
+    "delegation",
+    "mutation engine changes",
+    "design authority acceptance"
+  ],
+  "model": "inherited exact identifier unavailable",
+  "timestamp": "2026-09-05T04:20:29.229016+00:00"
+}

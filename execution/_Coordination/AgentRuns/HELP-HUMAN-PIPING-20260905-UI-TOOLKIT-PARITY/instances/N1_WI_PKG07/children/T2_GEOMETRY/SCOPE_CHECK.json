@@ -1,0 +1,19 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools",
+    "projects/chirality-piping/apps/desktop/src/features/boundary-authoring",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/T2_GEOMETRY"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/boundaryDraft.ts",
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools/batchFormSupport.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools/geometryDraft.ts"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

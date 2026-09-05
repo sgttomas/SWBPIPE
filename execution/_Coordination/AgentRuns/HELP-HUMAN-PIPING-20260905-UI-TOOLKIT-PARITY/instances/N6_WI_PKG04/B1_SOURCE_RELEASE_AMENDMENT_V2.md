@@ -1,0 +1,5 @@
+# B1 source release amendment v2
+
+HELP_HUMAN releases the exact narrow adapter repair now as existing-capability row2/B2 rich-anchor consistency, rather than Tier3 boundary enablement. N3 source fence is released; N6 exclusively owns core/product_physics/src/lib.rs for this repair and focused regression tests. This overrides READY/NOT RELEASED and existing-wave hold language of B1_IMPLEMENTATION_BRIEF_READY_V1.md for this exact adapter fix only.
+
+N3 accepted source hash remains 89607dac35257329bcc58041cfb62407b537b3cdbb28a61efe82f02544ddb9af and must be verified immediately before source write. No boundary association/form/batch source, solver source or unrelated code is released. Objective, exact branch insertion, explicit subset preservation, focused/full tests and fresh 100%-narrow-diff independent review from B1 v1 remain binding. Preserve N3 Section source. Return hash-bound accepted snapshot and release source fence after validated fan-in. Native Agent2 dispatch is actual execution; children do not delegate.

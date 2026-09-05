@@ -1,0 +1,2 @@
+# F2 accepted DOF aliases clarification v9a
+N7 full finding explicitly includes accepted case aliases. Shared rich_authoring DOF validator admits UX/Ux/ux through RZ/Rz/rz. Derive display kind case-insensitively for these accepted spellings without mutating source strings; no whitespace trimming or unsupported alias invention. Tests include lowercase/titlecase source DOF. Source fence unchanged. ExistingToolkitEngine.test.tsx assigned temporarily to B2 F3 and excluded from B0 edits.

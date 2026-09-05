@@ -1,0 +1,501 @@
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 28%]
+........................................................................ [ 35%]
+........................................................................ [ 42%]
+........................................................................ [ 49%]
+........................................................................ [ 56%]
+........................................................................ [ 64%]
+........................................................................ [ 71%]
+........................................................................ [ 78%]
+........................................................................ [ 85%]
+........................................................................ [ 92%]
+............................................................EEEEEEEEEEEE [ 99%]
+EEE                                                                      [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_final_runner_subprocess_covers_every_active_verb_and_stdout _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+__ ERROR at setup of test_final_runner_subprocess_output_file_matches_stdout ___
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_subprocess_blocking_exit_one_writes_no_file _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_output_is_only_named_json_file _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_failures_have_no_payload_or_file[input_path0-HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING] _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_failures_have_no_payload_or_file[input_path1-HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH] _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_failures_have_no_payload_or_file[input_path2-HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED] _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_requires_intent_once_and_writes_no_file _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_invalid_wire_payload_preserves_report_code _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_wire_deserialization_failures_exit_one[<lambda>-missing field `package_id`] _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_wire_deserialization_failures_exit_one[<lambda>-invalid type: string] _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_final_runner_export_results_native_size_is_exact_with_constant_cardinality _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+___ ERROR at setup of test_final_runner_subprocess_malformed_input_exits_two ___
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+_ ERROR at setup of test_compatibility_runner_subprocess_controlled_stdout_and_exits _
+[gw8] darwin -- Python 3.13.14 /tmp/piping-ui-parity-py313/bin/python3
+
+    @pytest.fixture(scope="module")
+    def runner_binaries():
+        build = subprocess.run(
+            ["cargo", "build", "--quiet", "--bins"],
+            cwd=HEADLESS_CRATE,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert build.returncode == 0, build.stderr
+E       AssertionError: error: failed to get `serde` as a dependency of package `open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/runner/headless)`
+E         
+E         Caused by:
+E           failed to load source for dependency `serde`
+E         
+E         Caused by:
+E           unable to update registry `crates-io`
+E         
+E         Caused by:
+E           download of config.json failed
+E         
+E         Caused by:
+E           [6] Couldn't resolve host name (Could not resolve host: index.crates.io)
+E         
+E       assert 101 == 0
+E        +  where 101 = CompletedProcess(args=['cargo', 'build', '--quiet', '--bins'], returncode=101, stdout='', stderr="error: failed to get...oad of config.json failed\n\nCaused by:\n  [6] Couldn't resolve host name (Could not resolve host: index.crates.io)\n").returncode
+
+tests/test_headless_runner_contract.py:347: AssertionError
+=========================== short test summary info ============================
+ERROR tests/test_headless_runner_contract.py::test_final_runner_subprocess_covers_every_active_verb_and_stdout
+ERROR tests/test_headless_runner_contract.py::test_final_runner_subprocess_output_file_matches_stdout
+ERROR tests/test_headless_runner_contract.py::test_final_runner_subprocess_blocking_exit_one_writes_no_file
+ERROR tests/test_headless_runner_contract.py::test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_output_is_only_named_json_file
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_failures_have_no_payload_or_file[input_path0-HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING]
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_failures_have_no_payload_or_file[input_path1-HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH]
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_failures_have_no_payload_or_file[input_path2-HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED]
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_requires_intent_once_and_writes_no_file
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_invalid_wire_payload_preserves_report_code
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_wire_deserialization_failures_exit_one[<lambda>-missing field `package_id`]
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_wire_deserialization_failures_exit_one[<lambda>-invalid type: string]
+ERROR tests/test_headless_runner_contract.py::test_final_runner_export_results_native_size_is_exact_with_constant_cardinality
+ERROR tests/test_headless_runner_contract.py::test_final_runner_subprocess_malformed_input_exits_two
+ERROR tests/test_headless_runner_contract.py::test_compatibility_runner_subprocess_controlled_stdout_and_exits
+996 passed, 15 errors in 24.69s

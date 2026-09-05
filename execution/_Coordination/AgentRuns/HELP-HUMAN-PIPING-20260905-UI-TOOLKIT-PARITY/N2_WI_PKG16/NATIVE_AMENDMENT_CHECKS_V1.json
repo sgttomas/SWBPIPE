@@ -1,0 +1,12 @@
+{
+  "status": "TEST_PASS_REVIEW_PENDING",
+  "native_tests": {
+    "passed": 79,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "source_hash": "baefc9ef5609f1b6cddffea671ab8d5f578ff22ca56e58745c9270600ea22262",
+  "command": "CARGO_TARGET_DIR={CARGO_TARGET_DIR} cargo test --offline --manifest-path {WORKING_ROOT}/apps/desktop/src-tauri/Cargo.toml --lib --quiet",
+  "evidence": "_run_records/NATIVE_AMENDMENT_TEST_V1.log",
+  "remaining": "fresh native amendment review; later hanger acceptance/mapping"
+}

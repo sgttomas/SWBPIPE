@@ -1,0 +1,6 @@
+{
+  "status": "DISPATCH_FAILED_CAPACITY",
+  "actual_child_created": false,
+  "tool_error": "agent thread limit reached",
+  "parent_notified": true
+}

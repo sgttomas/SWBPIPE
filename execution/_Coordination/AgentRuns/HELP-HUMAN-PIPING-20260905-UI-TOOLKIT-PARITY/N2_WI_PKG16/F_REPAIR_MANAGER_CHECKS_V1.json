@@ -1,0 +1,12 @@
+{
+  "status": "OPERATION145_SCHEMA_FRESH_REVIEW_PASS",
+  "schema_test": "tests/test_model_operation_schema.py",
+  "schema_exit_code": 0,
+  "wasm_build": "HELD_PARENT_COORDINATED",
+  "native_operation_suite": {
+    "passed": 145,
+    "failed": 0,
+    "evidence": "F_REPAIR_IMPLEMENTATION_CHECKS.json"
+  },
+  "independent_review": "F_REPAIR_REVIEW_RETURN.md PASS100%;5 public-route tests independently rerun"
+}

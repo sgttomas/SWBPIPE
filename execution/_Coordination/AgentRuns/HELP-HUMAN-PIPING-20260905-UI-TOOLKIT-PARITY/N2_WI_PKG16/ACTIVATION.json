@@ -1,0 +1,19 @@
+{
+  "RunID": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "InstanceID": "N2_WI_PKG16",
+  "Parent": "HELP_HUMAN",
+  "PackageID": "PKG-16",
+  "Deliverables": [
+    "DEL-16-01",
+    "DEL-16-02",
+    "DEL-16-03",
+    "DEL-16-04"
+  ],
+  "authority": "user implementation direction; parent phase A source-write hold",
+  "basis": "SCA-009 accepted vocabulary and current SOW_V1 targets; D58 remains held",
+  "mode": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted",
+  "model": "inherited runtime model; exact identifier not exposed",
+  "context_occupancy": "not exposed",
+  "source_write_state": "HOLD pending Parent phase A acceptance"
+}

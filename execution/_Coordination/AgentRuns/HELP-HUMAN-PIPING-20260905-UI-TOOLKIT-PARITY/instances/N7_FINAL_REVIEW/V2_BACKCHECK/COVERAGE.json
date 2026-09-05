@@ -1,0 +1,1004 @@
+{
+  "verdict": "PASS",
+  "members": 110,
+  "coverage_percent": 100,
+  "counts": {
+    "UNCHANGED_V1": 94,
+    "CHANGED_FROM_V1": 14,
+    "ADDED_SINCE_V1": 2,
+    "REMOVED_OR_REVERTED_FROM_V1": 0
+  },
+  "prior_verdict": "CHANGES_REQUIRED preserved",
+  "members_review": [
+    {
+      "path": "projects/chirality-piping/.gitignore",
+      "v1_sha256": "079332c953d0ace91358a348aa0a2820a0289640177760be54686f2a63b7513b",
+      "v2_sha256": "079332c953d0ace91358a348aa0a2820a0289640177760be54686f2a63b7513b",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "v1_sha256": "013cb61f256f37e581e962919f87c1b90a488c0527fd650d8fa48bdffb2f24b5",
+      "v2_sha256": "013cb61f256f37e581e962919f87c1b90a488c0527fd650d8fa48bdffb2f24b5",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+      "v1_sha256": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "v2_sha256": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.test.mjs",
+      "v1_sha256": "12eff93bb013f9ec4fd259e03e192f0ac7e64a22b3260d0d162b13eda05603ff",
+      "v2_sha256": "12eff93bb013f9ec4fd259e03e192f0ac7e64a22b3260d0d162b13eda05603ff",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "v1_sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9",
+      "v2_sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+      "v1_sha256": "7e48badcd16c2a4501453550774350d3f39c06009f639c4c8fe9c38f919008ba",
+      "v2_sha256": "7e48badcd16c2a4501453550774350d3f39c06009f639c4c8fe9c38f919008ba",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "v1_sha256": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+      "v2_sha256": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "v1_sha256": "8b0baa30a5f789106dee4166f1758cddfb22d99bed90ce5bfd19a13f4726d136",
+      "v2_sha256": "8b0baa30a5f789106dee4166f1758cddfb22d99bed90ce5bfd19a13f4726d136",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "v1_sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e",
+      "v2_sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx",
+      "v1_sha256": "c418dfb7c190970425dc1bd158e76c4611324e782ff16255ff909595b7920652",
+      "v2_sha256": "c418dfb7c190970425dc1bd158e76c4611324e782ff16255ff909595b7920652",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx",
+      "v1_sha256": "cd7dc5237213e1788addd1328df22650304b19806474dbdcfc3817ab36755401",
+      "v2_sha256": "cd7dc5237213e1788addd1328df22650304b19806474dbdcfc3817ab36755401",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/boundaryDraft.ts",
+      "v1_sha256": "9b3205ea327657b85c05d796bcc42908a8392671ea9a77296946fee590c4e4ed",
+      "v2_sha256": "9b3205ea327657b85c05d796bcc42908a8392671ea9a77296946fee590c4e4ed",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "v1_sha256": "546c1acf201288293c8f9f5f2b385bfee5207585279d1b4f97499755aefc8185",
+      "v2_sha256": "546c1acf201288293c8f9f5f2b385bfee5207585279d1b4f97499755aefc8185",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+      "v1_sha256": "c752935edf4268f05adedc29a8f1047241c0cb498f8dd44144eeec657f637c1b",
+      "v2_sha256": "c752935edf4268f05adedc29a8f1047241c0cb498f8dd44144eeec657f637c1b",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/displayUnits.test.tsx",
+      "v1_sha256": "f42010b92ab15d5b96e606a52dab71f6df5d27c22c3b4174b03e5ffc80798b45",
+      "v2_sha256": "f42010b92ab15d5b96e606a52dab71f6df5d27c22c3b4174b03e5ffc80798b45",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/index.tsx",
+      "v1_sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9",
+      "v2_sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "v1_sha256": "0bc6054b86ab3031b7dc8cf806aa2a7b298d33e394711e279bfc9619aa3e7108",
+      "v2_sha256": "0bc6054b86ab3031b7dc8cf806aa2a7b298d33e394711e279bfc9619aa3e7108",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/targets.ts",
+      "v1_sha256": "fca1be3d49932312156dc597864b7f734a0428f9eb63330f5b9f8cddf169700f",
+      "v2_sha256": "fca1be3d49932312156dc597864b7f734a0428f9eb63330f5b9f8cddf169700f",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+      "v1_sha256": "1e726fe3740cd5a735bbff93c42c235c39d803672b73556127b4e8d87e8512c6",
+      "v2_sha256": "1e726fe3740cd5a735bbff93c42c235c39d803672b73556127b4e8d87e8512c6",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "v1_sha256": "d08375d3a81530b7d5661d903353f5c80b7222d573f4bbc4af8198db6042a9e7",
+      "v2_sha256": "d08375d3a81530b7d5661d903353f5c80b7222d573f4bbc4af8198db6042a9e7",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/batchFormSupport.tsx",
+      "v1_sha256": "beabba1eaab1fed0b4385e24983e605c581de1cf05a61634e61cdd52e4f8672b",
+      "v2_sha256": "beabba1eaab1fed0b4385e24983e605c581de1cf05a61634e61cdd52e4f8672b",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/geometryDraft.ts",
+      "v1_sha256": "9cc22ac39d67bd0146f4cfe3ce05ee219e9c6b6845c6d2b0fc73839073401307",
+      "v2_sha256": "9cc22ac39d67bd0146f4cfe3ce05ee219e9c6b6845c6d2b0fc73839073401307",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx",
+      "v1_sha256": "43bcfa6622191b355c5d18fca6415b86288bbfc2575887ff9c6794d315ec65c1",
+      "v2_sha256": "43bcfa6622191b355c5d18fca6415b86288bbfc2575887ff9c6794d315ec65c1",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/hangerSelection.ts",
+      "v1_sha256": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9",
+      "v2_sha256": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/index.ts",
+      "v1_sha256": "23a76f305f71a7cd50c321503c0fe010cb9299ed9902b14074e86049ce26bab8",
+      "v2_sha256": "23a76f305f71a7cd50c321503c0fe010cb9299ed9902b14074e86049ce26bab8",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+      "v1_sha256": "85f0635bf155aefe7cade9176a4efb6f088babbb9610a061fd6fb7c6fee4ce11",
+      "v2_sha256": "85f0635bf155aefe7cade9176a4efb6f088babbb9610a061fd6fb7c6fee4ce11",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+      "v1_sha256": "a46163e3904cb77c929156825d973774920eb6417b9f011888a5a77999140e58",
+      "v2_sha256": "a46163e3904cb77c929156825d973774920eb6417b9f011888a5a77999140e58",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx",
+      "v1_sha256": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e",
+      "v2_sha256": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "v1_sha256": "ecdf5f4915e26dd5b2ca41460fb1a3dfd1ccfb5ed96a912f5f149576c13065cb",
+      "v2_sha256": "ecdf5f4915e26dd5b2ca41460fb1a3dfd1ccfb5ed96a912f5f149576c13065cb",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "v1_sha256": "35b4e9160fe0993e8d7ecc08c97a42dfd700a043aee16fdf7091e14a78ef73da",
+      "v2_sha256": "35b4e9160fe0993e8d7ecc08c97a42dfd700a043aee16fdf7091e14a78ef73da",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx",
+      "v1_sha256": "f7cf7928b3b077d93be9ae7731d2cd1554aa170ddd79ab14539a3d1db53cb90e",
+      "v2_sha256": "f7cf7928b3b077d93be9ae7731d2cd1554aa170ddd79ab14539a3d1db53cb90e",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/index.ts",
+      "v1_sha256": "296a6e209e05dba5869156565ac9888c92f6f4e04ddff780709e9ca541ff60bb",
+      "v2_sha256": "296a6e209e05dba5869156565ac9888c92f6f4e04ddff780709e9ca541ff60bb",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/workflowSupport.ts",
+      "v1_sha256": "658fe939ad818163678988a863f709a5617074474b313a42a8496caaaa3798c7",
+      "v2_sha256": "658fe939ad818163678988a863f709a5617074474b313a42a8496caaaa3798c7",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx",
+      "v1_sha256": "680f6f0bfa3f714bf3b9eab4058f6dcbcea93e302fb24f8360fcf060806f1edf",
+      "v2_sha256": "680f6f0bfa3f714bf3b9eab4058f6dcbcea93e302fb24f8360fcf060806f1edf",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "v1_sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "v2_sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+      "v1_sha256": "60454a2336f6f3695b128c4f1392b5f50216aa8c618a17b423218a5a3eb7f078",
+      "v2_sha256": "60454a2336f6f3695b128c4f1392b5f50216aa8c618a17b423218a5a3eb7f078",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "v1_sha256": "afd74a1ed5d4fde16f806863c2baa3da3a874c1b4f6455f51aad40c5614d0796",
+      "v2_sha256": "afd74a1ed5d4fde16f806863c2baa3da3a874c1b4f6455f51aad40c5614d0796",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "v1_sha256": "8a2b2de4a459cfacdb197cc534984aa06f95ce445a452e1de1b3edac668cec83",
+      "v2_sha256": "8a2b2de4a459cfacdb197cc534984aa06f95ce445a452e1de1b3edac668cec83",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/index.ts",
+      "v1_sha256": "ffec526638ca3002f0f8784cbcbbd792f08f2cf4974c3116e33eb4e0e1d26196",
+      "v2_sha256": "ffec526638ca3002f0f8784cbcbbd792f08f2cf4974c3116e33eb4e0e1d26196",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/BatchReviewPanel.tsx",
+      "v1_sha256": "66a4f562d1354ea86041858b678c7c92e477d071aedb1a5a9ad4cdc59b976ba5",
+      "v2_sha256": "66a4f562d1354ea86041858b678c7c92e477d071aedb1a5a9ad4cdc59b976ba5",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx",
+      "v1_sha256": "2caa86acdc185893aeb1495fff12fe8881fac7dc7f645d29a5b243218a9e675d",
+      "v2_sha256": "2caa86acdc185893aeb1495fff12fe8881fac7dc7f645d29a5b243218a9e675d",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.tsx",
+      "v1_sha256": "63d6a894c12edad9492861ee8266f23a52411148fa76a9eaf0e1fe119edb5586",
+      "v2_sha256": "63d6a894c12edad9492861ee8266f23a52411148fa76a9eaf0e1fe119edb5586",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ResultQuantity.tsx",
+      "v1_sha256": "bc8580052919490c6d8f8e5db9c3347c4a61cf0132ddfba428d782288c93a891",
+      "v2_sha256": "bc8580052919490c6d8f8e5db9c3347c4a61cf0132ddfba428d782288c93a891",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/SectionAssignment.tsx",
+      "v1_sha256": "d15ad7fc5978c907ee4b3198aa08094010405c5dcde98b38b8661fd90390983a",
+      "v2_sha256": "d15ad7fc5978c907ee4b3198aa08094010405c5dcde98b38b8661fd90390983a",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+      "v1_sha256": "234ce63780b27e89e55b22a5702af8de466c8179d4ae3146760537e3471fcfcd",
+      "v2_sha256": "234ce63780b27e89e55b22a5702af8de466c8179d4ae3146760537e3471fcfcd",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "v1_sha256": "3f55094a378143d2fa7a5eaeccee541205daece4be82f0f605643df990866672",
+      "v2_sha256": "3f55094a378143d2fa7a5eaeccee541205daece4be82f0f605643df990866672",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts",
+      "v1_sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7",
+      "v2_sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "v1_sha256": "5c303ed3a6700eae65207dbececa98a74c2b6d427a1ec20661ffec8ff2b757db",
+      "v2_sha256": "5c303ed3a6700eae65207dbececa98a74c2b6d427a1ec20661ffec8ff2b757db",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx",
+      "v1_sha256": "0a8727bb7d4bb034d6214de114adac85d5d6bc91d6f3821518f6455900562972",
+      "v2_sha256": "0a8727bb7d4bb034d6214de114adac85d5d6bc91d6f3821518f6455900562972",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+      "v1_sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef",
+      "v2_sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/libraryImportService.ts",
+      "v1_sha256": "d993315ab45c569cc2fec30bfaeadd0713d52a630ee82bc47f8ffbaab048e4c0",
+      "v2_sha256": "d993315ab45c569cc2fec30bfaeadd0713d52a630ee82bc47f8ffbaab048e4c0",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.test.ts",
+      "v1_sha256": "2c93b34ddbbaf6f985ac797cfb565d6e303cacc8b56215868b42b94057b012f1",
+      "v2_sha256": "2c93b34ddbbaf6f985ac797cfb565d6e303cacc8b56215868b42b94057b012f1",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "v1_sha256": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f",
+      "v2_sha256": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.test.ts",
+      "v1_sha256": "9b7450d844ba10f5b6bd65f26ad8df331a9f9e10688007daa23397d776e8009b",
+      "v2_sha256": "9b7450d844ba10f5b6bd65f26ad8df331a9f9e10688007daa23397d776e8009b",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+      "v1_sha256": "ee78aa7e4cdfc2442fdc722b196e4c3a27597a6676feea895acaa5ca4f9fa17c",
+      "v2_sha256": "ee78aa7e4cdfc2442fdc722b196e4c3a27597a6676feea895acaa5ca4f9fa17c",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.test.ts",
+      "v1_sha256": "85fb2e2b72c4c24338172e231b4531ac49bcdc1c5c8e10351fce57f92b30cc15",
+      "v2_sha256": "85fb2e2b72c4c24338172e231b4531ac49bcdc1c5c8e10351fce57f92b30cc15",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.ts",
+      "v1_sha256": "1dec75321e61ec9e713c47901f73131f3e1acc66c9036586fd5675f1aae9c943",
+      "v2_sha256": "1dec75321e61ec9e713c47901f73131f3e1acc66c9036586fd5675f1aae9c943",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "v1_sha256": "edf3639fcdee2cc94acd2e7ac835186249613140eabd3e3d92d60542b3da1f1c",
+      "v2_sha256": "edf3639fcdee2cc94acd2e7ac835186249613140eabd3e3d92d60542b3da1f1c",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "v1_sha256": "557fa62b1315b7a84298b58545fae0fc5560d33c98e8f01cca76b49f5eee506b",
+      "v2_sha256": "557fa62b1315b7a84298b58545fae0fc5560d33c98e8f01cca76b49f5eee506b",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "v1_sha256": "b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf",
+      "v2_sha256": "b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/library_import/README.md",
+      "v1_sha256": "3ecc0271b3c4b2d31cb8566c955e66fa94d9e3406835beb4bb08a614fe96bd98",
+      "v2_sha256": "3ecc0271b3c4b2d31cb8566c955e66fa94d9e3406835beb4bb08a614fe96bd98",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/library_import/library_import_document/README.md",
+      "v1_sha256": "c8d738bc1e903bef87d19f6ddc409defddb9303bfce202ac11821dccd48c1abb",
+      "v2_sha256": "c8d738bc1e903bef87d19f6ddc409defddb9303bfce202ac11821dccd48c1abb",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs",
+      "v1_sha256": "127d0fee760ea63d59eee1cc9cb73c121e671ccbfd0297d4218f1e3bfc41d979",
+      "v2_sha256": "127d0fee760ea63d59eee1cc9cb73c121e671ccbfd0297d4218f1e3bfc41d979",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/library_import/library_import_document/tests/provenance_parity.rs",
+      "v1_sha256": "e85f023b2d2be6756a055e4c48f02f7e2f1ee63a237a5bba01f76dee7b992b1a",
+      "v2_sha256": "e85f023b2d2be6756a055e4c48f02f7e2f1ee63a237a5bba01f76dee7b992b1a",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/library_import/provenance_checker.py",
+      "v1_sha256": "1c55afd98c2ec0d7780a67a5715ad521fbc3dea119c9cda77c458891a25e32a5",
+      "v2_sha256": "1c55afd98c2ec0d7780a67a5715ad521fbc3dea119c9cda77c458891a25e32a5",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "v1_sha256": "e1254a5095d363697fe687a9eaf7327999ad11f86355f1864fb94b13c6dc5597",
+      "v2_sha256": "e1254a5095d363697fe687a9eaf7327999ad11f86355f1864fb94b13c6dc5597",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+      "v1_sha256": "7e758b467ffed0a16629f5666f6dd06810c9b96e8e838a2ae4a080c0d4fa4850",
+      "v2_sha256": "7e758b467ffed0a16629f5666f6dd06810c9b96e8e838a2ae4a080c0d4fa4850",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+      "v1_sha256": "61512d3c9d6a0343977a81fd3d8f93118d135ae1a25d204683a4fe9d4b93f8c8",
+      "v2_sha256": "61512d3c9d6a0343977a81fd3d8f93118d135ae1a25d204683a4fe9d4b93f8c8",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "v1_sha256": "f73a763cd9d273e8f802304f1150c316ff5470739692fb41c95dc19ff2450aa6",
+      "v2_sha256": "f73a763cd9d273e8f802304f1150c316ff5470739692fb41c95dc19ff2450aa6",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/boundary_association.rs",
+      "v1_sha256": "3c31de07d6933f3200e4a95dc356a4bf7572412e642d7f88b66481657b927d8d",
+      "v2_sha256": "3c31de07d6933f3200e4a95dc356a4bf7572412e642d7f88b66481657b927d8d",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs",
+      "v1_sha256": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1",
+      "v2_sha256": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/geometry_operations.rs",
+      "v1_sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf",
+      "v2_sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "v1_sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7",
+      "v2_sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/section_bindings.rs",
+      "v1_sha256": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72",
+      "v2_sha256": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "v1_sha256": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+      "v2_sha256": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "v1_sha256": "1f60e58c6117f50c04bb55491ac1bd260880a90854bc7da2756bc6cbf4e89886",
+      "v2_sha256": "1f60e58c6117f50c04bb55491ac1bd260880a90854bc7da2756bc6cbf4e89886",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+      "v1_sha256": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5",
+      "v2_sha256": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B2_UI_INTERFACE.md",
+      "v1_sha256": "d842ff9155d74da113645a0d8137e93a80c2c14f33183b2137abbab531e37b18",
+      "v2_sha256": "d842ff9155d74da113645a0d8137e93a80c2c14f33183b2137abbab531e37b18",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/BATCH_PERSISTENCE_DISPOSITION_V2.md",
+      "v1_sha256": "aefd8bbb767f101f284beaf927b53e89a72e17a591a60954fd3ff8849b5c4a14",
+      "v2_sha256": "aefd8bbb767f101f284beaf927b53e89a72e17a591a60954fd3ff8849b5c4a14",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/C_ACCEPTED_SERVICE_WIRE_V1.md",
+      "v1_sha256": "cda33737e33f2cf05aa7afc9f0de6775470011ac7e352c642a0282deb4d1f3a4",
+      "v2_sha256": "cda33737e33f2cf05aa7afc9f0de6775470011ac7e352c642a0282deb4d1f3a4",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/PHASE_A_CANDIDATE_V2.md",
+      "v1_sha256": "a59c715476bc6efb45a540405545eeddbf52239685e33678e4a5b41bc9372d33",
+      "v2_sha256": "a59c715476bc6efb45a540405545eeddbf52239685e33678e4a5b41bc9372d33",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/ROW17_CANDIDATE_V2.md",
+      "v1_sha256": "f33b4d5c0e6ebd3e00cccaa59651e9d57e95839ecbab497598383e1894770b68",
+      "v2_sha256": "f33b4d5c0e6ebd3e00cccaa59651e9d57e95839ecbab497598383e1894770b68",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/CONTRACT_PROPOSAL_v2.md",
+      "v1_sha256": "659a0a479af0c53bdab821ee957f48ae4976e3185f3502a92fdec91edfe44e7e",
+      "v2_sha256": "659a0a479af0c53bdab821ee957f48ae4976e3185f3502a92fdec91edfe44e7e",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_V2.md",
+      "v1_sha256": "305e022f39fc58cbc268acf3727f23fa269e6061daf07a306c04dea2bbd3ea0e",
+      "v2_sha256": "305e022f39fc58cbc268acf3727f23fa269e6061daf07a306c04dea2bbd3ea0e",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/PHASE_B_MODULE_CONTRACT.md",
+      "v1_sha256": "4aed66902b78610b190db0f74bf05eb73243f837b1ccef1620aff14e4808f8ab",
+      "v2_sha256": "4aed66902b78610b190db0f74bf05eb73243f837b1ccef1620aff14e4808f8ab",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/BOUNDARY_WIRE_CONTRACT_FROZEN_V1.md",
+      "v1_sha256": "d426726c418da1798534d1194e001f378001995d2273163a0451cf12e74a5064",
+      "v2_sha256": "d426726c418da1798534d1194e001f378001995d2273163a0451cf12e74a5064",
+      "role": "SUPPORTING_CONTRACT",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/hanger/invented_hanger_cases.json",
+      "v1_sha256": "35edc5269668a0da4db9a8492b67f1ee1f26becd44c6fa2136f8853eeda10e96",
+      "v2_sha256": "35edc5269668a0da4db9a8492b67f1ee1f26becd44c6fa2136f8853eeda10e96",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/hanger/invented_hanger_library_valid.json",
+      "v1_sha256": "d722b59b338a54410438ec39150138556873a68874f3e77c0f8f421f93fbbfc3",
+      "v2_sha256": "d722b59b338a54410438ec39150138556873a68874f3e77c0f8f421f93fbbfc3",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/plans/2026-09-05-ui-toolkit-parity-loop-issues.md",
+      "v1_sha256": "d3a8f6b79e5b5aa8c1d56d02a315f20e88f4187f05c1ba36b19c28a0fa8e220d",
+      "v2_sha256": "d3a8f6b79e5b5aa8c1d56d02a315f20e88f4187f05c1ba36b19c28a0fa8e220d",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/hanger.schema.yaml",
+      "v1_sha256": "f7ada4cab2536cb0a8f952cbcc6de0e13f99a58ca4601c22441542b09c33c2f9",
+      "v2_sha256": "f7ada4cab2536cb0a8f952cbcc6de0e13f99a58ca4601c22441542b09c33c2f9",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/model_operation.schema.json",
+      "v1_sha256": "7bdb79be17ce332a81275c9bd5a83250c74bfb6b96a9a1675ad1aef470898f44",
+      "v2_sha256": "7bdb79be17ce332a81275c9bd5a83250c74bfb6b96a9a1675ad1aef470898f44",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_hanger_library_schema.py",
+      "v1_sha256": "de8cf9a4d9f9ca4e4b4a6163c3f0d10db096c9b65e0cbf1c0856e312cf45a7d6",
+      "v2_sha256": "de8cf9a4d9f9ca4e4b4a6163c3f0d10db096c9b65e0cbf1c0856e312cf45a7d6",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_library_import_provenance.py",
+      "v1_sha256": "fa478e37bebfc02c51a1fbb042af6b7129c0fb0623bbd6d957e0d14099620520",
+      "v2_sha256": "fa478e37bebfc02c51a1fbb042af6b7129c0fb0623bbd6d957e0d14099620520",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_model_operation_schema.py",
+      "v1_sha256": "33438df9ce9f4b475fdc85c756aa7338887e55b7bc515a1b3aeb50a8d18f68e3",
+      "v2_sha256": "33438df9ce9f4b475fdc85c756aa7338887e55b7bc515a1b3aeb50a8d18f68e3",
+      "role": "PRODUCT_REVIEW",
+      "partition": "UNCHANGED_V1",
+      "reviewed": true,
+      "method": "Prior independent 100% V1 review plus independently proven exact byte/hash equality"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+      "v1_sha256": "08b3dd43d1653e67a0dd7281921090e3545a6c35c53f2dc90286ffc76bc35b48",
+      "v2_sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+      "v1_sha256": "15929b1f8e4670d66449cd5e90e32d5c38ded407fa2755c7f1f16ab9ec111665",
+      "v2_sha256": "e333e02ae533b050f235a83a16b3b08e7fb4ccd53d0f92cd18b7df73c87cc1d2",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "v1_sha256": "052c5f7e621cf22263d735f9447d068092321bd13ab4714eabe5df5be5da91a2",
+      "v2_sha256": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "v1_sha256": "7a0e221d75188fcb65289fbcf7c3d9fdd501be286109d24d7881c10a7866ca41",
+      "v2_sha256": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx",
+      "v1_sha256": "4c76b5dfaf456c44bbf87d3a47ff4a5dfead8fb0e53a4e8f2a38c80878249565",
+      "v2_sha256": "960b157bad9b78bf50ec0b8161aa653634b73689648c5e344270d0de29034c78",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+      "v1_sha256": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345",
+      "v2_sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "v1_sha256": "c7d4a1571f37c99e867206454e7850c5710f2d6a2cfa399fac62aa83aa25a15a",
+      "v2_sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "v1_sha256": "b5084f85d4fc1815991b83d5817785238c06045230fa0f64109609e8cab618e3",
+      "v2_sha256": "f85a8e1a5e5baa5b7b1ffa407ac2935c26ea674b286d49ec6504449b6894088e",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+      "v1_sha256": "320a6869edf2bffab8a41921bfc55e366cd053f8fc941561693a2908a9f6b610",
+      "v2_sha256": "1e19832a2a39dc2b7fdfb24a57293e4fe676cafa8bca674eb4c1a97f354742dc",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+      "v1_sha256": "384cc52616708c9674f4ede4034be9cda8504fc3c9f61ead209e82b188b708b7",
+      "v2_sha256": "9a06660400720a75340710491052a2512a47d175ee7895573ef91fade07efc94",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md",
+      "v1_sha256": "1eda24c12713df70943c04fa23bb1a268f20aec9111e78dd2696c007281c6d3f",
+      "v2_sha256": "fa87653ae52947b845a7d8fb20a499f1c6c5b963911b798f2b0035d385bd6620",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Organization_Contract.md",
+      "v1_sha256": "8b7fabb30c1a8be56d6da8ac65ec2afa91cf0d650da14c7aaa06f04efe83edc1",
+      "v2_sha256": "2a35b68cd8ad3696bcef564d8f744920935c4b221ede56b11e2d3e0b5e1e7a06",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+      "v1_sha256": "6933b3222935b55d5137829b05eb2c26e064f7bc2cd711e14ca910da3b7b57e4",
+      "v2_sha256": "7d65541d1cc9a99f85e972f80ae8113283d48e0937e953851ad3cc8f388ccd79",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "v1_sha256": "183b059ad1cc60ea2dc550ab1d57a2078f56bb2fd133af09962bbe7c3aed50cc",
+      "v2_sha256": "367eed3b0c3a2b365ba9c456468936f8ad159263ce1c5da6313be2756abfc09e",
+      "role": "PRODUCT_REVIEW",
+      "partition": "CHANGED_FROM_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+      "v1_sha256": null,
+      "v2_sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60",
+      "role": "PRODUCT_REVIEW",
+      "partition": "ADDED_SINCE_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/support_authoring_conflicts.rs",
+      "v1_sha256": null,
+      "v2_sha256": "ef036a20ef61ae87b8a6366d616392da4bf31d5b9b864b88b7a516c1f6611239",
+      "role": "PRODUCT_REVIEW",
+      "partition": "ADDED_SINCE_V1",
+      "reviewed": true,
+      "method": "Full V1-to-V2 delta/new file independently reviewed; affected callers traced; CSV all changed cells losslessly grouped when applicable"
+    }
+  ]
+}

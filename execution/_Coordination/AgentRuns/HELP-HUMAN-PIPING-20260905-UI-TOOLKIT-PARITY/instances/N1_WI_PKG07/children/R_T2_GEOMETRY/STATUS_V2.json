@@ -1,0 +1,33 @@
+{
+  "run_status": "SUCCESS",
+  "review_verdict": "PASS",
+  "parent": "N1_WI_PKG07",
+  "child": "R_T2_GEOMETRY",
+  "basis": "BACKCHECK_BRIEF_V2.md",
+  "source_manifest": "../T2_GEOMETRY/SOURCE_MANIFEST_V2.json",
+  "source_hashes": {
+    "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx": "c418dfb7c190970425dc1bd158e76c4611324e782ff16255ff909595b7920652",
+    "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx": "cd7dc5237213e1788addd1328df22650304b19806474dbdcfc3817ab36755401",
+    "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/boundaryDraft.ts": "9b3205ea327657b85c05d796bcc42908a8392671ea9a77296946fee590c4e4ed",
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx": "1e726fe3740cd5a735bbff93c42c235c39d803672b73556127b4e8d87e8512c6",
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx": "d08375d3a81530b7d5661d903353f5c80b7222d573f4bbc4af8198db6042a9e7",
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools/batchFormSupport.tsx": "beabba1eaab1fed0b4385e24983e605c581de1cf05a61634e61cdd52e4f8672b",
+    "projects/chirality-piping/apps/desktop/src/features/geometry-tools/geometryDraft.ts": "9cc22ac39d67bd0146f4cfe3ce05ee219e9c6b6845c6d2b0fc73839073401307"
+  },
+  "accepted_engine_source_hashes": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/geometry_operations.rs": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/boundary_association.rs": "3c31de07d6933f3200e4a95dc356a4bf7572412e642d7f88b66481657b927d8d",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs": "f73a763cd9d273e8f802304f1150c316ff5470739692fb41c95dc19ff2450aa6"
+  },
+  "hash_verification": "ALL_MATCH",
+  "changed_files_reviewed_in_full": 5,
+  "total_source_files_hash_verified": 7,
+  "actionable_findings": [],
+  "tests": "17-pass actual-Wasm evidence consumed; no reviewer test/build runs",
+  "integrated_review": "ROOT_N7_PENDING",
+  "return": "RETURN_V2.md",
+  "model_attribution": "Inherited runtime, exact model not exposed",
+  "role_enforcement": "instruction+config asserted",
+  "delegation": "none",
+  "derivative_status": "implementation review evidence, not decomposition truth"
+}

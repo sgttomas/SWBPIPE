@@ -1,0 +1,8 @@
+{
+  "child": "/root/wi_pkg03/hanger_import_implementation",
+  "actual_execution": true,
+  "started_utc": "2026-09-05T04:14:35.831963+00:00",
+  "model": "unavailable",
+  "class": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted"
+}

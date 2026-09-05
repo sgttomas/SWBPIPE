@@ -1,0 +1,3 @@
+# Work graph v2 — accepted interface, source held
+
+Supersedes v1 plan; preserves historical v1. Parent accepts CONTRACT_PROPOSAL_v2 after direct independent refuter PASS_DESIGN_ONLY. N4 has not launched product implementation. Source sequence: parent existing-wave release → A2_HANGER_IMPORT (sealed implementation brief v1; sole enumerated source owner) → manager validate/freeze → fresh read-only TASK software-code-review → remediation/re-review if needed → parent integration and required registered sweep. Parent owns N2 native adapter and N1 library UI coordination. Product children are serial, no overlapping writes. No child has been spawned yet; earlier refutation dispatch failed capacity and actual review ran under HELP_HUMAN.

@@ -1,0 +1,2 @@
+# PKG07 Phase A activation
+Parent HELP_HUMAN authorizes bounded contract production and eventual UI implementation following accepted interface return. Selected DEL-07-09 now; other PKG07 UI deliverables later. Accepted rev0.12/SCA009/DAG010; no lifecycle promotions. Root user implementation direction 2026-09-05. Shared write ownership: Phase A contract child owns three new files; manager owns run evidence.

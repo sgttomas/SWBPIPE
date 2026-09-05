@@ -1,0 +1,6 @@
+# Independent M_EXISTING re-review v2 — released
+Frozen evidence children/B0_UI_INTEGRATION/M_EXISTING_FREEZE_V4.json and diff-v4-integrated.patch; all19files, only App.tsx/App.test.tsx/PipeViewport changed from reviewed v3. 3 focused regressions PASS; full build/tests running checks-v4-full.json. Actual accepted StageC Wasm hash e9590a97b6ff9f965262ec1567457b98ccff5183d8539607b68ec14e4af6a30d.
+
+Same nonimplementing reviewer, read-only, no delegation; prior independent review covered100%19files and found exactly P1 withdrawn request publication and P2 missing disabled reason. Review revised entire frozen19file manifest plus complete baseline diff, preserve original RETURN.md/STATUS.json. Verify unchanged hashes remain covered by previous full review; inspect100% changed lines/files and regression tests/edge cases since that reviewed basis. Re-read original source when needed for current integrated judgment.
+
+Allowed writes only R_EXISTING/RETURN_V2.md and STATUS_V2.json. No source edits. Final verdict PASS only no actionable findings, initial two defects repaired semantically, focused/full tests/build evidence current and relevant artifact version bound. Report remaining risk, full coverage method and exact new hashes. Tier3 remains held until manager accepts.

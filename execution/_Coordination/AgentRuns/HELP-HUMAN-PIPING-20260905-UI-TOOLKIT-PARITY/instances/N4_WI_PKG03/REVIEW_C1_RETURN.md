@@ -1,0 +1,10 @@
+# Fresh independent review C1
+Reviewer actual native child /root/wi_pkg03/hanger_import_review, TASK software-code-review; read-only, no writes; parent persists. Verdict CHANGES_REQUIRED, no acceptance. Full10 frozen files and source/diff hashes verified; diff f78d76e32df64cd625be8c574022646627d1efb277f5c120787b053946b47042. Fresh tests73Python,11Rust unit+8 integration,54 parity cases PASS. Broad sweep parent-owned. Model unavailable.
+
+## P1 project_private public leak
+Python provenance_checker.py:450 / Rust src/lib.rs:806; schema:35 allows project_private. Shared accepted-public fixture changing only library or record privacy_class to project_private returns ACCEPTED_PUBLIC/no findings. Legacy helper only detects prefix private; newly exposed by hanger schema. Fix hanger-only disposition path both languages; shared parity regressions expect IMPORT_PRIVATE_DATA_PUBLIC_BLOCKED at corresponding object.
+
+## P2 protected marker hidden by missing/null provenance
+Python:413-417 / Rust:805-806. Valid private fixture set library redistribution_status=protected_suspected and remove provenance -> REJECTED/schema finding only; null adds missing-provenance but no quarantine. Traversal skips missing provenance key and helper early returns on malformed object. Inspect explicit item protected/quarantined statuses independently of provenance validity, preserve schema findings and quarantine precedence. Add missing/null library and record regressions to shared parity corpus. Python in-memory reproduced; Rust gap inferred from matching traversal/helper, not separately injected read-only. No product edits by reviewer.
+
+Coverage confirmed quantities finite/positive/units, duplicate IDs, optional-value preservation, nested provenance shape, input immutability, unchanged legacy dispatch. Import evidence does not close downstream native/manual selection/actual consumed DOF+value/atomic replacement/stale-before/source persistence. Rerun after repair/refreeze. No lifecycle/authority change.

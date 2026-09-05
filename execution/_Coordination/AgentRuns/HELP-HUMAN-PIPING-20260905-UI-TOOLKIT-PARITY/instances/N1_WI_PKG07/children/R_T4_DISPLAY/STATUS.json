@@ -1,0 +1,11 @@
+{
+  "status": "COMPLETED_WITH_FINDINGS",
+  "verdict": "FINDINGS",
+  "actionable_findings": 1,
+  "source_modified": false,
+  "review_coverage": "100% three frozen T4 source files",
+  "parent": "N1_WI_PKG07",
+  "role": "Agent2 ephemeral",
+  "delegation": "none",
+  "return": "RETURN.md"
+}

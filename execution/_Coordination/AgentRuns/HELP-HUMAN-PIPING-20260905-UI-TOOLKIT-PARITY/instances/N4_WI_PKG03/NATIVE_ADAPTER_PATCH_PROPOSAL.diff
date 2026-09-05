@@ -1,0 +1,6 @@
+--- a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
++++ b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+@@ library_metadata_key
+         "component" => Ok("component_library"),
++        "hanger" => Ok("hanger_library"),
+         _ => Err(format!("unsupported library_kind: {library_kind}")),

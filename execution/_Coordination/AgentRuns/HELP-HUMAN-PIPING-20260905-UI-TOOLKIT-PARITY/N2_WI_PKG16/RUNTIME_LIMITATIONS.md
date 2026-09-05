@@ -1,0 +1,3 @@
+# Runtime evidence limits
+
+RC actual child start was not recorded contemporaneously. Its later after-finish launch attribution is preserved in _run_records/RC_LATE_START_ATTRIBUTION.json rather than made into a false start timestamp. Active runtime summary therefore reports that session unmatched with no duration. Actual execution and return are independently recorded by sealed RC_BRIEF and RC_RETURN and native harness parent/child messages. Several earlier entries explicitly identify late ledger recording; recorded intervals are bookkeeping intervals, not certified execution durations. No model identifiers, allocation or token/context occupancy inferred.

@@ -1,0 +1,16 @@
+{
+  "status": "DRAFT_CONTROL_EVIDENCE_SUPPLEMENT",
+  "authority": "parent late V2 environment evidence relay",
+  "files": [
+    {
+      "path": "instances/N_ENV/PRECOMMIT_CHECKS_V2.json",
+      "sha256": "8d030c67f5d545d193ff50505df10758e1db105e8fd344294752a3f603ada7d5"
+    },
+    {
+      "path": "instances/N_ENV/PRECOMMIT_SELFCHECK_COMPARISON_V2.json",
+      "sha256": "37cd85d5955a4bbd75dff3cbb87c8a170b18abaf02e8c1aa730e92d3039e96e5"
+    }
+  ],
+  "parent_reported_result": "harness350/350 PASS; active10 portability findings resolved; selfcheck exit0 baseline4REVIEW/43WARN/14INFO unchanged; Piping1011PASS retained; product108 stable before/after",
+  "source_release": false
+}

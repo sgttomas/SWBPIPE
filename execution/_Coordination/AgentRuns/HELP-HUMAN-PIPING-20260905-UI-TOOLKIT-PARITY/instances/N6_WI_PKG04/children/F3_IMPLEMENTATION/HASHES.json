@@ -1,0 +1,35 @@
+{
+  "source": {
+    "path": "{WORKING_ROOT}/core/product_physics/src/lib.rs",
+    "before": "c7d4a1571f37c99e867206454e7850c5710f2d6a2cfa399fac62aa83aa25a15a",
+    "after": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+  },
+  "basis": {
+    "{REPO_ROOT}/AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "{REPO_ROOT}/projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "{REPO_ROOT}/agents/AGENT_TASK.md": "80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983",
+    "{REPO_ROOT}/skills/software-bounded-implementation/QA_CHECKS.md": "5ab08afe57fe102478cb98aa72cd72879c7a82b84f2790622b9bf0323f3c7bdc",
+    "{REPO_ROOT}/skills/software-bounded-implementation/TOOL_POLICY.md": "42b62bdb502f65255d94080370906a6295c3960bc97befda1a8228d60b4c9f2c",
+    "{REPO_ROOT}/skills/software-bounded-implementation/SKILL.md": "2072bb896c0ecf7e7fef7427010afc0304d21e25103828e93663d6ddb8cff7fc",
+    "{REPO_ROOT}/skills/software-bounded-implementation/BRIEF_SCHEMA.md": "cef1379b8ed89282c372784b7983bbad17ebc30ecc335c433b58ca41b66e9848",
+    "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_IMPLEMENTATION_BRIEF_V9.md": "cd0f14a89d7b47bcb4d85a01b040967dfac6d04cb5fad10d1aa046829e49d76e",
+    "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_READ_BOUNDARY_DISPOSITION_V1.md": "fb7c666eb042ff5fcc06dc61a3e78374fc7e472b7387a6e0e00d3bd88234dfd0",
+    "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/REVIEW_RETURN.md": "6f4f98f86d754ef8e8138408ee5e63b02e80a13106f866e37422a7815f6c55ba"
+  },
+  "outputs": {
+    "AFTER.rs": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1",
+    "BEFORE.rs": "c7d4a1571f37c99e867206454e7850c5710f2d6a2cfa399fac62aa83aa25a15a",
+    "CHECKS.json": "45b223a8dde175a3925b8e17088366b976050f000615a7a9d81b76bbbe493a34",
+    "F3_REPAIR.patch": "35396580f865922cb94476609ab15ae47628c7ef80ec0e1d2298fb1cf5ba9d48",
+    "FOCUSED.log": "5c5e8e7ea9cdd863bb36eec6361b0d98d921a661cd7ef57a697fddf411e8ff42",
+    "FOCUSED_ATTEMPT_1.json": "a176ed7e351db1b750a78b8cbc03594a04341edececad0b7998da3913bb24957",
+    "FOCUSED_ATTEMPT_1.log": "bdb5683c9d86cda2072b389b9512dd985d34b0300c306bf0197223a69fe9dc80",
+    "FOCUSED_CHECK.json": "49e8f150e543a8efdef37fc46ccc20a67d2d0e0a91d5d0d23d211e86d1c157b6",
+    "FULL.log": "86f42908da313dda538b34f98f78a411885588f52ecf3170da5894faf3b0fc94",
+    "FULL_CHECK.json": "48dff441dccf390bdc4a74d9d5283860042af1cba81fbdd344997eea68dbbad8",
+    "RETURN.md": "66434aade1874c150a32f6d4ac0ed991e0be2de0ace93c4bb14c22bb47bdad08",
+    "SCOPE_VALIDATION.json": "6697ee04f73281562d9e22954b653c524361ee15d80f209d7acd5f19e8723d45",
+    "START.json": "7611daa423a68713db972a9375507beef15de0eba4b5410097869aa9c43391b2",
+    "_run_records/TASK_RUN_F3_IMPLEMENTATION.md": "f7fe6f384fcdd06aa08ec80c053dd824f484ca757d86bac981bda4560c68e51e"
+  }
+}

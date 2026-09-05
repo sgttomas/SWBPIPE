@@ -1,0 +1,11 @@
+# Sealed F1/F3 repair implementation brief V1
+
+Role TASK Agent2, software-bounded-implementation. Parent WORKING_ITEMS N2_WI_PKG16, same RunID. Actual delegated-harness-native; no delegation, instruction+config asserted. Read actual AGENT_TASK, skills/software-bounded-implementation/SKILL.md, project AGENTS, F1_F3_COMBINED_REPAIR_PLAN_V1.md and F_REPAIR_PREDECESSOR_V1.json. Parent formal v9 source release follows completed immutable N7 CHANGES_REQUIRED review; verify all predecessor hashes before source.
+
+Implement exact accepted plan: F1 duplicate stiffness normalized DOF/value exact equality via existing typed converter; preserve ForcePerLength US aliases (lbf/in,lbf/ft), source JSON and one-location/equal duplicates. F3 exactly9 canonical family tokens; null/omitted accepted unchanged; reject blank/padded/PascalCase/unknown/nonstring. No new mixed-payload exclusivity matrix; existing checks remain unchanged.
+
+Write fence ONLY core/model_operations/operation_applier/src/rich_authoring.rs and new tests/support_authoring_conflicts.rs (paths relative crate); plus F_REPAIR_IMPLEMENTATION_RETURN.md/F_REPAIR_IMPLEMENTATION_CHECKS.json in N2 instance. No lib.rs, schema, physics, desktop, units, Cargo/lock, supporting contracts or N7 evidence writes. Scope no new diagnostics claims beyond actionable blocking error in existing rich taxonomy. Use public validate/apply/create/update/batch tests per accepted plan; module tests may live in owned rich file. No Wasm build, Git, commits, receipt or lifecycle transitions.
+
+Tools authorized read/search/write/rustfmt only owned files/offline cargo test operation crate, no network. Test command CARGO_TARGET_DIR={CARGO_TARGET_DIR} cargo test --offline --manifest-path {WORKING_ROOT}/core/model_operations/operation_applier/Cargo.toml --quiet. Parent-provisioned environment scratch target supplied in launch message. Output complete changed source hashes, exact tests/results, remaining risks; portable active path anchors, exact raw command evidence may be separate encoded record if necessary.
+
+Return must permit fresh independent100% changed-diff review. Source release to manager after completion, no post-freeze edits. Fresh reviewer does not author source. Do not claim N7 old review passed or Wasm updated.

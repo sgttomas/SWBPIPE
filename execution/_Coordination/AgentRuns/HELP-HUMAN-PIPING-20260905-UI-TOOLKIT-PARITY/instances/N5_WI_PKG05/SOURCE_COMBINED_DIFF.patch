@@ -1,0 +1,1362 @@
+--- preexport/lib.rs
++++ projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -4,6 +4,8 @@
+ //! mechanics crates. It emits mechanics quantities and diagnostics only; it
+ //! does not encode standards criteria, allowables, SIF tables, private data, or
+ //! professional acceptance.
++
++pub mod self_weight;
+ 
+ use open_pipe_stress_curved_bend::CurvedBendMacroElement;
+ use open_pipe_stress_frame_kernel::{
+--- /dev/null
++++ projects/chirality-piping/core/product_physics/src/self_weight.rs
+@@ -0,0 +1,685 @@
++//! Pure selected-pipe mass operation drafts. The caller retains and hashes the
++//! original document and supplies the operation envelope before atomic apply.
++use super::{
++    compute_pipe_mass_per_length, normalize_quantity, resolve_shared_sections, Diagnostic,
++    PreviewModel, Quantity,
++};
++use open_pipe_stress_units::Dimension;
++use serde::{Deserialize, Serialize};
++use serde_json::{json, Value};
++use std::collections::HashSet;
++
++#[derive(Debug, Clone, Deserialize, Serialize)]
++#[serde(deny_unknown_fields)]
++pub struct SelfWeightGravity {
++    pub value: f64,
++    pub unit: String,
++    pub axis: String,
++}
++#[derive(Debug, Clone, Deserialize, Serialize)]
++#[serde(deny_unknown_fields)]
++pub struct SelfWeightRequest {
++    pub case_id: String,
++    pub label: String,
++    pub pipe_refs: Vec<String>,
++    pub gravity: SelfWeightGravity,
++    pub provenance: String,
++    pub source_model_hash: String,
++}
++#[derive(Debug, Clone, Serialize)]
++pub struct SelfWeightOperationPlan {
++    pub source_model_hash: String,
++    pub changes: Vec<SelfWeightOperationDraft>,
++    pub source_evidence: Vec<Value>,
++    pub scope_label: String,
++}
++#[derive(Debug, Clone, Serialize)]
++pub struct SelfWeightOperationDraft {
++    pub object_type: String,
++    pub target_ref: String,
++    pub operation_kind: String,
++    pub change_kind: String,
++    pub field_label: String,
++    pub field_path: String,
++    pub before: String,
++    pub after: String,
++    pub unit: String,
++    pub dimension: String,
++    pub source_note: String,
++}
++fn invalid(d: &mut Vec<Diagnostic>, field: &str, message: &str) {
++    d.push(Diagnostic {
++        id: format!("diagnostic:self-weight:{field}"),
++        code: "SELF_WEIGHT_INPUT_INVALID".into(),
++        severity: "blocking".into(),
++        message: message.into(),
++        source: Some("self_weight".into()),
++        affected_refs: vec![field.into()],
++    });
++}
++fn quantity(q: &Quantity) -> Value {
++    json!({"value":q.value,"unit":q.unit})
++}
++fn optional(q: &Option<Quantity>) -> Value {
++    q.as_ref().map(quantity).unwrap_or(Value::Null)
++}
++fn normalize(
++    q: &mut Quantity,
++    dim: Dimension,
++    positive: bool,
++    field: &str,
++    d: &mut Vec<Diagnostic>,
++) {
++    if !q.value.is_finite() {
++        invalid(d, field, "quantity must be finite");
++        return;
++    }
++    normalize_quantity(
++        q,
++        dim,
++        &format!("diagnostic:self-weight:{field}"),
++        vec![field.into()],
++        d,
++    );
++    if !q.value.is_finite() || (positive && q.value <= 0.0) || (!positive && q.value < 0.0) {
++        invalid(d, field, "quantity has invalid sign or normalized value");
++    }
++}
++fn provenance_present(v: &Value) -> bool {
++    match v {
++        Value::Null => false,
++        Value::String(s) => !s.trim().is_empty(),
++        Value::Object(m) => !m.is_empty(),
++        Value::Array(a) => !a.is_empty(),
++        _ => false,
++    }
++}
++fn draft(
++    r: &SelfWeightRequest,
++    kind: &str,
++    path: &str,
++    after: Value,
++    unit: &str,
++    dimension: &str,
++    evidence: &Value,
++) -> SelfWeightOperationDraft {
++    SelfWeightOperationDraft {
++        object_type: "Load".into(),
++        target_ref: r.case_id.clone(),
++        operation_kind: "create".into(),
++        change_kind: kind.into(),
++        field_label: kind.into(),
++        field_path: path.into(),
++        before: "not_present".into(),
++        after: after.to_string(),
++        unit: unit.into(),
++        dimension: dimension.into(),
++        source_note: evidence.to_string(),
++    }
++}
++/// Generate a complete deterministic draft or blocking diagnostics, without
++/// mutating the typed view or claiming to authenticate its canonical hash.
++pub fn generate_self_weight_operations(
++    model: &PreviewModel,
++    request: &SelfWeightRequest,
++) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
++    let mut d = Vec::new();
++    for (name, value) in [
++        ("case_id", &request.case_id),
++        ("label", &request.label),
++        ("provenance", &request.provenance),
++    ] {
++        if value.trim().is_empty() {
++            invalid(&mut d, name, "explicit nonblank value required");
++        }
++    }
++    if !request
++        .source_model_hash
++        .strip_prefix("sha256:")
++        .is_some_and(|digest| {
++            digest.len() == 64
++                && digest
++                    .bytes()
++                    .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
++        })
++    {
++        invalid(
++            &mut d,
++            "source_model_hash",
++            "canonical sha256: lowercase SHA256 digest required",
++        );
++    }
++    if !matches!(
++        request.gravity.axis.as_str(),
++        "global_x" | "global_y" | "global_z"
++    ) {
++        invalid(&mut d, "gravity.axis", "explicit global axis required");
++    }
++    let mut gravity = Quantity {
++        value: request.gravity.value,
++        unit: request.gravity.unit.clone(),
++    };
++    if !gravity.value.is_finite() || gravity.value == 0.0 {
++        invalid(
++            &mut d,
++            "gravity",
++            "finite nonzero signed acceleration required",
++        );
++    } else {
++        normalize_quantity(
++            &mut gravity,
++            Dimension::Acceleration,
++            "diagnostic:self-weight:gravity",
++            vec!["gravity".into()],
++            &mut d,
++        );
++        if !gravity.value.is_finite() || gravity.value == 0.0 {
++            invalid(
++                &mut d,
++                "gravity",
++                "normalized acceleration must be finite and nonzero",
++            );
++        }
++    }
++    let mut used: HashSet<String> = model
++        .load_cases
++        .iter()
++        .map(|c| c.id.clone())
++        .chain(
++            model
++                .load_cases
++                .iter()
++                .flat_map(|c| c.primitive_loads.iter().map(|l| l.id.clone())),
++        )
++        .collect();
++    if !used.insert(request.case_id.clone()) {
++        invalid(
++            &mut d,
++            "case_id",
++            "case identity collides with existing case or primitive load",
++        );
++    }
++    if request.pipe_refs.is_empty() {
++        invalid(&mut d, "pipe_refs", "select at least one pipe");
++    }
++    let mut selected = HashSet::new();
++    let mut subset = model.clone();
++    subset.pipe_segments.clear();
++    for id in &request.pipe_refs {
++        if id.trim().is_empty() || !selected.insert(id) {
++            invalid(&mut d, "pipe_refs", "blank or duplicate selection");
++            continue;
++        }
++        let matches: Vec<_> = model.pipe_segments.iter().filter(|p| &p.id == id).collect();
++        if matches.len() != 1 {
++            invalid(&mut d, id, "selected pipe must resolve exactly once");
++            continue;
++        }
++        let pipe = matches[0];
++        if pipe.provenance.as_ref().is_none_or(|s| s.trim().is_empty()) {
++            invalid(&mut d, id, "pipe provenance required");
++        }
++        let mut positions = Vec::new();
++        for node_id in [&pipe.from, &pipe.to] {
++            let nodes: Vec<_> = model.nodes.iter().filter(|n| &n.id == node_id).collect();
++            if node_id.trim().is_empty() || nodes.len() != 1 {
++                invalid(&mut d, id, "endpoint must resolve exactly once");
++                continue;
++            }
++            let p = nodes[0].position;
++            if ![p.x, p.y, p.z].iter().all(|v| v.is_finite()) {
++                invalid(&mut d, id, "endpoint position must be finite");
++            }
++            positions.push(p);
++        }
++        if pipe.from == pipe.to
++            || (positions.len() == 2
++                && positions[0].x == positions[1].x
++                && positions[0].y == positions[1].y
++                && positions[0].z == positions[1].z)
++        {
++            invalid(
++                &mut d,
++                id,
++                "pipe requires distinct endpoints and nonzero geometric span",
++            );
++        }
++        let generated = format!(
++            "load:self-weight:{}:{}:{}:{}",
++            request.case_id.len(),
++            request.case_id,
++            id.len(),
++            id
++        );
++        if !used.insert(generated) {
++            invalid(&mut d, id, "generated primitive identity collision");
++        }
++        subset.pipe_segments.push(pipe.clone());
++    }
++    subset.pipe_segments.sort_by(|a, b| a.id.cmp(&b.id));
++    resolve_shared_sections(&mut subset, &mut d);
++    if !d.is_empty() {
++        return Err(d);
++    }
++    let mut evidence = Vec::new();
++    let mut loads = Vec::new();
++    for pipe in &mut subset.pipe_segments {
++        let original = model
++            .pipe_segments
++            .iter()
++            .find(|p| p.id == pipe.id)
++            .expect("unique selected pipe");
++        let shared = original.section_ref.as_ref().map(|id| {
++            model
++                .sections
++                .iter()
++                .find(|s| &s.id == id)
++                .expect("resolved section")
++        });
++        if shared.is_some_and(|s| !provenance_present(&s.provenance)) {
++            invalid(&mut d, &pipe.id, "referenced section provenance required");
++        }
++        let section = &mut pipe.section;
++        normalize(
++            &mut section.outside_diameter,
++            Dimension::Length,
++            true,
++            "outside_diameter",
++            &mut d,
++        );
++        normalize(
++            &mut section.wall_thickness,
++            Dimension::Length,
++            true,
++            "wall_thickness",
++            &mut d,
++        );
++        for (name, q, dim) in [
++            (
++                "mill_tolerance",
++                &mut section.mill_tolerance,
++                Dimension::Length,
++            ),
++            (
++                "contents_density",
++                &mut section.contents_density,
++                Dimension::Density,
++            ),
++            (
++                "insulation_thickness",
++                &mut section.insulation_thickness,
++                Dimension::Length,
++            ),
++            (
++                "insulation_density",
++                &mut section.insulation_density,
++                Dimension::Density,
++            ),
++        ] {
++            if let Some(q) = q {
++                normalize(q, dim, false, name, &mut d);
++            }
++        }
++        match &mut section.material_density {
++            Some(q) => normalize(q, Dimension::Density, true, "material_density", &mut d),
++            None => invalid(&mut d, &pipe.id, "explicit material density required"),
++        }
++        if !d.is_empty() {
++            continue;
++        }
++        let Some(mass) = compute_pipe_mass_per_length(pipe, &request.case_id, &mut d) else {
++            continue;
++        };
++        let intensity = mass * gravity.value;
++        if !mass.is_finite() || mass <= 0.0 || !intensity.is_finite() {
++            invalid(&mut d, &pipe.id, "computed mass or intensity is invalid");
++            continue;
++        }
++        let s = &original.section;
++        let shared_evidence=shared.map(|s|json!({"id":s.id,"name":s.name,"section_type":s.section_type,"provenance":s.provenance,
++            "properties":s.properties.iter().map(|(k,v)|(k.clone(),quantity(v))).collect::<serde_json::Map<String,Value>>()}));
++        let e = json!({"method":"pipe_mass_per_length_times_explicit_axis_acceleration/v1","gravity":request.gravity,
++            "normalized_acceleration_m_per_s2":gravity.value,"request_provenance":request.provenance,
++            "pipe_id":pipe.id,"pipe_provenance":original.provenance,"section_ref":original.section_ref,"referenced_section":shared_evidence,
++            "mass_inputs":{"outside_diameter":quantity(&s.outside_diameter),"wall_thickness":quantity(&s.wall_thickness),"mill_tolerance":optional(&s.mill_tolerance),
++                "material_density":optional(&s.material_density),"contents_density":optional(&s.contents_density),"insulation_thickness":optional(&s.insulation_thickness),"insulation_density":optional(&s.insulation_density)},
++            "mass_kg_per_m":mass,"contents_absent":s.contents_density.is_none(),"insulation_absent":s.insulation_thickness.is_none() && s.insulation_density.is_none()});
++        let id = format!(
++            "load:self-weight:{}:{}:{}:{}",
++            request.case_id.len(),
++            request.case_id,
++            pipe.id.len(),
++            pipe.id
++        );
++        let payload = json!({"id":id,"category":"distributed_force","target":{"type":"element","pipe":pipe.id},"direction":request.gravity.axis,
++            "magnitude":{"value":intensity,"unit":"N/m"},"dimension":"force_per_length","provenance":e.to_string()});
++        loads.push(draft(
++            request,
++            "create_primitive_load",
++            "primitive_loads",
++            payload,
++            "N/m",
++            "force_per_length",
++            &e,
++        ));
++        evidence.push(e);
++    }
++    if !d.is_empty() {
++        return Err(d);
++    }
++    let case = json!({"id":request.case_id,"label":request.label,"kind":"primitive_user_load","status":"draft","provenance":request.provenance,"primitive_loads":[]});
++    let mut changes = vec![draft(
++        request,
++        "create_load_case",
++        "load_cases",
++        case,
++        "none",
++        "dimensionless",
++        &json!({"scope_label":"selected_pipe_mass_only","source_model_hash":request.source_model_hash,"source_evidence":evidence}),
++    )];
++    changes.extend(loads);
++    Ok(SelfWeightOperationPlan {
++        source_model_hash: request.source_model_hash.clone(),
++        changes,
++        source_evidence: evidence,
++        scope_label: "selected_pipe_mass_only".into(),
++    })
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn fixture() -> (PreviewModel, SelfWeightRequest) {
++        let model=serde_json::from_value(json!({"schema_version":"invented","document_kind":"preview","project":{"id":"invented"},
++            "analysis_status":{"mechanics":"draft","rule_check":"not_run","professional_acceptance":"not_assessed"},
++            "nodes":[{"id":"a","position":{"x":0,"y":0,"z":0}},{"id":"b","position":{"x":1,"y":0,"z":0}}],
++            "pipe_segments":[{"id":"pipe:é","from":"a","to":"b","material":"invented","provenance":"invented pipe",
++                "section":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"},"material_density":{"value":1000,"unit":"kg/m^3"}}}],"supports":[]})).unwrap();
++        let request = SelfWeightRequest {
++            case_id: "case:α".into(),
++            label: "invented self mass".into(),
++            pipe_refs: vec!["pipe:é".into()],
++            gravity: SelfWeightGravity {
++                value: -7.0,
++                unit: "m/s^2".into(),
++                axis: "global_y".into(),
++            },
++            provenance: "invented explicit input".into(),
++            source_model_hash: format!("sha256:{}", "a".repeat(64)),
++        };
++        (model, request)
++    }
++    fn plan_value(m: &PreviewModel, r: &SelfWeightRequest) -> Value {
++        serde_json::to_value(generate_self_weight_operations(m, r).unwrap()).unwrap()
++    }
++    fn intensity(m: &PreviewModel, r: &SelfWeightRequest) -> f64 {
++        let plan = generate_self_weight_operations(m, r).unwrap();
++        serde_json::from_str::<Value>(&plan.changes[1].after).unwrap()["magnitude"]["value"]
++            .as_f64()
++            .unwrap()
++    }
++    fn close(a: f64, b: f64) {
++        assert!(
++            (a - b).abs() <= 1e-12 * a.abs().max(b.abs()).max(1.0),
++            "{a} != {b}"
++        );
++    }
++    #[test]
++    fn self_weight_rejects_unknown_request_options() {
++        let (_, request) = fixture();
++        let mut top = serde_json::to_value(&request).unwrap();
++        top["component_weights"] = json!(true);
++        assert!(serde_json::from_value::<SelfWeightRequest>(top).is_err());
++        let mut gravity = serde_json::to_value(&request).unwrap();
++        gravity["gravity"]["default_gravity"] = json!(true);
++        assert!(serde_json::from_value::<SelfWeightRequest>(gravity).is_err());
++        assert!(serde_json::from_value::<SelfWeightRequest>(
++            serde_json::to_value(&request).unwrap()
++        )
++        .is_ok());
++    }
++
++    #[test]
++    fn self_weight_signed_axes_shape_and_immutable_inputs() {
++        let (m, mut r) = fixture();
++        let before = format!("{m:?}");
++        for axis in ["global_x", "global_y", "global_z"] {
++            for g in [-7.0, 7.0] {
++                r.gravity.axis = axis.into();
++                r.gravity.value = g;
++                close(
++                    intensity(&m, &r),
++                    std::f64::consts::PI / 4.0 * (0.1_f64.powi(2) - 0.08_f64.powi(2)) * 1000.0 * g,
++                );
++            }
++        }
++        let request_before = serde_json::to_value(&r).unwrap();
++        let p = generate_self_weight_operations(&m, &r).unwrap();
++        assert_eq!(p.source_model_hash, r.source_model_hash);
++        assert_eq!(p.scope_label, "selected_pipe_mass_only");
++        assert_eq!(p.changes.len(), 2);
++        for c in &p.changes {
++            assert_eq!(c.object_type, "Load");
++            assert_eq!(c.target_ref, r.case_id);
++            assert_eq!(c.operation_kind, "create");
++            assert_eq!(c.before, "not_present");
++        }
++        let case: Value = serde_json::from_str(&p.changes[0].after).unwrap();
++        assert_eq!(case["status"], "draft");
++        assert_eq!(case["primitive_loads"], json!([]));
++        let load: Value = serde_json::from_str(&p.changes[1].after).unwrap();
++        assert_eq!(load["category"], "distributed_force");
++        assert_eq!(load["direction"], r.gravity.axis);
++        let e: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
++        assert_eq!(e, p.source_evidence[0]);
++        assert_eq!(
++            serde_json::from_str::<Value>(&p.changes[1].source_note).unwrap(),
++            e
++        );
++        assert_eq!(e["contents_absent"], true);
++        assert_eq!(e["insulation_absent"], true);
++        assert_eq!(e["mass_inputs"]["contents_density"], Value::Null);
++        assert_eq!(format!("{m:?}"), before);
++        assert_eq!(serde_json::to_value(&r).unwrap(), request_before);
++    }
++    #[test]
++    fn self_weight_alternate_units_and_all_mass_sources() {
++        let (mut m, r) = fixture();
++        let baseline = intensity(&m, &r);
++        m.pipe_segments[0].section.outside_diameter = Quantity {
++            value: 100.0,
++            unit: "mm".into(),
++        };
++        m.pipe_segments[0].section.wall_thickness = Quantity {
++            value: 10.0,
++            unit: "mm".into(),
++        };
++        close(intensity(&m, &r), baseline);
++        m.pipe_segments[0].section.material_density = Some(Quantity {
++            value: 1000.0 * 0.0254_f64.powi(3) / 0.45359237,
++            unit: "lb/in^3".into(),
++        });
++        close(intensity(&m, &r), baseline);
++        let s = &mut m.pipe_segments[0].section;
++        s.mill_tolerance = Some(Quantity {
++            value: 1.0,
++            unit: "mm".into(),
++        });
++        s.contents_density = Some(Quantity {
++            value: 400.0,
++            unit: "kg/m^3".into(),
++        });
++        s.insulation_thickness = Some(Quantity {
++            value: 10.0,
++            unit: "mm".into(),
++        });
++        s.insulation_density = Some(Quantity {
++            value: 50.0,
++            unit: "kg/m^3".into(),
++        });
++        let mass = std::f64::consts::PI / 4.0
++            * ((0.1_f64.powi(2) - 0.082_f64.powi(2)) * 1000.0
++                + 0.082_f64.powi(2) * 400.0
++                + (0.12_f64.powi(2) - 0.1_f64.powi(2)) * 50.0);
++        close(intensity(&m, &r), mass * r.gravity.value);
++        let p = plan_value(&m, &r);
++        assert_eq!(p["source_evidence"][0]["contents_absent"], false);
++        assert_eq!(p["source_evidence"][0]["insulation_absent"], false);
++    }
++    #[test]
++    fn self_weight_invalid_quantities_fail_without_partial_plan() {
++        let (m, r) = fixture();
++        for value in [f64::NAN, f64::INFINITY, -1.0, 0.0] {
++            let mut bad = m.clone();
++            bad.pipe_segments[0]
++                .section
++                .material_density
++                .as_mut()
++                .unwrap()
++                .value = value;
++            assert!(generate_self_weight_operations(&bad, &r).is_err());
++        }
++        for unit in ["", "N", "unknown"] {
++            let mut bad = m.clone();
++            bad.pipe_segments[0]
++                .section
++                .material_density
++                .as_mut()
++                .unwrap()
++                .unit = unit.into();
++            assert!(generate_self_weight_operations(&bad, &r).is_err());
++        }
++        for mode in 0..9 {
++            let mut bad = m.clone();
++            let s = &mut bad.pipe_segments[0].section;
++            match mode {
++                0 => s.material_density = None,
++                1 => s.wall_thickness.value = 0.06,
++                2 => {
++                    s.mill_tolerance = Some(Quantity {
++                        value: -1.0,
++                        unit: "m".into(),
++                    })
++                }
++                3 => {
++                    s.mill_tolerance = Some(Quantity {
++                        value: 0.01,
++                        unit: "m".into(),
++                    })
++                }
++                4 => {
++                    s.insulation_density = Some(Quantity {
++                        value: 1.0,
++                        unit: "kg/m^3".into(),
++                    })
++                }
++                5 => {
++                    s.contents_density = Some(Quantity {
++                        value: -1.0,
++                        unit: "kg/m^3".into(),
++                    })
++                }
++                6 => s.outside_diameter.value = f64::MAX,
++                7 => s.wall_thickness.value = f64::NAN,
++                _ => {
++                    s.insulation_thickness = Some(Quantity {
++                        value: -1.0,
++                        unit: "m".into(),
++                    })
++                }
++            };
++            assert!(
++                generate_self_weight_operations(&bad, &r).is_err(),
++                "mode {mode}"
++            );
++        }
++        for mode in 0..7 {
++            let mut bad = r.clone();
++            match mode {
++                0 => bad.gravity.value = 0.0,
++                1 => bad.gravity.value = f64::INFINITY,
++                2 => bad.gravity.unit = "N".into(),
++                3 => bad.gravity.axis = "local_x".into(),
++                4 => bad.provenance = " ".into(),
++                5 => bad.source_model_hash = "A".repeat(64),
++                _ => bad.gravity.value = f64::MAX,
++            };
++            assert!(generate_self_weight_operations(&m, &bad).is_err());
++        }
++    }
++    #[test]
++    fn self_weight_selection_geometry_and_collisions() {
++        let (m, r) = fixture();
++        for mode in 0..10 {
++            let mut bad = m.clone();
++            match mode {0=>bad.pipe_segments.push(bad.pipe_segments[0].clone()),1=>bad.nodes.push(bad.nodes[0].clone()),2=>bad.nodes.clear(),3=>bad.nodes[1].position=bad.nodes[0].position,4=>bad.nodes[1].position.x=f64::NAN,5=>bad.pipe_segments[0].to="a".into(),6=>bad.pipe_segments[0].provenance=None,7=>bad.pipe_segments.clear(),8=>bad.load_cases=serde_json::from_value(json!([{"id":r.case_id}])).unwrap(),_=>bad.load_cases=serde_json::from_value(json!([{"id":"other","primitive_loads":[{"id":format!("load:self-weight:{}:{}:{}:{}",r.case_id.len(),r.case_id,r.pipe_refs[0].len(),r.pipe_refs[0]),"category":"distributed_force","target":{"type":"element","pipe":"pipe:é"},"direction":"global_y","magnitude":{"value":1,"unit":"N/m"},"dimension":"force_per_length"}]}])).unwrap()};
++            assert!(
++                generate_self_weight_operations(&bad, &r).is_err(),
++                "mode {mode}"
++            );
++        }
++        for refs in [
++            vec![],
++            vec![" ".into()],
++            vec!["missing".into()],
++            vec![r.pipe_refs[0].clone(), r.pipe_refs[0].clone()],
++        ] {
++            let mut bad = r.clone();
++            bad.pipe_refs = refs;
++            assert!(generate_self_weight_operations(&m, &bad).is_err());
++        }
++        let mut two = m.clone();
++        let mut pipe = two.pipe_segments[0].clone();
++        pipe.id = "pipe_é:6".into();
++        two.pipe_segments.push(pipe);
++        let mut rr = r.clone();
++        rr.pipe_refs.push("pipe_é:6".into());
++        let first = plan_value(&two, &rr);
++        rr.pipe_refs.reverse();
++        assert_eq!(first, plan_value(&two, &rr));
++        let a: Value =
++            serde_json::from_str(first["changes"][1]["after"].as_str().unwrap()).unwrap();
++        let b: Value =
++            serde_json::from_str(first["changes"][2]["after"].as_str().unwrap()).unwrap();
++        assert_ne!(a["id"], b["id"]);
++        assert!(a["id"].as_str().unwrap().contains("pipe:é"));
++    }
++    #[test]
++    fn self_weight_section_resolution_and_unselected_isolation() {
++        let (mut m, r) = fixture();
++        let baseline = intensity(&m, &r);
++        m.pipe_segments[0].section_ref = Some("section".into());
++        m.sections=serde_json::from_value(json!([{"id":"section","name":"invented","section_type":"pipe","properties":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"provenance":"invented section"}])).unwrap();
++        close(intensity(&m, &r), baseline);
++        assert_eq!(
++            plan_value(&m, &r)["source_evidence"][0]["referenced_section"]["provenance"],
++            "invented section"
++        );
++        for mode in 0..6 {
++            let mut bad = m.clone();
++            match mode {
++                0 => bad.sections.clear(),
++                1 => bad.sections.push(bad.sections[0].clone()),
++                2 => bad.sections[0].section_type = "other".into(),
++                3 => bad.pipe_segments[0].section.outside_diameter.value = 0.2,
++                4 => {
++                    bad.pipe_segments[0].section.outside_diameter = Quantity {
++                        value: 100.0,
++                        unit: "mm".into(),
++                    }
++                }
++                _ => bad.sections[0].provenance = Value::Null,
++            };
++            assert!(
++                generate_self_weight_operations(&bad, &r).is_err(),
++                "mode {mode}"
++            );
++        }
++        let mut broken = m.pipe_segments[0].clone();
++        broken.id = "unselected".into();
++        broken.section_ref = Some("missing".into());
++        broken.from = "missing".into();
++        m.pipe_segments.push(broken);
++        close(intensity(&m, &r), baseline);
++    }
++}
+--- /dev/null
++++ projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml
+@@ -0,0 +1,20 @@
++[package]
++name = "open_pipe_stress_self_weight_wasm"
++version = "0.1.0"
++edition = "2021"
++description = "Original-document authenticated self-weight operation draft adapter"
++publish = false
++
++[lib]
++crate-type = ["cdylib", "rlib"]
++
++[features]
++default = []
++wasm = ["dep:wasm-bindgen"]
++
++[dependencies]
++open_pipe_stress_product_physics = { path = "../../product_physics" }
++open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
++serde_json = "1"
++sha2 = "0.10"
++wasm-bindgen = { version = "=0.2.123", optional = true }
+--- /dev/null
++++ projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock
+@@ -0,0 +1,386 @@
++# This file is automatically @generated by Cargo.
++# It is not intended for manual editing.
++version = 4
++
++[[package]]
++name = "block-buffer"
++version = "0.10.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
++dependencies = [
++ "generic-array",
++]
++
++[[package]]
++name = "bumpalo"
++version = "3.20.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
++
++[[package]]
++name = "cfg-if"
++version = "1.0.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
++
++[[package]]
++name = "cpufeatures"
++version = "0.2.17"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280"
++dependencies = [
++ "libc",
++]
++
++[[package]]
++name = "crypto-common"
++version = "0.1.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "78c8292055d1c1df0cce5d180393dc8cce0abec0a7102adb6c7b1eef6016d60a"
++dependencies = [
++ "generic-array",
++ "typenum",
++]
++
++[[package]]
++name = "digest"
++version = "0.10.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
++dependencies = [
++ "block-buffer",
++ "crypto-common",
++]
++
++[[package]]
++name = "generic-array"
++version = "0.14.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
++dependencies = [
++ "typenum",
++ "version_check",
++]
++
++[[package]]
++name = "itoa"
++version = "1.0.18"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
++
++[[package]]
++name = "libc"
++version = "0.2.189"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
++
++[[package]]
++name = "memchr"
++version = "2.8.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
++
++[[package]]
++name = "once_cell"
++version = "1.21.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
++
++[[package]]
++name = "open_pipe_stress_canonical_json"
++version = "0.1.0"
++dependencies = [
++ "ryu",
++ "serde_json",
++]
++
++[[package]]
++name = "open_pipe_stress_curved_bend"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
++[[package]]
++name = "open_pipe_stress_frame_kernel"
++version = "0.1.0"
++
++[[package]]
++name = "open_pipe_stress_linear_supports"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
++[[package]]
++name = "open_pipe_stress_load_case_algebra"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_primitive_loads",
++]
++
++[[package]]
++name = "open_pipe_stress_nonlinear_integration"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_curved_bend",
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_nonlinear_supports",
++ "open_pipe_stress_solver_diagnostics",
++ "open_pipe_stress_sparse_direct",
++]
++
++[[package]]
++name = "open_pipe_stress_nonlinear_supports"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_solver_diagnostics",
++]
++
++[[package]]
++name = "open_pipe_stress_primitive_loads"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_linear_supports",
++]
++
++[[package]]
++name = "open_pipe_stress_product_physics"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_curved_bend",
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_load_case_algebra",
++ "open_pipe_stress_nonlinear_integration",
++ "open_pipe_stress_nonlinear_supports",
++ "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_solver_diagnostics",
++ "open_pipe_stress_sparse_direct",
++ "open_pipe_stress_straight_pipe",
++ "open_pipe_stress_stress_recovery",
++ "open_pipe_stress_units",
++ "serde",
++ "serde_json",
++]
++
++[[package]]
++name = "open_pipe_stress_self_weight_wasm"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_canonical_json",
++ "open_pipe_stress_product_physics",
++ "serde_json",
++ "sha2",
++ "wasm-bindgen",
++]
++
++[[package]]
++name = "open_pipe_stress_solver_diagnostics"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_sparse_direct",
++]
++
++[[package]]
++name = "open_pipe_stress_sparse_direct"
++version = "0.1.0"
++
++[[package]]
++name = "open_pipe_stress_straight_pipe"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
++[[package]]
++name = "open_pipe_stress_stress_recovery"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_straight_pipe",
++]
++
++[[package]]
++name = "open_pipe_stress_units"
++version = "0.1.0"
++
++[[package]]
++name = "proc-macro2"
++version = "1.0.107"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
++dependencies = [
++ "unicode-ident",
++]
++
++[[package]]
++name = "quote"
++version = "1.0.47"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
++dependencies = [
++ "proc-macro2",
++]
++
++[[package]]
++name = "rustversion"
++version = "1.0.22"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
++
++[[package]]
++name = "ryu"
++version = "1.0.23"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
++
++[[package]]
++name = "serde"
++version = "1.0.229"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba"
++dependencies = [
++ "serde_core",
++ "serde_derive",
++]
++
++[[package]]
++name = "serde_core"
++version = "1.0.229"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48"
++dependencies = [
++ "serde_derive",
++]
++
++[[package]]
++name = "serde_derive"
++version = "1.0.229"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "e7a5d71263a5a7d47b41f6b3f06ba276f10cc18b0931f1799f710578e2309348"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 3.0.3",
++]
++
++[[package]]
++name = "serde_json"
++version = "1.0.151"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14"
++dependencies = [
++ "itoa",
++ "memchr",
++ "serde",
++ "serde_core",
++ "zmij",
++]
++
++[[package]]
++name = "sha2"
++version = "0.10.9"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283"
++dependencies = [
++ "cfg-if",
++ "cpufeatures",
++ "digest",
++]
++
++[[package]]
++name = "syn"
++version = "2.0.118"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1b9ae57f904213ebb649ce6895b8a66c66f0203b9319718f69a5612a065b1422"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "unicode-ident",
++]
++
++[[package]]
++name = "syn"
++version = "3.0.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "53e9bae58849f64dfa4f5d5ae372c8341f7305f82a3868709269343628b659a3"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "unicode-ident",
++]
++
++[[package]]
++name = "typenum"
++version = "1.20.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
++
++[[package]]
++name = "unicode-ident"
++version = "1.0.24"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
++
++[[package]]
++name = "version_check"
++version = "0.9.5"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
++
++[[package]]
++name = "wasm-bindgen"
++version = "0.2.123"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "a254a4b10c19a76f09a27640e7ffbf9bc30bf67e16a3bf28aaefa4920fe81563"
++dependencies = [
++ "cfg-if",
++ "once_cell",
++ "rustversion",
++ "wasm-bindgen-macro",
++ "wasm-bindgen-shared",
++]
++
++[[package]]
++name = "wasm-bindgen-macro"
++version = "0.2.123"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "24a40fc75b0ec6f3746ceb10d36f53a93dcd68a93b11b6445983945d79eba0dc"
++dependencies = [
++ "quote",
++ "wasm-bindgen-macro-support",
++]
++
++[[package]]
++name = "wasm-bindgen-macro-support"
++version = "0.2.123"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "908f34bd9b9ce3d4caf07b72dfab63d61504d156856c6bd3cd87fa350cf3985b"
++dependencies = [
++ "bumpalo",
++ "proc-macro2",
++ "quote",
++ "syn 2.0.118",
++ "wasm-bindgen-shared",
++]
++
++[[package]]
++name = "wasm-bindgen-shared"
++version = "0.2.123"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "7acbf7616c27b194bbb550bf77ed0c2c3e5b7fd1260a93082b95fb7f47959b92"
++dependencies = [
++ "unicode-ident",
++]
++
++[[package]]
++name = "zmij"
++version = "1.0.23"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
+--- /dev/null
++++ projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs
+@@ -0,0 +1,248 @@
++//! Authenticates the full original document before the typed physics projection.
++//! Produces operation proposals only; it never applies or accepts a model.
++use open_pipe_stress_canonical_json::canonical_json;
++use open_pipe_stress_product_physics::{
++    self_weight::{generate_self_weight_operations, SelfWeightRequest},
++    PreviewModel,
++};
++use serde_json::{json, Value};
++use sha2::{Digest, Sha256};
++
++fn source_hash(model: &Value) -> String {
++    format!(
++        "sha256:{:x}",
++        Sha256::digest(canonical_json(model).as_bytes())
++    )
++}
++fn envelope(hash: Option<&str>, plan: Value, diagnostics: Vec<Value>) -> Value {
++    json!({"document_kind":"openpipestress.desktop.self_weight_plan_outcome",
++        "status":if plan.is_null(){"blocked"}else{"ready"},"input_model_unchanged":true,
++        "source_model_hash":hash,"plan":plan,"diagnostics":diagnostics,
++        "mutation_route":"structured_operations_only","requires_user_acceptance":true})
++}
++fn blocked(hash: Option<&str>, code: &str, message: &str, remediation: &str) -> Value {
++    envelope(
++        hash,
++        Value::Null,
++        vec![json!({"code":code,"severity":"blocking","message":message,
++        "remediation":remediation,"affected_objects":[]})],
++    )
++}
++/// Authenticate canonical identity, validate explicit generation options and
++/// return a complete draft plan or a structured blocking outcome.
++pub fn generate_plan(model: &Value, request: &Value) -> Value {
++    if !model.is_object() {
++        return blocked(
++            None,
++            "SELF-WEIGHT-MODEL-SHAPE-INVALID",
++            "Model must be a JSON object.",
++            "Supply the original model document.",
++        );
++    }
++    if !request.is_object() {
++        return blocked(
++            None,
++            "SELF-WEIGHT-REQUEST-SHAPE-INVALID",
++            "Request must be a JSON object.",
++            "Supply explicit self-weight generation options.",
++        );
++    }
++    let hash = source_hash(model);
++    if request.get("source_model_hash").and_then(Value::as_str) != Some(hash.as_str()) {
++        return blocked(
++            None,
++            "SELF-WEIGHT-SOURCE-HASH-MISMATCH",
++            "Original model hash is missing, malformed, or stale.",
++            "Recompute the canonical original model hash and regenerate the request.",
++        );
++    }
++    let typed_model: PreviewModel = match serde_json::from_value(model.clone()) {
++        Ok(value) => value,
++        Err(_) => {
++            return blocked(
++                None,
++                "SELF-WEIGHT-MODEL-SHAPE-INVALID",
++                "Model does not match the preview model input shape.",
++                "Correct the original model fields before generating a plan.",
++            )
++        }
++    };
++    let typed_request: SelfWeightRequest = match serde_json::from_value(request.clone()) {
++        Ok(value) => value,
++        Err(_) => {
++            return blocked(
++                Some(&hash),
++                "SELF-WEIGHT-REQUEST-SHAPE-INVALID",
++                "Request contains missing, invalid, or unsupported generation options.",
++                "Supply only the defined request and gravity fields with their expected types.",
++            )
++        }
++    };
++    match generate_self_weight_operations(&typed_model,&typed_request) {
++        Ok(plan)=>match serde_json::to_value(plan) {
++            Ok(plan)=>envelope(Some(&hash),plan,vec![]),
++            Err(_)=>blocked(Some(&hash),"SELF-WEIGHT-PLAN-INVALID","Generated plan could not be serialized.","Correct the source quantities and regenerate the proposal."),
++        },
++        Err(diagnostics)=>envelope(Some(&hash),Value::Null,diagnostics.into_iter().map(|d|json!({
++            "code":d.code,"severity":"blocking","message":d.message,
++            "remediation":"Correct the referenced explicit inputs and regenerate the proposal.","affected_objects":d.affected_refs})).collect()),
++    }
++}
++/// JSON transport shared by native tests and the feature-gated Wasm export.
++#[cfg_attr(feature = "wasm", wasm_bindgen::prelude::wasm_bindgen)]
++pub fn generate_self_weight_plan_json(model_json: &str, request_json: &str) -> String {
++    let parsed: Result<(Value, Value), _> = serde_json::from_str(model_json)
++        .and_then(|model| serde_json::from_str(request_json).map(|request| (model, request)));
++    match parsed {
++        Ok((model, request)) => generate_plan(&model, &request),
++        Err(_) => blocked(
++            None,
++            "SELF-WEIGHT-JSON-INVALID",
++            "Model or request is not valid JSON.",
++            "Supply valid JSON model and request objects.",
++        ),
++    }
++    .to_string()
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn fixture() -> (Value, Value) {
++        let model = json!({"schema_version":"invented","document_kind":"preview","project":{"id":"invented"},
++            "analysis_status":{"mechanics":"draft","rule_check":"not_run","professional_acceptance":"not_assessed"},
++            "extension":{"retained":"full original"},"nodes":[{"id":"a","position":{"x":0,"y":0,"z":0}},{"id":"b","position":{"x":1,"y":0,"z":0}}],
++            "pipe_segments":[{"id":"pipe","from":"a","to":"b","material":"invented","provenance":"invented pipe","section":{
++                "outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"},"material_density":{"value":1000,"unit":"kg/m^3"}}}],"supports":[]});
++        let request = json!({"case_id":"self","label":"Invented","pipe_refs":["pipe"],"gravity":{"value":-7,"unit":"m/s^2","axis":"global_z"},"provenance":"explicit invented input","source_model_hash":source_hash(&model)});
++        (model, request)
++    }
++    fn assert_blocked(out: &Value) {
++        assert_eq!(out["status"], "blocked");
++        assert!(out["plan"].is_null());
++        assert_eq!(out["input_model_unchanged"], true);
++        assert!(out.get("applied_model").is_none());
++        assert!(out.get("receipt").is_none());
++        assert!(out.get("model").is_none());
++        assert!(!out["diagnostics"].as_array().unwrap().is_empty());
++        for d in out["diagnostics"].as_array().unwrap() {
++            assert_eq!(d["severity"], "blocking");
++            assert!(d["remediation"].is_string());
++            assert!(d["affected_objects"].is_array());
++        }
++    }
++    #[test]
++    fn ready_exact_module_and_json_transport_parity() {
++        let (m, r) = fixture();
++        let before = (m.clone(), r.clone());
++        let out = generate_plan(&m, &r);
++        assert_eq!(out["status"], "ready");
++        assert_eq!(out["source_model_hash"], r["source_model_hash"]);
++        assert_eq!(out["diagnostics"], json!([]));
++        let direct = generate_self_weight_operations(
++            &serde_json::from_value(m.clone()).unwrap(),
++            &serde_json::from_value(r.clone()).unwrap(),
++        )
++        .unwrap();
++        assert_eq!(out["plan"], serde_json::to_value(direct).unwrap());
++        assert_eq!(
++            out,
++            serde_json::from_str::<Value>(&generate_self_weight_plan_json(
++                &m.to_string(),
++                &r.to_string()
++            ))
++            .unwrap()
++        );
++        assert_eq!(before, (m, r));
++    }
++    #[test]
++    fn full_original_hash_rejects_stale_unknown_model_field() {
++        let (mut m, r) = fixture();
++        m["extension"]["retained"] = json!("changed");
++        let out = generate_plan(&m, &r);
++        assert_blocked(&out);
++        assert_eq!(
++            out["diagnostics"][0]["code"],
++            "SELF-WEIGHT-SOURCE-HASH-MISMATCH"
++        );
++        let mut refreshed = r;
++        refreshed["source_model_hash"] = json!(source_hash(&m));
++        assert_eq!(generate_plan(&m, &refreshed)["status"], "ready");
++    }
++    #[test]
++    fn rejects_malformed_hash_shapes_and_unknown_options() {
++        let (m, r) = fixture();
++        for hash in [
++            Value::Null,
++            json!(7),
++            json!("bad"),
++            json!(format!("sha256:{}", "0".repeat(64))),
++        ] {
++            let mut bad = r.clone();
++            bad["source_model_hash"] = hash;
++            assert_blocked(&generate_plan(&m, &bad));
++        }
++        let mut missing = r.clone();
++        missing.as_object_mut().unwrap().remove("source_model_hash");
++        assert_blocked(&generate_plan(&m, &missing));
++        for bad in [Value::Null, json!([]), json!({})] {
++            assert_blocked(&generate_plan(&bad, &r));
++            assert_blocked(&generate_plan(&m, &bad));
++        }
++        let mut bad_model = m.clone();
++        bad_model["nodes"] = json!("bad");
++        let mut corrected = r.clone();
++        corrected["source_model_hash"] = json!(source_hash(&bad_model));
++        let out = generate_plan(&bad_model, &corrected);
++        assert_blocked(&out);
++        assert!(out["source_model_hash"].is_null());
++        for nested in [false, true] {
++            let mut bad = r.clone();
++            if nested {
++                bad["gravity"]["unsupported"] = json!(true);
++            } else {
++                bad["unsupported"] = json!(true);
++            }
++            let out = generate_plan(&m, &bad);
++            assert_blocked(&out);
++            assert_eq!(
++                out["diagnostics"][0]["code"],
++                "SELF-WEIGHT-REQUEST-SHAPE-INVALID"
++            );
++        }
++        let mut bad = r.clone();
++        bad["gravity"]["value"] = json!(0);
++        let out = generate_plan(&m, &bad);
++        assert_blocked(&out);
++        assert_eq!(out["diagnostics"][0]["code"], "SELF_WEIGHT_INPUT_INVALID");
++    }
++    #[test]
++    fn malformed_json_blocks_and_key_order_is_canonical() {
++        let (m, r) = fixture();
++        for (a, b) in [("{", r.to_string()), (&m.to_string(), "{".into())] {
++            assert_blocked(
++                &serde_json::from_str::<Value>(&generate_self_weight_plan_json(a, &b)).unwrap(),
++            );
++        }
++        let reversed = format!(
++            "{{{}}}",
++            m.as_object()
++                .unwrap()
++                .iter()
++                .rev()
++                .map(|(k, v)| format!("{}:{}", serde_json::to_string(k).unwrap(), v))
++                .collect::<Vec<_>>()
++                .join(",")
++        );
++        let reordered: Value = serde_json::from_str(&reversed).unwrap();
++        assert_eq!(source_hash(&m), source_hash(&reordered));
++        assert_eq!(
++            generate_plan(&m, &r),
++            serde_json::from_str::<Value>(&generate_self_weight_plan_json(
++                &reversed,
++                &r.to_string()
++            ))
++            .unwrap()
++        );
++    }
++}

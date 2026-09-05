@@ -1871,6 +1871,26 @@ fn apply_model_operation(
 }
 
 #[tauri::command]
+fn generate_self_weight_operation_plan(model: Value, request: Value) -> Value {
+    open_pipe_stress_self_weight_wasm::generate_plan(&model, &request)
+}
+
+#[tauri::command]
+fn validate_model_operation_batch(model: Value, batch: Value, claimed_model_hash: Option<Value>) -> Value {
+    open_pipe_stress_operation_applier::validate_operation_batch(&model, &batch, claimed_model_hash.as_ref())
+}
+
+#[tauri::command]
+fn apply_model_operation_batch(model: Value, batch: Value, claimed_model_hash: Option<Value>) -> Value {
+    open_pipe_stress_operation_applier::apply_operation_batch(&model, &batch, claimed_model_hash.as_ref())
+}
+
+#[tauri::command]
+fn convert_display_quantities(input: Value) -> Value {
+    open_pipe_stress_operation_applier::convert_display_quantities(&input)
+}
+
+#[tauri::command]
 fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, String> {
     let path = app_store_path(&app)?;
     let (connection, migration) = open_project_store(&path)?;
@@ -3235,6 +3255,7 @@ fn library_metadata_key(library_kind: &str) -> Result<&'static str, String> {
         "material" => Ok("material_library"),
         "section" => Ok("section_library"),
         "component" => Ok("component_library"),
+        "hanger" => Ok("hanger_library"),
         _ => Err(format!("unsupported library_kind: {library_kind}")),
     }
 }
@@ -3865,7 +3886,11 @@ pub fn run() {
             sample_agent_proposal,
             validate_model_operation,
             apply_model_operation,
+            validate_model_operation_batch,
+            generate_self_weight_operation_plan,
+            apply_model_operation_batch,
             get_unit_catalog,
+            convert_display_quantities,
             get_local_storage_capability,
             create_local_project,
             open_local_project,
@@ -6482,7 +6507,8 @@ mod tests {
         let notice = outcome["professional_boundary_notice"]
             .as_str()
             .expect("notice present");
-        assert!(notice.contains("No professional"));
+        assert!(notice.contains("acceptance and professional judgment remain with the responsible engineer"));
+        assert!(notice.contains("Human review remains required."));
 
         // A draft missing its grammar_version is a blocking software finding
         // (never best-effort), but the document remains a valid draft shape.
@@ -6739,6 +6765,34 @@ mod tests {
             .filter_map(|finding| finding["code"].as_str())
             .collect();
         assert!(codes.contains(&"IMPORT_PROTECTED_CONTENT_SUSPECTED"));
+    }
+
+    #[test]
+    fn hanger_library_metadata_and_local_storage_preserve_accepted_source() {
+        let document: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/hanger/invented_hanger_library_valid.json"
+        ))
+        .expect("accepted invented hanger fixture parses");
+        let validation = library_import_validation_value(&document, "hanger", "private")
+            .expect("hanger import validates");
+        assert_eq!(validation["outcome"], json!("PRIVATE_LOCAL_ONLY"));
+        assert!(library_import_is_storable(&validation));
+        let library_id = library_id_from_document(&document, "hanger").expect("hanger id extracts");
+        assert_eq!(library_id, "invented.hangers");
+        assert!(library_id_from_document(&document, "material").is_err());
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        upsert_library(&connection, "project:hanger-test", "hanger", &library_id, &document)
+            .expect("accepted hanger import stores");
+        let loaded = load_library(&connection, "project:hanger-test", "hanger", &library_id)
+            .expect("hanger library loads")
+            .expect("hanger row present");
+        assert_eq!(loaded.document, document);
+        let entries = list_libraries(&connection, Some("project:hanger-test")).expect("lists");
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].library_kind, "hanger");
+        assert_eq!(entries[0].library_name, "Invented fixture only");
+        assert_eq!(entries[0].privacy_class, "private_user_supplied");
     }
 
     #[test]

@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "posture": "MIXED",
+  "selection_authority": "Parent accepted 2026-09-05 PhaseB and cycle decomposition",
+  "accepted_phaseA": "snapshots/PHASE_A_ACCEPTED_001/MANIFEST.json",
+  "nodes": [
+    {
+      "id": "B0_UI_INTEGRATION",
+      "role": "Agent2",
+      "writes": "exclusive App/types/PropertyInspector/ModelTree/PipeViewport/styles + toolkit",
+      "depends_on": [
+        "A2_REVIEW_MAP_PASS"
+      ]
+    },
+    {
+      "id": "B2_RICH_FORMS",
+      "role": "Agent2",
+      "writes": "disjoint new support-configuration/material-temperature/wind-exposure/rich-authoring modules",
+      "depends_on": [
+        "frozen props",
+        "accepted B2 wire"
+      ]
+    },
+    {
+      "id": "FINAL_UI_REVIEW",
+      "role": "fresh Agent2",
+      "writes": "own evidence only",
+      "depends_on": [
+        "B0 integration frozen",
+        "B2 returns accepted"
+      ]
+    }
+  ],
+  "max_active_implementation_children": 2,
+  "integration_owner": "B0_UI_INTEGRATION",
+  "gate": "no unsupported controls before reviewed backend dependency; full fresh source diff review then registered checks",
+  "runtime": "delegated-harness-native; instruction+config asserted",
+  "cycle_resolution": "decompose interface contract freeze from implementation, then integrate; no DAG mutation"
+}

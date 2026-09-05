@@ -1,0 +1,37 @@
+{
+  "checks": [
+    "desktop-build",
+    "desktop-test",
+    "harness-self-check"
+  ],
+  "paths": [
+    "apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx",
+    "apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx",
+    "apps/desktop/src/features/boundary-authoring/boundaryDraft.ts",
+    "apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+    "apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+    "apps/desktop/src/features/geometry-tools/batchFormSupport.tsx",
+    "apps/desktop/src/features/geometry-tools/geometryDraft.ts"
+  ],
+  "reasons": {
+    "desktop-build": [
+      "apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx",
+      "apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx",
+      "apps/desktop/src/features/boundary-authoring/boundaryDraft.ts",
+      "apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+      "apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "apps/desktop/src/features/geometry-tools/batchFormSupport.tsx",
+      "apps/desktop/src/features/geometry-tools/geometryDraft.ts"
+    ],
+    "desktop-test": [
+      "apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx",
+      "apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx",
+      "apps/desktop/src/features/boundary-authoring/boundaryDraft.ts",
+      "apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+      "apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "apps/desktop/src/features/geometry-tools/batchFormSupport.tsx",
+      "apps/desktop/src/features/geometry-tools/geometryDraft.ts"
+    ]
+  },
+  "schema": "chirality-affected-checks/v1"
+}

@@ -1,0 +1,17 @@
+{
+  "status": "PASS_SOURCE_FROZEN_REVIEW_PENDING",
+  "files": {
+    "core/model_operations/operation_applier/src/geometry_operations.rs": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf"
+  },
+  "checks": [
+    {
+      "command": "rustfmt --edition 2021 {WORKING_ROOT}/core/model_operations/operation_applier/src/geometry_operations.rs",
+      "exit_code": 0
+    },
+    {
+      "command": "CARGO_TARGET_DIR={CARGO_TARGET_DIR} cargo test --offline --manifest-path {WORKING_ROOT}/core/model_operations/operation_applier/Cargo.toml geometry_operations",
+      "exit_code": 0,
+      "unit_tests_passed": 7
+    }
+  ]
+}

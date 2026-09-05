@@ -1,0 +1,55 @@
+{
+  "schema": "chirality-bounded-checks/v1",
+  "status": "PASS",
+  "role": "ephemeral Agent 2; non-delegation instruction-asserted",
+  "source": "core/model_operations/operation_applier/src/boundary_association.rs",
+  "source_sha256": "3c31de07d6933f3200e4a95dc356a4bf7572412e642d7f88b66481657b927d8d",
+  "accepted_basis": [
+    "B3_ACCEPTED_SNAPSHOT.json",
+    "R3_RETURN.md",
+    "../instances/N6_WI_PKG04/BOUNDARY_WIRE_CONTRACT_FROZEN_V1.md",
+    "BOUNDARY_CONTEXT_DESIGN_V2.md",
+    "PRIVATE_BATCH_CONTEXT_API_V2.md",
+    "../instances/N_BOUNDARY_CONTEXT_REFUTE/RECHECK_V2_STATUS.json"
+  ],
+  "checks": [
+    {
+      "check": "targeted Rust boundary_association unit and shared-route integration tests",
+      "status": "PASS",
+      "passed": 13,
+      "failed": 0,
+      "integration_test_breakdown": {
+        "local_validator": 10,
+        "actual_shared_single_and_batch_routes": 3
+      }
+    },
+    {
+      "check": "rustfmt --check on owned Rust module",
+      "status": "PASS"
+    },
+    {
+      "check": "explicit three-path validate_change_scope",
+      "status": "PASS",
+      "violations": []
+    },
+    {
+      "check": "scoped git diff whitespace check",
+      "status": "PASS",
+      "limitation": "new source is untracked; rustfmt check separately verifies formatting"
+    }
+  ],
+  "affected_registered_checks": [
+    "evidence-sweep",
+    "harness-self-check",
+    "piping-pytest"
+  ],
+  "registered_checks_status": "parent-owned broad fan-in, not repeated by this bounded module child",
+  "limits": [
+    "Native file save/load adapter not executed; JSON roundtrip asserted only",
+    "Wasm build and desktop UI checks remain parent-owned",
+    "Whole crate tests not claimed here",
+    "Token is a private validated replay capability, not a public caller-supplied authorization mechanism"
+  ],
+  "derivative_package_status": "bounded implementation evidence; not decomposition truth or lifecycle acceptance",
+  "closure": "bounded source ready for manager freeze and independent review"
+}

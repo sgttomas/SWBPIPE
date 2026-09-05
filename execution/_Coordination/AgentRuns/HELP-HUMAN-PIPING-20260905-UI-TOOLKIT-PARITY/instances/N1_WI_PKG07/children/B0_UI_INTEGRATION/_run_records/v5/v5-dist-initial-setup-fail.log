@@ -1,0 +1,56 @@
+[2m[WebServer] [22m(node:64310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:64312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:64312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop-dist] › apps/desktop/e2e/toolkit-batch-dist.spec.ts:5:1 › dist self-weight plan previews, applies atomically and restores one batch with one undo (1.0m)
+
+
+  1) [chromium-desktop-dist] › apps/desktop/e2e/toolkit-batch-dist.spec.ts:5:1 › dist self-weight plan previews, applies atomically and restores one batch with one undo 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('tree-row-pipe:P-100')[22m
+    [2m    - locator resolved to <button type="button" class="tree-row " aria-pressed="false" data-testid="tree-row-pipe:P-100">…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not visible[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not visible[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    115 × waiting for element to be visible, enabled and stable[22m
+    [2m        - element is not visible[22m
+    [2m      - retrying click action[22m
+    [2m        - waiting 500ms[22m
+
+
+      12 |   await page.goto("/");
+      13 |   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+    > 14 |   await page.getByTestId("tree-row-pipe:P-100").click();
+         |                                                 ^
+      15 |   await page.getByTestId("editor-intent-field").selectOption("section.material_density.value");
+      16 |   await page.getByTestId("editor-intent-value").fill("7800");
+      17 |   await page.getByTestId("editor-intent-unit").fill("kg/m^3");
+        at /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts:14:49
+
+    Error Context: apps/desktop/test-results/toolkit-batch-dist-dist-se-b8a31-res-one-batch-with-one-undo-chromium-desktop-dist/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/desktop/test-results/toolkit-batch-dist-dist-se-b8a31-res-one-batch-with-one-undo-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/desktop/test-results/toolkit-batch-dist-dist-se-b8a31-res-one-batch-with-one-undo-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop-dist] › apps/desktop/e2e/toolkit-batch-dist.spec.ts:5:1 › dist self-weight plan previews, applies atomically and restores one batch with one undo 

@@ -1,0 +1,87 @@
+{
+  "comparison_basis": "PRECOMMIT harness self-check V1",
+  "previous_counts": {
+    "REVIEW": 14,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "current_counts": {
+    "REVIEW": 4,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "new_findings": [],
+  "resolved_findings": [
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_PROJECT_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/_run_records/B1_BRIEF.md:8",
+      "detail": "SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `B1_BRIEF.md`) carries 1 machine-absolute-path hit line(s); first hit at line 8. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_PROJECT_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/REVIEW_C2_BRIEF.md:2",
+      "detail": "SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `REVIEW_C2_BRIEF.md`) carries 1 machine-absolute-path hit line(s); first hit at line 2. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/REVIEW_C2_RETURN.md:8",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/SOURCE_RELEASE_C1.json:10",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 10. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/CHECKS.json:5",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 11 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/CHECKS_C2.json:5",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 7 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/RETURN_C2.md:19",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 19. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/RUNTIME_OVERRIDE_v1.md:2",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/A2_REFUTATION/REVIEW_RETURN.md:50",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 50. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/START.json:9",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    }
+  ],
+  "active_path_findings": []
+}

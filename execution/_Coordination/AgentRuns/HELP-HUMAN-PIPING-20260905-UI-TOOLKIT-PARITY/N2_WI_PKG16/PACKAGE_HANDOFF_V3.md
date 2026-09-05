@@ -1,0 +1,15 @@
+# PKG16 bounded implementation handoff V3 — reviewed repairs and dual build
+
+Status: bounded operation repair, matching N6 physics source and coordinated dual artifacts accepted. Parent owns N1 actual UI consumption and final integrated review/checks. No Git/DEC025 act or product lifecycle transition. V1/V2 handoffs and original N7 CHANGES_REQUIRED return remain immutable historical evidence.
+
+Current accepted N2 source chain: C_ACCEPTED_SNAPSHOT_V1 + NATIVE_ACCEPTED_SNAPSHOT_V1, amended only for rich_authoring and new public regression file by F_REPAIR_ACCEPTED_SNAPSHOT_V1. F1 duplicate stiffness now requires exact canonical DOF/value equality via existing typed converter, including supported ForcePerLength US aliases; source values are never rewritten. F3 explicit family token validation allows exact canonical9 plus null/omitted while preserving genuine aliases and existing payload precedence; mixed family/payload consistency is not newly claimed solved. Fresh independent F_REPAIR_REVIEW_RETURN PASS100%, all145 operation tests and schema PASS; five new public-route tests independently repeated.
+
+N6 matching physics source is accepted separately at ../instances/N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json. N2 does not claim authorship of that repair. Parent authorized a single dual build after both source reviews passed. F_DUAL_BUILD_ACCEPTED_SNAPSHOT_V1 binds both generated engines and all8 artifact files; all117 core/build input hashes identical before/after. Exact N7 conflicting duplicate Wasm reproduction now blocks/no model/no acceptance. Single lbf/in and lbf/ft plus equal normalized US duplicate cases all pass preserving raw inputs. Runtime is actual generated Wasm under Node; browser DOM/renderer checks remain N1-owned.
+
+Operation wasm SHA256:91f47297b35131d18307e4f1a5bff2eccb0ebe7cd05b611d6e70488742f19cc8. Selfweight wasm SHA256:61d1e06e60310f1fd488ebe6bd7d1369f086edd5ee07a73eb066181b52206e02. No competing rebuild or source changes during build/backcheck.
+
+Remaining: N1 consumer checks against these artifacts, renderer generation/initial-hash and Save provenance context tests, parent final integrated fresh review and deterministic fan-in. DEL-16-03 _STATUS retains durable acceptance-history residual: proposed source/rationale context is not a persisted accepted decision, grouping, timestamp or receipt; reopening cannot claim acceptance or auto-queue. D58 remains held. No full SOW070 closure.
+
+Runtime calibration RC_LATE_TELEMETRY_CALIBRATION_SNAPSHOT_V1 remains applicable to the earlier RC bookkeeping gap; no duration backfilled. New F implementation/review have actual child records, frozen predecessor/diff, hashes and returns. Evidence-only raw B1 brief relocation is recorded in EVIDENCE_RELOCATION_MANIFEST.jsonl, with exact decoded hash retained.
+
+All outputs are derivative implementation/review/build evidence under accepted decomposition and scope truth. Rerun source review/tests and coordinated build for any later product changes; do not treat old snapshots as current source acceptance after amendments. Source is frozen and N2 is available for concrete integration defects.

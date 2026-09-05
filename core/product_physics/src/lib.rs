@@ -5,6 +5,8 @@
 //! does not encode standards criteria, allowables, SIF tables, private data, or
 //! professional acceptance.
 
+pub mod self_weight;
+
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness_with_user_elements, element_dof_map, reduce_system, solve_dense,
@@ -98,6 +100,8 @@ pub struct PreviewModel {
     pub analysis_status: StatusEnvelope,
     pub nodes: Vec<PreviewNode>,
     pub pipe_segments: Vec<PreviewPipe>,
+    #[serde(default)]
+    pub sections: Vec<PreviewSection>,
     pub supports: Vec<PreviewSupport>,
     #[serde(default)]
     pub components: Vec<PreviewComponent>,
@@ -142,11 +146,23 @@ pub struct PreviewPipe {
     pub from: String,
     pub to: String,
     pub section: PipeSectionInput,
+    #[serde(default)]
+    pub section_ref: Option<String>,
     pub material: String,
     #[serde(default)]
     pub y_reference: Option<Vec3>,
     #[serde(default)]
     pub provenance: Option<String>,
+}
+
+/// Shared preview-section metadata. Only explicit pipe OD/wall are bindable.
+#[derive(Debug, Clone, Deserialize)]
+pub struct PreviewSection {
+    pub id: String,
+    pub name: String,
+    pub section_type: String,
+    pub properties: BTreeMap<String, Quantity>,
+    pub provenance: serde_json::Value,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -811,6 +827,7 @@ pub fn run_linear_static_preview_with_mode(
     let mut diagnostics = Vec::new();
 
     validate_model_inputs(&model, &materials, &mut diagnostics);
+    validate_support_family_tokens(&model, &mut diagnostics);
     if model.document_kind != "openpipestress.product_preview.model" {
         diagnostics.push(diag(
             "diagnostic:physics:document-kind",
@@ -829,6 +846,11 @@ pub fn run_linear_static_preview_with_mode(
             vec!["model".to_string()],
         ));
     }
+    if has_blocking(&diagnostics) {
+        return blocked_envelope(model, diagnostics);
+    }
+
+    resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -3180,12 +3202,44 @@ fn build_model(
     })
 }
 
+fn validate_support_family_tokens(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    for support in &model.supports {
+        let Some(family) = support.family.as_deref() else {
+            continue;
+        };
+        if !matches!(
+            family,
+            "anchor"
+                | "guide"
+                | "line_stop"
+                | "vertical_support"
+                | "spring"
+                | "variable_spring_hanger"
+                | "spring_hanger"
+                | "constant_effort_support"
+                | "nonlinear"
+        ) {
+            diagnostics.push(diag(
+                &format!("diagnostic:support:{}:family", stable_suffix(&support.id)),
+                "SUPPORT_FAMILY_INVALID",
+                "blocking",
+                format!(
+                    "unsupported explicit support family {family:?}; supported values: anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear"
+                ),
+                vec![support.id.clone(), format!("{}.family", support.id)],
+            ));
+        }
+    }
+}
+
 fn rigid_linear_support_from_preview(
     support: &PreviewSupport,
     node_index: usize,
     restrained_dofs: Vec<FrameDof>,
 ) -> LinearSupport {
     let family = match support.family.as_deref() {
+        Some("anchor") => SupportFamily::Anchor,
+        Some("guide") => SupportFamily::Guide,
         Some("line_stop") => SupportFamily::LineStop,
         Some("vertical_support") => SupportFamily::VerticalSupport,
         _ if restrained_dofs.len() == 6 => SupportFamily::Anchor,
@@ -3701,6 +3755,102 @@ fn curved_bend_inconsistent_diag(
         message,
         vec![component.id.clone(), pipe_ref.to_string()],
     )
+}
+
+/// Reject contradictory materialized geometry before any solver consumes it.
+/// Resolution is in-memory only; local supplemental section inputs are retained.
+fn resolve_shared_sections(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    for pipe in &mut model.pipe_segments {
+        let Some(reference) = &pipe.section_ref else {
+            continue;
+        };
+        let refs = vec![pipe.id.clone(), reference.clone()];
+        let id = format!("diagnostic:section-reference:{}", stable_suffix(&pipe.id));
+        if reference.trim().is_empty() {
+            diagnostics.push(diag(
+                &id,
+                "SECTION_REFERENCE_INVALID",
+                "blocking",
+                "bound section requires an explicit nonblank identity",
+                refs,
+            ));
+            continue;
+        }
+        let matches: Vec<_> = model
+            .sections
+            .iter()
+            .filter(|s| &s.id == reference)
+            .collect();
+        if matches.len() != 1 {
+            diagnostics.push(diag(
+                &id,
+                "SECTION_REFERENCE_INVALID",
+                "blocking",
+                "bound section must exist exactly once",
+                refs,
+            ));
+            continue;
+        }
+        let shared = matches[0];
+        if shared.section_type != "pipe"
+            || shared
+                .properties
+                .keys()
+                .any(|key| key != "outside_diameter" && key != "wall_thickness")
+        {
+            diagnostics.push(diag(&id, "SECTION_BINDING_UNSUPPORTED", "blocking",
+                "binding requires a pipe section with only outside_diameter and wall_thickness properties", refs));
+            continue;
+        }
+        let (Some(od), Some(wall)) = (
+            shared.properties.get("outside_diameter"),
+            shared.properties.get("wall_thickness"),
+        ) else {
+            diagnostics.push(diag(
+                &id,
+                "SECTION_REFERENCE_INVALID",
+                "blocking",
+                "bound section requires explicit outside_diameter and wall_thickness quantities",
+                refs,
+            ));
+            continue;
+        };
+        let mut resolved = pipe.section.clone();
+        resolved.outside_diameter = od.clone();
+        resolved.wall_thickness = wall.clone();
+        let before = diagnostics.len();
+        for quantity in [&mut resolved.outside_diameter, &mut resolved.wall_thickness] {
+            normalize_quantity(quantity, Dimension::Length, &id, refs.clone(), diagnostics);
+        }
+        if let Some(tolerance) = &mut resolved.mill_tolerance {
+            normalize_quantity(tolerance, Dimension::Length, &id, refs.clone(), diagnostics);
+        }
+        if diagnostics.len() != before {
+            continue;
+        }
+        if derive_pipe_section(&resolved, &pipe.id, diagnostics).is_none() {
+            continue;
+        }
+        // Stored cache must preserve the exact source representation used by
+        // operation materialization, so display/export and solver agree.
+        if pipe.section.outside_diameter.value != od.value
+            || pipe.section.outside_diameter.unit != od.unit
+            || pipe.section.wall_thickness.value != wall.value
+            || pipe.section.wall_thickness.unit != wall.unit
+        {
+            diagnostics.push(diag(
+                &id,
+                "SECTION_REFERENCE_CACHE_STALE",
+                "blocking",
+                "inline OD/wall contradict the shared section; explicitly rematerialize before use",
+                refs,
+            ));
+            continue;
+        }
+        // Copy source quantities, leaving all supplemental values untouched.
+        pipe.section.outside_diameter = od.clone();
+        pipe.section.wall_thickness = wall.clone();
+    }
 }
 
 fn normalize_model_units(
@@ -8961,6 +9111,378 @@ mod tests {
     }
 
     #[test]
+    fn f3_family_tokens_accept_exact_canonical_vocabulary() {
+        let mut request = request();
+        for family in [
+            "anchor",
+            "guide",
+            "line_stop",
+            "vertical_support",
+            "spring",
+            "variable_spring_hanger",
+            "spring_hanger",
+            "constant_effort_support",
+            "nonlinear",
+        ] {
+            // This isolates spelling validity, not payload-class consistency.
+            request.model.supports[0].family = Some(family.to_string());
+            let mut diagnostics = Vec::new();
+            validate_support_family_tokens(&request.model, &mut diagnostics);
+            assert!(diagnostics.is_empty(), "{family}: {diagnostics:?}");
+        }
+    }
+
+    #[test]
+    fn f3_invalid_family_blocks_every_payload_before_mechanics() {
+        for id in [
+            "support:S-100",
+            "support:SH-140",
+            "support:CE-120",
+            "support:NL-140",
+            "spring-payload",
+        ] {
+            for token in [
+                "",
+                " ",
+                " guide",
+                "guide ",
+                "Anchor",
+                "Guide",
+                "LineStop",
+                "VerticalSupport",
+                "Spring",
+                "unknown",
+            ] {
+                let mut request = request();
+                let support = request
+                    .model
+                    .supports
+                    .iter_mut()
+                    .find(|support| {
+                        support.id
+                            == if id == "spring-payload" {
+                                "support:SH-140"
+                            } else {
+                                id
+                            }
+                    })
+                    .unwrap();
+                if id == "spring-payload" {
+                    support.stiffness = support.hanger.as_ref().unwrap().stiffness.clone();
+                    support.hanger = None;
+                }
+                support.family = Some(token.to_string());
+                let support_id = support.id.clone();
+                let result = run_linear_static_preview(request);
+                assert_eq!(
+                    result.status.mechanics, "MODEL_INCOMPLETE",
+                    "{id}/{token:?}"
+                );
+                assert!(result.results.is_empty(), "{id}/{token:?}");
+                let diagnostic = result
+                    .diagnostics
+                    .iter()
+                    .find(|d| d.code == "SUPPORT_FAMILY_INVALID")
+                    .unwrap();
+                assert_eq!(diagnostic.severity, "blocking");
+                assert_eq!(
+                    diagnostic.id,
+                    format!("diagnostic:support:{}:family", stable_suffix(&support_id))
+                );
+                assert!(diagnostic.message.contains(&format!("{token:?}")));
+                assert_eq!(
+                    diagnostic.affected_refs,
+                    vec![support_id.clone(), format!("{support_id}.family")]
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn f3_missing_and_null_family_preserve_existing_inference_and_payloads() {
+        let baseline = run_linear_static_preview(request());
+        for null in [false, true] {
+            let mut raw: serde_json::Value = serde_json::from_str(include_str!(
+                "../../../fixtures/product_preview/invented_preview_model.json"
+            ))
+            .unwrap();
+            for support in raw["supports"].as_array_mut().unwrap() {
+                if null {
+                    support["family"] = serde_json::Value::Null;
+                } else {
+                    support.as_object_mut().unwrap().remove("family");
+                }
+            }
+            let model: PreviewModel = serde_json::from_value(raw).unwrap();
+            assert!(model
+                .supports
+                .iter()
+                .all(|support| support.family.is_none()));
+            let support = &model.supports[0];
+            let dofs = support
+                .restraints
+                .iter()
+                .map(|dof| parse_dof(dof).unwrap())
+                .collect();
+            assert_eq!(
+                rigid_linear_support_from_preview(support, 0, dofs).family,
+                SupportFamily::Anchor
+            );
+            let result = run_linear_static_preview(LinearStaticPreviewRequest {
+                model,
+                materials: invented_materials(),
+            });
+            assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+            assert_eq!(
+                serde_json::to_value(&result.results).unwrap(),
+                serde_json::to_value(&baseline.results).unwrap()
+            );
+        }
+    }
+
+    #[test]
+    fn f3_explicit_six_dof_guide_keeps_family_and_reports_invalid_rotations() {
+        let mut request = request();
+        let support = &mut request.model.supports[0];
+        support.family = Some("guide".to_string());
+        let dofs = support
+            .restraints
+            .iter()
+            .map(|dof| parse_dof(dof).unwrap())
+            .collect();
+        let mapped = rigid_linear_support_from_preview(support, 0, dofs);
+        assert_eq!(mapped.family, SupportFamily::Guide);
+        let boundary = open_pipe_stress_linear_supports::prepare_boundary(
+            request.model.nodes.len(),
+            &[mapped],
+        );
+        assert_eq!(
+            boundary
+                .findings
+                .iter()
+                .filter(|finding| finding.code
+                    == open_pipe_stress_linear_supports::FindingCode::InvalidSupportDof)
+                .count(),
+            3
+        );
+        let result = run_linear_static_preview(request);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.results.is_empty());
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "SUPPORT_INPUT_INVALID"));
+    }
+
+    #[test]
+    fn f3_canonical_spring_retains_elastic_stiffness() {
+        let mut request = request();
+        let support = request
+            .model
+            .supports
+            .iter_mut()
+            .find(|s| s.id == "support:SH-140")
+            .unwrap();
+        support.family = Some("spring".to_string());
+        support.stiffness = support.hanger.as_ref().unwrap().stiffness.clone();
+        support.hanger = None;
+        let expected = support.stiffness.as_ref().unwrap().value.value;
+        let mut diagnostics = Vec::new();
+        let built = build_model(&request.model, &request.materials, &mut diagnostics).unwrap();
+        let mapped = built
+            .supports
+            .iter()
+            .find(|s| s.support_id == "support:SH-140")
+            .unwrap();
+        assert_eq!(mapped.family, SupportFamily::Spring);
+        let boundary = open_pipe_stress_linear_supports::prepare_boundary(
+            built.nodes.len(),
+            &[mapped.clone()],
+        );
+        assert!(boundary.findings.is_empty());
+        assert!(boundary.restrained_dofs.is_empty());
+        assert_eq!(boundary.springs.len(), 1);
+        assert_eq!(boundary.springs[0].stiffness.value, expected);
+        assert_eq!(
+            run_linear_static_preview(request).status.mechanics,
+            "MECHANICS_SOLVED"
+        );
+    }
+
+    #[test]
+    fn f3_real_hanger_nonlinear_and_dof_aliases_remain_supported() {
+        for behavior in [
+            "one_way", "one-way", "oneway", "lift_off", "lift-off", "liftoff",
+        ] {
+            let mut request = request();
+            let hanger = request
+                .model
+                .supports
+                .iter_mut()
+                .find(|s| s.id == "support:SH-140")
+                .unwrap();
+            hanger.family = Some("spring_hanger".to_string());
+            let input = hanger.hanger.as_mut().unwrap();
+            input.hanger_type = Some(" spring_hanger ".to_string());
+            input.stiffness.as_mut().unwrap().dof = "uz".to_string();
+            let nonlinear = request
+                .model
+                .supports
+                .iter_mut()
+                .find(|s| s.id == "support:NL-140")
+                .unwrap()
+                .nonlinear
+                .as_mut()
+                .unwrap();
+            nonlinear.behavior = behavior.to_string();
+            nonlinear.dof = "Uy".to_string();
+            if behavior.starts_with("lift") {
+                // Preserve the fixture's explicit reaction sense for contact.
+                nonlinear.contact_when = nonlinear.active_when.take();
+            }
+            let result = run_linear_static_preview(request);
+            assert_eq!(
+                result.status.mechanics, "MECHANICS_SOLVED",
+                "{behavior}: {:?}",
+                result.diagnostics
+            );
+            assert!(result
+                .results
+                .iter()
+                .any(|r| r.id == "result:spring-hanger:support-SH-140:stiffness"));
+        }
+    }
+
+    #[test]
+    fn explicit_anchor_rx_only_preserves_partial_rotation_through_boundary() {
+        let support = rigid_preview_support("anchor", &["RX"]);
+        let mapped = rigid_linear_support_from_preview(&support, 1, vec![FrameDof::Rx]);
+        assert_eq!(mapped.support_id, support.id);
+        assert_eq!(mapped.family, SupportFamily::Anchor);
+        assert_eq!(mapped.node_index, 1);
+        assert_eq!(mapped.restrained_dofs, vec![FrameDof::Rx]);
+
+        let prepared = open_pipe_stress_linear_supports::prepare_boundary(2, &[mapped]);
+        assert!(prepared.findings.is_empty());
+        assert_eq!(prepared.restrained_dofs, vec![9]);
+        assert!(prepared.springs.is_empty());
+        assert!(prepared.imposed_displacements.is_empty());
+    }
+
+    #[test]
+    fn explicit_anchor_mixed_dofs_leave_uy_spring_and_other_dofs_free() {
+        let support = rigid_preview_support("anchor", &["UX", "RZ"]);
+        let mapped =
+            rigid_linear_support_from_preview(&support, 1, vec![FrameDof::Ux, FrameDof::Rz]);
+        assert_eq!(mapped.family, SupportFamily::Anchor);
+        assert_eq!(mapped.node_index, 1);
+        assert_eq!(mapped.restrained_dofs, vec![FrameDof::Ux, FrameDof::Rz]);
+
+        // Synthetic mechanics witness, not a default or equipment stiffness recommendation.
+        let stiffness = SupportQuantity::positive(
+            7.0,
+            open_pipe_stress_linear_supports::QuantityDimension::TranslationalStiffness,
+        )
+        .unwrap();
+        let spring = LinearSupport::spring("support:invented-uy", 1, FrameDof::Uy, Some(stiffness));
+        let mut matrix = vec![vec![0.0; 12]; 12];
+        for (index, row) in matrix.iter_mut().enumerate() {
+            row[index] = 2.0;
+        }
+        let applied = open_pipe_stress_linear_supports::apply_linear_supports(
+            &matrix,
+            &vec![0.0; 12],
+            &[mapped, spring],
+        )
+        .unwrap();
+        let prepared = &applied.prepared_boundary;
+        assert!(prepared.findings.is_empty());
+        assert_eq!(prepared.restrained_dofs, vec![6, 11]);
+        assert!(prepared.imposed_displacements.is_empty());
+        assert_eq!(prepared.springs.len(), 1);
+        assert_eq!(prepared.springs[0].node_dof.global_index(), 7);
+        assert_eq!(prepared.springs[0].stiffness.value, 7.0);
+        assert_eq!(applied.prescribed_dofs, vec![6, 11]);
+        assert_eq!(applied.prescribed_displacements, vec![0.0, 0.0]);
+        assert_eq!(
+            applied.reduced_system.free_dofs,
+            vec![0, 1, 2, 3, 4, 5, 7, 8, 9, 10]
+        );
+        matrix[7][7] += 7.0;
+        assert_eq!(applied.stiffness_with_springs, matrix);
+    }
+
+    #[test]
+    fn explicit_anchor_all_six_preserves_complete_restraint() {
+        let support = rigid_preview_support("anchor", &["UX", "UY", "UZ", "RX", "RY", "RZ"]);
+        let dofs = vec![
+            FrameDof::Ux,
+            FrameDof::Uy,
+            FrameDof::Uz,
+            FrameDof::Rx,
+            FrameDof::Ry,
+            FrameDof::Rz,
+        ];
+        let mapped = rigid_linear_support_from_preview(&support, 1, dofs.clone());
+        assert_eq!(mapped.family, SupportFamily::Anchor);
+        assert_eq!(mapped.node_index, 1);
+        assert_eq!(mapped.restrained_dofs, dofs);
+        let prepared = open_pipe_stress_linear_supports::prepare_boundary(2, &[mapped]);
+        assert!(prepared.findings.is_empty());
+        assert_eq!(prepared.restrained_dofs, vec![6, 7, 8, 9, 10, 11]);
+        assert!(prepared.springs.is_empty());
+    }
+
+    #[test]
+    fn explicit_anchor_repair_preserves_named_and_implicit_family_fallbacks() {
+        for (family, dofs, expected_family, indices) in [
+            (
+                Some("guide"),
+                vec![FrameDof::Uy, FrameDof::Uz],
+                SupportFamily::Guide,
+                vec![7, 8],
+            ),
+            (
+                Some("line_stop"),
+                vec![FrameDof::Ux],
+                SupportFamily::LineStop,
+                vec![6],
+            ),
+            (
+                Some("vertical_support"),
+                vec![FrameDof::Uz],
+                SupportFamily::VerticalSupport,
+                vec![8],
+            ),
+            (None, vec![FrameDof::Uy], SupportFamily::Guide, vec![7]),
+            (
+                None,
+                vec![
+                    FrameDof::Ux,
+                    FrameDof::Uy,
+                    FrameDof::Uz,
+                    FrameDof::Rx,
+                    FrameDof::Ry,
+                    FrameDof::Rz,
+                ],
+                SupportFamily::Anchor,
+                vec![6, 7, 8, 9, 10, 11],
+            ),
+        ] {
+            let mut support = rigid_preview_support("guide", &[]);
+            support.family = family.map(str::to_string);
+            let mapped = rigid_linear_support_from_preview(&support, 1, dofs.clone());
+            assert_eq!(mapped.family, expected_family);
+            assert_eq!(mapped.node_index, 1);
+            assert_eq!(mapped.restrained_dofs, dofs);
+            let prepared = open_pipe_stress_linear_supports::prepare_boundary(2, &[mapped]);
+            assert!(prepared.findings.is_empty());
+            assert_eq!(prepared.restrained_dofs, indices);
+            assert!(prepared.springs.is_empty());
+        }
+    }
+
+    #[test]
     fn named_line_stop_reaches_solver_family_with_entered_dof() {
         let support = rigid_preview_support("line_stop", &["UX"]);
         let mapped = rigid_linear_support_from_preview(&support, 2, vec![FrameDof::Ux]);
@@ -9000,6 +9522,196 @@ mod tests {
             materials: invented_materials(),
         })
         .unwrap()
+    }
+
+    fn shared_section_request() -> LinearStaticPreviewRequest {
+        let mut input = request();
+        let pipe = &mut input.model.pipe_segments[0];
+        pipe.section_ref = Some("section:test".into());
+        input.model.sections.push(PreviewSection {
+            id: "section:test".into(),
+            name: "Explicit shared pipe".into(),
+            section_type: "pipe".into(),
+            properties: BTreeMap::from([
+                (
+                    "outside_diameter".into(),
+                    pipe.section.outside_diameter.clone(),
+                ),
+                ("wall_thickness".into(), pipe.section.wall_thickness.clone()),
+            ]),
+            provenance: serde_json::json!({"source": "invented test"}),
+        });
+        input
+    }
+
+    #[test]
+    fn shared_section_matching_reference_resolves_and_preserves_local_inputs() {
+        let mut input = shared_section_request();
+        input.model.pipe_segments[0].section.material_density = Some(Quantity {
+            value: 7800.0,
+            unit: "kg/m3".into(),
+        });
+        input.model.pipe_segments[0].section.mill_tolerance = Some(Quantity {
+            value: 0.0001,
+            unit: "m".into(),
+        });
+        let unbound = input.model.pipe_segments[1].section.outside_diameter.value;
+        let mut diagnostics = Vec::new();
+        resolve_shared_sections(&mut input.model, &mut diagnostics);
+        assert!(diagnostics.is_empty(), "{diagnostics:?}");
+        assert_eq!(
+            input.model.pipe_segments[0]
+                .section
+                .material_density
+                .as_ref()
+                .unwrap()
+                .value,
+            7800.0
+        );
+        assert_eq!(
+            input.model.pipe_segments[0]
+                .section
+                .mill_tolerance
+                .as_ref()
+                .unwrap()
+                .value,
+            0.0001
+        );
+        assert_eq!(
+            input.model.pipe_segments[1].section.outside_diameter.value,
+            unbound
+        );
+        let output = run_linear_static_preview(input);
+        assert!(!output
+            .diagnostics
+            .iter()
+            .any(|d| d.code.starts_with("SECTION_REFERENCE")));
+    }
+
+    #[test]
+    fn shared_section_stale_cache_blocks_common_solver_entry() {
+        let mut input = shared_section_request();
+        input.model.pipe_segments[0].section.outside_diameter.value *= 1.1;
+        let output = run_linear_static_preview(input);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "SECTION_REFERENCE_CACHE_STALE" && d.severity == "blocking"));
+    }
+
+    #[test]
+    fn shared_section_equivalent_but_different_cache_representation_is_stale() {
+        let mut input = shared_section_request();
+        let pipe = &mut input.model.pipe_segments[0];
+        assert_eq!(pipe.section.outside_diameter.unit, "m");
+        pipe.section.outside_diameter.value *= 1000.0;
+        pipe.section.outside_diameter.unit = "mm".into();
+        let output = run_linear_static_preview(input);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "SECTION_REFERENCE_CACHE_STALE"));
+    }
+
+    #[test]
+    fn shared_section_blank_reference_identity_blocks_common_entry() {
+        for blank in ["", " ", "\t\n"] {
+            let mut input = shared_section_request();
+            input.model.pipe_segments[0].section_ref = Some(blank.into());
+            input.model.sections[0].id = blank.into();
+            let output = run_linear_static_preview(input);
+            assert!(output
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "SECTION_REFERENCE_INVALID" && d.severity == "blocking"));
+        }
+        // Nonblank references remain exact; whitespace is never silently removed.
+        let mut input = shared_section_request();
+        input.model.pipe_segments[0].section_ref = Some(" section:test ".into());
+        let output = run_linear_static_preview(input);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "SECTION_REFERENCE_INVALID"));
+    }
+
+    #[test]
+    fn shared_section_reference_failures_are_explicit() {
+        for case in [
+            "missing",
+            "duplicate",
+            "nonpipe",
+            "unsupported",
+            "absent_dimension",
+            "invalid_dimension",
+        ] {
+            let mut input = shared_section_request();
+            match case {
+                "missing" => input.model.sections.clear(),
+                "duplicate" => input.model.sections.push(input.model.sections[0].clone()),
+                "nonpipe" => input.model.sections[0].section_type = "rigid".into(),
+                "unsupported" => {
+                    input.model.sections[0].properties.insert(
+                        "area".into(),
+                        Quantity {
+                            value: 1.0,
+                            unit: "m2".into(),
+                        },
+                    );
+                }
+                "absent_dimension" => {
+                    input.model.sections[0].properties.remove("wall_thickness");
+                }
+                _ => {
+                    input.model.sections[0]
+                        .properties
+                        .get_mut("wall_thickness")
+                        .unwrap()
+                        .value = -1.0
+                }
+            }
+            let output = run_linear_static_preview(input);
+            assert!(
+                output.diagnostics.iter().any(|d| d.severity == "blocking"
+                    && (d.code.starts_with("SECTION_") || d.code == "PIPE_DIMENSION_INVALID")),
+                "{case}"
+            );
+        }
+    }
+
+    #[test]
+    fn shared_section_local_mill_tolerance_must_leave_positive_wall() {
+        let mut input = shared_section_request();
+        let wall = input.model.pipe_segments[0].section.wall_thickness.clone();
+        input.model.pipe_segments[0].section.mill_tolerance = Some(wall);
+        let output = run_linear_static_preview(input);
+        assert!(output
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "PIPE_DIMENSION_INVALID"
+                && d.affected_refs.contains(&"mill_tolerance".to_string())));
+    }
+
+    #[test]
+    fn shared_section_wire_is_optional_and_retained() {
+        assert!(request().model.sections.is_empty());
+        assert!(request()
+            .model
+            .pipe_segments
+            .iter()
+            .all(|p| p.section_ref.is_none()));
+        let mut wire: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../fixtures/product_preview/invented_preview_model.json"
+        ))
+        .unwrap();
+        wire["pipe_segments"][0]["section_ref"] = serde_json::json!("section:test");
+        wire["sections"] = serde_json::json!([{"id":"section:test", "name":"test", "section_type":"pipe", "properties": {}, "provenance":"invented"}]);
+        let model: PreviewModel = serde_json::from_value(wire).unwrap();
+        assert_eq!(
+            model.pipe_segments[0].section_ref.as_deref(),
+            Some("section:test")
+        );
+        assert_eq!(model.sections.len(), 1);
     }
 
     fn invented_materials() -> Vec<MaterialInput> {

@@ -1,0 +1,41 @@
+{
+  "RunID": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "InstanceID": "N4_WI_PKG03",
+  "Parent": "HELP_HUMAN",
+  "Role": "WORKING_ITEMS",
+  "PackageID": "PKG-03",
+  "Deliverables": [
+    "DEL-03-02",
+    "DEL-03-07"
+  ],
+  "Phase": "A_DESIGN_INTAKE",
+  "Authority": "Parent sealed native dispatch; user implementation direction",
+  "Posture": "SERIAL_CONTRACT_THEN_IMPLEMENTATION_REVIEW",
+  "AllowedWriteTargets": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/**"
+  ],
+  "execution_class": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted; not mechanism-proven",
+  "model": "unavailable",
+  "accepted_basis": "HEAD 740569598f9d00440636b8ea25264127f418e4ec; SCA-009 / decomposition 0.12 / DAG-010; DEC-049",
+  "representation": "SOW_V1 both selected deliverables",
+  "sources": {
+    "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "agents/AGENT_WORKING_ITEMS.md": "57ec736545a843a671111ad86b858ed964675a4a4a6ef49e9bfce759b1ab44d1",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "projects/chirality-piping/software-workflow.json": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+    "projects/chirality-piping/execution/_DAG/_LATEST.md": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+    "projects/chirality-piping/core/library_import/provenance_checker.py": "16175f386d479d1072152dfe10e3de54a1cb6ccc02949e08febb448a72d84f73",
+    "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs": "3636d39e07cf0b728803b8b44284d8571633f06cee4560fdf653de082e0986b5",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "d34f77889aabc5e0891122ba2e9261d3d5f6a9f2255d50c42e08f2ac8806fc32",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md": "11a125a780b54a3979f10789a13cfcfadfed946b2fb7d16ed0ca25a66355fdfd",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_CONTEXT.md": "9e4c896cd252a23a7e517cca5ecd34dd53aecd98ac7995a423cd077fda91322a",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_STATUS.md": "de08d24130fcc1a1ddb73cc49ea3af0ac735897f0cc7f4a2089426cbf1e21c3d",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_REFERENCES.md": "3f5dd387928b133c1538be945660eec737c4ad05f02aa3ec24e6f712322b6a96",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md": "f87b738d359e60fb4c9e8108ba486ac137a01acc4f7d4a5e6515efd62cad13a9",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_CONTEXT.md": "c51de4b820262c5e9efb4faaf66f802b3d7cbb90a223681f961b88180ce234e5",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_STATUS.md": "b302450a2595365b77a36f95753a4818f634fdcb179cdb02ba9134639b218e66",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_REFERENCES.md": "25826e65a973e8204f0a45bfd008d93d6ade0ff4f90f517aca30a583b00f24ba"
+  }
+}

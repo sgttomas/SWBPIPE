@@ -9,6 +9,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
+import json
+import math
+import sys
+from pathlib import Path
+from functools import lru_cache
 
 
 REQUIRED_PROVENANCE_FIELDS = {
@@ -27,6 +32,7 @@ UNKNOWN_REDIS_STATUSES = {"unknown", "TBD", None}
 PROTECTED_REDIS_STATUS = "protected_suspected"
 
 RECORD_KEYS = {
+    "hanger": ("hanger_library", "hanger_records"),
     "material": ("material_library", "material_records"),
     "section": ("section_library", "section_records"),
     "component": ("component_library", "component_records"),
@@ -97,6 +103,9 @@ def validate_library_import(
         raise ValueError(f"unsupported library_kind: {library_kind}")
     if intended_visibility not in {"public", "private"}:
         raise ValueError(f"unsupported intended_visibility: {intended_visibility}")
+
+    if library_kind == "hanger":
+        return _validate_hanger_import(payload, intended_visibility)
 
     library_key, records_key = RECORD_KEYS[library_kind]
     findings: list[ImportFinding] = []
@@ -340,3 +349,121 @@ def _determine_outcome(
     if intended_visibility == "private":
         return "PRIVATE_LOCAL_ONLY"
     return "ACCEPTED_PUBLIC"
+
+
+@lru_cache(maxsize=1)
+def _hanger_schema():
+    return json.loads((Path(__file__).resolve().parents[2] / "schemas/hanger.schema.yaml").read_text())
+
+
+def _hanger_shape(value, schema, root, path, findings):
+    """Interpret only the bounded keyword set used by the embedded hanger schema.
+
+    Unsupported keywords fail closed. This is not a general JSON Schema engine.
+    """
+    allowed = {"$schema", "$id", "$defs", "title", "description", "$ref", "type",
+               "additionalProperties", "required", "properties", "items", "enum",
+               "const", "pattern", "exclusiveMinimum"}
+    invalid = lambda: findings.append(ImportFinding(
+        "IMPORT_HANGER_SCHEMA_INVALID", "blocking", path,
+        "Hanger value does not satisfy the declared schema.",
+        "Supply explicit supported fields, compatible quantities and complete provenance."))
+    if set(schema) - allowed:
+        invalid()
+        return
+    if "$ref" in schema:
+        _hanger_shape(value, root["$defs"][schema["$ref"].split("/")[-1]], root, path, findings)
+        return
+    kind = schema.get("type")
+    valid_type = {"object": isinstance(value, dict), "array": isinstance(value, list),
+                  "string": isinstance(value, str),
+                  "number": type(value) in (int, float) and -sys.float_info.max <= value <= sys.float_info.max and math.isfinite(value)}
+    if kind not in valid_type or not valid_type[kind]:
+        invalid()
+        return
+    if (("enum" in schema and value not in schema["enum"])
+            or ("const" in schema and value != schema["const"])
+            or ("pattern" in schema and (schema["pattern"] != r"\S" or not value.strip()))
+            or ("exclusiveMinimum" in schema and value <= schema["exclusiveMinimum"])):
+        invalid()
+    if kind == "object":
+        props = schema.get("properties", {})
+        for key in sorted(set(schema.get("required", [])) - value.keys()):
+            findings.append(ImportFinding("IMPORT_HANGER_SCHEMA_INVALID", "blocking", f"{path}.{key}",
+                "Required hanger field is missing.", "Supply the required field explicitly."))
+        for key in sorted(value):
+            if key in props:
+                _hanger_shape(value[key], props[key], root, f"{path}.{key}", findings)
+            elif schema.get("additionalProperties") is False:
+                findings.append(ImportFinding("IMPORT_HANGER_SCHEMA_INVALID", "blocking", f"{path}.{key}",
+                    "Unknown hanger field.", "Remove unsupported fields."))
+    elif kind == "array":
+        for i, item in enumerate(value):
+            _hanger_shape(item, schema["items"], root, f"{path}[{i}]", findings)
+
+
+def _validate_hanger_import(payload, visibility):
+    findings = []
+    schema = _hanger_schema()
+    _hanger_shape(payload, schema, schema, "$", findings)
+    # Deterministic traversal also examines malformed/unknown wrappers: schema
+    # rejection must never conceal protected metadata deeper in the input.
+    objects = sorted(_walk_value_objects(payload, "$"), key=lambda pair: pair[0])
+    for path, item in objects:
+        if "provenance" in item or (not path.endswith(".provenance") and any(
+            key in item for key in ("redistribution_status", "review_status", "privacy_class")
+        )):
+            provenance = item.get("provenance")
+            # Legacy item-level precedence must not mask a protected/rejected
+            # provenance disposition in this new strict family.
+            findings.extend(_hanger_disposition(item, path, visibility))
+            if isinstance(provenance, dict) and any(
+                key in item and item[key] != provenance.get(key)
+                for key in ("redistribution_status", "review_status")
+            ):
+                findings.extend(_hanger_disposition({"provenance": provenance}, path + ".provenance", visibility))
+    records = payload.get("hanger_records", []) if isinstance(payload, dict) else []
+    seen = set()
+    if isinstance(records, list):
+        for i, record in enumerate(records):
+            identity = record.get("hanger_id") if isinstance(record, dict) else None
+            if isinstance(identity, str):
+                if identity in seen:
+                    findings.append(ImportFinding("IMPORT_HANGER_DUPLICATE_ID", "blocking",
+                        f"$.hanger_records[{i}].hanger_id", "Duplicate hanger identity.",
+                        "Use a unique hanger_id within the library."))
+                seen.add(identity)
+    return ImportValidationResult(_determine_outcome(findings, visibility), tuple(findings))
+
+
+def _hanger_disposition(item, path, visibility):
+    # Shape findings reject nonstring disposition fields; use the Rust string
+    # fallback semantics for diagnostic generation, without mutating input.
+    clean = dict(item)
+    if clean.get("privacy_class") == "project_private":
+        clean["privacy_class"] = "private_project_data"
+    provenance = item.get("provenance")
+    if isinstance(provenance, dict):
+        clean["provenance"] = dict(provenance)
+        for key in ("redistribution_status", "review_status"):
+            if not isinstance(provenance.get(key), str):
+                clean["provenance"][key] = None
+    for key in ("redistribution_status", "review_status", "privacy_class"):
+        if key in clean and not isinstance(clean[key], str):
+            clean[key] = None
+    result = _validate_object_disposition(clean, path=path, intended_visibility=visibility)
+    if isinstance(provenance, dict):
+        result = [f for f in result if f.code != "IMPORT_PROVENANCE_INCOMPLETE"]
+        missing = sorted(field for field in REQUIRED_PROVENANCE_FIELDS if not provenance.get(field))
+        if missing:
+            result.insert(0, ImportFinding("IMPORT_PROVENANCE_INCOMPLETE", "blocking", f"{path}.provenance",
+                f"Required provenance fields are missing: {', '.join(missing)}.",
+                "Complete required provenance fields before import acceptance."))
+    if not isinstance(provenance, dict) and (
+        item.get("redistribution_status") == "protected_suspected"
+        or item.get("review_status") == "quarantined"
+    ):
+        result.append(ImportFinding("IMPORT_PROTECTED_CONTENT_SUSPECTED", "quarantine", path,
+            "Import metadata indicates suspected protected content.",
+            "Quarantine metadata and request human/legal review; do not publish values."))
+    return result

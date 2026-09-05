@@ -1,0 +1,12 @@
+# Sealed review brief v1 — complete existing-capability UI milestone
+RequestedBy N1_WI_PKG07; parent HELP_HUMAN; RunID HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY; ChildInstanceID R_EXISTING. Fresh ephemeral Agent2 read-only, no delegation.
+
+Objective review100% final frozen cumulative desktop src diff plus new files for M_EXISTING: complete toolkit/catalog navigation, safe Section/material/component editing/deletion, rich support/material-temperature/wind forms, explicit pipe continuation, shared section references/mass input and async session-commit integrity. Freeze manifest provided before dispatch. B2 module-only review earlier is supporting evidence, not substitute for integration review. Compare accepted baseline commit740569598f9d00440636b8ea25264127f418e4ec.
+
+Read actual root/project AGENTS, TASK base, software-code-review skill, PKG07 DEL0701/02/03 ScopeOfWork, CONTRACT, accepted PhaseA snapshot, all B0/B2 briefs/returns/checks, backend N2 B1/B2/B3 accepted snapshots and exact implementation consumers. Backend source read to establish semantic correctness, not review its unrelated diff. No other package writes.
+
+Check exact target/before/units/provenance semantics; duplicate/dangling refs, no cascades, stale async queue/apply/model replacement/undo handling (no obsolete result receipt/checkpoint), whole-config preservation and removal; shared section cache is engine-only, bound independent OD/wall unavailable, explicit mass absence versus0/readiness. Human commands must focus functioning controls, unavailable/gated commands disabled, keyboard/source-state preserved; no engineering defaults, provider binding, silent apply or hidden model mutation. Verify actual native/Wasm operation route tests, source readiness and reported checks. No inferred implementation from schema tokens.
+
+AllowedTools read/search/shell read-only; no network/dependency installation/Git mutation; may execute targeted existing tests only if necessary and coordinate through manager. AllowedWriteTargets own R_EXISTING/RETURN.md and STATUS.json only. Do not fix source; actionable findings name file/line, concrete trigger/impact, evidence and remediation. Review all frozen files/hash manifest, including tests; give PASS only with no actionable defects. No lifecycle or release acceptance.
+
+Return reviewed hashes, coverage, findings and residual risks; manager will repair/re-review. Runtime native descendant instruction+config asserted; exact inherited model identifier unavailable unless exposed.

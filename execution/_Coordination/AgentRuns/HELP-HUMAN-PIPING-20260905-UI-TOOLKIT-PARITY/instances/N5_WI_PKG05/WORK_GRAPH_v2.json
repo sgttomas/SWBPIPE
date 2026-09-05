@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "parent_acceptance": "PKG05 PASS_DESIGN_ONLY accepted by HELP_HUMAN",
+  "nodes": [
+    {
+      "id": "A",
+      "status": "accepted_design_only"
+    },
+    {
+      "id": "A2_REFUTE",
+      "status": "superseded_by_parent_direct_refutation"
+    },
+    {
+      "id": "A2_IMPLEMENT",
+      "status": "held"
+    },
+    {
+      "id": "A2_SOURCE_REVIEW",
+      "status": "waiting_on_frozen_implementation",
+      "writes": []
+    }
+  ],
+  "edges": [
+    [
+      "parent_existing_wave_acceptance",
+      "A2_IMPLEMENT"
+    ],
+    [
+      "parent_shared_export_integration",
+      "module_cargo_checks"
+    ],
+    [
+      "A2_IMPLEMENT",
+      "A2_SOURCE_REVIEW"
+    ],
+    [
+      "A2_SOURCE_REVIEW",
+      "manager_fanin"
+    ]
+  ],
+  "parallelism": "No overlapping source writes; manager module child only, N3 owns shared lib.rs. Source reviewer fresh and serial."
+}

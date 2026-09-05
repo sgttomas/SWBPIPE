@@ -1,0 +1,10 @@
+{
+  "projects/chirality-piping/apps/desktop/src/App.tsx": "9c7985eadc41b64e0cd8584757b25e5c6e1bda43ff96a4e78cdc0541e0a161aa",
+  "projects/chirality-piping/apps/desktop/src/App.test.tsx": "9f659cc46a5f982ed68bac6c4657d12695a9428845117aa7fd35b14f0feda47e",
+  "projects/chirality-piping/apps/desktop/src/types.ts": "211c43c160ced49a0de326c958a5cd440c75764f905b7d470e2cbaa6cbefb5c1",
+  "projects/chirality-piping/apps/desktop/src/styles.css": "b0c90276cd31fee095cb574064899271b3bd6a21f0cbb36bf4517c250ce1497b",
+  "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx": "c241fc5032866f2c7d54949c951691fb0c83f6af5f59e2da0e8eed240ea42d2b",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts": "310e3d4507f5751cff747427b87529b0ebbda1157e16f9d060128de9a1bc3936",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx": "5e9b2ceebc58e30aeb3171802d802c094c6f9185c39ba258e66fb7019b1389ed",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx": "5783c9bd73cbefccaab90f2fcdbd630e900a63fd00cac7dbc2353ec285921ca3"
+}

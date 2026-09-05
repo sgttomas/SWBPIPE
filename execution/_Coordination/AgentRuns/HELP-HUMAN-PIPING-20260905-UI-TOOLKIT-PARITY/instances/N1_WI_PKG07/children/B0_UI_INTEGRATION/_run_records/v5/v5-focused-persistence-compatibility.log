@@ -1,0 +1,17 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop -- src/App.test.tsx -t round trips local create
+
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t round trips local create
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 117 skipped (118)
+   Start at  23:12:03
+   Duration  3.56s (transform 706ms, setup 46ms, import 837ms, tests 2.50s, environment 118ms)
+

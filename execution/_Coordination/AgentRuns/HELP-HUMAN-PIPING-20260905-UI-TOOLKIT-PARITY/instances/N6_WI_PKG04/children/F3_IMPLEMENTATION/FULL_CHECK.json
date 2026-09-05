@@ -1,0 +1,6 @@
+{
+  "command": "CARGO_TARGET_DIR={PIPING_UI_PARITY_CARGO_TARGET} cargo test --manifest-path {WORKING_ROOT}/core/product_physics/Cargo.toml --offline --locked ",
+  "start": "2026-09-05T05:45:36.189777+00:00",
+  "finish": "2026-09-05T05:45:37.828707+00:00",
+  "exit_code": 0
+}

@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "command": "node --test apps/desktop/scripts/build-wasm-engine.test.mjs",
+      "cwd": "{WORKING_ROOT}",
+      "exit_code": 0,
+      "passed": 1,
+      "description": "fake cargo metadata/custom target; dual publication; selfweight failed generation retains old artifact"
+    },
+    {
+      "command": "../../node_modules/.bin/vitest run src/services/operationBatchService.test.ts src/services/selfWeightPlanService.test.ts src/services/wasmEngine/loadSelfWeightEngine.test.ts src/services/operationService.test.ts",
+      "cwd": "{WORKING_ROOT}/apps/desktop",
+      "exit_code": 0,
+      "files_passed": 4,
+      "tests_passed": 13,
+      "description": "native exact args, untrusted metadata preservation, rollback/errors, display and selfweight routing, missing browser artifact retry, actual dual artifacts ready/stale/JSON error, previous single-operation transport regression"
+    }
+  ],
+  "selected_registered_checks": [
+    "desktop-test",
+    "desktop-build",
+    "harness-self-check"
+  ],
+  "broader_checks_owner": "N1 parent B0 integration; no full-suite fanout",
+  "artifact_basis": "../../../../N_ENV/DUAL_WASM_BUILD.json"
+}

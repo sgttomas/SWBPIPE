@@ -1,0 +1,19 @@
+{
+  "schema": "piping.evidence-portability-relocation/v1",
+  "recorded_at_utc": "2026-09-05T06:00:52.243489+00:00",
+  "status": "mechanical_portability_repair",
+  "active_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_IMPLEMENTATION_BRIEF_V9.md",
+  "original_encoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/evidence_relocations/F3_BRIEF_PORTABILITY_V1/ORIGINAL_ENCODED.json",
+  "original_sha256": "cd0f14a89d7b47bcb4d85a01b040967dfac6d04cb5fad10d1aa046829e49d76e",
+  "decoded_original_sha256": "cd0f14a89d7b47bcb4d85a01b040967dfac6d04cb5fad10d1aa046829e49d76e",
+  "active_sha256": "c695dc38bbca23928b186bfad7cab049fa3d7e149eb7010bc51e5d884d01e5ed",
+  "encoded_file_sha256": "b33dff5262b604f9cb6ca3822ea32fcfe9008b1857a40ec6afef3a7e8b1f33db",
+  "transformation": "One Cargo scratch runtime sentence on line5 replaced with portable PIPING_UI_PARITY_CARGO_TARGET anchor and N_ENV resolution reference; all other bytes unchanged.",
+  "verification": {
+    "exact_original_decode": true,
+    "physics_source_sha256_unchanged": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1",
+    "accepted_snapshot_sha256_unchanged": "511c3e7cdb37a296bf80ff2546d3439357ace6fa0f795b5744fb42fe310f93f0",
+    "no_products_or_contracts_changed": true
+  },
+  "history": "Original execution/basis hashes remain unchanged and resolve to decoded original bytes. This is supporting relocation evidence for N7, not a retrospective execution or changed event time."
+}

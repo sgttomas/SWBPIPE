@@ -1,0 +1,71 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 4
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "FINISH": 4,
+      "START": 4
+    },
+    "outcome": {
+      "FAIL": 1,
+      "PASS": 3,
+      "STARTED": 4
+    },
+    "reason_code": {}
+  },
+  "events": 8,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 255.133,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B1_ANCHOR_ADAPTER",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg04/anchor_adapter"
+    },
+    {
+      "duration_seconds": 114.765,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_B1_CODE_REVIEW",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg04/anchor_review"
+    },
+    {
+      "duration_seconds": 143.554,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "A2_REFUTATION",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg04/contract_refutation/attempt-1"
+    },
+    {
+      "duration_seconds": 93.392,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_REFUTATION",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg04/contract_refutation/attempt-2"
+    }
+  ],
+  "sessions": 4,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

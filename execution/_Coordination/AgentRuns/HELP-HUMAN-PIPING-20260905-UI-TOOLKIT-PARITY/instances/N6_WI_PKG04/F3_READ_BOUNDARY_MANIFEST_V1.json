@@ -1,0 +1,10 @@
+{
+  "status": "read_only_proposal_source_held",
+  "files": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "c7d4a1571f37c99e867206454e7850c5710f2d6a2cfa399fac62aa83aa25a15a",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_READ_BOUNDARY_DISPOSITION_V1.md": "fb7c666eb042ff5fcc06dc61a3e78374fc7e472b7387a6e0e00d3bd88234dfd0",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_FIXTURE_INVENTORY_V1.json": "0e2a17f1f4691097c6c21ad4e3f226de323edac628bf9543a943f25dcffd104b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F3_SUPPORT_FAMILY_DISPOSITION_V1.md": "949d6830f39f930aa33ac91023fe8cccecef6476a7d5534b910196923093ec93"
+  }
+}

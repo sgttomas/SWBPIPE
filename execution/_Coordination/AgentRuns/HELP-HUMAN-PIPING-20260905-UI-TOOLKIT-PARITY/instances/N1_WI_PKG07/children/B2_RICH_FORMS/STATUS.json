@@ -1,0 +1,28 @@
+{
+  "role": "Agent 2 ephemeral generalist",
+  "parent": "N1_WI_PKG07",
+  "instance": "B2_RICH_FORMS",
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "runtime": "delegated-harness-native",
+  "enforcement": "instruction+config asserted",
+  "model": "inherited identifier not exposed",
+  "source_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx"
+  ],
+  "checks": {
+    "focused_tests": "10 passed",
+    "desktop_build": "PASS ANCHOR_BUILD.json",
+    "desktop_test": "589/590; concurrent B0 cancel-pipe-draft audit failure"
+  },
+  "source_freeze": "SOURCE_MANIFEST.json",
+  "return_path": "RETURN.md",
+  "blockers": [
+    "B0 integration and dead-control remedy",
+    "Fresh independent review",
+    "Shared Wasm/real-engine apply verification"
+  ]
+}

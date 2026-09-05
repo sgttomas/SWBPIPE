@@ -1,0 +1,22 @@
+{
+  "status": "BRIEF_CURRENT_SOURCE_HELD",
+  "checked_utc": "2026-09-05T04:06:48.336032+00:00",
+  "imports": {
+    "projects/chirality-piping/core/library_import/provenance_checker.py": {
+      "sha256": "16175f386d479d1072152dfe10e3de54a1cb6ccc02949e08febb448a72d84f73",
+      "same_as_phase_a": true
+    },
+    "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs": {
+      "sha256": "3636d39e07cf0b728803b8b44284d8571633f06cee4560fdf653de082e0986b5",
+      "same_as_phase_a": true
+    }
+  },
+  "source_scope_git_status": "clean; new schema/tests/fixtures not created",
+  "dependency_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B2_ACCEPTED_SNAPSHOT.json",
+  "dependency_snapshot_sha256": "c51def3109254c0bb17e47e2ed5e5d0236db91281a2e7f053900c70345ab821c",
+  "rich_authoring_sha256": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345",
+  "rich_configuration_alignment": "configuration canonical before + none/dimensionless + optional omission clears + durable provenance string supported",
+  "native_adapter": "N2 sole writer; hanger arm not present yet; existing patch proposal still required",
+  "launch_trigger": "explicit HELP_HUMAN B3 acceptance/source release relay",
+  "child_started": false
+}

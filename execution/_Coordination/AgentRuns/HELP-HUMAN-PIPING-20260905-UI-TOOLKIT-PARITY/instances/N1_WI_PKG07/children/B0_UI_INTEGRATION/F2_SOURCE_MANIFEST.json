@@ -1,0 +1,20 @@
+{
+  "status": "FROZEN_REVIEW_PENDING",
+  "created_utc": "2026-09-05T05:46:10.812742+00:00",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+      "sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4",
+      "bytes": 18423,
+      "preimage_sha256": "08b3dd43d1653e67a0dd7281921090e3545a6c35c53f2dc90286ffc76bc35b48",
+      "preimage_matches_V5": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "sha256": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2",
+      "bytes": 10927,
+      "preimage_sha256": "7a0e221d75188fcb65289fbcf7c3d9fdd501be286109d24d7881c10a7866ca41",
+      "preimage_matches_V5": true
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "selection_authority": "Parent HELP_HUMAN launch brief",
+  "nodes": [
+    {
+      "id": "A2_MAP",
+      "role": "Agent2",
+      "writes": "three DEL0709 new contract files",
+      "depends_on": []
+    },
+    {
+      "id": "A2_REVIEW_MAP",
+      "role": "Agent2",
+      "writes": "own evidence only",
+      "depends_on": [
+        "A2_MAP"
+      ]
+    }
+  ],
+  "integration_owner": "N1_WI_PKG07",
+  "gate": "accepted independent review then Parent Phase A interface acceptance",
+  "runtime": "delegated-harness-native; instruction+config asserted"
+}

@@ -1,0 +1,20 @@
+
+running 79 tests
+.............................................................. 62/79
+tests::validate_rule_pack_command_reports_example_pack_clean_and_draft_findings --- FAILED
+................
+failures:
+
+---- tests::validate_rule_pack_command_reports_example_pack_clean_and_draft_findings stdout ----
+
+thread 'tests::validate_rule_pack_command_reports_example_pack_clean_and_draft_findings' (30220441) panicked at src/lib.rs:6509:9:
+assertion failed: notice.contains("No professional")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::validate_rule_pack_command_reports_example_pack_clean_and_draft_findings
+
+test result: FAILED. 78 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `--lib`

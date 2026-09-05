@@ -1,0 +1,19 @@
+{
+  "method": "Recursive JSON objects with node and restraints keys under fixtures; shape-based evidence, not exhaustive public compatibility guarantee.",
+  "counts": {
+    "<absent>": 92,
+    "anchor": 2,
+    "guide": 2,
+    "nonlinear": 2,
+    "variable_spring_hanger": 1,
+    "constant_effort_support": 1
+  },
+  "first_examples": {
+    "<absent>": "fixtures/model_operations/contract_corpus/case_01_accept_set_field_material_elastic_modulus.json",
+    "anchor": "fixtures/product_preview/invented_dec092_temperature_g_request.json",
+    "guide": "fixtures/product_preview/invented_preview_model.json",
+    "nonlinear": "fixtures/product_preview/invented_preview_model.json",
+    "variable_spring_hanger": "fixtures/product_preview/invented_preview_model.json",
+    "constant_effort_support": "fixtures/product_preview/invented_preview_model.json"
+  }
+}

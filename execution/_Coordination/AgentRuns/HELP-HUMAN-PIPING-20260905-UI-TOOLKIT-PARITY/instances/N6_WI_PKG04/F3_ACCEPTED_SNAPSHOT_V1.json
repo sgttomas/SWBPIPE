@@ -1,0 +1,20 @@
+{
+  "schema": "piping.bounded-source-snapshot/v1",
+  "status": "manager_accepted_bounded_physics_repair",
+  "source_fence": "released_to_HELP_HUMAN",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-03",
+  "derivative_status": "current_bounded_evidence_not_decomposition_truth",
+  "wasm": "not_rebuilt_parent_N2_serializes",
+  "integrated_checks": "pending_parent_fan_in",
+  "files": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/F3_REPAIR.patch": "35396580f865922cb94476609ab15ae47628c7ef80ec0e1d2298fb1cf5ba9d48",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/CHECKS.json": "45b223a8dde175a3925b8e17088366b976050f000615a7a9d81b76bbbe493a34",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/HASHES.json": "c1f6e4525a54c3535641905bcfd71727fac683dde2646b41a456c96dfdcb82f8",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/RETURN.md": "66434aade1874c150a32f6d4ac0ed991e0be2de0ace93c4bb14c22bb47bdad08",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_REVIEW/REVIEW_RETURN.md": "d5da93d146e26e5bed13f6346234f58c9bf1b1bc5d38842e0c1d91330a5219ee",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/RUNTIME_SUMMARY_F3_V1.json": "c36f4a2967f952ecffb038a6ce3d9114ff11b7533a2f68274b850e2a072c9082",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_MANAGER_ACCEPTED_RETURN_V1.md": "f912a2ff4ab508ad40e03f8918bf7434835d98e5ed34c9c624f56bcded6c05b9"
+  }
+}

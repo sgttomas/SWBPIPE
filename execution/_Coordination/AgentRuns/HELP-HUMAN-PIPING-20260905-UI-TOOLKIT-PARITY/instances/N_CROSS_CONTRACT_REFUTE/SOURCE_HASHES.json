@@ -1,0 +1,23 @@
+{
+  "captured_at": "2026-09-05T03:51:53.794823+00:00",
+  "basis": "Current working-tree files; mutable implementation sources may advance after capture; proposals remain non-authoritative",
+  "sha256": {
+    "AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "schemas/model.schema.yaml": "a47b00e0f93c915da49657057261b6903ea1eb9f091adaf555cae312bbe01b6c",
+    "core/product_physics/src/lib.rs": "18cdd562cf94e2e164d49b0485f8d5c91ddf4a76d0a2b669ce7eb087a052bc17",
+    "core/product_physics/src/validation.rs": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+    "core/library_import/provenance_checker.py": "16175f386d479d1072152dfe10e3de54a1cb6ccc02949e08febb448a72d84f73",
+    "core/library_import/library_import_document/src/lib.rs": "3636d39e07cf0b728803b8b44284d8571633f06cee4560fdf653de082e0986b5",
+    "core/model_operations/operation_applier/src/lib.rs": "21f6d13ecfe3f5336ecd3601660f6e7c016f0df4d42fce5cf07d372dbcc5f313",
+    "apps/desktop/src/services/libraryImportService.ts": "8d33f21247dbccc992bbc439a9915812d69362a83af795d7ebbd733f90b67c5e",
+    "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/ScopeOfWork.md": "8b6fcef802c4febbbcaa35a2137b188b54cf896022b662812ddade165709db64",
+    "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md": "248beedc9e4dfd0febbae4a8e03ac2507946ee480627251d0ab74a02f3280acf",
+    "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md": "f87b738d359e60fb4c9e8108ba486ac137a01acc4f7d4a5e6515efd62cad13a9",
+    "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md": "11a125a780b54a3979f10789a13cfcfadfed946b2fb7d16ed0ca25a66355fdfd",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/CONTRACT_PROPOSAL_v1.md": "86c68a42259baa80e76443e61b555e32285f6512ecf5860712c023afe846e940",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/INVENTED_PAYLOAD_PROPOSAL_v1.json": "0f4892d7b881b5572c79c5a554319b93c0a58962118a12a34c81b0165985eaa9",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/REFUTATION_BRIEF.md": "25c132ed61e997558919a5f8595e74b715de976851c668ff82a08f1ee1807701",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/PHASE_A_INTAKE.md": "9d217296898a48799d573c27f762a2180dde652f8141bb6eece6d9c328e9b66b",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/children/A2_REFUTE/LAUNCH_BRIEF.md": "4c9f98d03bdc4744fe6d7d5b91a7dfab9399dd52502e6e22ee4bc95cb87d1d16"
+  }
+}

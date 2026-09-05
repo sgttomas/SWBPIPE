@@ -1,0 +1,16 @@
+{
+  "status": "SUCCESS_FROZEN_FOR_N7",
+  "child": "A2_COVERAGE_FINAL",
+  "parent": "N1_WI_PKG07",
+  "closure": "COVERAGE_RECONCILED_FOR_N7_TOOLKIT_OPEN",
+  "model": "inherited exact identity unavailable",
+  "nondelegation": "instruction+config asserted",
+  "delegated": false,
+  "changed_docs_count": 8,
+  "checks": "ROW_COMPLETENESS_CHECK.json",
+  "manifest": "CHANGED_DOCS_MANIFEST.json",
+  "manifest_sha256": "79304d79c8b9fe48110ee39f15cc120e36ae68e6beefeb2b1cc10d436c412db9",
+  "derivative_status": "implementation evidence; not authoritative decomposition truth",
+  "final_review": "N7_PENDING",
+  "source_freeze": "children/B0_UI_INTEGRATION/UI_FREEZE_V5.json"
+}

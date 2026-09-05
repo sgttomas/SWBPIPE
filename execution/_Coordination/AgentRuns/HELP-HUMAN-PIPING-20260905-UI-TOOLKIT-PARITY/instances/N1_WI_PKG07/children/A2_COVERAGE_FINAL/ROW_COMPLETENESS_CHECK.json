@@ -1,0 +1,25 @@
+{
+  "Capability_Comparison.csv": {
+    "rows": 27,
+    "normative_now": 24,
+    "roadmap": 3,
+    "exact_ids": "PASS",
+    "csv_shape": "PASS"
+  },
+  "Vocabulary_Coverage.csv": {
+    "rows": 27,
+    "normative_now": 24,
+    "roadmap": 3,
+    "exact_ids": "PASS",
+    "csv_shape": "PASS"
+  },
+  "historical_rows_14_16": "PASS: every original column/cell preserved",
+  "status_edit_scope": "PASS: all four files identical to HEAD outside Remaining (frontmatter/lifecycle/history preserved)",
+  "cited_source_files": {
+    "count": 36,
+    "all_exist": "PASS"
+  },
+  "accepted_basis_paths": "PASS",
+  "verdict": "PASS",
+  "final_integration_acceptance": "N7_PENDING"
+}

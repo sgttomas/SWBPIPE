@@ -1,0 +1,32 @@
+{
+  "status": "SOURCE_AND_DOCS_FROZEN_REVIEW_PENDING",
+  "package": "PKG-07",
+  "source_gate": "root N7 fresh full source/docs union review",
+  "tests": "Final frozen build PASS;42files665tests PASS;actual built Chromium dist1PASS5.5s;all65source hashes stable",
+  "derivative_status": "implementation evidence only, not authoritative decomposition truth or lifecycle acceptance",
+  "bindings": {
+    "children/B0_UI_INTEGRATION/UI_FREEZE_V5.json": "22d804a7db1e3cbd0cb0205280c55d9619d8a59f9d41e3063235a4457136d19e",
+    "children/B0_UI_INTEGRATION/SOURCE_HASHES_V5.json": "7158a7442ed1a84e977868be993c66d0a5d2826c96218710aff66aaee04abb3c",
+    "children/B0_UI_INTEGRATION/diff-v5-integrated.patch": "fb86c7fbcee315e432c47f1c0f0082d29b27f9625e728322849f20fbc7ac47bd",
+    "children/B0_UI_INTEGRATION/READOUT_COVERAGE_V5.md": "a14f0e0f0a7e1d9da66130166a674df8c1f17529ab4b4868f6d2152b2279b50a",
+    "children/A2_COVERAGE_FINAL/CHANGED_DOCS_MANIFEST.json": "79304d79c8b9fe48110ee39f15cc120e36ae68e6beefeb2b1cc10d436c412db9",
+    "children/A2_COVERAGE_FINAL/RETURN.md": "a7d669cdf21dfcad9025a1f348e174af48db4cceb987dbd95e4c2c0c4e08b1ad",
+    "T1_ACCEPTED_SNAPSHOT.json": "b1e88ee699e84afaea36e314dccdc730ff87a03b4ddb90d5a03bc276d47e9657",
+    "T2_ACCEPTED_SNAPSHOT_V2.json": "cf6f651946de94602b7f5400d734de3f81c7b206f8bbb6634fe582e9b090e6b3",
+    "T3_ACCEPTED_SNAPSHOT_V2.json": "66116e8401bd764238ad700f6fd922af91a9715d10ba6fd844ab696b6b13c488",
+    "T4_ACCEPTED_SNAPSHOT_V2.json": "8110b94360c69c0f175a9766e4244d68e6d0be9356a0688dd0d5e1e366b0a973",
+    "T4_RENDERER_ACCEPTED_SNAPSHOT_V3.json": "7625cb3a5571a902ed5991ee539d5f676b4d43de23face09e565af090e758307",
+    "children/B0_UI_INTEGRATION/RETURN_V5.md": "0eb4b1696a1d9b84bf5887b405d36f71417274161c513589d612ffd773565cfe",
+    "children/B0_UI_INTEGRATION/checks-v5-frozen-full.json": "98a9df9b0b8fd8fc41753dbdaa23df6f3576740f524cc18ea64b8f0772861265",
+    "children/B0_UI_INTEGRATION/CHECKS_V5_TERMINAL.json": "df33d0f000c4c1558fd159dd1e4baff39a0cafc4056d6e4c7a0c5f023da45e75",
+    "children/B0_UI_INTEGRATION/LOG_MANIFEST_V5.json": "98470546cf229d6dfe0d023232058790fa9abcb04dd845816b3939dbebe41319"
+  },
+  "manager_validation": "all65 source hashes and4 artifacts match; all62 scoped desktop/project ignore changed files included; all8 docs match; both27row ledgers complete",
+  "remaining": [
+    "root N7 verdict and scoped repairs if necessary",
+    "package acceptance after N7 relay",
+    "parent sweep and CHANGE closeout"
+  ],
+  "source_writers": "none",
+  "supersedes": "N1_REVIEW_PENDING_001.json"
+}

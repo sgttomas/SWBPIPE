@@ -1,0 +1,20 @@
+{
+  "checks": [
+    {
+      "command": "npm run test -- src/features/hanger-selection src/features/self-weight-authoring src/features/offline-proposal-intake",
+      "cwd": "apps/desktop",
+      "exit_code": 0,
+      "test_files_passed": 1,
+      "tests_passed": 11,
+      "actual_engine": "parent-provided shared operation and self-weight Wasm artifacts; no rebuild by child"
+    },
+    {
+      "command": "./node_modules/.bin/tsc --noEmit -p apps/desktop/tsconfig.json",
+      "cwd": ".",
+      "exit_code": 0
+    }
+  ],
+  "source_manifest": "SOURCE_MANIFEST_V1.json",
+  "earlier_test_iterations": "First invocation used incorrect working-directory path and found no tests; corrected. First engine run required complete model hash evidence; tests corrected to provide current backend canonical hash. Next run exposed intentionally incomplete imported fixture; positive case now has explicitly synthetic cold/hot test quantities and separate negative coverage retains missing-field rejection. No production defaults introduced.",
+  "rerun": "Parent full integrated suite/build and fresh independent review required"
+}

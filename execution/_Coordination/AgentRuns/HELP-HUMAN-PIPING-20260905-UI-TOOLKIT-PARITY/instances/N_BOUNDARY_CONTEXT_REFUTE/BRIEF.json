@@ -1,0 +1,30 @@
+{
+  "parent": "HELP_HUMAN",
+  "role": "direct ephemeral Agent2",
+  "objective": "Refute boundary trusted context integration against frozen member wire and B4 V3",
+  "write_scope": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_BOUNDARY_CONTEXT_REFUTE",
+  "read_scope": [
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/BOUNDARY_CONTEXT_DESIGN.md",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/STAGE_C_MODULE_PLAN.md",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/PRIVATE_BATCH_CONTEXT_API.md",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B4_BATCH_DESIGN_V3.md",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/BOUNDARY_WIRE_CONTRACT_FROZEN_V1.md",
+    "core/model_operations/operation_applier/src/lib.rs",
+    "schemas/model.schema.yaml",
+    "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+    "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/ScopeOfWork.md",
+    "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+    "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/ScopeOfWork.md"
+  ],
+  "basis": "Parent accepted SCA009/revision0.12/DAG010; N6 frozen candidate; B4 V3 design-only pass",
+  "tools": "read-only shell and own evidence writes",
+  "exclusions": [
+    "source edits",
+    "tests",
+    "delegation",
+    "mechanics changes",
+    "authority acceptance"
+  ],
+  "model": "actual inherited identifier unavailable",
+  "started_at": "2026-09-05T04:10:45.271619+00:00"
+}

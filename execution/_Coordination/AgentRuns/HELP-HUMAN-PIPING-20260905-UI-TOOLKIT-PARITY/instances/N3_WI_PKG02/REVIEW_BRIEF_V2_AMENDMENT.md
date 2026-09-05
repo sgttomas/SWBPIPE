@@ -1,0 +1,2 @@
+# N3_R1 brief amendment V2
+Parent added row17 assignment contract intake. Same read/tool/write boundaries; source scope includes canonical physical_to_analytical adapter. Reviewer additionally refutes optional preview section_ref, common physics resolution before normalization, authoritative OD/wall from pipe Section, supplemental span fields remain local; display materialization and bound-field edit guard. No source code mutation. All original exclusions retained.

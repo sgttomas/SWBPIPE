@@ -1,0 +1,5 @@
+# M_EXISTING v4 review remediation draft — source held until reviewer final
+Same B0 fence and no delegation. Findings R_EXISTING frozen19-file review:
+1. Disabled pristine cancel-pipe-draft has no accessible reason; provide clear title/description per existing disabled-control audit. Test audit and relevant button states.
+2. handleClearReviewQueue clears queue/outcomes but does not invalidate operationRequest; delayed validate/apply can publish withdrawn intent. Queue clear must synchronously invalidate request sequence and owned busy state so any delayed response/error/finally is ignored. Explicit queue cancellation message accessible; no model/checkpoint/receipt/outcome resurrection. Deferred apply AND validate tests clear pending during invocation, then resolve old response, verify no mutation/receipt/checkpoint/outcome.
+Do not write until manager authorizes after final review. Preserve initial generation/hash guards. Freeze revised entire19-file scope and rerun affected tests/build; final fresh re-review required before M_EXISTING accepted/Tier3 released.

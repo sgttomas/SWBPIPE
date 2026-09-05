@@ -1,0 +1,13 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

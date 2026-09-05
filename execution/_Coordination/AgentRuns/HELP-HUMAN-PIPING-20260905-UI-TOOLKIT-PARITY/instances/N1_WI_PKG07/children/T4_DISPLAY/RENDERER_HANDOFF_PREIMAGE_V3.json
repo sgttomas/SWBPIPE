@@ -1,0 +1,10 @@
+{
+  "status": "serial_B0_to_T4_preimage",
+  "files": {
+    "features/results/ResultsPanel.tsx": "8066e422ed669bf30023df9ed7c4d736f37165472998596b8eaf0b3d60f161f1",
+    "features/comparison/ComparisonPanel.tsx": "cf4d2e7e7528e7b88cc79b3ede8441e1249dbe2e71b96e7cec820ffd31c30ade",
+    "features/knowledge/KnowledgePanel.tsx": "051044204f3aef9b23641188a490c9f9615bcd8cc52eb92b312fce0e2de5f407",
+    "features/diagnostics/DiagnosticsPanel.tsx": "c752935edf4268f05adedc29a8f1047241c0cb498f8dd44144eeec657f637c1b",
+    "features/rule-check/RuleCheckRunPanel.tsx": "cfc56139fabe700b72552b132b6daa90ac2aeea4f112e81f0adfcad4725a0828"
+  }
+}

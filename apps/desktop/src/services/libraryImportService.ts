@@ -15,7 +15,7 @@ export const LIBRARY_IMPORT_BACKEND_DIAGNOSTIC =
   "desktop (Tauri) backend command validate_library_import backed by core/library_import; " +
   "browser preview mode does not synthesize a fallback validator.";
 
-export type LibraryKind = "material" | "section" | "component";
+export type LibraryKind = "material" | "section" | "component" | "hanger";
 
 export type IntendedVisibility = "public" | "private";
 
@@ -254,6 +254,11 @@ const LIBRARY_TEMPLATE_KEYS: Record<
     recordsKey: "section_records",
     libraryId: "seclib.invented.local_draft"
   },
+  hanger: {
+    libraryKey: "hanger_library",
+    recordsKey: "hanger_records",
+    libraryId: "hangerlib.invented.local_draft"
+  },
   component: {
     libraryKey: "component_library",
     recordsKey: "component_records",
@@ -266,11 +271,11 @@ export function buildInventedLibraryImportTemplate(
 ): Record<string, unknown> {
   const keys = LIBRARY_TEMPLATE_KEYS[libraryKind];
   return {
-    schema_version: "0.1.0",
+    schema_version: libraryKind === "hanger" ? "1.0.0" : "0.1.0",
     [keys.libraryKey]: {
       library_id: keys.libraryId,
       name: `Invented private ${libraryKind} library (local draft)`,
-      privacy_class: "private_user_data",
+      privacy_class: libraryKind === "hanger" ? "private_user_supplied" : "private_user_data",
       provenance: { ...TEMPLATE_PROVENANCE }
     },
     [keys.recordsKey]: []
@@ -309,6 +314,8 @@ const LIBRARY_RECORD_SLOT_SHAPE: Record<
       { array: "properties", slotIdKey: "property_id" }
     ]
   },
+  // Hangers have typed physical inputs, not rule-pack value slots.
+  hanger: { recordsMember: "hanger_records", recordIdKey: "hanger_id", slotArrays: [] },
   component: {
     recordsMember: "component_records",
     recordIdKey: "component_id",

@@ -1,0 +1,32 @@
+{
+  "status": "MODULE_IMPLEMENTATION_ACCEPTED_FOR_INTEGRATION",
+  "manifest": {
+    "schema": "chirality-agent2-source-freeze/v1",
+    "status": "FROZEN_FOR_INDEPENDENT_REVIEW",
+    "source_hashes": {
+      "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx": "60454a2336f6f3695b128c4f1392b5f50216aa8c618a17b423218a5a3eb7f078",
+      "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx": "15929b1f8e4670d66449cd5e90e32d5c38ded407fa2755c7f1f16ab9ec111665",
+      "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx": "052c5f7e621cf22263d735f9447d068092321bd13ab4714eabe5df5be5da91a2",
+      "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e",
+      "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx": "0a8727bb7d4bb034d6214de114adac85d5d6bc91d6f3821518f6455900562972"
+    },
+    "accepted_basis": [
+      "instances/N1_WI_PKG07/snapshots/PHASE_A_ACCEPTED_001/MANIFEST.json",
+      "N2_WI_PKG16/B2_ACCEPTED_SNAPSHOT.json"
+    ],
+    "launch_brief_sha256": "d266ec80b1c7c0ef5854b0da3535f01a17126147a0cea1bea10950c757e0b899",
+    "derivative_status": "bounded source/review evidence, not decomposition authority"
+  },
+  "review": "children/R_B2_MODULES/RETURN.md",
+  "verification": "10 module tests PASS; final desktop-build PASS; shared source suite audit remediation B0-owned",
+  "accepted_upstream": [
+    "rev0.12/SCA009/DAG010",
+    "N2 B2_ACCEPTED_SNAPSHOT.json"
+  ],
+  "remaining": [
+    "B0 integration",
+    "shared-engine application tests",
+    "final integrated full diff review"
+  ],
+  "derivative_status": "run evidence, not lifecycle/decomposition truth"
+}

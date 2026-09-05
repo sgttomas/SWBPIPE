@@ -1,0 +1,199 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/App.test.tsx b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+index c503d72ed..285260e87 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+@@ -15581,3 +15581,34 @@ describe("OpenPipeStress desktop preview", () => {
+     expect(appliedInspector.textContent).toContain("Branch pipepipe:P-150");
+   });
+ });
++
++
++describe("toolkit navigation integration", () => {
++  it("opens and focuses existing forms without queueing or changing selection", async () => {
++    render(<App />);
++    await screen.findByTestId("desktop-preview-shell");
++    const selectionBefore = screen.getByTestId("command-selection-readout").textContent;
++    const destinations = [
++      ["build.node", "viewport-create-node-id"],
++      ["build.pipe", "viewport-create-pipe-id"],
++      ["build.component", "create-component-kind"],
++      ["supports.restraint", "create-support-id"],
++      ["properties.material", "create-material-id"],
++      ["properties.section", "create-section-id"],
++      ["loads.cases", "load-manager-create-load-id"],
++      ["loads.primitive", "load-manager-create-primitive-category"],
++      ["loads.combinations", "load-manager-create-combination-id"],
++      ["properties.libraries", "workspace-section-libraries"],
++      ["review.pending", "workspace-section-operations"],
++      ["view.select", "model-tree-filter-input"],
++    ];
++    for (const [command, target] of destinations) {
++      fireEvent.click(screen.getByTestId("toolkit-entry"));
++      fireEvent.click(screen.getByTestId(`toolkit-${command}`));
++      expect(screen.getByTestId(target)).toHaveFocus();
++      expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectionBefore);
++    }
++    expect(screen.queryByTestId("editor-intent-queue")).not.toBeInTheDocument();
++    expect(invokeMock.mock.calls.some(([command]) => command === "apply_model_operation" || command === "validate_model_operation")).toBe(false);
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/App.tsx b/projects/chirality-piping/apps/desktop/src/App.tsx
+index 319e5a855..20097ab8e 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.tsx
+@@ -46,6 +46,8 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
+ import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
+ import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
+ import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
++import { ToolkitPalette } from "./features/toolkit/ToolkitPalette";
++import { capabilityAvailability, capabilityRoute, type ToolkitCapability } from "./features/toolkit/capabilityCatalog";
+ import { PropertyInspector } from "./features/model-tree/PropertyInspector";
+ import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
+ import { ReportPanel } from "./features/report/ReportPanel";
+@@ -439,6 +441,13 @@ export function App() {
+   // core (model tree | 3D viewport | inspector) owns the surface; workspace
+   // sections are summoned from the View menu and dismissed back to the viewport.
+   const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
++  const [toolkitFocus, setToolkitFocus] = useState<{ testId: string } | null>(null);
++  useLayoutEffect(() => {
++    if (!toolkitFocus) return;
++    const target = document.querySelector<HTMLElement>(`[data-testid="${toolkitFocus.testId}"]`);
++    target?.focus();
++    target?.scrollIntoView?.({ block: "nearest" });
++  }, [toolkitFocus]);
+   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
+   const [armedCreationTool, setArmedCreationTool] = useState<CreationTool | null>(null);
+   // Viewport-first agent-mediated shell (TP-R3UX-AGENTSHELL-001): the detailed
+@@ -1225,6 +1234,26 @@ export function App() {
+     }
+   }
+ 
++  function handleToolkitCommand(capability: ToolkitCapability) {
++    if (!selection) return;
++    const context = { selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy };
++    if (!capabilityAvailability(capability, context).enabled) return;
++    if (capability.history) {
++      if (capability.history === "undo") handleUndoSessionModelEdit();
++      else handleRedoSessionModelEdit();
++      setToolkitFocus({ testId: "toolkit-entry" });
++      return;
++    }
++    const route = capabilityRoute(capability, context);
++    if (!route) return;
++    setArmedCreationTool(route.tool ?? null);
++    if (route.surface === "inspector") { setInspectorCollapsed(false); setActiveSection(null); }
++    else if (route.surface === "tree") { setTreeCollapsed(false); setActiveSection(null); }
++    else if (route.surface === "viewport") setActiveSection(null);
++    else setActiveSection(route.surface);
++    setToolkitFocus({ testId: route.focusTestId });
++  }
++
+   async function handleSaveReportPackage() {
+     if (!model || !result || !analysisRun || !inputManifest || running || reportPackageBusy) return;
+     setReportPackageBusy(true);
+@@ -1477,6 +1506,10 @@ export function App() {
+             <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={handleSelectEntity} />
+           </div>
+           <div className="workspace-pane workspace-pane-viewport">
++            <ToolkitPalette
++              context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy }}
++              onChoose={handleToolkitCommand}
++            />
+             <PipeViewport
+               armedCreationTool={armedCreationTool}
+               model={model}
+@@ -1550,6 +1583,7 @@ export function App() {
+               className={dockSectionClass("operations", activeSection)}
+               aria-label="Operation Apply section"
+               data-testid="workspace-section-operations"
++              tabIndex={-1}
+             >
+               <OperationApplyPanel
+                 queuedIntents={editorIntents}
+@@ -1632,6 +1666,7 @@ export function App() {
+               className={dockSectionClass("libraries", activeSection)}
+               aria-label="Libraries section"
+               data-testid="workspace-section-libraries"
++              tabIndex={-1}
+             >
+               <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
+             </section>
+diff --git a/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx b/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
+index 2968df0b2..6c76ac9a5 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
+@@ -1273,7 +1273,7 @@ function creationToolStatusLabel(tool: CreationTool | null): string {
+   if (tool === "node") return "Node tool armed: click empty canvas to fill coordinates, then queue node.";
+   if (tool === "pipe") return "Pipe tool armed: pick from/to nodes or complete the pipe form.";
+   if (tool === "support") return "Support tool armed: select a node, then complete Create support in the Inspector.";
+-  if (tool === "component") return "Component tool armed: queue a review-only component-symbol preview intent.";
++  if (tool === "component") return "Component tool armed: complete geometry and connectivity, then queue for validation, review and Apply.";
+   if (tool === "load") return "Load tool armed: use the Load Cases panel to create load cases and primitive loads.";
+   return "Model focus";
+ }
+diff --git a/projects/chirality-piping/apps/desktop/src/styles.css b/projects/chirality-piping/apps/desktop/src/styles.css
+index d0dc0679f..8a6ee4824 100644
+--- a/projects/chirality-piping/apps/desktop/src/styles.css
++++ b/projects/chirality-piping/apps/desktop/src/styles.css
+@@ -3187,3 +3187,15 @@ th {
+   padding-left: 8px;
+   border-left: 2px solid #eef1ef;
+ }
++
++/* Accepted vocabulary navigation; forms continue to own draft and operation state. */
++.toolkit-palette { position: relative; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border, #344152); }
++.toolkit-commands { padding: 0.7rem 0; max-height: min(60vh, 36rem); overflow: auto; }
++.toolkit-commands > label { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem; }
++.toolkit-commands input { min-width: 0; flex: 1; }
++.toolkit-command-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 0.6rem 1rem; }
++.toolkit-command { display: grid; gap: 0.25rem; margin-bottom: 0.8rem; }
++.toolkit-command button { text-align: left; }
++.toolkit-command small { line-height: 1.45; }
++.toolkit-command button:disabled { opacity: 0.65; }
++.toolkit-palette :focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+diff --git a/projects/chirality-piping/apps/desktop/src/types.ts b/projects/chirality-piping/apps/desktop/src/types.ts
+index c500304a9..a61bafce2 100644
+--- a/projects/chirality-piping/apps/desktop/src/types.ts
++++ b/projects/chirality-piping/apps/desktop/src/types.ts
+@@ -90,6 +90,7 @@ export type WindEquivalentStaticGenerationInput = {
+   shape_factor?: QuantityValue;
+   direction?: string;
+   exposed_pipe_refs?: string[];
++  exposed_spans?: Array<{ pipe_ref: string; start_fraction: QuantityValue; end_fraction: QuantityValue }>;
+ };
+ 
+ /** User-entered static-equivalent occasional-load generation inputs
+@@ -122,6 +123,14 @@ export type PreviewModel = {
+     elastic_modulus: { value: number; unit: string };
+     shear_modulus: { value: number; unit: string };
+     thermal_expansion_coefficient?: { value: number; unit: string };
++    temperature_points?: Array<{
++      id: string;
++      temperature?: QuantityValue;
++      elastic_modulus?: QuantityValue;
++      shear_modulus?: QuantityValue;
++      thermal_expansion_coefficient?: QuantityValue;
++      provenance?: string;
++    }>;
+     provenance: string;
+   }>;
+   sections?: Array<{
+@@ -158,6 +167,18 @@ export type PreviewModel = {
+     provenance: string;
+   }>;
+   supports: Array<{
++    nonlinear?: {
++      behavior: string;
++      dof: string;
++      initial_state?: string;
++      active_when?: string;
++      contact_when?: string;
++      closes_when?: string;
++      gap?: QuantityValue;
++      friction_coefficient?: QuantityValue;
++      normal_reaction?: QuantityValue;
++      normal_reaction_source?: { support_ref: string; dof: string };
++    };
+     id: string;
+     label: string;
+     node: string;

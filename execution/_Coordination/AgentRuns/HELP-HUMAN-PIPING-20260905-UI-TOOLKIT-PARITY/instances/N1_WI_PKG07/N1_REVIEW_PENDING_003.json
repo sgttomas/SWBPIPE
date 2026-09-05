@@ -1,0 +1,31 @@
+{
+  "status": "POSTREPAIR_SOURCE_AND_DOCS_FROZEN_FINAL_REREVIEW_PENDING",
+  "supersedes": "N1_REVIEW_PENDING_002.json",
+  "package": "PKG-07",
+  "bindings": {
+    "children/B0_UI_INTEGRATION/UI_FREEZE_V9.json": "5d997c21e5a8b36298c8ba035be44df1a198e3e5e9ca58122550ce09fc9f436b",
+    "children/B0_UI_INTEGRATION/SOURCE_HASHES_V9.json": "bbe4540585ed5e1b5bbad0732b7ce35d8b9afd440e0e31e34f905e02aa61baf7",
+    "children/B0_UI_INTEGRATION/diff-v9-integrated.patch": "5dc4f8d39197ff7253a2b58d8a33c0be5cb76296491cf5b1ba79e34769321161",
+    "children/B0_UI_INTEGRATION/CHECKS_V9_TERMINAL.json": "c71129e2c90c15d2264d1cdd71e4c563725c33af96650b9d9d5cf94cb9c80c2d",
+    "children/B0_UI_INTEGRATION/RETURN_V9.md": "89c731e7377fa1eb14e7a24560db29dd787d4ef0b23ed15082dd38a811b15c63",
+    "children/A2_COVERAGE_FINAL/CHANGED_DOCS_MANIFEST_V2.json": "148f1a4c1c19015c25b58a46209d6924c04a367bb5aab113ec8064dc03942edc",
+    "children/A2_COVERAGE_FINAL/RETURN_V2.md": "53681c162fd6c9772cb6f3ffa99fd2e8fe8e8c7e9ab7a6000d76560d4c8cafb2",
+    "N7_UI_REPAIR_SOURCE_ACCEPTED_V1.json": "fd0a5d1fbb5eebbe9151c5cf2d94bba60f0a1a3b259dc9d011c32283670e349f",
+    "children/R_N7_UI_REPAIRS/RETURN.md": "825fe1c52b9bd2996d3e97c00da8211471d3074a5eaf9ac5770074624b9e5250",
+    "children/R_N7_UI_REPAIRS/PORTABILITY_RELOCATION_V1.json": "6f2d3d272c3c9065c5bdeb7fc2f1c534a3d3fe64dab2d401416408f4b51ed265",
+    "children/B2_RICH_FORMS/F3_ACTUAL_ENGINE_GATE.json": "b2d95ff26c999c19a6b2e89d28060fd90890a94e32423c528ec9d42ef21359b4",
+    "children/B2_RICH_FORMS/F3_TERMINAL_RETURN.md": "f0a99f77fae43e5c1166eaed48ac16248116774121bf9b93876f43ded6a2a837",
+    "children/B2_RICH_FORMS/N7_F3_AMENDMENT_V9A.md": "e9d9ba4661252df70229ba85f5bc06113d32be3d9b7b99eee95700483e7c19be"
+  },
+  "source_members": 66,
+  "readonly_native_dependency_members": 3,
+  "docs_members": 8,
+  "docs_changed_this_repair": 7,
+  "verification": "buildPASS;43files732testsPASS;actual built hostChromium dist1PASS5.7s;actual F3 operation14testsPASS;fresh6UIrepair source reviewPASS;allsource/artifact/docs hashes stable",
+  "remaining": [
+    "root N7 final integrated rereview and manager fan-in",
+    "parent deterministic sweep and CHANGE closeout"
+  ],
+  "derivative_status": "implementation/check evidence only, not authoritative decomposition or lifecycle closure",
+  "source_writers": "none"
+}

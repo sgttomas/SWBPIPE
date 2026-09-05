@@ -1,0 +1,9 @@
+# Sealed F repair independent source review V1
+
+Role TASK Agent2, software-code-review; Parent WORKING_ITEMS N2_WI_PKG16, same run. Read actual AGENT_TASK, skills/software-code-review/SKILL.md and project instructions. No delegation, instruction+config asserted; native runtime model/token unavailable. This review begins only after manager freezes implementation.
+
+Read F1_F3_COMBINED_REPAIR_PLAN_V1.md, F_REPAIR_PREDECESSOR_V1.json, N7 immutable REVIEW_RETURN and F1 reproduction, N6 F3_READ_BOUNDARY_DISPOSITION_V1 as semantic context. Review100% actual repair diff and new public test file against F_REPAIR_FROZEN_HASHES.json and F_REPAIR_FROZEN.diff. Author return/checks and manager checks supply execution evidence. Source must match frozen hashes at return.
+
+Check F1 canonical normalized DOF/value exact comparison, strict structures, positive finite typed converter and supported ForcePerLength aliases; reject conflicting duplicates through create/config/batch with no mutation, preserve exact source for equal/single definitions. Check F3 null/omitted behavior, exact9 tokens and rejection of noncanonical explicit values before any precedence bypass, no new mixedpayload matrix. Ensure fixtures reach intended diagnostics, public route tests include rollback and compatibility, and no unit constants/schema/physics/runtime expansion. Review source surrounding integration; original broader N7 failure is not retroactively PASS.
+
+Tools read/search/hash and optional focused offline tests authorized; no source writes, Wasm builds, commits or other evidence changes. Only output F_REPAIR_REVIEW_RETURN.md in N2 instance. Include PASS/FAIL, exact findings with lines/evidence, complete coverage, verified hashes, tests read/run and limitations. Parent owns combined physics/UI/Wasm final gates.

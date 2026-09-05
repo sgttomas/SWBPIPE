@@ -1,0 +1,11 @@
+{
+  "AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+  "software-workflow.json": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+  "execution/_Decomposition/SOFTWARE_DECOMP.md": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+  "execution/_DAG/_LATEST.md": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+  "execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+  "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/ScopeOfWork.md": "ddada32fd505be275bcae8cefb7e5057ea78523c40e663ec9b93cd558a60e59f",
+  "core/solver/linear_supports/src/lib.rs": "1b23899cc93f5d4a56742cb3ba5c617d1d4b401c903e42412300e86c803de50e",
+  "core/product_physics/src/lib.rs": "d34f77889aabc5e0891122ba2e9261d3d5f6a9f2255d50c42e08f2ac8806fc32",
+  "schemas/analysis_boundary.schema.yaml": "6f9d8207802bf48b8267b8119977e14d56f52b9f3887d2007bcc23d8a57f21e8"
+}

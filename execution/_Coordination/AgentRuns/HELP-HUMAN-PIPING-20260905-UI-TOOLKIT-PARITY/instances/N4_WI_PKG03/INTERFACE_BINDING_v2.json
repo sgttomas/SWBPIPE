@@ -1,0 +1,10 @@
+{
+  "parent_correction": "top-level stiffness overrides hanger stiffness; configuration omitted=clear",
+  "references": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/A2_RETURN.md": "22452007ee29de51d2bc4a8ca29abff3b7d1f1aa49cc55646c8be3699814c0bb",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/AMENDMENT_B2.md": "82d75eab37c9acc59352ac894676d84e3622092a0abeccd25a808b87d53d8d1e",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B2_BRIEF.md": "5ba253656e60f58c166fa7c8cddd1bfa1739f6599f930d8cd002b9bc06f319fb"
+  },
+  "source_writes": "HELD",
+  "review_status": "refutation correction pending confirmation"
+}

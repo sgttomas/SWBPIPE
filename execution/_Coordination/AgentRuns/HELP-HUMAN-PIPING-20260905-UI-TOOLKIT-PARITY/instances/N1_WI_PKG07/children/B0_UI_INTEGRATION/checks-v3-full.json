@@ -1,0 +1,39 @@
+{
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "project_root": "projects/chirality-piping",
+  "results": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "build:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 3.634,
+      "exit_code": 0,
+      "id": "desktop-build",
+      "status": "PASS",
+      "stderr": "\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n",
+      "stdout": "\n> openpipestress-workspace@0.1.0 build:desktop\n> npm run build --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 build\n> tsc -b && vite build\n\nvite v7.3.3 building client environment for production...\ntransforming...\n\u2713 1675 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                                        1.16 kB \u2502 gzip:   0.56 kB\ndist/assets/index-C1afYVGn.css                        45.40 kB \u2502 gzip:   8.10 kB\ndist/assets/vendor-tauri-DlQNAQKj.js                   0.09 kB \u2502 gzip:   0.11 kB\ndist/assets/invented_design_knowledge-H12r-oKQ.js      1.66 kB \u2502 gzip:   0.76 kB\ndist/assets/invented_agent_proposal-Bm57LVt-.js        1.82 kB \u2502 gzip:   0.85 kB\ndist/assets/vendor-7OC5HNn7.js                         3.61 kB \u2502 gzip:   1.58 kB\ndist/assets/invented_demo_rule_pack-dhX9tvT1.js       10.86 kB \u2502 gzip:   2.59 kB\ndist/assets/invented_preview_model-pJA3_nB8.js        12.67 kB \u2502 gzip:   3.05 kB\ndist/assets/vendor-icons-NIB71rxH.js                  16.64 kB \u2502 gzip:   5.51 kB\ndist/assets/vendor-react-BT_8sX57.js                 188.74 kB \u2502 gzip:  59.01 kB\ndist/assets/invented_mechanics_result-DftuaeNr.js    458.28 kB \u2502 gzip:  21.53 kB\ndist/assets/vendor-three-C7YCSTwK.js                 525.97 kB \u2502 gzip: 134.99 kB\ndist/assets/index-CpZxojX9.js                      1,027.67 kB \u2502 gzip: 243.07 kB\n\u2713 built in 1.16s\n",
+      "timeout_seconds": 600.0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 96.951,
+      "exit_code": 1,
+      "id": "desktop-test",
+      "status": "FAIL",
+      "stderr": "\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af Failed Tests 1 \u23af\u23af\u23af\u23af\u23af\u23af\u23af\n\n FAIL  src/App.deadControls.test.tsx > dead-control audit (TP-APP-R2-UXSHELL-001) > every button is either responsive or disabled with a stated reason\nAssertionError: expected [ Array(1) ] to deeply equal []\n\n- Expected\n+ Received\n\n- []\n+ [\n+   \"[initial] testid:cancel-pipe-draft: disabled control has no accessible reason (no title/aria-label/aria-describedby); text=\\\"Cancel pipe draft\\\"\",\n+ ]\n\n \u276f src/App.deadControls.test.tsx:211:22\n    209|       }\n    210|       const report = violations.map((entry) => `[${entry.scenario}] ${\u2026\n    211|       expect(report).toEqual([]);\n       |                      ^\n    212|       // Sanity floor: the audit must actually have seen the shell's c\u2026\n    213|       // surface; a near-empty enumeration means the audit itself brok\u2026\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/1]\u23af\n\nnpm error Lifecycle script `test` failed with error:\nnpm error code 1\nnpm error path {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error workspace @openpipestress/desktop@0.1.0\nnpm error location {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error command failed\nnpm error command sh -c vitest run\n",
+      "stdout": "\n> openpipestress-workspace@0.1.0 test:desktop\n> npm test --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.10 {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\n\n \u276f src/App.deadControls.test.tsx (1 test | 1 failed) 30861ms\n     \u00d7 every button is either responsive or disabled with a stated reason 30860ms\n\n Test Files  1 failed | 32 passed (33)\n      Tests  1 failed | 603 passed (604)\n   Start at  22:24:49\n   Duration  96.62s (transform 5.28s, setup 2.05s, import 7.55s, tests 130.64s, environment 7.56s)\n\n",
+      "timeout_seconds": 600.0
+    }
+  ],
+  "schema": "chirality-software-check-evidence/v1",
+  "status": "FAIL",
+  "workspace_root": "."
+}

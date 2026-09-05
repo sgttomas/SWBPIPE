@@ -1,0 +1,420 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "version": 5,
+  "frozen": true,
+  "status": "IN_PROGRESS",
+  "recorded_utc": "2026-09-05T04:14:15.273931+00:00",
+  "scope_selection_authority": "HUMAN",
+  "graph_selection_authority": "AGENT_0",
+  "posture": "MIXED",
+  "basis": {
+    "head": "740569598f9d00440636b8ea25264127f418e4ec",
+    "branch": "codex/piping-ui-toolkit-parity",
+    "decomposition": "rev0.12 / SCA-009",
+    "dag": "DAG-010",
+    "runtime_gate": "SCA-008 / D-58",
+    "non_git_basis_source": "parent-declared"
+  },
+  "nodes": [
+    {
+      "id": "N0",
+      "role": "EPHEMERAL_AGENT_2",
+      "package_id": null,
+      "objective": "Initial frozen coordination record",
+      "status": "COMPLETED_RECORDING_ONLY",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N1",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-07",
+      "objective": "Contract/map then UI implementation",
+      "status": "M_EXISTING_IMPLEMENTATION_ACTIVE_REVIEW_REQUIRED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "interface_relay": "Stable N2 B1 interface; no additional UI source grant inferred",
+      "record_path": "instances/N1_WI_PKG07/",
+      "source_write_authority": "sole desktop manager; B0/B1/B2 and gated B3 consumers; async single-apply race repair and explicit continuation accepted; Tier3 UI held until M_EXISTING accepted",
+      "milestone": "instances/N1_WI_PKG07/EXISTING_MILESTONE.md"
+    },
+    {
+      "id": "N2",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-16",
+      "objective": "Operation/backend implementation",
+      "status": "B2_ACCEPTED_B3_FROZEN_REVIEW_ACTIVE_NOT_ACCEPTED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "record_path": "N2_WI_PKG16/",
+      "accepted_brief": "N2_WI_PKG16/B1_BRIEF.md",
+      "source_write_authority": "sole manager operation lib/schema/native integration; disjoint module fences only after gate",
+      "exclusions": [
+        "desktop",
+        "product_physics",
+        "Cargo.lock",
+        "assignment",
+        "unrelated tests"
+      ],
+      "b3": "110 tests + schema PASS; fresh R3 active, no acceptance yet",
+      "b4": "V3 PASS_DESIGN_ONLY accepted",
+      "stage_c": "C1 batch/C2 geometry/C3 boundary disjoint modules conditionally accepted; source after R3 PASS plus parent relay"
+    },
+    {
+      "id": "N3",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-02",
+      "objective": "Model and unit contract support",
+      "status": "ROW17_ACCEPTED_FENCE_RELEASED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "source_write_authority": "completed exact fence released to parent for next serialized owner; not general product_physics permission",
+      "accepted_snapshot": "instances/N3_WI_PKG02/SECTION_ACCEPTED_SNAPSHOT_V1.json"
+    },
+    {
+      "id": "N4",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-03",
+      "objective": "Hanger-library support as necessary",
+      "status": "DESIGN_ACCEPTED_SOURCE_CONDITIONAL_R3_PARENT_RELAY",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "source_write_authority": "HELD until parent R3 acceptance relay; then exact isolated backend fence only"
+    },
+    {
+      "id": "N5",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-05",
+      "objective": "Automatic self-weight support as necessary",
+      "status": "DESIGN_ACCEPTED_SOURCE_CONDITIONAL_R3_PARENT_RELAY",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "source_write_authority": "HELD until parent R3 acceptance relay; isolated backend afterward; shared product_physics lib export after N6 reviewed release"
+    },
+    {
+      "id": "N6",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-04",
+      "objective": "Row21 nozzle/equipment boundary design intake",
+      "status": "ANCHOR_ROW2_REPAIR_112_TESTS_PASS_REVIEW_ACTIVE",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "instance_id": "N6_WI_PKG04",
+      "source_write_authority": "sole core/product_physics/src/lib.rs narrow explicit anchor-family adapter repair and tests until reviewed release",
+      "boundary_source": "HELD; no Tier3 boundary source grant"
+    },
+    {
+      "id": "N7",
+      "role": "TASK",
+      "package_id": null,
+      "objective": "Fresh independent review of 100% frozen diff",
+      "status": "PLANNED_NOT_EXECUTION_EVIDENCE",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N8",
+      "role": "CHANGE",
+      "package_id": null,
+      "objective": "Validated scoped Git closeout without merge",
+      "status": "PREPARATION_COMPLETE_NOT_CLOSED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "executed_git_mutations": [],
+      "final_target": "origin/refs/heads/codex/piping-ui-toolkit-parity"
+    },
+    {
+      "id": "N_ENV",
+      "role": "EPHEMERAL_AGENT_2",
+      "package_id": null,
+      "objective": "Independent environment provisioning; no product writes",
+      "status": "PROVISIONED_PORTABILITY_REMEDIATED",
+      "actual_model": "unavailable",
+      "execution_details": "Owned launch/status/return supply exact instance and fence; not known by N0",
+      "record_path": "instances/N_ENV/",
+      "residual": "rebuild Wasm after engine changes; host escalation needed for browser run; no full suite pass claimed"
+    },
+    {
+      "id": "N_BATCH_CONTRACT_REFUTE",
+      "role": "EPHEMERAL_AGENT_2",
+      "status": "V3_PASS_DESIGN_ONLY",
+      "objective": "Direct independent B4 batch design refutation",
+      "source_write_authority": "none",
+      "record_path": "instances/N_BATCH_CONTRACT_REFUTE/",
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N_BOUNDARY_CONTEXT_REFUTE",
+      "role": "EPHEMERAL_AGENT_2",
+      "status": "V2_PASS_DESIGN_ONLY",
+      "record_path": "instances/N_BOUNDARY_CONTEXT_REFUTE/",
+      "actual_model": "unavailable",
+      "source_write_authority": "none"
+    }
+  ],
+  "edges": [
+    {
+      "source": "N2:R2_fail_historical",
+      "target": "N2:B2_remedied",
+      "condition": "recorded repair"
+    },
+    {
+      "source": "N2:B2_remedied",
+      "target": "N2:R2B_PASS_B2_accepted",
+      "condition": "actual R2B PASS and B2 snapshot"
+    },
+    {
+      "source": "N2:R2B_PASS_B2_accepted",
+      "target": "N2:B3_frozen_110_PASS",
+      "condition": "serialized implementation"
+    },
+    {
+      "source": "N2:B3_frozen_110_PASS",
+      "target": "N2:R3_active",
+      "condition": "fresh frozen integrated review; no verdict inferred"
+    },
+    {
+      "source": "N2:R3_active",
+      "target": "G_R3_PARENT_ACCEPTANCE_RELAY",
+      "condition": "PASS + parent relay required"
+    },
+    {
+      "source": "N3:accepted_released",
+      "target": "N6:anchor_repair_112_PASS",
+      "condition": "accepted section source prerequisite"
+    },
+    {
+      "source": "N6:anchor_repair_112_PASS",
+      "target": "N6:fresh_review_active",
+      "condition": "100% narrow frozen diff review"
+    },
+    {
+      "source": "N6:fresh_review_active",
+      "target": "G_N6_REVIEWED_RELEASE",
+      "condition": "PASS + accepted snapshot and explicit fence release"
+    },
+    {
+      "source": "G_R3_PARENT_ACCEPTANCE_RELAY",
+      "target": "N1:M_EXISTING_fresh_review",
+      "condition": "B3 consumer dependency accepted"
+    },
+    {
+      "source": "N1:M_EXISTING_active",
+      "target": "N1:M_EXISTING_fresh_review",
+      "condition": "frozen full UI diff including async guard/refs/mass/continuation"
+    },
+    {
+      "source": "N1:M_EXISTING_fresh_review",
+      "target": "G_M_EXISTING_ACCEPTED",
+      "condition": "fresh PASS relevant tests/build map refresh residuals"
+    },
+    {
+      "source": "N_BATCH:V3_design_PASS",
+      "target": "N2:C1_batch",
+      "condition": "design prerequisite; conditional source gate"
+    },
+    {
+      "source": "N_BOUNDARY:V2_design_PASS",
+      "target": "N2:C3_boundary",
+      "condition": "design prerequisite; conditional source gate"
+    },
+    {
+      "source": "G_R3_PARENT_ACCEPTANCE_RELAY",
+      "target": "N2:C1_batch",
+      "condition": "parent exact isolated source release; may proceed while existing UI finishes"
+    },
+    {
+      "source": "G_R3_PARENT_ACCEPTANCE_RELAY",
+      "target": "N2:C2_geometry",
+      "condition": "parent exact isolated source release; may proceed while existing UI finishes"
+    },
+    {
+      "source": "G_R3_PARENT_ACCEPTANCE_RELAY",
+      "target": "N2:C3_boundary",
+      "condition": "parent exact isolated source release; may proceed while existing UI finishes"
+    },
+    {
+      "source": "G_R3_PARENT_ACCEPTANCE_RELAY",
+      "target": "N4:isolated_backend",
+      "condition": "parent exact isolated source release; may proceed while existing UI finishes"
+    },
+    {
+      "source": "G_R3_PARENT_ACCEPTANCE_RELAY",
+      "target": "N5:isolated_backend",
+      "condition": "parent exact isolated source release; may proceed while existing UI finishes"
+    },
+    {
+      "source": "N2:C1_batch",
+      "target": "N2:serial_lib_schema_native_integration",
+      "condition": "accepted child return; manager sole shared writer"
+    },
+    {
+      "source": "N2:C2_geometry",
+      "target": "N2:serial_lib_schema_native_integration",
+      "condition": "accepted child return; manager sole shared writer"
+    },
+    {
+      "source": "N2:C3_boundary",
+      "target": "N2:serial_lib_schema_native_integration",
+      "condition": "accepted child return; manager sole shared writer"
+    },
+    {
+      "source": "N5:isolated_backend",
+      "target": "N5:serialized_lib_export",
+      "condition": "module accepted"
+    },
+    {
+      "source": "G_N6_REVIEWED_RELEASE",
+      "target": "N5:serialized_lib_export",
+      "condition": "shared lib owner released; exact export fence"
+    },
+    {
+      "source": "G_M_EXISTING_ACCEPTED",
+      "target": "N1:Tier3_UI",
+      "condition": "no Tier3 UI earlier"
+    },
+    {
+      "source": "N2:serial_lib_schema_native_integration",
+      "target": "N1:Tier3_UI",
+      "condition": "reviewed producer availability"
+    },
+    {
+      "source": "N4:isolated_backend",
+      "target": "N1:Tier3_UI",
+      "condition": "reviewed hanger producer"
+    },
+    {
+      "source": "N5:serialized_lib_export",
+      "target": "N1:Tier3_UI",
+      "condition": "reviewed selfweight producer"
+    },
+    {
+      "source": "N1:Tier3_UI",
+      "target": "G_FINAL_FAN_IN",
+      "condition": "accepted UI evidence and residuals"
+    },
+    {
+      "source": "G_FINAL_FAN_IN",
+      "target": "N7:fresh_whole_diff_review",
+      "condition": "100% final frozen integrated diff"
+    },
+    {
+      "source": "N7:fresh_whole_diff_review",
+      "target": "G_REGISTERED_CHECKS",
+      "condition": "PASS no actionable findings"
+    },
+    {
+      "source": "G_REGISTERED_CHECKS",
+      "target": "N8:candidate_source_commit",
+      "condition": "source frozen validated scope; not push readiness"
+    },
+    {
+      "source": "N8:candidate_source_commit",
+      "target": "G_CLEAN_SOURCE_DEC025",
+      "condition": "clean committed source required by sweep"
+    },
+    {
+      "source": "G_CLEAN_SOURCE_DEC025",
+      "target": "N8:evidence_closeout_named_push",
+      "condition": "complete sweep PASS + source-unchanged evidence binding + live named target ancestry"
+    }
+  ],
+  "edge_semantics": "Chronological review and repair vertices; future gated nodes do not imply execution or acceptance.",
+  "phase_a_parallel": [],
+  "serialization": {
+    "operation_applier_and_operation_schemas": "N2",
+    "desktop_src_and_ui_tests": "N1",
+    "shared_product_physics_schema_types": "one named owner under versioned Agent 0 exact fence",
+    "conditional_manager_source_writes": "prohibited until exact fence versioned"
+  },
+  "integration_owner": "HELP_HUMAN \u2014 cross-manager fan-in only; no source writes",
+  "git_closeout_owner": "CHANGE",
+  "delegation_class": "delegated-harness-native",
+  "enforcement_calibration": "instruction+config asserted; not mechanism-proven",
+  "gated": [
+    "D-58 runtime binding",
+    "roadmap R1-R3",
+    "lifecycle/release/professional acceptance"
+  ],
+  "planned_outputs": [
+    "24-row capability map",
+    "UI/operation implementation",
+    "tests",
+    "coverage ledger and deliverable residuals",
+    "blockers and remaining scope"
+  ],
+  "phase_vertices": [
+    "N2:R2_fail_historical",
+    "N2:B2_remedied",
+    "N2:R2B_PASS_B2_accepted",
+    "N2:B3_frozen_110_PASS",
+    "N2:R3_active",
+    "G_R3_PARENT_ACCEPTANCE_RELAY",
+    "N3:accepted_released",
+    "N6:anchor_repair_112_PASS",
+    "N6:fresh_review_active",
+    "G_N6_REVIEWED_RELEASE",
+    "N1:M_EXISTING_active",
+    "N1:M_EXISTING_fresh_review",
+    "G_M_EXISTING_ACCEPTED",
+    "N_BATCH:V3_design_PASS",
+    "N_BOUNDARY:V2_design_PASS",
+    "N2:C1_batch",
+    "N2:C2_geometry",
+    "N2:C3_boundary",
+    "N2:serial_lib_schema_native_integration",
+    "N4:isolated_backend",
+    "N5:isolated_backend",
+    "N5:serialized_lib_export",
+    "N1:Tier3_UI",
+    "G_FINAL_FAN_IN",
+    "N7:fresh_whole_diff_review",
+    "G_REGISTERED_CHECKS",
+    "N8:candidate_source_commit",
+    "G_CLEAN_SOURCE_DEC025",
+    "N8:evidence_closeout_named_push"
+  ],
+  "source_integration_owners": {
+    "desktop": "N1 within exact fence",
+    "operation_and_operation_schema": "N2 within exact fence"
+  },
+  "supersedes": "WORK_GRAPH.v4.json; v1-v4 immutable",
+  "amendment_authority": "HELP_HUMAN actual parent v5 recorder instruction; additional dispositions reflected as stated",
+  "agent0_dispositions": [
+    {
+      "subject": "N1",
+      "disposition": "M_EXISTING_IMPLEMENTATION_ACTIVE_REVIEW_REQUIRED"
+    },
+    {
+      "subject": "N2",
+      "disposition": "B2_ACCEPTED_B3_FROZEN_REVIEW_ACTIVE_NOT_ACCEPTED"
+    },
+    {
+      "subject": "N3",
+      "disposition": "ROW17_ACCEPTED_FENCE_RELEASED"
+    },
+    {
+      "subject": "N6",
+      "disposition": "ANCHOR_ROW2_REPAIR_112_TESTS_PASS_REVIEW_ACTIVE"
+    },
+    {
+      "subject": "N4",
+      "disposition": "DESIGN_ACCEPTED_SOURCE_CONDITIONAL_R3_PARENT_RELAY"
+    },
+    {
+      "subject": "N5",
+      "disposition": "DESIGN_ACCEPTED_SOURCE_CONDITIONAL_R3_PARENT_RELAY"
+    },
+    {
+      "subject": "N8",
+      "disposition": "PREPARATION_COMPLETE_NOT_CLOSED"
+    }
+  ],
+  "narrow_wave_policy": "Backend isolated Stage C may start after R3 acceptance relay while existing UI completes; Tier3 UI remains gated by M_EXISTING. Shared lib export additionally waits N6 reviewed release.",
+  "evidence_manifest": "EVIDENCE_BINDING.v5.json",
+  "current_parallel_work": [
+    "N1 existing UI milestone",
+    "N2 R3 fresh review",
+    "N6 narrow anchor fresh review"
+  ]
+}

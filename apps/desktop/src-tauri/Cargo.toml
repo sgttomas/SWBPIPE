@@ -14,6 +14,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 open_pipe_stress_product_physics = { path = "../../../core/product_physics" }
+open_pipe_stress_self_weight_wasm = { path = "../../../core/loads/self_weight_wasm" }
 open_pipe_stress_operation_applier = { path = "../../../core/model_operations/operation_applier" }
 open_pipe_stress_library_import_document = { path = "../../../core/library_import/library_import_document" }
 open_pipe_stress_report_renderer = { path = "../../../core/reporting/report_renderer" }

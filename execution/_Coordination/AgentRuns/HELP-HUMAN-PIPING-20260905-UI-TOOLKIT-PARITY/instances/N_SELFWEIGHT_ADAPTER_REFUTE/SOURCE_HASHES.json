@@ -1,0 +1,13 @@
+{
+  "hashes": {
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_V1.md": "b21cc1dad4c575f2f7e583641824ec920716ed208e6ebfc75221e62f8e937737",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_SNAPSHOT_V1.json": "0e5ccbc45799877865c25bf0d3e8577265f888eef4da3821982746e53ec8866c",
+    "core/product_physics/src/self_weight.rs": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+    "core/product_physics/Cargo.toml": "2d04ed98254a98a1f24235ed09ba9538e96e63924ca2a2802b9cd3218d7c5035",
+    "core/serialization/canonical_json/src/lib.rs": "3fc4c97586988d4ef0ba5cfa748fbf26366230a4d95a3826d17f25247a7d1897",
+    "core/model_operations/operation_applier/src/lib.rs": "a43e84a03af896a0e0decc10e2e05cf331cf2fdb6655a38355ad3e5d7a8b7359",
+    "core/solver/frame_kernel/Cargo.toml": "c124ff5534616207027d932d561b810fed824ee7a095b4a06f738ff9d226c317",
+    "core/solver/sparse_direct/Cargo.toml": "3c80029904a6af6443cd5af5c7b8de98e1eaf6ba573a50408fce6ea63fc2192e"
+  },
+  "design_snapshot_matches": true
+}

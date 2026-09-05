@@ -1,0 +1,146 @@
+--- a/core/product_physics/src/lib.rs
++++ b/core/product_physics/src/lib.rs
+@@ -3205,6 +3205,7 @@
+     restrained_dofs: Vec<FrameDof>,
+ ) -> LinearSupport {
+     let family = match support.family.as_deref() {
++        Some("anchor") => SupportFamily::Anchor,
+         Some("line_stop") => SupportFamily::LineStop,
+         Some("vertical_support") => SupportFamily::VerticalSupport,
+         _ if restrained_dofs.len() == 6 => SupportFamily::Anchor,
+@@ -9076,6 +9077,135 @@
+     }
+ 
+     #[test]
++    fn explicit_anchor_rx_only_preserves_partial_rotation_through_boundary() {
++        let support = rigid_preview_support("anchor", &["RX"]);
++        let mapped = rigid_linear_support_from_preview(&support, 1, vec![FrameDof::Rx]);
++        assert_eq!(mapped.support_id, support.id);
++        assert_eq!(mapped.family, SupportFamily::Anchor);
++        assert_eq!(mapped.node_index, 1);
++        assert_eq!(mapped.restrained_dofs, vec![FrameDof::Rx]);
++
++        let prepared = open_pipe_stress_linear_supports::prepare_boundary(2, &[mapped]);
++        assert!(prepared.findings.is_empty());
++        assert_eq!(prepared.restrained_dofs, vec![9]);
++        assert!(prepared.springs.is_empty());
++        assert!(prepared.imposed_displacements.is_empty());
++    }
++
++    #[test]
++    fn explicit_anchor_mixed_dofs_leave_uy_spring_and_other_dofs_free() {
++        let support = rigid_preview_support("anchor", &["UX", "RZ"]);
++        let mapped =
++            rigid_linear_support_from_preview(&support, 1, vec![FrameDof::Ux, FrameDof::Rz]);
++        assert_eq!(mapped.family, SupportFamily::Anchor);
++        assert_eq!(mapped.node_index, 1);
++        assert_eq!(mapped.restrained_dofs, vec![FrameDof::Ux, FrameDof::Rz]);
++
++        // Synthetic mechanics witness, not a default or equipment stiffness recommendation.
++        let stiffness = SupportQuantity::positive(
++            7.0,
++            open_pipe_stress_linear_supports::QuantityDimension::TranslationalStiffness,
++        )
++        .unwrap();
++        let spring = LinearSupport::spring("support:invented-uy", 1, FrameDof::Uy, Some(stiffness));
++        let mut matrix = vec![vec![0.0; 12]; 12];
++        for (index, row) in matrix.iter_mut().enumerate() {
++            row[index] = 2.0;
++        }
++        let applied = open_pipe_stress_linear_supports::apply_linear_supports(
++            &matrix,
++            &vec![0.0; 12],
++            &[mapped, spring],
++        )
++        .unwrap();
++        let prepared = &applied.prepared_boundary;
++        assert!(prepared.findings.is_empty());
++        assert_eq!(prepared.restrained_dofs, vec![6, 11]);
++        assert!(prepared.imposed_displacements.is_empty());
++        assert_eq!(prepared.springs.len(), 1);
++        assert_eq!(prepared.springs[0].node_dof.global_index(), 7);
++        assert_eq!(prepared.springs[0].stiffness.value, 7.0);
++        assert_eq!(applied.prescribed_dofs, vec![6, 11]);
++        assert_eq!(applied.prescribed_displacements, vec![0.0, 0.0]);
++        assert_eq!(
++            applied.reduced_system.free_dofs,
++            vec![0, 1, 2, 3, 4, 5, 7, 8, 9, 10]
++        );
++        matrix[7][7] += 7.0;
++        assert_eq!(applied.stiffness_with_springs, matrix);
++    }
++
++    #[test]
++    fn explicit_anchor_all_six_preserves_complete_restraint() {
++        let support = rigid_preview_support("anchor", &["UX", "UY", "UZ", "RX", "RY", "RZ"]);
++        let dofs = vec![
++            FrameDof::Ux,
++            FrameDof::Uy,
++            FrameDof::Uz,
++            FrameDof::Rx,
++            FrameDof::Ry,
++            FrameDof::Rz,
++        ];
++        let mapped = rigid_linear_support_from_preview(&support, 1, dofs.clone());
++        assert_eq!(mapped.family, SupportFamily::Anchor);
++        assert_eq!(mapped.node_index, 1);
++        assert_eq!(mapped.restrained_dofs, dofs);
++        let prepared = open_pipe_stress_linear_supports::prepare_boundary(2, &[mapped]);
++        assert!(prepared.findings.is_empty());
++        assert_eq!(prepared.restrained_dofs, vec![6, 7, 8, 9, 10, 11]);
++        assert!(prepared.springs.is_empty());
++    }
++
++    #[test]
++    fn explicit_anchor_repair_preserves_named_and_implicit_family_fallbacks() {
++        for (family, dofs, expected_family, indices) in [
++            (
++                Some("guide"),
++                vec![FrameDof::Uy, FrameDof::Uz],
++                SupportFamily::Guide,
++                vec![7, 8],
++            ),
++            (
++                Some("line_stop"),
++                vec![FrameDof::Ux],
++                SupportFamily::LineStop,
++                vec![6],
++            ),
++            (
++                Some("vertical_support"),
++                vec![FrameDof::Uz],
++                SupportFamily::VerticalSupport,
++                vec![8],
++            ),
++            (None, vec![FrameDof::Uy], SupportFamily::Guide, vec![7]),
++            (
++                None,
++                vec![
++                    FrameDof::Ux,
++                    FrameDof::Uy,
++                    FrameDof::Uz,
++                    FrameDof::Rx,
++                    FrameDof::Ry,
++                    FrameDof::Rz,
++                ],
++                SupportFamily::Anchor,
++                vec![6, 7, 8, 9, 10, 11],
++            ),
++        ] {
++            let mut support = rigid_preview_support("guide", &[]);
++            support.family = family.map(str::to_string);
++            let mapped = rigid_linear_support_from_preview(&support, 1, dofs.clone());
++            assert_eq!(mapped.family, expected_family);
++            assert_eq!(mapped.node_index, 1);
++            assert_eq!(mapped.restrained_dofs, dofs);
++            let prepared = open_pipe_stress_linear_supports::prepare_boundary(2, &[mapped]);
++            assert!(prepared.findings.is_empty());
++            assert_eq!(prepared.restrained_dofs, indices);
++            assert!(prepared.springs.is_empty());
++        }
++    }
++
++    #[test]
+     fn named_line_stop_reaches_solver_family_with_entered_dof() {
+         let support = rigid_preview_support("line_stop", &["UX"]);
+         let mapped = rigid_linear_support_from_preview(&support, 2, vec![FrameDof::Ux]);

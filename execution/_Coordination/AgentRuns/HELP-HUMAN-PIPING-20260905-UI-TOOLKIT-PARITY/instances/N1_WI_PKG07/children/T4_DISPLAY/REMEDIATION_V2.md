@@ -1,0 +1,2 @@
+# Sealed T4 review remediation v2
+Fresh R_T4_DISPLAY found exactly P2 omitted US volume_per_length despite Rust Area alias in^2. Same3source-file scope and own evidence. Add accepted in^2 target with meaningful converter-request/regression test, correct RETURN catalog-gap claim in RETURN_V2.md preserving original RETURN.md, refresh source manifest SOURCE_MANIFEST_V2.json/status/check evidence. No numeric TS conversion factor, no other module/source edits. All other reviewed behavior unchanged. Backcheck required.

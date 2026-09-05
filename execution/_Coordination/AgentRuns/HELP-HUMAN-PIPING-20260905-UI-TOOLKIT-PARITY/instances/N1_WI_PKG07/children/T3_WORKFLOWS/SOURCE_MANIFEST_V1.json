@@ -1,0 +1,26 @@
+{
+  "kind": "derivative_source_snapshot",
+  "status": "IMPLEMENTED_PENDING_PARENT_REVIEW",
+  "scope": "PKG07 DEL0703 bounded human workflows",
+  "parent": "N1_WI_PKG07",
+  "source_hashes": {
+    "apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx": "5f43b1d8a797dd2d20053eab86e477c6f07d285687af1f6c489c76f24ff990ca",
+    "apps/desktop/src/features/hanger-selection/hangerSelection.ts": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9",
+    "apps/desktop/src/features/hanger-selection/index.ts": "23a76f305f71a7cd50c321503c0fe010cb9299ed9902b14074e86049ce26bab8",
+    "apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx": "7723795393b51d97813dfb1f65f16ba0750ca5b3a49ec90a9f11711fd8294c86",
+    "apps/desktop/src/features/offline-proposal-intake/index.ts": "296a6e209e05dba5869156565ac9888c92f6f4e04ddff780709e9ca541ff60bb",
+    "apps/desktop/src/features/offline-proposal-intake/workflowSupport.ts": "658fe939ad818163678988a863f709a5617074474b313a42a8496caaaa3798c7",
+    "apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx": "0fdffd72e966a5244d29912f053f19bfb6fdeaec33066b530f0c571f8d60d6b7",
+    "apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx": "ebbaaa3b4e10697465c2482334c2f976c1e1baf5472ae5080049dde4ded50089",
+    "apps/desktop/src/features/self-weight-authoring/index.ts": "ffec526638ca3002f0f8784cbcbbd792f08f2cf4974c3116e33eb4e0e1d26196"
+  },
+  "accepted_upstream": [
+    "N1 snapshots/PHASE_A_ACCEPTED_001/MANIFEST.json",
+    "N1 M_EXISTING001 PASS release",
+    "N2 C_ACCEPTED_SNAPSHOT_V1.json",
+    "N4 PKG03_ACCEPTED_SNAPSHOT_C2.json",
+    "N5 SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json",
+    "N1 TIER3_INTERFACE_CONTRACT_V1.md v1.1"
+  ],
+  "write_scope_check": "PASS: this child wrote exclusively three new feature directories and its evidence directory"
+}

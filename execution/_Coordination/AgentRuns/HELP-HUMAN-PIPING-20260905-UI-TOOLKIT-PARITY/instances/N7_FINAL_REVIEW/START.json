@@ -1,0 +1,17 @@
+{
+  "event": "ACTUAL_REVIEW_START",
+  "utc": "2026-09-05T05:21:15.683324+00:00",
+  "parent": "/root",
+  "agent": "/root/final_review",
+  "model": "unavailable/inherited",
+  "role": "Agent2 TASK",
+  "nondelegation": "instruction+config asserted",
+  "instruction_root": "{REPO_ROOT}",
+  "bindings": {
+    "LAUNCH_BRIEF_V1.md": "827f9c0b9a5e1456fcb2f12a2e85a77e890c2ff36ce488e233acf79fca3d3235",
+    "GLOBAL_PRODUCT_FREEZE_V1.json": "5acdc07bfc4259dcd229f5dd4573a4a0c6c867002c03d3c82116a0194ba4d540",
+    "GLOBAL_PRODUCT_DIFF_V1.patch": "5db0f364ad8d3cb805a8850175e5b7415c04de046a09b1f9ec85ea49234cc762",
+    "GLOBAL_EVIDENCE_INVENTORY_V1.json": "4742c15085553aacb6bbdf9646fd1bf27a8382e4984d22fde03099c6b7572eda"
+  },
+  "writers": "FROZEN per actual parent dispatch"
+}

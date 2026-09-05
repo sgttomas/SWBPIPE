@@ -1,0 +1,2 @@
+# Independent T4 v2 backcheck
+Same never-implementing reviewer, no source writes/delegation. Original3file full review found only omitted US volume_per_length target. Author changed target+test and source manifest SOURCE_MANIFEST_V2, RETURN_V2. Verify all3current hashes, unchanged content coverage plus100%delta and actual accepted Rust Area alias. Focused6tests PASS. Write RETURN_V2.md,STATUS_V2.json preserving originals. PASS only no actionable issues; manager final renderer integration remains separate.

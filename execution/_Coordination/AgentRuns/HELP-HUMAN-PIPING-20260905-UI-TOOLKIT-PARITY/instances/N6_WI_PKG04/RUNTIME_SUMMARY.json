@@ -1,0 +1,42 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 2
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "FINISH": 2,
+      "START": 2
+    },
+    "outcome": {
+      "FAIL": 1,
+      "PASS": 1,
+      "STARTED": 2
+    },
+    "reason_code": {
+      "F-01_PARTIAL_ROTATION_GUIDE": 1
+    }
+  },
+  "events": 4,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": null,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "A2_REFUTATION",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg04/contract_refutation"
+    }
+  ],
+  "sessions": 1,
+  "status": "INCOMPLETE",
+  "unmatched_sessions": [
+    "/root/wi_pkg04/contract_refutation"
+  ]
+}

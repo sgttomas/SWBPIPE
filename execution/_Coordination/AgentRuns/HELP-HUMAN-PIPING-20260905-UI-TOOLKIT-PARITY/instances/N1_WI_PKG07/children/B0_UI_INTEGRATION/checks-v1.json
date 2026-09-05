@@ -1,0 +1,39 @@
+{
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "project_root": "projects/chirality-piping",
+  "results": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 84.159,
+      "exit_code": 0,
+      "id": "desktop-test",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "\n> openpipestress-workspace@0.1.0 test:desktop\n> npm test --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.10 {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\n\n\n Test Files  30 passed (30)\n      Tests  580 passed (580)\n   Start at  22:01:17\n   Duration  83.14s (transform 4.90s, setup 2.41s, import 6.92s, tests 114.08s, environment 9.48s)\n\n",
+      "timeout_seconds": 600.0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 2.693,
+      "exit_code": 1,
+      "id": "desktop-build",
+      "status": "FAIL",
+      "stderr": "npm error Lifecycle script `build` failed with error:\nnpm error code 1\nnpm error path {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error workspace @openpipestress/desktop@0.1.0\nnpm error location {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error command failed\nnpm error command sh -c tsc -b && vite build\n",
+      "stdout": "\n> openpipestress-workspace@0.1.0 build:desktop\n> npm run build --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 build\n> tsc -b && vite build\n\nsrc/features/material-temperature/MaterialTemperatureForm.tsx(15,67): error TS2345: Argument of type '(current: { id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }[] & DraftRecord[]) => ({ ...; } | DraftRecord)[]' is not assignable to parameter of type 'SetStateAction<{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }[] & DraftRecord[]>'.\n  Type '(current: { id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }[] & DraftRecord[]) => ({ ...; } | DraftRecord)[]' is not assignable to type '(prevState: { id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }[] & DraftRecord[]) => { ...; }[] & DraftRecord[]'.\n    Type '({ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; } | DraftRecord)[]' is not assignable to type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }[] & DraftRecord[]'.\n      Type '({ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; } | DraftRecord)[]' is not assignable to type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }[]'.\n        Type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; } | DraftRecord' is not assignable to type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }'.\n          Property 'id' is missing in type 'DraftRecord' but required in type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }'.\nsrc/features/material-temperature/MaterialTemperatureForm.tsx(27,50): error TS2322: Type '({ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; } & DraftRecord) | {}' is not assignable to type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; } & DraftRecord'.\n  Type '{}' is not assignable to type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; } & DraftRecord'.\n    Property 'id' is missing in type '{}' but required in type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }'.\nsrc/features/material-temperature/MaterialTemperatureForm.tsx(27,58): error TS2322: Type '{}' is not assignable to type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; } & DraftRecord'.\n  Property 'id' is missing in type '{}' but required in type '{ id: string; temperature?: QuantityValue | undefined; elastic_modulus?: QuantityValue | undefined; shear_modulus?: QuantityValue | undefined; thermal_expansion_coefficient?: QuantityValue | undefined; provenance?: string | undefined; }'.\n",
+      "timeout_seconds": 600.0
+    }
+  ],
+  "schema": "chirality-software-check-evidence/v1",
+  "status": "FAIL",
+  "workspace_root": "."
+}

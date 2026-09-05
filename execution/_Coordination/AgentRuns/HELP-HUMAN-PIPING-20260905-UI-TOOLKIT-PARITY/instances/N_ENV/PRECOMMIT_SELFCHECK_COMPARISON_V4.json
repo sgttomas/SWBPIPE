@@ -1,0 +1,46 @@
+{
+  "comparison_basis": "PRECOMMIT self-check V2 clean portability baseline",
+  "baseline_counts": {
+    "REVIEW": 4,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "current_counts": {
+    "REVIEW": 6,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "new_findings": [
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/R_N7_UI_REPAIRS/HASH_VERIFICATION.json:2",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_PROJECT_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_IMPLEMENTATION_BRIEF_V9.md:5",
+      "detail": "SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `F3_IMPLEMENTATION_BRIEF_V9.md`) carries 1 machine-absolute-path hit line(s); first hit at line 5. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history."
+    }
+  ],
+  "resolved_findings": [],
+  "active_path_findings": [
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/R_N7_UI_REPAIRS/HASH_VERIFICATION.json:2",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_PROJECT_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_IMPLEMENTATION_BRIEF_V9.md:5",
+      "detail": "SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `F3_IMPLEMENTATION_BRIEF_V9.md`) carries 1 machine-absolute-path hit line(s); first hit at line 5. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history."
+    }
+  ]
+}

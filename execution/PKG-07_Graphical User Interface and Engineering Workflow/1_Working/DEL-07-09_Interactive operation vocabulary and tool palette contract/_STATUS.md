@@ -6,7 +6,9 @@
 ## Remaining
 
 - Production implementation remains outside DEL-07-09. Coverage work is governed by the accepted SCA-009 Vocabulary Annex and lands only in the deliverables named in its `Implementation lands in` column.
-- The selected normative-now rows in `Vocabulary_Coverage.csv` are landed and closed. Lifecycle review or promotion of DEL-07-09 itself remains separately human-gated; this evidence does not move its `OPEN` state.
+- Historical selected rows 14–16 retain their recorded landed/closed status. Lifecycle review or promotion of DEL-07-09 itself remains separately human-gated; current implementation evidence does not move its `OPEN` state.
+- Current reconciliation explicitly records all 24 NORMATIVE-NOW rows and R1–R3 with implemented UI routes, PKG-16 linkage and bounded residuals. Original historical cells for rows 14–16 are preserved; added current evidence is implementation/check evidence only, with final N7 integration review pending. D58 live provider and DEL-16-03 durable accepted-history residual remain held/open; R1–R3 remain deferred. No whole-toolkit or lifecycle closure is claimed.
+- N7 F1/F2/F3 current coverage amendment records canonical family mapping, shared duplicate-stiffness rejection and DOF-correct display readouts; original row14–16 historical cells remain unchanged. Postrepair desktop build / 43 files / 732 tests and host dist 1 test PASS; root N7 final rereview remains pending. See DEL-07-09 Palette_Operation_Routing.md N7 repair amendment; no lifecycle closure.
 
 ## History
 

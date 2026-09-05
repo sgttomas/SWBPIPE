@@ -1,0 +1,23 @@
+{
+  "status": "MODULE_ACCEPTED",
+  "source_manifest": {
+    "status": "FROZEN_FOR_PARENT_REVIEW",
+    "source_hashes": {
+      "projects/chirality-piping/.gitignore": "079332c953d0ace91358a348aa0a2820a0289640177760be54686f2a63b7513b",
+      "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.test.mjs": "12eff93bb013f9ec4fd259e03e192f0ac7e64a22b3260d0d162b13eda05603ff",
+      "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f",
+      "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef",
+      "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts": "ee78aa7e4cdfc2442fdc722b196e4c3a27597a6676feea895acaa5ca4f9fa17c",
+      "projects/chirality-piping/apps/desktop/src/services/operationBatchService.test.ts": "2c93b34ddbbaf6f985ac797cfb565d6e303cacc8b56215868b42b94057b012f1",
+      "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.test.ts": "9b7450d844ba10f5b6bd65f26ad8df331a9f9e10688007daa23397d776e8009b",
+      "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts": "edf3639fcdee2cc94acd2e7ac835186249613140eabd3e3d92d60542b3da1f1c",
+      "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.ts": "1dec75321e61ec9e713c47901f73131f3e1acc66c9036586fd5675f1aae9c943",
+      "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.test.ts": "85fb2e2b72c4c24338172e231b4531ac49bcdc1c5c8e10351fce57f92b30cc15"
+    }
+  },
+  "review": "children/R_T1_TRANSPORT/RETURN.md",
+  "checks": "children/T1_TRANSPORT/CHECKS.json",
+  "basis": "M_EXISTING001;N2C accepted service wire;N5selfweight accepted",
+  "remaining": "B0 integration;full final source review/tests;no lifecycle acceptance"
+}

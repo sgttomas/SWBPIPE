@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0.0",
+  "hanger_library": {
+    "library_id": "invented-library",
+    "name": "Invented selection contract",
+    "provenance": {
+      "source_name": "Invented contract example only",
+      "source_location": "user-imported local record",
+      "source_license": "invented test metadata only",
+      "contributor": "invented fixture",
+      "contributor_certification": "invented fixture; no catalog values",
+      "redistribution_status": "private_only",
+      "review_status": "not_reviewed"
+    }
+  },
+  "hanger_records": [
+    {
+      "hanger_id": "invented-variable",
+      "name": "Invented variable record",
+      "provenance": {
+        "source_name": "Invented contract example only",
+        "source_location": "user-imported local record",
+        "source_license": "invented test metadata only",
+        "contributor": "invented fixture",
+        "contributor_certification": "invented fixture; no catalog values",
+        "redistribution_status": "private_only",
+        "review_status": "not_reviewed"
+      },
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "source_reference": "invented-library/invented-variable",
+        "stiffness": {
+          "dof": "UY",
+          "value": {
+            "magnitude": 1000,
+            "unit": "N/m",
+            "dimension": "force_per_length",
+            "provenance": {
+              "source_name": "Invented contract example only",
+              "source_location": "user-imported local record",
+              "source_license": "invented test metadata only",
+              "contributor": "invented fixture",
+              "contributor_certification": "invented fixture; no catalog values",
+              "redistribution_status": "private_only",
+              "review_status": "not_reviewed"
+            }
+          }
+        },
+        "installed_load": {
+          "magnitude": 100,
+          "unit": "N",
+          "dimension": "force",
+          "provenance": {
+            "source_name": "Invented contract example only",
+            "source_location": "user-imported local record",
+            "source_license": "invented test metadata only",
+            "contributor": "invented fixture",
+            "contributor_certification": "invented fixture; no catalog values",
+            "redistribution_status": "private_only",
+            "review_status": "not_reviewed"
+          }
+        },
+        "cold_load": {
+          "magnitude": 100,
+          "unit": "N",
+          "dimension": "force",
+          "provenance": {
+            "source_name": "Invented contract example only",
+            "source_location": "user-imported local record",
+            "source_license": "invented test metadata only",
+            "contributor": "invented fixture",
+            "contributor_certification": "invented fixture; no catalog values",
+            "redistribution_status": "private_only",
+            "review_status": "not_reviewed"
+          }
+        },
+        "hot_load": {
+          "magnitude": 110,
+          "unit": "N",
+          "dimension": "force",
+          "provenance": {
+            "source_name": "Invented contract example only",
+            "source_location": "user-imported local record",
+            "source_license": "invented test metadata only",
+            "contributor": "invented fixture",
+            "contributor_certification": "invented fixture; no catalog values",
+            "redistribution_status": "private_only",
+            "review_status": "not_reviewed"
+          }
+        },
+        "travel_range": {
+          "magnitude": 0.01,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "Invented contract example only",
+            "source_location": "user-imported local record",
+            "source_license": "invented test metadata only",
+            "contributor": "invented fixture",
+            "contributor_certification": "invented fixture; no catalog values",
+            "redistribution_status": "private_only",
+            "review_status": "not_reviewed"
+          }
+        }
+      }
+    }
+  ]
+}

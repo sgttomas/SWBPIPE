@@ -1,0 +1,10 @@
+{
+  "status": "VERIFIED_PARENT_V9_RELEASE",
+  "n7_review_sha256": "6f4f98f86d754ef8e8138408ee5e63b02e80a13106f866e37422a7815f6c55ba",
+  "source_hashes": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345"
+  },
+  "new_test_path": "projects/chirality-piping/core/model_operations/operation_applier/tests/support_authoring_conflicts.rs",
+  "test_predecessor": "absent",
+  "plan_sha256": "6764dd65a73eaa7cb4371f146431895d9fab3e6b8512843a5104e0685e2c8179"
+}

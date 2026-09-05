@@ -1,0 +1,13 @@
+{
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/BOUNDARY_CONTEXT_DESIGN.md": "b201f31da3639299bbe7066792e87fc651f5c4dadf52ed407dca7e791e385ffd",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/STAGE_C_MODULE_PLAN.md": "4779abb3acf83d6f6ea3f174497d43e9a62342e654054c9969dbbea6e7b73508",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/PRIVATE_BATCH_CONTEXT_API.md": "c2497e4ee6290f67ea1f06ec3981c94a5180056a784381009134c8428e0cd46b",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B4_BATCH_DESIGN_V3.md": "bc09cd34dba74baee8730dd88a17de331f3c16904ec5a3f0446ae5c340942df5",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/BOUNDARY_WIRE_CONTRACT_FROZEN_V1.md": "d426726c418da1798534d1194e001f378001995d2273163a0451cf12e74a5064",
+  "core/model_operations/operation_applier/src/lib.rs": "f08f76bd8cbc7fc4bad5d4fa9879ca132356bfe15e96813ffa2de6b5272b2612",
+  "schemas/model.schema.yaml": "a47b00e0f93c915da49657057261b6903ea1eb9f091adaf555cae312bbe01b6c",
+  "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md": "8d18e255ac56e0f713ac5dda24e9e74a4ac7f03fa59e1f5653345df49deff4cd",
+  "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/ScopeOfWork.md": "b4a4f0b163f1032fcdd16b679c07836387c382ed6b95a52ad7fabe26c3b5db2a",
+  "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md": "18de954191934d4fe7cfb1d4d9b58c322c478bab4161a7e103553609f7afafd5",
+  "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/ScopeOfWork.md": "ddada32fd505be275bcae8cefb7e5057ea78523c40e663ec9b93cd558a60e59f"
+}

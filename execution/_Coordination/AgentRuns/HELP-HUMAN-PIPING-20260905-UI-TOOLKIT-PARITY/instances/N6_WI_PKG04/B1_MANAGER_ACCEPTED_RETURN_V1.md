@@ -1,0 +1,11 @@
+# B1 manager accepted bounded return
+
+Verdict: ACCEPTED_BOUNDED_IMPLEMENTATION / source fence RELEASED to HELP_HUMAN. Scope PKG04 DEL0403, existing row2/B2 explicit anchor subset adapter repair. No row21 boundary implementation, package/lifecycle/publish closure.
+
+Accepted upstream: N3 SECTION_ACCEPTED_SNAPSHOT_V1.json, source SHA89607dac35257329bcc58041cfb62407b537b3cdbb28a61efe82f02544ddb9af; decomposition0.12/SCA009/DAG010 parent basis. Output source SHAeacdc9d80084ca87f20998bd2f4dc689438750d74306c8e518b57509bc826338. B1 child reverified predecessor, changed one production branch and added four tests only, preserving N3 Section code. Fresh independent R_B1 reviewer checked100% narrow patch, reconstructed hashes/current source, and returned PASS without actionable findings. Manager inspected complete patch, tests, child returns and live hash and accepts this bounded fan-in.
+
+Four focused tests and full112 crate tests passed, zero failures. Tests establish RX-only constraint, mixed UX+RZ plus separate UY spring, exact free DOFs/spring diagonal, all-six and prior family fallbacks. No solver equations, boundary metadata, operation or UI changes. RUNTIME_SUMMARY_B1_V1.json PASS records actual execution/review and prior design reviews, with runtime model/token limitations explicit. No repeated test run was needed after frozen-source independent review.
+
+Outputs are frozen derivative implementation/review evidence, not replacement decomposition truth. B1_ACCEPTED_SNAPSHOT_V1.json pins source, patch, checks/review and manager return. No mutable upstream pointer updated. Registered broad evidence-sweep/piping-pytest/harness-self-check remain parent integrated fan-in, explicitly deferred from this bounded child. No lifecycle state change. Rerun/review if source changes.
+
+Remaining row21 obligations: durable boundary association contract, canonical N2 atomic batch, N1 form wiring and persistence/operation-to-preview coverage. Contracts available at BOUNDARY_WIRE_CONTRACT_FROZEN_V1.md; implementation still held until parent phase release. Local/coupled equipment mechanics and PCF nozzle semantics remain unsupported. Next owner HELP_HUMAN assigns shared source ownership and continues parallel package fan-in. N6 performs no further product_physics writes without new release.

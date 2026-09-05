@@ -1,0 +1,17 @@
+{
+  "status": "PORTABLE_ACTIVE_CONTROL_WITH_EXACT_ENCODED_ORIGINAL",
+  "logical_original_path": "HASH_VERIFICATION.json",
+  "original_sha256": "7b7ab54b7793801fc9007f370e6c831956fc98f46c9b142f49960cb12dea69c0",
+  "encoded_original": "_run_records/HASH_VERIFICATION.original.b64",
+  "encoded_sha256": "1c5d36a0bdd3b2b6702c0307a78453ed13ac61bffadd5863d4f71ba488fbb1a4",
+  "encoding": "base64; decoded bytes are exact original",
+  "active_path": "HASH_VERIFICATION.json",
+  "active_sha256": "6656731c1ab2064416297c71666a236d5a01c6c2cd09f24db536d03ef6950eed",
+  "changes": {
+    "repo_root": "{REPO_ROOT}",
+    "working_root": "{WORKING_ROOT}"
+  },
+  "unchanged_fields": "all file/hash/review results byte-equivalent as parsed values",
+  "snapshot_compatibility": "Earlier bindings to logical original path and original_sha256 resolve via decoded encoded_original; no earlier snapshot rewritten",
+  "source_changes": false
+}

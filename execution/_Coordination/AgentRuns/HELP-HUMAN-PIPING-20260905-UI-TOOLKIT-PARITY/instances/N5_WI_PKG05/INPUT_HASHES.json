@@ -1,0 +1,8 @@
+{
+  "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+  "agents/AGENT_WORKING_ITEMS.md": "57ec736545a843a671111ad86b858ed964675a4a4a6ef49e9bfce759b1ab44d1",
+  "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+  "projects/chirality-piping/software-workflow.json": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+  "projects/chirality-piping/core/product_physics/src/lib.rs": "d34f77889aabc5e0891122ba2e9261d3d5f6a9f2255d50c42e08f2ac8806fc32",
+  "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "13246f843fa9673b2de3fe8758695672d974f91bdd9be03e2e8b0698247f5bc8"
+}

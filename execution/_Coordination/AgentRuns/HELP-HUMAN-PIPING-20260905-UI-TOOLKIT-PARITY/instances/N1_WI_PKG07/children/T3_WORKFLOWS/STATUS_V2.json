@@ -1,0 +1,8 @@
+{
+  "status": "V2_AMENDMENT_RETURNED_PENDING_PARENT_REVIEW",
+  "source_manifest": "SOURCE_MANIFEST_V2.json",
+  "checks": "CHECKS_V2.json",
+  "return": "RETURN_V2.md",
+  "parent": "/root/wi_pkg07",
+  "new_api_or_semantics": false
+}

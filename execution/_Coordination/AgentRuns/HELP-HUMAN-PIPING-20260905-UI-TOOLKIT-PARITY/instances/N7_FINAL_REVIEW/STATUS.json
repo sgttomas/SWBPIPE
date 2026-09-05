@@ -1,0 +1,42 @@
+{
+  "run_status": "SUCCESS",
+  "review_verdict": "CHANGES_REQUIRED",
+  "review_phase_complete": true,
+  "coverage": {
+    "declared": 108,
+    "reviewed": 108,
+    "percent": 100,
+    "unreviewed": []
+  },
+  "findings": [
+    {
+      "id": "N7-F1",
+      "priority": 1,
+      "owner": "N2 PKG16",
+      "title": "Conflicting duplicate stiffness silently accepted"
+    },
+    {
+      "id": "N7-F2",
+      "priority": 2,
+      "owner": "N1 PKG07",
+      "title": "Rotational stiffness readout mislabeled linear"
+    },
+    {
+      "id": "N7-F3",
+      "priority": 1,
+      "owner": "N1 UI / N2 operations / N6 physics",
+      "title": "New named-family tokens collapse through fallback"
+    }
+  ],
+  "source_hashes_unchanged": true,
+  "source_drift": [],
+  "review_return": "REVIEW_RETURN.md",
+  "source_after_sha256": "328a8a014823cff83102766d13a1d5dc12e7f846c0fa9bf49ad9872e32ae7da1",
+  "model": "unavailable/inherited",
+  "nondelegation": "instruction+config asserted",
+  "derivative_status": "review evidence, not decomposition authority",
+  "product_acceptance": false,
+  "lifecycle": "unchanged",
+  "rerun": "Owner repairs, fresh source freeze, affected checks and independent review",
+  "finish_utc": "2026-09-05T05:39:15.457227+00:00"
+}

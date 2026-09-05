@@ -1,0 +1,17 @@
+{
+  "status": "SOURCE_FROZEN_PENDING_REAL_ENGINE_GATE",
+  "source_hashes": {
+    "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6",
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx": "e333e02ae533b050f235a83a16b3b08e7fb4ccd53d0f92cd18b7df73c87cc1d2",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx": "960b157bad9b78bf50ec0b8161aa653634b73689648c5e344270d0de29034c78",
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+  },
+  "brief_hashes": {
+    "N7_F3_RELEASE_V9.md": "24ae53c0cf9932f5e1b1bd1b87e8410b2316ddc11a17c20296ed506ddda4f1e2",
+    "N7_F3_BRIEF_HELD.md": "6a10eed105204cbb4a146212e8ae4ad088c8c849f419f5dea2d45d48ed2a713b",
+    "N7_F3_AMENDMENT_V9A.md": "e9d9ba4661252df70229ba85f5bc06113d32be3d9b7b99eee95700483e7c19be"
+  },
+  "mock_check": "F3_MOCK_TESTS_V2.txt; 19 passed",
+  "actual_engine": "NOT_RUN_WAITING_PARENT_ACCEPTED_REBUILD",
+  "physics": "separate N6 evidence required; not executed by UI tests"
+}

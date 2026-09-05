@@ -1,0 +1,25 @@
+[
+  {
+    "attempt": 1,
+    "category": null,
+    "deliverable_id": null,
+    "detail": "Late ledger attribution recorded after received review finish; not measured launch time; actual child launch governed by RC_BRIEF.",
+    "event_id": "RC_START_LATE",
+    "event_type": "START",
+    "instance_id": "RC_REVIEW",
+    "outcome": "STARTED",
+    "package_id": "PKG-16",
+    "reason_code": null,
+    "role": "TASK",
+    "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+    "schema": "chirality-runtime-event/v1",
+    "session_id": "stage_c_review",
+    "telemetry": {
+      "context_limit": null,
+      "context_tokens": null,
+      "input_tokens": null,
+      "output_tokens": null
+    },
+    "timestamp": "2026-09-05T04:32:57.613Z"
+  }
+]

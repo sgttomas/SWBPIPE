@@ -1,0 +1,171 @@
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { DisplayUnitsProvider, DisplayUnitSelector } from "../display-units";
+import { PropertyInspector } from "../model-tree/PropertyInspector";
+import { ModelTree } from "../model-tree/ModelTree";
+import { PipeViewport, buildDeformationOverlay } from "../viewport/PipeViewport";
+import { selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
+import { loadPreviewModel } from "../../services/previewService";
+import { computeModelHash } from "../../services/hashService";
+
+describe("typed model display integration", () => {
+  it("keeps typed node coordinate source units and the legacy property text aligned", async () => {
+    const model = await loadPreviewModel();
+    model.project.units.length = "mm";
+    model.nodes[0].position.x = 1250;
+    const selection = { type: "node" as const, id: model.nodes[0].id };
+    const row = selectedPropertyRows(model, selection).find(([label]) => label === "Position")![1];
+    expect(row.quantities?.[0]).toEqual({ value: 1250, unit: "mm", dimension_id: "length", label: "x" });
+    expect(selectedProperties(model, selection).find(([label]) => label === "Position")?.[1]).toBe(row.text);
+  });
+
+  it("converts actual inspector and grid readouts through Rust while preserving original model, hash and typed drafts", async () => {
+    const model = await loadPreviewModel();
+    model.nodes[0].position.x = 1;
+    const exact = JSON.stringify(model);
+    const hash = await computeModelHash(model);
+    const selection = { type: "node" as const, id: model.nodes[0].id };
+    render(<DisplayUnitsProvider><DisplayUnitSelector /><PropertyInspector model={model} selection={selection} onQueueIntent={vi.fn()} /><ModelTree model={model} selection={selection} onQueueIntent={vi.fn()} onSelect={vi.fn()} /></DisplayUnitsProvider>);
+    fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: "position.x" } });
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    const draft = screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`);
+    fireEvent.change(draft, { target: { value: "2.3450" } });
+    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
+    const position = screen.getByText("Position").parentElement!;
+    await waitFor(() => expect(position.querySelector('[data-display-status="converted"]')).not.toBeNull());
+    expect(position).toHaveTextContent("in");
+    expect(draft).toHaveValue("2.3450");
+    expect(screen.getByTestId("editor-intent-value")).toHaveValue("1");
+    expect(JSON.stringify(model)).toBe(exact);
+    expect((await computeModelHash(model))?.value).toBe(hash?.value);
+    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "entered" } });
+    expect(position).toHaveTextContent("x=1 m");
+    expect(draft).toHaveValue("2.3450");
+  });
+
+  it("retains deformation geometry while converting only the viewport scale readout", async () => {
+    const model = await loadPreviewModel();
+    const before = buildDeformationOverlay(model, null);
+    render(<DisplayUnitsProvider initialPreference="US"><PipeViewport model={model} selection={{ type: "project", id: model.project.id }} onSelect={vi.fn()} /></DisplayUnitsProvider>);
+    const scale = screen.getByTestId("viewport-scale-bar");
+    await waitFor(() => expect(scale.querySelector('[data-display-status="converted"]')).not.toBeNull());
+    expect(scale).toHaveTextContent("in");
+    expect(buildDeformationOverlay(model, null)).toEqual(before);
+  });
+});
+
+describe("support stiffness dimensional presentation (N7 F2)", () => {
+  const dofs = ["UX", "UY", "UZ", "RX", "RY", "RZ"] as const;
+  const cases = (["top", "hanger"] as const).flatMap(source => dofs.flatMap(dof =>
+    [dof, dof[0] + dof[1].toLowerCase(), dof.toLowerCase()].map(alias => ({
+      source, dof: alias, rotational: dof.startsWith("R")
+    }))
+  ));
+
+  it.each(cases)("retains $source $dof quantity and selects its explicit dimension", async ({ source, dof, rotational }) => {
+    const model = await loadPreviewModel();
+    const support = model.supports[0];
+    delete support.stiffness;
+    delete support.hanger;
+    delete support.properties;
+    const quantity = { value: 123.45, unit: rotational ? "N*m/rad" : "N/m" };
+    const stiffness = { dof, value: quantity };
+    if (source === "top") support.stiffness = stiffness;
+    else support.hanger = { stiffness };
+    const exact = JSON.stringify(model);
+    const selection = { type: "support" as const, id: support.id };
+    const label = rotational ? "Rotational stiffness" : "Linear stiffness";
+    const property = selectedPropertyRows(model, selection).find(([name]) => name === label)![1];
+    expect(property.quantities).toEqual([{ ...quantity, dimension_id: rotational ? "rotational_stiffness" : "linear_stiffness" }]);
+    expect(selectedProperties(model, selection).find(([name]) => name === label)?.[1]).toBe(property.text);
+    expect(JSON.stringify(model)).toBe(exact);
+  });
+
+  it("preserves top-level then hanger precedence, and only then the legacy linear field", async () => {
+    const model = await loadPreviewModel();
+    const support = model.supports[0];
+    support.stiffness = { dof: "Rx", value: { value: 12, unit: "N*m/rad" } };
+    support.hanger = { stiffness: { dof: "ux", value: { value: 34, unit: "N/m" } } };
+    support.properties = { linear_stiffness: { value: 56, unit: "N/m" } };
+    const selection = { type: "support" as const, id: support.id };
+    const stiffnessRows = () => selectedPropertyRows(model, selection).filter(([label]) => /stiffness/i.test(label));
+    expect(stiffnessRows()).toEqual([["Rotational stiffness", { text: "12 N*m/rad", quantities: [{ value: 12, unit: "N*m/rad", dimension_id: "rotational_stiffness" }] }]]);
+    delete support.stiffness;
+    expect(stiffnessRows()[0][1].quantities).toEqual([{ value: 34, unit: "N/m", dimension_id: "linear_stiffness" }]);
+    delete support.hanger;
+    expect(stiffnessRows()).toEqual([["Linear stiffness", { text: "56 N/m", quantities: [{ value: 56, unit: "N/m", dimension_id: "linear_stiffness" }] }]]);
+    delete support.properties;
+    expect(stiffnessRows()).toEqual([]);
+  });
+
+  it.each(["unknown", " RX", "rx ", "rX", "uX", "RXX"])("does not guess or normalize unsupported DOF %j", async dof => {
+    const model = await loadPreviewModel();
+    const support = model.supports[0];
+    support.stiffness = { dof, value: { value: 12, unit: "N*m/rad" } };
+    support.hanger = { stiffness: { dof: "UX", value: { value: 34, unit: "N/m" } } };
+    support.properties = { linear_stiffness: { value: 56, unit: "N/m" } };
+    const exact = JSON.stringify(model);
+    const rows = selectedPropertyRows(model, { type: "support", id: support.id });
+    expect(rows.find(([label]) => label === "Stiffness")?.[1].quantities).toEqual([{ value: 12, unit: "N*m/rad", dimension_id: "unknown" }]);
+    expect(rows.some(([label]) => label === "Linear stiffness" || label === "Rotational stiffness")).toBe(false);
+    expect(JSON.stringify(model)).toBe(exact);
+  });
+
+  it.each(["top", "hanger"] as const)("converts $0 rotational SI through Rust and shows honest US fallback without changing entered drafts", async source => {
+    const model = await loadPreviewModel();
+    const support = model.supports[0];
+    delete support.stiffness;
+    delete support.hanger;
+    const stiffness = { dof: "rz", value: { value: 123.45, unit: "N*m/rad" } };
+    if (source === "top") support.stiffness = stiffness;
+    else support.hanger = { stiffness };
+    const exact = JSON.stringify(model);
+    const hash = await computeModelHash(model);
+    render(<DisplayUnitsProvider><DisplayUnitSelector /><PropertyInspector model={model} selection={{ type: "support", id: support.id }} onQueueIntent={vi.fn()} /></DisplayUnitsProvider>);
+    const row = screen.getByText("Rotational stiffness", { selector: "dt" }).parentElement!;
+    const quantityPrefix = source === "top" ? "Support stiffness" : "Hanger stiffness";
+    const draft = screen.getByLabelText(`${quantityPrefix} quantity value`);
+    const unit = screen.getByLabelText(`${quantityPrefix} quantity unit`);
+    fireEvent.change(draft, { target: { value: "987.6500" } });
+    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "SI" } });
+    await waitFor(() => expect(row.querySelector('[data-display-status="converted"]')).not.toBeNull());
+    expect(row).toHaveTextContent("123.45 N*m/rad");
+    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
+    expect(row.querySelector('[data-display-status="unavailable"]')).not.toBeNull();
+    expect(row).toHaveTextContent("123.45 N*m/rad");
+    expect(row).toHaveTextContent("no US catalog target for rotational_stiffness");
+    expect(draft).toHaveValue("987.6500");
+    expect(unit).toHaveValue("N*m/rad");
+    expect(JSON.stringify(model)).toBe(exact);
+    expect((await computeModelHash(model))?.value).toBe(hash?.value);
+  });
+
+  it.each(["top", "hanger"] as const)("converts $0 translational US stiffness through Rust", async source => {
+    const model = await loadPreviewModel();
+    const support = model.supports[0];
+    delete support.stiffness;
+    delete support.hanger;
+    const stiffness = { dof: "Uy", value: { value: 1000, unit: "N/m" } };
+    if (source === "top") support.stiffness = stiffness;
+    else support.hanger = { stiffness };
+    const exact = JSON.stringify(model);
+    const hash = await computeModelHash(model);
+    render(<DisplayUnitsProvider initialPreference="US"><PropertyInspector model={model} selection={{ type: "support", id: support.id }} onQueueIntent={vi.fn()} /></DisplayUnitsProvider>);
+    const row = screen.getByText("Linear stiffness", { selector: "dt" }).parentElement!;
+    await waitFor(() => expect(row.querySelector('[data-display-status="converted"]')).not.toBeNull());
+    expect(row).toHaveTextContent("lbf/in");
+    expect(row).not.toHaveTextContent("1000 N/m");
+    expect(JSON.stringify(model)).toBe(exact);
+    expect((await computeModelHash(model))?.value).toBe(hash?.value);
+  });
+
+  it("shows neutral unknown-DOF entered fallback in the real inspector", async () => {
+    const model = await loadPreviewModel();
+    model.supports[0].stiffness = { dof: " RX", value: { value: 7, unit: "N*m/rad" } };
+    render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "support", id: model.supports[0].id }} onQueueIntent={vi.fn()} /></DisplayUnitsProvider>);
+    const row = screen.getByText("Stiffness", { selector: "dt" }).parentElement!;
+    expect(row.querySelector('[data-display-status="unavailable"]')).not.toBeNull();
+    expect(row).toHaveTextContent("7 N*m/rad");
+    expect(row).toHaveTextContent("no SI catalog target for unknown");
+  });
+});

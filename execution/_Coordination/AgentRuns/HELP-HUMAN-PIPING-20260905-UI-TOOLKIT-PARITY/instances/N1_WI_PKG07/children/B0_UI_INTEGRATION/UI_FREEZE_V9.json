@@ -1,0 +1,28 @@
+{
+  "status": "CHECKS_PASS_REVIEW_PENDING",
+  "source_count": 66,
+  "native_read_only_dependencies": 3,
+  "source_manifest": "SOURCE_HASHES_V9.json",
+  "source_manifest_sha256": "bbe4540585ed5e1b5bbad0732b7ce35d8b9afd440e0e31e34f905e02aa61baf7",
+  "full_diff": "diff-v9-integrated.patch",
+  "full_diff_sha256": "5dc4f8d39197ff7253a2b58d8a33c0be5cb76296491cf5b1ba79e34769321161",
+  "source_snapshot": "SOURCE_SNAPSHOT_V9",
+  "final_checks": "CHECKS_V9_TERMINAL.json",
+  "after_state": "V9_VERIFICATION_AFTER.json",
+  "accepted_six_repair_sources": {
+    "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2",
+    "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6",
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx": "e333e02ae533b050f235a83a16b3b08e7fb4ccd53d0f92cd18b7df73c87cc1d2",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx": "960b157bad9b78bf50ec0b8161aa653634b73689648c5e344270d0de29034c78",
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+  },
+  "basis": [
+    "N7_UI_REPAIR_SOURCE_ACCEPTED_V1.json",
+    "B2_RICH_FORMS/F3_ACTUAL_ENGINE_GATE.json",
+    "N2_WI_PKG16/F_DUAL_BUILD_ACCEPTED_SNAPSHOT_V1.json",
+    "N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json",
+    "UI_FREEZE_V5.json and earlier accepted T1/T2/T3/T4 module snapshots"
+  ],
+  "remaining": "Root N7 integrated final rereview and parent fan-in; no lifecycle/DEC025/Git changes."
+}

@@ -1,0 +1,41 @@
+{
+  "status": "BOUNDED_RENDERER_SOURCE_ACCEPTED",
+  "source_manifest": {
+    "baseline": "740569598f9d00440636b8ea25264127f418e4ec",
+    "handoff_preimage": "RENDERER_HANDOFF_PREIMAGE_V3.json",
+    "files": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+        "sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+        "sha256": "546c1acf201288293c8f9f5f2b385bfee5207585279d1b4f97499755aefc8185"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+        "sha256": "85f0635bf155aefe7cade9176a4efb6f088babbb9610a061fd6fb7c6fee4ce11"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+        "sha256": "c752935edf4268f05adedc29a8f1047241c0cb498f8dd44144eeec657f637c1b"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+        "sha256": "afd74a1ed5d4fde16f806863c2baa3da3a874c1b4f6455f51aad40c5614d0796"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+        "sha256": "0bc6054b86ab3031b7dc8cf806aa2a7b298d33e394711e279bfc9619aa3e7108"
+      }
+    ]
+  },
+  "review": "children/R_T4_DISPLAY/RENDERER_RETURN_V3.md",
+  "review_sha256": "b5de654d546496084e5a32fc05f6dbd2b1a2475e7c59583f806c251b6f2bc64b",
+  "tests": "22 focused tests and TypeScript PASS",
+  "remaining": [
+    "App ComparisonPanel result binding and coverage",
+    "final integrated review/browser/full tests"
+  ],
+  "derivative_status": "implementation evidence, not lifecycle acceptance"
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "piping.phase-evidence/v1",
+  "status": "derivative_candidate_with_refutation_repaired",
+  "base_commit": "740569598f9d00440636b8ea25264127f418e4ec",
+  "role_enforcement": "instruction-asserted",
+  "model": "unknown",
+  "files": {
+    "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+    "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+    "projects/chirality-piping/execution/_DAG/_LATEST.md": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+    "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd",
+    "projects/chirality-piping/docs/CONTRACT.md": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/ScopeOfWork.md": "4c6d733a0d3b89c548c9021241c65793167856d5b78e67682cd646dc5a57bb9e",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_CONTEXT.md": "12194234d5714034b1e453c9265c09406b9316a9653a2e352c2876e5a97c9779",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_STATUS.md": "ad25f11de8d9b763b9cef831ec27afa4f0f25b6a0bd89c1df2653f2522628374",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_REFERENCES.md": "07abbf0cbc0839e6055816597d6845c71c124dfc27674a15b5720ab604499c6d",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/ScopeOfWork.md": "d84a099a6b003774f4b28fb6bb64c7b0180ac06a965208e8441fd8a4ff79d48d",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_CONTEXT.md": "958786c78352e931527a0fb0512555a9403db9f9f9121ae925b4ba9af0d09d37",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_STATUS.md": "cce11d12cb8d9ef5eb003fc3c0bea503bca7aff1585d57b629f3f59f074d3291",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_REFERENCES.md": "41b3ee3b880168a2bbe3113b28a935f86fc5cc8241773c94c757a4a3a4614048",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/ScopeOfWork.md": "21a33345272c080cea7a7777b15e37a66b9caefe45d24229e9e0fd7971794800",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_CONTEXT.md": "d4b56c4216607feedd3c8aca32200a042cc33f61f431dd795233ae708bf68f5c",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_STATUS.md": "ac39ebd1f5de80e53aac5ebc37f6a2f17b70aaad62366ef814c0f278a25b14c8",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_REFERENCES.md": "06af4f358bbf7de7b419d1d2a035eee6f843155e10535870b6e21e7c5a60ab45",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/PHASE_A_CANDIDATE_V2.md": "a59c715476bc6efb45a540405545eeddbf52239685e33678e4a5b41bc9372d33",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/ROW17_CANDIDATE_V2.md": "f33b4d5c0e6ebd3e00cccaa59651e9d57e95839ecbab497598383e1894770b68",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/DISPLAY_API_CANDIDATE_V2.md": "dab5efdd4f0b91a149eb2ab83d05e75cd18e54426b2fec03e37bf4e8c75b48df",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/REFUTATION_V1.md": "d8f21786b04fd45f332de9b729d8060916bd0ecaf8630c06bf2154a8174adda6"
+  }
+}

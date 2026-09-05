@@ -1,0 +1,42 @@
+{
+  "status": "complete",
+  "finished_at": "2026-09-05T03:48:01.524439+00:00",
+  "result": "Dependencies ready; browser execution requires sandbox escalation",
+  "node": "24.18.0",
+  "npm": "11.16.0",
+  "vitest": "4.1.10",
+  "playwright": "1.60.0",
+  "wasm_bindgen": "0.2.123",
+  "python": "3.13.14",
+  "python_bin": "{PIPING_UI_PARITY_PYTHON_ENV}/bin/python3",
+  "python_versions": {
+    "pytest": "9.1.1",
+    "pytest-xdist": "3.8.0",
+    "jsonschema": "4.26.0",
+    "coverage": "7.15.3",
+    "pyyaml": "6.0.3"
+  },
+  "cargo_target_dir": "{PIPING_UI_PARITY_CARGO_TARGET}",
+  "checks": [
+    "locked npm ci: pass, 206 packages",
+    "esbuild transform: pass",
+    "existing npm run build:wasm:desktop: pass",
+    "Python dependency metadata: exact requirements installed",
+    "Playwright Chromium 1223: cached, executable exists"
+  ],
+  "limitations": [
+    "Browser launch in sandbox fails macOS MachPortRendezvousServer bootstrap_check_in permission denied 1100; final Playwright run requires exact command sandbox escalation",
+    "Wasm artifact reflects source at build time; rebuild after engine edits",
+    "No full suites run per parent brief"
+  ],
+  "source_or_lockfile_edits": false,
+  "package_lock_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+  "record_revision": 2,
+  "runtime_anchors": {
+    "WORKING_ROOT": "{REPO_ROOT}/projects/chirality-piping",
+    "PIPING_UI_PARITY_PYTHON_ENV": "Existing task Python environment: system temporary-directory child piping-ui-parity-py313; concrete provisioning path retained in _run_records/environment_return_v1.json",
+    "PIPING_UI_PARITY_CARGO_TARGET": "Existing task Cargo target directory: system temporary-directory child piping-ui-parity-target; concrete provisioning path retained in _run_records/environment_return_v1.json"
+  },
+  "supersedes": "_run_records/environment_return_v1.json",
+  "amendment": "Portability-only refresh; original observed paths and original bytes retained in structural historical evidence. No dependency outcome changed."
+}

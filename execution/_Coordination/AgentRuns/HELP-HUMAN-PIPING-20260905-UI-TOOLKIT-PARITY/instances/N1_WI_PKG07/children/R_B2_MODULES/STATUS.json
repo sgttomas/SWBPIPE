@@ -1,0 +1,27 @@
+{
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "child_instance": "R_B2_MODULES",
+  "parent": "N1_WI_PKG07",
+  "reviewed_source_hashes": {
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx": "60454a2336f6f3695b128c4f1392b5f50216aa8c618a17b423218a5a3eb7f078",
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx": "15929b1f8e4670d66449cd5e90e32d5c38ded407fa2755c7f1f16ab9ec111665",
+    "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx": "052c5f7e621cf22263d735f9447d068092321bd13ab4714eabe5df5be5da91a2",
+    "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e",
+    "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx": "0a8727bb7d4bb034d6214de114adac85d5d6bc91d6f3821518f6455900562972"
+  },
+  "review_coverage": "100% of five frozen source/test files",
+  "actionable_findings": [],
+  "product_writes": false,
+  "tests_rerun": false,
+  "runtime": "delegated-harness-native",
+  "nondelegation": "instruction+config asserted",
+  "model": "inherited; exact identifier unavailable",
+  "derivative_status": "bounded review evidence; not decomposition or lifecycle authority",
+  "remaining": [
+    "B0 integration and audit remediation",
+    "real-engine apply verification",
+    "M_EXISTING/final full frozen-diff review"
+  ],
+  "completed_at": "2026-09-05T04:13:57.471393+00:00"
+}

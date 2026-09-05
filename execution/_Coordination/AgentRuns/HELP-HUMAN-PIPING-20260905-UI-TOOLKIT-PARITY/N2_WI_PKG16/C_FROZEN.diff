@@ -1,0 +1,1797 @@
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock b/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock
+index f2278d562..a553fefa3 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock
++++ b/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock
+@@ -2286,6 +2286,16 @@ dependencies = [
+ name = "open_pipe_stress_rule_pack_lifecycle"
+ version = "0.1.0"
+ 
++[[package]]
++name = "open_pipe_stress_self_weight_wasm"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_canonical_json",
++ "open_pipe_stress_product_physics",
++ "serde_json",
++ "sha2",
++]
++
+ [[package]]
+ name = "open_pipe_stress_solver_diagnostics"
+ version = "0.1.0"
+@@ -2333,6 +2343,7 @@ dependencies = [
+  "open_pipe_stress_result_export",
+  "open_pipe_stress_rule_check_runner",
+  "open_pipe_stress_rule_pack_document",
++ "open_pipe_stress_self_weight_wasm",
+  "open_pipe_stress_units",
+  "rusqlite",
+  "serde",
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml b/projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml
+index 24b840729..01c417919 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml
++++ b/projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml
+@@ -14,6 +14,7 @@ tauri-build = { version = "2", features = [] }
+ 
+ [dependencies]
+ open_pipe_stress_product_physics = { path = "../../../core/product_physics" }
++open_pipe_stress_self_weight_wasm = { path = "../../../core/loads/self_weight_wasm" }
+ open_pipe_stress_operation_applier = { path = "../../../core/model_operations/operation_applier" }
+ open_pipe_stress_library_import_document = { path = "../../../core/library_import/library_import_document" }
+ open_pipe_stress_report_renderer = { path = "../../../core/reporting/report_renderer" }
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+index 8c18e2103..c0af813a5 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
++++ b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+@@ -1870,6 +1870,26 @@ fn apply_model_operation(
+     serde_json::to_value(outcome).map_err(|error| error.to_string())
+ }
+ 
++#[tauri::command]
++fn generate_self_weight_operation_plan(model: Value, request: Value) -> Value {
++    open_pipe_stress_self_weight_wasm::generate_plan(&model, &request)
++}
++
++#[tauri::command]
++fn validate_model_operation_batch(model: Value, batch: Value, claimed_model_hash: Option<Value>) -> Value {
++    open_pipe_stress_operation_applier::validate_operation_batch(&model, &batch, claimed_model_hash.as_ref())
++}
++
++#[tauri::command]
++fn apply_model_operation_batch(model: Value, batch: Value, claimed_model_hash: Option<Value>) -> Value {
++    open_pipe_stress_operation_applier::apply_operation_batch(&model, &batch, claimed_model_hash.as_ref())
++}
++
++#[tauri::command]
++fn convert_display_quantities(input: Value) -> Value {
++    open_pipe_stress_operation_applier::convert_display_quantities(&input)
++}
++
+ #[tauri::command]
+ fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, String> {
+     let path = app_store_path(&app)?;
+@@ -3865,7 +3885,11 @@ pub fn run() {
+             sample_agent_proposal,
+             validate_model_operation,
+             apply_model_operation,
++            validate_model_operation_batch,
++            generate_self_weight_operation_plan,
++            apply_model_operation_batch,
+             get_unit_catalog,
++            convert_display_quantities,
+             get_local_storage_capability,
+             create_local_project,
+             open_local_project,
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs b/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
+index 96cfedd2b..0afd2622b 100644
+--- a/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
++++ b/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
+@@ -19,6 +19,15 @@ use serde::Serialize;
+ use serde_json::{Number, Value};
+ use sha2::{Digest, Sha256};
+ 
++mod atomic_batch;
++mod boundary_association;
++mod display_units;
++mod geometry_operations;
++mod rich_authoring;
++mod section_bindings;
++pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
++pub use display_units::convert_display_quantities;
++
+ pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
+ pub const OUTCOME_DOCUMENT_KIND: &str = "openpipestress.desktop.operation_outcome";
+ /// Canonicalization label carried in hash evidence. True RFC 8785 (JCS)
+@@ -296,6 +305,34 @@ const DEFERRED_FIELDS: [(&str, &str, &str); 2] = [
+ 
+ fn field_rules(object_type: &str) -> &'static [FieldRule] {
+     match object_type {
++        "Section" => &[
++            FieldRule {
++                field_path: "name",
++                kind: FieldKind::Text,
++            },
++            FieldRule {
++                field_path: "section_type",
++                kind: FieldKind::Text,
++            },
++            FieldRule {
++                field_path: "provenance",
++                kind: FieldKind::Text,
++            },
++            FieldRule {
++                field_path: "properties.outside_diameter.value",
++                kind: FieldKind::Quantity {
++                    require_positive: true,
++                    unit_source: UnitSource::SiblingUnitField,
++                },
++            },
++            FieldRule {
++                field_path: "properties.wall_thickness.value",
++                kind: FieldKind::Quantity {
++                    require_positive: true,
++                    unit_source: UnitSource::SiblingUnitField,
++                },
++            },
++        ],
+         "Material" => &[
+             FieldRule {
+                 field_path: "label",
+@@ -387,6 +424,34 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
+                     unit_source: UnitSource::SiblingUnitField,
+                 },
+             },
++            FieldRule {
++                field_path: "section.material_density.value",
++                kind: FieldKind::OptionalQuantity {
++                    constraint: ValueConstraint::Positive,
++                    dimension: "density",
++                },
++            },
++            FieldRule {
++                field_path: "section.contents_density.value",
++                kind: FieldKind::OptionalQuantity {
++                    constraint: ValueConstraint::NonNegative,
++                    dimension: "density",
++                },
++            },
++            FieldRule {
++                field_path: "section.insulation_thickness.value",
++                kind: FieldKind::OptionalQuantity {
++                    constraint: ValueConstraint::NonNegative,
++                    dimension: "length",
++                },
++            },
++            FieldRule {
++                field_path: "section.insulation_density.value",
++                kind: FieldKind::OptionalQuantity {
++                    constraint: ValueConstraint::NonNegative,
++                    dimension: "density",
++                },
++            },
+             // DEC-068 item 3: user-entered absolute mill-tolerance thickness
+             // reduction consumed by the effective-wall calculation. Zero is a
+             // meaningful explicit entry; a negative reduction is rejected the
+@@ -774,6 +839,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
+ 
+ fn collection_for(object_type: &str) -> Option<&'static str> {
+     match object_type {
++        "Section" => Some("sections"),
+         "Material" => Some("materials"),
+         "Node" => Some("nodes"),
+         "Element" => Some("pipe_segments"),
+@@ -821,6 +887,53 @@ mod wasm_api {
+ 
+     const INPUT_ERROR_DOCUMENT_KIND: &str = "openpipestress.desktop.wasm_engine_input_error";
+ 
++    fn batch_json(model_json: &str, batch_json: &str, claimed_json: &str, apply: bool) -> String {
++        let model = match parse_input("model", model_json) {
++            Ok(v) => v,
++            Err(e) => return e,
++        };
++        let batch = match parse_input("batch", batch_json) {
++            Ok(v) => v,
++            Err(e) => return e,
++        };
++        let claimed = match parse_input("claimed_model_hash", claimed_json) {
++            Ok(v) => v,
++            Err(e) => return e,
++        };
++        let mut outcome = if apply {
++            super::apply_operation_batch(&model, &batch, Some(&claimed))
++        } else {
++            super::validate_operation_batch(&model, &batch, Some(&claimed))
++        };
++        outcome["application_route"] = json!("local_wasm_engine");
++        outcome.to_string()
++    }
++    #[wasm_bindgen]
++    pub fn validate_operation_batch_json(
++        model_json: &str,
++        batch_json_input: &str,
++        claimed_model_hash_json: &str,
++    ) -> String {
++        batch_json(model_json, batch_json_input, claimed_model_hash_json, false)
++    }
++    #[wasm_bindgen]
++    pub fn apply_operation_batch_json(
++        model_json: &str,
++        batch_json_input: &str,
++        claimed_model_hash_json: &str,
++    ) -> String {
++        batch_json(model_json, batch_json_input, claimed_model_hash_json, true)
++    }
++
++    /// Display-only numeric conversion through the one accepted unit catalog.
++    #[wasm_bindgen]
++    pub fn convert_display_quantities_json(input_json: &str) -> String {
++        match parse_input("display_quantities", input_json) {
++            Ok(input) => super::convert_display_quantities(&input).to_string(),
++            Err(error) => error,
++        }
++    }
++
+     fn input_error(input_label: &str, detail: String) -> String {
+         json!({
+             "document_kind": INPUT_ERROR_DOCUMENT_KIND,
+@@ -984,6 +1097,31 @@ fn run(
+     intent: &Value,
+     claimed_model_hash: Option<&Value>,
+     mode: Mode,
++) -> OperationOutcome {
++    run_with_context(model, intent, claimed_model_hash, mode, None)
++}
++
++pub(crate) fn apply_operation_in_batch(
++    model: &Value,
++    intent: &Value,
++    claimed_model_hash: Option<&Value>,
++    context: &boundary_association::ValidatedBoundaryBatch,
++) -> OperationOutcome {
++    run_with_context(
++        model,
++        intent,
++        claimed_model_hash,
++        Mode::Apply,
++        Some(context),
++    )
++}
++
++fn run_with_context(
++    model: &Value,
++    intent: &Value,
++    claimed_model_hash: Option<&Value>,
++    mode: Mode,
++    boundary_context: Option<&boundary_association::ValidatedBoundaryBatch>,
+ ) -> OperationOutcome {
+     let mut checker = Checker::new();
+ 
+@@ -1013,10 +1151,135 @@ fn run(
+         &mut checker,
+     );
+ 
++    if boundary_association::requires_model_hash(model, intent)
++        && claimed_model_hash.is_none_or(Value::is_null)
++    {
++        checker.schema_blocked = true;
++        checker.push(
++            "OP-BOUNDARY-MODEL-HASH-REQUIRED",
++            "blocking",
++            "Associated support operations require current complete model-hash evidence.".into(),
++            "Refresh the full model hash including boundary association before editing.",
++            vec![target_ref.clone()],
++        );
++    }
++
++    let mut geometry_edit = None;
++    if matches!(
++        change_kind.as_str(),
++        "split_pipe_run" | "transform_pipe_run"
++    ) {
++        if claimed_model_hash.is_none_or(Value::is_null) {
++            checker.schema_blocked = true;
++            checker.push(
++                "OP-GEOMETRY-MODEL-HASH-REQUIRED",
++                "blocking",
++                "Compound geometry operations require complete current model-hash evidence.".into(),
++                "Refresh the full model basis before proposing geometry changes.",
++                vec![target_ref.clone()],
++            );
++        }
++        if !checker.schema_blocked {
++            match geometry_operations::resolve_geometry(model, intent) {
++                Ok(Some(edit)) => { checker.reference_state="passed"; checker.unit_state="passed"; checker.before_state="passed"; geometry_edit=Some(edit); },
++                Ok(None) => checker.push("OP-GEOMETRY-UNRESOLVED", "blocking", "Geometry operation was not resolved.".into(), "Use the declared bounded geometry payload.", vec![target_ref.clone()]),
++                Err(error) => checker.push(error.code,"blocking",error.message,"Correct the explicit geometry payload and resolve affected attachments before retrying.",error.affected_refs),
++            }
++        }
++    }
++
+     // Field-level resolution proceeds only for supported structured payloads;
+     // underspecified viewport gestures are held rather than invented.
++    let rich_kind = match (object_type.as_str(), field_path.as_str()) {
++        ("Support", "configuration") => Some("update_support"),
++        ("Material", "temperature_points") => Some("set_field"),
++        ("Load", "equivalent_static.wind.exposure") => Some("update_load"),
++        _ => None,
++    };
++    let mut rich_model: Option<Value> = None;
++    if let Some(expected_kind) = rich_kind {
++        if change_kind != expected_kind {
++            checker.schema_blocked = true;
++            checker.push(
++                "OP-RICH-KIND-INVALID",
++                "blocking",
++                format!("{field_path} requires {expected_kind}."),
++                "Use the declared rich-authoring operation kind.",
++                vec![target_ref.clone()],
++            );
++        } else if !checker.schema_blocked {
++            match rich_authoring::resolve(
++                model,
++                &object_type,
++                &target_ref,
++                &field_path,
++                &before,
++                &after,
++                &unit,
++                &dimension,
++            ) {
++                Ok(Some(edit)) => {
++                    check_before(
++                        &edit.current_display,
++                        &before,
++                        &target_ref,
++                        &field_path,
++                        &mut checker,
++                    );
++                    let mut candidate = model.clone();
++                    let target = collection_for(&object_type).and_then(|collection| {
++                        find_entity_mut(&mut candidate, collection, &target_ref)
++                    });
++                    let mut written = true;
++                    if let Some(target) = target {
++                        for (segments, value) in &edit.writes {
++                            if let Some(value) = value {
++                                written &= write_value_creating_path(target, segments, value);
++                            } else if segments.len() == 1 {
++                                target.as_object_mut().unwrap().remove(&segments[0]);
++                            } else {
++                                written = false;
++                            }
++                        }
++                    } else {
++                        written = false;
++                    }
++                    if written {
++                        checker.reference_state = "passed";
++                        checker.unit_state = "passed";
++                        checker.before_state = "passed";
++                        for warning in edit.warnings {
++                            checker.push(
++                                "OP-RICH-NOT-SOLVE-READY",
++                                "warning",
++                                warning,
++                                "Complete explicit engineering inputs before solving.",
++                                vec![target_ref.clone()],
++                            );
++                        }
++                        rich_model = Some(candidate);
++                    } else {
++                        checker.push("OP-RICH-PATH-INVALID", "blocking", "Configuration path cannot be written without replacing malformed data.".into(), "Repair the existing configuration structure.", vec![target_ref.clone()]);
++                    }
++                }
++                Ok(None) => {}
++                Err(error) => {
++                    if error.code == "OP-BEFORE-VALUE-MISMATCH" {
++                        checker.before_state = "blocked";
++                    }
++                    checker.push(
++                        error.code,
++                        "blocking",
++                        error.message,
++                        "Refresh and correct the explicit configuration payload.",
++                        vec![target_ref.clone()],
++                    );
++                }
++            }
++        }
++    }
+     let mut resolved: Option<ResolvedField> = None;
+-    if !checker.schema_blocked && is_modify_change_kind(&change_kind) {
++    if rich_kind.is_none() && !checker.schema_blocked && is_modify_change_kind(&change_kind) {
+         resolved = resolve_field(
+             model,
+             &object_type,
+@@ -1029,6 +1292,157 @@ fn run(
+             &mut checker,
+         );
+     }
++    let mut section_model = None;
++    let mut section_diffs = Vec::new();
++    if let Some(field) = &resolved {
++        if object_type == "Section" || object_type == "Element" {
++            let mut candidate = model.clone();
++            if apply_resolved_field(
++                &mut candidate,
++                &object_type,
++                &target_ref,
++                field,
++                &mut checker,
++            ) {
++                let result = if object_type == "Section" {
++                    check_section_geometry(
++                        find_entity(&candidate, "sections", &target_ref).unwrap(),
++                        &target_ref,
++                        &mut checker,
++                    );
++                    section_bindings::propagate(model, &mut candidate, &target_ref)
++                } else {
++                    section_bindings::validate_local(model, &candidate, &target_ref, &field_path)
++                        .map(|_| vec![])
++                };
++                match result {
++                    Ok(diffs) => {
++                        if object_type == "Element" && field_path.starts_with("section.insulation_") {
++                            let local = &find_entity(&candidate, "pipe_segments", &target_ref).unwrap()["section"];
++                            if local.get("insulation_thickness").is_some_and(|v| !v.is_null()) != local.get("insulation_density").is_some_and(|v| !v.is_null()) {
++                                checker.push("OP-MASS-NOT-SOLVE-READY", "warning", "Insulation mass requires both explicit thickness and density; no missing quantity is defaulted.".into(), "Supply the paired insulation quantity before solving.", vec![target_ref.clone()]);
++                            }
++                        }
++                        section_diffs = diffs; section_model = Some(candidate);
++                    }
++                    Err(error) => checker.push("OP-SECTION-BINDING-INVALID", "blocking", error, "Refresh the section binding, edit shared geometry, or explicitly detach before local OD/wall edits.", vec![target_ref.clone()]),
++                }
++            }
++        }
++    }
++    if object_type == "Support" && matches!(field_path.as_str(), "node" | "restraints") {
++        if let Some(field) = &resolved {
++            let mut candidate = model.clone();
++            if apply_resolved_field(
++                &mut candidate,
++                &object_type,
++                &target_ref,
++                field,
++                &mut checker,
++            ) {
++                for dependent in candidate
++                    .get("supports")
++                    .and_then(Value::as_array)
++                    .into_iter()
++                    .flatten()
++                {
++                    if dependent
++                        .pointer("/nonlinear/normal_reaction_source/support_ref")
++                        .and_then(Value::as_str)
++                        == Some(target_ref.as_str())
++                    {
++                        if let Err(error) =
++                            rich_authoring::validate_support_configuration(&candidate, dependent)
++                        {
++                            checker.push("OP-SUPPORT-DEPENDENT-INVALID","blocking",error.message,"Keep the referenced linear restraint DOF valid or retarget the dependent nonlinear support first.",vec![target_ref.clone(),dependent["id"].as_str().unwrap_or("unknown").into()]);
++                        }
++                    }
++                }
++            }
++        }
++    }
++
++    if !checker.schema_blocked
++        && matches!(change_kind.as_str(), "assign_section" | "detach_section")
++    {
++        if object_type != "Element"
++            || field_path != "section_ref"
++            || unit != "none"
++            || dimension != "dimensionless"
++        {
++            checker.schema_blocked = true;
++            checker.push(
++                "OP-SECTION-BINDING-SHAPE-INVALID",
++                "blocking",
++                "Section assignment requires Element, section_ref, none/dimensionless.".into(),
++                "Use the declared assignment intent.",
++                vec![target_ref.clone()],
++            );
++        } else {
++            if let Some(pipe) = find_entity(model, "pipe_segments", &target_ref) {
++                check_before(
++                    &canonical_json(pipe),
++                    &before,
++                    &target_ref,
++                    &field_path,
++                    &mut checker,
++                );
++            }
++            match section_bindings::assign(
++                model,
++                &target_ref,
++                change_kind == "detach_section",
++                &after,
++            ) {
++                Ok(candidate) => {
++                    let old = find_entity(model, "pipe_segments", &target_ref).unwrap();
++                    let next = find_entity(&candidate, "pipe_segments", &target_ref).unwrap();
++                    if old["section"] != next["section"] {
++                        section_diffs.push(DiffPreviewRow {
++                            entity_ref: target_ref.clone(),
++                            object_type: "Element".into(),
++                            field_path: "section".into(),
++                            before: canonical_json(&old["section"]),
++                            after: canonical_json(&next["section"]),
++                            unit: "none".into(),
++                            dimension: "dimensionless".into(),
++                            change_kind: "set_field".into(),
++                        });
++                    }
++                    section_model = Some(candidate);
++                    checker.reference_state = "passed";
++                    checker.unit_state = "passed";
++                }
++                Err(error) => checker.push(
++                    "OP-SECTION-BINDING-INVALID",
++                    "blocking",
++                    error,
++                    "Correct the explicit section reference and current materialized geometry.",
++                    vec![target_ref.clone()],
++                ),
++            }
++        }
++    }
++    let deleted_entity = if !checker.schema_blocked
++        && matches!(
++            change_kind.as_str(),
++            "delete_material" | "delete_section" | "delete_component"
++        ) {
++        resolve_delete_entity(
++            model,
++            &change_kind,
++            &object_type,
++            &target_ref,
++            &field_path,
++            &before,
++            &after,
++            &unit,
++            &dimension,
++            &mut checker,
++        )
++    } else {
++        None
++    };
+     let mut created_node: Option<Value> = None;
+     if !checker.schema_blocked && change_kind == "create_node" {
+         created_node = resolve_create_node(
+@@ -1139,6 +1553,7 @@ fn run(
+             &dimension,
+             &object_type,
+             &mut checker,
++            boundary_context,
+         );
+     }
+     let mut created_load_case: Option<Value> = None;
+@@ -1269,7 +1684,9 @@ fn run(
+     }
+ 
+     let blocking = checker.blocking();
+-    let diff_preview = if let (Some(field), false) = (&resolved, blocking) {
++    let mut diff_preview = if let (Some(edit), false) = (&geometry_edit, blocking) {
++        edit.diff_preview.clone()
++    } else if let (Some(field), false) = (&resolved, blocking) {
+         vec![DiffPreviewRow {
+             entity_ref: target_ref.clone(),
+             object_type: object_type.clone(),
+@@ -1280,7 +1697,10 @@ fn run(
+             dimension: dimension.clone(),
+             change_kind: change_kind.clone(),
+         }]
+-    } else if (created_node.is_some()
++    } else if (section_model.is_some()
++        || rich_model.is_some()
++        || created_node.is_some()
++        || deleted_entity.is_some()
+         || deleted_node.is_some()
+         || created_pipe.is_some()
+         || created_component.is_some()
+@@ -1313,10 +1733,24 @@ fn run(
+         Vec::new()
+     };
+ 
++    if !blocking {
++        diff_preview.extend(section_diffs);
++    }
++
+     let mut applied_model = None;
+     let mut applied_model_backend_hash = None;
+     if mode == Mode::Apply && !blocking {
+-        if let Some(field) = &resolved {
++        if let Some(candidate) = geometry_edit
++            .map(|edit| edit.model)
++            .or(section_model)
++            .or(rich_model)
++        {
++            applied_model_backend_hash = Some(format!(
++                "sha256:{}",
++                sha256_hex(&canonical_json(&candidate))
++            ));
++            applied_model = Some(candidate);
++        } else if let Some(field) = &resolved {
+             let mut next_model = model.clone();
+             if apply_resolved_field(
+                 &mut next_model,
+@@ -1331,6 +1765,20 @@ fn run(
+                 ));
+                 applied_model = Some(next_model);
+             }
++        } else if let Some(collection) = deleted_entity {
++            let mut next_model = model.clone();
++            let records = next_model
++                .get_mut(collection)
++                .and_then(Value::as_array_mut)
++                .unwrap();
++            records.retain(|record| {
++                record.get("id").and_then(Value::as_str) != Some(target_ref.as_str())
++            });
++            applied_model_backend_hash = Some(format!(
++                "sha256:{}",
++                sha256_hex(&canonical_json(&next_model))
++            ));
++            applied_model = Some(next_model);
+         } else if let Some(node) = &created_node {
+             let mut next_model = model.clone();
+             if apply_created_node(&mut next_model, node) {
+@@ -1674,12 +2122,19 @@ fn is_modify_change_kind(change_kind: &str) -> bool {
+ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, checker: &mut Checker) {
+     let supported_change = matches!(
+         change_kind,
+-        "set_field"
++        "split_pipe_run"
++            | "transform_pipe_run"
++            | "set_field"
+             | "update_load"
+             | "update_support"
+             | "create_node"
+             | "delete_node"
+             | "connect_pipe_run"
++            | "assign_section"
++            | "detach_section"
++            | "delete_material"
++            | "delete_section"
++            | "delete_component"
+             | "delete_pipe_run"
+             | "create_section"
+             | "create_material"
+@@ -1710,7 +2165,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
+     }
+ 
+     let expected_operation_kind = match change_kind {
+-        "set_field" | "update_load" | "update_support" => "modify",
++        "set_field" | "update_load" | "update_support" | "assign_section" | "detach_section"
++        | "split_pipe_run" | "transform_pipe_run" => "modify",
+         "create_node"
+         | "create_section"
+         | "create_material"
+@@ -1719,6 +2175,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
+         | "create_primitive_load"
+         | "create_combination"
+         | "create_combination_term" => "create",
++        "delete_material" | "delete_section" | "delete_component" => "delete",
+         "delete_node" => "delete",
+         "delete_load_case" => "delete",
+         "delete_primitive_load" => "delete",
+@@ -3038,6 +3495,174 @@ fn resolve_connect_pipe_run(
+     }))
+ }
+ 
++fn check_section_geometry(section: &Value, target_ref: &str, checker: &mut Checker) {
++    let diameter = section
++        .as_object()
++        .and_then(|record| {
++            dimensioned_quantity(
++                record,
++                &["properties", "outside_diameter"],
++                Dimension::Length,
++                true,
++            )
++        })
++        .and_then(|q| quantity_value_in_unit(&q, "m", Dimension::Length));
++    let wall = section
++        .as_object()
++        .and_then(|record| {
++            dimensioned_quantity(
++                record,
++                &["properties", "wall_thickness"],
++                Dimension::Length,
++                true,
++            )
++        })
++        .and_then(|q| quantity_value_in_unit(&q, "m", Dimension::Length));
++    if section.get("section_type").and_then(Value::as_str) != Some("pipe")
++        || !matches!((diameter, wall), (Some(d), Some(w)) if d.is_finite() && w.is_finite() && w > 0.0 && w < d / 2.0)
++    {
++        checker.push("OP-SECTION-GEOMETRY-INVALID", "blocking", format!("Section `{target_ref}` requires type pipe and accepted length quantities with 0 < wall < outside diameter / 2."), "Correct the section type and geometry before applying the edit.", vec![target_ref.to_string()]);
++    }
++}
++
++/// Visit semantic reference slots throughout the document, including canonical
++/// Reference records and dependency arrays. Human labels and prose are not refs.
++fn entity_reference_paths(
++    value: &Value,
++    ids: &[String],
++    path: &str,
++    reference_slot: bool,
++    found: &mut Vec<String>,
++) {
++    match value {
++        Value::String(id) if reference_slot && ids.contains(id) => found.push(path.to_string()),
++        Value::Array(items) => {
++            for (index, item) in items.iter().enumerate() {
++                entity_reference_paths(
++                    item,
++                    ids,
++                    &format!("{path}[{index}]"),
++                    reference_slot,
++                    found,
++                );
++            }
++        }
++        Value::Object(map) => {
++            for (key, item) in map {
++                let is_ref = (key == "id" && (reference_slot || map.contains_key("object_type")))
++                    || key == "ref"
++                    || key.ends_with("_ref")
++                    || key.ends_with("_refs")
++                    || matches!(
++                        key.as_str(),
++                        "material" | "section" | "component" | "required_input_refs"
++                    );
++                entity_reference_paths(item, ids, &format!("{path}.{key}"), is_ref, found);
++            }
++        }
++        _ => {}
++    }
++}
++
++#[allow(clippy::too_many_arguments)]
++fn resolve_delete_entity(
++    model: &Value,
++    change_kind: &str,
++    object_type: &str,
++    target_ref: &str,
++    field_path: &str,
++    before: &str,
++    after: &str,
++    unit: &str,
++    dimension: &str,
++    checker: &mut Checker,
++) -> Option<&'static str> {
++    let (expected_type, collection) = match change_kind {
++        "delete_material" => ("Material", "materials"),
++        "delete_section" => ("Section", "sections"),
++        "delete_component" => ("Component", "components"),
++        _ => unreachable!(),
++    };
++    if object_type != expected_type || field_path != collection || after != "deleted" {
++        checker.schema_blocked = true;
++        checker.push("OP-DELETE-ENTITY-SHAPE-INVALID", "blocking", format!("{change_kind} requires {expected_type}, field_path {collection}, and after deleted."), "Refresh the structured delete intent.", vec![target_ref.to_string()]);
++        return None;
++    }
++    if unit != "none" || dimension != "dimensionless" {
++        checker.unit_state = "blocked";
++        checker.push(
++            "OP-DELETE-ENTITY-UNIT-INVALID",
++            "blocking",
++            "Entity deletion requires none/dimensionless metadata.".to_string(),
++            "Refresh the structured delete intent.",
++            vec![target_ref.to_string()],
++        );
++        return None;
++    }
++    checker.unit_state = "passed";
++    let records = model.get(collection).and_then(Value::as_array);
++    let matches = records
++        .map(|rows| {
++            rows.iter()
++                .filter(|row| row.get("id").and_then(Value::as_str) == Some(target_ref))
++                .collect::<Vec<_>>()
++        })
++        .unwrap_or_default();
++    if matches.len() != 1 {
++        checker.reference_state = "blocked";
++        checker.push(
++            "OP-TARGET-NOT-FOUND",
++            "blocking",
++            format!("Deletion requires exactly one `{target_ref}` in {collection}."),
++            "Refresh or repair the model record IDs.",
++            vec![target_ref.to_string()],
++        );
++        return None;
++    }
++    let record = matches[0];
++    check_before(
++        &canonical_json(record),
++        before,
++        target_ref,
++        field_path,
++        checker,
++    );
++    let mut ids = vec![target_ref.to_string()];
++    if collection == "materials" {
++        if let Some(points) = record.get("temperature_points").and_then(Value::as_array) {
++            ids.extend(
++                points
++                    .iter()
++                    .filter_map(|p| p.get("id").and_then(Value::as_str).map(str::to_string)),
++            );
++        }
++    }
++    let mut remainder = model.clone();
++    remainder
++        .get_mut(collection)
++        .and_then(Value::as_array_mut)
++        .unwrap()
++        .retain(|row| row.get("id").and_then(Value::as_str) != Some(target_ref));
++    let mut references = Vec::new();
++    entity_reference_paths(&remainder, &ids, "$", false, &mut references);
++    if !references.is_empty() {
++        checker.reference_state = "blocked";
++        checker.push(
++            "OP-ENTITY-DELETE-REFERENCED",
++            "blocking",
++            format!(
++                "`{target_ref}` or its owned records remain referenced at {}.",
++                references.join(", ")
++            ),
++            "Remove or retarget dependents first; deletion never cascades.",
++            references,
++        );
++        return None;
++    }
++    checker.reference_state = "passed";
++    Some(collection)
++}
++
+ #[allow(clippy::too_many_arguments)]
+ fn resolve_delete_pipe_run(
+     model: &Value,
+@@ -3128,7 +3753,7 @@ fn resolve_delete_pipe_run(
+             "OP-PIPE-DELETE-REFERENCED",
+             "blocking",
+             format!(
+-                "Pipe segment `{target_ref}` is still referenced by primitive loads: {}.",
++                "Pipe segment `{target_ref}` is still referenced by loads or nonlinear supports: {}.",
+                 references.join(", ")
+             ),
+             "Delete or retarget dependent primitive loads before deleting the pipe segment.",
+@@ -3578,6 +4203,7 @@ fn resolve_create_support(
+     dimension: &str,
+     object_type: &str,
+     checker: &mut Checker,
++    boundary_context: Option<&boundary_association::ValidatedBoundaryBatch>,
+ ) -> Option<Value> {
+     if object_type != "Support" || field_path != "supports" {
+         checker.schema_blocked = true;
+@@ -3692,6 +4318,22 @@ fn resolve_create_support(
+         );
+         return None;
+     }
++    let unknown_properties = record
++        .get("properties")
++        .and_then(Value::as_object)
++        .is_some_and(|properties| {
++            properties.keys().any(|key| key != "linear_stiffness")
++                || properties
++                    .get("linear_stiffness")
++                    .and_then(Value::as_object)
++                    .is_some_and(|quantity| {
++                        quantity.keys().any(|key| key != "value" && key != "unit")
++                    })
++        });
++    if raw_restraints.iter().any(|value| !value.is_string()) || unknown_properties {
++        checker.push("OP-CREATE-SUPPORT-PAYLOAD-INVALID", "blocking", "Support restraints must all be strings; properties accepts only linear_stiffness with value/unit.".into(), "Remove unsupported input members instead of relying on dropped data.", vec![target_ref.to_string()]);
++        return None;
++    }
+     let stiffness_present = value_in_object(record, &["properties", "linear_stiffness"]).is_some();
+     let linear_stiffness = if stiffness_present {
+         match dimensioned_quantity(
+@@ -3782,6 +4424,63 @@ fn resolve_create_support(
+             "linear_stiffness": { "value": quantity.value, "unit": quantity.unit }
+         });
+     }
++    if let Err(error) = boundary_association::validate_create(model, &payload, boundary_context) {
++        checker.push(error.code, "blocking", error.message, "Correct the explicit boundary association/member or use one validated new-group batch.", vec![target_ref.to_string()]);
++        return None;
++    }
++
++    // Rich fields use exactly the same validator as explicit configuration replacement.
++    for key in [
++        "family",
++        "stiffness",
++        "hanger",
++        "nonlinear",
++        "boundary_association",
++    ] {
++        if let Some(value) = record.get(key) {
++            support[key] = value.clone();
++        }
++    }
++    if let Some(key) = record.keys().find(|key| {
++        ![
++            "id",
++            "label",
++            "node",
++            "restraints",
++            "provenance",
++            "properties",
++            "family",
++            "stiffness",
++            "hanger",
++            "nonlinear",
++            "boundary_association",
++        ]
++        .contains(&key.as_str())
++    }) {
++        checker.push(
++            "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
++            "blocking",
++            format!("Unsupported support field {key}."),
++            "Use supported explicit support fields.",
++            vec![target_ref.to_string()],
++        );
++        return None;
++    }
++    if let Err(error) = rich_authoring::validate_support_configuration(model, &support) {
++        checker.push(
++            error.code,
++            "blocking",
++            error.message,
++            "Correct explicit support quantities and references.",
++            vec![target_ref.to_string()],
++        );
++        return None;
++    }
++    // Associated canonical members retain exact accepted source strings and order;
++    // the private token checks the original payload, not a lossy projection.
++    if record.contains_key("boundary_association") {
++        return Some(payload);
++    }
+     Some(support)
+ }
+ 
+@@ -5479,7 +6178,27 @@ fn resolve_delete_support(
+         );
+         return None;
+     }
+-    let references = support_primitive_load_references(model, target_ref);
++    let mut references = support_primitive_load_references(model, target_ref);
++    references.extend(
++        model
++            .get("supports")
++            .and_then(Value::as_array)
++            .into_iter()
++            .flatten()
++            .filter(|support| {
++                support
++                    .pointer("/nonlinear/normal_reaction_source/support_ref")
++                    .and_then(Value::as_str)
++                    == Some(target_ref)
++            })
++            .map(|support| {
++                support
++                    .get("id")
++                    .and_then(Value::as_str)
++                    .unwrap_or("unknown nonlinear support")
++                    .to_string()
++            }),
++    );
+     if !references.is_empty() {
+         checker.reference_state = "blocked";
+         checker.push(
+@@ -5489,7 +6208,7 @@ fn resolve_delete_support(
+                 "Support `{target_ref}` is still referenced by primitive loads: {}.",
+                 references.join(", ")
+             ),
+-            "Delete or retarget dependent imposed-displacement primitive loads before deleting the support.",
++            "Delete or retarget dependent loads or nonlinear normal-reaction sources before deleting the support.",
+             std::iter::once(target_ref.to_string())
+                 .chain(references)
+                 .collect(),
+@@ -5562,7 +6281,12 @@ fn resolve_field(
+         .then(|| material_temperature_point_shear_modulus_id(field_path))
+         .flatten();
+     let mut dynamic_segments: Option<Vec<String>> = None;
+-    let mut pinned_quantity_dimension: Option<&'static str> = None;
++    let mut pinned_quantity_dimension: Option<&'static str> =
++        if object_type == "Section" && field_path.starts_with("properties.") {
++            Some("length")
++        } else {
++            None
++        };
+     let rule_kind = if let Some(point_id) = material_temperature_point_id {
+         let point_index = entity
+             .get("temperature_points")
+@@ -5863,6 +6587,20 @@ fn resolve_field(
+                 .as_ref()
+                 .map(|edit| edit.unit.as_str())
+                 .unwrap_or(unit);
++            if object_type == "Section"
++                && quantity_edit.is_none()
++                && stored_unit.as_deref() != Some(unit)
++            {
++                checker.unit_state = "blocked";
++                checker.push(
++                    "OP-QUANTITY-PAYLOAD-INVALID",
++                    "blocking",
++                    "Section unit changes require an explicit value/unit JSON payload.".to_string(),
++                    "Supply both entered value and unit so the pair is written atomically.",
++                    vec![target_ref.to_string()],
++                );
++                return None;
++            }
+             if requested_unit != unit {
+                 checker.unit_state = "blocked";
+                 checker.push(
+@@ -8066,6 +8804,728 @@ mod tests {
+         intent
+     }
+ 
++    fn binding_intent(model: &Value, pipe_id: &str, detach: bool) -> Value {
++        let mut intent = modify_intent(
++            "Element",
++            pipe_id,
++            if detach {
++                "detach_section"
++            } else {
++                "assign_section"
++            },
++            "section_ref",
++            &canonical_json(find_entity(model, "pipe_segments", pipe_id).unwrap()),
++            if detach {
++                r#"{"source_section_ref":"section:test"}"#
++            } else {
++                r#"{"section_ref":"section:test"}"#
++            },
++            "none",
++            "dimensionless",
++        );
++        intent["operation_kind"] = json!("modify");
++        intent
++    }
++
++    fn bound_test_model() -> Value {
++        let mut model = entity_test_model();
++        let mut second = model["pipe_segments"][0].clone();
++        second["id"] = json!("pipe:P-2");
++        let mut third = second.clone();
++        third["id"] = json!("pipe:unbound");
++        model["pipe_segments"]
++            .as_array_mut()
++            .unwrap()
++            .extend([second, third]);
++        for id in ["pipe:P-1", "pipe:P-2"] {
++            let intent = binding_intent(&model, id, false);
++            let outcome = apply_operation(&model, &intent, None);
++            assert!(outcome.applied_model.is_some(), "{:?}", outcome.diagnostics);
++            model = outcome.applied_model.unwrap();
++        }
++        model
++    }
++
++    #[test]
++    fn shared_section_propagates_atomic_geometry_and_full_diffs_then_detaches() {
++        let mut model = bound_test_model();
++        model["pipe_segments"][0]["section"]["material_density"] =
++            json!({"value":7850,"unit":"kg/m^3"});
++        model["pipe_segments"][1]["section"]["mill_tolerance"] = json!({"value":1,"unit":"mm"});
++        let saved = model.clone();
++        let edit = modify_intent(
++            "Section",
++            "section:test",
++            "set_field",
++            "properties.outside_diameter.value",
++            "100",
++            r#"{"value":0.2,"unit":"m"}"#,
++            "m",
++            "length",
++        );
++        let preview = validate_operation(&model, &edit, None);
++        let outcome = apply_operation(&model, &edit, None);
++        assert_eq!(preview.diff_preview.len(), 3);
++        assert_eq!(
++            serde_json::to_value(&preview.diff_preview).unwrap(),
++            serde_json::to_value(&outcome.diff_preview).unwrap()
++        );
++        let next = outcome.applied_model.unwrap();
++        for index in [0, 1] {
++            assert_eq!(
++                next["pipe_segments"][index]["section"]["outside_diameter"],
++                json!({"value":0.2,"unit":"m"})
++            );
++        }
++        assert_eq!(
++            next["pipe_segments"][0]["section"]["material_density"],
++            saved["pipe_segments"][0]["section"]["material_density"]
++        );
++        assert_eq!(
++            next["pipe_segments"][1]["section"]["mill_tolerance"],
++            saved["pipe_segments"][1]["section"]["mill_tolerance"]
++        );
++        assert_eq!(next["pipe_segments"][2], saved["pipe_segments"][2]);
++        assert_eq!(model, saved);
++        let detach = binding_intent(&next, "pipe:P-1", true);
++        let detached = apply_operation(&next, &detach, None).applied_model.unwrap();
++        assert!(detached["pipe_segments"][0].get("section_ref").is_none());
++        assert_eq!(
++            detached["pipe_segments"][0]["section"],
++            next["pipe_segments"][0]["section"]
++        );
++        let local = modify_intent(
++            "Element",
++            "pipe:P-1",
++            "set_field",
++            "section.outside_diameter.value",
++            "0.2",
++            "0.3",
++            "m",
++            "length",
++        );
++        assert!(apply_operation(&next, &local, None).applied_model.is_none());
++        assert!(apply_operation(&detached, &local, None)
++            .applied_model
++            .is_some());
++    }
++
++    #[test]
++    fn section_binding_rejects_stale_missing_duplicate_unsupported_and_invalid_sources() {
++        let base = entity_test_model();
++        let intent = binding_intent(&base, "pipe:P-1", false);
++        assert_eq!(
++            validate_operation(&base, &intent, None).diff_preview.len(),
++            2
++        );
++        let mut cases = Vec::new();
++        let mut m = base.clone();
++        m["sections"][0].as_object_mut().unwrap().remove("name");
++        cases.push(m);
++        let mut m = base.clone();
++        m["sections"][0]
++            .as_object_mut()
++            .unwrap()
++            .remove("provenance");
++        cases.push(m);
++        let mut m = base.clone();
++        m["sections"] = json!([]);
++        cases.push(m);
++        let mut m = base.clone();
++        m["sections"]
++            .as_array_mut()
++            .unwrap()
++            .push(base["sections"][0].clone());
++        cases.push(m);
++        let mut m = base.clone();
++        m["sections"][0]["section_type"] = json!("rigid");
++        cases.push(m);
++        let mut m = base.clone();
++        m["sections"][0]["properties"]["area"] = json!({"value":1,"unit":"m^2"});
++        cases.push(m);
++        let mut m = base.clone();
++        m["sections"][0]["properties"]["wall_thickness"]["value"] = json!(0.06);
++        cases.push(m);
++        let mut m = base.clone();
++        m["sections"][0]["properties"]["wall_thickness"]["unit"] = json!("Pa");
++        cases.push(m);
++        let mut m = base.clone();
++        m["pipe_segments"][0]["section"]["mill_tolerance"] = json!({"value":5,"unit":"mm"});
++        cases.push(m);
++        let mut m = base.clone();
++        m["pipe_segments"][0]["section_ref"] = json!(null);
++        cases.push(m);
++        for model in cases {
++            let current = binding_intent(&model, "pipe:P-1", false);
++            for out in [
++                validate_operation(&model, &current, None),
++                apply_operation(&model, &current, None),
++            ] {
++                assert!(out.applied_model.is_none());
++                assert!(out.diff_preview.is_empty());
++            }
++        }
++        let mut missing = intent.clone();
++        missing["target"]["ref"] = json!("pipe:missing");
++        assert!(apply_operation(&base, &missing, None)
++            .applied_model
++            .is_none());
++        let mut duplicate = base.clone();
++        duplicate["pipe_segments"]
++            .as_array_mut()
++            .unwrap()
++            .push(base["pipe_segments"][0].clone());
++        assert!(apply_operation(&duplicate, &intent, None)
++            .applied_model
++            .is_none());
++        let bad_hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","value":format!("sha256:{}", "0".repeat(64))});
++        assert!(apply_operation(&base, &intent, Some(&bad_hash))
++            .applied_model
++            .is_none());
++        let mut stale = intent.clone();
++        stale["change"]["before"] = json!("{}");
++        assert!(apply_operation(&base, &stale, None).applied_model.is_none());
++        let mut malformed = intent.clone();
++        malformed["change"]["after"] = json!(r#"{"section_ref":"section:test","extra":1}"#);
++        assert!(apply_operation(&base, &malformed, None)
++            .applied_model
++            .is_none());
++        let mut bound = bound_test_model();
++        bound["pipe_segments"][1]["section"]["outside_diameter"]["value"] = json!(999);
++        let shared = modify_intent(
++            "Section",
++            "section:test",
++            "set_field",
++            "name",
++            "Test",
++            "Changed",
++            "none",
++            "dimensionless",
++        );
++        assert!(apply_operation(&bound, &shared, None)
++            .applied_model
++            .is_none());
++        assert!(
++            apply_operation(&bound, &binding_intent(&bound, "pipe:P-2", true), None)
++                .applied_model
++                .is_none()
++        );
++        let bound = bound_test_model();
++        let mut detach = binding_intent(&bound, "pipe:P-1", true);
++        detach["change"]["after"] = json!(r#"{"source_section_ref":"wrong"}"#);
++        assert!(apply_operation(&bound, &detach, None)
++            .applied_model
++            .is_none());
++    }
++
++    #[test]
++    fn shared_wall_update_fails_atomically_on_one_local_mill_tolerance() {
++        let mut model = bound_test_model();
++        model["pipe_segments"][1]["section"]["mill_tolerance"] = json!({"value":4,"unit":"mm"});
++        let original = model.clone();
++        let edit = modify_intent(
++            "Section",
++            "section:test",
++            "set_field",
++            "properties.wall_thickness.value",
++            "0.005",
++            "0.003",
++            "m",
++            "length",
++        );
++        for out in [
++            validate_operation(&model, &edit, None),
++            apply_operation(&model, &edit, None),
++        ] {
++            assert!(out.applied_model.is_none());
++            assert!(out.diff_preview.is_empty());
++        }
++        assert_eq!(model, original);
++        let local = modify_intent(
++            "Element",
++            "pipe:P-2",
++            "set_field",
++            "section.mill_tolerance.value",
++            "4",
++            r#"{"value":5,"unit":"mm"}"#,
++            "mm",
++            "length",
++        );
++        assert!(apply_operation(&model, &local, None)
++            .applied_model
++            .is_none());
++    }
++
++    #[test]
++    fn optional_mass_quantities_preserve_explicit_units_and_warn_on_incomplete_insulation() {
++        let model = bound_test_model();
++        for (key, dimension, unit, value) in [
++            ("material_density", "density", "kg/m^3", 7850.0),
++            ("contents_density", "density", "kg/m^3", 0.0),
++            ("insulation_thickness", "length", "mm", 0.0),
++            ("insulation_density", "density", "kg/m^3", 0.0),
++        ] {
++            let path = format!("section.{key}.value");
++            let intent = modify_intent(
++                "Element",
++                "pipe:P-1",
++                "set_field",
++                &path,
++                "TBD",
++                &json!({"value":value,"unit":unit}).to_string(),
++                unit,
++                dimension,
++            );
++            let out = apply_operation(&model, &intent, None);
++            assert!(out.applied_model.is_some(), "{:?}", out.diagnostics);
++            if key.starts_with("insulation_") {
++                assert!(codes(&out).contains(&"OP-MASS-NOT-SOLVE-READY"));
++            }
++            assert_eq!(
++                out.applied_model.unwrap()["pipe_segments"][0]["section"][key],
++                json!({"value":value,"unit":unit})
++            );
++            for (after, unit, dim) in [
++                (json!({"value":-1,"unit":unit}).to_string(), unit, dimension),
++                (json!({"value":1,"unit":"Pa"}).to_string(), "Pa", dimension),
++                (json!({"value":1,"unit":unit}).to_string(), unit, "stress"),
++            ] {
++                let bad = modify_intent(
++                    "Element",
++                    "pipe:P-1",
++                    "set_field",
++                    &path,
++                    "TBD",
++                    &after,
++                    unit,
++                    dim,
++                );
++                assert!(apply_operation(&model, &bad, None).applied_model.is_none());
++            }
++        }
++        let zero = modify_intent(
++            "Element",
++            "pipe:P-1",
++            "set_field",
++            "section.material_density.value",
++            "TBD",
++            r#"{"value":0,"unit":"kg/m^3"}"#,
++            "kg/m^3",
++            "density",
++        );
++        assert!(apply_operation(&model, &zero, None).applied_model.is_none());
++    }
++
++    fn entity_test_model() -> Value {
++        let mut model = sample_model();
++        model["sections"] = json!([{"id":"section:test", "name":"Test", "section_type":"pipe", "properties":{"outside_diameter":{"value":100.0,"unit":"mm"},"wall_thickness":{"value":0.005,"unit":"m"}},"provenance":"user"}]);
++        model["materials"].as_array_mut().unwrap().push(json!({"id":"material:unused","label":"Unused","temperature_points":[{"id":"temperature:owned"}]}));
++        model["components"]
++            .as_array_mut()
++            .unwrap()
++            .push(json!({"id":"component:unused","label":"Unused"}));
++        model
++    }
++
++    #[test]
++    fn section_grid_edits_validate_and_apply_same_geometry() {
++        let model = entity_test_model();
++        for (path, before, after, unit, dimension) in [
++            ("name", "Test", "Renamed", "none", "dimensionless"),
++            ("provenance", "user", "edited", "none", "dimensionless"),
++            ("section_type", "pipe", "pipe", "none", "dimensionless"),
++            (
++                "properties.outside_diameter.value",
++                "100",
++                r#"{"value":0.2,"unit":"m"}"#,
++                "m",
++                "length",
++            ),
++            (
++                "properties.wall_thickness.value",
++                "0.005",
++                r#"{"value":0.2,"unit":"in"}"#,
++                "in",
++                "length",
++            ),
++        ] {
++            let intent = modify_intent(
++                "Section",
++                "section:test",
++                "set_field",
++                path,
++                before,
++                after,
++                unit,
++                dimension,
++            );
++            let preview = validate_operation(&model, &intent, None);
++            let applied = apply_operation(&model, &intent, None);
++            assert!(applied.applied_model.is_some(), "{:?}", applied.diagnostics);
++            assert_eq!(preview.diff_preview.len(), 1);
++            assert!(preview.applied_model.is_none());
++        }
++        for (path, before, after, unit, dimension) in [
++            ("section_type", "pipe", "box", "none", "dimensionless"),
++            (
++                "properties.wall_thickness.value",
++                "0.005",
++                "0.05",
++                "m",
++                "length",
++            ),
++            (
++                "properties.outside_diameter.value",
++                "100",
++                "9",
++                "mm",
++                "length",
++            ),
++            (
++                "properties.outside_diameter.value",
++                "100",
++                "100",
++                "mm",
++                "stress",
++            ),
++            (
++                "properties.wall_thickness.value",
++                "0.005",
++                r#"{"value":2,"unit":"in"}"#,
++                "in",
++                "length",
++            ),
++            (
++                "properties.wall_thickness.value",
++                "0.005",
++                "0",
++                "m",
++                "length",
++            ),
++            ("name", "stale", "Renamed", "none", "dimensionless"),
++        ] {
++            let intent = modify_intent(
++                "Section",
++                "section:test",
++                "set_field",
++                path,
++                before,
++                after,
++                unit,
++                dimension,
++            );
++            for outcome in [
++                validate_operation(&model, &intent, None),
++                apply_operation(&model, &intent, None),
++            ] {
++                assert!(outcome.diff_preview.is_empty());
++                assert!(
++                    outcome.applied_model.is_none(),
++                    "{path}: {:?}",
++                    outcome.diagnostics
++                );
++            }
++        }
++    }
++
++    fn entity_delete_intent(
++        model: &Value,
++        object_type: &str,
++        collection: &str,
++        id: &str,
++        kind: &str,
++    ) -> Value {
++        let mut intent = modify_intent(
++            object_type,
++            id,
++            kind,
++            collection,
++            &canonical_json(find_entity(model, collection, id).unwrap()),
++            "deleted",
++            "none",
++            "dimensionless",
++        );
++        intent["operation_kind"] = json!("delete");
++        intent
++    }
++
++    #[test]
++    fn entity_deletes_guard_record_staleness_missing_ids_and_all_reference_forms() {
++        for (object_type, collection, id, kind) in [
++            (
++                "Material",
++                "materials",
++                "material:unused",
++                "delete_material",
++            ),
++            ("Section", "sections", "section:test", "delete_section"),
++            (
++                "Component",
++                "components",
++                "component:unused",
++                "delete_component",
++            ),
++        ] {
++            let model = entity_test_model();
++            let input = model.clone();
++            let intent = entity_delete_intent(&model, object_type, collection, id, kind);
++            let preview = validate_operation(&model, &intent, None);
++            assert_eq!(preview.diff_preview.len(), 1);
++            let applied = apply_operation(&model, &intent, None);
++            assert!(applied.applied_model.is_some(), "{:?}", applied.diagnostics);
++            assert!(find_entity(&applied.applied_model.unwrap(), collection, id).is_none());
++            assert_eq!(model, input);
++            let bad_hash = json!({"algorithm":"sha256", "canonicalization":"rfc8785_jcs", "payload_scope":"model_payload", "value":format!("sha256:{}", "0".repeat(64))});
++            assert!(apply_operation(&model, &intent, Some(&bad_hash))
++                .applied_model
++                .is_none());
++            let mut duplicate = model.clone();
++            duplicate[collection]
++                .as_array_mut()
++                .unwrap()
++                .push(find_entity(&model, collection, id).unwrap().clone());
++            assert!(apply_operation(&duplicate, &intent, None)
++                .applied_model
++                .is_none());
++            let mut stale = intent.clone();
++            stale["change"]["before"] = json!("{}");
++            assert!(apply_operation(&model, &stale, None)
++                .applied_model
++                .is_none());
++            let mut missing = intent.clone();
++            missing["target"]["ref"] = json!("missing");
++            assert!(apply_operation(&model, &missing, None)
++                .applied_model
++                .is_none());
++            let mut invalid = intent.clone();
++            invalid["change"]["unit"] = json!("m");
++            assert!(apply_operation(&model, &invalid, None)
++                .applied_model
++                .is_none());
++            let mut invalid = intent.clone();
++            invalid["change"]["after"] = json!("not_present");
++            assert!(apply_operation(&model, &invalid, None)
++                .applied_model
++                .is_none());
++            for reference in [
++                json!({"material":id}),
++                json!({"section_ref":id}),
++                json!({"component_ref":{"object_type":object_type,"ref":id}}),
++                json!({"component_ref":{"object_type":object_type,"id":id}}),
++                json!({"required_input_refs":[id]}),
++                json!({"target_ref":id}),
++            ] {
++                let mut referenced = model.clone();
++                referenced["dependencies"] = json!([reference]);
++                let outcome = apply_operation(&referenced, &intent, None);
++                assert!(codes(&outcome).contains(&"OP-ENTITY-DELETE-REFERENCED"));
++                assert!(outcome.applied_model.is_none());
++            }
++            let mut prose = model.clone();
++            prose["note"] = json!({"label":id,"provenance":id});
++            assert!(apply_operation(&prose, &intent, None)
++                .applied_model
++                .is_some());
++        }
++        let mut model = entity_test_model();
++        let intent = entity_delete_intent(
++            &model,
++            "Material",
++            "materials",
++            "material:unused",
++            "delete_material",
++        );
++        model["load_cases"][0]["modulus_basis_ref"] = json!("temperature:owned");
++        assert!(
++            codes(&apply_operation(&model, &intent, None)).contains(&"OP-ENTITY-DELETE-REFERENCED")
++        );
++    }
++
++    #[test]
++    fn derived_normal_source_survives_delete_and_scalar_restraint_routes() {
++        let mut model = sample_model();
++        let source = model["supports"][0].clone();
++        let source_id = source["id"].as_str().unwrap();
++        model["supports"].as_array_mut().unwrap().push(json!({"id":"support:derived","label":"Derived","node":source["node"],"restraints":[],"provenance":"user","nonlinear":{"behavior":"friction","dof":"UX","initial_state":"sticking","friction_coefficient":{"value":0.2,"unit":"none"},"normal_reaction_source":{"support_ref":source_id,"dof":"UZ"}}}));
++        let mut deletion = modify_intent(
++            "Support",
++            source_id,
++            "delete_support",
++            "supports",
++            source["label"].as_str().unwrap(),
++            "not_present",
++            "none",
++            "dimensionless",
++        );
++        deletion["operation_kind"] = json!("delete");
++        let before = source["restraints"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .map(|v| v.as_str().unwrap())
++            .collect::<Vec<_>>()
++            .join(", ");
++        let removal = modify_intent(
++            "Support",
++            source_id,
++            "update_support",
++            "restraints",
++            &before,
++            "UX",
++            "none",
++            "dimensionless",
++        );
++        for intent in [deletion, removal] {
++            for outcome in [
++                validate_operation(&model, &intent, None),
++                apply_operation(&model, &intent, None),
++            ] {
++                assert!(outcome.applied_model.is_none());
++                assert!(outcome.diff_preview.is_empty());
++                assert!(outcome
++                    .diagnostics
++                    .iter()
++                    .any(|d| d.code == "OP-SUPPORT-DELETE-REFERENCED"
++                        || d.code == "OP-SUPPORT-DEPENDENT-INVALID"));
++            }
++        }
++        let retained = modify_intent(
++            "Support",
++            source_id,
++            "update_support",
++            "restraints",
++            &before,
++            "UZ",
++            "none",
++            "dimensionless",
++        );
++        assert!(apply_operation(&model, &retained, None)
++            .applied_model
++            .is_some());
++    }
++
++    #[test]
++    fn wind_no_op_preserves_optional_array_presence_and_hash() {
++        for arrays in [
++            json!({}),
++            json!({"exposed_pipe_refs":[]}),
++            json!({"exposed_spans":[]}),
++            json!({"exposed_pipe_refs":[],"exposed_spans":[]}),
++        ] {
++            let mut model = sample_model();
++            let mut wind = arrays;
++            wind["pressure"] = json!({"value":100,"unit":"Pa"});
++            model["load_cases"][0]["equivalent_static"] = json!({"wind":wind});
++            let exposure = canonical_json(&json!({"exposed_pipe_refs":[],"exposed_spans":[]}));
++            let intent = modify_intent(
++                "Load",
++                model["load_cases"][0]["id"].as_str().unwrap(),
++                "update_load",
++                "equivalent_static.wind.exposure",
++                &exposure,
++                &exposure,
++                "none",
++                "dimensionless",
++            );
++            let result = apply_operation(&model, &intent, None);
++            assert_eq!(result.applied_model, Some(model.clone()));
++            assert_eq!(
++                result.applied_model_backend_hash,
++                Some(format!("sha256:{}", sha256_hex(&canonical_json(&model))))
++            );
++        }
++    }
++
++    #[test]
++    fn rich_support_create_rejects_raw_data_that_legacy_projection_would_drop() {
++        let model = sample_model();
++        let base = json!({"id":"support:new","label":"New","node":model["nodes"][0]["id"],"restraints":["UY"],"provenance":"user","family":"vertical_support"});
++        for (key, value) in [
++            ("restraints", json!(["UY", 7])),
++            ("properties", json!({"unexpected":1})),
++            (
++                "properties",
++                json!({"linear_stiffness":{"value":1,"unit":"N/m","unexpected":1}}),
++            ),
++        ] {
++            let mut payload = base.clone();
++            payload[key] = value;
++            let mut intent = modify_intent(
++                "Support",
++                "support:new",
++                "create_support",
++                "supports",
++                "not_present",
++                &canonical_json(&payload),
++                "none",
++                "dimensionless",
++            );
++            intent["operation_kind"] = json!("create");
++            for result in [
++                validate_operation(&model, &intent, None),
++                apply_operation(&model, &intent, None),
++            ] {
++                assert!(result.applied_model.is_none());
++                assert!(result.diff_preview.is_empty());
++            }
++        }
++    }
++
++    #[test]
++    fn rich_authoring_uses_common_preview_apply_and_stale_guards() {
++        let mut model = sample_model();
++        model["load_cases"][0]["equivalent_static"] =
++            json!({"wind":{"pressure":{"value":100,"unit":"Pa"},"direction":"global_x"}});
++        let material = model["materials"][0]["id"].as_str().unwrap();
++        let load = model["load_cases"][0]["id"].as_str().unwrap();
++        for (object_type, id, kind, path, before, after) in [
++            (
++                "Material",
++                material,
++                "set_field",
++                "temperature_points",
++                "not_present".to_string(),
++                json!([{"id":"point:unselected","provenance":"user"}]),
++            ),
++            (
++                "Load",
++                load,
++                "update_load",
++                "equivalent_static.wind.exposure",
++                canonical_json(&json!({"exposed_pipe_refs":[],"exposed_spans":[]})),
++                json!({"exposed_pipe_refs":[],"exposed_spans":[]}),
++            ),
++        ] {
++            let intent = modify_intent(
++                object_type,
++                id,
++                kind,
++                path,
++                &before,
++                &canonical_json(&after),
++                "none",
++                "dimensionless",
++            );
++            let original = model.clone();
++            let preview = validate_operation(&model, &intent, None);
++            let applied = apply_operation(&model, &intent, None);
++            assert!(applied.applied_model.is_some(), "{:?}", applied.diagnostics);
++            assert_eq!(preview.diff_preview.len(), 1);
++            assert!(preview.applied_model.is_none());
++            assert_eq!(model, original);
++            let mut stale = intent.clone();
++            stale["change"]["before"] = json!("stale");
++            assert!(apply_operation(&model, &stale, None)
++                .applied_model
++                .is_none());
++            let mut wrong = intent.clone();
++            wrong["change"]["change_kind"] = json!("update_support");
++            assert!(apply_operation(&model, &wrong, None)
++                .applied_model
++                .is_none());
++        }
++    }
++
+     #[test]
+     fn validate_passes_and_never_mutates_for_a_current_quantity_edit() {
+         let model = sample_model();
+diff --git a/projects/chirality-piping/schemas/model_operation.schema.json b/projects/chirality-piping/schemas/model_operation.schema.json
+index 9fda7ce51..61e875514 100644
+--- a/projects/chirality-piping/schemas/model_operation.schema.json
++++ b/projects/chirality-piping/schemas/model_operation.schema.json
+@@ -334,6 +334,13 @@
+           "enum": [
+             "add_object",
+             "remove_object",
++            "split_pipe_run",
++        "transform_pipe_run",
++        "assign_section",
++            "detach_section",
++            "delete_material",
++            "delete_section",
++            "delete_component",
+             "set_field",
+             "move_geometry",
+             "reconnect",
+diff --git a/projects/chirality-piping/tests/test_model_operation_schema.py b/projects/chirality-piping/tests/test_model_operation_schema.py
+index 9fe04e20e..88756a1a8 100644
+--- a/projects/chirality-piping/tests/test_model_operation_schema.py
++++ b/projects/chirality-piping/tests/test_model_operation_schema.py
+@@ -226,6 +226,13 @@ def main():
+     assert {
+         "add_object",
+         "remove_object",
++        "split_pipe_run",
++        "transform_pipe_run",
++        "assign_section",
++        "detach_section",
++        "delete_material",
++        "delete_section",
++        "delete_component",
+         "set_field",
+         "move_geometry",
+         "reconnect",

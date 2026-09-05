@@ -1,0 +1,5 @@
+# Sealed A2 brief v1
+RequestedBy WORKING_ITEMS; parent N2_WI_PKG16; run HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY; child A2_DETAIL_DESIGN; Package PKG16; scope DEL1602 toolkit backend authoring.
+Objective: inspect exact existing PreviewSupport, MaterialTemperaturePointInput and WindExposedSpanInput contracts/consumer validations; propose minimal precise operation authoring interfaces for rich support, temperature tables and wind spans. Read existing root/project AGENTS and agents/AGENT_TASK.md, skills/software-repository-reconnaissance/SKILL.md. Role Agent2, no delegation, no sibling messages.
+Reads: projects/chirality-piping/**, root AGENTS, agents/AGENT_TASK.md, skills/software-*/SKILL.md. Tools read/bash/write, no network/agents. Writes ONLY this instance A2_RETURN.md.
+No source edits. Expected return precise payloads, closed enums and invariant validations grounded in source locations, implementation-module split proposal; missing authority surfaced. D58 agent live binding remains held; no physics formula invention. Acceptance: all three families mapped against actual model consumers, no guessed enums.

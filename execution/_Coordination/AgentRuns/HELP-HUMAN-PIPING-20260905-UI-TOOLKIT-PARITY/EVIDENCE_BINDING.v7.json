@@ -1,0 +1,66 @@
+{
+  "recorded_utc": "2026-09-05T04:39:51.757722+00:00",
+  "evidence_sha256": {
+    "instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/MANIFEST.json": "872b2f4ffb7f850e59b80a34a31daad33320c456e6d96fc897c8f636b6faf4a4",
+    "instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/checks-v4-full.json": "cb2746a7156415b1aff6d0aa6ad141ba52d11ba4034a9871d57dae6efc8011e6",
+    "instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/INDEPENDENT_REVIEW.md": "392bc59b0dec3c97aecd21134bd2df6149036a19b73043eb1d13479803660122",
+    "instances/N1_WI_PKG07/TIER3_WORK_GRAPH_V1.json": "e117be20301900596f72216da6f6565ff246bed292aaa764d7603fd294882372",
+    "N2_WI_PKG16/C_ACCEPTED_SNAPSHOT_V1.json": "178eb3b6efe8a20be6da0db6abc693f10b0549b83c739fc8ff790f30c801dc28",
+    "N2_WI_PKG16/NATIVE_ACCEPTED_SNAPSHOT_V1.json": "8bf7481785b957db5e679445c620b254bf4c4cae0c324210ca9139d737bc35dc",
+    "N2_WI_PKG16/RC_BRIEF.md": "278c95158edce90f6ce9d74dc71444e572fb9ba5a03b5cf65bdaedceeebae2b7",
+    "N2_WI_PKG16/RC_RETURN.md": "bd6b331b268b8c490fff30b11003188db3b70bb34bb482a6a27780034cc54ecf",
+    "N2_WI_PKG16/RN_RETURN.md": "62479db03c022c72903a3399213a70e1c30c019c46c536368e6e49038b6fcb54",
+    "N2_WI_PKG16/C_CHECKS.json": "2c0c5946d94b64f2aa177f50b91d40b873b0e62b3855124d0079bb4fd52567c0",
+    "N2_WI_PKG16/NATIVE_FINAL_CHECKS.json": "7f09f8ce710f8ef77fe4109dd37111e9cf499eba69d5e00ee39efdaae929e309",
+    "N2_WI_PKG16/NATIVE_BASELINE_DIAGNOSIS.md": "5afa152c47ffc89730e9029119cb2acce0201b1af817e31aa828cbc93a23504a",
+    "N2_WI_PKG16/RUNTIME_LIMITATIONS.md": "abbd905b39dc593f4f451601956c144fa429b125587dc5d529eda5e84ba9ff3e",
+    "N2_WI_PKG16/_run_records/RC_LATE_START_ATTRIBUTION.json": "9cea65bf5d7891effdab9f9395d0d966e2c24e76e29eae79049b5747c36681cb",
+    "instances/N4_WI_PKG03/PKG03_ACCEPTED_SNAPSHOT_C2.json": "460ffe2ca13c036355f65c372b23778fd54b5abc5315c5f68aece48412cbf5b0",
+    "instances/N4_WI_PKG03/REVIEW_C2_RETURN.md": "37a0045ad08e2f155e83b1e480bc070924e149aa2a65e0faf8f9213fece95870",
+    "instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json": "191102ead5b70cc80ea81a251ec208e2f445d21c702da00dcf532b3229b69859",
+    "instances/N5_WI_PKG05/FAILED_LAUNCH_RECOVERY_SNAPSHOT_V1.json": "f5732ea6a50e6adde826c389a0437516e4586bbbb1a00f88348210b1c7d60056",
+    "instances/N5_WI_PKG05/FAILED_LAUNCH_RECOVERY_V1.md": "8eb7796aca12b4107fbb2d4c63f732fe561a74f15c999a2fc9537848490dd4db",
+    "instances/N5_WI_PKG05/children/A2_SOURCE_REVIEW/RETURN.md": "41ca91d639b7cc681fc14890ba093dfe4a55a67b0d6e52e44993b5d133a1fd70",
+    "instances/N_SELFWEIGHT_ADAPTER_REFUTE/RECHECK_V2.md": "74cc1ce01b4848ada7d06c6095f77196d4942be01aed01ffd0ee8527eb4e575c",
+    "instances/N_ENV/C_WASM_BUILD.json": "7f0022f8895dc79eb40fb79a7f6b40ca878ba8434ca9d574e553587ab322b1c3",
+    "instances/N8_CHANGE/STATUS_v1.json": "6d4b068cdd947354fab43cc91ba4c65145f850afea0ac32d4e284c99328f396a"
+  },
+  "project_issue_plan_sha256": {
+    "projects/chirality-piping/plans/2026-09-05-ui-toolkit-parity-loop-issues.md": "d3a8f6b79e5b5aa8c1d56d02a315f20e88f4187f05c1ba36b19c28a0fa8e220d"
+  },
+  "previous_frozen_root_sha256": {
+    "WORK_GRAPH.v4.json": "6c2ffdf8265d8de31fe1efd1aaf6e70d574458c99294d7c7ab23adc895ddec89",
+    "OWNER_DIRECTION.md": "bd88bd9112352859e5934d9291c2453067e1d0ab82752de309b2237c05e8dca3",
+    "WORK_GRAPH.v5.json": "ddaea5e7cbf2dd4487ca1623c235382f307796b2f6e04f1cf9f3a3997343fa56",
+    "HANDOFF_STATE.v3.md": "a4e14db6b6a55d0d57dffe0d9cf841550a149c604644e81e7c6e530ee95f79ff",
+    "WORK_GRAPH.v2.json": "d2785c5497da19fd99f1fa6c19ba16dab965cb6b51376455c1826c107e3a6b50",
+    "ORCHESTRATION_PLAN.v6_AMENDMENT.md": "9b2e29a58660124f657889ca4fab96145937d71a22271537dc8dadbc2581e6b0",
+    "EVIDENCE_BINDING.v4.json": "6676cd5450eed0f697404a7a5197f829f26de403e741cac93b3c92efaa75d19b",
+    "EVIDENCE_BINDING.v5.json": "d0ce2312ceffa23bfba1b566bb5fbb469c1ef4c0fc772f180fc9afd2c1a7ce2b",
+    "HANDOFF_STATE.v6.md": "268bd01cd9fe81c7e761cb325d3536fab74a731f0d4373838153785ec8139fcd",
+    "WORK_GRAPH.v3.json": "9c40d7a63b88a2bf6750b2c0c22e150d94f058c682296155076ed1a39b465deb",
+    "HANDOFF_STATE.v5.md": "f3765c74a89939b1bd5702df35e2a2a8e3bebf827d44be0a67374f76d5592e38",
+    "EVIDENCE_BINDING.v6.json": "c49cf5b0717b2525c336a5cfff8381f03e3fff78fb5a5bcff6d68faef46ee8df",
+    "ORCHESTRATION_PLAN.v2_AMENDMENT.md": "7c5404adcf5280fac07401e15b0408da25028dc753f51b7f4f646e3430efd88a",
+    "ORCHESTRATION_PLAN.v5_AMENDMENT.md": "ca83a2596593e1632a0cba42095e834538df41e4a5f89dad2124037ee2439126",
+    "ORCHESTRATION_PLAN.md": "ad668632c1924bec43a33c6ef0a5c753d1c831194c236c62e7f476c6ee87fdf3",
+    "ORCHESTRATION_PLAN.v4_AMENDMENT.md": "66c1c549518af9b2f8f96173d2d5c09c7094bbfa4b4da6bae4e2969dc9d34d9f",
+    "HANDOFF_STATE.v4.md": "196a11ef6db1402565ab087a112e440bc8263795b8e86dcd5b6ebcdb25f91cd6",
+    "ORCHESTRATION_PLAN.v3_AMENDMENT.md": "86f2e5a3878695cbedfc538c0e80b788c84680f33b2ba34d5c6175514a3a5907",
+    "WORK_GRAPH.v6.json": "649f58055098a34525b2581d02f9abf4783fccbf00e2173ff623bbcb89f56c2f",
+    "WORK_GRAPH.json": "ea99aee5a99ab2fb5dcc7fa0971572227b7a3986dfb25dcb2c4c21cfc452029e",
+    "HANDOFF_STATE.md": "c5a45f2eaef7b3b6357e2233bfc8be775b426f2fa282e05dffc825f14e7217a0"
+  },
+  "checks": [
+    "JSON/DAG PASS",
+    "prior root records preserved",
+    "C build exit0 unchanged source/dependencies and accepted snapshot hash match"
+  ],
+  "build_hash_dictionary_counts": {
+    "frozen_hashes_before": 12,
+    "local_dependency_hashes_before": 12,
+    "frozen_hashes_after": 12,
+    "local_dependency_hashes_after": 12
+  },
+  "calibration": "Accepted snapshot/actual review bindings; no source re-execution/current equivalence inferred. Tier3 dispatch underway parent-reported. N5 recovery and N2 late attribution retained distinctly."
+}

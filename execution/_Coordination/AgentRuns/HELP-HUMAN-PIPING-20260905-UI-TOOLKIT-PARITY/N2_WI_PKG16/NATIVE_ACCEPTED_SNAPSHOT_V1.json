@@ -1,0 +1,25 @@
+{
+  "status": "BOUNDED_NATIVE_IMPLEMENTATION_ACCEPTED",
+  "source_hashes": {
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml": "7e48badcd16c2a4501453550774350d3f39c06009f639c4c8fe9c38f919008ba",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9"
+  },
+  "basis": [
+    "C_ACCEPTED_SNAPSHOT_V1.json",
+    "NATIVE_N4_ACCEPTED_BASIS.json",
+    "../instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json",
+    "NATIVE_AMENDMENT_BRIEF_V1.md"
+  ],
+  "review": "RN_RETURN.md",
+  "checks": "NATIVE_FINAL_CHECKS.json",
+  "native_tests": "80 passed,0 failed",
+  "resolved_baseline": "NATIVE_BASELINE_DIAGNOSIS.md inherited test aligned substantively; production notice unchanged",
+  "derivative_status": "accepted run implementation evidence, not decomposition truth",
+  "lifecycle": "unchanged",
+  "remaining": [
+    "parent UI/runtime parity and renderer race/checkpoint gate",
+    "registered broader deterministic checks",
+    "cross-package fan-in"
+  ]
+}

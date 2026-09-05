@@ -1,0 +1,19 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring",
+    "projects/chirality-piping/apps/desktop/src/features/support-configuration",
+    "projects/chirality-piping/apps/desktop/src/features/material-temperature",
+    "projects/chirality-piping/apps/desktop/src/features/wind-exposure",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

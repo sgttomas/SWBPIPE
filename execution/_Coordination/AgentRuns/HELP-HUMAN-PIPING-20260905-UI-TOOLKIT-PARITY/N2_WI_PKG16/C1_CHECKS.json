@@ -1,0 +1,32 @@
+{
+  "run_status": "SUCCESS",
+  "source_prerequisite": "B3_ACCEPTED_SNAPSHOT.json all seven source hashes verified; R3_RETURN.md PASS; B4 V3 design hash verified before edits",
+  "source": "{WORKING_ROOT}/core/model_operations/operation_applier/src/atomic_batch.rs",
+  "source_sha256": "f73a763cd9d273e8f802304f1150c316ff5470739692fb41c95dc19ff2450aa6",
+  "checks": [
+    {
+      "command_template": "CARGO_TARGET_DIR={SCRATCH_TARGET} cargo test --offline --manifest-path {WORKING_ROOT}/core/model_operations/operation_applier/Cargo.toml --quiet",
+      "status": "PASS",
+      "exit_code": 0,
+      "unit_tests": 132,
+      "native_contract_tests": 1,
+      "canonical_hash_tests": 2,
+      "owned_module_tests": 9
+    },
+    {
+      "command_template": "rustfmt --edition 2021 {WORKING_ROOT}/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "status": "PASS"
+    }
+  ],
+  "warnings": [],
+  "write_scope": [
+    "{WORKING_ROOT}/core/model_operations/operation_applier/src/atomic_batch.rs",
+    "{INSTANCE}/C1_RETURN.md",
+    "{INSTANCE}/C1_CHECKS.json"
+  ],
+  "remaining": [
+    "Frozen integrated independent review",
+    "Native/Wasm/UI broad verification and asynchronous renderer model-generation guard tests"
+  ],
+  "parent_integration": "lib.rs private context function and native/Wasm exports supplied by parent; C3 boundary token supplied concurrently"
+}

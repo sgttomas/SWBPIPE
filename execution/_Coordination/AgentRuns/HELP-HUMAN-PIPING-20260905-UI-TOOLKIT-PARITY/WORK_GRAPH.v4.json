@@ -1,0 +1,391 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "version": 4,
+  "frozen": true,
+  "status": "IN_PROGRESS",
+  "recorded_utc": "2026-09-05T04:04:30.014196+00:00",
+  "scope_selection_authority": "HUMAN",
+  "graph_selection_authority": "AGENT_0",
+  "posture": "MIXED",
+  "basis": {
+    "head": "740569598f9d00440636b8ea25264127f418e4ec",
+    "branch": "codex/piping-ui-toolkit-parity",
+    "decomposition": "rev0.12 / SCA-009",
+    "dag": "DAG-010",
+    "runtime_gate": "SCA-008 / D-58",
+    "non_git_basis_source": "parent-declared"
+  },
+  "nodes": [
+    {
+      "id": "N0",
+      "role": "EPHEMERAL_AGENT_2",
+      "package_id": null,
+      "objective": "Initial frozen coordination record",
+      "status": "COMPLETED_RECORDING_ONLY",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N1",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-07",
+      "objective": "Contract/map then UI implementation",
+      "status": "PHASE_A_ACCEPTED_SOURCE_B0_B1_B2_ACTIVE",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "interface_relay": "Stable N2 B1 interface; no additional UI source grant inferred",
+      "record_path": "instances/N1_WI_PKG07/",
+      "source_write_authority": "sole desktop src manager; B0 shared integration and exact disjoint B2 module child fences; reviewed backend dependencies gate consumers"
+    },
+    {
+      "id": "N2",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-16",
+      "objective": "Operation/backend implementation",
+      "status": "B1_ACCEPTED_B2_R2_FAIL_REMEDIATION_REQUIRED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "record_path": "N2_WI_PKG16/",
+      "accepted_brief": "N2_WI_PKG16/B1_BRIEF.md",
+      "source_write_authority": "sole operation/schema integration owner and sole apps/desktop/src-tauri/src/lib.rs writer for accepted display/batch/later planning facades",
+      "exclusions": [
+        "desktop",
+        "product_physics",
+        "Cargo.lock",
+        "assignment",
+        "unrelated tests"
+      ],
+      "b3": "DESIGN_ACCEPTED_PARENT_REPORTED; source follows B2 re-review PASS",
+      "b4": "DESIGN_IN_DIRECT_REFUTATION_PARENT_REPORTED; no source acceptance"
+    },
+    {
+      "id": "N3",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-02",
+      "objective": "Model and unit contract support",
+      "status": "ROW17_BOUNDED_IMPLEMENTATION_ACCEPTED_108_TESTS_PASS",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "source_write_authority": "completed exact fence released to parent for next serialized owner; not general product_physics permission",
+      "accepted_snapshot": "instances/N3_WI_PKG02/SECTION_ACCEPTED_SNAPSHOT_V1.json"
+    },
+    {
+      "id": "N4",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-03",
+      "objective": "Hanger-library support as necessary",
+      "status": "V2_PASS_DESIGN_ONLY_SOURCE_HELD",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "source_write_authority": "HELD until existing wave accepted and exact release"
+    },
+    {
+      "id": "N5",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-05",
+      "objective": "Automatic self-weight support as necessary",
+      "status": "DESIGN_PASS_PARENT_REPORTED_SOURCE_HELD",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "source_write_authority": "HELD until existing wave accepted and exact release"
+    },
+    {
+      "id": "N6",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-04",
+      "objective": "Row21 nozzle/equipment boundary design intake",
+      "status": "V3_PASS_DESIGN_ONLY_SOURCE_HELD",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "instance_id": "N6_WI_PKG04",
+      "source_write_authority": "HELD until existing wave accepted and exact release"
+    },
+    {
+      "id": "N7",
+      "role": "TASK",
+      "package_id": null,
+      "objective": "Fresh independent review of 100% frozen diff",
+      "status": "PLANNED_NOT_EXECUTION_EVIDENCE",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N8",
+      "role": "CHANGE",
+      "package_id": null,
+      "objective": "Validated scoped Git closeout without merge",
+      "status": "PLANNED_NOT_EXECUTION_EVIDENCE",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N_ENV",
+      "role": "EPHEMERAL_AGENT_2",
+      "package_id": null,
+      "objective": "Independent environment provisioning; no product writes",
+      "status": "PROVISIONED_PORTABILITY_REMEDIATED",
+      "actual_model": "unavailable",
+      "execution_details": "Owned launch/status/return supply exact instance and fence; not known by N0",
+      "record_path": "instances/N_ENV/",
+      "residual": "rebuild Wasm after engine changes; host escalation needed for browser run; no full suite pass claimed"
+    },
+    {
+      "id": "N_BATCH_CONTRACT_REFUTE",
+      "role": "EPHEMERAL_AGENT_2",
+      "status": "ACTIVE_PARENT_REPORTED",
+      "objective": "Direct independent B4 batch design refutation",
+      "source_write_authority": "none",
+      "record_path": null,
+      "actual_model": "unavailable"
+    }
+  ],
+  "edges": [
+    {
+      "source": "N1:map_accepted",
+      "target": "N1:B0_B1_B2_active",
+      "condition": "accepted exact desktop fences"
+    },
+    {
+      "source": "N2:B1_accepted",
+      "target": "N2:B2_implemented",
+      "condition": "serialized existing wave"
+    },
+    {
+      "source": "N2:B2_implemented",
+      "target": "N2:R2_fail",
+      "condition": "actual review FAIL; two actionable findings"
+    },
+    {
+      "source": "N2:R2_fail",
+      "target": "N2:B2_remediation",
+      "condition": "repair R2-1 and R2-2"
+    },
+    {
+      "source": "N2:B2_remediation",
+      "target": "N2:R2_rereview",
+      "condition": "new frozen hashes and fresh review return"
+    },
+    {
+      "source": "N2:R2_rereview",
+      "target": "G_EXISTING_WAVE_ACCEPTED",
+      "condition": "PASS and parent acceptance required"
+    },
+    {
+      "source": "N1:B0_B1_B2_active",
+      "target": "G_EXISTING_WAVE_ACCEPTED",
+      "condition": "reviewed compatible existing UI wave"
+    },
+    {
+      "source": "N3:row17_accepted_released",
+      "target": "N2:B3_design_accepted",
+      "condition": "accepted shared-section consumer snapshot"
+    },
+    {
+      "source": "N2:B3_design_accepted",
+      "target": "N2:B3_implementation",
+      "condition": "B2 PASS plus exact fence; assignment/detach/cache and explicit optional mass inputs"
+    },
+    {
+      "source": "N2:R2_rereview",
+      "target": "N2:B3_implementation",
+      "condition": "PASS prerequisite"
+    },
+    {
+      "source": "N2:B4_design",
+      "target": "N_BATCH_CONTRACT_REFUTE",
+      "condition": "design review only"
+    },
+    {
+      "source": "N_BATCH_CONTRACT_REFUTE",
+      "target": "G_B4_SOURCE_ACCEPTANCE",
+      "condition": "PASS and exact parent source acceptance still required"
+    },
+    {
+      "source": "G_B4_SOURCE_ACCEPTANCE",
+      "target": "N2:B4_implementation",
+      "condition": "source release; not yet granted"
+    },
+    {
+      "source": "G_EXISTING_WAVE_ACCEPTED",
+      "target": "G_NEW_SOURCE_FENCES",
+      "condition": "existing before net-new"
+    },
+    {
+      "source": "N4:v2_design_pass",
+      "target": "G_NEW_SOURCE_FENCES",
+      "condition": "design only"
+    },
+    {
+      "source": "N5:design_pass_parent_reported",
+      "target": "G_NEW_SOURCE_FENCES",
+      "condition": "design only; durable PASS not located by recorder"
+    },
+    {
+      "source": "N6:v3_design_pass",
+      "target": "G_NEW_SOURCE_FENCES",
+      "condition": "design only"
+    },
+    {
+      "source": "G_NEW_SOURCE_FENCES",
+      "target": "N4:implementation",
+      "condition": "exact disjoint source fence required; currently HELD"
+    },
+    {
+      "source": "G_NEW_SOURCE_FENCES",
+      "target": "N5:implementation",
+      "condition": "exact disjoint source fence required; currently HELD"
+    },
+    {
+      "source": "G_NEW_SOURCE_FENCES",
+      "target": "N6:implementation",
+      "condition": "exact disjoint source fence required; currently HELD"
+    },
+    {
+      "source": "G_EXISTING_WAVE_ACCEPTED",
+      "target": "G_FINAL_FAN_IN",
+      "condition": "accepted implementation evidence or explicit residual disposition required"
+    },
+    {
+      "source": "N2:B3_implementation",
+      "target": "G_FINAL_FAN_IN",
+      "condition": "accepted implementation evidence or explicit residual disposition required"
+    },
+    {
+      "source": "N2:B4_implementation",
+      "target": "G_FINAL_FAN_IN",
+      "condition": "accepted implementation evidence or explicit residual disposition required"
+    },
+    {
+      "source": "N4:implementation",
+      "target": "G_FINAL_FAN_IN",
+      "condition": "accepted implementation evidence or explicit residual disposition required"
+    },
+    {
+      "source": "N5:implementation",
+      "target": "G_FINAL_FAN_IN",
+      "condition": "accepted implementation evidence or explicit residual disposition required"
+    },
+    {
+      "source": "N6:implementation",
+      "target": "G_FINAL_FAN_IN",
+      "condition": "accepted implementation evidence or explicit residual disposition required"
+    },
+    {
+      "source": "N_ENV:ready",
+      "target": "G_FINAL_FAN_IN",
+      "condition": "accepted implementation evidence or explicit residual disposition required"
+    },
+    {
+      "source": "G_FINAL_FAN_IN",
+      "target": "N7:fresh_integrated_review",
+      "condition": "100% frozen integrated diff"
+    },
+    {
+      "source": "N7:fresh_integrated_review",
+      "target": "G_DEC025",
+      "condition": "PASS no actionable findings"
+    },
+    {
+      "source": "G_DEC025",
+      "target": "N8:closeout",
+      "condition": "required checks pass; scoped Git only"
+    }
+  ],
+  "edge_semantics": "Chronological remediation vertices preserve FAIL before remedy/re-review. No back-edge or inferred review PASS. Held source gates require later recorded acceptance.",
+  "phase_a_parallel": [],
+  "serialization": {
+    "operation_applier_and_operation_schemas": "N2",
+    "desktop_src_and_ui_tests": "N1",
+    "shared_product_physics_schema_types": "one named owner under versioned Agent 0 exact fence",
+    "conditional_manager_source_writes": "prohibited until exact fence versioned"
+  },
+  "integration_owner": "HELP_HUMAN \u2014 cross-manager fan-in only; no source writes",
+  "git_closeout_owner": "CHANGE",
+  "delegation_class": "delegated-harness-native",
+  "enforcement_calibration": "instruction+config asserted; not mechanism-proven",
+  "gated": [
+    "D-58 runtime binding",
+    "roadmap R1-R3",
+    "lifecycle/release/professional acceptance"
+  ],
+  "planned_outputs": [
+    "24-row capability map",
+    "UI/operation implementation",
+    "tests",
+    "coverage ledger and deliverable residuals",
+    "blockers and remaining scope"
+  ],
+  "phase_vertices": [
+    "N1:map_accepted",
+    "N1:B0_B1_B2_active",
+    "N2:B1_accepted",
+    "N2:B2_implemented",
+    "N2:R2_fail",
+    "N2:B2_remediation",
+    "N2:R2_rereview",
+    "G_EXISTING_WAVE_ACCEPTED",
+    "N3:row17_accepted_released",
+    "N2:B3_design_accepted",
+    "N2:B3_implementation",
+    "N2:B4_design",
+    "N_BATCH_CONTRACT_REFUTE",
+    "G_B4_SOURCE_ACCEPTANCE",
+    "N2:B4_implementation",
+    "N4:v2_design_pass",
+    "N5:design_pass_parent_reported",
+    "N6:v3_design_pass",
+    "G_NEW_SOURCE_FENCES",
+    "N4:implementation",
+    "N5:implementation",
+    "N6:implementation",
+    "N_ENV:ready",
+    "G_FINAL_FAN_IN",
+    "N7:fresh_integrated_review",
+    "G_DEC025",
+    "N8:closeout"
+  ],
+  "source_integration_owners": {
+    "desktop": "N1 within exact fence",
+    "operation_and_operation_schema": "N2 within exact fence"
+  },
+  "supersedes": "WORK_GRAPH.v3.json; v1-v3 preserved",
+  "amendment_authority": "HELP_HUMAN parent v4 recorder instruction; source judgments under user implementation authority",
+  "agent0_dispositions": [
+    {
+      "subject": "N1 PhaseA",
+      "disposition": "ACCEPT_SNAPSHOT_SOURCE_ACTIVE"
+    },
+    {
+      "subject": "N2 B1",
+      "disposition": "ACCEPT_BOUNDED_SNAPSHOT"
+    },
+    {
+      "subject": "N2 B2",
+      "disposition": "REMEDIATE_R2_FAIL_THEN_REREVIEW"
+    },
+    {
+      "subject": "N2 B3",
+      "disposition": "DESIGN_ACCEPTED_SOURCE_AFTER_B2_PASS",
+      "basis": "parent-reported"
+    },
+    {
+      "subject": "N3 row17",
+      "disposition": "ACCEPT_BOUNDED_SNAPSHOT_RELEASE_COMPLETED_FENCE"
+    },
+    {
+      "subject": "N4/N5/N6",
+      "disposition": "DESIGN_ONLY_SOURCE_HELD"
+    },
+    {
+      "subject": "N2 B4",
+      "disposition": "REFUTATION_PENDING_NO_SOURCE_ACCEPTANCE"
+    }
+  ],
+  "narrow_wave_policy": "B1 existing-capability repair proceeds via separate accepted gate without claiming broader G1 or N3/N4/N5 source acceptance.",
+  "evidence_manifest": "EVIDENCE_BINDING.v4.json",
+  "current_parallel_work": [
+    "N1 disjoint UI children under manager",
+    "N2 B2 remediation",
+    "N_BATCH_CONTRACT_REFUTE design only"
+  ]
+}

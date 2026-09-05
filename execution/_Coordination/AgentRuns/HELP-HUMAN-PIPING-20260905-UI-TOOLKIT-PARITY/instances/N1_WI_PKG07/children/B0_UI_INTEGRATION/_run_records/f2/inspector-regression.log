@@ -1,0 +1,17 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop -- src/App.test.tsx -t selects rendered viewport entities into the shared model inspector
+
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t selects rendered viewport entities into the shared model inspector
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 117 skipped (118)
+   Start at  23:45:18
+   Duration  1.86s (transform 739ms, setup 43ms, import 869ms, tests 776ms, environment 117ms)
+

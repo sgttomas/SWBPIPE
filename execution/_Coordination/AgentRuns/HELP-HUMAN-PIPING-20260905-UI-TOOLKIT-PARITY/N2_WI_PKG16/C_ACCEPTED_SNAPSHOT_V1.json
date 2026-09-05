@@ -1,0 +1,36 @@
+{
+  "status": "BOUNDED_IMPLEMENTATION_ACCEPTED",
+  "source_hashes": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/boundary_association.rs": "3c31de07d6933f3200e4a95dc356a4bf7572412e642d7f88b66481657b927d8d",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/section_bindings.rs": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/geometry_operations.rs": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs": "f73a763cd9d273e8f802304f1150c316ff5470739692fb41c95dc19ff2450aa6",
+    "projects/chirality-piping/schemas/model_operation.schema.json": "7bdb79be17ce332a81275c9bd5a83250c74bfb6b96a9a1675ad1aef470898f44",
+    "projects/chirality-piping/tests/test_model_operation_schema.py": "33438df9ce9f4b475fdc85c756aa7338887e55b7bc515a1b3aeb50a8d18f68e3",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "5fbfb6376551163787e5478acf7a73835e027a7a59078447c9b0c7896ebb1890",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml": "7e48badcd16c2a4501453550774350d3f39c06009f639c4c8fe9c38f919008ba",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9"
+  },
+  "basis": [
+    "B3_ACCEPTED_SNAPSHOT.json",
+    "B4_BATCH_DESIGN_V3.md",
+    "PRIVATE_BATCH_CONTEXT_API_V2.md",
+    "BOUNDARY_CONTEXT_DESIGN_V2.md",
+    "STAGE_C_MODULE_PLAN.md",
+    "../instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json"
+  ],
+  "review": "RC_RETURN.md",
+  "checks": "C_CHECKS.json",
+  "derivative_status": "accepted run implementation evidence, not decomposition truth",
+  "lifecycle": "unchanged",
+  "remaining": [
+    "operation Wasm build and real UI parity",
+    "renderer async generation/initial-hash commit guard",
+    "native baseline unrelated rule-pack notice assertion",
+    "N4 accepted hanger arm later bounded native amendment",
+    "cross-package deterministic fan-in"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "node": "N0",
+  "parent": "/root",
+  "instance": "/root/coordination_record",
+  "actual_model": "unavailable",
+  "recorded_utc": "2026-09-05T03:45:22.120653+00:00",
+  "instruction_root_environment": "unset",
+  "instruction_hashes_sha256": {
+    "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "agents/AGENT_TASK.md": "80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N0_coordination_record/LAUNCH_BRIEF.md": "e2c1478e123408252a7de7ed87aabedcf6af54d70f2c54c2b881fa80e8c804c0"
+  },
+  "tools_used": [
+    "functions.exec / tools.exec_command",
+    "collaboration.send_message"
+  ],
+  "delegated_children": [],
+  "git_basis_verified": {
+    "head": "740569598f9d00440636b8ea25264127f418e4ec",
+    "branch": "codex/piping-ui-toolkit-parity"
+  },
+  "execution_evidence": "Actual native child session; model identifier not exposed"
+}

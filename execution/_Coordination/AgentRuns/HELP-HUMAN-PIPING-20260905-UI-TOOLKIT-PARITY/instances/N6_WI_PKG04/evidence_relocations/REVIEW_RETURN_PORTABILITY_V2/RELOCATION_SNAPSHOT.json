@@ -1,0 +1,19 @@
+{
+  "schema": "piping.evidence-portability-relocation/v1",
+  "status": "mechanical_portability_repair",
+  "recorded_at_utc": "2026-09-05T05:25:12.775286+00:00",
+  "scope": "N6 A2_REFUTATION active return only; outside global108 product members",
+  "active_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/A2_REFUTATION/REVIEW_RETURN.md",
+  "original_encoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/evidence_relocations/REVIEW_RETURN_PORTABILITY_V2/ORIGINAL_ENCODED.json",
+  "original_sha256": "90f622017a4b3c6cc6c12fefeb11ef625f0f7589ba144b27f248cf7ad5133dee",
+  "decoded_original_sha256": "90f622017a4b3c6cc6c12fefeb11ef625f0f7589ba144b27f248cf7ad5133dee",
+  "active_sha256": "33dac8cd2b319a1b16330634a6601d207f96a5c4b6fc2298cbc9bb753bba5252",
+  "original_encoded_file_sha256": "3d32645a2aad8dde1a8be2ba650730eb9437d4008fb139c0bdc09c1b0f7bdc46",
+  "transformation": "Replace checkout-specific ResolvedSkillPath prefix on original line50 with {REPO_ROOT}; all other bytes unchanged.",
+  "old_path_prefix_encoding": "Original checkout path retained only inside base64 original evidence.",
+  "event_time_policy": "No original event time changed; recorded_at_utc is actual repair time.",
+  "source_contract_changes": false,
+  "boundary_wire_contract_changed": false,
+  "review_verdict_changed": false,
+  "historical_hash_policy": "Prior accepted manifests remain unchanged; original old hash resolves to decoded raw bytes in this relocation."
+}

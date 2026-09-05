@@ -1,0 +1,26 @@
+{
+  "status": "MODULE_ACCEPTED",
+  "source_manifest": {
+    "files": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/display-units/displayUnits.test.tsx",
+        "sha256": "f42010b92ab15d5b96e606a52dab71f6df5d27c22c3b4174b03e5ffc80798b45"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/display-units/index.tsx",
+        "sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/display-units/targets.ts",
+        "sha256": "fca1be3d49932312156dc597864b7f734a0428f9eb63330f5b9f8cddf169700f"
+      }
+    ]
+  },
+  "review": "children/R_T4_DISPLAY/RETURN_V2.md",
+  "tests": "6focusedPASS",
+  "remaining": [
+    "B0visible renderer integration",
+    "final integrated review and real converter tests"
+  ],
+  "derivative_status": "implementation evidence only"
+}

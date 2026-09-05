@@ -1,0 +1,353 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 29
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "FINISH": 28,
+      "START": 29
+    },
+    "outcome": {
+      "FAIL": 3,
+      "PASS": 25,
+      "STARTED": 29
+    },
+    "reason_code": {
+      "A11Y_DISABLED_REASON": 1,
+      "REVIEW_CHANGES_REQUIRED": 1,
+      "REVIEW_REMEDIATION": 1,
+      "US_VOLUME_TARGET": 1
+    }
+  },
+  "events": 57,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 543.61,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_COVERAGE_FINAL",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "coverage-final"
+    },
+    {
+      "duration_seconds": 255.683,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "T4_DISPLAY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "display"
+    },
+    {
+      "duration_seconds": 136.557,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "T4_DISPLAY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "display-v2"
+    },
+    {
+      "duration_seconds": 634.685,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "T2_GEOMETRY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "geometry"
+    },
+    {
+      "duration_seconds": 76.313,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "T2_GEOMETRY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "geometry-v2"
+    },
+    {
+      "duration_seconds": 478.811,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_MAP",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "map"
+    },
+    {
+      "duration_seconds": 171.807,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_T4_DISPLAY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "renderer-review-v3"
+    },
+    {
+      "duration_seconds": 422.068,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "T4_DISPLAY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "renderer-v3"
+    },
+    {
+      "duration_seconds": 129.734,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_B2_MODULES",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-b2"
+    },
+    {
+      "duration_seconds": 242.353,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "R_T4_DISPLAY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-display"
+    },
+    {
+      "duration_seconds": 0.02,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_T4_DISPLAY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-display-v2"
+    },
+    {
+      "duration_seconds": 219.31,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "R_EXISTING",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-existing"
+    },
+    {
+      "duration_seconds": 172.864,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_EXISTING",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-existing-v2"
+    },
+    {
+      "duration_seconds": 71.475,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_T2_GEOMETRY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-geometry"
+    },
+    {
+      "duration_seconds": 101.427,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_T2_GEOMETRY",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-geometry-v2"
+    },
+    {
+      "duration_seconds": 151.657,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_REVIEW_MAP",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-map"
+    },
+    {
+      "duration_seconds": 145.762,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_T1_TRANSPORT",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-transport"
+    },
+    {
+      "duration_seconds": 372.317,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_T3_WORKFLOWS",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-workflows"
+    },
+    {
+      "duration_seconds": 85.046,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R_T3_WORKFLOWS",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "review-workflows-v2"
+    },
+    {
+      "duration_seconds": 839.32,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B2_RICH_FORMS",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "rich-forms"
+    },
+    {
+      "duration_seconds": 352.31,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "T1_TRANSPORT",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "transport"
+    },
+    {
+      "duration_seconds": 467.879,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B0_UI_INTEGRATION",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "ui-integration"
+    },
+    {
+      "duration_seconds": 632.001,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B0_UI_INTEGRATION",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "ui-integration-v2"
+    },
+    {
+      "duration_seconds": 769.653,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "B0_UI_INTEGRATION",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "ui-integration-v3"
+    },
+    {
+      "duration_seconds": 369.509,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B0_UI_INTEGRATION",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "ui-integration-v4"
+    },
+    {
+      "duration_seconds": 2348.033,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B0_UI_INTEGRATION",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "ui-integration-v5"
+    },
+    {
+      "duration_seconds": null,
+      "events": 1,
+      "final_outcome": null,
+      "instance_id": "N1_WI_PKG07",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "wi-pkg07"
+    },
+    {
+      "duration_seconds": 693.716,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "T3_WORKFLOWS",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "workflows"
+    },
+    {
+      "duration_seconds": 118.277,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "T3_WORKFLOWS",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "workflows-v2"
+    }
+  ],
+  "sessions": 29,
+  "status": "INCOMPLETE",
+  "unmatched_sessions": [
+    "wi-pkg07"
+  ]
+}

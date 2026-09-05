@@ -1,0 +1,18 @@
+{
+  "started_utc": "2026-09-05T06:07:21.931974+00:00",
+  "role": "Agent2 TASK software-code-review",
+  "parent": "/root",
+  "model": "unavailable/inherited",
+  "nondelegation": "instruction+config asserted",
+  "instruction_root": "{REPO_ROOT}",
+  "working_root": "{REPO_ROOT}/projects/chirality-piping",
+  "bindings": {
+    "LAUNCH_BRIEF_V2_BACKCHECK.md": "0b92386223d780288a4dd1d9f8c1b85cd82e66426625b71bf2c1ad2220709065",
+    "GLOBAL_PRODUCT_FREEZE_V2.json": "af4f6fdbc7e841b77bd4b382d1dd066d009bdab84c6f942af7dc0dafbd9669cf",
+    "GLOBAL_PRODUCT_DIFF_V2.patch": "a7e9e8c7621a7a6620a567329019e2b891aa2832d4051e9475eaa9780fecda43",
+    "GLOBAL_REPAIR_DELTA_V2.patch": "225750c1767bbf7eb89870667afc97186dc550052b0bdb65d915efbcfa1df6ab",
+    "GLOBAL_REVIEW_PARTITION_V2.json": "180cb0bc03a64f95e00faf832d23f6029a4322b9a5a307d459190a6dba82a32f",
+    "GLOBAL_EVIDENCE_INVENTORY_V2.json": "13c223cbee30860150837b494bc651d66ed96ce87cf9f1f7051340a484054135"
+  },
+  "status": "RUNNING"
+}

@@ -1,0 +1,191 @@
+{
+  "status": "complete",
+  "started_at": "2026-09-05T04:15:53.605719+00:00",
+  "snapshot": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B3_ACCEPTED_SNAPSHOT.json",
+  "snapshot_sha256": "96326a1f9a59baf1199872bb691e9c0dc8ad077d9a89c1466349ee15e7eecb49",
+  "accepted_source_hashes_before": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "f08f76bd8cbc7fc4bad5d4fa9879ca132356bfe15e96813ffa2de6b5272b2612",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs": "770d4f7f943500d975d400ecc6c1e860724d3457a0640ebed927a3f69b1d62b3",
+    "projects/chirality-piping/schemas/model_operation.schema.json": "5d34f67b2022b40ac48fa7f3f6f2e1ba08352cc51bafda48623b36921d6dc143",
+    "projects/chirality-piping/tests/test_model_operation_schema.py": "1cc2edf217e8822bf37da0d105389966eb748ecfc7be60d998ba8cc6278acff5",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "234c8010d15c696f180c8340af4df0f8faf1051fe362e930fa21bee812663792",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/section_bindings.rs": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72"
+  },
+  "local_dependency_hashes_before": {
+    "core/serialization/canonical_json/Cargo.toml": "30dac091c5df988b0beeaf316b0a36157d73526c8a5466664f4efb433e4ab91d",
+    "core/serialization/canonical_json/src/lib.rs": "3fc4c97586988d4ef0ba5cfa748fbf26366230a4d95a3826d17f25247a7d1897",
+    "core/model_operations/operation_applier/Cargo.toml": "0a60331dac87de644cdc3ff4c4b2a0a125a313b73fb74efcf3e6e29c55deeff6",
+    "core/model_operations/operation_applier/src/lib.rs": "f08f76bd8cbc7fc4bad5d4fa9879ca132356bfe15e96813ffa2de6b5272b2612",
+    "core/model_operations/operation_applier/src/rich_authoring.rs": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345",
+    "core/model_operations/operation_applier/src/display_units.rs": "770d4f7f943500d975d400ecc6c1e860724d3457a0640ebed927a3f69b1d62b3",
+    "core/model_operations/operation_applier/src/section_bindings.rs": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72",
+    "core/units/Cargo.toml": "7216e6bddcdd99ed45d7ed9a8fc9471016a719bbc80d201d980eda69592220a7",
+    "core/units/src/lib.rs": "4bd102e98cc6be95562002637b48af4517dc88c9d82c23f8d1aede7c5fcf8592"
+  },
+  "command": "CARGO_TARGET_DIR={PIPING_UI_PARITY_CARGO_TARGET} npm run build:wasm:desktop",
+  "working_directory": "{WORKING_ROOT}",
+  "transitive_packages": [
+    {
+      "name": "block-buffer",
+      "version": "0.10.4",
+      "local": false
+    },
+    {
+      "name": "cfg-if",
+      "version": "1.0.4",
+      "local": false
+    },
+    {
+      "name": "cpufeatures",
+      "version": "0.2.17",
+      "local": false
+    },
+    {
+      "name": "crypto-common",
+      "version": "0.1.7",
+      "local": false
+    },
+    {
+      "name": "digest",
+      "version": "0.10.7",
+      "local": false
+    },
+    {
+      "name": "generic-array",
+      "version": "0.14.7",
+      "local": false
+    },
+    {
+      "name": "itoa",
+      "version": "1.0.18",
+      "local": false
+    },
+    {
+      "name": "libc",
+      "version": "0.2.186",
+      "local": false
+    },
+    {
+      "name": "memchr",
+      "version": "2.8.1",
+      "local": false
+    },
+    {
+      "name": "open_pipe_stress_canonical_json",
+      "version": "0.1.0",
+      "local": true
+    },
+    {
+      "name": "open_pipe_stress_operation_applier",
+      "version": "0.1.0",
+      "local": true
+    },
+    {
+      "name": "open_pipe_stress_units",
+      "version": "0.1.0",
+      "local": true
+    },
+    {
+      "name": "proc-macro2",
+      "version": "1.0.106",
+      "local": false
+    },
+    {
+      "name": "quote",
+      "version": "1.0.45",
+      "local": false
+    },
+    {
+      "name": "ryu",
+      "version": "1.0.23",
+      "local": false
+    },
+    {
+      "name": "serde",
+      "version": "1.0.228",
+      "local": false
+    },
+    {
+      "name": "serde_core",
+      "version": "1.0.228",
+      "local": false
+    },
+    {
+      "name": "serde_derive",
+      "version": "1.0.228",
+      "local": false
+    },
+    {
+      "name": "serde_json",
+      "version": "1.0.150",
+      "local": false
+    },
+    {
+      "name": "sha2",
+      "version": "0.10.9",
+      "local": false
+    },
+    {
+      "name": "syn",
+      "version": "2.0.117",
+      "local": false
+    },
+    {
+      "name": "typenum",
+      "version": "1.20.1",
+      "local": false
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.24",
+      "local": false
+    },
+    {
+      "name": "version_check",
+      "version": "0.9.5",
+      "local": false
+    },
+    {
+      "name": "zmij",
+      "version": "1.0.21",
+      "local": false
+    }
+  ],
+  "accepted_source_hashes_after": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "f08f76bd8cbc7fc4bad5d4fa9879ca132356bfe15e96813ffa2de6b5272b2612",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs": "770d4f7f943500d975d400ecc6c1e860724d3457a0640ebed927a3f69b1d62b3",
+    "projects/chirality-piping/schemas/model_operation.schema.json": "5d34f67b2022b40ac48fa7f3f6f2e1ba08352cc51bafda48623b36921d6dc143",
+    "projects/chirality-piping/tests/test_model_operation_schema.py": "1cc2edf217e8822bf37da0d105389966eb748ecfc7be60d998ba8cc6278acff5",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "234c8010d15c696f180c8340af4df0f8faf1051fe362e930fa21bee812663792",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/section_bindings.rs": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72"
+  },
+  "accepted_sources_unchanged": true,
+  "local_dependency_hashes_after": {
+    "core/serialization/canonical_json/Cargo.toml": "30dac091c5df988b0beeaf316b0a36157d73526c8a5466664f4efb433e4ab91d",
+    "core/serialization/canonical_json/src/lib.rs": "3fc4c97586988d4ef0ba5cfa748fbf26366230a4d95a3826d17f25247a7d1897",
+    "core/model_operations/operation_applier/Cargo.toml": "0a60331dac87de644cdc3ff4c4b2a0a125a313b73fb74efcf3e6e29c55deeff6",
+    "core/model_operations/operation_applier/src/lib.rs": "f08f76bd8cbc7fc4bad5d4fa9879ca132356bfe15e96813ffa2de6b5272b2612",
+    "core/model_operations/operation_applier/src/rich_authoring.rs": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345",
+    "core/model_operations/operation_applier/src/display_units.rs": "770d4f7f943500d975d400ecc6c1e860724d3457a0640ebed927a3f69b1d62b3",
+    "core/model_operations/operation_applier/src/section_bindings.rs": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72",
+    "core/units/Cargo.toml": "7216e6bddcdd99ed45d7ed9a8fc9471016a719bbc80d201d980eda69592220a7",
+    "core/units/src/lib.rs": "4bd102e98cc6be95562002637b48af4517dc88c9d82c23f8d1aede7c5fcf8592"
+  },
+  "local_dependencies_unchanged": true,
+  "generated_outputs_sha256": {
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "f589506bb3904911863bab2fe9cf47fd77cea87ddab61a7a73eafad21b5659c1",
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts": "c891eefa91b9354496bb86af21076b6e051e16ad0ee98238b475bc4ffef7707f",
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "952c0f159f79b1bc883186fe2ed9d6c2be8593f652f58a566dc32c06819794ee",
+    "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js": "d6d2a836ae81b28eb80af020618d549975ddf775bf77299dad1629098478c18d"
+  },
+  "source_binding_notes": [
+    "Operation applier declares only display_units, rich_authoring, section_bindings as external production modules at B3 snapshot",
+    "Local path dependencies are canonical_json and units; product_physics is not in Cargo metadata dependency graph",
+    "Any unreferenced module file included in before/after local source inventory is not claimed compiled solely by that inventory",
+    "Existing ignored generated assets replaced by build script; no authored source changed"
+  ],
+  "build_exit_code": 0,
+  "finished_at": "2026-09-05T04:16:23.287607+00:00"
+}

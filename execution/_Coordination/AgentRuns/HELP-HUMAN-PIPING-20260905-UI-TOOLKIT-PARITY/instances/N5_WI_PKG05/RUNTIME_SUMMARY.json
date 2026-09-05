@@ -1,0 +1,73 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 2
+  },
+  "counts": {
+    "category": {
+      "contract": 1,
+      "infrastructure": 1,
+      "source": 1
+    },
+    "event_type": {
+      "FINISH": 2,
+      "MILESTONE": 1,
+      "NOTICE": 1,
+      "REMEDIATION": 1,
+      "START": 2
+    },
+    "outcome": {
+      "BLOCKED": 1,
+      "PASS": 2,
+      "STARTED": 4
+    },
+    "reason_code": {
+      "accepted_adapter_v2": 1,
+      "concurrency_limit": 1,
+      "unknown_request_options": 1
+    }
+  },
+  "events": 7,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": null,
+      "events": 1,
+      "final_outcome": null,
+      "instance_id": "A2_REFUTE",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "no-session-spawn-rejected"
+    },
+    {
+      "duration_seconds": 114.721,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_SOURCE_REVIEW",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "self_weight_combined_review"
+    },
+    {
+      "duration_seconds": 611.588,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "A2_IMPLEMENT",
+      "package_id": "PKG-05",
+      "remediations": 1,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "self_weight_implement"
+    }
+  ],
+  "sessions": 3,
+  "status": "INCOMPLETE",
+  "unmatched_sessions": [
+    "no-session-spawn-rejected"
+  ]
+}

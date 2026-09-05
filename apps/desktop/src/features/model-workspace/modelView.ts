@@ -17,7 +17,20 @@ export function entityLabel(model: PreviewModel, id: string): string {
   return entityDisplayLabel(entity) ?? id;
 }
 
+export type PropertyQuantity = { value: number | string; unit: string; dimension_id: string; label?: string };
+export type PropertyReadout = { text: string; quantities?: PropertyQuantity[] };
+type PropertyValue = string | PropertyReadout;
+
+/** Typed readout values keep source quantities intact; the legacy text API remains exact. */
+export function selectedPropertyRows(model: PreviewModel, selection: EntityRef): Array<[string, PropertyReadout]> {
+  return selectedPropertyValues(model, selection).map(([label, value]) => [label, typeof value === "string" ? { text: value } : value]);
+}
+
 export function selectedProperties(model: PreviewModel, selection: EntityRef): Array<[string, string]> {
+  return selectedPropertyRows(model, selection).map(([label, value]) => [label, value.text]);
+}
+
+function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Array<[string, PropertyValue]> {
   if (selection.type === "project") {
     return [
       ["Project ID", model.project.id],
@@ -31,12 +44,12 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
   if (material) {
     return [
       ["ID", material.id],
-      ["Elastic modulus", `${material.elastic_modulus.value} ${material.elastic_modulus.unit}`],
-      ["Shear modulus", `${material.shear_modulus.value} ${material.shear_modulus.unit}`],
+      ["Elastic modulus", quantityDisplay(material.elastic_modulus, "stress")],
+      ["Shear modulus", quantityDisplay(material.shear_modulus, "stress")],
       [
         "Thermal expansion",
         material.thermal_expansion_coefficient
-          ? `${material.thermal_expansion_coefficient.value} ${material.thermal_expansion_coefficient.unit}`
+          ? quantityDisplay(material.thermal_expansion_coefficient, "thermal_expansion_coefficient")
           : "TBD"
       ],
       ["Provenance", material.provenance]
@@ -48,8 +61,8 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
       ["ID", section.id],
       ["Name", section.name],
       ["Type", section.section_type],
-      ["OD", quantityDisplay(section.properties.outside_diameter)],
-      ["Wall", quantityDisplay(section.properties.wall_thickness)],
+      ["OD", quantityDisplay(section.properties.outside_diameter, "length")],
+      ["Wall", quantityDisplay(section.properties.wall_thickness, "length")],
       ["Provenance", provenanceDisplay(section.provenance)]
     ];
   }
@@ -58,7 +71,7 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
     return [
       ["ID", node.id],
       ["Label", node.label],
-      ["Position", `${node.position.x}, ${node.position.y}, ${node.position.z} m`],
+      ["Position", vectorQuantityDisplay({ ...node.position, unit: model.project.units.length }, `${node.position.x}, ${node.position.y}, ${node.position.z} ${model.project.units.length}`)],
       ["Provenance", node.provenance]
     ];
   }
@@ -68,13 +81,13 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
       ["ID", pipe.id],
       ["From", pipe.from],
       ["To", pipe.to],
-      ["OD", `${pipe.section.outside_diameter.value} ${pipe.section.outside_diameter.unit}`],
-      ["Wall", `${pipe.section.wall_thickness.value} ${pipe.section.wall_thickness.unit}`],
+      ["OD", quantityDisplay(pipe.section.outside_diameter, "length")],
+      ["Wall", quantityDisplay(pipe.section.wall_thickness, "length")],
       // Optional user-entered mill-tolerance reduction: absence means no
       // reduction (not a zero default), so the row appears only when the
       // user entered a value.
       ...(pipe.section.mill_tolerance
-        ? ([["Mill tolerance", quantityDisplay(pipe.section.mill_tolerance)]] as Array<[string, string]>)
+        ? ([["Mill tolerance", quantityDisplay(pipe.section.mill_tolerance, "length")]] as Array<[string, PropertyValue]>)
         : []),
       ["Material", pipe.material],
       ["Provenance", pipe.provenance]
@@ -82,25 +95,33 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
   }
   const support = model.supports.find((item) => item.id === selection.id);
   if (support) {
-    const rows: Array<[string, string]> = [
+    const rows: Array<[string, PropertyValue]> = [
       ["ID", support.id],
       ["Node", support.node],
       ["Family", support.family ?? "TBD"],
       ["Restraints", support.restraints.join(", ")]
     ];
-    const linearStiffness = support.stiffness?.value ?? support.hanger?.stiffness?.value ?? support.properties?.linear_stiffness;
-    if (linearStiffness) {
-      rows.push(["Linear stiffness", quantityDisplay(linearStiffness)]);
+    // Keep the selected record's DOF with its quantity; the unit alone does
+    // not establish whether the entered stiffness is linear or rotational.
+    const stiffness = support.stiffness?.value ? support.stiffness : support.hanger?.stiffness;
+    if (stiffness?.value) {
+      const linear = ["UX", "Ux", "ux", "UY", "Uy", "uy", "UZ", "Uz", "uz"].includes(stiffness.dof);
+      const rotational = ["RX", "Rx", "rx", "RY", "Ry", "ry", "RZ", "Rz", "rz"].includes(stiffness.dof);
+      const label = linear ? "Linear stiffness" : rotational ? "Rotational stiffness" : "Stiffness";
+      const dimension = linear ? "linear_stiffness" : rotational ? "rotational_stiffness" : "unknown";
+      rows.push([label, quantityDisplay(stiffness.value, dimension)]);
+    } else if (support.properties?.linear_stiffness) {
+      rows.push(["Linear stiffness", quantityDisplay(support.properties.linear_stiffness, "linear_stiffness")]);
     }
     if (support.hanger) {
       rows.push(
         ["Hanger type", support.hanger.hanger_type ?? "TBD"],
-        ["Installed load", quantityDisplay(support.hanger.installed_load)],
-        ["Cold load", quantityDisplay(support.hanger.cold_load)],
-        ["Hot load", quantityDisplay(support.hanger.hot_load)],
-        ["Constant load", quantityDisplay(support.hanger.constant_load)],
-        ["Travel range", quantityDisplay(support.hanger.travel_range)],
-        ["Movement limit", quantityDisplay(support.hanger.movement_limit)],
+        ["Installed load", quantityDisplay(support.hanger.installed_load, "force")],
+        ["Cold load", quantityDisplay(support.hanger.cold_load, "force")],
+        ["Hot load", quantityDisplay(support.hanger.hot_load, "force")],
+        ["Constant load", quantityDisplay(support.hanger.constant_load, "force")],
+        ["Travel range", quantityDisplay(support.hanger.travel_range, "length")],
+        ["Movement limit", quantityDisplay(support.hanger.movement_limit, "length")],
         ["Source", support.hanger.source_reference ?? "TBD"],
         ["Manufacturer", support.hanger.manufacturer_reference ?? "TBD"],
         ["Load-side review", support.hanger.load_side_review_reference ?? "TBD"],
@@ -112,15 +133,15 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
   }
   const component = model.components.find((item) => item.id === selection.id);
   if (component) {
-    const rows: Array<[string, string]> = [
+    const rows: Array<[string, PropertyValue]> = [
       ["ID", component.id],
       ["Kind", component.kind],
       ["Node", component.node]
     ];
     if (isBendComponent(component)) {
       rows.push(
-        ["Bend radius", quantityDisplay(component.geometry?.bend_radius)],
-        ["Bend angle", quantityDisplay(component.geometry?.bend_angle)],
+        ["Bend radius", quantityDisplay(component.geometry?.bend_radius, "length")],
+        ["Bend angle", quantityDisplay(component.geometry?.bend_angle, "angle")],
         ["Bend plane", component.geometry?.bend_plane_orientation ?? "TBD"]
       );
       // User-entered curved-bend span mapping (DEC-070). The slot is
@@ -137,8 +158,8 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
         ["Geometry source", component.geometry?.bend_geometry_source_reference ?? "TBD"],
         ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
         ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
-        ["SIF user value", quantityDisplay(component.modifiers?.sif_user_value)],
-        ["Flexibility user value", quantityDisplay(component.modifiers?.flexibility_factor_user_value)],
+        ["SIF user value", quantityDisplay(component.modifiers?.sif_user_value, "dimensionless")],
+        ["Flexibility user value", quantityDisplay(component.modifiers?.flexibility_factor_user_value, "dimensionless")],
         ["Modifier source", component.modifiers?.source_reference ?? "TBD"],
         ["Completeness", componentCompletenessDisplay(component)]
       );
@@ -147,17 +168,17 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
       rows.push(
         ["Header pipe", component.geometry?.branch_header_pipe_ref ?? "TBD"],
         ["Branch pipe", component.geometry?.branch_branch_pipe_ref ?? "TBD"],
-        ["Run size", quantityDisplay(component.geometry?.branch_run_size)],
-        ["Header size", quantityDisplay(component.geometry?.branch_header_size)],
-        ["Branch angle", quantityDisplay(component.geometry?.branch_connection_angle)],
+        ["Run size", quantityDisplay(component.geometry?.branch_run_size, "length")],
+        ["Header size", quantityDisplay(component.geometry?.branch_header_size, "length")],
+        ["Branch angle", quantityDisplay(component.geometry?.branch_connection_angle, "angle")],
         ["Connection type", component.geometry?.branch_connection_type ?? "TBD"],
         ["Reinforcement", component.geometry?.branch_reinforcement_reference ?? "TBD"],
         ["Geometry source", component.geometry?.branch_geometry_source_reference ?? "TBD"],
         ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
         ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
-        ["Header SIF user value", quantityDisplay(component.modifiers?.branch_header_sif_user_value)],
-        ["Branch SIF user value", quantityDisplay(component.modifiers?.branch_branch_sif_user_value)],
-        ["Flexibility user value", quantityDisplay(component.modifiers?.flexibility_factor_user_value)],
+        ["Header SIF user value", quantityDisplay(component.modifiers?.branch_header_sif_user_value, "dimensionless")],
+        ["Branch SIF user value", quantityDisplay(component.modifiers?.branch_branch_sif_user_value, "dimensionless")],
+        ["Flexibility user value", quantityDisplay(component.modifiers?.flexibility_factor_user_value, "dimensionless")],
         ["Modifier source", component.modifiers?.source_reference ?? "TBD"],
         ["Completeness", componentCompletenessDisplay(component)]
       );
@@ -165,10 +186,10 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
     if (isRigidComponent(component)) {
       rows.push(
         ["Mapped pipe", component.geometry?.rigid_pipe_ref ?? "TBD"],
-        ["Rigid body length", quantityDisplay(component.geometry?.rigid_body_length)],
-        ["End A size", quantityDisplay(component.geometry?.end_a_size)],
-        ["End B size", quantityDisplay(component.geometry?.end_b_size)],
-        ["Weight", quantityDisplay(component.geometry?.weight)],
+        ["Rigid body length", quantityDisplay(component.geometry?.rigid_body_length, "length")],
+        ["End A size", quantityDisplay(component.geometry?.end_a_size, "length")],
+        ["End B size", quantityDisplay(component.geometry?.end_b_size, "length")],
+        ["Weight", quantityDisplay(component.geometry?.weight, "force")],
         ["Center of gravity", vectorQuantityDisplay(component.geometry?.center_of_gravity)],
         ["End A reference", component.geometry?.connection_end_a_reference ?? "TBD"],
         ["End B reference", component.geometry?.connection_end_b_reference ?? "TBD"],
@@ -176,9 +197,9 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
         ["Geometry source", component.geometry?.rigid_component_source_reference ?? "TBD"],
         ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
         ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
-        ["Stiffness scale", quantityDisplay(component.modifiers?.stiffness_scaling_user_value)],
-        ["Linear stiffness", quantityDisplay(component.modifiers?.linear_stiffness_user_value)],
-        ["Rotational stiffness", quantityDisplay(component.modifiers?.rotational_stiffness_user_value)],
+        ["Stiffness scale", quantityDisplay(component.modifiers?.stiffness_scaling_user_value, "dimensionless")],
+        ["Linear stiffness", quantityDisplay(component.modifiers?.linear_stiffness_user_value, "linear_stiffness")],
+        ["Rotational stiffness", quantityDisplay(component.modifiers?.rotational_stiffness_user_value, "rotational_stiffness")],
         ["Modifier source", component.modifiers?.source_reference ?? "TBD"],
         ["Completeness", componentCompletenessDisplay(component)]
       );
@@ -186,18 +207,18 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
     if (isExpansionJointComponent(component)) {
       rows.push(
         ["Mapped pipe", component.geometry?.expansion_joint_pipe_ref ?? "TBD"],
-        ["Effective area", quantityDisplay(component.geometry?.effective_area)],
-        ["Movement limit", quantityDisplay(component.geometry?.movement_limit)],
+        ["Effective area", quantityDisplay(component.geometry?.effective_area, "area")],
+        ["Movement limit", quantityDisplay(component.geometry?.movement_limit, "length")],
         ["Hardware reference", component.geometry?.hardware_reference ?? "TBD"],
         ["Manufacturer reference", component.geometry?.manufacturer_reference ?? "TBD"],
         ["Pressure thrust", component.geometry?.pressure_thrust_reference ?? "TBD"],
         ["Geometry source", component.geometry?.expansion_joint_source_reference ?? "TBD"],
         ["Solver consumption", component.mechanics_interface?.solver_consumption ?? "TBD"],
         ["Rule input consumption", component.mechanics_interface?.rule_check_consumption ?? "TBD"],
-        ["Axial stiffness", quantityDisplay(component.modifiers?.axial_stiffness_user_value)],
-        ["Lateral stiffness", quantityDisplay(component.modifiers?.lateral_stiffness_user_value)],
-        ["Angular stiffness", quantityDisplay(component.modifiers?.angular_stiffness_user_value)],
-        ["Torsional stiffness", quantityDisplay(component.modifiers?.torsional_stiffness_user_value)],
+        ["Axial stiffness", quantityDisplay(component.modifiers?.axial_stiffness_user_value, "linear_stiffness")],
+        ["Lateral stiffness", quantityDisplay(component.modifiers?.lateral_stiffness_user_value, "linear_stiffness")],
+        ["Angular stiffness", quantityDisplay(component.modifiers?.angular_stiffness_user_value, "rotational_stiffness")],
+        ["Torsional stiffness", quantityDisplay(component.modifiers?.torsional_stiffness_user_value, "rotational_stiffness")],
         ["Modifier source", component.modifiers?.source_reference ?? "TBD"],
         ["Completeness", componentCompletenessDisplay(component)]
       );
@@ -208,7 +229,7 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
   const loadCase = model.load_cases.find((item) => item.id === selection.id);
   if (loadCase) {
     const primitiveLoads = loadCase.primitive_loads ?? [];
-    const rows: Array<[string, string]> = [
+    const rows: Array<[string, PropertyValue]> = [
       ["ID", loadCase.id],
       ["Kind", loadCase.kind],
       ["Status", loadCase.status],
@@ -224,23 +245,23 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
     if (loadCase.modulus_basis_temperature) {
       rows.push([
         "Modulus basis solve temperature",
-        quantityDisplay(loadCase.modulus_basis_temperature)
+        quantityDisplay(loadCase.modulus_basis_temperature, "temperature")
       ]);
     }
     if (loadCase.equivalent_static?.seismic) {
       const seismic = loadCase.equivalent_static.seismic;
       rows.push(
-        ["Seismic gravity", quantityDisplay(seismic.gravity_acceleration)],
-        ["Seismic g-factor X", quantityDisplay(seismic.g_factor_x)],
-        ["Seismic g-factor Y", quantityDisplay(seismic.g_factor_y)],
-        ["Seismic g-factor Z", quantityDisplay(seismic.g_factor_z)]
+        ["Seismic gravity", quantityDisplay(seismic.gravity_acceleration, "acceleration")],
+        ["Seismic g-factor X", quantityDisplay(seismic.g_factor_x, "dimensionless")],
+        ["Seismic g-factor Y", quantityDisplay(seismic.g_factor_y, "dimensionless")],
+        ["Seismic g-factor Z", quantityDisplay(seismic.g_factor_z, "dimensionless")]
       );
     }
     if (loadCase.equivalent_static?.wind) {
       const wind = loadCase.equivalent_static.wind;
       rows.push(
-        ["Wind pressure", quantityDisplay(wind.pressure)],
-        ["Wind shape factor", quantityDisplay(wind.shape_factor)],
+        ["Wind pressure", quantityDisplay(wind.pressure, "pressure")],
+        ["Wind shape factor", quantityDisplay(wind.shape_factor, "dimensionless")],
         ["Wind direction", wind.direction ?? "TBD"],
         ["Wind exposed spans", (wind.exposed_pipe_refs ?? []).join(", ") || "TBD"]
       );
@@ -263,12 +284,15 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
   return [["Selection", selection.id]];
 }
 
-function quantityDisplay(quantity: { value: number; unit: string } | undefined): string {
-  return quantity ? `${quantity.value} ${quantity.unit}` : "TBD";
+function quantityDisplay(quantity: { value: number | string; unit: string } | undefined, dimension: string): PropertyValue {
+  return quantity ? { text: `${quantity.value} ${quantity.unit}`, quantities: [{ ...quantity, dimension_id: dimension }] } : "TBD";
 }
 
-function vectorQuantityDisplay(quantity: { x: number; y: number; z: number; unit: string } | undefined): string {
-  return quantity ? `x=${quantity.x}, y=${quantity.y}, z=${quantity.z} ${quantity.unit}` : "TBD";
+function vectorQuantityDisplay(quantity: { x: number; y: number; z: number; unit: string } | undefined, text?: string): PropertyValue {
+  return quantity ? {
+    text: text ?? `x=${quantity.x}, y=${quantity.y}, z=${quantity.z} ${quantity.unit}`,
+    quantities: (["x", "y", "z"] as const).map((axis) => ({ value: quantity[axis], unit: quantity.unit, dimension_id: "length", label: axis }))
+  } : "TBD";
 }
 
 function isBendComponent(component: PreviewComponent): boolean {

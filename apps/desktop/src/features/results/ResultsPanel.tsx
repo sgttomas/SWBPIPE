@@ -1,8 +1,10 @@
+import type { ReactNode } from "react";
+import { QuantityReadout } from "../display-units";
+import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
-import { convertForDisplay, formatConverted } from "../../services/unitConversion";
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -106,7 +108,7 @@ export function ResultsPanel({
             onPreviousPage={() => setPageIndex((current) => Math.max(0, current - 1))}
             onNextPage={() => setPageIndex((current) => Math.min(page.pageCount - 1, current + 1))}
           />
-          <ResultDetail interpretation={interpretation} />
+          <ResultDetail interpretation={interpretation} result={result} />
           <GoverningRatioState ratioCount={familyCounts.ratio} />
           <div className="result-groups">
             {groups.length > 0 ? (
@@ -125,7 +127,7 @@ export function ResultsPanel({
                         <th>Entity</th>
                         <th>Location</th>
                         <th>Value</th>
-                        <th>Dual (≈)</th>
+                        <th>Entered source</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -148,10 +150,10 @@ export function ResultsPanel({
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>
-                            {item.value} {item.unit}
+                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: item.dimension ?? "unknown" }} />
                           </td>
                           <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}>
-                            <DualUnitCompanion value={item.value} unit={item.unit} />
+                            <span>Entered: {item.value} {item.unit}</span>
                           </td>
                         </tr>
                       ))}
@@ -228,10 +230,10 @@ function ResultControls({
   return (
     <section className="result-controls" aria-label="Result filtering" data-testid="result-controls">
       <div className="report-line" data-testid="result-unit-policy">
-        <span>Result units</span>
+        <span>Source result units</span>
         <strong>
           {unitPolicy.result_units.length > 0 ? unitPolicy.result_units.join(", ") : "none"} · {unitPolicy.result_row_count} rows ·
-          entered units preserved (SI/US companion shown for reference)
+          entered units preserved; displayed quantities follow the display preference where available
         </strong>
       </div>
       <div className="result-family-row" role="group" aria-label="Result family filter">
@@ -343,16 +345,6 @@ function buildResultUnitPolicy(result: MechanicsResult) {
   };
 }
 
-function DualUnitCompanion({ value, unit }: { value: number; unit: string }) {
-  const companion = convertForDisplay(value, unit);
-  if (!companion) return <>—</>;
-  return (
-    <>
-      ≈ {formatConverted(companion.value)} {companion.unit}
-    </>
-  );
-}
-
 function compareResultUnits(left: string, right: string) {
   const leftIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(left);
   const rightIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(right);
@@ -362,7 +354,7 @@ function compareResultUnits(left: string, right: string) {
   return left.localeCompare(right);
 }
 
-function ResultDetail({ interpretation }: { interpretation: ResultInterpretation | null }) {
+function ResultDetail({ interpretation, result }: { interpretation: ResultInterpretation | null; result: MechanicsResult | null }) {
   if (!interpretation) {
     return (
       <section className="result-detail-panel" aria-label="Result detail" data-testid="result-detail-panel">
@@ -379,7 +371,7 @@ function ResultDetail({ interpretation }: { interpretation: ResultInterpretation
         <DetailLine label="Result" value={interpretation.result_id} testId="selected-result-id" />
         <DetailLine label="Family" value={interpretation.family} />
         <DetailLine label="Entity ref" value={interpretation.entity_ref} testId="selected-result-entity-ref" />
-        <DetailLine label="Value" value={interpretation.value_label} />
+        <DetailLine label="Value" value={<ResultQuantity result={result} id={interpretation.result_id} fallback={interpretation.value_label} />} />
         <DetailLine label="Component" value={interpretation.component} testId="selected-result-component" />
         <DetailLine label="Coordinate system" value={interpretation.coordinate_system} testId="selected-result-coordinate-system" />
         <DetailLine label="Location" value={interpretation.location} testId="selected-result-location" />
@@ -420,12 +412,12 @@ function ResultDetail({ interpretation }: { interpretation: ResultInterpretation
         />
         <DetailLine label="Boundary" value={interpretation.professional_boundary} />
       </dl>
-      {interpretation.endpoint_pair ? <EndpointPairTable interpretation={interpretation} /> : null}
+      {interpretation.endpoint_pair ? <EndpointPairTable interpretation={interpretation} result={result} /> : null}
     </section>
   );
 }
 
-function EndpointPairTable({ interpretation }: { interpretation: ResultInterpretation }) {
+function EndpointPairTable({ interpretation, result }: { interpretation: ResultInterpretation; result: MechanicsResult | null }) {
   if (!interpretation.endpoint_pair) return null;
 
   return (
@@ -444,7 +436,7 @@ function EndpointPairTable({ interpretation }: { interpretation: ResultInterpret
             <tr key={item.result_id}>
               <td>{item.location}</td>
               <td>{item.result_id}</td>
-              <td>{item.value_label}</td>
+              <td><ResultQuantity result={result} id={item.result_id} fallback={item.value_label} /></td>
             </tr>
           ))}
         </tbody>
@@ -453,7 +445,7 @@ function EndpointPairTable({ interpretation }: { interpretation: ResultInterpret
   );
 }
 
-function DetailLine({ label, value, testId }: { label: string; value: string; testId?: string }) {
+function DetailLine({ label, value, testId }: { label: string; value: ReactNode; testId?: string }) {
   return (
     <div data-testid={testId}>
       <dt>{label}</dt>

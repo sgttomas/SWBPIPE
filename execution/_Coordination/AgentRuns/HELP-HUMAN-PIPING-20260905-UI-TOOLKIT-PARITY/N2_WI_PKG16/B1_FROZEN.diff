@@ -1,0 +1,609 @@
+diff --git a/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs b/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
+index 96cfedd2b..df6a22682 100644
+--- a/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
++++ b/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs
+@@ -296,6 +296,34 @@ const DEFERRED_FIELDS: [(&str, &str, &str); 2] = [
+ 
+ fn field_rules(object_type: &str) -> &'static [FieldRule] {
+     match object_type {
++        "Section" => &[
++            FieldRule {
++                field_path: "name",
++                kind: FieldKind::Text,
++            },
++            FieldRule {
++                field_path: "section_type",
++                kind: FieldKind::Text,
++            },
++            FieldRule {
++                field_path: "provenance",
++                kind: FieldKind::Text,
++            },
++            FieldRule {
++                field_path: "properties.outside_diameter.value",
++                kind: FieldKind::Quantity {
++                    require_positive: true,
++                    unit_source: UnitSource::SiblingUnitField,
++                },
++            },
++            FieldRule {
++                field_path: "properties.wall_thickness.value",
++                kind: FieldKind::Quantity {
++                    require_positive: true,
++                    unit_source: UnitSource::SiblingUnitField,
++                },
++            },
++        ],
+         "Material" => &[
+             FieldRule {
+                 field_path: "label",
+@@ -774,6 +802,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
+ 
+ fn collection_for(object_type: &str) -> Option<&'static str> {
+     match object_type {
++        "Section" => Some("sections"),
+         "Material" => Some("materials"),
+         "Node" => Some("nodes"),
+         "Element" => Some("pipe_segments"),
+@@ -1029,6 +1058,44 @@ fn run(
+             &mut checker,
+         );
+     }
++    if object_type == "Section" {
++        if let Some(field) = &resolved {
++            let mut candidate = model.clone();
++            if apply_resolved_field(
++                &mut candidate,
++                &object_type,
++                &target_ref,
++                field,
++                &mut checker,
++            ) {
++                check_section_geometry(
++                    find_entity(&candidate, "sections", &target_ref).unwrap(),
++                    &target_ref,
++                    &mut checker,
++                );
++            }
++        }
++    }
++    let deleted_entity = if !checker.schema_blocked
++        && matches!(
++            change_kind.as_str(),
++            "delete_material" | "delete_section" | "delete_component"
++        ) {
++        resolve_delete_entity(
++            model,
++            &change_kind,
++            &object_type,
++            &target_ref,
++            &field_path,
++            &before,
++            &after,
++            &unit,
++            &dimension,
++            &mut checker,
++        )
++    } else {
++        None
++    };
+     let mut created_node: Option<Value> = None;
+     if !checker.schema_blocked && change_kind == "create_node" {
+         created_node = resolve_create_node(
+@@ -1281,6 +1348,7 @@ fn run(
+             change_kind: change_kind.clone(),
+         }]
+     } else if (created_node.is_some()
++        || deleted_entity.is_some()
+         || deleted_node.is_some()
+         || created_pipe.is_some()
+         || created_component.is_some()
+@@ -1331,6 +1399,20 @@ fn run(
+                 ));
+                 applied_model = Some(next_model);
+             }
++        } else if let Some(collection) = deleted_entity {
++            let mut next_model = model.clone();
++            let records = next_model
++                .get_mut(collection)
++                .and_then(Value::as_array_mut)
++                .unwrap();
++            records.retain(|record| {
++                record.get("id").and_then(Value::as_str) != Some(target_ref.as_str())
++            });
++            applied_model_backend_hash = Some(format!(
++                "sha256:{}",
++                sha256_hex(&canonical_json(&next_model))
++            ));
++            applied_model = Some(next_model);
+         } else if let Some(node) = &created_node {
+             let mut next_model = model.clone();
+             if apply_created_node(&mut next_model, node) {
+@@ -1680,6 +1762,9 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
+             | "create_node"
+             | "delete_node"
+             | "connect_pipe_run"
++            | "delete_material"
++            | "delete_section"
++            | "delete_component"
+             | "delete_pipe_run"
+             | "create_section"
+             | "create_material"
+@@ -1719,6 +1804,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
+         | "create_primitive_load"
+         | "create_combination"
+         | "create_combination_term" => "create",
++        "delete_material" | "delete_section" | "delete_component" => "delete",
+         "delete_node" => "delete",
+         "delete_load_case" => "delete",
+         "delete_primitive_load" => "delete",
+@@ -3038,6 +3124,174 @@ fn resolve_connect_pipe_run(
+     }))
+ }
+ 
++fn check_section_geometry(section: &Value, target_ref: &str, checker: &mut Checker) {
++    let diameter = section
++        .as_object()
++        .and_then(|record| {
++            dimensioned_quantity(
++                record,
++                &["properties", "outside_diameter"],
++                Dimension::Length,
++                true,
++            )
++        })
++        .and_then(|q| quantity_value_in_unit(&q, "m", Dimension::Length));
++    let wall = section
++        .as_object()
++        .and_then(|record| {
++            dimensioned_quantity(
++                record,
++                &["properties", "wall_thickness"],
++                Dimension::Length,
++                true,
++            )
++        })
++        .and_then(|q| quantity_value_in_unit(&q, "m", Dimension::Length));
++    if section.get("section_type").and_then(Value::as_str) != Some("pipe")
++        || !matches!((diameter, wall), (Some(d), Some(w)) if d.is_finite() && w.is_finite() && w > 0.0 && w < d / 2.0)
++    {
++        checker.push("OP-SECTION-GEOMETRY-INVALID", "blocking", format!("Section `{target_ref}` requires type pipe and accepted length quantities with 0 < wall < outside diameter / 2."), "Correct the section type and geometry before applying the edit.", vec![target_ref.to_string()]);
++    }
++}
++
++/// Visit semantic reference slots throughout the document, including canonical
++/// Reference records and dependency arrays. Human labels and prose are not refs.
++fn entity_reference_paths(
++    value: &Value,
++    ids: &[String],
++    path: &str,
++    reference_slot: bool,
++    found: &mut Vec<String>,
++) {
++    match value {
++        Value::String(id) if reference_slot && ids.contains(id) => found.push(path.to_string()),
++        Value::Array(items) => {
++            for (index, item) in items.iter().enumerate() {
++                entity_reference_paths(
++                    item,
++                    ids,
++                    &format!("{path}[{index}]"),
++                    reference_slot,
++                    found,
++                );
++            }
++        }
++        Value::Object(map) => {
++            for (key, item) in map {
++                let is_ref = (key == "id" && (reference_slot || map.contains_key("object_type")))
++                    || key == "ref"
++                    || key.ends_with("_ref")
++                    || key.ends_with("_refs")
++                    || matches!(
++                        key.as_str(),
++                        "material" | "section" | "component" | "required_input_refs"
++                    );
++                entity_reference_paths(item, ids, &format!("{path}.{key}"), is_ref, found);
++            }
++        }
++        _ => {}
++    }
++}
++
++#[allow(clippy::too_many_arguments)]
++fn resolve_delete_entity(
++    model: &Value,
++    change_kind: &str,
++    object_type: &str,
++    target_ref: &str,
++    field_path: &str,
++    before: &str,
++    after: &str,
++    unit: &str,
++    dimension: &str,
++    checker: &mut Checker,
++) -> Option<&'static str> {
++    let (expected_type, collection) = match change_kind {
++        "delete_material" => ("Material", "materials"),
++        "delete_section" => ("Section", "sections"),
++        "delete_component" => ("Component", "components"),
++        _ => unreachable!(),
++    };
++    if object_type != expected_type || field_path != collection || after != "deleted" {
++        checker.schema_blocked = true;
++        checker.push("OP-DELETE-ENTITY-SHAPE-INVALID", "blocking", format!("{change_kind} requires {expected_type}, field_path {collection}, and after deleted."), "Refresh the structured delete intent.", vec![target_ref.to_string()]);
++        return None;
++    }
++    if unit != "none" || dimension != "dimensionless" {
++        checker.unit_state = "blocked";
++        checker.push(
++            "OP-DELETE-ENTITY-UNIT-INVALID",
++            "blocking",
++            "Entity deletion requires none/dimensionless metadata.".to_string(),
++            "Refresh the structured delete intent.",
++            vec![target_ref.to_string()],
++        );
++        return None;
++    }
++    checker.unit_state = "passed";
++    let records = model.get(collection).and_then(Value::as_array);
++    let matches = records
++        .map(|rows| {
++            rows.iter()
++                .filter(|row| row.get("id").and_then(Value::as_str) == Some(target_ref))
++                .collect::<Vec<_>>()
++        })
++        .unwrap_or_default();
++    if matches.len() != 1 {
++        checker.reference_state = "blocked";
++        checker.push(
++            "OP-TARGET-NOT-FOUND",
++            "blocking",
++            format!("Deletion requires exactly one `{target_ref}` in {collection}."),
++            "Refresh or repair the model record IDs.",
++            vec![target_ref.to_string()],
++        );
++        return None;
++    }
++    let record = matches[0];
++    check_before(
++        &canonical_json(record),
++        before,
++        target_ref,
++        field_path,
++        checker,
++    );
++    let mut ids = vec![target_ref.to_string()];
++    if collection == "materials" {
++        if let Some(points) = record.get("temperature_points").and_then(Value::as_array) {
++            ids.extend(
++                points
++                    .iter()
++                    .filter_map(|p| p.get("id").and_then(Value::as_str).map(str::to_string)),
++            );
++        }
++    }
++    let mut remainder = model.clone();
++    remainder
++        .get_mut(collection)
++        .and_then(Value::as_array_mut)
++        .unwrap()
++        .retain(|row| row.get("id").and_then(Value::as_str) != Some(target_ref));
++    let mut references = Vec::new();
++    entity_reference_paths(&remainder, &ids, "$", false, &mut references);
++    if !references.is_empty() {
++        checker.reference_state = "blocked";
++        checker.push(
++            "OP-ENTITY-DELETE-REFERENCED",
++            "blocking",
++            format!(
++                "`{target_ref}` or its owned records remain referenced at {}.",
++                references.join(", ")
++            ),
++            "Remove or retarget dependents first; deletion never cascades.",
++            references,
++        );
++        return None;
++    }
++    checker.reference_state = "passed";
++    Some(collection)
++}
++
+ #[allow(clippy::too_many_arguments)]
+ fn resolve_delete_pipe_run(
+     model: &Value,
+@@ -5562,7 +5816,12 @@ fn resolve_field(
+         .then(|| material_temperature_point_shear_modulus_id(field_path))
+         .flatten();
+     let mut dynamic_segments: Option<Vec<String>> = None;
+-    let mut pinned_quantity_dimension: Option<&'static str> = None;
++    let mut pinned_quantity_dimension: Option<&'static str> =
++        if object_type == "Section" && field_path.starts_with("properties.") {
++            Some("length")
++        } else {
++            None
++        };
+     let rule_kind = if let Some(point_id) = material_temperature_point_id {
+         let point_index = entity
+             .get("temperature_points")
+@@ -5863,6 +6122,20 @@ fn resolve_field(
+                 .as_ref()
+                 .map(|edit| edit.unit.as_str())
+                 .unwrap_or(unit);
++            if object_type == "Section"
++                && quantity_edit.is_none()
++                && stored_unit.as_deref() != Some(unit)
++            {
++                checker.unit_state = "blocked";
++                checker.push(
++                    "OP-QUANTITY-PAYLOAD-INVALID",
++                    "blocking",
++                    "Section unit changes require an explicit value/unit JSON payload.".to_string(),
++                    "Supply both entered value and unit so the pair is written atomically.",
++                    vec![target_ref.to_string()],
++                );
++                return None;
++            }
+             if requested_unit != unit {
+                 checker.unit_state = "blocked";
+                 checker.push(
+@@ -8066,6 +8339,231 @@ mod tests {
+         intent
+     }
+ 
++    fn entity_test_model() -> Value {
++        let mut model = sample_model();
++        model["sections"] = json!([{"id":"section:test", "name":"Test", "section_type":"pipe", "properties":{"outside_diameter":{"value":100.0,"unit":"mm"},"wall_thickness":{"value":0.005,"unit":"m"}},"provenance":"user"}]);
++        model["materials"].as_array_mut().unwrap().push(json!({"id":"material:unused","label":"Unused","temperature_points":[{"id":"temperature:owned"}]}));
++        model["components"]
++            .as_array_mut()
++            .unwrap()
++            .push(json!({"id":"component:unused","label":"Unused"}));
++        model
++    }
++
++    #[test]
++    fn section_grid_edits_validate_and_apply_same_geometry() {
++        let model = entity_test_model();
++        for (path, before, after, unit, dimension) in [
++            ("name", "Test", "Renamed", "none", "dimensionless"),
++            ("provenance", "user", "edited", "none", "dimensionless"),
++            ("section_type", "pipe", "pipe", "none", "dimensionless"),
++            (
++                "properties.outside_diameter.value",
++                "100",
++                r#"{"value":0.2,"unit":"m"}"#,
++                "m",
++                "length",
++            ),
++            (
++                "properties.wall_thickness.value",
++                "0.005",
++                r#"{"value":0.2,"unit":"in"}"#,
++                "in",
++                "length",
++            ),
++        ] {
++            let intent = modify_intent(
++                "Section",
++                "section:test",
++                "set_field",
++                path,
++                before,
++                after,
++                unit,
++                dimension,
++            );
++            let preview = validate_operation(&model, &intent, None);
++            let applied = apply_operation(&model, &intent, None);
++            assert!(applied.applied_model.is_some(), "{:?}", applied.diagnostics);
++            assert_eq!(preview.diff_preview.len(), 1);
++            assert!(preview.applied_model.is_none());
++        }
++        for (path, before, after, unit, dimension) in [
++            ("section_type", "pipe", "box", "none", "dimensionless"),
++            (
++                "properties.wall_thickness.value",
++                "0.005",
++                "0.05",
++                "m",
++                "length",
++            ),
++            (
++                "properties.outside_diameter.value",
++                "100",
++                "9",
++                "mm",
++                "length",
++            ),
++            (
++                "properties.outside_diameter.value",
++                "100",
++                "100",
++                "mm",
++                "stress",
++            ),
++            (
++                "properties.wall_thickness.value",
++                "0.005",
++                r#"{"value":2,"unit":"in"}"#,
++                "in",
++                "length",
++            ),
++            (
++                "properties.wall_thickness.value",
++                "0.005",
++                "0",
++                "m",
++                "length",
++            ),
++            ("name", "stale", "Renamed", "none", "dimensionless"),
++        ] {
++            let intent = modify_intent(
++                "Section",
++                "section:test",
++                "set_field",
++                path,
++                before,
++                after,
++                unit,
++                dimension,
++            );
++            for outcome in [
++                validate_operation(&model, &intent, None),
++                apply_operation(&model, &intent, None),
++            ] {
++                assert!(outcome.diff_preview.is_empty());
++                assert!(
++                    outcome.applied_model.is_none(),
++                    "{path}: {:?}",
++                    outcome.diagnostics
++                );
++            }
++        }
++    }
++
++    fn entity_delete_intent(
++        model: &Value,
++        object_type: &str,
++        collection: &str,
++        id: &str,
++        kind: &str,
++    ) -> Value {
++        let mut intent = modify_intent(
++            object_type,
++            id,
++            kind,
++            collection,
++            &canonical_json(find_entity(model, collection, id).unwrap()),
++            "deleted",
++            "none",
++            "dimensionless",
++        );
++        intent["operation_kind"] = json!("delete");
++        intent
++    }
++
++    #[test]
++    fn entity_deletes_guard_record_staleness_missing_ids_and_all_reference_forms() {
++        for (object_type, collection, id, kind) in [
++            (
++                "Material",
++                "materials",
++                "material:unused",
++                "delete_material",
++            ),
++            ("Section", "sections", "section:test", "delete_section"),
++            (
++                "Component",
++                "components",
++                "component:unused",
++                "delete_component",
++            ),
++        ] {
++            let model = entity_test_model();
++            let input = model.clone();
++            let intent = entity_delete_intent(&model, object_type, collection, id, kind);
++            let preview = validate_operation(&model, &intent, None);
++            assert_eq!(preview.diff_preview.len(), 1);
++            let applied = apply_operation(&model, &intent, None);
++            assert!(applied.applied_model.is_some(), "{:?}", applied.diagnostics);
++            assert!(find_entity(&applied.applied_model.unwrap(), collection, id).is_none());
++            assert_eq!(model, input);
++            let bad_hash = json!({"algorithm":"sha256", "canonicalization":"rfc8785_jcs", "payload_scope":"model_payload", "value":format!("sha256:{}", "0".repeat(64))});
++            assert!(apply_operation(&model, &intent, Some(&bad_hash))
++                .applied_model
++                .is_none());
++            let mut duplicate = model.clone();
++            duplicate[collection]
++                .as_array_mut()
++                .unwrap()
++                .push(find_entity(&model, collection, id).unwrap().clone());
++            assert!(apply_operation(&duplicate, &intent, None)
++                .applied_model
++                .is_none());
++            let mut stale = intent.clone();
++            stale["change"]["before"] = json!("{}");
++            assert!(apply_operation(&model, &stale, None)
++                .applied_model
++                .is_none());
++            let mut missing = intent.clone();
++            missing["target"]["ref"] = json!("missing");
++            assert!(apply_operation(&model, &missing, None)
++                .applied_model
++                .is_none());
++            let mut invalid = intent.clone();
++            invalid["change"]["unit"] = json!("m");
++            assert!(apply_operation(&model, &invalid, None)
++                .applied_model
++                .is_none());
++            let mut invalid = intent.clone();
++            invalid["change"]["after"] = json!("not_present");
++            assert!(apply_operation(&model, &invalid, None)
++                .applied_model
++                .is_none());
++            for reference in [
++                json!({"material":id}),
++                json!({"section_ref":id}),
++                json!({"component_ref":{"object_type":object_type,"ref":id}}),
++                json!({"component_ref":{"object_type":object_type,"id":id}}),
++                json!({"required_input_refs":[id]}),
++                json!({"target_ref":id}),
++            ] {
++                let mut referenced = model.clone();
++                referenced["dependencies"] = json!([reference]);
++                let outcome = apply_operation(&referenced, &intent, None);
++                assert!(codes(&outcome).contains(&"OP-ENTITY-DELETE-REFERENCED"));
++                assert!(outcome.applied_model.is_none());
++            }
++            let mut prose = model.clone();
++            prose["note"] = json!({"label":id,"provenance":id});
++            assert!(apply_operation(&prose, &intent, None)
++                .applied_model
++                .is_some());
++        }
++        let mut model = entity_test_model();
++        let intent = entity_delete_intent(
++            &model,
++            "Material",
++            "materials",
++            "material:unused",
++            "delete_material",
++        );
++        model["load_cases"][0]["modulus_basis_ref"] = json!("temperature:owned");
++        assert!(
++            codes(&apply_operation(&model, &intent, None)).contains(&"OP-ENTITY-DELETE-REFERENCED")
++        );
++    }
++
+     #[test]
+     fn validate_passes_and_never_mutates_for_a_current_quantity_edit() {
+         let model = sample_model();
+diff --git a/projects/chirality-piping/schemas/model_operation.schema.json b/projects/chirality-piping/schemas/model_operation.schema.json
+index 9fda7ce51..1d88ebdc1 100644
+--- a/projects/chirality-piping/schemas/model_operation.schema.json
++++ b/projects/chirality-piping/schemas/model_operation.schema.json
+@@ -334,6 +334,9 @@
+           "enum": [
+             "add_object",
+             "remove_object",
++            "delete_material",
++            "delete_section",
++            "delete_component",
+             "set_field",
+             "move_geometry",
+             "reconnect",
+diff --git a/projects/chirality-piping/tests/test_model_operation_schema.py b/projects/chirality-piping/tests/test_model_operation_schema.py
+index 9fe04e20e..91c3af085 100644
+--- a/projects/chirality-piping/tests/test_model_operation_schema.py
++++ b/projects/chirality-piping/tests/test_model_operation_schema.py
+@@ -226,6 +226,9 @@ def main():
+     assert {
+         "add_object",
+         "remove_object",
++        "delete_material",
++        "delete_section",
++        "delete_component",
+         "set_field",
+         "move_geometry",
+         "reconnect",

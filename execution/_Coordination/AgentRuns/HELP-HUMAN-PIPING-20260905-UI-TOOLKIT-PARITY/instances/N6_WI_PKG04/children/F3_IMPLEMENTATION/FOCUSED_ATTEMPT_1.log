@@ -1,0 +1,29 @@
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.89s
+     Running unittests src/lib.rs (/tmp/piping-ui-parity-target/debug/deps/open_pipe_stress_product_physics-d32292c12524eed2)
+
+running 6 tests
+test tests::f3_family_tokens_accept_exact_canonical_vocabulary ... ok
+test tests::f3_explicit_six_dof_guide_keeps_family_and_reports_invalid_rotations ... ok
+test tests::f3_canonical_spring_retains_elastic_stiffness ... ok
+test tests::f3_real_hanger_nonlinear_and_dof_aliases_remain_supported ... FAILED
+test tests::f3_invalid_family_blocks_every_payload_before_mechanics ... ok
+test tests::f3_missing_and_null_family_preserve_existing_inference_and_payloads ... ok
+
+failures:
+
+---- tests::f3_real_hanger_nonlinear_and_dof_aliases_remain_supported stdout ----
+
+thread 'tests::f3_real_hanger_nonlinear_and_dof_aliases_remain_supported' (30469162) panicked at src/lib.rs:9340:13:
+assertion `left == right` failed: lift_off: [Diagnostic { id: "diagnostic:spring-hanger:support-SH-140:hanger", code: "SPRING_HANGER_USER_DATA_REVIEWED", severity: "info", message: "variable spring hanger carries explicit user-entered stiffness, installed/cold/hot load metadata, travel metadata, and source reference under DEC-049; no catalog/default values are supplied", source: Some("core/product_physics"), affected_refs: ["support:SH-140", "hanger"] }, Diagnostic { id: "diagnostic:spring-hanger:support-CE-120:hanger", code: "CONSTANT_EFFORT_USER_DATA_REVIEWED", severity: "info", message: "constant-effort support carries explicit user-entered constant load, travel metadata, and source reference under DEC-049; no global constant-effort solve behavior or catalog default is claimed", source: Some("core/product_physics"), affected_refs: ["support:CE-120", "hanger"] }, Diagnostic { id: "diagnostic:component:component-C-130:rigid-review", code: "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED", severity: "info", message: "rigid/semi-rigid component carries user-entered dimensions, weight, center of gravity, mapping, stiffness scaling, semi-rigid stiffness quantities, and source notes under DEC-045 mechanics_geometry_only; no protected/default component values are supplied", source: Some("core/product_physics"), affected_refs: ["component:C-130"] }, Diagnostic { id: "diagnostic:component:component-C-150:expansion-joint-review", code: "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED", severity: "info", message: "expansion joint carries user-entered stiffnesses, effective pressure area, movement limit, hardware/manufacturer provenance, and load-side pressure-thrust handling evidence under DEC-045; no protected/default manufacturer values are supplied", source: Some("core/product_physics"), affected_refs: ["component:C-150"] }, Diagnostic { id: "diagnostic:nonlinear-support:support-NL-140:contact_when", code: "NONLINEAR_SUPPORT_INPUT_MISSING", severity: "blocking", message: "nonlinear support requires explicit contact_when", source: Some("core/product_physics"), affected_refs: ["support:NL-140", "contact_when"] }]
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::f3_real_hanger_nonlinear_and_dof_aliases_remain_supported
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 118 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `--lib`

@@ -1,0 +1,305 @@
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -827,6 +827,7 @@
+     let mut diagnostics = Vec::new();
+ 
+     validate_model_inputs(&model, &materials, &mut diagnostics);
++    validate_support_family_tokens(&model, &mut diagnostics);
+     if model.document_kind != "openpipestress.product_preview.model" {
+         diagnostics.push(diag(
+             "diagnostic:physics:document-kind",
+@@ -3201,6 +3202,36 @@
+     })
+ }
+ 
++fn validate_support_family_tokens(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
++    for support in &model.supports {
++        let Some(family) = support.family.as_deref() else {
++            continue;
++        };
++        if !matches!(
++            family,
++            "anchor"
++                | "guide"
++                | "line_stop"
++                | "vertical_support"
++                | "spring"
++                | "variable_spring_hanger"
++                | "spring_hanger"
++                | "constant_effort_support"
++                | "nonlinear"
++        ) {
++            diagnostics.push(diag(
++                &format!("diagnostic:support:{}:family", stable_suffix(&support.id)),
++                "SUPPORT_FAMILY_INVALID",
++                "blocking",
++                format!(
++                    "unsupported explicit support family {family:?}; supported values: anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear"
++                ),
++                vec![support.id.clone(), format!("{}.family", support.id)],
++            ));
++        }
++    }
++}
++
+ fn rigid_linear_support_from_preview(
+     support: &PreviewSupport,
+     node_index: usize,
+@@ -3208,6 +3239,7 @@
+ ) -> LinearSupport {
+     let family = match support.family.as_deref() {
+         Some("anchor") => SupportFamily::Anchor,
++        Some("guide") => SupportFamily::Guide,
+         Some("line_stop") => SupportFamily::LineStop,
+         Some("vertical_support") => SupportFamily::VerticalSupport,
+         _ if restrained_dofs.len() == 6 => SupportFamily::Anchor,
+@@ -9079,6 +9111,249 @@
+     }
+ 
+     #[test]
++    fn f3_family_tokens_accept_exact_canonical_vocabulary() {
++        let mut request = request();
++        for family in [
++            "anchor",
++            "guide",
++            "line_stop",
++            "vertical_support",
++            "spring",
++            "variable_spring_hanger",
++            "spring_hanger",
++            "constant_effort_support",
++            "nonlinear",
++        ] {
++            // This isolates spelling validity, not payload-class consistency.
++            request.model.supports[0].family = Some(family.to_string());
++            let mut diagnostics = Vec::new();
++            validate_support_family_tokens(&request.model, &mut diagnostics);
++            assert!(diagnostics.is_empty(), "{family}: {diagnostics:?}");
++        }
++    }
++
++    #[test]
++    fn f3_invalid_family_blocks_every_payload_before_mechanics() {
++        for id in [
++            "support:S-100",
++            "support:SH-140",
++            "support:CE-120",
++            "support:NL-140",
++            "spring-payload",
++        ] {
++            for token in [
++                "",
++                " ",
++                " guide",
++                "guide ",
++                "Anchor",
++                "Guide",
++                "LineStop",
++                "VerticalSupport",
++                "Spring",
++                "unknown",
++            ] {
++                let mut request = request();
++                let support = request
++                    .model
++                    .supports
++                    .iter_mut()
++                    .find(|support| {
++                        support.id
++                            == if id == "spring-payload" {
++                                "support:SH-140"
++                            } else {
++                                id
++                            }
++                    })
++                    .unwrap();
++                if id == "spring-payload" {
++                    support.stiffness = support.hanger.as_ref().unwrap().stiffness.clone();
++                    support.hanger = None;
++                }
++                support.family = Some(token.to_string());
++                let support_id = support.id.clone();
++                let result = run_linear_static_preview(request);
++                assert_eq!(
++                    result.status.mechanics, "MODEL_INCOMPLETE",
++                    "{id}/{token:?}"
++                );
++                assert!(result.results.is_empty(), "{id}/{token:?}");
++                let diagnostic = result
++                    .diagnostics
++                    .iter()
++                    .find(|d| d.code == "SUPPORT_FAMILY_INVALID")
++                    .unwrap();
++                assert_eq!(diagnostic.severity, "blocking");
++                assert_eq!(
++                    diagnostic.id,
++                    format!("diagnostic:support:{}:family", stable_suffix(&support_id))
++                );
++                assert!(diagnostic.message.contains(&format!("{token:?}")));
++                assert_eq!(
++                    diagnostic.affected_refs,
++                    vec![support_id.clone(), format!("{support_id}.family")]
++                );
++            }
++        }
++    }
++
++    #[test]
++    fn f3_missing_and_null_family_preserve_existing_inference_and_payloads() {
++        let baseline = run_linear_static_preview(request());
++        for null in [false, true] {
++            let mut raw: serde_json::Value = serde_json::from_str(include_str!(
++                "../../../fixtures/product_preview/invented_preview_model.json"
++            ))
++            .unwrap();
++            for support in raw["supports"].as_array_mut().unwrap() {
++                if null {
++                    support["family"] = serde_json::Value::Null;
++                } else {
++                    support.as_object_mut().unwrap().remove("family");
++                }
++            }
++            let model: PreviewModel = serde_json::from_value(raw).unwrap();
++            assert!(model
++                .supports
++                .iter()
++                .all(|support| support.family.is_none()));
++            let support = &model.supports[0];
++            let dofs = support
++                .restraints
++                .iter()
++                .map(|dof| parse_dof(dof).unwrap())
++                .collect();
++            assert_eq!(
++                rigid_linear_support_from_preview(support, 0, dofs).family,
++                SupportFamily::Anchor
++            );
++            let result = run_linear_static_preview(LinearStaticPreviewRequest {
++                model,
++                materials: invented_materials(),
++            });
++            assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
++            assert_eq!(
++                serde_json::to_value(&result.results).unwrap(),
++                serde_json::to_value(&baseline.results).unwrap()
++            );
++        }
++    }
++
++    #[test]
++    fn f3_explicit_six_dof_guide_keeps_family_and_reports_invalid_rotations() {
++        let mut request = request();
++        let support = &mut request.model.supports[0];
++        support.family = Some("guide".to_string());
++        let dofs = support
++            .restraints
++            .iter()
++            .map(|dof| parse_dof(dof).unwrap())
++            .collect();
++        let mapped = rigid_linear_support_from_preview(support, 0, dofs);
++        assert_eq!(mapped.family, SupportFamily::Guide);
++        let boundary = open_pipe_stress_linear_supports::prepare_boundary(
++            request.model.nodes.len(),
++            &[mapped],
++        );
++        assert_eq!(
++            boundary
++                .findings
++                .iter()
++                .filter(|finding| finding.code
++                    == open_pipe_stress_linear_supports::FindingCode::InvalidSupportDof)
++                .count(),
++            3
++        );
++        let result = run_linear_static_preview(request);
++        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
++        assert!(result.results.is_empty());
++        assert!(result
++            .diagnostics
++            .iter()
++            .any(|d| d.code == "SUPPORT_INPUT_INVALID"));
++    }
++
++    #[test]
++    fn f3_canonical_spring_retains_elastic_stiffness() {
++        let mut request = request();
++        let support = request
++            .model
++            .supports
++            .iter_mut()
++            .find(|s| s.id == "support:SH-140")
++            .unwrap();
++        support.family = Some("spring".to_string());
++        support.stiffness = support.hanger.as_ref().unwrap().stiffness.clone();
++        support.hanger = None;
++        let expected = support.stiffness.as_ref().unwrap().value.value;
++        let mut diagnostics = Vec::new();
++        let built = build_model(&request.model, &request.materials, &mut diagnostics).unwrap();
++        let mapped = built
++            .supports
++            .iter()
++            .find(|s| s.support_id == "support:SH-140")
++            .unwrap();
++        assert_eq!(mapped.family, SupportFamily::Spring);
++        let boundary = open_pipe_stress_linear_supports::prepare_boundary(
++            built.nodes.len(),
++            &[mapped.clone()],
++        );
++        assert!(boundary.findings.is_empty());
++        assert!(boundary.restrained_dofs.is_empty());
++        assert_eq!(boundary.springs.len(), 1);
++        assert_eq!(boundary.springs[0].stiffness.value, expected);
++        assert_eq!(
++            run_linear_static_preview(request).status.mechanics,
++            "MECHANICS_SOLVED"
++        );
++    }
++
++    #[test]
++    fn f3_real_hanger_nonlinear_and_dof_aliases_remain_supported() {
++        for behavior in [
++            "one_way", "one-way", "oneway", "lift_off", "lift-off", "liftoff",
++        ] {
++            let mut request = request();
++            let hanger = request
++                .model
++                .supports
++                .iter_mut()
++                .find(|s| s.id == "support:SH-140")
++                .unwrap();
++            hanger.family = Some("spring_hanger".to_string());
++            let input = hanger.hanger.as_mut().unwrap();
++            input.hanger_type = Some(" spring_hanger ".to_string());
++            input.stiffness.as_mut().unwrap().dof = "uz".to_string();
++            let nonlinear = request
++                .model
++                .supports
++                .iter_mut()
++                .find(|s| s.id == "support:NL-140")
++                .unwrap()
++                .nonlinear
++                .as_mut()
++                .unwrap();
++            nonlinear.behavior = behavior.to_string();
++            nonlinear.dof = "Uy".to_string();
++            if behavior.starts_with("lift") {
++                // Preserve the fixture's explicit reaction sense for contact.
++                nonlinear.contact_when = nonlinear.active_when.take();
++            }
++            let result = run_linear_static_preview(request);
++            assert_eq!(
++                result.status.mechanics, "MECHANICS_SOLVED",
++                "{behavior}: {:?}",
++                result.diagnostics
++            );
++            assert!(result
++                .results
++                .iter()
++                .any(|r| r.id == "result:spring-hanger:support-SH-140:stiffness"));
++        }
++    }
++
++    #[test]
+     fn explicit_anchor_rx_only_preserves_partial_rotation_through_boundary() {
+         let support = rigid_preview_support("anchor", &["RX"]);
+         let mapped = rigid_linear_support_from_preview(&support, 1, vec![FrameDof::Rx]);

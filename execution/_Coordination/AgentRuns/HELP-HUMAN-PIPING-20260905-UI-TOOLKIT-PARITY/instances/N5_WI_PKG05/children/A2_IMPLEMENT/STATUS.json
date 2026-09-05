@@ -1,0 +1,8 @@
+{
+  "status": "running",
+  "native_agent": "/root/wi_pkg05/self_weight_implement",
+  "source_release": "Parent B3/N6 accepted",
+  "writes": [
+    "core/product_physics/src/self_weight.rs"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "role": "direct ephemeral Agent2",
+  "parent": "HELP_HUMAN",
+  "objective": "Refute B4 batch replay contract for atomicity, hash/checkpoint binding and offline agent provenance",
+  "scope": "PKG16 DEL-16-01/02/03; SCA009 row11; D58 non-client boundary",
+  "basis": "Parent accepted revision 0.12/SCA009/DAG010; design is candidate only",
+  "tools": "read-only shell plus writing this evidence instance",
+  "write_scope": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_BATCH_CONTRACT_REFUTE",
+  "exclusions": [
+    "source mutation",
+    "tests",
+    "delegation",
+    "live provider integration",
+    "implementation acceptance"
+  ],
+  "actual_model": "inherited identifier unavailable",
+  "started_at": "2026-09-05T04:03:43.828468+00:00"
+}

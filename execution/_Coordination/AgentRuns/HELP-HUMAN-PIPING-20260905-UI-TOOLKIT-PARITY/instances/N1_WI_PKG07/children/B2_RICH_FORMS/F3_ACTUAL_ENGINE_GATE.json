@@ -1,0 +1,28 @@
+{
+  "status": "PASS_ACTUAL_OPERATION_ENGINE_GATE",
+  "tests": {
+    "command": "npm test --workspace apps/desktop -- --run src/features/rich-authoring/supportFamilyEngine.test.tsx src/features/toolkit/ExistingToolkitEngine.test.tsx",
+    "exit_code": 0,
+    "files_passed": 2,
+    "tests_passed": 14,
+    "log": "F3_ACTUAL_ENGINE_TESTS.txt",
+    "log_sha256": "5c2bbc1d0102491bc2f99fd4025459ae83208f85794cdddd93c4f9796e9042be"
+  },
+  "source_freeze": "F3_SOURCE_FREEZE.json",
+  "before": "F3_ENGINE_BEFORE.json",
+  "after": "F3_ENGINE_AFTER.json",
+  "operation_wasm_sha256": "91f47297b35131d18307e4f1a5bff2eccb0ebe7cd05b611d6e70488742f19cc8",
+  "accepted_artifact_basis": "N2_WI_PKG16/F_DUAL_BUILD_ACCEPTED_SNAPSHOT_V1.json",
+  "n6_physics_evidence": {
+    "snapshot": "instances/N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json",
+    "all_file_hashes_verified": true,
+    "reported_tests_passed": 124,
+    "execution": "separate N6 native producer tests; not executed by these UI tests"
+  },
+  "source_edits": false,
+  "builds": false,
+  "remaining": [
+    "fresh repair review/fan-in and aggregate parent backcheck"
+  ],
+  "derivative_status": "bounded verification evidence, not decomposition/lifecycle acceptance"
+}

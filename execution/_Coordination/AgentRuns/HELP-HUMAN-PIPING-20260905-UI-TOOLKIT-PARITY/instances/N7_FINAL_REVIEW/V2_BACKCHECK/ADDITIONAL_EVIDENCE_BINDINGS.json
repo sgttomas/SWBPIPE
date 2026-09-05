@@ -1,0 +1,22 @@
+[
+  {
+    "mapping": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/R_N7_UI_REPAIRS/PORTABILITY_RELOCATION_V1.json",
+    "status": "original decoded and active hashes match"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_ACTUAL_ENGINE_TESTS.txt",
+    "sha256": "5c2bbc1d0102491bc2f99fd4025459ae83208f85794cdddd93c4f9796e9042be"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v9/registered-full.json",
+    "sha256": "af80e59840319a0fd31aec2a926eec699d08bec8102048f78401ab143847280d"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FULL.log",
+    "sha256": "86f42908da313dda538b34f98f78a411885588f52ecf3170da5894faf3b0fc94"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_REPAIR_WASM_BACKCHECK.mjs",
+    "sha256": "0547d7820fc4be5bbef225af23017bcd12e45fb78d72b2d38275b412d6877716"
+  }
+]

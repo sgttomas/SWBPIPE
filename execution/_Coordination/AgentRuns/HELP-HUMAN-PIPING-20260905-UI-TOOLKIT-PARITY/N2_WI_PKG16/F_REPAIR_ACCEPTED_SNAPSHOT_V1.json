@@ -1,0 +1,26 @@
+{
+  "status": "BOUNDED_OPERATION_REPAIR_ACCEPTED",
+  "source_hashes": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282",
+    "projects/chirality-piping/core/model_operations/operation_applier/tests/support_authoring_conflicts.rs": "ef036a20ef61ae87b8a6366d616392da4bf31d5b9b864b88b7a516c1f6611239"
+  },
+  "accepted_basis": [
+    "F1_F3_COMBINED_REPAIR_PLAN_V1.md",
+    "F_REPAIR_PREDECESSOR_V1.json"
+  ],
+  "review": "F_REPAIR_REVIEW_RETURN.md",
+  "review_sha256": "7d6a8e0df455ff819089f927fb41fbda0a68931037cb923011fef30b67058b5b",
+  "checks": "F_REPAIR_IMPLEMENTATION_CHECKS.json; F_REPAIR_MANAGER_CHECKS_V1.json",
+  "operation_tests": 145,
+  "independent_public_route_tests": 5,
+  "schema": "PASS",
+  "source_ownership": "released/frozen for parent coordinated dual Wasm build",
+  "derivative_status": "accepted bounded run repair evidence, not decomposition authority",
+  "supersedes": "C snapshot rich_authoring source only; earlier N7 CHANGES_REQUIRED remains immutable",
+  "remaining": [
+    "N6 physics acceptance",
+    "single parent-authorized dual Wasm build and original F1/US backcheck",
+    "N1 runtime parity and parent final integrated review",
+    "durable acceptance history and D58 residuals unchanged"
+  ]
+}

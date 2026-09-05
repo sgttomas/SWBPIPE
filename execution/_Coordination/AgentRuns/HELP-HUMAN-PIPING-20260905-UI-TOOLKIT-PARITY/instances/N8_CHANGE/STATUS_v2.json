@@ -1,0 +1,15 @@
+{
+  "status": "PREPARATION_UPDATED",
+  "tranche_closeout": "NOT_CLOSED",
+  "execution_authorized_now": false,
+  "named_target": "origin/refs/heads/codex/piping-ui-toolkit-parity",
+  "executed_git_mutations": [],
+  "dec025_executed": false,
+  "receipt_written": false,
+  "parent": "/root",
+  "instance": "/root/change_closeout",
+  "files_sha256": {
+    "STATE_SNAPSHOT_v2.json": "2dd41ca4e19296da676ebb0652c325195b19e8c7ea811ab7fe8e7484f7775da7",
+    "CLOSEOUT_PLAN_v2_AMENDMENT.md": "f23b7aae007f9c8a51d1549d79965755ce87835d9ebba4c990c58b1ed48bea07"
+  }
+}

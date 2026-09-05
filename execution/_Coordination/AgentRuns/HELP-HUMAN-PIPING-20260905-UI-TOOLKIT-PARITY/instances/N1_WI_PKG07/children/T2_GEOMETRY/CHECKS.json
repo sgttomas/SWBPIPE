@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "command": [
+    "npm",
+    "run",
+    "test",
+    "--workspace",
+    "apps/desktop",
+    "--",
+    "src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+    "src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx"
+  ],
+  "cwd": "{WORKING_ROOT}",
+  "test_files": 2,
+  "tests": 15,
+  "failed": 0,
+  "exit_code": 0,
+  "engine": "actual StageC Rust Wasm, no rebuild by this child",
+  "broader_checks": "parent integration and fresh review pending",
+  "initial_failure": "Synthetic N/mm fixture rejected correctly by accepted catalog. Changed synthetic positive fixture to N/m; no production or engine semantic change."
+}

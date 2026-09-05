@@ -1,0 +1,52 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 2
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "FINISH": 2,
+      "REMEDIATION": 1,
+      "START": 2
+    },
+    "outcome": {
+      "PASS": 2,
+      "RETRY": 1,
+      "STARTED": 2
+    },
+    "reason_code": {
+      "TEST_FIXTURE_REQUIRED_CONTACT_FIELD": 1
+    }
+  },
+  "events": 5,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 289.692,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "F3_IMPLEMENTATION",
+      "package_id": "PKG-04",
+      "remediations": 1,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg04/f3_implementation"
+    },
+    {
+      "duration_seconds": 140.144,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "F3_REVIEW",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg04/f3_review"
+    }
+  ],
+  "sessions": 2,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

@@ -1,0 +1,17 @@
+{
+  "status": "REPAIRED_FOCUSED_CHECKS_PASS_PENDING_INDEPENDENT_REVIEW",
+  "parent": "N4_WI_PKG03",
+  "instance": "A2_HANGER_IMPORT",
+  "runtime_class": "delegated-harness-native",
+  "role": "TASK Agent2",
+  "model": "unavailable",
+  "delegated": false,
+  "source_hashes": "SOURCE_HASHES_C2.json",
+  "checks": "CHECKS_C2.json",
+  "return": "RETURN_C2.md",
+  "python_tests_passed": 105,
+  "rust_tests_passed": 19,
+  "shared_parity_cases": 86,
+  "closure": "no lifecycle closure; fresh independent review required",
+  "timestamp": "2026-09-05T04:29:11.943308+00:00"
+}

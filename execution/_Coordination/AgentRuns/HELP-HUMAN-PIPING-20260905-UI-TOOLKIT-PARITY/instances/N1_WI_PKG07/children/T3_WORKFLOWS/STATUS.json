@@ -1,0 +1,12 @@
+{
+  "status": "IMPLEMENTATION_RETURNED_PENDING_PARENT_ACCEPTANCE",
+  "parent": "/root/wi_pkg07",
+  "role": "Agent2 ephemeral generalist",
+  "delegation_class": "delegated-harness-native",
+  "role_enforcement": "instruction-asserted",
+  "model_attribution": "inherited from parent; no override requested; concrete model identifier not exposed in child context",
+  "source_manifest": "SOURCE_MANIFEST_V1.json",
+  "checks": "CHECKS_V1.json",
+  "return": "RETURN.md",
+  "delegated": false
+}

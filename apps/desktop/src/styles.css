@@ -3187,3 +3187,52 @@ th {
   padding-left: 8px;
   border-left: 2px solid #eef1ef;
 }
+
+/* Accepted vocabulary navigation; forms continue to own draft and operation state. */
+.toolkit-palette { position: relative; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border, #344152); }
+.toolkit-commands { padding: 0.7rem 0; max-height: min(60vh, 36rem); overflow: auto; }
+.toolkit-commands > label { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem; }
+.toolkit-commands input { min-width: 0; flex: 1; }
+.toolkit-command-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 0.6rem 1rem; }
+.toolkit-command { display: grid; gap: 0.25rem; margin-bottom: 0.8rem; }
+.toolkit-command button { text-align: left; }
+.toolkit-command small { line-height: 1.45; }
+.toolkit-command button:disabled { opacity: 0.65; }
+.toolkit-palette :focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+
+.display-preference-control {
+  max-width: 22rem;
+}
+.display-preference-control p {
+  font-size: 0.72rem;
+  margin: 0.2rem 0;
+}
+#geometry-tools, #boundary-authoring, #hanger-selection,
+#self-weight-plan, #offline-proposal-intake, #batch-review {
+  padding: 1rem;
+  border: 1px solid var(--border-color, #cad5d6);
+  border-radius: 0.4rem;
+  margin-block: 0.8rem;
+}
+#geometry-tools label, #boundary-authoring label, #hanger-selection label,
+#self-weight-plan label, #offline-proposal-intake label {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.4rem;
+  max-width: 100%;
+}
+#offline-proposal-intake textarea {
+  min-width: min(36rem, 70vw);
+  font-family: monospace;
+}
+#batch-review article {
+  padding-block: 0.75rem;
+  border-top: 1px solid var(--border-color, #cad5d6);
+}
+#batch-review button + button {
+  margin-inline-start: 0.5rem;
+}
+[data-display-status] small {
+  font-size: 0.75em;
+}

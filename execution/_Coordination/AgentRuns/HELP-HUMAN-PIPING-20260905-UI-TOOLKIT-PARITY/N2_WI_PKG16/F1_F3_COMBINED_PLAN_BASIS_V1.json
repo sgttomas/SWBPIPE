@@ -1,0 +1,7 @@
+{
+  "status": "DESIGN_ONLY_SOURCE_HELD",
+  "n6_basis": "../instances/N6_WI_PKG04/F3_READ_BOUNDARY_DISPOSITION_V1.md",
+  "n6_basis_sha256": "fb7c666eb042ff5fcc06dc61a3e78374fc7e472b7387a6e0e00d3bd88234dfd0",
+  "plan_sha256": "6764dd65a73eaa7cb4371f146431895d9fab3e6b8512843a5104e0685e2c8179",
+  "changes": "read-only plan and evidence only"
+}

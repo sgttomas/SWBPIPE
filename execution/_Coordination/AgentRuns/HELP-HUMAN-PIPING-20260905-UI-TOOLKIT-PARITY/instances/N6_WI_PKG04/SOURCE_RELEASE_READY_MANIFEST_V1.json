@@ -1,0 +1,9 @@
+{
+  "status": "READY_SOURCE_HELD",
+  "observed_product_physics_sha256": "89607dac35257329bcc58041cfb62407b537b3cdbb28a61efe82f02544ddb9af",
+  "expected_product_physics_sha256": "89607dac35257329bcc58041cfb62407b537b3cdbb28a61efe82f02544ddb9af",
+  "files": {
+    "B1_IMPLEMENTATION_BRIEF_READY_V1.md": "7f31f241e9357ab64575557dd99f2dafb829ab3f98ba5ae053467badb8684016",
+    "BOUNDARY_WIRE_CONTRACT_FROZEN_V1.md": "d426726c418da1798534d1194e001f378001995d2273163a0451cf12e74a5064"
+  }
+}

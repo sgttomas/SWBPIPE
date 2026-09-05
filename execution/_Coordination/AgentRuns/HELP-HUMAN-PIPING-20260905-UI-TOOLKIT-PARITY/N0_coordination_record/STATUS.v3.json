@@ -1,0 +1,25 @@
+{
+  "status": "SUCCESS",
+  "recorded_utc": "2026-09-05T03:49:21.209539+00:00",
+  "actual_model": "unavailable",
+  "scope": "v3 recording only; tranche IN_PROGRESS",
+  "checks": [
+    "valid JSON",
+    "acyclic phase graph",
+    "previous root frozen file hashes unchanged",
+    "N2 exact contract pointer verified",
+    "no other instance writes"
+  ],
+  "preserved_root_hashes_sha256": {
+    "OWNER_DIRECTION.md": "bd88bd9112352859e5934d9291c2453067e1d0ab82752de309b2237c05e8dca3",
+    "WORK_GRAPH.v2.json": "d2785c5497da19fd99f1fa6c19ba16dab965cb6b51376455c1826c107e3a6b50",
+    "ORCHESTRATION_PLAN.v2_AMENDMENT.md": "7c5404adcf5280fac07401e15b0408da25028dc753f51b7f4f646e3430efd88a",
+    "ORCHESTRATION_PLAN.md": "ad668632c1924bec43a33c6ef0a5c753d1c831194c236c62e7f476c6ee87fdf3",
+    "WORK_GRAPH.json": "ea99aee5a99ab2fb5dcc7fa0971572227b7a3986dfb25dcb2c4c21cfc452029e",
+    "HANDOFF_STATE.md": "c5a45f2eaef7b3b6357e2233bfc8be775b426f2fa282e05dffc825f14e7217a0"
+  },
+  "contract_hashes_sha256": {
+    "N2_WI_PKG16/B1_BRIEF.md": "ffeef1c89d77b56b38035c947994ebf442d4c0630a817cecc230aa42fe787ca1",
+    "N2_WI_PKG16/AMENDMENT_B1.md": "07d8be3631b629fa700161751989d0aa04f1cf5074003d583694634149931b27"
+  }
+}

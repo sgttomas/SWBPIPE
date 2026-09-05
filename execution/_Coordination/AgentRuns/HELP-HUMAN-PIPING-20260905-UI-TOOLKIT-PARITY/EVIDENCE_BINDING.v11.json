@@ -1,0 +1,27 @@
+{
+  "recorded_utc": "2026-09-05T06:17:01.687460+00:00",
+  "evidence_sha256": {
+    "instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md": "3f11e7e1be3a350e436e0a1ff40ca6c4725eeff02c78e7dc831194e0a4a20676",
+    "instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_FREEZE_V2.json": "af4f6fdbc7e841b77bd4b382d1dd066d009bdab84c6f942af7dc0dafbd9669cf",
+    "instances/N7_FINAL_REVIEW/GLOBAL_REVIEW_PARTITION_V2.json": "180cb0bc03a64f95e00faf832d23f6029a4322b9a5a307d459190a6dba82a32f",
+    "N2_WI_PKG16/PACKAGE_HANDOFF_V3.md": "485d25288011285e84a6b036bb2e783e88a5c9e9cdb2208f0b523abac3107d00",
+    "N2_WI_PKG16/F_REPAIR_ACCEPTED_SNAPSHOT_V1.json": "a7918234ff1d7264dc04b9f7d3b01600fc03f02c055f6b9fdc2eea325246691a",
+    "N2_WI_PKG16/F_DUAL_BUILD_ACCEPTED_SNAPSHOT_V1.json": "5cc3b5e293f8f8c274483e14a8cfd5ee7d74e07389dfed9329cd4b8b422b8bed",
+    "N2_WI_PKG16/NATIVE_ACCEPTED_SNAPSHOT_V1.json": "8bf7481785b957db5e679445c620b254bf4c4cae0c324210ca9139d737bc35dc",
+    "instances/N3_WI_PKG02/SECTION_ACCEPTED_SNAPSHOT_V1.json": "210f76091fe8701b15752b0a1f622e10df863b886e1b6a67f1b940d0f57c31e4",
+    "instances/N4_WI_PKG03/PKG03_ACCEPTED_SNAPSHOT_C2.json": "460ffe2ca13c036355f65c372b23778fd54b5abc5315c5f68aece48412cbf5b0",
+    "instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json": "191102ead5b70cc80ea81a251ec208e2f445d21c702da00dcf532b3229b69859",
+    "instances/N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json": "511c3e7cdb37a296bf80ff2546d3439357ace6fa0f795b5744fb42fe310f93f0",
+    "instances/N1_WI_PKG07/N1_REVIEW_PENDING_003.json": "477c037e84fea72bd6b67bbf8197973cb9b8735e5367d743d1e59b55cdffcb06",
+    "instances/N_ENV/PRECOMMIT_CHECKS_V3.json": "822928eecd97150d66eea0334b57fa56cdae5e75823260ab3737d4b35172e40d",
+    "instances/N_ENV/PRECOMMIT_CHECKS_V5.json": "588721d90463573df8d350c21e40df92dd94f2302a68c4768475c9857effeabb",
+    "instances/N_ENV/PRECOMMIT_SELFCHECK_COMPARISON_V5.json": "333b944cd00768a4e4f963d0ed7d9c1da436db0fe1a160b7f029a77b30af747a",
+    "instances/N1_WI_PKG07/N1_PACKAGE_ACCEPTED_SNAPSHOT_V1.json": "1a36aecb83daa030047a068764285a7c9e0c7e643132c2abfe2f699687c69881",
+    "instances/N1_WI_PKG07/PACKAGE_ACCEPTED_HANDOFF_V1.md": "daf8d99cf71d343bc0c0d70166c068af80a2c41f509e31dcc6e9aac66a8c7f47",
+    "instances/N1_WI_PKG07/RUNTIME_SUMMARY.json": "5db4c91aee8a0924e10c00c20e3f6d3d26495e2f6303c7bee4def388a39c566d"
+  },
+  "missing_required_binding": null,
+  "authority": "Parent bounded fan-in accepted after exact N1 bindings verified; final precommit authorization conditional on CHANGE validations",
+  "review": "verified exact N7 V2 hash; prior verdict immutable",
+  "current_product_members_verified": 110
+}

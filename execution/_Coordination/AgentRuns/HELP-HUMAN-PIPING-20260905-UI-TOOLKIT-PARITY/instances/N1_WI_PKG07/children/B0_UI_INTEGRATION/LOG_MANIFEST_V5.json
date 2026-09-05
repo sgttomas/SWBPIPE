@@ -1,0 +1,53 @@
+{
+  "status": "PRESERVED",
+  "logs": [
+    {
+      "path": "_run_records/v5/v5-dist-frozen-pass.log",
+      "sha256": "762310ae0a708619d36d8a7d278681ce8b250c198f36867851b02dde067b9dfb",
+      "bytes": 769,
+      "exact_raw_bytes_preserved": true
+    },
+    {
+      "path": "_run_records/v5/v5-dist-initial-setup-fail.log",
+      "sha256": "a64a9f52f4a221ba810211b6e7ad74f5f031154500d8cdecf8a94cdb935d0743",
+      "bytes": 3675,
+      "exact_raw_bytes_preserved": true
+    },
+    {
+      "path": "_run_records/v5/v5-dist-interim-pass.log",
+      "sha256": "69fda5d21b446b85cee2ee01eeb884bccc9d0b43c60bac19407c1688b6dbafc4",
+      "bytes": 769,
+      "exact_raw_bytes_preserved": true
+    },
+    {
+      "path": "_run_records/v5/v5-dist-navigation-setup-fail.log",
+      "sha256": "6c1354f0c552c273c5676af61ea89696e4d95c432a7a746ba5f2ef70cb8388cf",
+      "bytes": 3698,
+      "exact_raw_bytes_preserved": true
+    },
+    {
+      "path": "_run_records/v5/v5-focused-app-display.log",
+      "sha256": "0ce1b0bae51485e25fefb455daf1d69efba1240f405fef979e60c3ce86d040a9",
+      "bytes": 499,
+      "exact_raw_bytes_preserved": true
+    },
+    {
+      "path": "_run_records/v5/v5-focused-batch.log",
+      "sha256": "393a18f49b0a7d3a5bd991443e9d7037a923e9e5385ec07fc9aa28eb7293b135",
+      "bytes": 477,
+      "exact_raw_bytes_preserved": true
+    },
+    {
+      "path": "_run_records/v5/v5-focused-persistence-compatibility.log",
+      "sha256": "5a53be6f1fd216148ea36c5e79e5a221a2d959aa787d00fe2aca300330cccf36",
+      "bytes": 515,
+      "exact_raw_bytes_preserved": true
+    },
+    {
+      "path": "_run_records/v5/v5-focused-toolkit-display.log",
+      "sha256": "a36105045e9d9d93826084c7b64443607fd34e507751e5df197c3a733b64fa15",
+      "bytes": 799,
+      "exact_raw_bytes_preserved": true
+    }
+  ]
+}

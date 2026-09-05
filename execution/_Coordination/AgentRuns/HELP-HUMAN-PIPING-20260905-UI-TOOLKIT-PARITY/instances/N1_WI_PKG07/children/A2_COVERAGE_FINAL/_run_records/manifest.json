@@ -1,0 +1,7 @@
+{
+  "artifact_role": "exact raw deterministic discovery evidence",
+  "raw": "discovery.json",
+  "sha256": "1dccf48d2c29090edb54421370e15e2fb792966cb91aa8fa3f6d4fd728a9ca52",
+  "active_control": "../DISCOVERY.json",
+  "normalization": "checkout paths use portable anchors; raw bytes preserved"
+}

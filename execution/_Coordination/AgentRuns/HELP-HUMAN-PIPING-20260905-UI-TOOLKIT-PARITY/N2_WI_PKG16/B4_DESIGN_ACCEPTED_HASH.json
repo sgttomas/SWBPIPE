@@ -1,0 +1,6 @@
+{
+  "design": "B4_BATCH_DESIGN_V3.md",
+  "sha256": "bc09cd34dba74baee8730dd88a17de331f3c16904ec5a3f0446ae5c340942df5",
+  "review": "../instances/N_BATCH_CONTRACT_REFUTE/RECHECK_V3.md",
+  "parent_acceptance": "runtime HELP_HUMAN acceptance; source conditional B3 review PASS"
+}

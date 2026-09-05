@@ -1,0 +1,39 @@
+{
+  "profile": "projects/chirality-piping/software-workflow.json",
+  "project_root": "projects/chirality-piping",
+  "results": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 85.34,
+      "exit_code": 0,
+      "id": "desktop-test",
+      "status": "PASS",
+      "stderr": "",
+      "stdout": "\n> openpipestress-workspace@0.1.0 test:desktop\n> npm test --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.10 {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\n\n\n Test Files  31 passed (31)\n      Tests  590 passed (590)\n   Start at  22:04:49\n   Duration  84.93s (transform 5.32s, setup 2.32s, import 7.50s, tests 116.70s, environment 9.70s)\n\n",
+      "timeout_seconds": 300.0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build:desktop"
+      ],
+      "cwd": "projects/chirality-piping",
+      "duration_seconds": 2.414,
+      "exit_code": 1,
+      "id": "desktop-build",
+      "status": "FAIL",
+      "stderr": "npm error Lifecycle script `build` failed with error:\nnpm error code 1\nnpm error path {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error workspace @openpipestress/desktop@0.1.0\nnpm error location {WORKSPACE_ROOT}/projects/chirality-piping/apps/desktop\nnpm error command failed\nnpm error command sh -c tsc -b && vite build\n",
+      "stdout": "\n> openpipestress-workspace@0.1.0 build:desktop\n> npm run build --workspace apps/desktop\n\n\n> @openpipestress/desktop@0.1.0 build\n> tsc -b && vite build\n\nsrc/features/rich-authoring/richForms.test.tsx(10,39): error TS2352: Conversion of type '{ schema_version: string; document_kind: string; data_boundary: {}; project: { id: string; name: string; description: string; units: {}; }; analysis_status: { mechanics: string; rule_check: string; professional_acceptance: string; }; ... 5 more ...; load_cases: { ...; }[]; }' to type 'PreviewModel' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.\n  Property 'diagnostics' is missing in type '{ schema_version: string; document_kind: string; data_boundary: {}; project: { id: string; name: string; description: string; units: {}; }; analysis_status: { mechanics: string; rule_check: string; professional_acceptance: string; }; ... 5 more ...; load_cases: { ...; }[]; }' but required in type 'PreviewModel'.\n",
+      "timeout_seconds": 300.0
+    }
+  ],
+  "schema": "chirality-software-check-evidence/v1",
+  "status": "FAIL",
+  "workspace_root": "."
+}

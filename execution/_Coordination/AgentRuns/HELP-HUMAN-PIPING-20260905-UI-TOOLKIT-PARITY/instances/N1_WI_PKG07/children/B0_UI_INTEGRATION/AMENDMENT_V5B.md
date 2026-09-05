@@ -1,0 +1,2 @@
+# Shared renderer fence amendment v5B
+Parent expressly transferred sole writer ownership of features/results/ResultsPanel.tsx,features/comparison/ComparisonPanel.tsx,features/knowledge/KnowledgePanel.tsx,features/diagnostics/DiagnosticsPanel.tsx,features/rule-check/RuleCheckRunPanel.tsx to T4v3 followup. B0 must not edit those5until accepted frozen return; continue App/types/styles/inspector/grid/viewport/other exact scope. Stable T4API consumed unchanged. Parent final integrated review includes both disjoint scopes.

@@ -1,0 +1,32 @@
+{
+  "status": "manager_accepted_bounded_implementation",
+  "files": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "c7d4a1571f37c99e867206454e7850c5710f2d6a2cfa399fac62aa83aa25a15a",
+    "projects/chirality-piping/core/product_physics/src/self_weight.rs": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml": "7e758b467ffed0a16629f5666f6dd06810c9b96e8e838a2ae4a080c0d4fa4850",
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock": "e1254a5095d363697fe687a9eaf7327999ad11f86355f1864fb94b13c6dc5597",
+    "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs": "61512d3c9d6a0343977a81fd3d8f93118d135ae1a25d204683a4fe9d4b93f8c8"
+  },
+  "diff_sha256": "709f7e3ba5130eb6d1bdca19816acabf8d830cad8e9f04d1c362efc366ea4b0c",
+  "tests": "physics118PASS; adapter4PASS; adapter offline wasm release PASS",
+  "evidence": [
+    "PHYSICS_TEST_RESULT_V2.txt",
+    "children/A2_IMPLEMENT/ADAPTER_RETURN.md"
+  ],
+  "package": "PKG-05",
+  "deliverable": "DEL-05-01",
+  "accepted_upstream": [
+    "parent SCA009/revision0.12/DAG010",
+    "N2 B3 accepted",
+    "N3 section accepted V1",
+    "N6 B1 accepted",
+    "ADAPTER_DESIGN_V2 parent accepted"
+  ],
+  "derivative_status": "bounded_source_evidence_not_decomposition_truth",
+  "review": {
+    "path": "children/A2_SOURCE_REVIEW/RETURN.md",
+    "sha256": "41ca91d639b7cc681fc14890ba093dfe4a55a67b0d6e52e44993b5d133a1fd70",
+    "verdict": "PASS"
+  },
+  "integration_closure": "pending_parent_N1_N2_and_broader_checks"
+}

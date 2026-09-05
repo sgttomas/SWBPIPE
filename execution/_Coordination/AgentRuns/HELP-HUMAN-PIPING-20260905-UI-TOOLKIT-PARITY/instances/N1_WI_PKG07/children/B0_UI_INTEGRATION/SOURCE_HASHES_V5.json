@@ -1,0 +1,462 @@
+{
+  "schema": "piping.ui-source-freeze.v1",
+  "base_commit": "740569598f9d00440636b8ea25264127f418e4ec",
+  "created_utc": "2026-09-05T05:13:21.071117+00:00",
+  "files": [
+    {
+      "path": "projects/chirality-piping/.gitignore",
+      "status": "modified",
+      "sha256": "079332c953d0ace91358a348aa0a2820a0289640177760be54686f2a63b7513b",
+      "bytes": 1143,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "status": "new",
+      "sha256": "013cb61f256f37e581e962919f87c1b90a488c0527fd650d8fa48bdffb2f24b5",
+      "bytes": 3565,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+      "status": "modified",
+      "sha256": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5",
+      "bytes": 8425,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.test.mjs",
+      "status": "new",
+      "sha256": "12eff93bb013f9ec4fd259e03e192f0ac7e64a22b3260d0d162b13eda05603ff",
+      "bytes": 3097,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "status": "modified",
+      "sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9",
+      "bytes": 122788,
+      "ownership": "accepted upstream native dependency"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+      "status": "modified",
+      "sha256": "7e48badcd16c2a4501453550774350d3f39c06009f639c4c8fe9c38f919008ba",
+      "bytes": 1520,
+      "ownership": "accepted upstream native dependency"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "status": "modified",
+      "sha256": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+      "bytes": 264689,
+      "ownership": "accepted upstream native dependency"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "status": "modified",
+      "sha256": "8b0baa30a5f789106dee4166f1758cddfb22d99bed90ce5bfd19a13f4726d136",
+      "bytes": 656401,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "status": "modified",
+      "sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e",
+      "bytes": 127168,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx",
+      "status": "new",
+      "sha256": "c418dfb7c190970425dc1bd158e76c4611324e782ff16255ff909595b7920652",
+      "bytes": 6819,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.tsx",
+      "status": "new",
+      "sha256": "cd7dc5237213e1788addd1328df22650304b19806474dbdcfc3817ab36755401",
+      "bytes": 5438,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/boundary-authoring/boundaryDraft.ts",
+      "status": "new",
+      "sha256": "9b3205ea327657b85c05d796bcc42908a8392671ea9a77296946fee590c4e4ed",
+      "bytes": 4914,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "status": "modified",
+      "sha256": "546c1acf201288293c8f9f5f2b385bfee5207585279d1b4f97499755aefc8185",
+      "bytes": 6904,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+      "status": "modified",
+      "sha256": "c752935edf4268f05adedc29a8f1047241c0cb498f8dd44144eeec657f637c1b",
+      "bytes": 8582,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/displayUnits.test.tsx",
+      "status": "new",
+      "sha256": "f42010b92ab15d5b96e606a52dab71f6df5d27c22c3b4174b03e5ffc80798b45",
+      "bytes": 6298,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/index.tsx",
+      "status": "new",
+      "sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9",
+      "bytes": 6086,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "status": "new",
+      "sha256": "0bc6054b86ab3031b7dc8cf806aa2a7b298d33e394711e279bfc9619aa3e7108",
+      "bytes": 14194,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/targets.ts",
+      "status": "new",
+      "sha256": "fca1be3d49932312156dc597864b7f734a0428f9eb63330f5b9f8cddf169700f",
+      "bytes": 1431,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.test.tsx",
+      "status": "new",
+      "sha256": "1e726fe3740cd5a735bbff93c42c235c39d803672b73556127b4e8d87e8512c6",
+      "bytes": 10101,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "status": "new",
+      "sha256": "d08375d3a81530b7d5661d903353f5c80b7222d573f4bbc4af8198db6042a9e7",
+      "bytes": 6752,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/batchFormSupport.tsx",
+      "status": "new",
+      "sha256": "beabba1eaab1fed0b4385e24983e605c581de1cf05a61634e61cdd52e4f8672b",
+      "bytes": 3036,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/geometryDraft.ts",
+      "status": "new",
+      "sha256": "9cc22ac39d67bd0146f4cfe3ce05ee219e9c6b6845c6d2b0fc73839073401307",
+      "bytes": 5891,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx",
+      "status": "new",
+      "sha256": "43bcfa6622191b355c5d18fca6415b86288bbfc2575887ff9c6794d315ec65c1",
+      "bytes": 10727,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/hangerSelection.ts",
+      "status": "new",
+      "sha256": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9",
+      "bytes": 4805,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/index.ts",
+      "status": "new",
+      "sha256": "23a76f305f71a7cd50c321503c0fe010cb9299ed9902b14074e86049ce26bab8",
+      "bytes": 126,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+      "status": "modified",
+      "sha256": "85f0635bf155aefe7cade9176a4efb6f088babbb9610a061fd6fb7c6fee4ce11",
+      "bytes": 6150,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+      "status": "modified",
+      "sha256": "a46163e3904cb77c929156825d973774920eb6417b9f011888a5a77999140e58",
+      "bytes": 53719,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx",
+      "status": "new",
+      "sha256": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e",
+      "bytes": 4154,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "status": "modified",
+      "sha256": "ecdf5f4915e26dd5b2ca41460fb1a3dfd1ccfb5ed96a912f5f149576c13065cb",
+      "bytes": 45593,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "status": "modified",
+      "sha256": "35b4e9160fe0993e8d7ecc08c97a42dfd700a043aee16fdf7091e14a78ef73da",
+      "bytes": 116215,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+      "status": "modified",
+      "sha256": "08b3dd43d1653e67a0dd7281921090e3545a6c35c53f2dc90286ffc76bc35b48",
+      "bytes": 17747,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx",
+      "status": "new",
+      "sha256": "f7cf7928b3b077d93be9ae7731d2cd1554aa170ddd79ab14539a3d1db53cb90e",
+      "bytes": 3746,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/index.ts",
+      "status": "new",
+      "sha256": "296a6e209e05dba5869156565ac9888c92f6f4e04ddff780709e9ca541ff60bb",
+      "bytes": 94,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/workflowSupport.ts",
+      "status": "new",
+      "sha256": "658fe939ad818163678988a863f709a5617074474b313a42a8496caaaa3798c7",
+      "bytes": 2674,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx",
+      "status": "new",
+      "sha256": "680f6f0bfa3f714bf3b9eab4058f6dcbcea93e302fb24f8360fcf060806f1edf",
+      "bytes": 15547,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "status": "modified",
+      "sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "bytes": 21519,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+      "status": "new",
+      "sha256": "60454a2336f6f3695b128c4f1392b5f50216aa8c618a17b423218a5a3eb7f078",
+      "bytes": 7795,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+      "status": "new",
+      "sha256": "15929b1f8e4670d66449cd5e90e32d5c38ded407fa2755c7f1f16ab9ec111665",
+      "bytes": 12669,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "status": "modified",
+      "sha256": "afd74a1ed5d4fde16f806863c2baa3da3a874c1b4f6455f51aad40c5614d0796",
+      "bytes": 40154,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "status": "new",
+      "sha256": "8a2b2de4a459cfacdb197cc534984aa06f95ce445a452e1de1b3edac668cec83",
+      "bytes": 7347,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/index.ts",
+      "status": "new",
+      "sha256": "ffec526638ca3002f0f8784cbcbbd792f08f2cf4974c3116e33eb4e0e1d26196",
+      "bytes": 82,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "status": "new",
+      "sha256": "052c5f7e621cf22263d735f9447d068092321bd13ab4714eabe5df5be5da91a2",
+      "bytes": 13331,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/BatchReviewPanel.tsx",
+      "status": "new",
+      "sha256": "66a4f562d1354ea86041858b678c7c92e477d071aedb1a5a9ad4cdc59b976ba5",
+      "bytes": 4328,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "status": "new",
+      "sha256": "7a0e221d75188fcb65289fbcf7c3d9fdd501be286109d24d7881c10a7866ca41",
+      "bytes": 3647,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx",
+      "status": "new",
+      "sha256": "4c76b5dfaf456c44bbf87d3a47ff4a5dfead8fb0e53a4e8f2a38c80878249565",
+      "bytes": 8916,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx",
+      "status": "new",
+      "sha256": "2caa86acdc185893aeb1495fff12fe8881fac7dc7f645d29a5b243218a9e675d",
+      "bytes": 4279,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.tsx",
+      "status": "new",
+      "sha256": "63d6a894c12edad9492861ee8266f23a52411148fa76a9eaf0e1fe119edb5586",
+      "bytes": 4873,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ResultQuantity.tsx",
+      "status": "new",
+      "sha256": "bc8580052919490c6d8f8e5db9c3347c4a61cf0132ddfba428d782288c93a891",
+      "bytes": 612,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/SectionAssignment.tsx",
+      "status": "new",
+      "sha256": "d15ad7fc5978c907ee4b3198aa08094010405c5dcde98b38b8661fd90390983a",
+      "bytes": 4242,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+      "status": "new",
+      "sha256": "234ce63780b27e89e55b22a5702af8de466c8179d4ae3146760537e3471fcfcd",
+      "bytes": 3250,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "status": "new",
+      "sha256": "3f55094a378143d2fa7a5eaeccee541205daece4be82f0f605643df990866672",
+      "bytes": 3999,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts",
+      "status": "new",
+      "sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7",
+      "bytes": 13913,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "status": "modified",
+      "sha256": "5c303ed3a6700eae65207dbececa98a74c2b6d427a1ec20661ffec8ff2b757db",
+      "bytes": 97304,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/wind-exposure/WindExposureForm.tsx",
+      "status": "new",
+      "sha256": "0a8727bb7d4bb034d6214de114adac85d5d6bc91d6f3821518f6455900562972",
+      "bytes": 5942,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+      "status": "new",
+      "sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef",
+      "bytes": 1053,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/libraryImportService.ts",
+      "status": "modified",
+      "sha256": "d993315ab45c569cc2fec30bfaeadd0713d52a630ee82bc47f8ffbaab048e4c0",
+      "bytes": 14645,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.test.ts",
+      "status": "new",
+      "sha256": "2c93b34ddbbaf6f985ac797cfb565d6e303cacc8b56215868b42b94057b012f1",
+      "bytes": 4441,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "status": "new",
+      "sha256": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f",
+      "bytes": 3436,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.test.ts",
+      "status": "new",
+      "sha256": "9b7450d844ba10f5b6bd65f26ad8df331a9f9e10688007daa23397d776e8009b",
+      "bytes": 2355,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+      "status": "new",
+      "sha256": "ee78aa7e4cdfc2442fdc722b196e4c3a27597a6676feea895acaa5ca4f9fa17c",
+      "bytes": 1784,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.test.ts",
+      "status": "new",
+      "sha256": "85fb2e2b72c4c24338172e231b4531ac49bcdc1c5c8e10351fce57f92b30cc15",
+      "bytes": 619,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.ts",
+      "status": "new",
+      "sha256": "1dec75321e61ec9e713c47901f73131f3e1acc66c9036586fd5675f1aae9c943",
+      "bytes": 6073,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "status": "modified",
+      "sha256": "edf3639fcdee2cc94acd2e7ac835186249613140eabd3e3d92d60542b3da1f1c",
+      "bytes": 8496,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "status": "modified",
+      "sha256": "557fa62b1315b7a84298b58545fae0fc5560d33c98e8f01cca76b49f5eee506b",
+      "bytes": 60368,
+      "ownership": "B0 integrated UI and accepted modules"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "status": "modified",
+      "sha256": "b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf",
+      "bytes": 26474,
+      "ownership": "B0 integrated UI and accepted modules"
+    }
+  ]
+}

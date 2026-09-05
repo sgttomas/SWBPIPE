@@ -1,0 +1,51 @@
+{
+  "created_utc": "2026-09-05T06:14:59.050508+00:00",
+  "status": "PREPARATION_ONLY_AWAITING_PARENT_HANDOFF",
+  "head": "740569598f9d00440636b8ea25264127f418e4ec",
+  "source_members": 110,
+  "source_drift": [],
+  "staging_candidate_count": 1010,
+  "outside_project": [],
+  "candidate_warning": "Inventory is provisional; excludes these newly written N8 files and later final fan-in evidence. Regenerate final exact membership at activation; do not blindly stage this snapshot.",
+  "staged": [],
+  "named_target": "origin/refs/heads/codex/piping-ui-toolkit-parity",
+  "environment": {
+    "python": {
+      "exit": 0,
+      "stdout": "Python 3.13.14",
+      "stderr": ""
+    },
+    "node": {
+      "exit": 0,
+      "stdout": "v24.18.0",
+      "stderr": ""
+    },
+    "npm": {
+      "exit": 0,
+      "stdout": "11.16.0",
+      "stderr": ""
+    },
+    "cargo": {
+      "exit": 0,
+      "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)",
+      "stderr": ""
+    },
+    "rustc": {
+      "exit": 0,
+      "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+      "stderr": ""
+    },
+    "wasm_bindgen": {
+      "exit": 0,
+      "stdout": "wasm-bindgen 0.2.123",
+      "stderr": ""
+    },
+    "targets": {
+      "exit": 0,
+      "stdout": "aarch64-apple-darwin\nwasm32-unknown-unknown",
+      "stderr": ""
+    }
+  },
+  "receipt": "Parent final writer pending; rerun validator before commit",
+  "git_mutations": []
+}

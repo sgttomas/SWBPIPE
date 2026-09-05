@@ -226,6 +226,13 @@ def main():
     assert {
         "add_object",
         "remove_object",
+        "split_pipe_run",
+        "transform_pipe_run",
+        "assign_section",
+        "detach_section",
+        "delete_material",
+        "delete_section",
+        "delete_component",
         "set_field",
         "move_geometry",
         "reconnect",

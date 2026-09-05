@@ -193,3 +193,13 @@ if __name__ == "__main__":
     test_protected_suspected_metadata_quarantines_import()
     test_unit_metadata_is_preserved_for_imported_values()
     test_import_findings_map_to_pkg02_diagnostic_envelope()
+
+
+def test_hanger_nested_provenance_quarantine_carries_exact_location():
+    payload = load_json(ROOT / 'fixtures/hanger/invented_hanger_library_valid.json')
+    payload['hanger_records'][0]['hanger']['stiffness']['value']['provenance']['review_status'] = 'quarantined'
+    result = validate_library_import(payload, library_kind='hanger', intended_visibility='private')
+    assert result.outcome == 'QUARANTINE'
+    assert ('IMPORT_PROTECTED_CONTENT_SUSPECTED', '$.hanger_records[0].hanger.stiffness.value', 'quarantine') in [
+        (f.code, f.path, f.severity) for f in result.findings
+    ]

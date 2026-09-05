@@ -1,0 +1,20 @@
+{
+  "runtime_status": "SUCCESS",
+  "review_verdict": "PASS",
+  "findings": [],
+  "closed_findings": [
+    "N7-F1",
+    "N7-F2",
+    "N7-F3"
+  ],
+  "coverage_members": 110,
+  "coverage_percent": 100,
+  "source_hashes_unchanged": true,
+  "started_utc": "2026-09-05T06:07:21.931974+00:00",
+  "last_source_observation_utc": "2026-09-05T06:13:20.733680+00:00",
+  "model": "unavailable/inherited",
+  "nondelegation": "instruction+config asserted",
+  "report": "REVIEW_RETURN_V2.md",
+  "parent_fan_in": "VALID_BOUNDED_REVIEW_ONLY",
+  "remaining": "Explicit residuals in report; DEC025 and manager acceptance remain parent-owned"
+}

@@ -5,6 +5,7 @@
 
 ## Remaining
 - Broader viewport gesture/editor UX beyond the landed explicit component-creation tools remains separately selectable. Vocabulary row 15 component-symbol authoring is complete; no lifecycle promotion is inferred.
+- Current toolkit evidence implements explicit existing-endpoint pipe continuation, component-symbol entry, and bounded straight unreferenced split/copy/translate/rotate/mirror through PKG-16. Richer routing gestures, attached engineering transforms and finite component insert-in-run remain residuals. Historical row 15 closure is preserved; final N7 integrated review remains pending. See DEL-07-09 current Capability_Comparison.csv / Palette_Operation_Routing.md.
 
 ## History
 - 2026-08-21 - Vocabulary round 3 landed tee, reducer, valve, and flange viewport creation after explicit pipe-role repair, preserving bend behavior and proving exact selected roles at a three-incident node. Fresh N1 review V2 passed after one preserved failed review/repair cycle; committed evidence is `8ca1984db45a9a8f6f3111a905b07c7d3da47c33`. Row 15 is closed; state remains IN_PROGRESS.

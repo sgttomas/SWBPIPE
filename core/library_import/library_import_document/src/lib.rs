@@ -51,6 +51,7 @@ pub enum LibraryKind {
     Material,
     Section,
     Component,
+    Hanger,
 }
 
 impl LibraryKind {
@@ -62,6 +63,7 @@ impl LibraryKind {
             "material" => Some(Self::Material),
             "section" => Some(Self::Section),
             "component" => Some(Self::Component),
+            "hanger" => Some(Self::Hanger),
             _ => None,
         }
     }
@@ -72,6 +74,7 @@ impl LibraryKind {
             Self::Material => ("material_library", "material_records"),
             Self::Section => ("section_library", "section_records"),
             Self::Component => ("component_library", "component_records"),
+            Self::Hanger => ("hanger_library", "hanger_records"),
         }
     }
 
@@ -82,6 +85,7 @@ impl LibraryKind {
             Self::Material => "material",
             Self::Section => "section",
             Self::Component => "component",
+            Self::Hanger => "hanger",
         }
     }
 }
@@ -206,6 +210,9 @@ pub fn validate_library_import(
     library_kind: LibraryKind,
     intended_visibility: IntendedVisibility,
 ) -> ImportValidationResult {
+    if library_kind == LibraryKind::Hanger {
+        return validate_hanger_import(payload, intended_visibility);
+    }
     let (library_key, records_key) = library_kind.keys();
     let mut findings: Vec<ImportFinding> = Vec::new();
 
@@ -730,4 +737,112 @@ mod tests {
             "review_status": "accepted",
         })
     }
+}
+
+// One schema source shared with Python; no new runtime dependency or catalog.
+const HANGER_SCHEMA: &str = include_str!("../../../../schemas/hanger.schema.yaml");
+fn hanger_invalid(path: &str) -> ImportFinding {
+    ImportFinding::new("IMPORT_HANGER_SCHEMA_INVALID", "blocking", path,
+        "Hanger value does not satisfy the declared schema.",
+        "Supply explicit supported fields, compatible quantities and complete provenance.")
+}
+
+/// Bounded interpreter for precisely the keywords authored in HANGER_SCHEMA.
+/// Unsupported schema constructs fail closed; not a general JSON Schema engine.
+fn hanger_shape(value: &Value, schema: &Value, root: &Value, path: &str, out: &mut Vec<ImportFinding>) {
+    let allowed = ["$schema", "$id", "$defs", "title", "description", "$ref", "type",
+        "additionalProperties", "required", "properties", "items", "enum", "const", "pattern", "exclusiveMinimum"];
+    if schema.as_object().is_none_or(|s| s.keys().any(|k| !allowed.contains(&k.as_str()))) {
+        out.push(hanger_invalid(path)); return;
+    }
+    if let Some(reference) = schema["$ref"].as_str() {
+        if let Some(target) = reference.strip_prefix('#').and_then(|p| root.pointer(p)) {
+            hanger_shape(value, target, root, path, out);
+        } else { out.push(hanger_invalid(path)); }
+        return;
+    }
+    let kind = schema["type"].as_str().unwrap_or("");
+    let valid_type = match kind {
+        "object" => value.is_object(), "array" => value.is_array(), "string" => value.is_string(),
+        "number" => value.as_f64().is_some_and(|n| n.is_finite()), _ => false,
+    };
+    if !valid_type { out.push(hanger_invalid(path)); return; }
+    if schema.get("enum").is_some_and(|e| !e.as_array().is_some_and(|a| a.contains(value)))
+        || schema.get("const").is_some_and(|c| c != value)
+        || schema.get("pattern").is_some_and(|p| p != "\\S" || value.as_str().is_none_or(|v| v.trim_matches(|c: char| c.is_whitespace() || ('\u{001c}'..='\u{001f}').contains(&c)).is_empty()))
+        || schema.get("exclusiveMinimum").is_some_and(|m| value.as_f64().unwrap() <= m.as_f64().unwrap()) {
+        out.push(hanger_invalid(path));
+    }
+    if let Some(object) = value.as_object() {
+        let mut missing: Vec<&str> = schema["required"].as_array().into_iter().flatten()
+            .filter_map(Value::as_str).filter(|key| !object.contains_key(*key)).collect();
+        missing.sort_unstable();
+        for key in missing { out.push(ImportFinding::new("IMPORT_HANGER_SCHEMA_INVALID", "blocking",
+            &format!("{path}.{key}"), "Required hanger field is missing.", "Supply the required field explicitly.")); }
+        let mut keys: Vec<&String> = object.keys().collect(); keys.sort();
+        for key in keys {
+            let next = format!("{path}.{key}");
+            if let Some(property) = schema["properties"].get(key) {
+                hanger_shape(&object[key], property, root, &next, out);
+            } else if schema["additionalProperties"] == false {
+                out.push(ImportFinding::new("IMPORT_HANGER_SCHEMA_INVALID", "blocking", &next,
+                    "Unknown hanger field.", "Remove unsupported fields."));
+            }
+        }
+    } else if let Some(array) = value.as_array() {
+        for (i, item) in array.iter().enumerate() { hanger_shape(item, &schema["items"], root, &format!("{path}[{i}]"), out); }
+    }
+}
+
+fn validate_hanger_import(payload: &Value, visibility: IntendedVisibility) -> ImportValidationResult {
+    let schema: Value = serde_json::from_str(HANGER_SCHEMA).expect("embedded hanger schema is valid JSON");
+    let mut findings = Vec::new();
+    hanger_shape(payload, &schema, &schema, "$", &mut findings);
+    let mut objects = Vec::new();
+    walk_value_objects(payload, "$".into(), &mut objects);
+    objects.sort_by(|a,b| a.0.cmp(&b.0));
+    for (path, item) in objects {
+        if item.contains_key("provenance") || (!path.ends_with(".provenance") &&
+            ["redistribution_status", "review_status", "privacy_class"].iter().any(|key| item.contains_key(*key))) {
+            let provenance = item.get("provenance").unwrap_or(&Value::Null);
+            findings.extend(validate_hanger_disposition(item, &path, visibility));
+            if let Some(p) = provenance.as_object() {
+                if ["redistribution_status", "review_status"].iter().any(|key|
+                    item.contains_key(*key) && item.get(*key) != p.get(*key)) {
+                    let mut wrapper = Map::new(); wrapper.insert("provenance".into(), provenance.clone());
+                    findings.extend(validate_object_disposition(&wrapper, &format!("{path}.provenance"), visibility));
+                }
+            }
+        }
+    }
+    let mut seen = std::collections::HashSet::new();
+    for (i, record) in payload["hanger_records"].as_array().into_iter().flatten().enumerate() {
+        if let Some(id) = record.get("hanger_id").and_then(Value::as_str) {
+            if !seen.insert(id) { findings.push(ImportFinding::new("IMPORT_HANGER_DUPLICATE_ID", "blocking",
+                &format!("$.hanger_records[{i}].hanger_id"), "Duplicate hanger identity.", "Use a unique hanger_id within the library.")); }
+        }
+    }
+    let outcome = determine_outcome(&findings, visibility);
+    ImportValidationResult { accepted: matches!(outcome.as_str(), "PRIVATE_LOCAL_ONLY" | "ACCEPTED_PUBLIC"),
+        outcome, library_kind: LibraryKind::Hanger, intended_visibility: visibility, findings }
+}
+
+
+fn validate_hanger_disposition(item: &Map<String, Value>, path: &str, visibility: IntendedVisibility) -> Vec<ImportFinding> {
+    // Hanger privacy includes project_private; preserve legacy-family semantics.
+    // This temporary diagnostic view never changes the imported source payload.
+    let mut view = item.clone();
+    if view.get("privacy_class").and_then(Value::as_str) == Some("project_private") {
+        view.insert("privacy_class".into(), Value::String("private_project_data".into()));
+    }
+    let mut findings = validate_object_disposition(&view, path, visibility);
+    // Malformed provenance must not suppress an explicit item quarantine marker.
+    if !item.get("provenance").is_some_and(Value::is_object)
+        && (item.get("redistribution_status").and_then(Value::as_str) == Some("protected_suspected")
+            || item.get("review_status").and_then(Value::as_str) == Some("quarantined")) {
+        findings.push(ImportFinding::new("IMPORT_PROTECTED_CONTENT_SUSPECTED", "quarantine", path,
+            "Import metadata indicates suspected protected content.",
+            "Quarantine metadata and request human/legal review; do not publish values."));
+    }
+    findings
 }

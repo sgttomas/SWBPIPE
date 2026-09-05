@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "created_utc": "2026-09-05T05:16:25.748720+00:00",
+  "source_manifest": "SOURCE_HASHES_V5.json",
+  "source_count": 65,
+  "source_drift": [],
+  "registered_check_report": "checks-v5-frozen-full.json",
+  "dist_command": "PLAYWRIGHT_WORKERS=1 ./node_modules/.bin/playwright test --config apps/desktop/playwright.dist.config.ts apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+  "dist_result": "PASS 1 test; 5.5 seconds; actual built browser imports both operation and self-weight Wasm, GUI2-member preview/apply/single undo",
+  "dist_log": "_run_records/v5/v5-dist-frozen-pass.log",
+  "scope": "scope-v5.json",
+  "review": "N7 pending; no source writes after UI_FREEZE_V5",
+  "raw_log_manifest": "LOG_MANIFEST_V5.json"
+}

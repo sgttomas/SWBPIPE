@@ -1,3 +1,5 @@
+import { QuantityReadout } from "../display-units";
+import type { MechanicsResult } from "../../types";
 import { GitCompare } from "lucide-react";
 import type { ComparisonDelta, PreviewComparison } from "../../types";
 
@@ -5,9 +7,11 @@ const MAX_VISIBLE_DELTAS = 4;
 
 export function ComparisonPanel({
   comparison,
+  result = null,
   onSelectResult
 }: {
   comparison: PreviewComparison | null;
+  result?: MechanicsResult | null;
   onSelectResult: (resultId: string) => void;
 }) {
   const visibleDeltas = comparison?.result_deltas.slice(0, MAX_VISIBLE_DELTAS) ?? [];
@@ -32,7 +36,7 @@ export function ComparisonPanel({
               testId="comparison-tolerance-status"
             />
             <ComparisonFact
-              label="Units"
+              label="Source unit evidence"
               value={comparisonUnitPolicy(comparison)}
               testId="comparison-unit-policy"
             />
@@ -53,7 +57,7 @@ export function ComparisonPanel({
               <span>Delta</span>
             </div>
             {visibleDeltas.map((delta) => (
-              <ComparisonRow key={delta.mapping_id} delta={delta} onSelectResult={onSelectResult} />
+              <ComparisonRow key={delta.mapping_id} delta={delta} dimension={comparisonDimension(delta, result)} onSelectResult={onSelectResult} />
             ))}
           </div>
           <small className="report-note" data-testid="comparison-diagnostics">
@@ -82,9 +86,11 @@ function ComparisonFact({ label, value, testId }: { label: string; value: string
 
 function ComparisonRow({
   delta,
+  dimension,
   onSelectResult
 }: {
   delta: ComparisonDelta;
+  dimension: string;
   onSelectResult: (resultId: string) => void;
 }) {
   return (
@@ -104,7 +110,9 @@ function ComparisonRow({
         {delta.component}; {delta.location}
         </span>
         <span>
-          {formatNumber(delta.raw_delta)} {delta.unit}
+          <span data-testid={`comparison-delta-${safeTestId(delta.right_result_id)}`}><QuantityReadout quantity={{ value: delta.raw_delta, unit: delta.unit, dimension_id: dimension === "temperature" ? "temperature_interval" : dimension }} /></span>
+          <small data-testid={`comparison-reference-${safeTestId(delta.right_result_id)}`}>Reference: <QuantityReadout quantity={{ value: delta.left_value, unit: delta.unit, dimension_id: dimension }} /></small>
+          <small data-testid={`comparison-target-${safeTestId(delta.right_result_id)}`}>Target: <QuantityReadout quantity={{ value: delta.right_value, unit: delta.unit, dimension_id: dimension }} /></small>
         </span>
       </button>
     </div>
@@ -136,9 +144,13 @@ function comparisonUnitPolicy(comparison: PreviewComparison): string {
   ].join("; ");
 }
 
-function formatNumber(value: number): string {
-  if (Math.abs(value) >= 100) return value.toFixed(3).replace(/\.?0+$/, "");
-  return value.toPrecision(6).replace(/\.?0+$/, "");
+function comparisonDimension(delta: ComparisonDelta, result: MechanicsResult | null): string {
+  const right = result?.results.find((row) => row.id === delta.right_result_id);
+  const left = result?.results.find((row) => row.id === delta.left_result_id);
+  // Do not borrow metadata from a different result value or conflicting pair.
+  if (!right || right.unit !== delta.unit || right.value !== delta.right_value) return "unknown";
+  if (left && (left.unit !== delta.unit || left.value !== delta.left_value || (left.dimension && left.dimension !== right.dimension))) return "unknown";
+  return right.dimension ?? "unknown";
 }
 
 function safeTestId(value: string): string {

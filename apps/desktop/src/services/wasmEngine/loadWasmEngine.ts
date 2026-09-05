@@ -15,6 +15,9 @@ export const WASM_ENGINE_BUILD_COMMAND = "npm run build:wasm --workspace apps/de
 export type WasmOperationEngine = {
   validateOperationJson: (modelJson: string, intentJson: string, claimedModelHashJson: string) => string;
   applyOperationJson: (modelJson: string, intentJson: string, claimedModelHashJson: string) => string;
+  validateOperationBatchJson: (modelJson: string, batchJson: string, claimedModelHashJson: string) => string;
+  applyOperationBatchJson: (modelJson: string, batchJson: string, claimedModelHashJson: string) => string;
+  convertDisplayQuantitiesJson: (inputJson: string) => string;
   // H1 / F-5a hash seam: the engine's canonicalization and hashing, exported
   // so the frontend never re-implements either. Both throw on invalid JSON
   // input (WASM-ENGINE-INPUT-JSON-INVALID).
@@ -26,6 +29,9 @@ type GeneratedGlueModule = {
   default: (options?: { module_or_path: BufferSource | string | URL }) => Promise<unknown>;
   validate_operation_json: (modelJson: string, intentJson: string, claimedModelHashJson: string) => string;
   apply_operation_json: (modelJson: string, intentJson: string, claimedModelHashJson: string) => string;
+  validate_operation_batch_json: WasmOperationEngine["validateOperationBatchJson"];
+  apply_operation_batch_json: WasmOperationEngine["applyOperationBatchJson"];
+  convert_display_quantities_json: WasmOperationEngine["convertDisplayQuantitiesJson"];
   canonical_json_string: (valueJson: string) => string;
   canonical_sha256_hex: (valueJson: string) => string;
 };
@@ -131,9 +137,15 @@ async function instantiate(): Promise<WasmOperationEngine> {
     }
   }
 
+  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "canonical_json_string", "canonical_sha256_hex"] as const) {
+    if (typeof glue[name] !== "function") throw absenceError("required export missing", name);
+  }
   return {
     validateOperationJson: glue.validate_operation_json,
     applyOperationJson: glue.apply_operation_json,
+    validateOperationBatchJson: glue.validate_operation_batch_json,
+    applyOperationBatchJson: glue.apply_operation_batch_json,
+    convertDisplayQuantitiesJson: glue.convert_display_quantities_json,
     canonicalJsonString: glue.canonical_json_string,
     canonicalSha256Hex: glue.canonical_sha256_hex
   };

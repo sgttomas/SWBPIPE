@@ -1,0 +1,13 @@
+{
+  "authority": "HELP_HUMAN explicit RELEASE; existing backend wave accepted",
+  "upstream_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B3_ACCEPTED_SNAPSHOT.json",
+  "upstream_sha256": "96326a1f9a59baf1199872bb691e9c0dc8ad077d9a89c1466349ee15e7eecb49",
+  "implementation_brief": "children/A2_HANGER_IMPORT/LAUNCH_BRIEF_v1.md",
+  "focused_checks_authorized": [
+    "python3 -m pytest -q tests/test_hanger_library_schema.py tests/test_library_import_provenance.py",
+    "cargo test --offline --manifest-path core/library_import/library_import_document/Cargo.toml"
+  ],
+  "cargo_target_dir": "{PIPING_HANGER_IMPORT_TARGET}",
+  "review": "fresh read-only full diff mandatory",
+  "source_fence": "unchanged exact enumerated brief paths"
+}

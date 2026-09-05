@@ -1,0 +1,25 @@
+{
+  "status": "SUCCESS",
+  "review_verdict": "PASS",
+  "timestamp": "2026-09-05T05:02:02.071362+00:00",
+  "coverage": "complete four amended files plus prior complete nine-file review",
+  "hash_check": "9/9 MATCH;5/9 unchanged from V1",
+  "source_manifest_sha256": "eb62706416b9702a79e5d160d818257e78bebfa13e045edec7d46ed6c41e3d37",
+  "source_hashes": {
+    "apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx": "43bcfa6622191b355c5d18fca6415b86288bbfc2575887ff9c6794d315ec65c1",
+    "apps/desktop/src/features/hanger-selection/hangerSelection.ts": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9",
+    "apps/desktop/src/features/hanger-selection/index.ts": "23a76f305f71a7cd50c321503c0fe010cb9299ed9902b14074e86049ce26bab8",
+    "apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx": "f7cf7928b3b077d93be9ae7731d2cd1554aa170ddd79ab14539a3d1db53cb90e",
+    "apps/desktop/src/features/offline-proposal-intake/index.ts": "296a6e209e05dba5869156565ac9888c92f6f4e04ddff780709e9ca541ff60bb",
+    "apps/desktop/src/features/offline-proposal-intake/workflowSupport.ts": "658fe939ad818163678988a863f709a5617074474b313a42a8496caaaa3798c7",
+    "apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx": "680f6f0bfa3f714bf3b9eab4058f6dcbcea93e302fb24f8360fcf060806f1edf",
+    "apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx": "8a2b2de4a459cfacdb197cc534984aa06f95ce445a452e1de1b3edac668cec83",
+    "apps/desktop/src/features/self-weight-authoring/index.ts": "ffec526638ca3002f0f8784cbcbbd792f08f2cf4974c3116e33eb4e0e1d26196"
+  },
+  "actionable_findings": [],
+  "test_evidence": "13 focused PASS receipt inspected, not reviewer-rerun",
+  "closure": "PASS_FOR_BOUNDED_MODULE_FAN_IN",
+  "lifecycle": "unchanged",
+  "role_enforcement": "instruction+config asserted",
+  "model_identity": "exact inherited identity unavailable"
+}

@@ -1,0 +1,17 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop -- src/features/toolkit src/App.test.tsx -t existing toolkit|guarded removal|human toolkit|toolkit navigation integration
+
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/toolkit src/App.test.tsx -t existing toolkit|guarded removal|human toolkit|toolkit navigation integration
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  4 passed (4)
+      Tests  19 passed | 101 skipped (120)
+   Start at  22:24:30
+   Duration  2.88s (transform 1.33s, setup 596ms, import 1.61s, tests 1.87s, environment 1.40s)
+

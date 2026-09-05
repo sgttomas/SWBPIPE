@@ -1,0 +1,4 @@
+# Independent M_EXISTING re-review v2 — held for revised freeze
+Same nonimplementing reviewer, read-only, no delegation; prior independent review covered100%19files and found exactly P1 withdrawn request publication and P2 missing disabled reason. Review revised entire frozen19file manifest plus complete baseline diff, preserve original RETURN.md/STATUS.json. Verify unchanged hashes remain covered by previous full review; inspect100% changed lines/files and regression tests/edge cases since that reviewed basis. Re-read original source when needed for current integrated judgment.
+
+Allowed writes only R_EXISTING/RETURN_V2.md and STATUS_V2.json. No source edits. Final verdict PASS only no actionable findings, initial two defects repaired semantically, focused/full tests/build evidence current and relevant artifact version bound. Report remaining risk, full coverage method and exact new hashes. Tier3 remains held until manager accepts.

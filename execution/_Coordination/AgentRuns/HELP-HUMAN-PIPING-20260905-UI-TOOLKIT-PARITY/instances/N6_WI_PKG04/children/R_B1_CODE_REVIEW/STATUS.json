@@ -1,0 +1,13 @@
+{
+  "status": "SUCCESS",
+  "verdict": "PASS",
+  "findings": [],
+  "before_sha256": "89607dac35257329bcc58041cfb62407b537b3cdbb28a61efe82f02544ddb9af",
+  "after_sha256": "eacdc9d80084ca87f20998bd2f4dc689438750d74306c8e518b57509bc826338",
+  "reviewed_diff_sha256": "19b70e0dfe8ad29ff117ac5a23277ff6e3dc4881c0c172940abb727c87b9a290",
+  "coverage": "100% frozen narrow B1 diff",
+  "model": "unavailable",
+  "tests_executed_by_reviewer": false,
+  "derivative_status": "review evidence, not decomposition truth",
+  "remaining": "manager fan-in and broad checks"
+}

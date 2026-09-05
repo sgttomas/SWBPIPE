@@ -1,0 +1,832 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/App.test.tsx b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+index c503d72ed..06dba3b21 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+@@ -18,6 +18,7 @@ import {
+   solveProofStatus,
+   type SolveProofEvidence,
+ } from "./App";
++import { ModelTree } from "./features/model-tree/ModelTree";
+ import { PropertyInspector } from "./features/model-tree/PropertyInspector";
+ import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
+ import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
+@@ -15581,3 +15582,96 @@ describe("OpenPipeStress desktop preview", () => {
+     expect(appliedInspector.textContent).toContain("Branch pipepipe:P-150");
+   });
+ });
++
++
++describe("toolkit navigation integration", () => {
++  it("opens and focuses existing forms without queueing or changing selection", async () => {
++    render(<App />);
++    await screen.findByTestId("desktop-preview-shell");
++    const selectionBefore = screen.getByTestId("command-selection-readout").textContent;
++    const destinations = [
++      ["build.node", "viewport-create-node-id"],
++      ["build.pipe", "viewport-create-pipe-id"],
++      ["build.component", "create-component-kind"],
++      ["supports.restraint", "create-support-id"],
++      ["properties.material", "create-material-id"],
++      ["properties.section", "create-section-id"],
++      ["loads.cases", "load-manager-create-load-id"],
++      ["loads.primitive", "load-manager-create-primitive-category"],
++      ["loads.combinations", "load-manager-create-combination-id"],
++      ["properties.libraries", "workspace-section-libraries"],
++      ["review.pending", "workspace-section-operations"],
++      ["view.select", "model-tree-filter-input"],
++    ];
++    for (const [command, target] of destinations) {
++      fireEvent.click(screen.getByTestId("toolkit-entry"));
++      fireEvent.click(screen.getByTestId(`toolkit-${command}`));
++      expect(screen.getByTestId(target)).toHaveFocus();
++      expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectionBefore);
++    }
++    expect(screen.queryByTestId("editor-intent-queue")).not.toBeInTheDocument();
++    expect(invokeMock.mock.calls.some(([command]) => command === "apply_model_operation" || command === "validate_model_operation")).toBe(false);
++  });
++});
++
++describe("existing toolkit v2", () => {
++  it("discards a delayed apply after opening a replacement model without creating a checkpoint", async () => {
++    const basis = await loadPreviewModel(); const replacement = inventedOpenEnvelope(basis); const pending = deferred<unknown>();
++    render(<App />); await screen.findByTestId("desktop-preview-shell");
++    fireEvent.click(screen.getByTestId("layout-mode-grid"));
++    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-x"), { target: { value: "1.25" } });
++    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
++    invokeMock.mockImplementation((command: string) => {
++      if (command === "apply_model_operation") return pending.promise;
++      if (command === "open_local_project") return Promise.resolve(replacement);
++      return Promise.reject(new Error(`Unexpected command ${command}`));
++    });
++    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
++    fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
++    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("apply_model_operation", expect.any(Object)));
++    act(() => nativeMenuCommand("file.open-local"));
++    await waitFor(() => expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(replacement.model.project.id));
++    await act(async () => { pending.resolve({ validation: { application_status: "applied_to_session_model" }, applied_model: basis }); await pending.promise; });
++    expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(replacement.model.project.id);
++    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
++    expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("0 applied");
++  });
++  it("limits section type choices to pipe", async () => {
++    const model = await loadPreviewModel();
++    model.sections = [{ id: "section:invented", name: "Invented", section_type: "pipe", properties: {}, provenance: { source: "invented" } }];
++    render(<ModelTree model={model} selection={{ type: "section", id: "section:invented" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} />);
++    fireEvent.click(screen.getByTestId("layout-mode-grid"));
++    const table = screen.getByTestId("entity-grid-table-sections");
++    expect(within(table).queryByTestId("entity-grid-input-section:invented-provenance")).not.toBeInTheDocument();
++    for (const input of within(table).getAllByRole("combobox")) expect(within(input).getAllByRole("option").filter((option) => !(option as HTMLOptionElement).disabled).map((option) => option.getAttribute("value"))).toEqual(["pipe"]);
++  });
++  it("continues two explicit pipe drafts through existing endpoints and cancellation clears transient inputs", async () => {
++    const model = await loadPreviewModel(); const unchanged = JSON.stringify(model); const queue = vi.fn();
++    render(<PipeViewport model={model} selection={{ type: "node", id: model.nodes[0].id }} armedCreationTool="pipe" onArmCreationTool={vi.fn()} onSelect={vi.fn()} onQueueIntent={queue} />);
++    const values: Record<string, string> = { id: "pipe:chain-a", label: "Chain A", from: model.nodes[0].id, to: model.nodes[1].id, material: model.materials![0].id, od: "0.114", wall: "0.006", "yref-x": "0", "yref-y": "0", "yref-z": "1", provenance: "invented user test" };
++    for (const [field, value] of Object.entries(values)) fireEvent.change(screen.getByTestId(`viewport-create-pipe-${field}`), { target: { value } });
++    fireEvent.click(screen.getByTestId("continue-pipe-after-queue")); fireEvent.click(screen.getByTestId("queue-explicit-pipe-intent"));
++    expect(screen.getByTestId("viewport-create-pipe-from")).toHaveValue(model.nodes[1].id);
++    expect(screen.getByTestId("viewport-create-pipe-id")).toHaveValue(""); expect(screen.getByTestId("viewport-create-pipe-to")).toHaveValue("");
++    expect(screen.getByTestId("queue-explicit-pipe-intent")).toBeDisabled();
++    for (const [field, value] of Object.entries({ id: "pipe:chain-b", label: "Chain B", to: model.nodes[2].id })) fireEvent.change(screen.getByTestId(`viewport-create-pipe-${field}`), { target: { value } });
++    fireEvent.click(screen.getByTestId("queue-explicit-pipe-intent")); expect(queue).toHaveBeenCalledTimes(2);
++    const payloads = queue.mock.calls.map(([intent]) => JSON.parse(intent.change.after));
++    expect(payloads.map((payload) => [payload.id, payload.from, payload.to])).toEqual([["pipe:chain-a", model.nodes[0].id, model.nodes[1].id], ["pipe:chain-b", model.nodes[1].id, model.nodes[2].id]]);
++    expect(JSON.stringify(model)).toBe(unchanged);
++    fireEvent.click(screen.getByTestId("cancel-pipe-draft")); expect(screen.getByTestId("continue-pipe-after-queue")).not.toBeChecked();
++    expect(screen.getByTestId("viewport-create-pipe-from")).toHaveValue(""); expect(screen.getByTestId("viewport-create-pipe-material")).toHaveValue("");
++  });
++});
++
++
++describe("existing toolkit v2 bound section", () => {
++  it("shows the shared section and prevents independent diameter or wall edits", async () => {
++    const model = await loadPreviewModel(); const pipe = model.pipe_segments[0]; pipe.section_ref = "section:shared-test";
++    render(<PropertyInspector model={model} selection={{ type: "pipe", id: pipe.id }} onQueueIntent={vi.fn()} />);
++    expect(screen.getByTestId("pipe-section-basis")).toHaveTextContent("section:shared-test");
++    const options = within(screen.getByTestId("editor-intent-field")).getAllByRole("option").map((option) => option.getAttribute("value"));
++    expect(options).not.toContain("section.outside_diameter.value"); expect(options).not.toContain("section.wall_thickness.value");
++    expect(options).toContain("section.mill_tolerance.value");
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/App.tsx b/projects/chirality-piping/apps/desktop/src/App.tsx
+index 319e5a855..f66cd8590 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.tsx
+@@ -46,6 +46,8 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
+ import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
+ import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
+ import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
++import { ToolkitPalette } from "./features/toolkit/ToolkitPalette";
++import { capabilityAvailability, capabilityRoute, type ToolkitCapability } from "./features/toolkit/capabilityCatalog";
+ import { PropertyInspector } from "./features/model-tree/PropertyInspector";
+ import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
+ import { ReportPanel } from "./features/report/ReportPanel";
+@@ -439,6 +441,13 @@ export function App() {
+   // core (model tree | 3D viewport | inspector) owns the surface; workspace
+   // sections are summoned from the View menu and dismissed back to the viewport.
+   const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
++  const [toolkitFocus, setToolkitFocus] = useState<{ testId: string } | null>(null);
++  useLayoutEffect(() => {
++    if (!toolkitFocus) return;
++    const target = document.querySelector<HTMLElement>(`[data-testid="${toolkitFocus.testId}"]`);
++    target?.focus();
++    target?.scrollIntoView?.({ block: "nearest" });
++  }, [toolkitFocus]);
+   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
+   const [armedCreationTool, setArmedCreationTool] = useState<CreationTool | null>(null);
+   // Viewport-first agent-mediated shell (TP-R3UX-AGENTSHELL-001): the detailed
+@@ -455,6 +464,8 @@ export function App() {
+   const [issuesDrawerOpen, setIssuesDrawerOpen] = useState(false);
+   const intentSequence = useRef(0);
+   const modelRevision = useRef(0);
++  const currentModel = useRef<PreviewModel | null>(null);
++  const operationRequest = useRef({ sequence: 0, busy: false });
+   const solveRunGate = useRef(new SolveRunGenerationGate());
+   const activeSolveJob = useRef<{
+     generation: number;
+@@ -504,6 +515,10 @@ export function App() {
+   }, [model]);
+ 
+   function commitModel(nextModel: PreviewModel) {
++    currentModel.current = nextModel;
++    operationRequest.current.sequence += 1;
++    operationRequest.current.busy = false;
++    setOperationBusy(false);
+     commitModelAfterSolveInvalidation(solveRunGate.current, modelRevision, () => {
+       activeSolveJob.current = null;
+       setRunning(false);
+@@ -819,25 +834,44 @@ export function App() {
+   }
+ 
+   async function handleValidateIntent(intent: EditorOperationIntent) {
+-    if (!model) return;
++    if (!model || operationRequest.current.busy) return;
++    const revision = modelRevision.current;
++    const request = ++operationRequest.current.sequence;
++    operationRequest.current.busy = true;
++    const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision;
+     setOperationBusy(true);
+     setOperationMessage(null);
+     try {
+       const outcome = await validateModelOperation(model, intent, modelHash);
++      if (!stillCurrent()) return;
+       setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
+     } catch (error) {
+-      setOperationMessage(`Operation validation failed to run: ${String(error)}`);
++      if (stillCurrent()) setOperationMessage(`Operation validation failed to run: ${String(error)}`);
+     } finally {
+-      setOperationBusy(false);
++      if (operationRequest.current.sequence === request) {
++        operationRequest.current.busy = false;
++        setOperationBusy(false);
++      }
+     }
+   }
+ 
+   async function handleApplyIntent(intent: EditorOperationIntent) {
+-    if (!model) return;
++    if (!model || operationRequest.current.busy) return;
++    const revision = modelRevision.current;
++    const request = ++operationRequest.current.sequence;
++    operationRequest.current.busy = true;
++    const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision;
+     setOperationBusy(true);
+     setOperationMessage(null);
+     try {
+-      const outcome = await applyModelOperation(model, intent, modelHash);
++      const initialHash = await computeModelHash(model);
++      if (!stillCurrent() || !initialHash) return;
++      const outcome = await applyModelOperation(model, intent, initialHash);
++      if (!stillCurrent() || !currentModel.current) return;
++      const currentHash = await computeModelHash(currentModel.current);
++      // The hash computation is asynchronous too; generation must still match
++      // after it resolves before any outcome, receipt or checkpoint is published.
++      if (!stillCurrent() || currentHash?.value !== initialHash.value) return;
+       setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
+       if (outcome.validation.application_status !== "applied_to_session_model" || !outcome.applied_model) {
+         setOperationMessage(
+@@ -877,6 +911,9 @@ export function App() {
+       commitModel(outcome.applied_model);
+       const appliedSelection = selectionForOperationOutcome(outcome);
+       if (
++        outcome.change_kind === "delete_material" ||
++        outcome.change_kind === "delete_section" ||
++        outcome.change_kind === "delete_component" ||
+         outcome.change_kind === "delete_support" ||
+         outcome.change_kind === "delete_pipe_run" ||
+         outcome.change_kind === "delete_node"
+@@ -899,9 +936,12 @@ export function App() {
+         `Applied ${outcome.operation_id} to the session model; previous solve results were cleared. Run a new solve, then save the project to store the edited model locally.`
+       );
+     } catch (error) {
+-      setOperationMessage(`Operation apply failed to run: ${String(error)}`);
++      if (stillCurrent()) setOperationMessage(`Operation apply failed to run: ${String(error)}`);
+     } finally {
+-      setOperationBusy(false);
++      if (operationRequest.current.sequence === request) {
++        operationRequest.current.busy = false;
++        setOperationBusy(false);
++      }
+     }
+   }
+ 
+@@ -1225,6 +1265,26 @@ export function App() {
+     }
+   }
+ 
++  function handleToolkitCommand(capability: ToolkitCapability) {
++    if (!selection) return;
++    const context = { selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy };
++    if (!capabilityAvailability(capability, context).enabled) return;
++    if (capability.history) {
++      if (capability.history === "undo") handleUndoSessionModelEdit();
++      else handleRedoSessionModelEdit();
++      setToolkitFocus({ testId: "toolkit-entry" });
++      return;
++    }
++    const route = capabilityRoute(capability, context);
++    if (!route) return;
++    setArmedCreationTool(route.tool ?? null);
++    if (route.surface === "inspector") { setInspectorCollapsed(false); setActiveSection(null); }
++    else if (route.surface === "tree") { setTreeCollapsed(false); setActiveSection(null); }
++    else if (route.surface === "viewport") setActiveSection(null);
++    else setActiveSection(route.surface);
++    setToolkitFocus({ testId: route.focusTestId });
++  }
++
+   async function handleSaveReportPackage() {
+     if (!model || !result || !analysisRun || !inputManifest || running || reportPackageBusy) return;
+     setReportPackageBusy(true);
+@@ -1477,6 +1537,10 @@ export function App() {
+             <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={handleSelectEntity} />
+           </div>
+           <div className="workspace-pane workspace-pane-viewport">
++            <ToolkitPalette
++              context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy }}
++              onChoose={handleToolkitCommand}
++            />
+             <PipeViewport
+               armedCreationTool={armedCreationTool}
+               model={model}
+@@ -1550,6 +1614,7 @@ export function App() {
+               className={dockSectionClass("operations", activeSection)}
+               aria-label="Operation Apply section"
+               data-testid="workspace-section-operations"
++              tabIndex={-1}
+             >
+               <OperationApplyPanel
+                 queuedIntents={editorIntents}
+@@ -1632,6 +1697,7 @@ export function App() {
+               className={dockSectionClass("libraries", activeSection)}
+               aria-label="Libraries section"
+               data-testid="workspace-section-libraries"
++              tabIndex={-1}
+             >
+               <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
+             </section>
+diff --git a/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx b/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx
+index 0fc1a82d2..06e093627 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx
+@@ -502,6 +502,7 @@ type GridColumn = {
+   value: (row: GridRow) => string;
+   unitEditable?: boolean;
+   readonly?: boolean;
++  options?: readonly string[];
+ };
+ 
+ type GridRow = {
+@@ -628,10 +629,15 @@ function EntityGrid({
+                   const value = drafts[key] ?? column.value(row);
+                   return (
+                     <td key={column.key}>
+-                      {column.readonly ? (
++                      {gridCellReadonly(column, row) ? (
+                         <span data-testid={`entity-grid-cell-${safeToken(row.id)}-${safeToken(column.key)}`}>
+                           {value}
+                         </span>
++                      ) : column.options ? (
++                        <select aria-label={`${row.id} ${column.label}`} data-testid={`entity-grid-input-${safeToken(row.id)}-${safeToken(column.key)}`} value={value} onChange={(event) => updateCell(row, column, event.target.value)}>
++                          {!column.options.includes(value) ? <option value={value} disabled>{value} (existing)</option> : null}
++                          {column.options.map((option) => <option key={option} value={option}>{option}</option>)}
++                        </select>
+                       ) : (
+                         <input
+                           aria-label={`${row.id} ${column.label}`}
+@@ -787,6 +793,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
+   if (entityType === "pipes") {
+     return [
+       scalarGridColumn("label", "Label", "label", "Element", "pipe segment label only"),
++      readonlyGridColumn("section-ref", "Shared section", "section_ref", "Element"),
+       readonlyGridColumn("from", "From", "from", "Element"),
+       readonlyGridColumn("to", "To", "to", "Element"),
+       quantityGridColumn(
+@@ -844,7 +851,7 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
+   if (entityType === "sections") {
+     return [
+       scalarGridColumn("name", "Name", "name", "Section", "section label only"),
+-      scalarGridColumn("type", "Type", "section_type", "Section", "section type"),
++      { ...scalarGridColumn("type", "Type", "section_type", "Section", "section type"), options: ["pipe"] },
+       quantityGridColumn(
+         "outside",
+         "Outside dia.",
+@@ -1187,6 +1194,11 @@ function readonlyGridColumn(
+   };
+ }
+ 
++function gridCellReadonly(column: GridColumn, row: GridRow): boolean {
++  // Structured provenance must never be flattened into a user-entered string.
++  return Boolean(column.readonly || (row.type === "section" && column.fieldPath === "provenance" && typeof (row.raw as { provenance?: unknown }).provenance === "object"));
++}
++
+ function changedGridCells({
+   columns,
+   drafts,
+@@ -1198,10 +1210,10 @@ function changedGridCells({
+ }): Array<{ row: GridRow; column: GridColumn; value: string }> {
+   return rows.flatMap((row) =>
+     columns.flatMap((column) => {
+-      if (column.readonly) return [];
++      if (gridCellReadonly(column, row)) return [];
+       const key = draftKey(row, column);
+       const value = drafts[key];
+-      if (value === undefined || value === column.value(row)) return [];
++      if (value === undefined || value === column.value(row) || (column.options && !column.options.includes(value))) return [];
+       return [{ row, column, value }];
+     })
+   );
+diff --git a/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx b/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
+index 591128a3f..ebb01d298 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
+@@ -1,3 +1,4 @@
++import { GuardedRemoval } from "../toolkit/GuardedRemoval";
+ import { ListPlus, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
+ import { useEffect, useMemo, useState } from "react";
+ import type {
+@@ -284,6 +285,7 @@ export function PropertyInspector({
+           </div>
+         ))}
+       </dl>
++      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in the section record; per-pipe supplements remain local.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
+       <section className="inspector-context-grid" aria-label="Inspector review context">
+         <DualUnitValue
+           value={selectedField?.before ?? "TBD"}
+@@ -386,6 +388,7 @@ export function PropertyInspector({
+           </p>
+         )}
+       </section>
++      <GuardedRemoval model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+       <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
+         <h3>Create section</h3>
+         <div className="editor-intent-controls">
+@@ -1563,7 +1566,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
+         "none",
+         "public/private source note"
+       )
+-    ];
++    ].filter((field) => !pipe.section_ref || !["section.outside_diameter.value", "section.wall_thickness.value"].includes(field.fieldPath));
+   }
+ 
+   const support = model.supports.find((item) => item.id === selection.id);
+diff --git a/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx b/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
+index 2968df0b2..beb918420 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
+@@ -168,6 +168,7 @@ export function PipeViewport({
+   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
+   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
++  const [continuePipe, setContinuePipe] = useState(false);
+   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
+   const [componentDraft, setComponentDraft] = useState<ComponentDraft>(() =>
+     defaultComponentDraft(model, selection, queuedIntents)
+@@ -181,7 +182,10 @@ export function PipeViewport({
+   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
+   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
+   const nodeDraftValid = isNodeDraftValid(nodeDraft);
+-  const pipeDraftValid = isPipeDraftValid(pipeDraft);
++  const pipeDraftValid = isPipeDraftValid(pipeDraft) &&
++    model.nodes.some((node) => node.id === pipeDraft.from) && model.nodes.some((node) => node.id === pipeDraft.to) &&
++    !model.pipe_segments.some((pipe) => pipe.id === pipeDraft.id.trim()) &&
++    ![...queuedIntents, ...localIntents].some((intent) => intent.change.change_kind === "connect_pipe_run" && intent.target.ref === pipeDraft.id.trim());
+   const componentDraftValid = isComponentDraftValid(model, componentDraft, [
+     ...queuedIntents,
+     ...localIntents
+@@ -237,9 +241,17 @@ export function PipeViewport({
+       setPipeEndpointPickMode("from");
+     } else {
+       setPipeEndpointPickMode(null);
++      setContinuePipe(false);
++      setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+     }
+   }, [armedCreationTool]);
+ 
++  useEffect(() => {
++    setContinuePipe(false);
++    setPipeDraft(emptyPipeDraft(defaultLengthUnit));
++    setPipeEndpointPickMode(null);
++  }, [model]);
++
+   useEffect(() => {
+     const host = hostRef.current;
+     if (!host) return;
+@@ -503,8 +515,17 @@ export function PipeViewport({
+       queuedIntents.length + localIntents.length + 1
+     );
+     queueIntent(intent);
+-    setPipeDraft(emptyPipeDraft(pipeDraft.lengthUnit || defaultLengthUnit));
++    setPipeDraft(continuePipe
++      ? { ...pipeDraft, id: "", label: "", from: pipeDraft.to, to: "" }
++      : emptyPipeDraft(pipeDraft.lengthUnit || defaultLengthUnit));
++    setPipeEndpointPickMode(continuePipe ? "to" : null);
++  }
++
++  function cancelPipeDraft() {
++    setContinuePipe(false);
++    setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+     setPipeEndpointPickMode(null);
++    onArmCreationTool(null);
+   }
+ 
+   function addExplicitComponentIntent() {
+@@ -1047,6 +1068,11 @@ export function PipeViewport({
+                 value={pipeDraft.provenance}
+               />
+             </label>
++            <label>
++              <input type="checkbox" data-testid="continue-pipe-after-queue" checked={continuePipe} onChange={(event) => setContinuePipe(event.target.checked)} />
++              Continue from end after queue; keep the entered material, dimensions, orientation and provenance
++            </label>
++            <button type="button" data-testid="cancel-pipe-draft" disabled={armedCreationTool !== "pipe" && !continuePipe && !pipeEndpointPickMode && JSON.stringify(pipeDraft) === JSON.stringify(emptyPipeDraft(defaultLengthUnit))} onClick={cancelPipeDraft}>Cancel pipe draft</button>
+             <button
+               data-testid="queue-explicit-pipe-intent"
+               disabled={!pipeDraftValid}
+@@ -1273,7 +1299,7 @@ function creationToolStatusLabel(tool: CreationTool | null): string {
+   if (tool === "node") return "Node tool armed: click empty canvas to fill coordinates, then queue node.";
+   if (tool === "pipe") return "Pipe tool armed: pick from/to nodes or complete the pipe form.";
+   if (tool === "support") return "Support tool armed: select a node, then complete Create support in the Inspector.";
+-  if (tool === "component") return "Component tool armed: queue a review-only component-symbol preview intent.";
++  if (tool === "component") return "Component tool armed: complete geometry and connectivity, then queue for validation, review and Apply.";
+   if (tool === "load") return "Load tool armed: use the Load Cases panel to create load cases and primitive loads.";
+   return "Model focus";
+ }
+diff --git a/projects/chirality-piping/apps/desktop/src/styles.css b/projects/chirality-piping/apps/desktop/src/styles.css
+index d0dc0679f..8a6ee4824 100644
+--- a/projects/chirality-piping/apps/desktop/src/styles.css
++++ b/projects/chirality-piping/apps/desktop/src/styles.css
+@@ -3187,3 +3187,15 @@ th {
+   padding-left: 8px;
+   border-left: 2px solid #eef1ef;
+ }
++
++/* Accepted vocabulary navigation; forms continue to own draft and operation state. */
++.toolkit-palette { position: relative; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border, #344152); }
++.toolkit-commands { padding: 0.7rem 0; max-height: min(60vh, 36rem); overflow: auto; }
++.toolkit-commands > label { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem; }
++.toolkit-commands input { min-width: 0; flex: 1; }
++.toolkit-command-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 0.6rem 1rem; }
++.toolkit-command { display: grid; gap: 0.25rem; margin-bottom: 0.8rem; }
++.toolkit-command button { text-align: left; }
++.toolkit-command small { line-height: 1.45; }
++.toolkit-command button:disabled { opacity: 0.65; }
++.toolkit-palette :focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+diff --git a/projects/chirality-piping/apps/desktop/src/types.ts b/projects/chirality-piping/apps/desktop/src/types.ts
+index c500304a9..a38303687 100644
+--- a/projects/chirality-piping/apps/desktop/src/types.ts
++++ b/projects/chirality-piping/apps/desktop/src/types.ts
+@@ -90,6 +90,7 @@ export type WindEquivalentStaticGenerationInput = {
+   shape_factor?: QuantityValue;
+   direction?: string;
+   exposed_pipe_refs?: string[];
++  exposed_spans?: Array<{ pipe_ref: string; start_fraction: QuantityValue; end_fraction: QuantityValue }>;
+ };
+ 
+ /** User-entered static-equivalent occasional-load generation inputs
+@@ -122,6 +123,14 @@ export type PreviewModel = {
+     elastic_modulus: { value: number; unit: string };
+     shear_modulus: { value: number; unit: string };
+     thermal_expansion_coefficient?: { value: number; unit: string };
++    temperature_points?: Array<{
++      id: string;
++      temperature?: QuantityValue;
++      elastic_modulus?: QuantityValue;
++      shear_modulus?: QuantityValue;
++      thermal_expansion_coefficient?: QuantityValue;
++      provenance?: string;
++    }>;
+     provenance: string;
+   }>;
+   sections?: Array<{
+@@ -153,11 +162,24 @@ export type PreviewModel = {
+      * absolute mill-tolerance thickness reduction (length). Absence means no
+      * reduction; absence is not a default value of zero. */
+     section: Record<string, { value: number; unit: string }>;
++    section_ref?: string;
+     material: string;
+     y_reference?: Vec3;
+     provenance: string;
+   }>;
+   supports: Array<{
++    nonlinear?: {
++      behavior: string;
++      dof: string;
++      initial_state?: string;
++      active_when?: string;
++      contact_when?: string;
++      closes_when?: string;
++      gap?: QuantityValue;
++      friction_coefficient?: QuantityValue;
++      normal_reaction?: QuantityValue;
++      normal_reaction_source?: { support_ref: string; dof: string };
++    };
+     id: string;
+     label: string;
+     node: string;
+@@ -628,6 +650,9 @@ export type EditorOperationIntent = {
+       | "delete_combination"
+       | "create_combination_term"
+       | "delete_support"
++      | "delete_material"
++      | "delete_section"
++      | "delete_component"
+       | "delete_combination_term"
+       | "insert_component_symbol";
+     field_label: string;
+diff --git a/projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts b/projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts
+new file mode 100644
+index 000000000..4ef9c8729
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts
+@@ -0,0 +1,68 @@
++import type { EntityRef } from "../../types";
++
++export type ToolkitGroup = "Build" | "Supports" | "Properties" | "Loads" | "Edit" | "Select and View" | "Review";
++export type ToolkitRoute = {
++  surface: "viewport" | "inspector" | "tree" | "loads" | "libraries" | "operations";
++  focusTestId: string;
++  tool?: "node" | "pipe" | "component";
++};
++export type ToolkitCapability = {
++  id: string;
++  label: string;
++  group: ToolkitGroup;
++  vocabularyRows: readonly number[];
++  status: "supported" | "partial" | "unavailable" | "gated";
++  description: string;
++  route?: ToolkitRoute;
++  history?: "undo" | "redo";
++  requires?: "load" | "removable";
++};
++
++// Accepted SCA-009 vocabulary. Availability describes executable UI routes,
++// not schema tokens or eventual deliverable acceptance. Routes never mutate.
++export const toolkitCapabilities: readonly ToolkitCapability[] = [
++  { id: "build.node", label: "Node", group: "Build", vocabularyRows: [1], status: "supported", description: "Enter coordinates or place a draft in the viewport.", route: { surface: "viewport", tool: "node", focusTestId: "viewport-create-node-id" } },
++  { id: "build.pipe", label: "Pipe", group: "Build", vocabularyRows: [1], status: "partial", description: "Connect explicit endpoints; continuous routing gestures are still planned.", route: { surface: "viewport", tool: "pipe", focusTestId: "viewport-create-pipe-id" } },
++  { id: "build.component", label: "Components and expansion joints", group: "Build", vocabularyRows: [14, 15], status: "supported", description: "Choose bend, tee, reducer, valve, flange or expansion joint, then enter geometry and provenance.", route: { surface: "inspector", focusTestId: "create-component-kind" } },
++  { id: "build.split", label: "Split pipe / insert node", group: "Build", vocabularyRows: [19], status: "unavailable", description: "Splitting pipes and inserting nodes are not available yet." },
++  { id: "supports.restraint", label: "Restraint / anchor", group: "Supports", vocabularyRows: [2, 16], status: "partial", description: "Create explicit restrained degrees of freedom. Named family selection is still planned.", route: { surface: "inspector", focusTestId: "create-support-id" } },
++  { id: "supports.hanger", label: "Spring hanger", group: "Supports", vocabularyRows: [12], status: "unavailable", description: "Spring hanger editing is not available yet." },
++  { id: "supports.nonlinear", label: "Nonlinear support", group: "Supports", vocabularyRows: [13], status: "unavailable", description: "Gap, friction and one-way support editing are not available yet." },
++  { id: "supports.boundary", label: "Equipment / nozzle boundary", group: "Supports", vocabularyRows: [21], status: "unavailable", description: "Equipment and nozzle boundary authoring is not available yet." },
++  { id: "properties.material", label: "Materials", group: "Properties", vocabularyRows: [3], status: "partial", description: "Create elastic, shear and thermal properties. Full temperature-table authoring is still planned.", route: { surface: "inspector", focusTestId: "create-material-id" } },
++  { id: "properties.section", label: "Sections", group: "Properties", vocabularyRows: [17], status: "partial", description: "Create an explicit section; by-reference assignment is still planned.", route: { surface: "inspector", focusTestId: "create-section-id" } },
++  { id: "properties.assign-section", label: "Assign section", group: "Properties", vocabularyRows: [17], status: "unavailable", description: "Assigning a shared section to a pipe is not available yet." },
++  { id: "properties.libraries", label: "Imported libraries", group: "Properties", vocabularyRows: [3, 15], status: "supported", description: "Open user-controlled material, section and component libraries.", route: { surface: "libraries", focusTestId: "workspace-section-libraries" } },
++  { id: "properties.hanger-library", label: "Imported hanger selection", group: "Properties", vocabularyRows: [23], status: "unavailable", description: "Imported hanger selection is not available yet." },
++  { id: "loads.cases", label: "Load cases: temperature and pressure", group: "Loads", vocabularyRows: [4], status: "supported", description: "Create a case, then add explicit thermal or pressure loads.", route: { surface: "loads", focusTestId: "load-manager-create-load-id" } },
++  { id: "loads.primitive", label: "Force, moment and displacement", group: "Loads", vocabularyRows: [5], status: "supported", description: "Choose a primitive category, case, target and units.", route: { surface: "loads", focusTestId: "load-manager-create-primitive-category" } },
++  { id: "loads.wind", label: "Wind case fields", group: "Loads", vocabularyRows: [6], status: "partial", description: "Edit selected case pressure, shape, direction and pipe references. Detailed spans are still planned.", requires: "load", route: { surface: "inspector", focusTestId: "editor-intent-field" } },
++  { id: "loads.seismic", label: "Seismic static-g fields", group: "Loads", vocabularyRows: [7], status: "supported", description: "Choose gravity acceleration or an axis factor in the selected case field editor.", requires: "load", route: { surface: "inspector", focusTestId: "editor-intent-field" } },
++  { id: "loads.combinations", label: "Combinations", group: "Loads", vocabularyRows: [8], status: "supported", description: "Create mechanics, subtraction or range-envelope combinations.", route: { surface: "loads", focusTestId: "load-manager-create-combination-id" } },
++  { id: "loads.self-weight", label: "Generate self-weight", group: "Loads", vocabularyRows: [22], status: "unavailable", description: "Automatic self-weight case generation is not available yet." },
++  { id: "edit.remove", label: "Remove selected entity", group: "Edit", vocabularyRows: [1, 2, 18], status: "partial", description: "Review removal of a node, pipe, support, material, section or component. References can block application.", requires: "removable", route: { surface: "inspector", focusTestId: "" } },
++  ...(["copy", "rotate", "mirror"] as const).map((action): ToolkitCapability => ({ id: `edit.${action}`, label: action[0].toUpperCase() + action.slice(1), group: "Edit", vocabularyRows: [20], status: "unavailable", description: "Copying, rotating and mirroring model entities are not available yet." })),
++  { id: "edit.undo", label: "Undo", group: "Edit", vocabularyRows: [10], status: "supported", description: "Restore the previous session checkpoint (up to 25 edits).", history: "undo" },
++  { id: "edit.redo", label: "Redo", group: "Edit", vocabularyRows: [10], status: "supported", description: "Restore the next session checkpoint.", history: "redo" },
++  { id: "view.select", label: "Select / search model", group: "Select and View", vocabularyRows: [9], status: "supported", description: "Find an entity by name, ID, type or group.", route: { surface: "tree", focusTestId: "model-tree-filter-input" } },
++  { id: "view.units", label: "Display units", group: "Select and View", vocabularyRows: [24], status: "unavailable", description: "Per-field unit entry is available; project-wide display switching is still planned." },
++  { id: "review.pending", label: "Pending changes and details", group: "Review", vocabularyRows: [11], status: "supported", description: "Validate, review the diff and explicitly apply user-authored changes.", route: { surface: "operations", focusTestId: "workspace-section-operations" } },
++  { id: "review.agent", label: "Agent validate / preview / apply", group: "Review", vocabularyRows: [11], status: "gated", description: "Live agent integration is held by the project gate. The current agent panel is a review-only example." }
++];
++
++export const toolkitRoadmap = ["Node renumbering", "Snubbers", "Cold spring"] as const;
++export const toolkitGroups: readonly ToolkitGroup[] = ["Build", "Supports", "Properties", "Loads", "Edit", "Select and View", "Review"];
++export type ToolkitContext = { selection: EntityRef; canUndo: boolean; canRedo: boolean; busy: boolean };
++export function capabilityAvailability(capability: ToolkitCapability, context: ToolkitContext): { enabled: boolean; reason: string } {
++  if (capability.status === "unavailable" || capability.status === "gated") return { enabled: false, reason: capability.description };
++  if (capability.history && context.busy) return { enabled: false, reason: "Wait for the current operation to finish." };
++  if (capability.history === "undo" && !context.canUndo) return { enabled: false, reason: "No earlier session checkpoint." };
++  if (capability.history === "redo" && !context.canRedo) return { enabled: false, reason: "No later session checkpoint." };
++  if (capability.requires === "load" && context.selection.type !== "load") return { enabled: false, reason: "Select a load case in the model tree first." };
++  if (capability.requires === "removable" && !["node", "pipe", "support", "material", "section", "component"].includes(context.selection.type)) return { enabled: false, reason: "Select a node, pipe, support, material, section or component for removal." };
++  return { enabled: Boolean(capability.route || capability.history), reason: capability.description };
++}
++export function capabilityRoute(capability: ToolkitCapability, context: ToolkitContext): ToolkitRoute | undefined {
++  if (!capabilityAvailability(capability, context).enabled) return undefined;
++  return capability.requires === "removable" ? { surface: "inspector", focusTestId: ["material", "section", "component"].includes(context.selection.type) ? "guarded-removal-panel" : `queue-delete-${context.selection.type}-intent` } : capability.route;
++}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx b/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx
+new file mode 100644
+index 000000000..09d261d9b
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx
+@@ -0,0 +1,40 @@
++import { useRef, useState } from "react";
++import { capabilityAvailability, toolkitCapabilities, toolkitGroups, toolkitRoadmap, type ToolkitCapability, type ToolkitContext } from "./capabilityCatalog";
++
++export function ToolkitPalette({ context, onChoose }: { context: ToolkitContext; onChoose: (capability: ToolkitCapability) => void }) {
++  const [open, setOpen] = useState(false);
++  const [query, setQuery] = useState("");
++  const toggle = useRef<HTMLButtonElement>(null);
++  const search = useRef<HTMLInputElement>(null);
++  const matches = toolkitCapabilities.filter((item) => `${item.label} ${item.group} ${item.description}`.toLowerCase().includes(query.trim().toLowerCase()));
++  function close() { setOpen(false); toggle.current?.focus(); }
++  return <section className="toolkit-palette" aria-label="Human toolkit" onKeyDown={(event) => {
++    if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); close(); }
++  }}>
++    <button data-testid="toolkit-entry" ref={toggle} type="button" aria-expanded={open} aria-controls="toolkit-commands" onClick={() => {
++      setOpen(!open);
++      if (!open) requestAnimationFrame(() => search.current?.focus());
++    }}>Toolkit</button>
++    {open ? <div id="toolkit-commands" className="toolkit-commands">
++      <label>Find a tool<input ref={search} type="search" aria-label="Find a tool" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Pipe, wind, material…" /></label>
++      <button type="button" onClick={close}>Close toolkit</button>
++      <div className="toolkit-command-groups">
++        {toolkitGroups.map((group) => {
++          const entries = matches.filter((entry) => entry.group === group);
++          return entries.length ? <section key={group} aria-label={group}><h3>{group}</h3>{entries.map((entry) => {
++            const availability = capabilityAvailability(entry, context);
++            return <div className="toolkit-command" key={entry.id}>
++              <button type="button" data-testid={`toolkit-${entry.id}`} disabled={!availability.enabled} aria-describedby={`toolkit-help-${entry.id}`} onClick={() => {
++                if (!capabilityAvailability(entry, context).enabled) return;
++                setOpen(false); onChoose(entry);
++              }}>{entry.label}</button>
++              <small id={`toolkit-help-${entry.id}`}><strong>{entry.status === "supported" ? "Available" : entry.status === "partial" ? "Partial" : entry.status === "gated" ? "Project gate" : "Planned"}.</strong> {availability.reason}</small>
++            </div>;
++          })}</section> : null;
++        })}
++      </div>
++      {!matches.length ? <p role="status">No tools match this search.</p> : null}
++      <details><summary>Deferred roadmap</summary><ul>{toolkitRoadmap.map((label) => <li key={label}>{label}</li>)}</ul></details>
++    </div> : null}
++  </section>;
++}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx b/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx
+new file mode 100644
+index 000000000..d82a6f09d
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx
+@@ -0,0 +1,52 @@
++import { fireEvent, render, screen } from "@testing-library/react";
++import { describe, expect, it, vi } from "vitest";
++import { ToolkitPalette } from "./ToolkitPalette";
++import { capabilityAvailability, capabilityRoute, toolkitCapabilities, type ToolkitContext } from "./capabilityCatalog";
++
++const context: ToolkitContext = { selection: { type: "project", id: "project:test" }, canUndo: false, canRedo: false, busy: false };
++describe("human toolkit", () => {
++  it("represents all accepted vocabulary rows and only grants executable routes", () => {
++    expect([...new Set(toolkitCapabilities.flatMap((entry) => entry.vocabularyRows))].sort((a, b) => a - b)).toEqual(Array.from({ length: 24 }, (_, i) => i + 1));
++    expect(new Set(toolkitCapabilities.map((entry) => entry.id)).size).toBe(toolkitCapabilities.length);
++    for (const entry of toolkitCapabilities) {
++      if (capabilityAvailability(entry, context).enabled) expect(entry.route || entry.history).toBeTruthy();
++      if (["unavailable", "gated"].includes(entry.status)) expect(capabilityRoute(entry, context)).toBeUndefined();
++    }
++  });
++  it("searches descriptions, explains unavailable commands and never dispatches them", () => {
++    const onChoose = vi.fn();
++    render(<ToolkitPalette context={context} onChoose={onChoose} />);
++    fireEvent.click(screen.getByRole("button", { name: "Toolkit" }));
++    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "split" } });
++    const split = screen.getByRole("button", { name: "Split pipe / insert node" });
++    expect(split).toBeDisabled();
++    expect(screen.getByText(/Splitting pipes and inserting nodes/)).toBeVisible();
++    fireEvent.click(split);
++    expect(onChoose).not.toHaveBeenCalled();
++    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Agent validate" } });
++    fireEvent.click(screen.getByTestId("toolkit-review.agent"));
++    expect(onChoose).not.toHaveBeenCalled();
++    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
++    expect(screen.getByRole("button", { name: "Toolkit" })).toHaveFocus();
++    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
++  });
++  it("requires appropriate selection and available history before dispatch", () => {
++    const remove = toolkitCapabilities.find((entry) => entry.id === "edit.remove")!;
++    expect(capabilityAvailability(remove, context).enabled).toBe(false);
++    expect(capabilityRoute(remove, { ...context, selection: { type: "pipe", id: "pipe:chosen" } })).toEqual({ surface: "inspector", focusTestId: "queue-delete-pipe-intent" });
++    for (const action of ["undo", "redo"] as const) {
++      const command = toolkitCapabilities.find((entry) => entry.history === action)!;
++      expect(capabilityAvailability(command, context).enabled).toBe(false);
++      expect(capabilityAvailability(command, { ...context, canUndo: true, canRedo: true, busy: true }).enabled).toBe(false);
++    }
++  });
++  it("dispatches the stable command once and closes the palette", () => {
++    const onChoose = vi.fn();
++    render(<ToolkitPalette context={context} onChoose={onChoose} />);
++    fireEvent.click(screen.getByRole("button", { name: "Toolkit" }));
++    fireEvent.click(screen.getByTestId("toolkit-properties.material"));
++    expect(onChoose).toHaveBeenCalledOnce();
++    expect(onChoose.mock.calls[0][0].id).toBe("properties.material");
++    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.tsx b/projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.tsx
+new file mode 100644
+index 000000000..04c8ee3c9
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.tsx
+@@ -0,0 +1,50 @@
++import { useEffect, useState } from "react";
++import { canonicalJsonString } from "../../services/hashService";
++import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
++
++type RemovalKind = "material" | "section" | "component";
++const removalTypes = { material: "Material", section: "Section", component: "Component" } as const;
++const collections = { material: "materials", section: "sections", component: "components" } as const;
++export function removalEntity(model: PreviewModel, selection: EntityRef) {
++  if (!(selection.type in removalTypes)) return undefined;
++  return model[collections[selection.type as RemovalKind]]?.find((entry) => entry.id === selection.id);
++}
++export function buildGuardedRemoval(selection: EntityRef, before: string): EditorOperationIntent {
++  if (!(selection.type in removalTypes)) throw new Error("Unsupported removal target");
++  const kind = selection.type as RemovalKind;
++  return {
++    operation_id: `op:delete-${kind}:${selection.id}`, operation_kind: "delete", operation_status: "proposed", author_type: "user",
++    source: { source_ref: "apps/desktop/src/features/toolkit/GuardedRemoval.tsx", source_channel: "local_desktop_preview", source_role: "gui_editor" },
++    target: { object_type: removalTypes[kind], ref: selection.id },
++    change: { change_id: `change:delete-${kind}:${selection.id}`, change_kind: `delete_${kind}`, field_label: `Remove ${kind}`, field_path: collections[kind], before, after: "deleted", unit: "none", dimension: "dimensionless", source_note: "Explicit removal; whole entity precondition; inbound references block deletion without cascade." },
++    validation: { schema_validation: "not_run", constraint_validation: "not_run", unit_validation: "not_required_dimensionless", diff_preview_status: "not_generated", application_status: "not_applied" },
++    audit_boundary: { mutation_route: "structured_operations_only", direct_model_mutation_allowed: false, requires_user_acceptance: true, mutates_accepted_model_state: false },
++    professional_boundary: { human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false },
++    rationale: "Remove the explicitly selected entity only after reference validation and human review."
++  };
++}
++
++export function GuardedRemoval({ model, selection, onQueueIntent, operationBusy = false }: { model: PreviewModel; selection: EntityRef; onQueueIntent: (intent: EditorOperationIntent) => void; operationBusy?: boolean }) {
++  const entity = removalEntity(model, selection);
++  const [prepared, setPrepared] = useState<{ model: PreviewModel; entity: unknown; type: string; intent: EditorOperationIntent } | null>(null);
++  const [error, setError] = useState("");
++  useEffect(() => {
++    let active = true;
++    setPrepared(null); setError("");
++    if (entity) canonicalJsonString(entity).then((before) => {
++      if (active) setPrepared({ model, entity, type: selection.type, intent: buildGuardedRemoval(selection, before) });
++    }).catch(() => { if (active) setError("The removal preview could not be prepared. Check that the operation engine is available."); });
++    return () => { active = false; };
++  }, [model, entity, selection.id, selection.type]);
++  if (!entity) return null;
++  const ready = prepared?.model === model && prepared?.entity === entity && prepared?.type === selection.type && prepared.intent.target.ref === selection.id;
++  return <section className="editor-intent" tabIndex={-1} data-testid="guarded-removal-panel" aria-label="Remove selected entity">
++    <h3>Remove {selection.type}</h3>
++    <p>Remove <strong>{"label" in entity ? entity.label : entity.name}</strong> ({entity.id}). References from other records can block removal. No connected records will be removed automatically.</p>
++    <button type="button" data-testid={`queue-delete-${selection.type}-intent`} disabled={!ready || operationBusy} onClick={() => {
++      if (ready && prepared && !operationBusy) onQueueIntent(prepared.intent);
++    }}>Queue removal for review</button>
++    {error ? <p role="alert">{error}</p> : !ready ? <p role="status">Preparing the current entity snapshot…</p> : null}
++    <p>The queued change must be validated and explicitly applied in Pending changes.</p>
++  </section>;
++}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx b/projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx
+new file mode 100644
+index 000000000..7a79e498d
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx
+@@ -0,0 +1,38 @@
++import { fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { GuardedRemoval } from "./GuardedRemoval";
++import { loadPreviewModel } from "../../services/previewService";
++const canonical = vi.hoisted(() => vi.fn());
++vi.mock("../../services/hashService", () => ({ canonicalJsonString: canonical }));
++afterEach(() => canonical.mockReset());
++describe("guarded removal", () => {
++  it.each(["material", "section", "component"] as const)("queues exact %s identity and whole snapshot without mutating the model", async (type) => {
++    const model = await loadPreviewModel();
++    model.sections = [{ id: "section:invented", name: "Invented", section_type: "pipe", properties: {}, provenance: "invented test" }];
++    const entity = type === "material" ? model.materials![0] : type === "section" ? model.sections![0] : model.components[0];
++    const before = JSON.stringify(entity);
++    canonical.mockResolvedValue(before);
++    const queue = vi.fn(); const unchanged = JSON.stringify(model);
++    render(<GuardedRemoval model={model} selection={{ type, id: entity.id }} onQueueIntent={queue} />);
++    const button = screen.getByRole("button", { name: "Queue removal for review" });
++    await waitFor(() => expect(button).toBeEnabled());
++    fireEvent.click(button);
++    expect(queue.mock.calls[0][0]).toMatchObject({ operation_kind: "delete", target: { ref: entity.id }, change: { change_kind: `delete_${type}`, before, after: "deleted", unit: "none", dimension: "dimensionless" } });
++    expect(canonical).toHaveBeenCalledWith(entity);
++    expect(JSON.stringify(model)).toBe(unchanged);
++  });
++  it("discards stale preparation and fails closed when canonicalization is unavailable", async () => {
++    const model = await loadPreviewModel();
++    let resolve!: (value: string) => void;
++    canonical.mockReturnValueOnce(new Promise<string>((done) => { resolve = done; })).mockRejectedValueOnce(new Error("engine absent"));
++    const queue = vi.fn(); const selection = { type: "material" as const, id: model.materials![0].id };
++    const view = render(<GuardedRemoval model={model} selection={selection} onQueueIntent={queue} />);
++    const replacement = structuredClone(model); replacement.materials![0].label = "Changed basis";
++    view.rerender(<GuardedRemoval model={replacement} selection={selection} onQueueIntent={queue} />);
++    resolve(JSON.stringify(model.materials![0]));
++    await screen.findByRole("alert");
++    expect(screen.getByRole("button", { name: "Queue removal for review" })).toBeDisabled();
++    fireEvent.click(screen.getByRole("button", { name: "Queue removal for review" }));
++    expect(queue).not.toHaveBeenCalled();
++  });
++});

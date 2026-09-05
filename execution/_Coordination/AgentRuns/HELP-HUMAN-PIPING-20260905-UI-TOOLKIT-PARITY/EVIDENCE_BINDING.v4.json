@@ -1,0 +1,43 @@
+{
+  "recorded_utc": "2026-09-05T04:04:30.014196+00:00",
+  "evidence_sha256": {
+    "instances/N1_WI_PKG07/PHASE_A_RETURN.md": "8607791beb85511e0ae672c2310ac677de62619fce59df3fc2e0b98aca20169a",
+    "instances/N1_WI_PKG07/WORK_GRAPH_V2.json": "9bd281b2c93a9ce827898730135cd7af0add412a7b095bc377785070e620b264",
+    "instances/N1_WI_PKG07/snapshots/PHASE_A_ACCEPTED_001/MANIFEST.json": "004ad02f9e12f2b1d2b3eafe321b0a3f96e0e1ff68c1dab1364dc5b9cc0b6109",
+    "N2_WI_PKG16/B1_ACCEPTED_SNAPSHOT.json": "8ac2e88e4a0b4e2864b22be3740f006b1d14ca40e01dce70da1e7dcdecc6be99",
+    "N2_WI_PKG16/R2_RETURN.md": "34e9e891798fc6d17dc404bd0e8d25e4346e93095634d612dd43d8447b6c4bc5",
+    "N2_WI_PKG16/B2_RETURN.md": "c79edbd8f252cc3de35ce6ddffaa72332c57cb7ce7464a4cd7641bd131a2eed3",
+    "N2_WI_PKG16/B4_BATCH_DESIGN.md": "0d89732faa522cdd7d0f5d08cb55ac5202db59ec769570eb43010a9ade2753f1",
+    "N2_WI_PKG16/AMENDMENT_NATIVE_DISPLAY.md": "b40fb1c4ad5614faeebe333eb543f12709aaf19e1e7540aeb9d31bd2ffc4a232",
+    "instances/N3_WI_PKG02/SECTION_ACCEPTED_SNAPSHOT_V1.json": "210f76091fe8701b15752b0a1f622e10df863b886e1b6a67f1b940d0f57c31e4",
+    "instances/N3_WI_PKG02/RETURN_V3.md": "652d0541f3044e31fd531690fdab872af84703c35c880abeecc8e8ccae177ab9",
+    "instances/N_CROSS_CONTRACT_REFUTE/RECHECK_V2.md": "56c0027b56d3fdc7e889a407583a95414bd16ec0f9dddcb234e1dad7477712ac",
+    "instances/N4_WI_PKG03/STATUS.json": "eb21630fd714fa2801f79486b4b769c1f42ab6ad231db383d823b2345602c6ea",
+    "instances/N4_WI_PKG03/CONTRACT_PROPOSAL_v2.md": "659a0a479af0c53bdab821ee957f48ae4976e3185f3502a92fdec91edfe44e7e",
+    "instances/N5_WI_PKG05/STATUS.json": "ce84cd32a76e43c92bd731a261d91dd76c3eb40194eb2839671d4904a3f7cc4c",
+    "instances/N5_WI_PKG05/children/A2_REFUTE/STATUS.json": "206a0e994599653b77229b4c7943aa9b344375100588119d6855e508165cd189",
+    "instances/N5_WI_PKG05/PHASE_B_MODULE_CONTRACT.md": "4aed66902b78610b190db0f74bf05eb73243f837b1ccef1620aff14e4808f8ab",
+    "instances/N6_WI_PKG04/STATUS_PHASE_A_V3.json": "3c31b8f7f51d6589b9fea8b3cf5372d142c2bd20f45d0d75e4cc6794526e3d2d",
+    "instances/N6_WI_PKG04/children/A2_REFUTATION/RE_REVIEW_V3.md": "6cf792251bbe60da476a436457f19b15fce0bffc6c62980c4d8c2fb2af238c62",
+    "instances/N_ENV/RETURN.md": "b206167a3ee388814d8df522b206a695d285fdc8a2d04d2003f3f969fadb7174",
+    "instances/N_ENV/PORTABILITY_REFRESH_V2.json": "18f7fc982cc390051ec0cdefa487b0cee8e491806b44b3519ca4304787321b59"
+  },
+  "missing_expected_files": [],
+  "previous_frozen_root_sha256": {
+    "OWNER_DIRECTION.md": "bd88bd9112352859e5934d9291c2453067e1d0ab82752de309b2237c05e8dca3",
+    "HANDOFF_STATE.v3.md": "a4e14db6b6a55d0d57dffe0d9cf841550a149c604644e81e7c6e530ee95f79ff",
+    "WORK_GRAPH.v2.json": "d2785c5497da19fd99f1fa6c19ba16dab965cb6b51376455c1826c107e3a6b50",
+    "WORK_GRAPH.v3.json": "9c40d7a63b88a2bf6750b2c0c22e150d94f058c682296155076ed1a39b465deb",
+    "ORCHESTRATION_PLAN.v2_AMENDMENT.md": "7c5404adcf5280fac07401e15b0408da25028dc753f51b7f4f646e3430efd88a",
+    "ORCHESTRATION_PLAN.md": "ad668632c1924bec43a33c6ef0a5c753d1c831194c236c62e7f476c6ee87fdf3",
+    "ORCHESTRATION_PLAN.v3_AMENDMENT.md": "86f2e5a3878695cbedfc538c0e80b788c84680f33b2ba34d5c6175514a3a5907",
+    "WORK_GRAPH.json": "ea99aee5a99ab2fb5dcc7fa0971572227b7a3986dfb25dcb2c4c21cfc452029e",
+    "HANDOFF_STATE.md": "c5a45f2eaef7b3b6357e2233bfc8be775b426f2fa282e05dffc825f14e7217a0"
+  },
+  "checks": [
+    "JSON parsed",
+    "phase graph acyclic",
+    "prior root files unchanged"
+  ],
+  "calibration": "Bound evidence hashes capture actual bytes, not re-execution or verification of all underlying tests; N5 PASS/B3/batch dispatch parent-reported where noted"
+}

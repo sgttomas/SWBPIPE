@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "registered_checks": [
+    {
+      "id": "desktop-build",
+      "status": "PASS",
+      "duration_seconds": 3.803,
+      "summary": []
+    },
+    {
+      "id": "desktop-test",
+      "status": "PASS",
+      "duration_seconds": 119.005,
+      "summary": [
+        "Test Files  43 passed (43)",
+        "Tests  732 passed (732)"
+      ]
+    }
+  ],
+  "registered_report": "_run_records/v9/registered-full.json",
+  "chromium_dist": {
+    "status": "PASS",
+    "tests_passed": 1,
+    "duration_seconds": 5.7,
+    "command": "PLAYWRIGHT_WORKERS=1 ./node_modules/.bin/playwright test --config apps/desktop/playwright.dist.config.ts apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+    "raw_log": "_run_records/v9/dist.log",
+    "environment": "authorized local host Chromium/loopback preview; built dist actual imports",
+    "engine_rebuild": false
+  },
+  "raw_evidence_sha256": {
+    "_run_records/v9/registered-full.json": "af80e59840319a0fd31aec2a926eec699d08bec8102048f78401ab143847280d",
+    "_run_records/v9/dist.log": "4f4425b385adb49a7ab1b2fb236d00bd66e575183fddfa9bceccdaaf9e530e29"
+  },
+  "before": "V9_VERIFICATION_BEFORE.json",
+  "after": "V9_VERIFICATION_AFTER.json",
+  "source_changes": false
+}

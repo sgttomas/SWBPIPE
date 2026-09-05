@@ -1,10 +1,12 @@
+import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
 import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
 
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
 export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: MechanicsResult | null }) {
-  const records = [...(knowledge?.records ?? []), ...physicsRecords(result)];
+  const computedRecords = physicsRecords(result);
+  const records = [...(knowledge?.records ?? []), ...computedRecords];
   const unitContext = computedKnowledgeUnitContext(result);
   return (
     <section className="panel knowledge-panel" aria-label="Design knowledge" data-testid="knowledge-panel">
@@ -14,7 +16,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
       </div>
       {unitContext ? (
         <div className="report-line" data-testid="knowledge-unit-context">
-          <span>Computed unit context</span>
+          <span>Source computed unit context</span>
           <strong>{unitContext}</strong>
         </div>
       ) : null}
@@ -26,7 +28,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
                 <strong>{record.title}</strong>
                 <small>{record.kind} · {record.status}</small>
               </div>
-              <p>{record.summary}</p>
+              <p><KnowledgeSummary record={record} result={result} computed={computedRecords.includes(record)} /></p>
               <span>{record.provenance}</span>
             </article>
           ))}
@@ -122,4 +124,17 @@ function compareUnitSymbols(left: string, right: string): number {
   if (leftIndex >= 0) return -1;
   if (rightIndex >= 0) return 1;
   return left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
+}
+
+function KnowledgeSummary({ record, result, computed }: { record: KnowledgeRecord; result: MechanicsResult | null; computed: boolean }) {
+  if (!computed) return <>{record.summary}</>;
+  const maximum = result?.summary.max_displacement;
+  if (record.id === "knowledge:computed-max-displacement" && maximum) {
+    return <>{maximum.result_ref} is <QuantityReadout quantity={{ value: maximum.value, unit: maximum.unit, dimension_id: "displacement" }} /> at {maximum.location_ref}.</>;
+  }
+  const axial = result?.results.find((item) => item.id === "result:force:pipe-P-120:axial") ?? result?.results.find((item) => item.kind === "element_local_axial_force");
+  if (record.id === "knowledge:computed-axial-force" && axial) {
+    return <>{axial.id} is <QuantityReadout quantity={{ value: axial.value, unit: axial.unit, dimension_id: axial.dimension ?? (axial.kind === "element_local_axial_force" ? "force" : "unknown") }} /> for {axial.entity_ref}.</>;
+  }
+  return <>{record.summary}</>;
 }

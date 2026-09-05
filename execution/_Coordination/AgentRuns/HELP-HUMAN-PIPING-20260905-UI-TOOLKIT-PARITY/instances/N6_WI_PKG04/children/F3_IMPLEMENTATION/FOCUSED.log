@@ -1,0 +1,14 @@
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.79s
+     Running unittests src/lib.rs (/tmp/piping-ui-parity-target/debug/deps/open_pipe_stress_product_physics-d32292c12524eed2)
+
+running 6 tests
+test tests::f3_family_tokens_accept_exact_canonical_vocabulary ... ok
+test tests::f3_explicit_six_dof_guide_keeps_family_and_reports_invalid_rotations ... ok
+test tests::f3_canonical_spring_retains_elastic_stiffness ... ok
+test tests::f3_invalid_family_blocks_every_payload_before_mechanics ... ok
+test tests::f3_real_hanger_nonlinear_and_dof_aliases_remain_supported ... ok
+test tests::f3_missing_and_null_family_preserve_existing_inference_and_payloads ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 118 filtered out; finished in 0.03s
+

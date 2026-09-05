@@ -1,0 +1,520 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx
+index 65cdf3634..b307d04df 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx
+@@ -1,3 +1,5 @@
++import { QuantityReadout } from "../display-units";
++import type { MechanicsResult } from "../../types";
+ import { GitCompare } from "lucide-react";
+ import type { ComparisonDelta, PreviewComparison } from "../../types";
+ 
+@@ -5,9 +7,11 @@ const MAX_VISIBLE_DELTAS = 4;
+ 
+ export function ComparisonPanel({
+   comparison,
++  result = null,
+   onSelectResult
+ }: {
+   comparison: PreviewComparison | null;
++  result?: MechanicsResult | null;
+   onSelectResult: (resultId: string) => void;
+ }) {
+   const visibleDeltas = comparison?.result_deltas.slice(0, MAX_VISIBLE_DELTAS) ?? [];
+@@ -32,7 +36,7 @@ export function ComparisonPanel({
+               testId="comparison-tolerance-status"
+             />
+             <ComparisonFact
+-              label="Units"
++              label="Source unit evidence"
+               value={comparisonUnitPolicy(comparison)}
+               testId="comparison-unit-policy"
+             />
+@@ -53,7 +57,7 @@ export function ComparisonPanel({
+               <span>Delta</span>
+             </div>
+             {visibleDeltas.map((delta) => (
+-              <ComparisonRow key={delta.mapping_id} delta={delta} onSelectResult={onSelectResult} />
++              <ComparisonRow key={delta.mapping_id} delta={delta} dimension={comparisonDimension(delta, result)} onSelectResult={onSelectResult} />
+             ))}
+           </div>
+           <small className="report-note" data-testid="comparison-diagnostics">
+@@ -82,9 +86,11 @@ function ComparisonFact({ label, value, testId }: { label: string; value: string
+ 
+ function ComparisonRow({
+   delta,
++  dimension,
+   onSelectResult
+ }: {
+   delta: ComparisonDelta;
++  dimension: string;
+   onSelectResult: (resultId: string) => void;
+ }) {
+   return (
+@@ -104,7 +110,9 @@ function ComparisonRow({
+         {delta.component}; {delta.location}
+         </span>
+         <span>
+-          {formatNumber(delta.raw_delta)} {delta.unit}
++          <span data-testid={`comparison-delta-${safeTestId(delta.right_result_id)}`}><QuantityReadout quantity={{ value: delta.raw_delta, unit: delta.unit, dimension_id: dimension === "temperature" ? "temperature_interval" : dimension }} /></span>
++          <small data-testid={`comparison-reference-${safeTestId(delta.right_result_id)}`}>Reference: <QuantityReadout quantity={{ value: delta.left_value, unit: delta.unit, dimension_id: dimension }} /></small>
++          <small data-testid={`comparison-target-${safeTestId(delta.right_result_id)}`}>Target: <QuantityReadout quantity={{ value: delta.right_value, unit: delta.unit, dimension_id: dimension }} /></small>
+         </span>
+       </button>
+     </div>
+@@ -136,9 +144,13 @@ function comparisonUnitPolicy(comparison: PreviewComparison): string {
+   ].join("; ");
+ }
+ 
+-function formatNumber(value: number): string {
+-  if (Math.abs(value) >= 100) return value.toFixed(3).replace(/\.?0+$/, "");
+-  return value.toPrecision(6).replace(/\.?0+$/, "");
++function comparisonDimension(delta: ComparisonDelta, result: MechanicsResult | null): string {
++  const right = result?.results.find((row) => row.id === delta.right_result_id);
++  const left = result?.results.find((row) => row.id === delta.left_result_id);
++  // Do not borrow metadata from a different result value or conflicting pair.
++  if (!right || right.unit !== delta.unit || right.value !== delta.right_value) return "unknown";
++  if (left && (left.unit !== delta.unit || left.value !== delta.left_value || (left.dimension && left.dimension !== right.dimension))) return "unknown";
++  return right.dimension ?? "unknown";
+ }
+ 
+ function safeTestId(value: string): string {
+diff --git a/projects/chirality-piping/apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx
+index 4c8a64697..fa564faed 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx
+@@ -1,3 +1,5 @@
++import type { ReactNode } from "react";
++import { ResultQuantity } from "../toolkit/ResultQuantity";
+ import { AlertTriangle, Search, X } from "lucide-react";
+ import { useMemo, useState } from "react";
+ import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
+@@ -39,7 +41,7 @@ export function DiagnosticsPanel({
+         totalCount={diagnostics.length}
+         onFilterChange={setFilterText}
+       />
+-      <DiagnosticDetail interpretation={interpretation} />
++      <DiagnosticDetail interpretation={interpretation} result={result} />
+       <div className="diagnostic-list">
+         {filteredDiagnostics.length > 0 ? (
+           filteredDiagnostics.map((item, index) => (
+@@ -120,7 +122,7 @@ function SeverityCount({ label, value, testId }: { label: string; value: number;
+   );
+ }
+ 
+-function DiagnosticDetail({ interpretation }: { interpretation: DiagnosticInterpretation | null }) {
++function DiagnosticDetail({ interpretation, result }: { interpretation: DiagnosticInterpretation | null; result: MechanicsResult | null }) {
+   if (!interpretation) {
+     return (
+       <section className="diagnostic-detail-panel" aria-label="Diagnostic detail" data-testid="diagnostic-detail-panel">
+@@ -149,8 +151,7 @@ function DiagnosticDetail({ interpretation }: { interpretation: DiagnosticInterp
+           value={
+             interpretation.linked_results.length > 0
+               ? interpretation.linked_results
+-                  .map((item) => `${item.id} (${item.value_label}; ${item.entity_ref})`)
+-                  .join(", ")
++                  .map((item) => <span key={item.id}>{item.id} (<ResultQuantity result={result} id={item.id} fallback={item.value_label} />; {item.entity_ref}) </span>)
+               : "none"
+           }
+           testId="selected-diagnostic-linked-results"
+@@ -187,7 +188,7 @@ function diagnosticUnitContext(interpretation: DiagnosticInterpretation): string
+   ].join("; ");
+ }
+ 
+-function DetailLine({ label, value, testId }: { label: string; value: string; testId?: string }) {
++function DetailLine({ label, value, testId }: { label: string; value: ReactNode; testId?: string }) {
+   return (
+     <div data-testid={testId}>
+       <dt>{label}</dt>
+diff --git a/projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx b/projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx
+index ccf4daf9f..5bb920cbf 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/knowledge/KnowledgePanel.tsx
+@@ -1,10 +1,12 @@
++import { QuantityReadout } from "../display-units";
+ import { BookOpen } from "lucide-react";
+ import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
+ 
+ const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
+ 
+ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: MechanicsResult | null }) {
+-  const records = [...(knowledge?.records ?? []), ...physicsRecords(result)];
++  const computedRecords = physicsRecords(result);
++  const records = [...(knowledge?.records ?? []), ...computedRecords];
+   const unitContext = computedKnowledgeUnitContext(result);
+   return (
+     <section className="panel knowledge-panel" aria-label="Design knowledge" data-testid="knowledge-panel">
+@@ -14,7 +16,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
+       </div>
+       {unitContext ? (
+         <div className="report-line" data-testid="knowledge-unit-context">
+-          <span>Computed unit context</span>
++          <span>Source computed unit context</span>
+           <strong>{unitContext}</strong>
+         </div>
+       ) : null}
+@@ -26,7 +28,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
+                 <strong>{record.title}</strong>
+                 <small>{record.kind} · {record.status}</small>
+               </div>
+-              <p>{record.summary}</p>
++              <p><KnowledgeSummary record={record} result={result} computed={computedRecords.includes(record)} /></p>
+               <span>{record.provenance}</span>
+             </article>
+           ))}
+@@ -123,3 +125,16 @@ function compareUnitSymbols(left: string, right: string): number {
+   if (rightIndex >= 0) return 1;
+   return left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
+ }
++
++function KnowledgeSummary({ record, result, computed }: { record: KnowledgeRecord; result: MechanicsResult | null; computed: boolean }) {
++  if (!computed) return <>{record.summary}</>;
++  const maximum = result?.summary.max_displacement;
++  if (record.id === "knowledge:computed-max-displacement" && maximum) {
++    return <>{maximum.result_ref} is <QuantityReadout quantity={{ value: maximum.value, unit: maximum.unit, dimension_id: "displacement" }} /> at {maximum.location_ref}.</>;
++  }
++  const axial = result?.results.find((item) => item.id === "result:force:pipe-P-120:axial") ?? result?.results.find((item) => item.kind === "element_local_axial_force");
++  if (record.id === "knowledge:computed-axial-force" && axial) {
++    return <>{axial.id} is <QuantityReadout quantity={{ value: axial.value, unit: axial.unit, dimension_id: axial.dimension ?? (axial.kind === "element_local_axial_force" ? "force" : "unknown") }} /> for {axial.entity_ref}.</>;
++  }
++  return <>{record.summary}</>;
++}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx
+index 8fa8bb2cd..e682e2be3 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx
+@@ -1,8 +1,10 @@
++import type { ReactNode } from "react";
++import { QuantityReadout } from "../display-units";
++import { ResultQuantity } from "../toolkit/ResultQuantity";
+ import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+ import { useEffect, useMemo, useState } from "react";
+ import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
+ import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
+-import { convertForDisplay, formatConverted } from "../../services/unitConversion";
+ 
+ const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
+ const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
+@@ -106,7 +108,7 @@ export function ResultsPanel({
+             onPreviousPage={() => setPageIndex((current) => Math.max(0, current - 1))}
+             onNextPage={() => setPageIndex((current) => Math.min(page.pageCount - 1, current + 1))}
+           />
+-          <ResultDetail interpretation={interpretation} />
++          <ResultDetail interpretation={interpretation} result={result} />
+           <GoverningRatioState ratioCount={familyCounts.ratio} />
+           <div className="result-groups">
+             {groups.length > 0 ? (
+@@ -125,7 +127,7 @@ export function ResultsPanel({
+                         <th>Entity</th>
+                         <th>Location</th>
+                         <th>Value</th>
+-                        <th>Dual (≈)</th>
++                        <th>Entered source</th>
+                       </tr>
+                     </thead>
+                     <tbody>
+@@ -148,10 +150,10 @@ export function ResultsPanel({
+                           <td>{item.entity_ref}</td>
+                           <td>{item.metadata?.location ?? "summary"}</td>
+                           <td>
+-                            {item.value} {item.unit}
++                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: item.dimension ?? "unknown" }} />
+                           </td>
+                           <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}>
+-                            <DualUnitCompanion value={item.value} unit={item.unit} />
++                            <span>Entered: {item.value} {item.unit}</span>
+                           </td>
+                         </tr>
+                       ))}
+@@ -228,10 +230,10 @@ function ResultControls({
+   return (
+     <section className="result-controls" aria-label="Result filtering" data-testid="result-controls">
+       <div className="report-line" data-testid="result-unit-policy">
+-        <span>Result units</span>
++        <span>Source result units</span>
+         <strong>
+           {unitPolicy.result_units.length > 0 ? unitPolicy.result_units.join(", ") : "none"} · {unitPolicy.result_row_count} rows ·
+-          entered units preserved (SI/US companion shown for reference)
++          entered units preserved; displayed quantities follow the display preference where available
+         </strong>
+       </div>
+       <div className="result-family-row" role="group" aria-label="Result family filter">
+@@ -343,16 +345,6 @@ function buildResultUnitPolicy(result: MechanicsResult) {
+   };
+ }
+ 
+-function DualUnitCompanion({ value, unit }: { value: number; unit: string }) {
+-  const companion = convertForDisplay(value, unit);
+-  if (!companion) return <>—</>;
+-  return (
+-    <>
+-      ≈ {formatConverted(companion.value)} {companion.unit}
+-    </>
+-  );
+-}
+-
+ function compareResultUnits(left: string, right: string) {
+   const leftIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(left);
+   const rightIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(right);
+@@ -362,7 +354,7 @@ function compareResultUnits(left: string, right: string) {
+   return left.localeCompare(right);
+ }
+ 
+-function ResultDetail({ interpretation }: { interpretation: ResultInterpretation | null }) {
++function ResultDetail({ interpretation, result }: { interpretation: ResultInterpretation | null; result: MechanicsResult | null }) {
+   if (!interpretation) {
+     return (
+       <section className="result-detail-panel" aria-label="Result detail" data-testid="result-detail-panel">
+@@ -379,7 +371,7 @@ function ResultDetail({ interpretation }: { interpretation: ResultInterpretation
+         <DetailLine label="Result" value={interpretation.result_id} testId="selected-result-id" />
+         <DetailLine label="Family" value={interpretation.family} />
+         <DetailLine label="Entity ref" value={interpretation.entity_ref} testId="selected-result-entity-ref" />
+-        <DetailLine label="Value" value={interpretation.value_label} />
++        <DetailLine label="Value" value={<ResultQuantity result={result} id={interpretation.result_id} fallback={interpretation.value_label} />} />
+         <DetailLine label="Component" value={interpretation.component} testId="selected-result-component" />
+         <DetailLine label="Coordinate system" value={interpretation.coordinate_system} testId="selected-result-coordinate-system" />
+         <DetailLine label="Location" value={interpretation.location} testId="selected-result-location" />
+@@ -420,12 +412,12 @@ function ResultDetail({ interpretation }: { interpretation: ResultInterpretation
+         />
+         <DetailLine label="Boundary" value={interpretation.professional_boundary} />
+       </dl>
+-      {interpretation.endpoint_pair ? <EndpointPairTable interpretation={interpretation} /> : null}
++      {interpretation.endpoint_pair ? <EndpointPairTable interpretation={interpretation} result={result} /> : null}
+     </section>
+   );
+ }
+ 
+-function EndpointPairTable({ interpretation }: { interpretation: ResultInterpretation }) {
++function EndpointPairTable({ interpretation, result }: { interpretation: ResultInterpretation; result: MechanicsResult | null }) {
+   if (!interpretation.endpoint_pair) return null;
+ 
+   return (
+@@ -444,7 +436,7 @@ function EndpointPairTable({ interpretation }: { interpretation: ResultInterpret
+             <tr key={item.result_id}>
+               <td>{item.location}</td>
+               <td>{item.result_id}</td>
+-              <td>{item.value_label}</td>
++              <td><ResultQuantity result={result} id={item.result_id} fallback={item.value_label} /></td>
+             </tr>
+           ))}
+         </tbody>
+@@ -453,7 +445,7 @@ function EndpointPairTable({ interpretation }: { interpretation: ResultInterpret
+   );
+ }
+ 
+-function DetailLine({ label, value, testId }: { label: string; value: string; testId?: string }) {
++function DetailLine({ label, value, testId }: { label: string; value: ReactNode; testId?: string }) {
+   return (
+     <div data-testid={testId}>
+       <dt>{label}</dt>
+diff --git a/projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
+index af6a30014..057aa358d 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
+@@ -1,3 +1,4 @@
++import { QuantityReadout, useDisplayQuantity } from "../display-units";
+ import { useEffect, useMemo, useState } from "react";
+ import { ListChecks, Play, ShieldAlert } from "lucide-react";
+ import type { MechanicsResult, PreviewModel } from "../../types";
+@@ -306,7 +307,7 @@ function renderSolverPreview(
+                   {isReferenced ? " (referenced)" : ""}
+                 </span>
+                 <small>
+-                  {row.kind}: {row.value} {row.unit}
++                  {row.kind}: <QuantityReadout quantity={{ value: row.value, unit: row.unit, dimension_id: row.dimension ?? "unknown" }} />
+                 </small>
+               </div>
+             );
+@@ -751,9 +752,7 @@ export function RuleCheckRunPanel({
+                 >
+                   <option value="">-- pick a solved result row --</option>
+                   {resultRows.map((row) => (
+-                    <option value={row.id} key={row.id}>
+-                      {row.kind}: {row.id} ({row.value} {row.unit})
+-                    </option>
++                    <ResultQuantityOption row={row} key={row.id} />
+                   ))}
+                 </select>
+               </div>
+@@ -915,9 +914,9 @@ export function RuleCheckRunPanel({
+                   <small>
+                     relation={check.acceptability_relation}
+                     {check.computed_value
+-                      ? `; computed=${check.computed_value.value} ${check.computed_value.unit_ref}`
++                      ? <>; computed=<QuantityReadout quantity={{ value: check.computed_value.value, unit: check.computed_value.unit_ref, dimension_id: check.computed_value.dimension }} /></>
+                       : ""}
+-                    {check.limit_value ? `; limit=${check.limit_value.value} ${check.limit_value.unit_ref}` : ""}
++                    {check.limit_value ? <>; limit=<QuantityReadout quantity={{ value: check.limit_value.value, unit: check.limit_value.unit_ref, dimension_id: check.limit_value.dimension }} /></> : ""}
+                   </small>
+                   {check.bound_inputs.length > 0 ? (
+                     <small>
+@@ -965,3 +964,8 @@ function aggregateLabel(status: string): string {
+       return status;
+   }
+ }
++
++function ResultQuantityOption({ row }: { row: { id: string; kind: string; value: number; unit: string; dimension?: string } }) {
++  const display = useDisplayQuantity({ value: row.value, unit: row.unit, dimension_id: row.dimension ?? "unknown" });
++  return <option value={row.id}>{row.kind}: {row.id} ({display.value} {display.unit}{display.notice ? `; ${display.notice}` : ""})</option>;
++}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx b/projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx
+new file mode 100644
+index 000000000..dc089272e
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx
+@@ -0,0 +1,156 @@
++import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
++import { describe, expect, it, vi } from "vitest";
++import { DisplayUnitSelector, DisplayUnitsProvider } from "./index";
++import { ResultsPanel } from "../results/ResultsPanel";
++import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
++import { KnowledgePanel, physicsRecords } from "../knowledge/KnowledgePanel";
++import { ComparisonPanel } from "../comparison/ComparisonPanel";
++import { RuleCheckRunPanel } from "../rule-check/RuleCheckRunPanel";
++import { buildDiagnosticInterpretation, buildResultInterpretation } from "../results/resultInterpretation";
++import type { DesignKnowledge, MechanicsResult, PreviewComparison, PreviewModel } from "../../types";
++import type { DisplayQuantityRequest, DisplayQuantityResult } from "../../services/displayQuantityService";
++import { runRuleChecks, type RuleCheckRunResult } from "../../services/ruleCheckService";
++
++vi.mock("../../services/ruleCheckService", async (importOriginal) => ({
++  ...await importOriginal<typeof import("../../services/ruleCheckService")>(),
++  runRuleChecks: vi.fn()
++}));
++
++const sourceResult: MechanicsResult = {
++  schema_version: "1", document_kind: "test", run_id: "run:display", model_ref: "model:display",
++  status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
++  summary: { max_displacement: { value: 0.0254, unit: "m", location_ref: "node:1", result_ref: "disp" } },
++  results: [
++    { id: "force:i", kind: "element_local_axial_force", value: 10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial", coordinate_system: "local", location: "end_i", basis: "test", sign_convention: "signed" } },
++    { id: "force:j", kind: "element_local_axial_force", value: -10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial", coordinate_system: "local", location: "end_j", basis: "test", sign_convention: "signed" } },
++    { id: "disp", kind: "displacement", value: 0.0254, unit: "m", dimension: "length", entity_ref: "node:1" },
++    { id: "unknown", kind: "unclassified", value: 9, unit: "N", entity_ref: "pipe:unknown" },
++    { id: "temperature:left", kind: "temperature", value: 0, unit: "degC", dimension: "temperature", entity_ref: "pipe:1" },
++    { id: "temperature:right", kind: "temperature", value: 10, unit: "degC", dimension: "temperature", entity_ref: "pipe:1" }
++  ],
++  diagnostics: [{ id: "diagnostic:1", code: "REVIEW", severity: "warning", message: "Keep source 10 N evidence.", affected_refs: ["force:i"] }]
++};
++const sourceModel = { project: { id: "model:display" }, diagnostics: [] } as unknown as PreviewModel;
++const sourceKnowledge: DesignKnowledge = { schema_version: "1", document_kind: "test", knowledge_set_id: "k", model_ref: "model:display", records: [{ id: "authored", kind: "note", title: "Source note", summary: "Keep authored 10 N exactly.", affected_refs: [], provenance: "human", status: "draft" }], diagnostics: [] };
++
++// Fixed service responses test renderer wiring. Rust arithmetic is tested by
++// the accepted producer; no renderer implements conversion equations.
++function converter() {
++  return vi.fn(async (items: DisplayQuantityRequest[]): Promise<DisplayQuantityResult[]> => items.map(item => {
++    let value = item.value;
++    if (item.to_unit === "lbf") value = item.value < 0 ? -2.248 : 2.248;
++    if (item.to_unit === "in") value = 1;
++    if (item.to_unit === "degF") value = item.dimension_id === "temperature_interval" ? 18 : item.value === 0 ? 32 : 50;
++    if (item.to_unit === "K") value = item.dimension_id === "temperature_interval" ? 10 : item.value === 0 ? 273.15 : 283.15;
++    return { id: item.id, status: "converted", value, unit: item.to_unit };
++  }));
++}
++function comparison(): PreviewComparison {
++  return {
++    schema_version: "1", document_kind: "openpipestress.technical_preview.comparison", deliverable_id: "DEL-14-04", package_id: "PKG-14", scope_items: [], objectives: [], comparison_id: "comparison:1", comparison_kind: "single_run_load_basis_review",
++    left: { label: "left", basis_ref: { object_type: "LoadCase", ref: "left" }, model_state_ref: { object_type: "ModelState", ref: "m" }, analysis_run_ref: { object_type: "AnalysisRun", ref: "run:display" }, result_count: 1 },
++    right: { label: "right", basis_ref: { object_type: "Combination", ref: "right" }, model_state_ref: { object_type: "ModelState", ref: "m" }, analysis_run_ref: { object_type: "AnalysisRun", ref: "run:display" }, result_count: 1 },
++    summary: { comparable_result_pairs: 1, unmatched_left_results: 0, unmatched_right_results: 0, mapping_basis: "explicit", tolerance_status: "not_tolerance_checked", tolerance_profile_ref: "TBD" },
++    unit_policy_evidence: { evidence_id: "e", unit_system_ref: { object_type: "UnitSystem", ref: "units" }, storage_convention: "entered_units_preserved", comparison_unit_policy: "explicit", matching_policy: "equal", matched_result_units: ["degC"], unmatched_left_result_count: 0, unmatched_right_result_count: 0, conversion_policy: "none", conversion_performed: false, tolerance_profile_ref: "TBD", tolerance_status: "not_tolerance_checked", decision_basis_refs: [], protected_content_included: false, private_payload_included: false },
++    result_deltas: [{ mapping_id: "map:1", left_result_id: "temperature:left", right_result_id: "temperature:right", entity_ref: "pipe:1", result_family: "temperature", component: "temperature", location: "summary", unit: "degC", left_value: 0, right_value: 10, raw_delta: 10, absolute_delta: 10, classification: "not_tolerance_checked", classification_basis: "none" }],
++    diagnostics: [], professional_boundary: { human_review_required: true }
++  };
++}
++
++describe("shared display preference in result renderers", () => {
++  it("converts results, endpoint pairs, diagnostic links and knowledge summaries while source evidence remains exact", async () => {
++    const result = structuredClone(sourceResult);
++    const model = structuredClone(sourceModel);
++    const knowledge = structuredClone(sourceKnowledge);
++    const source = JSON.stringify({ model, result, knowledge });
++    const interpretation = () => JSON.stringify({ result: buildResultInterpretation({ result, resultId: "force:i", knowledge, analysisRun: null }), diagnostic: buildDiagnosticInterpretation({ model, result, knowledge, diagnosticId: "diagnostic:1" }), records: physicsRecords(result) });
++    const evidence = interpretation();
++    const convert = converter();
++    render(<DisplayUnitsProvider converter={convert}><DisplayUnitSelector />
++      <ResultsPanel result={result} knowledge={knowledge} analysisRun={null} selectedResultId="force:i" onSelectResult={() => {}} />
++      <DiagnosticsPanel model={model} knowledge={knowledge} result={result} selectedDiagnosticId="diagnostic:1" onSelectDiagnostic={() => {}} />
++      <KnowledgePanel knowledge={knowledge} result={result} />
++    </DisplayUnitsProvider>);
++    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
++    await waitFor(() => expect(screen.getByTestId("selected-diagnostic-linked-results")).toHaveTextContent("2.248 lbf"));
++    expect(screen.getByTestId("result-row-force:i")).toHaveTextContent("2.248 lbf");
++    expect(screen.getByTestId("result-row-dual-force:i")).toHaveTextContent("Entered: 10 N");
++    expect(screen.getByTestId("result-detail-panel")).toHaveTextContent("2.248 lbf");
++    expect(screen.getByTestId("result-detail-panel")).toHaveTextContent("-2.248 lbf");
++    expect(screen.getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("1 in");
++    expect(screen.getByTestId("knowledge-record-knowledge:computed-axial-force")).toHaveTextContent("2.248 lbf");
++    expect(screen.getByTestId("result-row-unknown")).toHaveTextContent("9 N");
++    expect(screen.getByTestId("result-row-unknown")).toHaveTextContent("no US catalog target for unknown");
++    expect(screen.getByTestId("knowledge-record-authored")).toHaveTextContent("Keep authored 10 N exactly.");
++    expect(convert.mock.calls.flatMap(call => call[0])).not.toEqual(expect.arrayContaining([expect.objectContaining({value:9})]));
++    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "SI" } });
++    await waitFor(() => expect(screen.getByTestId("result-row-force:i").querySelector('[data-display-status="converted"]')).toHaveTextContent("10 N"));
++    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "entered" } });
++    expect(screen.getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("0.0254 m");
++    expect(JSON.stringify({model,result,knowledge})).toBe(source);
++    expect(interpretation()).toBe(evidence);
++  });
++
++  it("converts comparison absolute temperatures and interval deltas separately, with honest stale-source fallback", async () => {
++    const compared = comparison();
++    const before = JSON.stringify(compared);
++    const convert = converter();
++    const view = (result: MechanicsResult) => <DisplayUnitsProvider initialPreference="US" converter={convert}><DisplayUnitSelector /><ComparisonPanel comparison={compared} result={result} onSelectResult={() => {}} /></DisplayUnitsProvider>;
++    const rendered = render(view(sourceResult));
++    await waitFor(() => expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("18 degF"));
++    expect(screen.getByTestId("comparison-reference-temperature:right")).toHaveTextContent("32 degF");
++    expect(screen.getByTestId("comparison-target-temperature:right")).toHaveTextContent("50 degF");
++    expect(convert.mock.calls.flatMap(call=>call[0])).toEqual(expect.arrayContaining([expect.objectContaining({value:10, dimension_id:"temperature_interval", to_unit:"degF"}), expect.objectContaining({value:10, dimension_id:"temperature", to_unit:"degF"})]));
++    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "SI" } });
++    await waitFor(() => expect(screen.getByTestId("comparison-reference-temperature:right")).toHaveTextContent("273.15 K"));
++    expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("10 K");
++    const stale = structuredClone(sourceResult);
++    stale.results.find(row=>row.id === "temperature:right")!.value = 20;
++    rendered.rerender(view(stale));
++    expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("no SI catalog target for unknown");
++    expect(JSON.stringify(compared)).toBe(before);
++  });
++
++  it("converts rule-check picker and reference preview values without changing selections or pack JSON", async () => {
++    const result = structuredClone(sourceResult);
++    const before = JSON.stringify(result);
++    const packText = JSON.stringify({ metadata: {rule_pack_id:"display:pack"}, required_inputs: [
++      {input_id:"manual", name:"Manual force", source_kind:"solver_result", quantity_intent:{dimension:"force",unit_ref:"N"}},
++      {input_id:"authored", name:"Authored force", source_kind:"solver_result", quantity_intent:{dimension:"force",unit_ref:"N"}, solver_result_ref:{result_id:"force:i"}}
++    ] });
++    render(<DisplayUnitsProvider converter={converter()}><DisplayUnitSelector /><RuleCheckRunPanel model={sourceModel} result={result} /></DisplayUnitsProvider>);
++    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {target:{value:packText}});
++    fireEvent.change(screen.getByTestId("rule-check-solver-select-manual"), {target:{value:"force:i"}});
++    fireEvent.click(screen.getByTestId("rule-check-solver-preview-authored"));
++    fireEvent.change(screen.getByLabelText("Display units"), {target:{value:"US"}});
++    await waitFor(() => expect(screen.getByTestId("rule-check-solver-browse-authored")).toHaveTextContent("2.248 lbf"));
++    const picker = screen.getByTestId("rule-check-solver-select-manual");
++    expect(within(picker).getByRole("option", {name:/force:i/})).toHaveTextContent("2.248 lbf");
++    expect(within(picker).getByRole("option", {name:/unclassified/})).toHaveTextContent("no US catalog target for unknown");
++    expect(picker).toHaveValue("force:i");
++    expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(packText);
++    expect(JSON.stringify(result)).toBe(before);
++  });
++
++  it("converts typed rule outcomes and retains unsupported catalog references as entered evidence", async () => {
++    const outcome: RuleCheckRunResult = {
++      document_kind: "test", rule_pack_id: "p", grammar_version: "1", aggregate_status: "USER_RULE_CHECKED", professional_boundary_notice: "Source result evidence.",
++      checks: [{ check_id: "c", status: "USER_RULE_CHECKED", computed_value: {value:10, unit_ref:"N", dimension:"force"}, limit_value: {value:12, unit_ref:"private:unit", dimension:"force"}, acceptability_relation:"lte", bound_inputs:[], completeness_findings:[], evaluator_findings:[], diagnostic_codes:[] }]
++    };
++    const before = JSON.stringify(outcome);
++    vi.mocked(runRuleChecks).mockResolvedValueOnce({ route:"tauri_backend", result:outcome });
++    const convert = converter();
++    convert.mockImplementation(async items => items.map(item => item.from_unit === "private:unit"
++      ? {id:item.id,status:"unavailable",message:"Catalog unit unavailable."}
++      : {id:item.id,status:"converted",value:2.248,unit:item.to_unit}));
++    render(<DisplayUnitsProvider initialPreference="US" converter={convert}><RuleCheckRunPanel model={sourceModel} result={sourceResult} /></DisplayUnitsProvider>);
++    const packText = '{"metadata":{"rule_pack_id":"p"}}';
++    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {target:{value:packText}});
++    fireEvent.click(screen.getByTestId("rule-check-run"));
++    await waitFor(() => expect(screen.getByTestId("rule-check-outcome-c")).toHaveTextContent("computed=2.248 lbf"));
++    expect(screen.getByTestId("rule-check-outcome-c")).toHaveTextContent("limit=12 private:unit");
++    expect(screen.getByTestId("rule-check-outcome-c")).toHaveTextContent("Entered value shown: Catalog unit unavailable.");
++    expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(packText);
++    expect(JSON.stringify(outcome)).toBe(before);
++  });
++});

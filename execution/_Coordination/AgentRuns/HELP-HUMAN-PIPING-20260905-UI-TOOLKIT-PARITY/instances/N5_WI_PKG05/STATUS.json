@@ -1,0 +1,6 @@
+{
+  "status": "manager_accepted_bounded_backend",
+  "snapshot": "SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json",
+  "integration_closure": "open_parent_N1_N2",
+  "active_source_writes": false
+}

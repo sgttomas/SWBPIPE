@@ -1,0 +1,11 @@
+# Failed launch recovery — explicit supersession
+
+The initial N5 A2_REFUTE attempt never instantiated: native spawn returned agent thread limit reached. Its NOTICE used no-session-spawn-rejected as a deliberately non-session label. It is now SUPERSEDED/RECOVERED by actual parent-directed design review, not retrospectively counted as execution.
+
+PHASE_A was independently reviewed by parent's actual /root/test_environment direct Agent2 as N_CROSS_CONTRACT_REFUTE, parent HELP_HUMAN. PKG05 received PASS_DESIGN_ONLY; its recorded source hash matches PHASE_A_INTAKE.md. The unrelated PKG03 REVISE is not a PKG05 failure. The same parent's actual reviewer later ran N_SELFWEIGHT_ADAPTER_REFUTE for the adapter extension: V1 SA1 was repaired and V2 received PASS_DESIGN_ONLY, with matching reviewed design/snapshot hashes. Native identity is explicitly parent-attributed from current instruction; durable briefs separately confirm parent/role. All report, brief, status and reviewed-input hashes are bound in FAILED_LAUNCH_RECOVERY_SNAPSHOT_V1.json.
+
+Actual design graph obligations are satisfied. Fresh combined source review remains a separate executed PASS bound in SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json; no design review substitutes for source review. HELP_HUMAN will bind this recovery to the final work graph.
+
+Raw RUNTIME_SUMMARY.json correctly remains INCOMPLETE under the current generic validator: every event's session_id (including a NOTICE-only prelaunch failure) creates a session group, and any group without exactly one START and one FINISH is unmatched. The schema/algorithm has no instantiated-session flag or replacement-edge recovery logic. The record CLI requires session-id, hence the explicit placeholder. Two actual N5 sessions have paired starts/finishes and PASS; the one unmatched group is a non-existent session, not unfinished executable work. No fake events were added and no raw ledger/summary/status/brief was rewritten.
+
+No further rerun is owed for the failed prelaunch; design/source or governing contract changes retain their ordinary rerun conditions. This is derivative coordination evidence only. No product or governance-tool writes, acceptance pointer edits, lifecycle or broader integration closure occurred.

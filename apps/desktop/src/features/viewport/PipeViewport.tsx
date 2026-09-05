@@ -1,3 +1,4 @@
+import { QuantityReadout } from "../display-units";
 import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
 import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -140,6 +141,8 @@ function ViewportComponentUnitSelect({
 type DeformationOverlay = {
   state: "not_started" | "available" | "blocked" | "unavailable";
   summary: string;
+  maximum?: { value: number; unit: string };
+  nodeCount?: number;
   boundary: string;
   nodePositions: Map<string, Vec3>;
 };
@@ -168,6 +171,7 @@ export function PipeViewport({
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
+  const [continuePipe, setContinuePipe] = useState(false);
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
   const [componentDraft, setComponentDraft] = useState<ComponentDraft>(() =>
     defaultComponentDraft(model, selection, queuedIntents)
@@ -181,7 +185,10 @@ export function PipeViewport({
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const nodeDraftValid = isNodeDraftValid(nodeDraft);
-  const pipeDraftValid = isPipeDraftValid(pipeDraft);
+  const pipeDraftValid = isPipeDraftValid(pipeDraft) &&
+    model.nodes.some((node) => node.id === pipeDraft.from) && model.nodes.some((node) => node.id === pipeDraft.to) &&
+    !model.pipe_segments.some((pipe) => pipe.id === pipeDraft.id.trim()) &&
+    ![...queuedIntents, ...localIntents].some((intent) => intent.change.change_kind === "connect_pipe_run" && intent.target.ref === pipeDraft.id.trim());
   const componentDraftValid = isComponentDraftValid(model, componentDraft, [
     ...queuedIntents,
     ...localIntents
@@ -237,8 +244,16 @@ export function PipeViewport({
       setPipeEndpointPickMode("from");
     } else {
       setPipeEndpointPickMode(null);
+      setContinuePipe(false);
+      setPipeDraft(emptyPipeDraft(defaultLengthUnit));
     }
   }, [armedCreationTool]);
+
+  useEffect(() => {
+    setContinuePipe(false);
+    setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+    setPipeEndpointPickMode(null);
+  }, [model]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -503,8 +518,17 @@ export function PipeViewport({
       queuedIntents.length + localIntents.length + 1
     );
     queueIntent(intent);
-    setPipeDraft(emptyPipeDraft(pipeDraft.lengthUnit || defaultLengthUnit));
+    setPipeDraft(continuePipe
+      ? { ...pipeDraft, id: "", label: "", from: pipeDraft.to, to: "" }
+      : emptyPipeDraft(pipeDraft.lengthUnit || defaultLengthUnit));
+    setPipeEndpointPickMode(continuePipe ? "to" : null);
+  }
+
+  function cancelPipeDraft() {
+    setContinuePipe(false);
+    setPipeDraft(emptyPipeDraft(defaultLengthUnit));
     setPipeEndpointPickMode(null);
+    onArmCreationTool(null);
   }
 
   function addExplicitComponentIntent() {
@@ -595,6 +619,8 @@ export function PipeViewport({
     }
   }
 
+  const canCancelPipeDraft = armedCreationTool === "pipe" || continuePipe || Boolean(pipeEndpointPickMode) ||
+    JSON.stringify(pipeDraft) !== JSON.stringify(emptyPipeDraft(defaultLengthUnit));
   const nodeToolActive = armedCreationTool === "node";
   const pipeToolActive = armedCreationTool === "pipe";
   const componentToolActive = armedCreationTool === "component";
@@ -609,7 +635,7 @@ export function PipeViewport({
           aria-label="Viewport deformation overlay status"
           data-testid="viewport-deformation-status"
         >
-          <strong data-testid="viewport-deformation-summary">{deformation.summary}</strong>
+          <strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
           <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>
         </span>
         <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
@@ -701,7 +727,7 @@ export function PipeViewport({
           </button>
         </div>
         <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
-          1 {defaultLengthUnit}
+          <QuantityReadout quantity={{ value: 1, unit: defaultLengthUnit, dimension_id: "length" }} />
         </div>
       </div>
       <section className="command-bar" aria-label="Command and selection bar" data-testid="command-bar">
@@ -1047,6 +1073,19 @@ export function PipeViewport({
                 value={pipeDraft.provenance}
               />
             </label>
+            <label>
+              <input type="checkbox" data-testid="continue-pipe-after-queue" checked={continuePipe} onChange={(event) => setContinuePipe(event.target.checked)} />
+              Continue from end after queue; keep the entered material, dimensions, orientation and provenance
+            </label>
+            <button
+              type="button"
+              data-testid="cancel-pipe-draft"
+              disabled={!canCancelPipeDraft}
+              title={canCancelPipeDraft ? "Clear the pipe draft and stop continuation" : "No pipe draft to cancel"}
+              onClick={cancelPipeDraft}
+            >
+              Cancel pipe draft
+            </button>
             <button
               data-testid="queue-explicit-pipe-intent"
               disabled={!pipeDraftValid}
@@ -1273,7 +1312,7 @@ function creationToolStatusLabel(tool: CreationTool | null): string {
   if (tool === "node") return "Node tool armed: click empty canvas to fill coordinates, then queue node.";
   if (tool === "pipe") return "Pipe tool armed: pick from/to nodes or complete the pipe form.";
   if (tool === "support") return "Support tool armed: select a node, then complete Create support in the Inspector.";
-  if (tool === "component") return "Component tool armed: queue a review-only component-symbol preview intent.";
+  if (tool === "component") return "Component tool armed: complete geometry and connectivity, then queue for validation, review and Apply.";
   if (tool === "load") return "Load tool armed: use the Load Cases panel to create load cases and primitive loads.";
   return "Model focus";
 }
@@ -2307,6 +2346,8 @@ export function buildDeformationOverlay(model: PreviewModel, result: MechanicsRe
   return {
     state: "available",
     summary: `available; nodes=${nodeValues.size}; max=${formatNumber(maxValue)} ${unit}`,
+    maximum: { value: maxValue, unit },
+    nodeCount: nodeValues.size,
     boundary: `scale=normalized_display_offset_not_physical_length; vector_direction=${vectorDirection}; unit_basis=${unit}; professional_claim=false`,
     nodePositions
   };

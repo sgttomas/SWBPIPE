@@ -1,0 +1,18 @@
+{
+  "status": "CORE_SCHEMA_NATIVE_CHECK_PASS",
+  "command": "CARGO_TARGET_DIR={CARGO_TARGET_DIR} cargo test --offline --manifest-path {WORKING_ROOT}/core/model_operations/operation_applier/Cargo.toml --quiet",
+  "unit_tests": 137,
+  "integration_tests": 3,
+  "exit_code": 0,
+  "schema_check": "PASS",
+  "native_check": "PASS cargo check --offline --manifest-path {WORKING_ROOT}/apps/desktop/src-tauri/Cargo.toml --lib",
+  "wasm": "previous B3 artifact only; new build not yet requested",
+  "native_tests": {
+    "passed": 78,
+    "failed": 1,
+    "test": "validate_rule_pack_command_reports_example_pack_clean_and_draft_findings",
+    "reason": "unchanged native assertion expects No professional; unchanged rule-pack notice now begins Document validation results",
+    "scope": "outside N2 changes; parent routed",
+    "raw_evidence": "_run_records/C_NATIVE_TEST.log"
+  }
+}

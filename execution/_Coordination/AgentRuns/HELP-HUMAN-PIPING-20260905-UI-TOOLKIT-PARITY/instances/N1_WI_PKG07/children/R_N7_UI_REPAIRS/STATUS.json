@@ -1,0 +1,16 @@
+{
+  "status": "COMPLETED",
+  "verdict": "PASS_SOURCE_REVIEW_ONLY",
+  "completed_utc": "2026-09-05T05:50:48.395428+00:00",
+  "source_files_reviewed": 6,
+  "source_lines_reviewed": 1378,
+  "hashes_match": true,
+  "actionable_findings": [],
+  "actual_operation_acceptance": "PENDING_ACCEPTED_N2_REBUILD_AND_EXECUTION",
+  "package_closed": false,
+  "root_N7_review_required": true,
+  "source_writes": false,
+  "tests_or_builds_run": false,
+  "model": "inherited; exact unavailable",
+  "nondelegation": "instruction+config asserted"
+}

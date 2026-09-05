@@ -1,0 +1,14 @@
+{
+  "status": "TEST_AND_FRESH_REVIEW_PASS",
+  "native_tests": {
+    "passed": 80,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "source_hashes": "RN_FROZEN_HASHES.json",
+  "command": "CARGO_TARGET_DIR={CARGO_TARGET_DIR} cargo test --offline --manifest-path {WORKING_ROOT}/apps/desktop/src-tauri/Cargo.toml --lib --quiet",
+  "evidence": "_run_records/NATIVE_FINAL_TEST.log",
+  "new_coverage": "accepted real hanger fixture import/store/load exact JSON preservation, metadata index and mismatched kind rejection; substantive unchanged rule notice assertions",
+  "remaining": "parent coordinated UI/runtime and broader checks",
+  "review": "RN_RETURN.md"
+}

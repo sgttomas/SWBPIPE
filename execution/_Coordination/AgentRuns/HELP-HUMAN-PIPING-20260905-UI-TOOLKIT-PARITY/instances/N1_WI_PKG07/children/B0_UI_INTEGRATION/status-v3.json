@@ -1,0 +1,10 @@
+{
+  "status": "FROZEN_REVIEW_IN_PROGRESS_WITH_KNOWN_CHECK_FAILURE",
+  "focused_tests": "PASS19 /4 files",
+  "desktop_build": "PASS",
+  "desktop_test": "603PASS/1FAIL",
+  "failure": "disabled cancel-pipe-draft lacks accessible reason",
+  "source_edits": "HELD by manager until reviewer terminal",
+  "scope": "PASS14 own files;5 B2 hashes unchanged",
+  "return": "RETURN_V3.md"
+}

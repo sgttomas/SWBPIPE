@@ -1,0 +1,2 @@
+# Runtime override v1
+Parent WORKING_ITEMS explicitly declares instruction root as current checkout resolved with git rev-parse --show-toplevel; current {REPO_ROOT}. Read actual agents/AGENT_TASK.md there. Durable run record is own children/A2_HANGER_IMPORT/RETURN.md, replacing generic _run_records output. No extra write scope implied. Environment variable was not set; this is explicit native-dispatch instruction+config assertion, not a claim of managed runtime normalization. Released source fence and acceptance criteria unchanged.

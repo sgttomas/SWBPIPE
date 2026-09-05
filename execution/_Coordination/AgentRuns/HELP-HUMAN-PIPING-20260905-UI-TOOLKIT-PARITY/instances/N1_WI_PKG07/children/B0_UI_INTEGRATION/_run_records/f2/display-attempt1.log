@@ -1,0 +1,17 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop -- src/features/toolkit/DisplayIntegration.test.tsx
+
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/toolkit/DisplayIntegration.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  51 passed (51)
+   Start at  23:44:45
+   Duration  683ms (transform 158ms, setup 44ms, import 211ms, tests 260ms, environment 114ms)
+

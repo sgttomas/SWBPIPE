@@ -1,0 +1,48 @@
+{
+  "status": "ACCEPTED_DUAL_BUILD_AND_ACTUAL_WASM_BACKCHECK",
+  "basis": [
+    "F_REPAIR_ACCEPTED_SNAPSHOT_V1.json",
+    "../instances/N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json"
+  ],
+  "source_inputs": {
+    "before": "F_DUAL_BUILD_SOURCE_BEFORE_V1.json",
+    "after": "F_DUAL_BUILD_SOURCE_AFTER_V1.json",
+    "count": 117,
+    "all_unchanged": true
+  },
+  "build": {
+    "command": "CARGO_TARGET_DIR={CARGO_TARGET_DIR} CARGO_NET_OFFLINE=true npm run build:wasm",
+    "working_directory": "{WORKING_ROOT}/apps/desktop",
+    "exit_code": 0,
+    "log": "_run_records/F_DUAL_BUILD.log",
+    "wasm_bindgen": "0.2.123",
+    "source_changes": "none; generated ignored artifacts only"
+  },
+  "artifact_hashes": {
+    "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+    "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "91f47297b35131d18307e4f1a5bff2eccb0ebe7cd05b611d6e70488742f19cc8",
+    "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+    "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f",
+    "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+    "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "61d1e06e60310f1fd488ebe6bd7d1369f086edd5ee07a73eb066181b52206e02",
+    "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+    "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+  },
+  "runtime_backcheck": {
+    "script": "F_REPAIR_WASM_BACKCHECK.mjs",
+    "script_sha256": "0547d7820fc4be5bbef225af23017bcd12e45fb78d72b2d38275b412d6877716",
+    "result": "F_REPAIR_WASM_BACKCHECK_V1.json",
+    "result_sha256": "17167ff863f31b85a3f1760d6fa319cace8ab7d123d4965e69b57398ec377510",
+    "cases_passed": 5,
+    "original_n7_conflict": "blocked, no applied_model, no acceptance, input unchanged",
+    "us_compatibility": "single lbf/in,lbf/ft and exact canonical-normalized duplicates apply and preserve original entered quantities",
+    "runtime": "actual generated operation Wasm export under Node; browser UI not asserted"
+  },
+  "derivative_status": "accepted build/runtime evidence under accepted source snapshots; not decomposition truth",
+  "remaining": [
+    "N1 browser/renderer consumer checks with these exact artifacts",
+    "parent integrated fresh review and deterministic fan-in",
+    "durable acceptance history and D58 residuals remain"
+  ],
+  "git": "no commit/push"
+}

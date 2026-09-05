@@ -1,0 +1,12 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "node": "N0",
+  "instance": "/root/coordination_record",
+  "parent": "/root",
+  "status": "SUCCESS",
+  "scope": "recording only; tranche remains IN_PROGRESS",
+  "completed_utc": "2026-09-05T03:45:22.120653+00:00",
+  "actual_model": "unavailable",
+  "delegation_class": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted; not mechanism-proven"
+}

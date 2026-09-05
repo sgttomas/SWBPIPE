@@ -1,0 +1,16 @@
+{
+  "status": "SUCCESS_FROZEN_FOR_N7_FINAL_REREVIEW",
+  "parent": "N1_WI_PKG07",
+  "amendment": "N7_REPAIR_AMENDMENT_V2.md",
+  "source_freeze": "children/B0_UI_INTEGRATION/UI_FREEZE_V9.json",
+  "manifest": "CHANGED_DOCS_MANIFEST_V2.json",
+  "manifest_sha256": "148f1a4c1c19015c25b58a46209d6924c04a367bb5aab113ec8064dc03942edc",
+  "checks": "HASH_VERIFICATION_V2.json",
+  "fence_docs": 8,
+  "docs_changed_v2": 7,
+  "closure": "DOCS_AMENDMENT_COMPLETE_TOOLKIT_OPEN",
+  "final_review": "N7_REREVIEW_PENDING",
+  "derivative_status": "bounded repair evidence; not decomposition truth",
+  "delegation": "none; instruction+config asserted",
+  "model": "exact inherited identity unavailable"
+}

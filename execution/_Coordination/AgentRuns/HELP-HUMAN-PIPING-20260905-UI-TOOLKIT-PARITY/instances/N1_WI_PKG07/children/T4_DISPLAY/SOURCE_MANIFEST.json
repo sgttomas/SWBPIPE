@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/displayUnits.test.tsx",
+      "sha256": "10ad48d1dcda465299479b4d6580b300063bd6f03c98e96764439b0cc5342a9b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/index.tsx",
+      "sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/targets.ts",
+      "sha256": "82fc7ad623ba94260e747848b3a5847de94885a1245005dce19183f066c272a0"
+    }
+  ]
+}

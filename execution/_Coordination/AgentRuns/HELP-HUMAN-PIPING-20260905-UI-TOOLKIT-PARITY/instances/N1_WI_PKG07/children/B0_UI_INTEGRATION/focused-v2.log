@@ -1,0 +1,153 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop --run src/features/toolkit src/App.test.tsx -t existing toolkit v2|guarded removal|human toolkit|toolkit navigation integration
+
+npm warn "src/features/toolkit" is being parsed as a normal command line argument.
+npm warn "existing toolkit v2|guarded removal|human toolkit|toolkit navigation integration" is being parsed as a normal command line argument.
+npm warn Unknown cli config "--run". This will stop working in the next major version of npm.
+npm warn Unknown cli config "--t". This will stop working in the next major version of npm.
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/toolkit src/App.test.tsx existing toolkit v2|guarded removal|human toolkit|toolkit navigation integration
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  2 passed (2)
+      Tests  106 passed (106)
+   Start at  22:08:42
+   Duration  84.99s (transform 818ms, setup 143ms, import 1.04s, tests 83.82s, environ ❯ src/App.test.tsx (105 tests | 1 failed) 84215ms
+     × limits section type choices to pipe 135ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > existing toolkit v2 > limits section type choices to pipe
+TestingLibraryElementError: Unable to find an accessible element with the role "combobox"
+
+Here are the accessible roles:
+
+  rowgroup:
+
+  Name "":
+  [36m<thead />[39m
+
+  --------------------------------------------------
+  row:
+
+  Name "ID Name Type Outside dia. Wall Provenance":
+  [36m<tr />[39m
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "ID":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Name":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Type":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Outside dia.":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Wall":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Provenance":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  --------------------------------------------------rowgroup:
+
+  Name "":
+  [36m<tbody />[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<table[39m
+  [33mdata-testid[39m=[32m"entity-grid-table-sections"[39m
+[36m>[39m
+  [36m<thead>[39m
+    [36m<tr>[39m
+      [36m<th[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m>[39m
+        [0mID[0m
+      [36m</th>[39m
+      [36m<th[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m>[39m
+        [0mName[0m
+      [36m</th>[39m
+      [36m<th[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m>[39m
+        [0mType[0m
+      [36m</th>[39m
+      [36m<th[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m>[39m
+        [0mOutside dia.[0m
+      [36m</th>[39m
+      [36m<th[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m>[39m
+        [0mWall[0m
+      [36m</th>[39m
+      [36m<th[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m>[39m
+        [0mProvenance[0m
+      [36m</th>[39m
+    [36m</tr>[39m
+  [36m</thead>[39m
+  [36m<tbody />[39m
+[36m</table>[39m
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+ ❯ src/App.test.tsx:15642:39
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/toolkit/GuardedRemoval.test.tsx > guarded removal > queues exact section identity and whole snapshot without mutating the model
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ src/features/toolkit/GuardedRemoval.test.tsx:11:91
+      9|   it.each(["material", "section", "component"] as const)("queues exact…
+     10|     const model = await loadPreviewModel();
+     11|     const entity = type === "material" ? model.materials![0] : type ==…
+       |                                                                                           ^
+     12|     const before = JSON.stringify(entity);
+     13|     canonical.mockResolvedValue(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  2 failed | 111 passed (113)
+   Start at  22:10:05
+   Duration  85.41s (transform 903ms, setup 221ms, import 1.21s, tests 84.33s, environment 749ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/toolkit src/App.test.tsx 'existing toolkit v2|guarded removal|human toolkit|toolkit navigation integration'

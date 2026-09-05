@@ -1,0 +1,277 @@
+{
+  "manifests": [
+    {
+      "family": "node",
+      "path": "apps/desktop/package.json"
+    },
+    {
+      "family": "rust",
+      "path": "apps/desktop/src-tauri/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/gui/viewport_editor/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/library_import/library_import_document/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/loads/load_case_algebra/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/loads/primitive_loads/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/loads/stress_recovery/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/loads/user_loads/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/model_operations/operation_applier/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/product_physics/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/reporting/audit_manifest/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/reporting/pdf_emitter/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/reporting/protected_content_linter/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/reporting/report_generator/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/reporting/report_package/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/reporting/report_renderer/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/reporting/report_sections/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/reporting/result_export/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/rules/completeness_checker/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/rules/expression_evaluator/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/rules/rule_check_runner/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/rules/rule_pack_document/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/rules/rule_pack_lifecycle/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/runner/headless/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/serialization/canonical_json/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/curved_bend/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/diagnostics/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/frame_kernel/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/linear_supports/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/nonlinear_integration/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/nonlinear_supports/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/performance_harness/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/sparse_direct/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/solver/straight_pipe/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "core/units/Cargo.toml"
+    },
+    {
+      "family": "node",
+      "path": "package.json"
+    },
+    {
+      "family": "rust",
+      "path": "validation/benchmarks/mechanics/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "validation/benchmarks/nonlinear/Cargo.toml"
+    },
+    {
+      "family": "rust",
+      "path": "validation/benchmarks/stress/Cargo.toml"
+    }
+  ],
+  "root": "{WORKING_ROOT}",
+  "schema": "chirality-software-discovery/v1",
+  "tests": [
+    "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+    "apps/desktop/e2e/r2-smoke.spec.ts",
+    "apps/desktop/e2e/report-package-dist.spec.ts",
+    "apps/desktop/e2e/wasm-engine-dist.spec.ts",
+    "apps/desktop/src/App.deadControls.test.tsx",
+    "apps/desktop/src/App.test.tsx",
+    "apps/desktop/src/features/library/LibraryManagerPanel.test.tsx",
+    "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+    "apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+    "apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.test.tsx",
+    "apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts",
+    "apps/desktop/src/features/report/renderedReport.test.tsx",
+    "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+    "apps/desktop/src/features/report/reportRedactionProjector.test.ts",
+    "apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts",
+    "apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx",
+    "apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.test.tsx",
+    "apps/desktop/src/features/rule-packs/DeclarationsEditor.test.tsx",
+    "apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx",
+    "apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx",
+    "apps/desktop/src/services/hashService.test.ts",
+    "apps/desktop/src/services/inputManifestService.test.ts",
+    "apps/desktop/src/services/libraryImportService.test.ts",
+    "apps/desktop/src/services/operationContractCorpus.test.ts",
+    "apps/desktop/src/services/operationService.test.ts",
+    "apps/desktop/src/services/previewService.test.ts",
+    "apps/desktop/src/services/projectService.test.ts",
+    "apps/desktop/src/services/reportPackageSaveService.test.ts",
+    "apps/desktop/src/services/ruleCheckService.test.ts",
+    "apps/desktop/src/services/telemetryPolicyService.test.ts",
+    "apps/desktop/src/services/unitCatalogService.test.ts",
+    "apps/desktop/src/services/unitConversion.test.ts",
+    "tests/product_preview/test_product_preview_service.py",
+    "tests/security/test_local_first_storage_policy.py",
+    "tests/security/test_redaction_export_controls.py",
+    "tests/security/test_secret_private_library_handling.py",
+    "tests/security/test_telemetry_policy.py",
+    "tests/test_accessibility_usability_baseline.py",
+    "tests/test_adapter_framework_contract.py",
+    "tests/test_adapter_plugin_verification_del_02_04.py",
+    "tests/test_agent_rationale_boundary.py",
+    "tests/test_analysis_boundary_schema.py",
+    "tests/test_analysis_run_comparison.py",
+    "tests/test_analysis_run_records.py",
+    "tests/test_analysis_run_schema.py",
+    "tests/test_analysis_status_schema.py",
+    "tests/test_analytical_solver_boundary_adapter.py",
+    "tests/test_api_boundary_contract.py",
+    "tests/test_architecture_basis_validation.py",
+    "tests/test_caepipe_external_run_package.py",
+    "tests/test_caepipe_mbf_export_package.py",
+    "tests/test_calculation_witness.py",
+    "tests/test_claims_language_surface.py",
+    "tests/test_comparison_contracts.py",
+    "tests/test_component_section_schema.py",
+    "tests/test_constraint_schema.py",
+    "tests/test_constraint_validation.py",
+    "tests/test_coordination_maintenance.py",
+    "tests/test_coverage_telemetry_script.py",
+    "tests/test_design_authoring_comparison_workspace.py",
+    "tests/test_design_knowledge_schema.py",
+    "tests/test_evidence_sweep.py",
+    "tests/test_export_adapter_sdk.py",
+    "tests/test_export_public_openpipestress.py",
+    "tests/test_external_prover_boundary_metadata.py",
+    "tests/test_gui_editors_contract.py",
+    "tests/test_handoff_export_workflow.py",
+    "tests/test_handoff_package_schema.py",
+    "tests/test_headless_runner_contract.py",
+    "tests/test_invented_example_models.py",
+    "tests/test_library_import_provenance.py",
+    "tests/test_local_fea_handoff_contract.py",
+    "tests/test_material_schema.py",
+    "tests/test_missing_data_warning_ux.py",
+    "tests/test_model_operation_schema.py",
+    "tests/test_model_schema.py",
+    "tests/test_model_state_comparison.py",
+    "tests/test_model_state_schema.py",
+    "tests/test_model_tree_property_inspector.py",
+    "tests/test_native_json_export_package.py",
+    "tests/test_nonlinear_support_regression.py",
+    "tests/test_operation_audit_trail.py",
+    "tests/test_operation_result_schemas.py",
+    "tests/test_operation_validation_preview.py",
+    "tests/test_pcf_export_package.py",
+    "tests/test_persistence_schema.py",
+    "tests/test_physical_to_analytical_transform.py",
+    "tests/test_plugin_manifest_schema.py",
+    "tests/test_project_persistence_service.py",
+    "tests/test_release_candidate_scan.py",
+    "tests/test_release_gate_records_script.py",
+    "tests/test_release_packaging_script.py",
+    "tests/test_release_readiness_script.py",
+    "tests/test_report_generator_contract.py",
+    "tests/test_report_protected_content_linter.py",
+    "tests/test_report_sections_contract.py",
+    "tests/test_results_schema.py",
+    "tests/test_results_viewer_contract.py",
+    "tests/test_review_geometry_export_package.py",
+    "tests/test_rule_pack_schema.py",
+    "tests/test_section_properties.py",
+    "tests/test_security_threat_model.py",
+    "tests/test_solve_execution_ux.py",
+    "tests/test_sparse_default_promotion_observation.py",
+    "tests/test_sparse_suitability_observation.py",
+    "tests/test_state_comparison_handoff_report_sections.py",
+    "tests/test_stress_neutral_export_package.py",
+    "tests/test_target_mapping_contract.py",
+    "tests/test_units_schema.py",
+    "tests/test_user_guide_status_wording.py",
+    "tests/test_viewport_editor_contract.py"
+  ],
+  "derivative_note": "Path-normalized working view; exact raw bytes retained under _run_records/discovery.json"
+}

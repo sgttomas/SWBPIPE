@@ -1,0 +1,10 @@
+# T4 display units — draft source held until M_EXISTING accepted
+Agent2 ephemeral no delegation, PKG07 DEL0702 display presentation consuming accepted DEL0202/N2 contract. Parent N1_WI_PKG07.
+
+Own only new features/display-units/** and tests, no existing renderer/App/types/styles/service writes (B0/T1 own them). Read accepted root/project instructions, relevant software skill, accepted PhaseA and numeric display API. Freeze component/provider props early via manager.
+
+Implement Entered/SI/US preference as presentation-only context with reusable quantity readout/hook using T1 displayQuantityService Rust converter. Maintain source {value,unit,dimension_id}, convert only display; target tokens are choices not conversion factors. No direct DOM replacement, global monkey patch, TypeScript conversion equations, source-model copies passed into mutation forms, stored unit/model/draft/hash mutation. Temperature vs interval must use correct dimension. Unknown/unavailable stays source entered value/unit with truthful accessible notice; never claim all quantities converted when any unavailable. Async responses stale preference/source guarded; batch requests use converter to avoid one backend request per cell when reasonable.
+
+Enumerate actual visible model/results/selected properties/grid/summary readout renderers and precise integration instructions to B0. Editable inputs start original entered quantities, not rounded display; read-only readouts converted with visible unit. All known visible quantities included, unknown dimensions explicit fallback. Avoid treating raw engineering scalar as unitless absent evidence. No automatic solver or operation creation.
+
+Expected provider, QuantityReadout helper, supported target-token map, focused tests that model/hash/drafts remain exact, SI/US temperature and interval dispatch correctly, async preference change rejects stale return, converter unavailable falls back truthfully. Return exact full readout coverage inventory and known blockers. No lifecycle/D58 acceptance; fresh module+integrated review after freeze.

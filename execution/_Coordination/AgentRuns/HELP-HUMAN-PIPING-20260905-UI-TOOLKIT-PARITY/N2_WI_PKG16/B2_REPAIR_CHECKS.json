@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "command": "CARGO_TARGET_DIR={CARGO_TARGET_DIR} cargo test --offline --manifest-path {WORKING_ROOT}/core/model_operations/operation_applier/Cargo.toml --quiet",
+  "exit_code": 0,
+  "unit_tests": 103,
+  "integration_tests": 3,
+  "schema_check": "PASS using provisioned Python interpreter",
+  "scope": "B2 repaired integration frozen hashes",
+  "notes": [
+    "103 unit +1 native contract +2 canonical-hash tests",
+    "Independent R2B full-source verdict PASS",
+    "Desktop native/Wasm/build checks parent coordinated"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "V9_source_hashes": 66,
+  "V9_after_state": "PASS",
+  "accepted_repair_hashes_and_raw_gate_logs": "PASS",
+  "27_row_completeness": "PASS",
+  "historical_14_16_all_cells": "PASS",
+  "Remaining_only": "PASS",
+  "final_review": "N7_FINAL_REREVIEW_PENDING"
+}

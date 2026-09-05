@@ -1,3 +1,9 @@
+import { QuantityReadout } from "../display-units";
+import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
+import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
+import { WindExposureForm } from "../wind-exposure/WindExposureForm";
+import { SectionAssignment } from "../toolkit/SectionAssignment";
+import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { ListPlus, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type {
@@ -16,8 +22,7 @@ import {
   type UnitCatalogEntry,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
-import { entityLabel, selectedProperties } from "../model-workspace/modelView";
-import { dualUnitDisplay } from "../../services/unitConversion";
+import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
@@ -277,18 +282,21 @@ export function PropertyInspector({
       <div className="panel-title">Properties</div>
       <h2>{entityLabel(model, selection.id)}</h2>
       <dl>
-        {properties.map(([label, value]) => (
+        {selectedPropertyRows(model, selection).map(([label, value]) => (
           <div key={label}>
             <dt>{label}</dt>
-            <dd>{value}</dd>
+            <dd>{value.quantities ? value.quantities.map((quantity, index) => <span key={index}>{quantity.label ? `${quantity.label}=` : ""}<QuantityReadout quantity={quantity} />{index < value.quantities!.length - 1 ? ", " : ""}</span>) : value.text}</dd>
           </div>
         ))}
       </dl>
+      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in the section record; per-pipe supplements remain local.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
+      {selectedPipe && Boolean(selectedPipe.section.insulation_thickness) !== Boolean(selectedPipe.section.insulation_density) ? <p role="status" data-testid="mass-input-completeness">Insulation mass is incomplete: enter both thickness and density before solving. The missing quantity has not been supplied.</p> : null}
       <section className="inspector-context-grid" aria-label="Inspector review context">
         <DualUnitValue
           value={selectedField?.before ?? "TBD"}
           unit={selectedField?.unit ?? "TBD"}
           basis={selectedFieldUnitBasis}
+          dimension={selectedField?.dimension ?? "unknown"}
         />
         <ProvenanceBlock rows={entityProvenanceRows(model, selection)} />
         <RequiredFlagList flags={requiredFlagsForSelection(model, selection, properties)} />
@@ -332,7 +340,10 @@ export function PropertyInspector({
               {selectedField?.unitEditable ? (
                 <label>
                   <span>Unit</span>
-                  <select
+                  {selectedField.fieldPath.match(/^section\.(material_density|contents_density|insulation_thickness|insulation_density)\.value$/) ? <input
+                    aria-label="Proposed editor unit" data-testid="editor-intent-unit" list="mass-unit-options" placeholder="Enter a unit"
+                    value={proposedUnit} onChange={(event) => setProposedUnit(event.target.value)}
+                  /> : <select
                     aria-label="Proposed editor unit"
                     data-testid="editor-intent-unit"
                     onChange={(event) => setProposedUnit(event.target.value)}
@@ -343,7 +354,8 @@ export function PropertyInspector({
                         {option.label}
                       </option>
                     ))}
-                  </select>
+                  </select>}
+                  <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
                 </label>
               ) : null}
               <label>
@@ -386,6 +398,11 @@ export function PropertyInspector({
           </p>
         )}
       </section>
+      <SupportConfigurationForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+      <MaterialTemperatureForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+      <WindExposureForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+      <SectionAssignment model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+      <GuardedRemoval model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
       <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
         <h3>Create section</h3>
         <div className="editor-intent-controls">
@@ -1126,21 +1143,13 @@ function IntentFact({ label, value, testId }: { label: string; value: string; te
   );
 }
 
-function DualUnitValue({ value, unit, basis }: { value: string; unit: string; basis: UnitBasisDisplay | null }) {
-  const dual = dualUnitDisplay(value, unit);
+function DualUnitValue({ value, unit, dimension, basis }: { value: string; unit: string; dimension: string; basis: UnitBasisDisplay | null }) {
+  const numericValue = value.trim() !== "" && Number.isFinite(Number(value)) ? Number(value) : value;
   return (
-    <section
-      className="inspector-context-card"
-      data-testid="inspector-dual-unit-display"
-      aria-label="Dual-unit display"
-    >
-      <span>Dual units</span>
-      <strong>
-        {dual.enteredValue} {dual.enteredUnit}
-      </strong>
-      <small data-testid="inspector-dual-unit-converted">
-        {dual.convertedValue ? `≈ ${dual.convertedValue} ${dual.convertedUnit}` : "No SI/US companion for this unit."}
-      </small>
+    <section className="inspector-context-card" data-testid="inspector-dual-unit-display" aria-label="Display quantity">
+      <span>Display quantity</span>
+      <strong data-testid="inspector-dual-unit-converted"><QuantityReadout quantity={{ value: numericValue, unit, dimension_id: dimension }} /></strong>
+      <small>Entered: {value} {unit}</small>
       <small>{basis ? `Display basis: ${basis.label}` : "Display basis unavailable"}</small>
       <small>Display only — storage stays entered-units-preserved.</small>
     </section>
@@ -1553,6 +1562,12 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "set_field",
         true
       ),
+      ...([
+        ["material_density", "Material density (positive)", "density"],
+        ["contents_density", "Contents density (zero or greater)", "density"],
+        ["insulation_thickness", "Insulation thickness (zero or greater)", "length"],
+        ["insulation_density", "Insulation density (zero or greater)", "density"]
+      ] as const).map(([key, label, dimension]) => quantityField(label, `section.${key}.value`, pipe.section[key]?.value ?? "TBD", "Element", dimension, pipe.section[key]?.unit ?? "", "set_field", true)),
       scalarField("Material", "material", pipe.material, "Element", "dimensionless", "none", "material reference"),
       scalarField(
         "Provenance",
@@ -1563,7 +1578,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "none",
         "public/private source note"
       )
-    ];
+    ].filter((field) => !pipe.section_ref || !["section.outside_diameter.value", "section.wall_thickness.value"].includes(field.fieldPath));
   }
 
   const support = model.supports.find((item) => item.id === selection.id);

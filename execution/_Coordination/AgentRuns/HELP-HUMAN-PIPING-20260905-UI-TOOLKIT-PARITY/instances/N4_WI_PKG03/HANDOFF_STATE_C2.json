@@ -1,0 +1,11 @@
+{
+  "closure": "BOUNDED_IMPORT_SLICE_ACCEPTED",
+  "full_row23_closed": false,
+  "accepted_snapshot": "PKG03_ACCEPTED_SNAPSHOT_C2.json",
+  "derivative_status": "current source/evidence; parent integrated sweep pending",
+  "next_owner": "HELP_HUMAN -> N1 UI / N2 native",
+  "blockers": "none for import-only consumption; downstream integrated evidence outstanding",
+  "rerun": "source/interface drift requires focused checks + full independent review + new snapshot",
+  "runtime_summary_sha256": "1c8fc638055625753cc6a05b4b58d1bad7597d1c4bdf294a73c747108361a27b",
+  "governed_truth_mutations": false
+}

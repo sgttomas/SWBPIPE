@@ -1,0 +1,8 @@
+{
+  "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "4dbef5d92fce5f1a8f64b540b6d7c1feefeb52e382d462ead3e7095b466dd180",
+  "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs": "2d7156c4e5c74c059ca0e1b3d65b830be92b75ad844ac2fe199f775e86a1a345",
+  "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs": "770d4f7f943500d975d400ecc6c1e860724d3457a0640ebed927a3f69b1d62b3",
+  "projects/chirality-piping/schemas/model_operation.schema.json": "a0bc2fe698b7915c0c1156d953cb8f20028c65404a77c358d0de160a1712edc7",
+  "projects/chirality-piping/tests/test_model_operation_schema.py": "3f44e404e89c1152b725ea17f0b512f8c0014e50ae48ed551135a1ef4570165b",
+  "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "234c8010d15c696f180c8340af4df0f8faf1051fe362e930fa21bee812663792"
+}

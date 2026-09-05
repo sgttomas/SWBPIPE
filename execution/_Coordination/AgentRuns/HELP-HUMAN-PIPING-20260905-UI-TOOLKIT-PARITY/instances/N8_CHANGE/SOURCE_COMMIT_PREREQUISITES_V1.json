@@ -1,0 +1,14 @@
+{
+  "status": "SOURCE_COMMIT_PREREQUISITES_PASS",
+  "utc": "2026-09-05T06:18:03.479922+00:00",
+  "parent_release_sha256": "9661351b7e00417ea83a31ddcde8c6fdc2581d8774f5d308dcda26deaf7681ac",
+  "evidence_bindings": 18,
+  "frozen_members": 110,
+  "mismatches": [],
+  "receipt_validator": "PASS",
+  "whitespace": "PASS with cr-at-eol recognition preserving reviewed CSV bytes; default check flags CRLF as whitespace",
+  "index_before": "empty",
+  "scope": "all paths project-contained",
+  "source_commit_pending": true,
+  "sweep_pending": true
+}

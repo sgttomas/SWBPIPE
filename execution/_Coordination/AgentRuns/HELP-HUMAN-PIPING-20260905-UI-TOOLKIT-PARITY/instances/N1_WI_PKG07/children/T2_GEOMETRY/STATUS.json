@@ -1,0 +1,13 @@
+{
+  "run_status": "SUCCESS",
+  "closure": "REMEDIATION_COMPLETE_PENDING_FRESH_BACKCHECK",
+  "parent": "N1_WI_PKG07",
+  "child": "T2_GEOMETRY",
+  "scope": "PKG-07 DEL-07-01/DEL-07-02 bounded geometry and equipment/nozzle forms",
+  "source_manifest": "SOURCE_MANIFEST_V2.json",
+  "return": "RETURN.md",
+  "checks": "CHECKS_V2.json",
+  "role": "Agent 2 ephemeral generalist",
+  "no_delegation": true,
+  "return_file": "RETURN_V2.md"
+}

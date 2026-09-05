@@ -1,0 +1,15 @@
+{
+  "command": "npm run test -- src/features/hanger-selection src/features/self-weight-authoring src/features/offline-proposal-intake",
+  "cwd": "apps/desktop",
+  "exit_code": 0,
+  "test_files_passed": 1,
+  "tests_passed": 13,
+  "added_checks": [
+    "Empty offline queue has associated accessible reason and title",
+    "Busy fieldsets in hanger/selfweight and offline queue have accessible explanations",
+    "Pending selfweight generation has accessible preparation reason"
+  ],
+  "source_manifest": "SOURCE_MANIFEST_V2.json",
+  "scope_check": "PASS: four authorized files only; other five file hashes equal V1",
+  "parent_review": "Fresh changed-file independent backcheck remains required"
+}

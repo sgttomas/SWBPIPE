@@ -1,0 +1,10 @@
+{
+  "status": "awaiting_combined_wrapper_fresh_review",
+  "files": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "c7d4a1571f37c99e867206454e7850c5710f2d6a2cfa399fac62aa83aa25a15a",
+    "projects/chirality-piping/core/product_physics/src/self_weight.rs": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SOURCE_FROZEN_DIFF_V2.patch": "bef84d746baa2afa3da3fdcb5963ad06cf80f2bc330ebde80b4409533e9dd013",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/PHYSICS_TEST_RESULT_V2.txt": "d1ce483e9e1d9767bf72851304ae76f819e880131a157012a31b6cb17f2dfbbf"
+  },
+  "tests": "118 passed, 0 failed"
+}

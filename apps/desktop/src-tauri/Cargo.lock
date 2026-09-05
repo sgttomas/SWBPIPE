@@ -2287,6 +2287,16 @@ name = "open_pipe_stress_rule_pack_lifecycle"
 version = "0.1.0"
 
 [[package]]
+name = "open_pipe_stress_self_weight_wasm"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_canonical_json",
+ "open_pipe_stress_product_physics",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "open_pipe_stress_solver_diagnostics"
 version = "0.1.0"
 dependencies = [
@@ -2333,6 +2343,7 @@ dependencies = [
  "open_pipe_stress_result_export",
  "open_pipe_stress_rule_check_runner",
  "open_pipe_stress_rule_pack_document",
+ "open_pipe_stress_self_weight_wasm",
  "open_pipe_stress_units",
  "rusqlite",
  "serde",

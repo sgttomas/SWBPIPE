@@ -1,0 +1,17 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "parent_instance_id": "N6_WI_PKG04",
+  "child_instance_id": "A2_REFUTATION",
+  "role": "TASK Agent 2",
+  "status": "COMPLETE",
+  "run_status": "SUCCESS",
+  "review_verdict": "FINDINGS",
+  "blocking_findings": ["F-01"],
+  "model": "unavailable",
+  "role_enforcement": "instruction-asserted",
+  "source_changes": false,
+  "tests_run": false,
+  "implementation_acceptance": false,
+  "lifecycle_acceptance": false,
+  "return": "REVIEW_RETURN.md"
+}

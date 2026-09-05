@@ -1,0 +1,184 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 13
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "FINISH": 14,
+      "REMEDIATION": 1,
+      "START": 13
+    },
+    "outcome": {
+      "FAIL": 1,
+      "PASS": 14,
+      "STARTED": 13
+    },
+    "reason_code": {}
+  },
+  "events": 28,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 3053.334,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "N2_WI_PKG16",
+      "package_id": "PKG-16",
+      "remediations": 1,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "N2"
+    },
+    {
+      "duration_seconds": 0.021,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R1_REVIEW",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "b1_review"
+    },
+    {
+      "duration_seconds": 0.021,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R2B_REVIEW",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "b2_repair_review"
+    },
+    {
+      "duration_seconds": 399.272,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "R2_REVIEW",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "b2_review"
+    },
+    {
+      "duration_seconds": 0.02,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R3_REVIEW",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "b3_review"
+    },
+    {
+      "duration_seconds": 775.906,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "C3_BOUNDARY",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "boundary_implementation"
+    },
+    {
+      "duration_seconds": 74.957,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_DETAIL_DESIGN",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "detail_design"
+    },
+    {
+      "duration_seconds": 505.818,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B2_RICH",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "detail_design_B2"
+    },
+    {
+      "duration_seconds": 775.91,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "C1_BATCH",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "detail_design_C1"
+    },
+    {
+      "duration_seconds": 679.208,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B1_ENTITIES",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "entity_implementation"
+    },
+    {
+      "duration_seconds": 667.326,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "B3_SECTIONS",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "entity_implementation_B3"
+    },
+    {
+      "duration_seconds": 775.908,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "C2_GEOMETRY",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "entity_implementation_C2"
+    },
+    {
+      "duration_seconds": null,
+      "events": 1,
+      "final_outcome": "PASS",
+      "instance_id": "RC_REVIEW",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "stage_c_review"
+    },
+    {
+      "duration_seconds": 89.681,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "RN_REVIEW",
+      "package_id": "PKG-16",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "stage_c_review_native"
+    }
+  ],
+  "sessions": 14,
+  "status": "INCOMPLETE",
+  "unmatched_sessions": [
+    "stage_c_review"
+  ]
+}

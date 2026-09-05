@@ -1,0 +1,17 @@
+{
+  "status": "PREPARATION_COMPLETE",
+  "closeout": "NOT_CLOSED",
+  "executed_git_mutations": [],
+  "child_dispatches": [],
+  "role": "CHANGE",
+  "parent": "/root",
+  "instance": "/root/change_closeout",
+  "execution_class": "delegated-harness-native",
+  "enforcement": "instruction+config asserted",
+  "model": "GPT-6; exact variant unavailable",
+  "files_sha256": {
+    "CLOSEOUT_PLAN_v1.md": "b25a84b729b0e41f238ba029745f5fae5755237f3bb9ba48ff61cba4308dbd72",
+    "LAUNCH_BRIEF.md": "6bc728a7549804302e2b8ff8c36c8195a9e23be6aa38d1df10aa9700378dd8ae",
+    "STATE_SNAPSHOT_v1.json": "d7f4a8909a3872a2059c43cafd76e11a19ea50b1cac21ec7608132df00d03410"
+  }
+}

@@ -1,0 +1,685 @@
+//! Pure selected-pipe mass operation drafts. The caller retains and hashes the
+//! original document and supplies the operation envelope before atomic apply.
+use super::{
+    compute_pipe_mass_per_length, normalize_quantity, resolve_shared_sections, Diagnostic,
+    PreviewModel, Quantity,
+};
+use open_pipe_stress_units::Dimension;
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
+use std::collections::HashSet;
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct SelfWeightGravity {
+    pub value: f64,
+    pub unit: String,
+    pub axis: String,
+}
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct SelfWeightRequest {
+    pub case_id: String,
+    pub label: String,
+    pub pipe_refs: Vec<String>,
+    pub gravity: SelfWeightGravity,
+    pub provenance: String,
+    pub source_model_hash: String,
+}
+#[derive(Debug, Clone, Serialize)]
+pub struct SelfWeightOperationPlan {
+    pub source_model_hash: String,
+    pub changes: Vec<SelfWeightOperationDraft>,
+    pub source_evidence: Vec<Value>,
+    pub scope_label: String,
+}
+#[derive(Debug, Clone, Serialize)]
+pub struct SelfWeightOperationDraft {
+    pub object_type: String,
+    pub target_ref: String,
+    pub operation_kind: String,
+    pub change_kind: String,
+    pub field_label: String,
+    pub field_path: String,
+    pub before: String,
+    pub after: String,
+    pub unit: String,
+    pub dimension: String,
+    pub source_note: String,
+}
+fn invalid(d: &mut Vec<Diagnostic>, field: &str, message: &str) {
+    d.push(Diagnostic {
+        id: format!("diagnostic:self-weight:{field}"),
+        code: "SELF_WEIGHT_INPUT_INVALID".into(),
+        severity: "blocking".into(),
+        message: message.into(),
+        source: Some("self_weight".into()),
+        affected_refs: vec![field.into()],
+    });
+}
+fn quantity(q: &Quantity) -> Value {
+    json!({"value":q.value,"unit":q.unit})
+}
+fn optional(q: &Option<Quantity>) -> Value {
+    q.as_ref().map(quantity).unwrap_or(Value::Null)
+}
+fn normalize(
+    q: &mut Quantity,
+    dim: Dimension,
+    positive: bool,
+    field: &str,
+    d: &mut Vec<Diagnostic>,
+) {
+    if !q.value.is_finite() {
+        invalid(d, field, "quantity must be finite");
+        return;
+    }
+    normalize_quantity(
+        q,
+        dim,
+        &format!("diagnostic:self-weight:{field}"),
+        vec![field.into()],
+        d,
+    );
+    if !q.value.is_finite() || (positive && q.value <= 0.0) || (!positive && q.value < 0.0) {
+        invalid(d, field, "quantity has invalid sign or normalized value");
+    }
+}
+fn provenance_present(v: &Value) -> bool {
+    match v {
+        Value::Null => false,
+        Value::String(s) => !s.trim().is_empty(),
+        Value::Object(m) => !m.is_empty(),
+        Value::Array(a) => !a.is_empty(),
+        _ => false,
+    }
+}
+fn draft(
+    r: &SelfWeightRequest,
+    kind: &str,
+    path: &str,
+    after: Value,
+    unit: &str,
+    dimension: &str,
+    evidence: &Value,
+) -> SelfWeightOperationDraft {
+    SelfWeightOperationDraft {
+        object_type: "Load".into(),
+        target_ref: r.case_id.clone(),
+        operation_kind: "create".into(),
+        change_kind: kind.into(),
+        field_label: kind.into(),
+        field_path: path.into(),
+        before: "not_present".into(),
+        after: after.to_string(),
+        unit: unit.into(),
+        dimension: dimension.into(),
+        source_note: evidence.to_string(),
+    }
+}
+/// Generate a complete deterministic draft or blocking diagnostics, without
+/// mutating the typed view or claiming to authenticate its canonical hash.
+pub fn generate_self_weight_operations(
+    model: &PreviewModel,
+    request: &SelfWeightRequest,
+) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
+    let mut d = Vec::new();
+    for (name, value) in [
+        ("case_id", &request.case_id),
+        ("label", &request.label),
+        ("provenance", &request.provenance),
+    ] {
+        if value.trim().is_empty() {
+            invalid(&mut d, name, "explicit nonblank value required");
+        }
+    }
+    if !request
+        .source_model_hash
+        .strip_prefix("sha256:")
+        .is_some_and(|digest| {
+            digest.len() == 64
+                && digest
+                    .bytes()
+                    .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+        })
+    {
+        invalid(
+            &mut d,
+            "source_model_hash",
+            "canonical sha256: lowercase SHA256 digest required",
+        );
+    }
+    if !matches!(
+        request.gravity.axis.as_str(),
+        "global_x" | "global_y" | "global_z"
+    ) {
+        invalid(&mut d, "gravity.axis", "explicit global axis required");
+    }
+    let mut gravity = Quantity {
+        value: request.gravity.value,
+        unit: request.gravity.unit.clone(),
+    };
+    if !gravity.value.is_finite() || gravity.value == 0.0 {
+        invalid(
+            &mut d,
+            "gravity",
+            "finite nonzero signed acceleration required",
+        );
+    } else {
+        normalize_quantity(
+            &mut gravity,
+            Dimension::Acceleration,
+            "diagnostic:self-weight:gravity",
+            vec!["gravity".into()],
+            &mut d,
+        );
+        if !gravity.value.is_finite() || gravity.value == 0.0 {
+            invalid(
+                &mut d,
+                "gravity",
+                "normalized acceleration must be finite and nonzero",
+            );
+        }
+    }
+    let mut used: HashSet<String> = model
+        .load_cases
+        .iter()
+        .map(|c| c.id.clone())
+        .chain(
+            model
+                .load_cases
+                .iter()
+                .flat_map(|c| c.primitive_loads.iter().map(|l| l.id.clone())),
+        )
+        .collect();
+    if !used.insert(request.case_id.clone()) {
+        invalid(
+            &mut d,
+            "case_id",
+            "case identity collides with existing case or primitive load",
+        );
+    }
+    if request.pipe_refs.is_empty() {
+        invalid(&mut d, "pipe_refs", "select at least one pipe");
+    }
+    let mut selected = HashSet::new();
+    let mut subset = model.clone();
+    subset.pipe_segments.clear();
+    for id in &request.pipe_refs {
+        if id.trim().is_empty() || !selected.insert(id) {
+            invalid(&mut d, "pipe_refs", "blank or duplicate selection");
+            continue;
+        }
+        let matches: Vec<_> = model.pipe_segments.iter().filter(|p| &p.id == id).collect();
+        if matches.len() != 1 {
+            invalid(&mut d, id, "selected pipe must resolve exactly once");
+            continue;
+        }
+        let pipe = matches[0];
+        if pipe.provenance.as_ref().is_none_or(|s| s.trim().is_empty()) {
+            invalid(&mut d, id, "pipe provenance required");
+        }
+        let mut positions = Vec::new();
+        for node_id in [&pipe.from, &pipe.to] {
+            let nodes: Vec<_> = model.nodes.iter().filter(|n| &n.id == node_id).collect();
+            if node_id.trim().is_empty() || nodes.len() != 1 {
+                invalid(&mut d, id, "endpoint must resolve exactly once");
+                continue;
+            }
+            let p = nodes[0].position;
+            if ![p.x, p.y, p.z].iter().all(|v| v.is_finite()) {
+                invalid(&mut d, id, "endpoint position must be finite");
+            }
+            positions.push(p);
+        }
+        if pipe.from == pipe.to
+            || (positions.len() == 2
+                && positions[0].x == positions[1].x
+                && positions[0].y == positions[1].y
+                && positions[0].z == positions[1].z)
+        {
+            invalid(
+                &mut d,
+                id,
+                "pipe requires distinct endpoints and nonzero geometric span",
+            );
+        }
+        let generated = format!(
+            "load:self-weight:{}:{}:{}:{}",
+            request.case_id.len(),
+            request.case_id,
+            id.len(),
+            id
+        );
+        if !used.insert(generated) {
+            invalid(&mut d, id, "generated primitive identity collision");
+        }
+        subset.pipe_segments.push(pipe.clone());
+    }
+    subset.pipe_segments.sort_by(|a, b| a.id.cmp(&b.id));
+    resolve_shared_sections(&mut subset, &mut d);
+    if !d.is_empty() {
+        return Err(d);
+    }
+    let mut evidence = Vec::new();
+    let mut loads = Vec::new();
+    for pipe in &mut subset.pipe_segments {
+        let original = model
+            .pipe_segments
+            .iter()
+            .find(|p| p.id == pipe.id)
+            .expect("unique selected pipe");
+        let shared = original.section_ref.as_ref().map(|id| {
+            model
+                .sections
+                .iter()
+                .find(|s| &s.id == id)
+                .expect("resolved section")
+        });
+        if shared.is_some_and(|s| !provenance_present(&s.provenance)) {
+            invalid(&mut d, &pipe.id, "referenced section provenance required");
+        }
+        let section = &mut pipe.section;
+        normalize(
+            &mut section.outside_diameter,
+            Dimension::Length,
+            true,
+            "outside_diameter",
+            &mut d,
+        );
+        normalize(
+            &mut section.wall_thickness,
+            Dimension::Length,
+            true,
+            "wall_thickness",
+            &mut d,
+        );
+        for (name, q, dim) in [
+            (
+                "mill_tolerance",
+                &mut section.mill_tolerance,
+                Dimension::Length,
+            ),
+            (
+                "contents_density",
+                &mut section.contents_density,
+                Dimension::Density,
+            ),
+            (
+                "insulation_thickness",
+                &mut section.insulation_thickness,
+                Dimension::Length,
+            ),
+            (
+                "insulation_density",
+                &mut section.insulation_density,
+                Dimension::Density,
+            ),
+        ] {
+            if let Some(q) = q {
+                normalize(q, dim, false, name, &mut d);
+            }
+        }
+        match &mut section.material_density {
+            Some(q) => normalize(q, Dimension::Density, true, "material_density", &mut d),
+            None => invalid(&mut d, &pipe.id, "explicit material density required"),
+        }
+        if !d.is_empty() {
+            continue;
+        }
+        let Some(mass) = compute_pipe_mass_per_length(pipe, &request.case_id, &mut d) else {
+            continue;
+        };
+        let intensity = mass * gravity.value;
+        if !mass.is_finite() || mass <= 0.0 || !intensity.is_finite() {
+            invalid(&mut d, &pipe.id, "computed mass or intensity is invalid");
+            continue;
+        }
+        let s = &original.section;
+        let shared_evidence=shared.map(|s|json!({"id":s.id,"name":s.name,"section_type":s.section_type,"provenance":s.provenance,
+            "properties":s.properties.iter().map(|(k,v)|(k.clone(),quantity(v))).collect::<serde_json::Map<String,Value>>()}));
+        let e = json!({"method":"pipe_mass_per_length_times_explicit_axis_acceleration/v1","gravity":request.gravity,
+            "normalized_acceleration_m_per_s2":gravity.value,"request_provenance":request.provenance,
+            "pipe_id":pipe.id,"pipe_provenance":original.provenance,"section_ref":original.section_ref,"referenced_section":shared_evidence,
+            "mass_inputs":{"outside_diameter":quantity(&s.outside_diameter),"wall_thickness":quantity(&s.wall_thickness),"mill_tolerance":optional(&s.mill_tolerance),
+                "material_density":optional(&s.material_density),"contents_density":optional(&s.contents_density),"insulation_thickness":optional(&s.insulation_thickness),"insulation_density":optional(&s.insulation_density)},
+            "mass_kg_per_m":mass,"contents_absent":s.contents_density.is_none(),"insulation_absent":s.insulation_thickness.is_none() && s.insulation_density.is_none()});
+        let id = format!(
+            "load:self-weight:{}:{}:{}:{}",
+            request.case_id.len(),
+            request.case_id,
+            pipe.id.len(),
+            pipe.id
+        );
+        let payload = json!({"id":id,"category":"distributed_force","target":{"type":"element","pipe":pipe.id},"direction":request.gravity.axis,
+            "magnitude":{"value":intensity,"unit":"N/m"},"dimension":"force_per_length","provenance":e.to_string()});
+        loads.push(draft(
+            request,
+            "create_primitive_load",
+            "primitive_loads",
+            payload,
+            "N/m",
+            "force_per_length",
+            &e,
+        ));
+        evidence.push(e);
+    }
+    if !d.is_empty() {
+        return Err(d);
+    }
+    let case = json!({"id":request.case_id,"label":request.label,"kind":"primitive_user_load","status":"draft","provenance":request.provenance,"primitive_loads":[]});
+    let mut changes = vec![draft(
+        request,
+        "create_load_case",
+        "load_cases",
+        case,
+        "none",
+        "dimensionless",
+        &json!({"scope_label":"selected_pipe_mass_only","source_model_hash":request.source_model_hash,"source_evidence":evidence}),
+    )];
+    changes.extend(loads);
+    Ok(SelfWeightOperationPlan {
+        source_model_hash: request.source_model_hash.clone(),
+        changes,
+        source_evidence: evidence,
+        scope_label: "selected_pipe_mass_only".into(),
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn fixture() -> (PreviewModel, SelfWeightRequest) {
+        let model=serde_json::from_value(json!({"schema_version":"invented","document_kind":"preview","project":{"id":"invented"},
+            "analysis_status":{"mechanics":"draft","rule_check":"not_run","professional_acceptance":"not_assessed"},
+            "nodes":[{"id":"a","position":{"x":0,"y":0,"z":0}},{"id":"b","position":{"x":1,"y":0,"z":0}}],
+            "pipe_segments":[{"id":"pipe:é","from":"a","to":"b","material":"invented","provenance":"invented pipe",
+                "section":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"},"material_density":{"value":1000,"unit":"kg/m^3"}}}],"supports":[]})).unwrap();
+        let request = SelfWeightRequest {
+            case_id: "case:α".into(),
+            label: "invented self mass".into(),
+            pipe_refs: vec!["pipe:é".into()],
+            gravity: SelfWeightGravity {
+                value: -7.0,
+                unit: "m/s^2".into(),
+                axis: "global_y".into(),
+            },
+            provenance: "invented explicit input".into(),
+            source_model_hash: format!("sha256:{}", "a".repeat(64)),
+        };
+        (model, request)
+    }
+    fn plan_value(m: &PreviewModel, r: &SelfWeightRequest) -> Value {
+        serde_json::to_value(generate_self_weight_operations(m, r).unwrap()).unwrap()
+    }
+    fn intensity(m: &PreviewModel, r: &SelfWeightRequest) -> f64 {
+        let plan = generate_self_weight_operations(m, r).unwrap();
+        serde_json::from_str::<Value>(&plan.changes[1].after).unwrap()["magnitude"]["value"]
+            .as_f64()
+            .unwrap()
+    }
+    fn close(a: f64, b: f64) {
+        assert!(
+            (a - b).abs() <= 1e-12 * a.abs().max(b.abs()).max(1.0),
+            "{a} != {b}"
+        );
+    }
+    #[test]
+    fn self_weight_rejects_unknown_request_options() {
+        let (_, request) = fixture();
+        let mut top = serde_json::to_value(&request).unwrap();
+        top["component_weights"] = json!(true);
+        assert!(serde_json::from_value::<SelfWeightRequest>(top).is_err());
+        let mut gravity = serde_json::to_value(&request).unwrap();
+        gravity["gravity"]["default_gravity"] = json!(true);
+        assert!(serde_json::from_value::<SelfWeightRequest>(gravity).is_err());
+        assert!(serde_json::from_value::<SelfWeightRequest>(
+            serde_json::to_value(&request).unwrap()
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn self_weight_signed_axes_shape_and_immutable_inputs() {
+        let (m, mut r) = fixture();
+        let before = format!("{m:?}");
+        for axis in ["global_x", "global_y", "global_z"] {
+            for g in [-7.0, 7.0] {
+                r.gravity.axis = axis.into();
+                r.gravity.value = g;
+                close(
+                    intensity(&m, &r),
+                    std::f64::consts::PI / 4.0 * (0.1_f64.powi(2) - 0.08_f64.powi(2)) * 1000.0 * g,
+                );
+            }
+        }
+        let request_before = serde_json::to_value(&r).unwrap();
+        let p = generate_self_weight_operations(&m, &r).unwrap();
+        assert_eq!(p.source_model_hash, r.source_model_hash);
+        assert_eq!(p.scope_label, "selected_pipe_mass_only");
+        assert_eq!(p.changes.len(), 2);
+        for c in &p.changes {
+            assert_eq!(c.object_type, "Load");
+            assert_eq!(c.target_ref, r.case_id);
+            assert_eq!(c.operation_kind, "create");
+            assert_eq!(c.before, "not_present");
+        }
+        let case: Value = serde_json::from_str(&p.changes[0].after).unwrap();
+        assert_eq!(case["status"], "draft");
+        assert_eq!(case["primitive_loads"], json!([]));
+        let load: Value = serde_json::from_str(&p.changes[1].after).unwrap();
+        assert_eq!(load["category"], "distributed_force");
+        assert_eq!(load["direction"], r.gravity.axis);
+        let e: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
+        assert_eq!(e, p.source_evidence[0]);
+        assert_eq!(
+            serde_json::from_str::<Value>(&p.changes[1].source_note).unwrap(),
+            e
+        );
+        assert_eq!(e["contents_absent"], true);
+        assert_eq!(e["insulation_absent"], true);
+        assert_eq!(e["mass_inputs"]["contents_density"], Value::Null);
+        assert_eq!(format!("{m:?}"), before);
+        assert_eq!(serde_json::to_value(&r).unwrap(), request_before);
+    }
+    #[test]
+    fn self_weight_alternate_units_and_all_mass_sources() {
+        let (mut m, r) = fixture();
+        let baseline = intensity(&m, &r);
+        m.pipe_segments[0].section.outside_diameter = Quantity {
+            value: 100.0,
+            unit: "mm".into(),
+        };
+        m.pipe_segments[0].section.wall_thickness = Quantity {
+            value: 10.0,
+            unit: "mm".into(),
+        };
+        close(intensity(&m, &r), baseline);
+        m.pipe_segments[0].section.material_density = Some(Quantity {
+            value: 1000.0 * 0.0254_f64.powi(3) / 0.45359237,
+            unit: "lb/in^3".into(),
+        });
+        close(intensity(&m, &r), baseline);
+        let s = &mut m.pipe_segments[0].section;
+        s.mill_tolerance = Some(Quantity {
+            value: 1.0,
+            unit: "mm".into(),
+        });
+        s.contents_density = Some(Quantity {
+            value: 400.0,
+            unit: "kg/m^3".into(),
+        });
+        s.insulation_thickness = Some(Quantity {
+            value: 10.0,
+            unit: "mm".into(),
+        });
+        s.insulation_density = Some(Quantity {
+            value: 50.0,
+            unit: "kg/m^3".into(),
+        });
+        let mass = std::f64::consts::PI / 4.0
+            * ((0.1_f64.powi(2) - 0.082_f64.powi(2)) * 1000.0
+                + 0.082_f64.powi(2) * 400.0
+                + (0.12_f64.powi(2) - 0.1_f64.powi(2)) * 50.0);
+        close(intensity(&m, &r), mass * r.gravity.value);
+        let p = plan_value(&m, &r);
+        assert_eq!(p["source_evidence"][0]["contents_absent"], false);
+        assert_eq!(p["source_evidence"][0]["insulation_absent"], false);
+    }
+    #[test]
+    fn self_weight_invalid_quantities_fail_without_partial_plan() {
+        let (m, r) = fixture();
+        for value in [f64::NAN, f64::INFINITY, -1.0, 0.0] {
+            let mut bad = m.clone();
+            bad.pipe_segments[0]
+                .section
+                .material_density
+                .as_mut()
+                .unwrap()
+                .value = value;
+            assert!(generate_self_weight_operations(&bad, &r).is_err());
+        }
+        for unit in ["", "N", "unknown"] {
+            let mut bad = m.clone();
+            bad.pipe_segments[0]
+                .section
+                .material_density
+                .as_mut()
+                .unwrap()
+                .unit = unit.into();
+            assert!(generate_self_weight_operations(&bad, &r).is_err());
+        }
+        for mode in 0..9 {
+            let mut bad = m.clone();
+            let s = &mut bad.pipe_segments[0].section;
+            match mode {
+                0 => s.material_density = None,
+                1 => s.wall_thickness.value = 0.06,
+                2 => {
+                    s.mill_tolerance = Some(Quantity {
+                        value: -1.0,
+                        unit: "m".into(),
+                    })
+                }
+                3 => {
+                    s.mill_tolerance = Some(Quantity {
+                        value: 0.01,
+                        unit: "m".into(),
+                    })
+                }
+                4 => {
+                    s.insulation_density = Some(Quantity {
+                        value: 1.0,
+                        unit: "kg/m^3".into(),
+                    })
+                }
+                5 => {
+                    s.contents_density = Some(Quantity {
+                        value: -1.0,
+                        unit: "kg/m^3".into(),
+                    })
+                }
+                6 => s.outside_diameter.value = f64::MAX,
+                7 => s.wall_thickness.value = f64::NAN,
+                _ => {
+                    s.insulation_thickness = Some(Quantity {
+                        value: -1.0,
+                        unit: "m".into(),
+                    })
+                }
+            };
+            assert!(
+                generate_self_weight_operations(&bad, &r).is_err(),
+                "mode {mode}"
+            );
+        }
+        for mode in 0..7 {
+            let mut bad = r.clone();
+            match mode {
+                0 => bad.gravity.value = 0.0,
+                1 => bad.gravity.value = f64::INFINITY,
+                2 => bad.gravity.unit = "N".into(),
+                3 => bad.gravity.axis = "local_x".into(),
+                4 => bad.provenance = " ".into(),
+                5 => bad.source_model_hash = "A".repeat(64),
+                _ => bad.gravity.value = f64::MAX,
+            };
+            assert!(generate_self_weight_operations(&m, &bad).is_err());
+        }
+    }
+    #[test]
+    fn self_weight_selection_geometry_and_collisions() {
+        let (m, r) = fixture();
+        for mode in 0..10 {
+            let mut bad = m.clone();
+            match mode {0=>bad.pipe_segments.push(bad.pipe_segments[0].clone()),1=>bad.nodes.push(bad.nodes[0].clone()),2=>bad.nodes.clear(),3=>bad.nodes[1].position=bad.nodes[0].position,4=>bad.nodes[1].position.x=f64::NAN,5=>bad.pipe_segments[0].to="a".into(),6=>bad.pipe_segments[0].provenance=None,7=>bad.pipe_segments.clear(),8=>bad.load_cases=serde_json::from_value(json!([{"id":r.case_id}])).unwrap(),_=>bad.load_cases=serde_json::from_value(json!([{"id":"other","primitive_loads":[{"id":format!("load:self-weight:{}:{}:{}:{}",r.case_id.len(),r.case_id,r.pipe_refs[0].len(),r.pipe_refs[0]),"category":"distributed_force","target":{"type":"element","pipe":"pipe:é"},"direction":"global_y","magnitude":{"value":1,"unit":"N/m"},"dimension":"force_per_length"}]}])).unwrap()};
+            assert!(
+                generate_self_weight_operations(&bad, &r).is_err(),
+                "mode {mode}"
+            );
+        }
+        for refs in [
+            vec![],
+            vec![" ".into()],
+            vec!["missing".into()],
+            vec![r.pipe_refs[0].clone(), r.pipe_refs[0].clone()],
+        ] {
+            let mut bad = r.clone();
+            bad.pipe_refs = refs;
+            assert!(generate_self_weight_operations(&m, &bad).is_err());
+        }
+        let mut two = m.clone();
+        let mut pipe = two.pipe_segments[0].clone();
+        pipe.id = "pipe_é:6".into();
+        two.pipe_segments.push(pipe);
+        let mut rr = r.clone();
+        rr.pipe_refs.push("pipe_é:6".into());
+        let first = plan_value(&two, &rr);
+        rr.pipe_refs.reverse();
+        assert_eq!(first, plan_value(&two, &rr));
+        let a: Value =
+            serde_json::from_str(first["changes"][1]["after"].as_str().unwrap()).unwrap();
+        let b: Value =
+            serde_json::from_str(first["changes"][2]["after"].as_str().unwrap()).unwrap();
+        assert_ne!(a["id"], b["id"]);
+        assert!(a["id"].as_str().unwrap().contains("pipe:é"));
+    }
+    #[test]
+    fn self_weight_section_resolution_and_unselected_isolation() {
+        let (mut m, r) = fixture();
+        let baseline = intensity(&m, &r);
+        m.pipe_segments[0].section_ref = Some("section".into());
+        m.sections=serde_json::from_value(json!([{"id":"section","name":"invented","section_type":"pipe","properties":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"provenance":"invented section"}])).unwrap();
+        close(intensity(&m, &r), baseline);
+        assert_eq!(
+            plan_value(&m, &r)["source_evidence"][0]["referenced_section"]["provenance"],
+            "invented section"
+        );
+        for mode in 0..6 {
+            let mut bad = m.clone();
+            match mode {
+                0 => bad.sections.clear(),
+                1 => bad.sections.push(bad.sections[0].clone()),
+                2 => bad.sections[0].section_type = "other".into(),
+                3 => bad.pipe_segments[0].section.outside_diameter.value = 0.2,
+                4 => {
+                    bad.pipe_segments[0].section.outside_diameter = Quantity {
+                        value: 100.0,
+                        unit: "mm".into(),
+                    }
+                }
+                _ => bad.sections[0].provenance = Value::Null,
+            };
+            assert!(
+                generate_self_weight_operations(&bad, &r).is_err(),
+                "mode {mode}"
+            );
+        }
+        let mut broken = m.pipe_segments[0].clone();
+        broken.id = "unselected".into();
+        broken.section_ref = Some("missing".into());
+        broken.from = "missing".into();
+        m.pipe_segments.push(broken);
+        close(intensity(&m, &r), baseline);
+    }
+}

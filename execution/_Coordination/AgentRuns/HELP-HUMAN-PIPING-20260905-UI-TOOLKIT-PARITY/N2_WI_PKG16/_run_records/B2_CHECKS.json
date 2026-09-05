@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "command": "CARGO_TARGET_DIR=/tmp/piping-ui-parity-target cargo test --offline --manifest-path projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml --quiet",
+  "exit_code": 0,
+  "unit_tests": 101,
+  "native_contract_tests": 1,
+  "canonical_hash_tests": 2,
+  "module_tests": 10,
+  "source_sha256": "75d9a332ae28977a0f7a3a5051dac51a3602ad8a316f32c8dde2245f1e6b240e",
+  "warnings": [
+    "RichEdit.current_display currently unused by parent lib integration"
+  ],
+  "initial_failures_resolved": [
+    "prospective ownership borrow E0382",
+    "test fixtures used unsupported N/mm and GPa symbols; changed to catalog N/m and MPa",
+    "test expected serde numeric storage type equality across canonical JSON; compare canonical JSON"
+  ],
+  "limitations": [
+    "No browser/Wasm build executed by B2; parent owns wider checks",
+    "Independent full frozen-diff review outstanding"
+  ],
+  "written_paths": [
+    "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B2_RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B2_CHECKS.json"
+  ]
+}

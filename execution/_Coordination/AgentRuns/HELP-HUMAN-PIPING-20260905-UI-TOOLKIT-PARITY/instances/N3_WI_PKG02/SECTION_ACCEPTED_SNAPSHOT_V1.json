@@ -1,0 +1,17 @@
+{
+  "schema": "piping.bounded-source-snapshot/v1",
+  "status": "manager_accepted_bounded_implementation",
+  "package_id": "PKG-02",
+  "deliverable_id": "DEL-02-01",
+  "base_commit": "740569598f9d00440636b8ea25264127f418e4ec",
+  "derivative_status": "current_bounded_evidence_not_decomposition_truth",
+  "files": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "89607dac35257329bcc58041cfb62407b537b3cdbb28a61efe82f02544ddb9af",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/PHASE_A_SNAPSHOT_V2.json": "12c4b4609ee6caa2e3ff41be8584dfcaeef805892db9cf378276944cbd072da5",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/ROW17_CANDIDATE_V2.md": "f33b4d5c0e6ebd3e00cccaa59651e9d57e95839ecbab497598383e1894770b68",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/SECTION_FROZEN_DIFF_V2.patch": "1112f4e6b7f097f8ee4335f963537dc18291f91b4f9dcd0e38052a4fa92ed168",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/SECTION_IMPLEMENTATION_RETURN_V3.md": "4d987c7e78280155bdc3d8a67e126e65bd5ba586e06b6cb19d50b68ea2009df4",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/SECTION_CODE_REVIEW_V3.md": "5d422294c1039e83a1f9a5382b9f38709b62ca12071acf67e759560c18cbbffd",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/RUNTIME_SUMMARY.json": "e3f9cb1b6cde5b14ad65cab883c17db3866453e171e886fc18d72cbd944431dd"
+  }
+}

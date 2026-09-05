@@ -1,0 +1,9 @@
+{
+  "status": "IMPLEMENTED_PENDING_PARENT_REVIEW",
+  "role": "Agent2 ephemeral",
+  "delegation": "none",
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "checks": "CHECKS.json",
+  "return": "RETURN.md",
+  "blockers": []
+}

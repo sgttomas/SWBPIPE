@@ -1,0 +1,12 @@
+{
+  "status": "BOUNDED_IMPORT_ACCEPTED_RETURNED",
+  "source_snapshot": "PKG03_ACCEPTED_SNAPSHOT_C2.json",
+  "next_owner": "HELP_HUMAN",
+  "product_changes": true,
+  "children": [
+    "A2_HANGER_IMPORT",
+    "A2_HANGER_REVIEW",
+    "A2_HANGER_REVIEW_C2"
+  ],
+  "lifecycle": "unchanged"
+}

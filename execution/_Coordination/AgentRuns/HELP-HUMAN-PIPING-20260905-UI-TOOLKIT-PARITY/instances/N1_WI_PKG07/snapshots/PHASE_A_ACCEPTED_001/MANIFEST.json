@@ -1,0 +1,14 @@
+{
+  "status": "manager_accepted_derivative_phase_contract",
+  "accepted_upstream": [
+    "SOFTWARE_DECOMP rev0.12",
+    "SCA009 DEC094 Gate5",
+    "DAG010"
+  ],
+  "review": "children/A2_REVIEW_MAP/RETURN.md",
+  "hashes": {
+    "Capability_Comparison.csv": "d1b72116fa359f8ee4740cf69cbfe4b3f789db68bc37dd8a5ab36403eddf2ea8",
+    "Palette_Operation_Routing.md": "9a4294e7681dba4e5cfe7f7d007780a0847aa117047ef4f842cdb1deff182e50",
+    "Palette_Organization_Contract.md": "20a64553271a9f8d1de39a1b12b5c3574363bb05dd97474c6436e38fab44fe29"
+  }
+}

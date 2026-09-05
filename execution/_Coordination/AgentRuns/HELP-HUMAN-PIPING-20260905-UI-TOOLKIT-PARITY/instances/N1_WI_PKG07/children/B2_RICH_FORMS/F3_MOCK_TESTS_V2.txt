@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/rich-authoring/richForms.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  23:46:08
+   Duration  491ms (transform 57ms, setup 42ms, import 59ms, tests 221ms, environment 115ms)
+

@@ -1,0 +1,27 @@
+{
+  "role": "direct ephemeral Agent 2",
+  "parent": "HELP_HUMAN",
+  "instance": "N_CROSS_CONTRACT_REFUTE",
+  "model": "actual inherited model identifier unavailable",
+  "delegation": "delegated-harness-native; instruction+config asserted; no children",
+  "objective": "Independent design-only refutation of PKG03 hanger and PKG05 self-weight proposed interfaces against specs and current consumers",
+  "write_scope": [
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_CROSS_CONTRACT_REFUTE"
+  ],
+  "reads": [
+    "AGENTS.md",
+    "agents/AGENT_TASK.md",
+    "project AGENTS.md",
+    "DEL-03-02/03-07/05-01/05-02 ScopeOfWork.md",
+    "N4 and N5 candidate designs",
+    "relevant product physics, model schema, library import and operation consumer source"
+  ],
+  "exclusions": [
+    "source writes",
+    "tests",
+    "delegation",
+    "design/lifecycle acceptance",
+    "D58 changes"
+  ],
+  "timestamp": "2026-09-05T03:51:53.794823+00:00"
+}

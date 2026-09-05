@@ -1,0 +1,14 @@
+# F3 repair — provisional source freeze
+
+Status: SOURCE_FROZEN_PENDING_REAL_ENGINE_GATE. Executed only after N7_F3_RELEASE_V9.md released N7_F3_BRIEF_HELD.md; N7_F3_AMENDMENT_V9A.md adds exact ExistingToolkitEngine regression fence. All three brief hashes are in F3_SOURCE_FREEZE.json. Ephemeral Agent 2, no delegation, no build or artifact writes.
+
+Four complete source files frozen in F3_SOURCE_FREEZE.json and F3_FULL_SOURCE_DIFF.patch. Files are new/untracked within the aggregate tranche, so the full diff contains complete additions for independent review rather than pretending Git carries a prior committed implementation. All other B2/shared/backend files untouched by this repair.
+
+- SupportConfigurationForm.tsx uses a local value/label selector with exactly nine explicit canonical choices: anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear. Labels are ordinary readable names. The selected current omitted/null/unsupported source is shown in a disabled preservation option. No source value is normalized or removed until an explicit canonical selection. The selection changes only family; restraints, quantities, hanger/nonlinear behavior and source model are untouched.
+- richForms.test.tsx corrects prior VerticalSupport assertion and explicitly chooses UZ for its valid vertical scenario. Nine new cases prove exact choices/labels, no inferred DOFs or nested blocks, omitted/null/unknown/empty/padded/PascalCase preservation, explicit replacement, canonical creation and source immutability.
+- ExistingToolkitEngine.test.tsx corrects only the owned LineStop regression to line_stop and explicitly checks/selects UX alone. Other tests unchanged.
+- supportFamilyEngine.test.tsx prepares actual operation Wasm create/update checks for line_stop/UX and vertical_support/UZ, exact canonical before state, source immutability, and rejection of PascalCase/blank/padded/direct-behavior tokens. It contains no hash/operation mocks. It is not a browser physics test.
+
+Checks: F3_MOCK_TESTS_V2.txt records the authorized focused command `npm test --workspace apps/desktop -- --run src/features/rich-authoring/richForms.test.tsx`, 19 tests PASS. Initial F3_MOCK_TESTS.txt ran the earlier 10-test file after a working-directory mistake prevented intended additional file writes; V2 is the complete repaired mock suite. No full suite/build/Wasm test ran in this repair.
+
+Required remaining gates: parent accepted source/artifact rebuild relay, actual operation test execution, fresh read-only repair review, aggregate parent refreeze/backcheck. Native family/DOF consumer behavior must consume N6's separate hash-bound producer evidence; this UI slice does not execute or claim native physics acceptance. No lifecycle or parity closure claimed. Later test-driven fixes require a new source manifest and fresh changed-source review.

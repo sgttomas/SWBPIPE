@@ -1,0 +1,9 @@
+{
+  "status": "complete",
+  "verdict": "REVISE",
+  "open_findings": [
+    "BC1 mandatory associated-support hash guard"
+  ],
+  "private_context_architecture": "sound at design level",
+  "finished_at": "2026-09-05T04:10:45.272657+00:00"
+}

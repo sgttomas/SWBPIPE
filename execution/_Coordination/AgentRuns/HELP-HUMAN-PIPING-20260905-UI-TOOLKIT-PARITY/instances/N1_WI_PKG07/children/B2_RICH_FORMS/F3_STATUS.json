@@ -1,0 +1,8 @@
+{
+  "status": "SOURCE_FROZEN_PENDING_REAL_ENGINE_GATE",
+  "mock_tests": "19 passed",
+  "builds": "not run as instructed",
+  "actual_operation_tests": "prepared; awaiting accepted rebuild relay",
+  "review": "fresh repair review required",
+  "source_freeze": "F3_SOURCE_FREEZE.json"
+}

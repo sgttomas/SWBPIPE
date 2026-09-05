@@ -50,7 +50,7 @@ function tryRun(command, args, { cwd } = {}) {
   }
 }
 
-export function resolveWasmArtifact(crateDirectory = crateDir) {
+export function resolveWasmArtifact(crateDirectory = crateDir, crateName = "open_pipe_stress_operation_applier") {
   const metadata = tryRun(
     "cargo",
     ["metadata", "--format-version", "1", "--no-deps"],
@@ -74,7 +74,7 @@ export function resolveWasmArtifact(crateDirectory = crateDir) {
     targetDirectory,
     "wasm32-unknown-unknown",
     "release",
-    "open_pipe_stress_operation_applier.wasm"
+    `${crateName}.wasm`
   );
 }
 
@@ -129,6 +129,13 @@ if (bindgenVersion !== PINNED_WASM_BINDGEN_VERSION) {
   ]);
 }
 
+const builds = [
+  { crateDirectory: crateDir, crateName: "open_pipe_stress_operation_applier", destination: outDir },
+  { crateDirectory: path.join(projectRoot, "core", "loads", "self_weight_wasm"), crateName: "open_pipe_stress_self_weight_wasm", destination: path.join(desktopRoot, "public", "self-weight-engine") }
+];
+for (const { crateDirectory, crateName, destination } of builds) {
+const crateManifest = path.join(crateDirectory, "Cargo.toml");
+const outDir = destination;
 // 4. Compile the engine to wasm32 with the wasm feature.
 console.log("[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release");
 const build = tryRun("cargo", [
@@ -147,7 +154,7 @@ if (!build.ok) {
 }
 let wasmArtifact;
 try {
-  wasmArtifact = resolveWasmArtifact();
+  wasmArtifact = resolveWasmArtifact(crateDirectory, crateName);
 } catch (error) {
   fail(["Could not resolve Cargo's wasm artifact directory:", error.message]);
 }
@@ -191,13 +198,20 @@ if (!bindgen.ok) {
 if (existsSync(outDir)) {
   renameSync(outDir, oldDir);
 }
-renameSync(tmpDir, outDir);
+try {
+  renameSync(tmpDir, outDir);
+} catch (error) {
+  if (existsSync(oldDir)) renameSync(oldDir, outDir);
+  throw error;
+}
 rmSync(oldDir, { recursive: true, force: true });
 
 console.log(
   `[build-wasm-engine] OK — wasm operation engine generated at ${path.relative(desktopRoot, outDir)} ` +
     `(wasm-bindgen ${bindgenVersion}; artifacts are intentionally not committed)`
 );
+}
+
 }
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;

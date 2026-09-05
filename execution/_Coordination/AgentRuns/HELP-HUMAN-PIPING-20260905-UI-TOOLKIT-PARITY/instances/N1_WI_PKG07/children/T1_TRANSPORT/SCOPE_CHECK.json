@@ -1,0 +1,31 @@
+{
+  "allowed": [
+    "projects/chirality-piping/.gitignore",
+    "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+    "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.test.mjs",
+    "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/operationBatchService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+    "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.ts",
+    "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.test.ts"
+  ],
+  "paths": [
+    "projects/chirality-piping/.gitignore",
+    "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+    "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.test.mjs",
+    "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+    "projects/chirality-piping/apps/desktop/src/services/operationBatchService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+    "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.ts",
+    "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadSelfWeightEngine.test.ts"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

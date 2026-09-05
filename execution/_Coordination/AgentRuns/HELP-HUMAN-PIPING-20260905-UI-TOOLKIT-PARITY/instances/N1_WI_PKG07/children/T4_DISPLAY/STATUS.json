@@ -1,0 +1,16 @@
+{
+  "status": "REMEDIATED_BACKCHECK_PENDING",
+  "role": "Agent2",
+  "parent": "N1_WI_PKG07",
+  "revision": 2,
+  "tests": {
+    "focused": {
+      "passed": 6,
+      "failed": 0
+    }
+  },
+  "remaining": [
+    "independent backcheck",
+    "B0 integrated review and tests"
+  ]
+}

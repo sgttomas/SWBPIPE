@@ -1,0 +1,11 @@
+# Phase A v3 amendment — explicit partial rotational restraint adapter
+
+This amendment overrides the v1 assertion that the full proposed composition needs no product_physics adapter changes. It does not change solver equations. Fresh independent refutation found that current rigid_linear_support_from_preview maps non-six-DOF ordinary supports to Guide, while linear_supports::dof_allowed_for_family permits only translational Guide DOFs. A partial Rx rigid boundary is therefore not currently valid end-to-end.
+
+For the composed rigid member, emit explicit family `anchor` and the exact selected restrained DOF subset. PKG04 requests a bounded product_physics adapter branch matching `Some("anchor")` to `SupportFamily::Anchor`, retaining `restrained_dofs` verbatim in the LinearSupport struct. Do NOT call the all-six-DOF convenience constructor or fill unselected rigid DOFs. Existing implicit Anchor/Guide fallback and explicit line_stop/vertical_support behavior remain unchanged. Anchor is used as the existing mechanics family accepting arbitrary frame DOFs; UI shows the explicit subset and never labels a partial subset as a fully fixed node.
+
+Existing linear_supports prepare_rigid_support iterates supplied restrained_dofs; its Anchor family admits all six DOF types. This is adapter exposure of existing mechanics, not a new restraint equation or support-coordinate policy. No source change under core/solver is needed or authorized. Parent must release exact product_physics adapter scope in the net-new phase; existing-capability wave and N2 rich support/atomic batch remain prerequisites.
+
+Additional acceptance: submitted operation-to-preview integration tests for only Rx rigid, Ux+Rz rigid with Uy spring, and all-six rigid. Assert prepared restrained indices exactly match user selections, all unselected DOFs remain free, spring diagonal applies only to its DOF, and named LineStop/VerticalSupport fallback cases remain unchanged. Bad DOF token handling remains blocking. Tests are pending implementation, not claimed passed.
+
+The v2 durable boundary association contract remains unchanged. This additional necessary adapter seam must be explicitly included in parent source ownership planning. Contract review can pass with it recorded as required implementation, but row21 implementation remains held and unclosed.

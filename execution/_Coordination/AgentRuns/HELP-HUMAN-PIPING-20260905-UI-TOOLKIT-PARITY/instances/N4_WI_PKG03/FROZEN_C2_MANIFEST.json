@@ -1,0 +1,30 @@
+{
+  "status": "FROZEN_FOR_INDEPENDENT_REVIEW",
+  "source_hashes": {
+    "core/library_import/provenance_checker.py": "1c55afd98c2ec0d7780a67a5715ad521fbc3dea119c9cda77c458891a25e32a5",
+    "core/library_import/README.md": "3ecc0271b3c4b2d31cb8566c955e66fa94d9e3406835beb4bb08a614fe96bd98",
+    "core/library_import/library_import_document/src/lib.rs": "127d0fee760ea63d59eee1cc9cb73c121e671ccbfd0297d4218f1e3bfc41d979",
+    "core/library_import/library_import_document/tests/provenance_parity.rs": "e85f023b2d2be6756a055e4c48f02f7e2f1ee63a237a5bba01f76dee7b992b1a",
+    "core/library_import/library_import_document/README.md": "c8d738bc1e903bef87d19f6ddc409defddb9303bfce202ac11821dccd48c1abb",
+    "tests/test_library_import_provenance.py": "fa478e37bebfc02c51a1fbb042af6b7129c0fb0623bbd6d957e0d14099620520",
+    "schemas/hanger.schema.yaml": "f7ada4cab2536cb0a8f952cbcc6de0e13f99a58ca4601c22441542b09c33c2f9",
+    "tests/test_hanger_library_schema.py": "de8cf9a4d9f9ca4e4b4a6163c3f0d10db096c9b65e0cbf1c0856e312cf45a7d6",
+    "fixtures/hanger/invented_hanger_cases.json": "35edc5269668a0da4db9a8492b67f1ee1f26becd44c6fa2136f8853eeda10e96",
+    "fixtures/hanger/invented_hanger_library_valid.json": "d722b59b338a54410438ec39150138556873a68874f3e77c0f8f421f93fbbfc3"
+  },
+  "diff_sha256": "7fd3328e70b51b0d9efed05f153ca1383d1bfabc7b75d89ba90ceb98419dc578",
+  "files": [
+    "core/library_import/provenance_checker.py",
+    "core/library_import/README.md",
+    "core/library_import/library_import_document/src/lib.rs",
+    "core/library_import/library_import_document/tests/provenance_parity.rs",
+    "core/library_import/library_import_document/README.md",
+    "tests/test_library_import_provenance.py",
+    "schemas/hanger.schema.yaml",
+    "tests/test_hanger_library_schema.py",
+    "fixtures/hanger/invented_hanger_cases.json",
+    "fixtures/hanger/invented_hanger_library_valid.json"
+  ],
+  "review_pending": true,
+  "tests": "author105 Python +11 Rust unit +8 integration;86 parity cases"
+}

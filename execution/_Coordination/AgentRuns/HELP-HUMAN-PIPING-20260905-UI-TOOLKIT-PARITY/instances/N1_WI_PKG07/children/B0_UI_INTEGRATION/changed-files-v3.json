@@ -1,0 +1,16 @@
+[
+  "projects/chirality-piping/apps/desktop/src/App.tsx",
+  "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+  "projects/chirality-piping/apps/desktop/src/types.ts",
+  "projects/chirality-piping/apps/desktop/src/styles.css",
+  "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+  "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+  "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.tsx",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/GuardedRemoval.test.tsx",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/SectionAssignment.tsx",
+  "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx"
+]

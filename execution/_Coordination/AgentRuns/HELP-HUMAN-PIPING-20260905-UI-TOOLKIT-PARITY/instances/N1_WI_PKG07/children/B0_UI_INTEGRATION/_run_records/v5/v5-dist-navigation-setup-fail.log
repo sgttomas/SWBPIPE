@@ -1,0 +1,56 @@
+[2m[WebServer] [22m(node:64787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:64789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:64789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop-dist] › apps/desktop/e2e/toolkit-batch-dist.spec.ts:5:1 › dist self-weight plan previews, applies atomically and restores one batch with one undo (1.0m)
+
+
+  1) [chromium-desktop-dist] › apps/desktop/e2e/toolkit-batch-dist.spec.ts:5:1 › dist self-weight plan previews, applies atomically and restores one batch with one undo 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('apply-intent-editor-intent-1')[22m
+    [2m    - locator resolved to <button type="button" data-testid="apply-intent-editor-intent-1" title="Validate and apply to the session model">…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not visible[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not visible[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    114 × waiting for element to be visible, enabled and stable[22m
+    [2m        - element is not visible[22m
+    [2m      - retrying click action[22m
+    [2m        - waiting 500ms[22m
+
+
+      20 |   await page.getByTestId("editor-intent-unit").fill("kg/m^3");
+      21 |   await page.getByTestId("queue-editor-intent").click();
+    > 22 |   await page.getByTestId("toolkit-entry").click();
+         |                                                   ^
+      23 |   await page.getByTestId("toolkit-review.pending").click();
+      24 |   await page.getByTestId("apply-intent-editor-intent-1").click();
+      25 |   await expect(page.getByTestId("operation-apply-summary")).toContainText("1 applied");
+        at /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts:22:58
+
+    Error Context: apps/desktop/test-results/toolkit-batch-dist-dist-se-b8a31-res-one-batch-with-one-undo-chromium-desktop-dist/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/desktop/test-results/toolkit-batch-dist-dist-se-b8a31-res-one-batch-with-one-undo-chromium-desktop-dist/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/desktop/test-results/toolkit-batch-dist-dist-se-b8a31-res-one-batch-with-one-undo-chromium-desktop-dist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop-dist] › apps/desktop/e2e/toolkit-batch-dist.spec.ts:5:1 › dist self-weight plan previews, applies atomically and restores one batch with one undo 

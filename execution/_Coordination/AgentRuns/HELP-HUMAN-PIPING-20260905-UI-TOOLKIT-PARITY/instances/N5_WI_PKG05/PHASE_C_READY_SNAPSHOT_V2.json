@@ -1,0 +1,12 @@
+{
+  "status": "frozen_ready_source_held",
+  "trigger": "Parent relay N2 B3 independent PASS",
+  "files": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "89607dac35257329bcc58041cfb62407b537b3cdbb28a61efe82f02544ddb9af",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/SECTION_ACCEPTED_SNAPSHOT_V1.json": "210f76091fe8701b15752b0a1f622e10df863b886e1b6a67f1b940d0f57c31e4",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B4_BATCH_DESIGN_V3.md": "bc09cd34dba74baee8730dd88a17de331f3c16904ec5a3f0446ae5c340942df5",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/PHASE_B_MODULE_CONTRACT.md": "4aed66902b78610b190db0f74bf05eb73243f837b1ccef1620aff14e4808f8ab",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/PHASE_C_READINESS_V2.md": "f1d7068ef64b137abacf5d69cbebab72074924839eb81aaf3b3b554ee6893ae6",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/children/A2_IMPLEMENT/LAUNCH_BRIEF.md": "c6b2b00fcffe932e79b3cbe1c9405c06f0fa657627833b33eea40e78afbfd6f5"
+  }
+}

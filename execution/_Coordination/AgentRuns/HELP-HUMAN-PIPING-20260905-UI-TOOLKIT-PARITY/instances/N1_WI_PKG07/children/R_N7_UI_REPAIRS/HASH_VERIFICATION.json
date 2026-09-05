@@ -1,0 +1,92 @@
+{
+  "repo_root": "{REPO_ROOT}",
+  "working_root": "{WORKING_ROOT}",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+      "expected_sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4",
+      "actual_sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4",
+      "match": true,
+      "lines": 362,
+      "full_file_reviewed": true,
+      "final_sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4",
+      "unchanged_at_finish": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "expected_sha256": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2",
+      "actual_sha256": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2",
+      "match": true,
+      "lines": 171,
+      "full_file_reviewed": true,
+      "final_sha256": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2",
+      "unchanged_at_finish": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "expected_sha256": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6",
+      "actual_sha256": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6",
+      "match": true,
+      "lines": 314,
+      "full_file_reviewed": true,
+      "final_sha256": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6",
+      "unchanged_at_finish": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+      "expected_sha256": "e333e02ae533b050f235a83a16b3b08e7fb4ccd53d0f92cd18b7df73c87cc1d2",
+      "actual_sha256": "e333e02ae533b050f235a83a16b3b08e7fb4ccd53d0f92cd18b7df73c87cc1d2",
+      "match": true,
+      "lines": 376,
+      "full_file_reviewed": true,
+      "final_sha256": "e333e02ae533b050f235a83a16b3b08e7fb4ccd53d0f92cd18b7df73c87cc1d2",
+      "unchanged_at_finish": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx",
+      "expected_sha256": "960b157bad9b78bf50ec0b8161aa653634b73689648c5e344270d0de29034c78",
+      "actual_sha256": "960b157bad9b78bf50ec0b8161aa653634b73689648c5e344270d0de29034c78",
+      "match": true,
+      "lines": 98,
+      "full_file_reviewed": true,
+      "final_sha256": "960b157bad9b78bf50ec0b8161aa653634b73689648c5e344270d0de29034c78",
+      "unchanged_at_finish": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+      "expected_sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60",
+      "actual_sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60",
+      "match": true,
+      "lines": 57,
+      "full_file_reviewed": true,
+      "final_sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60",
+      "unchanged_at_finish": true
+    }
+  ],
+  "f2_complete_patch_exact": true,
+  "f3_complete_addition_patch_exact": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "exact_current": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+      "exact_current": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ExistingToolkitEngine.test.tsx",
+      "exact_current": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+      "exact_current": true
+    }
+  ],
+  "source_coverage": "6/6 full files; 100% supplied repair diffs",
+  "checks_executed": "hash and in-memory diff verification only; no tests or builds",
+  "evidence_bindings": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/F2_SOURCE_MANIFEST.json": "d93d828a96b810de03ed7114be30ce4a42a7c701e3f57fc79e487da0ab57c7ee",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_SOURCE_FREEZE.json": "52ecdf4874f2119d21f0937ab751542258fcd8a2cd822e09b267ef6b2ed68aca",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/R_N7_UI_REPAIRS/LAUNCH_BRIEF.md": "5f3ca40f8a8a066260bace7149fd33b1d1311df3d356ff480d6ad88c54636d79"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "document_kind": "chirality.review_telemetry_calibration_snapshot",
+  "version": 1,
+  "recorded_at": "2026-09-05T04:38:05.064144+00:00",
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "package": "PKG-16",
+  "parent_instance": "N2_WI_PKG16",
+  "status": "SOURCE_REVIEW_EVIDENCED_TELEMETRY_START_INCOMPLETE",
+  "derivative_status": "calibration of run evidence, not decomposition authority or a new source review",
+  "actual_child": {
+    "canonical_task_name": "/root/wi_pkg16/stage_c_review",
+    "session_id": "stage_c_review",
+    "role": "TASK Agent 2 software-code-review",
+    "execution_class": "delegated-harness-native",
+    "non_delegation_assurance": "instruction+config asserted, not mechanism-proven",
+    "evidence_basis": "actual native child messages received by parent and retained sealed brief/return; this snapshot is manager attribution, not an exported harness transcript"
+  },
+  "observed_child_return": {
+    "status": "PASS",
+    "return_artifact": "RC_RETURN.md",
+    "coverage": "complete frozen diff and all six new operation modules; all 12 frozen hashes matched",
+    "parent_observed_native_message": "PASS. Wrote N2_WI_PKG16/RC_RETURN.md. Reviewed the complete frozen diff and all six new modules; all 12 frozen hashes match. No actionable findings.",
+    "observed_message_timestamp": null
+  },
+  "source_gate": {
+    "review_occurred": true,
+    "reviewed_source_hashes_artifact": "C_FROZEN_HASHES.json",
+    "manager_acceptance_artifact": "C_ACCEPTED_SNAPSHOT_V1.json",
+    "limits": "RC applies to its exact frozen source. Later native amendment has separate RN review; this calibration does not extend RC coverage."
+  },
+  "timestamp_bookkeeping": {
+    "contemporaneous_start_recorded": false,
+    "actual_start_timestamp": null,
+    "execution_duration_seconds": null,
+    "existing_rc_events": [
+      {
+        "attempt": 1,
+        "category": null,
+        "deliverable_id": null,
+        "detail": "Recorded after receipt/fan-in; execution timestamps and token usage not inferred. Source accepted after fresh complete RC review.",
+        "event_id": "RC_REVIEW_FINISH",
+        "event_type": "FINISH",
+        "instance_id": "RC_REVIEW",
+        "outcome": "PASS",
+        "package_id": "PKG-16",
+        "reason_code": null,
+        "role": "TASK",
+        "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+        "schema": "chirality-runtime-event/v1",
+        "session_id": "stage_c_review",
+        "telemetry": {
+          "context_limit": null,
+          "context_tokens": null,
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "timestamp": "2026-09-05T04:29:16.999Z"
+      }
+    ],
+    "late_start_attribution": "_run_records/RC_LATE_START_ATTRIBUTION.json",
+    "late_record_is_actual_start_time": false,
+    "runtime_summary_status": "INCOMPLETE",
+    "unmatched_session": "stage_c_review",
+    "calibration": "Missing launch timestamp does not erase actual source-review execution evidence. Source review exists; timestamp bookkeeping is incomplete. No start or duration is backfilled."
+  },
+  "model_and_usage": {
+    "model_identifier": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "context_occupancy": null,
+    "calibration": "not exposed; not inferred"
+  },
+  "preservation": {
+    "original_artifacts_modified": false,
+    "bound_artifacts": {
+      "RC_BRIEF.md": {
+        "sha256": "278c95158edce90f6ce9d74dc71444e572fb9ba5a03b5cf65bdaedceeebae2b7"
+      },
+      "C_FROZEN_HASHES.json": {
+        "sha256": "0e5ae71c0ed3d4b5c394180ae3ed5fb61d59d81af8a2265e325c1fe14cc6768b"
+      },
+      "C_FROZEN.diff": {
+        "sha256": "b37309c2387b7b875cee44c29fcf53da8667a88e9ae378f24b139d3df4c600e8"
+      },
+      "RC_RETURN.md": {
+        "sha256": "bd6b331b268b8c490fff30b11003188db3b70bb34bb482a6a27780034cc54ecf"
+      },
+      "C_ACCEPTED_SNAPSHOT_V1.json": {
+        "sha256": "178eb3b6efe8a20be6da0db6abc693f10b0549b83c739fc8ff790f30c801dc28"
+      },
+      "RUNTIME_EVENTS.jsonl": {
+        "sha256": "fd6ed8493b7047257a95a7256c6d10e74f4b663d180eb9d011792326ee7b9f77"
+      },
+      "RUNTIME_SUMMARY.json": {
+        "sha256": "b17c6f18243b9633ed07e342f30c6343336d4ac0ef943d7fa7c8ac62b032faad"
+      },
+      "RUNTIME_LIMITATIONS.md": {
+        "sha256": "abbd905b39dc593f4f451601956c144fa429b125587dc5d529eda5e84ba9ff3e"
+      },
+      "_run_records/RC_LATE_START_ATTRIBUTION.json": {
+        "sha256": "9cea65bf5d7891effdab9f9395d0d966e2c24e76e29eae79049b5747c36681cb"
+      }
+    }
+  },
+  "future_independent_gate": {
+    "proposed_owner": "root N7 fresh full integrated review",
+    "status": "not observed or claimed by this snapshot",
+    "acceptance_condition": "Actual separately evidenced complete review execution, frozen source coverage, required checks, return, and parent acceptance may establish the final integrated source gate. It does not retroactively repair RC launch telemetry."
+  },
+  "remaining": "Parent owns final integrated source/runtime/UI and deterministic closeout. No source writes or second issue plan created.",
+  "existing_issue_plan": "projects/chirality-piping/plans/2026-09-05-ui-toolkit-parity-loop-issues.md"
+}

@@ -1,0 +1,29 @@
+{
+  "parent": "HELP_HUMAN",
+  "role": "ephemeral Agent2",
+  "delegation_class": "delegated-harness-native",
+  "non_delegation": "instruction-asserted",
+  "model": "not exposed by runtime",
+  "objective": "Provision existing test dependencies; no product or lockfile modifications",
+  "read_scope": [
+    "package.json",
+    "package-lock.json",
+    "software-workflow.json",
+    "requirements-dev.txt",
+    "apps/desktop build scripts"
+  ],
+  "write_scope": [
+    "ignored node_modules",
+    "ignored Wasm generated artifacts",
+    "/tmp caches and logs",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV"
+  ],
+  "acceptance": [
+    "npm ci from existing lockfile",
+    "tool versions and Python imports checked",
+    "existing build:wasm readiness",
+    "no full suites against changing source"
+  ],
+  "started_at": "2026-09-05T03:45:14.902059+00:00",
+  "status": "running"
+}

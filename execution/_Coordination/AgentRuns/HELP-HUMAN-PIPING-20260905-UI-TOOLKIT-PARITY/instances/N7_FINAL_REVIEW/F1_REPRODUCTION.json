@@ -1,0 +1,295 @@
+{
+  "utc": "2026-09-05T05:24:47.216Z",
+  "model": {
+    "schema_version": "0.1.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "project": {
+      "id": "project:n7",
+      "units": {
+        "length": "m"
+      }
+    },
+    "nodes": [
+      {
+        "id": "node:n",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:s",
+        "node": "node:n",
+        "label": "Support",
+        "restraints": [
+          "UY"
+        ]
+      }
+    ],
+    "pipe_segments": [],
+    "materials": [],
+    "sections": [],
+    "components": [],
+    "load_cases": []
+  },
+  "batch": {
+    "batch_id": "batch:n7",
+    "operations": [
+      {
+        "operation_id": "operation:n7",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "author_type": "user",
+        "target": {
+          "object_type": "Support",
+          "ref": "support:s"
+        },
+        "change": {
+          "change_id": "change:n7",
+          "change_kind": "update_support",
+          "field_label": "Configuration",
+          "field_path": "configuration",
+          "before": "{\"restraints\":[\"UY\"]}",
+          "after": "{\"family\":\"variable_spring_hanger\",\"restraints\":[\"UY\"],\"stiffness\":{\"dof\":\"UY\",\"value\":{\"value\":100,\"unit\":\"N/m\"}},\"hanger\":{\"hanger_type\":\"variable_spring_hanger\",\"source_reference\":\"invented N7 counterexample\",\"stiffness\":{\"dof\":\"UY\",\"value\":{\"value\":20,\"unit\":\"N/m\"}},\"installed_load\":{\"value\":10,\"unit\":\"N\"},\"cold_load\":{\"value\":11,\"unit\":\"N\"},\"hot_load\":{\"value\":12,\"unit\":\"N\"},\"movement_limit\":{\"value\":1,\"unit\":\"in\"}}}",
+          "unit": "none",
+          "dimension": "dimensionless",
+          "source_note": "Explicit conflicting authored stiffness"
+        },
+        "validation": {
+          "schema_validation": "not_run",
+          "constraint_validation": "not_run",
+          "unit_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "application_status": "not_applied"
+        },
+        "audit_boundary": {
+          "mutation_route": "structured_operations_only",
+          "direct_model_mutation_allowed": false,
+          "requires_user_acceptance": true,
+          "mutates_accepted_model_state": false
+        },
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_compliance_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_sealing_claim": false,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false
+        },
+        "rationale": "N7 explicit conflicting stiffness counterexample"
+      }
+    ]
+  },
+  "claim": {
+    "algorithm": "sha256",
+    "canonicalization": "rfc8785_jcs",
+    "payload_scope": "model_payload",
+    "value": "sha256:fa06fd5badac6f75392a25143b4c98012b4bd3e1e96274aa9aeb42d529057e18"
+  },
+  "output": {
+    "acceptance": {
+      "acceptance_basis": "user_initiated_apply_in_local_session",
+      "acceptance_is_professional_approval": false,
+      "persistence_status": "session_state_only_not_yet_saved"
+    },
+    "application_route": "local_wasm_engine",
+    "applied_model": {
+      "components": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [],
+      "nodes": [
+        {
+          "id": "node:n",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "pipe_segments": [],
+      "project": {
+        "id": "project:n7",
+        "units": {
+          "length": "m"
+        }
+      },
+      "schema_version": "0.1.0",
+      "sections": [],
+      "supports": [
+        {
+          "family": "variable_spring_hanger",
+          "hanger": {
+            "cold_load": {
+              "unit": "N",
+              "value": 11
+            },
+            "hanger_type": "variable_spring_hanger",
+            "hot_load": {
+              "unit": "N",
+              "value": 12
+            },
+            "installed_load": {
+              "unit": "N",
+              "value": 10
+            },
+            "movement_limit": {
+              "unit": "in",
+              "value": 1
+            },
+            "source_reference": "invented N7 counterexample",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 20
+              }
+            }
+          },
+          "id": "support:s",
+          "label": "Support",
+          "node": "node:n",
+          "restraints": [
+            "UY"
+          ],
+          "stiffness": {
+            "dof": "UY",
+            "value": {
+              "unit": "N/m",
+              "value": 100
+            }
+          }
+        }
+      ]
+    },
+    "applied_model_backend_hash": "sha256:e32792749ef6c6d58844da3cff9e3117b4c28aaf116b1ddc1f9c5e03d94d2a35",
+    "audit_boundary": {
+      "agent_runtime_binding": "held_D58",
+      "applied_model_is_new_document": true,
+      "direct_model_mutation_allowed": false,
+      "input_model_mutated_in_place": false,
+      "mutation_route": "structured_operations_only",
+      "requires_user_acceptance": true,
+      "source_identity_verification": "not_performed_asserted_metadata_only"
+    },
+    "batch_hash": "sha256:c45f8c65c5a0e93b0f29498b965e047941ce996cd2a56ef514545aadc7b1aa56",
+    "batch_id": "batch:n7",
+    "diagnostics": [],
+    "document_kind": "openpipestress.desktop.operation_batch_outcome",
+    "initial_backend_hash": "sha256:fa06fd5badac6f75392a25143b4c98012b4bd3e1e96274aa9aeb42d529057e18",
+    "initial_model_hash": {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "hash_status": "computed_local_preview",
+      "payload_ref": "model:local_batch_input",
+      "payload_scope": "model_payload",
+      "value": "sha256:fa06fd5badac6f75392a25143b4c98012b4bd3e1e96274aa9aeb42d529057e18"
+    },
+    "input_backend_hash": "sha256:fa06fd5badac6f75392a25143b4c98012b4bd3e1e96274aa9aeb42d529057e18",
+    "input_model_unchanged": true,
+    "mode": "apply",
+    "operation_outcomes": [
+      {
+        "change_id": "change:n7",
+        "change_kind": "update_support",
+        "diagnostics": [],
+        "diff_preview": [
+          {
+            "after": "{\"family\":\"variable_spring_hanger\",\"restraints\":[\"UY\"],\"stiffness\":{\"dof\":\"UY\",\"value\":{\"value\":100,\"unit\":\"N/m\"}},\"hanger\":{\"hanger_type\":\"variable_spring_hanger\",\"source_reference\":\"invented N7 counterexample\",\"stiffness\":{\"dof\":\"UY\",\"value\":{\"value\":20,\"unit\":\"N/m\"}},\"installed_load\":{\"value\":10,\"unit\":\"N\"},\"cold_load\":{\"value\":11,\"unit\":\"N\"},\"hot_load\":{\"value\":12,\"unit\":\"N\"},\"movement_limit\":{\"value\":1,\"unit\":\"in\"}}}",
+            "before": "{\"restraints\":[\"UY\"]}",
+            "change_kind": "update_support",
+            "dimension": "dimensionless",
+            "entity_ref": "support:s",
+            "field_path": "configuration",
+            "object_type": "Support",
+            "unit": "none"
+          }
+        ],
+        "index": 0,
+        "operation_id": "operation:n7",
+        "simulation_status": "validated_on_temporary_state",
+        "target_object_type": "Support",
+        "target_ref": "support:s",
+        "validation": {
+          "before_state_validation": "passed",
+          "diff_preview_status": "generated",
+          "reference_validation": "passed",
+          "schema_validation": "passed",
+          "unit_validation": "passed"
+        }
+      }
+    ],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "schema_version": "0.1.0",
+    "simulation_disposition": "committed_as_one_batch",
+    "submitted_initial_model_hash": {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_scope": "model_payload",
+      "value": "sha256:fa06fd5badac6f75392a25143b4c98012b4bd3e1e96274aa9aeb42d529057e18"
+    },
+    "submitted_operations": [
+      {
+        "audit_boundary": {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true
+        },
+        "author_type": "user",
+        "change": {
+          "after": "{\"family\":\"variable_spring_hanger\",\"restraints\":[\"UY\"],\"stiffness\":{\"dof\":\"UY\",\"value\":{\"value\":100,\"unit\":\"N/m\"}},\"hanger\":{\"hanger_type\":\"variable_spring_hanger\",\"source_reference\":\"invented N7 counterexample\",\"stiffness\":{\"dof\":\"UY\",\"value\":{\"value\":20,\"unit\":\"N/m\"}},\"installed_load\":{\"value\":10,\"unit\":\"N\"},\"cold_load\":{\"value\":11,\"unit\":\"N\"},\"hot_load\":{\"value\":12,\"unit\":\"N\"},\"movement_limit\":{\"value\":1,\"unit\":\"in\"}}}",
+          "before": "{\"restraints\":[\"UY\"]}",
+          "change_id": "change:n7",
+          "change_kind": "update_support",
+          "dimension": "dimensionless",
+          "field_label": "Configuration",
+          "field_path": "configuration",
+          "source_note": "Explicit conflicting authored stiffness",
+          "unit": "none"
+        },
+        "operation_id": "operation:n7",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false
+        },
+        "rationale": "N7 explicit conflicting stiffness counterexample",
+        "target": {
+          "object_type": "Support",
+          "ref": "support:s"
+        },
+        "validation": {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run"
+        }
+      }
+    ],
+    "submitted_operations_trust": "untrusted_submitted_metadata_not_validation_evidence",
+    "validation": {
+      "application_status": "applied_to_session_model",
+      "batch_validation_status": "passed",
+      "diff_preview_status": "generated",
+      "schema_validation": "passed"
+    }
+  }
+}

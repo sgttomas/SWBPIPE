@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "verdict": "PASS_DESIGN_ONLY",
+  "SA1": "closed in candidate contract",
+  "design": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_V2.md",
+  "design_sha256": "305e022f39fc58cbc268acf3727f23fa269e6061daf07a306c04dea2bbd3ea0e",
+  "snapshot": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_SNAPSHOT_V2.json",
+  "snapshot_sha256": "e300961da2761707ea55d5066abd014c90c0975e2f3ba33fb35adb751ed625f7",
+  "snapshot_matches": true,
+  "timestamp": "2026-09-05T04:20:55.743190+00:00"
+}

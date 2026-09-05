@@ -1,0 +1,81 @@
+{
+  "schema": "piping-evidence-portability-relocation/v1",
+  "status": "COMPLETE_DECODE_HASH_VERIFIED",
+  "authority": "HELP_HUMAN evidence-only portability repair; global product108-file freeze preserved",
+  "recorded_utc": "2026-09-05T05:25:21.550242+00:00",
+  "semantics": "Original historical bytes preserved in encoded recovery payloads. Active files are portable counterparts, not byte-identical originals. Accepted snapshot hashes are unchanged and resolve to recovered originals where relevant. No product or contract source changed.",
+  "anchors": {
+    "REPO_ROOT": "git rev-parse --show-toplevel",
+    "WORKING_ROOT": "{REPO_ROOT}/projects/chirality-piping",
+    "PIPING_UI_PARITY_PYTHON_ENV": "Existing parent-provisioned Python environment identified by N_ENV runtime evidence",
+    "PIPING_HANGER_IMPORT_TARGET": "Isolated temporary Cargo target used by hanger implementation",
+    "PIPING_HANGER_REVIEW_TARGET": "Isolated temporary Cargo target used by second independent hanger review",
+    "APPLE_DEVELOPER_ROOT": "Host selected Apple developer toolchain root in historical failed attempt"
+  },
+  "records": [
+    {
+      "active_path": "REVIEW_C2_BRIEF.md",
+      "original_sha256": "e505563358a2155bda3da1588388b6dd2c170f8e0f32a78c59dfc11058eeb45f",
+      "portable_sha256": "d26a5bfc946fc9268b29d7890d6a7c84701f531052966efd277d0ac1ef707d8c",
+      "original_byte_count": 913,
+      "portable_byte_count": 908,
+      "recovery_payload": "_run_records/portability_recovery_v1/payload_01.json",
+      "recovery_payload_sha256": "96bc2d0ea70d0487a61bf9f4e1ab28579d58988c653a406c9c9aeb290ef575f3"
+    },
+    {
+      "active_path": "REVIEW_C2_RETURN.md",
+      "original_sha256": "37a0045ad08e2f155e83b1e480bc070924e149aa2a65e0faf8f9213fece95870",
+      "portable_sha256": "16af3faa5ead293dfb9cdc72a23385817732ed1e4c4c7cea54470091d3653a31",
+      "original_byte_count": 2067,
+      "portable_byte_count": 2062,
+      "recovery_payload": "_run_records/portability_recovery_v1/payload_02.json",
+      "recovery_payload_sha256": "8103c1b11ac0c4ca6618a66da4e5bdba59cacf95ab8e22a585f9d6ae69fb584d"
+    },
+    {
+      "active_path": "SOURCE_RELEASE_C1.json",
+      "original_sha256": "331729f768ad69e38cb90f79630089e3de3276ba021e0cb83248e1fbd53b3d85",
+      "portable_sha256": "f694b73f2fac010fcf3e4fb07c3a4577728aea6937c5dff1015c3baf8a84f49c",
+      "original_byte_count": 825,
+      "portable_byte_count": 819,
+      "recovery_payload": "_run_records/portability_recovery_v1/payload_03.json",
+      "recovery_payload_sha256": "fc6f59d929b0f571a2db4e7b33322c270bdd83b325af6fc6fceeabecc6512301"
+    },
+    {
+      "active_path": "children/A2_HANGER_IMPORT/CHECKS.json",
+      "original_sha256": "7e142cab9622af5f49b50e1b2205a6b6282dea9a1e2fdd17d1a1706b5794e97b",
+      "portable_sha256": "f5f73b0e104a80204507150b1f6afa0dbc2fedfc6a4a6ff8e0b695c0164abb1e",
+      "original_byte_count": 13758,
+      "portable_byte_count": 13379,
+      "recovery_payload": "_run_records/portability_recovery_v1/payload_04.json",
+      "recovery_payload_sha256": "17b70f00c34fc1d5267a697f67bf56e5c9cac553d7487fa91fccddee809bca45"
+    },
+    {
+      "active_path": "children/A2_HANGER_IMPORT/CHECKS_C2.json",
+      "original_sha256": "1065de78ad1523733367ca931f56bcf01d088ac4862a87f59091ef7554a2d82b",
+      "portable_sha256": "90de0de0c891df839e26b66812e46fff74cf0d67394e977b4fa68981f57bcf90",
+      "original_byte_count": 8707,
+      "portable_byte_count": 8488,
+      "recovery_payload": "_run_records/portability_recovery_v1/payload_05.json",
+      "recovery_payload_sha256": "62a7325dd7db112ae07687d0db3ee81c365c0717fbbe8bb44468c5061d1f64ca"
+    },
+    {
+      "active_path": "children/A2_HANGER_IMPORT/RETURN_C2.md",
+      "original_sha256": "5a85e7594e82919be44c3c0c016bbc678e8fd8dbc1409da7bbe4d16773bd817b",
+      "portable_sha256": "57642dc71c01d0ef59f9251483d3725883ab5f496b0e686e0299043694c86e8d",
+      "original_byte_count": 4944,
+      "portable_byte_count": 4938,
+      "recovery_payload": "_run_records/portability_recovery_v1/payload_06.json",
+      "recovery_payload_sha256": "cca627b2cb4e6f875fad20fcc4162f1fda4b31412b35916db0344da32175a011"
+    },
+    {
+      "active_path": "children/A2_HANGER_IMPORT/RUNTIME_OVERRIDE_v1.md",
+      "original_sha256": "c8cd1784269f6aa9b618506f3951bab99edb6fff91dabf05c324f146d5e8936f",
+      "portable_sha256": "685ceecba11abf20ddd6e0e88abfd25cf5f2224e0b8a21a7bb7ad4a5ebc7cddb",
+      "original_byte_count": 570,
+      "portable_byte_count": 538,
+      "recovery_payload": "_run_records/portability_recovery_v1/payload_07.json",
+      "recovery_payload_sha256": "f8a497dd13c843c317a84c56a156018c6aa146586dcd702d15aabcfd920d7ce5"
+    }
+  ],
+  "verification": "For every record, read recovery_payload JSON, base64-decode payload_base64, verify SHA256 against original_sha256 and byte count. Verify active_path against portable_sha256. Verify recovery JSON bytes against recovery_payload_sha256. Historical review/source-release/author return references may bind decoded originals; never substitute portable hashes into prior accepted snapshots."
+}

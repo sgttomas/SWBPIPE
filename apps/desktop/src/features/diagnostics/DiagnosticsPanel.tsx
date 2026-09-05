@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { AlertTriangle, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
@@ -39,7 +41,7 @@ export function DiagnosticsPanel({
         totalCount={diagnostics.length}
         onFilterChange={setFilterText}
       />
-      <DiagnosticDetail interpretation={interpretation} />
+      <DiagnosticDetail interpretation={interpretation} result={result} />
       <div className="diagnostic-list">
         {filteredDiagnostics.length > 0 ? (
           filteredDiagnostics.map((item, index) => (
@@ -120,7 +122,7 @@ function SeverityCount({ label, value, testId }: { label: string; value: number;
   );
 }
 
-function DiagnosticDetail({ interpretation }: { interpretation: DiagnosticInterpretation | null }) {
+function DiagnosticDetail({ interpretation, result }: { interpretation: DiagnosticInterpretation | null; result: MechanicsResult | null }) {
   if (!interpretation) {
     return (
       <section className="diagnostic-detail-panel" aria-label="Diagnostic detail" data-testid="diagnostic-detail-panel">
@@ -149,8 +151,7 @@ function DiagnosticDetail({ interpretation }: { interpretation: DiagnosticInterp
           value={
             interpretation.linked_results.length > 0
               ? interpretation.linked_results
-                  .map((item) => `${item.id} (${item.value_label}; ${item.entity_ref})`)
-                  .join(", ")
+                  .map((item) => <span key={item.id}>{item.id} (<ResultQuantity result={result} id={item.id} fallback={item.value_label} />; {item.entity_ref}) </span>)
               : "none"
           }
           testId="selected-diagnostic-linked-results"
@@ -187,7 +188,7 @@ function diagnosticUnitContext(interpretation: DiagnosticInterpretation): string
   ].join("; ");
 }
 
-function DetailLine({ label, value, testId }: { label: string; value: string; testId?: string }) {
+function DetailLine({ label, value, testId }: { label: string; value: ReactNode; testId?: string }) {
   return (
     <div data-testid={testId}>
       <dt>{label}</dt>

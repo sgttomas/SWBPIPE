@@ -1,3 +1,4 @@
+import { QuantityReadout, useDisplayQuantity } from "../display-units";
 import { useEffect, useMemo, useState } from "react";
 import { ListChecks, Play, ShieldAlert } from "lucide-react";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -306,7 +307,7 @@ function renderSolverPreview(
                   {isReferenced ? " (referenced)" : ""}
                 </span>
                 <small>
-                  {row.kind}: {row.value} {row.unit}
+                  {row.kind}: <QuantityReadout quantity={{ value: row.value, unit: row.unit, dimension_id: row.dimension ?? "unknown" }} />
                 </small>
               </div>
             );
@@ -751,9 +752,7 @@ export function RuleCheckRunPanel({
                 >
                   <option value="">-- pick a solved result row --</option>
                   {resultRows.map((row) => (
-                    <option value={row.id} key={row.id}>
-                      {row.kind}: {row.id} ({row.value} {row.unit})
-                    </option>
+                    <ResultQuantityOption row={row} key={row.id} />
                   ))}
                 </select>
               </div>
@@ -915,9 +914,9 @@ export function RuleCheckRunPanel({
                   <small>
                     relation={check.acceptability_relation}
                     {check.computed_value
-                      ? `; computed=${check.computed_value.value} ${check.computed_value.unit_ref}`
+                      ? <>; computed=<QuantityReadout quantity={{ value: check.computed_value.value, unit: check.computed_value.unit_ref, dimension_id: check.computed_value.dimension }} /></>
                       : ""}
-                    {check.limit_value ? `; limit=${check.limit_value.value} ${check.limit_value.unit_ref}` : ""}
+                    {check.limit_value ? <>; limit=<QuantityReadout quantity={{ value: check.limit_value.value, unit: check.limit_value.unit_ref, dimension_id: check.limit_value.dimension }} /></> : ""}
                   </small>
                   {check.bound_inputs.length > 0 ? (
                     <small>
@@ -964,4 +963,9 @@ function aggregateLabel(status: string): string {
     default:
       return status;
   }
+}
+
+function ResultQuantityOption({ row }: { row: { id: string; kind: string; value: number; unit: string; dimension?: string } }) {
+  const display = useDisplayQuantity({ value: row.value, unit: row.unit, dimension_id: row.dimension ?? "unknown" });
+  return <option value={row.id}>{row.kind}: {row.id} ({display.value} {display.unit}{display.notice ? `; ${display.notice}` : ""})</option>;
 }

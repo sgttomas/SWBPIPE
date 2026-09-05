@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "focused": {
+    "passed": 6,
+    "failed": 0,
+    "filtered": 118,
+    "log": "FOCUSED.log"
+  },
+  "full": {
+    "passed": 124,
+    "failed": 0,
+    "doc_tests": 0,
+    "log": "FULL.log"
+  },
+  "initial_attempt": "FOCUSED_ATTEMPT_1.log: one alias test lacked explicit contact_when; corrected test only, rerun passes",
+  "source_sha256_before": "c7d4a1571f37c99e867206454e7850c5710f2d6a2cfa399fac62aa83aa25a15a",
+  "source_sha256_after": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1",
+  "preservation": "All predecessor lines byte-identical; exactly four insertion regions (early call, helper, Guide arm, tests); N3 Sections and N5 selfweight preserved.",
+  "insertion_regions": [
+    [
+      "insert",
+      829,
+      829,
+      829,
+      830
+    ],
+    [
+      "insert",
+      3203,
+      3203,
+      3204,
+      3234
+    ],
+    [
+      "insert",
+      3210,
+      3210,
+      3241,
+      3242
+    ],
+    [
+      "insert",
+      9077,
+      9077,
+      9109,
+      9352
+    ]
+  ],
+  "scope_validation": "SCOPE_VALIDATION.json",
+  "generated_artifacts": "Wasm intentionally deferred to parent; not rebuilt",
+  "review": "Fresh independent repair review pending",
+  "finish": "2026-09-05T05:47:01.096996+00:00"
+}

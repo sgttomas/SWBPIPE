@@ -1,0 +1,12 @@
+# N7 F2 support stiffness display — read-only diagnosis and repair plan
+
+Status: CONFIRMED; SOURCE_HOLD. No source changes or tests run during global review.
+Evidence: apps/desktop/src/features/model-workspace/modelView.ts currently selects support.stiffness?.value, then support.hanger?.stiffness?.value, then legacy properties.linear_stiffness, but labels every result Linear stiffness and dimension linear_stiffness. Top-level/hanger stiffness records have required string dof. RX/RY/RZ values in N*m/rad are therefore sent to Rust under the wrong dimension. Display targets already support rotational_stiffness SI=N*m/rad; US rotational target intentionally absent.
+
+Proposed source fence after parent release: modelView.ts and existing features/toolkit/DisplayIntegration.test.tsx only, owned by persistent B0 integration child. No conversion service, targets, types, source schemas, backend or renderer changes needed.
+
+Fix: Preserve current precedence of complete selected stiffness record (top-level, then hanger) and derive label/dimension from that record's DOF. UX/UY/UZ => Linear stiffness/linear_stiffness. RX/RY/RZ => Rotational stiffness/rotational_stiffness. Unknown DOF must not be guessed linear: neutral Stiffness with unknown dimension/visible entered fallback. Only if no typed record is selected, legacy properties.linear_stiffness retains Linear stiffness/linear_stiffness. Preserve original quantities and no rewriting/normalizing source DOF or units.
+
+Tests: parameterized selectedPropertyRows assertions across six valid DOFs for top-level and hanger, precedence when both exist, legacy fallback and unknown-DOF honesty. Actual PropertyInspector within DisplayUnitsProvider using accepted real Rust Wasm: rotational SI is converted (not unavailable) with N*m/rad; rotational US intentionally retains entered source with explicit unavailable explanation because no US target is defined; translational US converts to lbf/in. Compare model JSON and authoritative hash before/after preference switches, legacy selectedProperties text alignment unchanged. Editor inputs remain entered units. Existing display integration and relevant inspector tests run first; source/API unchanged beyond selected quantity metadata.
+
+Review: Freeze full changed files and diff, pass to root N7/backcheck under parent direction. Module/code review never authorizes lifecycle closure. If parent approves source release, dispatch bounded B0 amendment and update aggregate source snapshot only after tests. Current V5 source freeze remains unchanged.

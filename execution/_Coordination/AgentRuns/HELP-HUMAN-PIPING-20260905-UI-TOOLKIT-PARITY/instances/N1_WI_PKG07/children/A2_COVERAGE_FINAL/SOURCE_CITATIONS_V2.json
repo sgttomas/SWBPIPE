@@ -1,0 +1,412 @@
+[
+  {
+    "row": "1",
+    "citation": "apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "sha256": "5c303ed3a6700eae65207dbececa98a74c2b6d427a1ec20661ffec8ff2b757db"
+  },
+  {
+    "row": "1",
+    "citation": "apps/desktop/src/App.test.tsx",
+    "sha256": "8b0baa30a5f789106dee4166f1758cddfb22d99bed90ce5bfd19a13f4726d136"
+  },
+  {
+    "row": "2",
+    "citation": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+    "sha256": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6"
+  },
+  {
+    "row": "2",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "2",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "2",
+    "citation": "core/product_physics/src/lib.rs",
+    "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+  },
+  {
+    "row": "2",
+    "citation": "apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+    "sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+  },
+  {
+    "row": "3",
+    "citation": "apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx",
+    "sha256": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e"
+  },
+  {
+    "row": "3",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "4",
+    "citation": "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+    "sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e"
+  },
+  {
+    "row": "4",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::resolve_create_primitive_load",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "5",
+    "citation": "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+    "sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e"
+  },
+  {
+    "row": "5",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::resolve_create_primitive_load",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "6",
+    "citation": "apps/desktop/src/features/wind-exposure/WindExposureForm.tsx",
+    "sha256": "0a8727bb7d4bb034d6214de114adac85d5d6bc91d6f3821518f6455900562972"
+  },
+  {
+    "row": "6",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "7",
+    "citation": "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+    "sha256": "35b4e9160fe0993e8d7ecc08c97a42dfd700a043aee16fdf7091e14a78ef73da"
+  },
+  {
+    "row": "7",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::field_rules",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "8",
+    "citation": "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+    "sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e"
+  },
+  {
+    "row": "8",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::resolve_create_combination",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "9",
+    "citation": "apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "sha256": "ecdf5f4915e26dd5b2ca41460fb1a3dfd1ccfb5ed96a912f5f149576c13065cb"
+  },
+  {
+    "row": "9",
+    "citation": "apps/desktop/src/App.tsx::handleToolkitCommand",
+    "sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e"
+  },
+  {
+    "row": "10",
+    "citation": "apps/desktop/src/App.tsx::handleUndoSessionModelEdit,handleRedoSessionModelEdit,handleRunOperationBatch",
+    "sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e"
+  },
+  {
+    "row": "10",
+    "citation": "apps/desktop/src/App.test.tsx",
+    "sha256": "8b0baa30a5f789106dee4166f1758cddfb22d99bed90ce5bfd19a13f4726d136"
+  },
+  {
+    "row": "11",
+    "citation": "apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx::parseOfflineBatch",
+    "sha256": "f7cf7928b3b077d93be9ae7731d2cd1554aa170ddd79ab14539a3d1db53cb90e"
+  },
+  {
+    "row": "11",
+    "citation": "apps/desktop/src/App.tsx::handleRunOperationBatch",
+    "sha256": "d6a7f5c51c951df9b8eec36eb41460af5265fd2f81f86b2813e560b933478c7e"
+  },
+  {
+    "row": "11",
+    "citation": "core/model_operations/operation_applier/src/atomic_batch.rs",
+    "sha256": "f73a763cd9d273e8f802304f1150c316ff5470739692fb41c95dc19ff2450aa6"
+  },
+  {
+    "row": "12",
+    "citation": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+    "sha256": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6"
+  },
+  {
+    "row": "12",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "12",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "12",
+    "citation": "core/product_physics/src/lib.rs",
+    "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+  },
+  {
+    "row": "12",
+    "citation": "apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+    "sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+  },
+  {
+    "row": "13",
+    "citation": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+    "sha256": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6"
+  },
+  {
+    "row": "13",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "13",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "13",
+    "citation": "core/product_physics/src/lib.rs",
+    "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+  },
+  {
+    "row": "13",
+    "citation": "apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+    "sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+  },
+  {
+    "row": "14",
+    "citation": "apps/desktop/src/features/component-creation/componentIntent.ts",
+    "sha256": "9fe80410d9694f843cd7276029f98ec094302b3bddc3fd2131935a16a046e3b7"
+  },
+  {
+    "row": "14",
+    "citation": "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+    "sha256": "35b4e9160fe0993e8d7ecc08c97a42dfd700a043aee16fdf7091e14a78ef73da"
+  },
+  {
+    "row": "14",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::resolve_expansion_joint_creation_geometry",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "15",
+    "citation": "apps/desktop/src/features/component-creation/componentIntent.ts",
+    "sha256": "9fe80410d9694f843cd7276029f98ec094302b3bddc3fd2131935a16a046e3b7"
+  },
+  {
+    "row": "15",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::resolve_create_component",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "16",
+    "citation": "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+    "sha256": "3839068b36efc540bead37aef09f7944730c00f1f29a2fd16ebe4f294a2576a6"
+  },
+  {
+    "row": "16",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "16",
+    "citation": "core/product_physics/src/lib.rs",
+    "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+  },
+  {
+    "row": "16",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "16",
+    "citation": "core/product_physics/src/lib.rs",
+    "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+  },
+  {
+    "row": "16",
+    "citation": "apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+    "sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+  },
+  {
+    "row": "17",
+    "citation": "apps/desktop/src/features/toolkit/SectionAssignment.tsx",
+    "sha256": "d15ad7fc5978c907ee4b3198aa08094010405c5dcde98b38b8661fd90390983a"
+  },
+  {
+    "row": "17",
+    "citation": "apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "sha256": "ecdf5f4915e26dd5b2ca41460fb1a3dfd1ccfb5ed96a912f5f149576c13065cb"
+  },
+  {
+    "row": "17",
+    "citation": "core/model_operations/operation_applier/src/section_bindings.rs::assign,propagate",
+    "sha256": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72"
+  },
+  {
+    "row": "18",
+    "citation": "apps/desktop/src/features/toolkit/GuardedRemoval.tsx",
+    "sha256": "63d6a894c12edad9492861ee8266f23a52411148fa76a9eaf0e1fe119edb5586"
+  },
+  {
+    "row": "18",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::resolve_delete_entity",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "19",
+    "citation": "apps/desktop/src/features/geometry-tools/geometryDraft.ts::buildGeometryBatch",
+    "sha256": "9cc22ac39d67bd0146f4cfe3ce05ee219e9c6b6845c6d2b0fc73839073401307"
+  },
+  {
+    "row": "19",
+    "citation": "core/model_operations/operation_applier/src/geometry_operations.rs::split,attachments",
+    "sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf"
+  },
+  {
+    "row": "20",
+    "citation": "apps/desktop/src/features/geometry-tools/geometryDraft.ts::geometryPayload",
+    "sha256": "9cc22ac39d67bd0146f4cfe3ce05ee219e9c6b6845c6d2b0fc73839073401307"
+  },
+  {
+    "row": "20",
+    "citation": "core/model_operations/operation_applier/src/geometry_operations.rs::transform,attachments,frame",
+    "sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf"
+  },
+  {
+    "row": "21",
+    "citation": "apps/desktop/src/features/boundary-authoring/boundaryDraft.ts::boundaryMembers",
+    "sha256": "9b3205ea327657b85c05d796bcc42908a8392671ea9a77296946fee590c4e4ed"
+  },
+  {
+    "row": "21",
+    "citation": "core/model_operations/operation_applier/src/boundary_association.rs",
+    "sha256": "3c31de07d6933f3200e4a95dc356a4bf7572412e642d7f88b66481657b927d8d"
+  },
+  {
+    "row": "21",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "21",
+    "citation": "core/product_physics/src/lib.rs",
+    "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+  },
+  {
+    "row": "21",
+    "citation": "apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+    "sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+  },
+  {
+    "row": "22",
+    "citation": "apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+    "sha256": "8a2b2de4a459cfacdb197cc534984aa06f95ce445a452e1de1b3edac668cec83"
+  },
+  {
+    "row": "22",
+    "citation": "apps/desktop/src/services/selfWeightPlanService.ts",
+    "sha256": "ee78aa7e4cdfc2442fdc722b196e4c3a27597a6676feea895acaa5ca4f9fa17c"
+  },
+  {
+    "row": "22",
+    "citation": "core/product_physics/src/self_weight.rs::generate_self_weight_operations",
+    "sha256": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144"
+  },
+  {
+    "row": "23",
+    "citation": "apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx",
+    "sha256": "43bcfa6622191b355c5d18fca6415b86288bbfc2575887ff9c6794d315ec65c1"
+  },
+  {
+    "row": "23",
+    "citation": "apps/desktop/src/features/hanger-selection/hangerSelection.ts::buildHangerSelectionBatch",
+    "sha256": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9"
+  },
+  {
+    "row": "23",
+    "citation": "core/library_import/library_import_document/src/lib.rs",
+    "sha256": "127d0fee760ea63d59eee1cc9cb73c121e671ccbfd0297d4218f1e3bfc41d979"
+  },
+  {
+    "row": "23",
+    "citation": "core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+  },
+  {
+    "row": "23",
+    "citation": "core/product_physics/src/lib.rs",
+    "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+  },
+  {
+    "row": "23",
+    "citation": "apps/desktop/src/features/rich-authoring/supportFamilyEngine.test.tsx",
+    "sha256": "c83a465c02e67cae8db119811e391dc760f479986a51d0f6038d263c5095be60"
+  },
+  {
+    "row": "24",
+    "citation": "apps/desktop/src/features/display-units/index.tsx::useDisplayQuantity",
+    "sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9"
+  },
+  {
+    "row": "24",
+    "citation": "apps/desktop/src/features/display-units/targets.ts",
+    "sha256": "fca1be3d49932312156dc597864b7f734a0428f9eb63330f5b9f8cddf169700f"
+  },
+  {
+    "row": "24",
+    "citation": "apps/desktop/src/services/displayQuantityService.ts",
+    "sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef"
+  },
+  {
+    "row": "24",
+    "citation": "apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+    "sha256": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2"
+  },
+  {
+    "row": "24",
+    "citation": "apps/desktop/src/features/model-workspace/modelView.ts",
+    "sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4"
+  },
+  {
+    "row": "24",
+    "citation": "apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+    "sha256": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2"
+  },
+  {
+    "row": "R1",
+    "citation": "apps/desktop/src/features/toolkit/capabilityCatalog.ts::toolkitRoadmap",
+    "sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7"
+  },
+  {
+    "row": "R1",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::check_kinds",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "R2",
+    "citation": "apps/desktop/src/features/toolkit/capabilityCatalog.ts::toolkitRoadmap",
+    "sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7"
+  },
+  {
+    "row": "R2",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::check_kinds",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  {
+    "row": "R3",
+    "citation": "apps/desktop/src/features/toolkit/capabilityCatalog.ts::toolkitRoadmap",
+    "sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7"
+  },
+  {
+    "row": "R3",
+    "citation": "core/model_operations/operation_applier/src/lib.rs::check_kinds",
+    "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  }
+]

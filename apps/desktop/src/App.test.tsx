@@ -18,6 +18,7 @@ import {
   solveProofStatus,
   type SolveProofEvidence,
 } from "./App";
+import { ModelTree } from "./features/model-tree/ModelTree";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
@@ -4586,7 +4587,7 @@ describe("OpenPipeStress desktop preview", () => {
       within(inspector).getByRole("heading", { name: "Terminal tie-in" }),
     ).toBeInTheDocument();
     expect(inspector.textContent).toContain("node:N-140");
-    expect(inspector.textContent).toContain("7.6, 2.4, 2.2 m");
+    expect(inspector.textContent).toContain("x=7.6 m, y=2.4 m, z=2.2 m");
     expect(within(tree).getByTestId("tree-row-node:N-140")).toHaveClass(
       "active",
     );
@@ -8344,7 +8345,8 @@ describe("OpenPipeStress desktop preview", () => {
     ).toHaveTextContent("Opened local browser-preview project snapshot.");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
-    ).toContain("1 pending operation; applied_operations=0");
+    ).toContain("0 pending operations; applied_operations=0");
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
     expect(
       within(controls).getByText("Invented Utility Loop Preview"),
     ).toBeInTheDocument();
@@ -8424,8 +8426,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(auditPacket.summary.last_operation).toBe("open");
     expect(auditPacket.summary.storage_engine).toBe("Browser memory preview");
     expect(auditPacket.summary.storage_mode).toBe("browser_memory_preview");
-    expect(auditPacket.summary.pending_operation_count).toBe(1);
-    expect(auditPacket.summary.editor_intent_count).toBe(1);
+    expect(auditPacket.summary.pending_operation_count).toBe(0);
+    expect(auditPacket.summary.editor_intent_count).toBe(0);
     expect(auditPacket.summary.persisted_editor_intent_count).toBe(1);
     expect(auditPacket.summary.unit_round_trip_status).toBe(
       "unit_metadata_preserved_in_local_project_envelope",
@@ -8463,10 +8465,9 @@ describe("OpenPipeStress desktop preview", () => {
       auditPacket.summary.unit_round_trip_signature,
     );
     expect(auditPacket.project_summary.copied_external_files).toBe(false);
-    expect(auditPacket.editor_intent_refs).toContain(
-      "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value",
-    );
-    expect(auditPacket.editor_operation_statuses).toContain("not_applied");
+    expect(auditPacket.editor_intent_refs).toEqual([]);
+    expect(auditPacket.editor_operation_statuses).toEqual([]);
+    expect(screen.getByLabelText("Stored proposed review context")).toHaveTextContent("op:editor-intent-material:invented-carbon-steel-elastic_modulus.value");
     expect(auditPacket.boundary.local_only_project_store).toBe(true);
     expect(auditPacket.boundary.repository_default_private_write).toBe(false);
     expect(auditPacket.boundary.external_file_copy_performed).toBe(false);
@@ -8507,7 +8508,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-operations")
         .textContent,
-    ).toContain("pending operations=1");
+    ).toContain("pending operations=0");
     expect(
       within(projectValidation).getByTestId("project-validation-operations")
         .textContent,
@@ -8651,8 +8652,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.project_summary.store_schema_target_version).toBe(
       0,
     );
-    expect(validationPacket.summary.pending_operation_count).toBe(1);
-    expect(validationPacket.summary.editor_intent_count).toBe(1);
+    expect(validationPacket.summary.pending_operation_count).toBe(0);
+    expect(validationPacket.summary.editor_intent_count).toBe(0);
     expect(validationPacket.summary.persisted_editor_intent_count).toBe(1);
     expect(validationPacket.project_summary.editor_intent_count).toBe(1);
     expect(validationPacket.summary.accepted_model_state_mutated).toBe(false);
@@ -8837,11 +8838,8 @@ describe("OpenPipeStress desktop preview", () => {
         name: /Invented carbon-steel-like material/i,
       }),
     );
-    expect(
-      within(screen.getByLabelText("Editor operation intent")).getByTestId(
-        "editor-intent-queue",
-      ).textContent,
-    ).toContain("editor-intent-1");
+    expect(within(screen.getByLabelText("Editor operation intent")).queryByTestId("editor-intent-queue")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Stored proposed review context")).toHaveTextContent("editor-intent-1");
   });
 
   it("creates a blank local model document as the active authoring target", async () => {
@@ -11275,7 +11273,7 @@ describe("OpenPipeStress desktop preview", () => {
     const comparisonRow = within(comparison).getByTestId(
       "comparison-row-result:combination:combination-C-OPER-ALT:reaction:support-S-120",
     );
-    expect(comparisonRow.textContent).toContain("192.514 N");
+    expect(Number(comparisonRow.querySelector("[data-display-status]")!.textContent!.split(" ")[0])).toBeCloseTo(192.514, 3);
     expect(
       within(comparison).getByTestId("comparison-diagnostics").textContent,
     ).toContain("1 comparison diagnostic");
@@ -11371,7 +11369,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(results).getByText("result:disp:node-N-140"),
     ).toBeInTheDocument();
-    expect(within(results).getByText(/3.686623 mm/i)).toBeInTheDocument();
+    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent("3.686623 mm");
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
     ).toContain("830 of 830 results match filter");
@@ -11792,9 +11790,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(knowledge).getByText(/Computed displacement review/i),
     ).toBeInTheDocument();
-    expect(
-      within(knowledge).getByText(/result:disp:node-N-140 is 3.686623 mm/i),
-    ).toBeInTheDocument();
+    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("result:disp:node-N-140 is 3.686623 mm");
     expect(
       within(knowledge).getByText(/result:force:pipe-P-120:axial is/i),
     ).toBeInTheDocument();
@@ -14607,7 +14603,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(createdNodeRow).toHaveClass("active");
     const inspector = screen.getByLabelText("Property inspector");
     expect(inspector.textContent).toContain("User preview node");
-    expect(inspector.textContent).toContain("8.4, 2.4, 2.8 m");
+    expect(inspector.textContent).toContain("x=8.4 m, y=2.4 m, z=2.8 m");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("0 pending operations");
@@ -14660,7 +14656,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(redoneNodeRow.textContent).toContain("User preview node");
     expect(redoneNodeRow).toHaveClass("active");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
-      "8.4, 2.4, 2.8 m",
+      "x=8.4 m, y=2.4 m, z=2.8 m",
     );
     expect(
       within(applyPanel).getByTestId("session-history-chip").textContent,
@@ -14716,7 +14712,7 @@ describe("OpenPipeStress desktop preview", () => {
       ),
     ).toBe(true);
     expect(yInput.value).toBe("0");
-    const draftedPosition = `${xInput.value}, ${yInput.value}, ${zInput.value} m`;
+    const draftedPosition = `x=${xInput.value} m, y=${yInput.value} m, z=${zInput.value} m`;
     expect(queueButton).not.toBeDisabled();
 
     fireEvent.click(queueButton);
@@ -15579,5 +15575,406 @@ describe("OpenPipeStress desktop preview", () => {
     const appliedInspector = screen.getByLabelText("Property inspector");
     expect(appliedInspector.textContent).toContain("Header pipepipe:P-110");
     expect(appliedInspector.textContent).toContain("Branch pipepipe:P-150");
+  });
+});
+
+
+describe("toolkit navigation integration", () => {
+  it("opens and focuses existing forms without queueing or changing selection", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const selectionBefore = screen.getByTestId("command-selection-readout").textContent;
+    const destinations = [
+      ["build.node", "viewport-create-node-id"],
+      ["build.pipe", "viewport-create-pipe-id"],
+      ["build.component", "create-component-kind"],
+      ["supports.restraint", "#rich-support-form"],
+      ["properties.material", "create-material-id"],
+      ["properties.section", "create-section-id"],
+      ["loads.cases", "load-manager-create-load-id"],
+      ["loads.primitive", "load-manager-create-primitive-category"],
+      ["loads.combinations", "load-manager-create-combination-id"],
+      ["properties.libraries", "workspace-section-libraries"],
+      ["review.pending", "workspace-section-operations"],
+      ["view.select", "model-tree-filter-input"],
+      ["build.split", "#geometry-tools"],
+      ["edit.copy", "#geometry-tools"],
+      ["edit.rotate", "#geometry-tools"],
+      ["edit.mirror", "#geometry-tools"],
+      ["supports.boundary", "#boundary-authoring"],
+      ["properties.hanger-library", "#hanger-selection"],
+      ["loads.self-weight", "#self-weight-plan"],
+      ["review.agent", "#offline-proposal-intake"],
+      ["view.units", "#display-unit-preference"],
+    ];
+    for (const [command, target] of destinations) {
+      fireEvent.click(screen.getByTestId("toolkit-entry"));
+      fireEvent.click(screen.getByTestId(`toolkit-${command}`));
+      expect(target.startsWith("#") ? document.getElementById(target.slice(1)) : screen.getByTestId(target)).toHaveFocus();
+      expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectionBefore);
+    }
+    expect(screen.queryByTestId("editor-intent-queue")).not.toBeInTheDocument();
+    expect(invokeMock.mock.calls.some(([command]) => command === "apply_model_operation" || command === "validate_model_operation")).toBe(false);
+  });
+});
+
+describe("existing toolkit v2", () => {
+  it("discards a delayed apply after opening a replacement model without creating a checkpoint", async () => {
+    const basis = await loadPreviewModel(); const replacement = inventedOpenEnvelope(basis); const pending = deferred<unknown>();
+    render(<App />); await screen.findByTestId("desktop-preview-shell");
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-x"), { target: { value: "1.25" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "apply_model_operation") return pending.promise;
+      if (command === "open_local_project") return Promise.resolve(replacement);
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("apply_model_operation", expect.any(Object)));
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(replacement.model.project.id));
+    await act(async () => { pending.resolve({ validation: { application_status: "applied_to_session_model" }, applied_model: basis }); await pending.promise; });
+    expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(replacement.model.project.id);
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("0 applied");
+  });
+  it("limits section type choices to pipe", async () => {
+    const model = await loadPreviewModel();
+    model.sections = [{ id: "section:invented", name: "Invented", section_type: "pipe", properties: {}, provenance: { source: "invented" } }];
+    render(<ModelTree model={model} selection={{ type: "section", id: "section:invented" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} />);
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    const table = screen.getByTestId("entity-grid-table-sections");
+    expect(within(table).queryByTestId("entity-grid-input-section:invented-provenance")).not.toBeInTheDocument();
+    for (const input of within(table).getAllByRole("combobox")) expect(within(input).getAllByRole("option").filter((option) => !(option as HTMLOptionElement).disabled).map((option) => option.getAttribute("value"))).toEqual(["pipe"]);
+  });
+  it("continues two explicit pipe drafts through existing endpoints and cancellation clears transient inputs", async () => {
+    const model = await loadPreviewModel(); const unchanged = JSON.stringify(model); const queue = vi.fn();
+    render(<PipeViewport model={model} selection={{ type: "node", id: model.nodes[0].id }} armedCreationTool="pipe" onArmCreationTool={vi.fn()} onSelect={vi.fn()} onQueueIntent={queue} />);
+    const values: Record<string, string> = { id: "pipe:chain-a", label: "Chain A", from: model.nodes[0].id, to: model.nodes[1].id, material: model.materials![0].id, od: "0.114", wall: "0.006", "yref-x": "0", "yref-y": "0", "yref-z": "1", provenance: "invented user test" };
+    for (const [field, value] of Object.entries(values)) fireEvent.change(screen.getByTestId(`viewport-create-pipe-${field}`), { target: { value } });
+    fireEvent.click(screen.getByTestId("continue-pipe-after-queue")); fireEvent.click(screen.getByTestId("queue-explicit-pipe-intent"));
+    expect(screen.getByTestId("viewport-create-pipe-from")).toHaveValue(model.nodes[1].id);
+    expect(screen.getByTestId("viewport-create-pipe-id")).toHaveValue(""); expect(screen.getByTestId("viewport-create-pipe-to")).toHaveValue("");
+    expect(screen.getByTestId("queue-explicit-pipe-intent")).toBeDisabled();
+    for (const [field, value] of Object.entries({ id: "pipe:chain-b", label: "Chain B", to: model.nodes[2].id })) fireEvent.change(screen.getByTestId(`viewport-create-pipe-${field}`), { target: { value } });
+    fireEvent.click(screen.getByTestId("queue-explicit-pipe-intent")); expect(queue).toHaveBeenCalledTimes(2);
+    const payloads = queue.mock.calls.map(([intent]) => JSON.parse(intent.change.after));
+    expect(payloads.map((payload) => [payload.id, payload.from, payload.to])).toEqual([["pipe:chain-a", model.nodes[0].id, model.nodes[1].id], ["pipe:chain-b", model.nodes[1].id, model.nodes[2].id]]);
+    expect(JSON.stringify(model)).toBe(unchanged);
+    fireEvent.click(screen.getByTestId("cancel-pipe-draft")); expect(screen.getByTestId("continue-pipe-after-queue")).not.toBeChecked();
+    expect(screen.getByTestId("viewport-create-pipe-from")).toHaveValue(""); expect(screen.getByTestId("viewport-create-pipe-material")).toHaveValue("");
+  });
+});
+
+
+describe("existing toolkit v2 bound section", () => {
+  it("shows the shared section and prevents independent diameter or wall edits", async () => {
+    const model = await loadPreviewModel(); const pipe = model.pipe_segments[0]; pipe.section_ref = "section:shared-test";
+    render(<PropertyInspector model={model} selection={{ type: "pipe", id: pipe.id }} onQueueIntent={vi.fn()} />);
+    expect(screen.getByTestId("pipe-section-basis")).toHaveTextContent("section:shared-test");
+    const options = within(screen.getByTestId("editor-intent-field")).getAllByRole("option").map((option) => option.getAttribute("value"));
+    expect(options).not.toContain("section.outside_diameter.value"); expect(options).not.toContain("section.wall_thickness.value");
+    expect(options).toContain("section.mill_tolerance.value");
+  });
+});
+
+describe("existing toolkit v3 integration", () => {
+  it("opens reviewed rich forms in matching context and enables exposure after a wind field is applied", async () => {
+    const model = await loadPreviewModel();
+    render(<App />); await screen.findByTestId("desktop-preview-shell");
+    const choose = (id: string) => { fireEvent.click(screen.getByTestId("toolkit-entry")); fireEvent.click(screen.getByTestId(`toolkit-${id}`)); };
+    fireEvent.click(screen.getByTestId(`tree-row-${model.supports[0].id}`)); choose("supports.hanger");
+    expect(document.getElementById("rich-support-form")).toHaveFocus();
+    fireEvent.click(screen.getByTestId(`tree-row-${model.materials![0].id}`)); choose("properties.temperature");
+    expect(document.getElementById("temperature-table")).toHaveFocus();
+    fireEvent.click(screen.getByTestId(`tree-row-${model.pipe_segments[0].id}`)); choose("properties.assign-section");
+    expect(document.getElementById("section-assignment")).toHaveFocus();
+    fireEvent.click(screen.getByTestId(`tree-row-${model.load_cases[0].id}`));
+    fireEvent.click(screen.getByTestId("toolkit-entry")); expect(screen.getByTestId("toolkit-loads.wind-exposure")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("toolkit-loads.wind"));
+    fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: "equivalent_static.wind.pressure.value" } });
+    fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: "50" } });
+    fireEvent.click(screen.getByTestId("queue-editor-intent")); fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() => expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("1 applied"));
+    choose("loads.wind-exposure"); expect(document.getElementById("wind-exposure-form")).toHaveFocus();
+  });
+});
+
+describe("existing toolkit v4 review repairs", () => {
+  it.each(["apply", "validate"] as const)("withdraws an in-flight %s without resurrecting state or clearing newer busy ownership", async (action) => {
+    const basis = await loadPreviewModel();
+    const pending = deferred<unknown>();
+    const newer = deferred<unknown>();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-x"), { target: { value: "1.25" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    const selectedBefore = screen.getByTestId("command-selection-readout").textContent;
+    let requests = 0;
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "apply_model_operation" || command === "validate_model_operation") {
+        requests += 1;
+        return requests === 1 ? pending.promise : newer.promise;
+      }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    fireEvent.click(screen.getByTestId(`${action}-intent-editor-intent-1`));
+    await waitFor(() => expect(requests).toBe(1));
+    fireEvent.click(screen.getByTestId("clear-operation-review-queue"));
+    expect(screen.getByTestId("operation-apply-message")).toHaveTextContent("Requests already running will not change this session");
+    expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("0 queued; 0 applied");
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    fireEvent.click(screen.getByTestId("validate-intent-editor-intent-2"));
+    await waitFor(() => expect(requests).toBe(2));
+    await act(async () => {
+      pending.resolve({ validation: { application_status: "applied_to_session_model", unit_validation: "withdrawn_response_marker" }, applied_model: basis });
+      await pending.promise;
+    });
+    expect(screen.getByTestId("validate-intent-editor-intent-2")).toBeDisabled();
+    expect(screen.queryByTestId("operation-outcome-editor-intent-1")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operation-unit-policy-chip")).not.toHaveTextContent("withdrawn_response_marker");
+    expect(screen.queryByTestId("operation-applied-ledger")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("1 queued; 0 applied");
+    expect(screen.getByTestId("entity-grid-input-node:N-100-x")).toHaveValue("0");
+    expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectedBefore);
+    await act(async () => {
+      newer.reject(new Error("New request deliberately ended by test"));
+    });
+    expect(screen.getByTestId("validate-intent-editor-intent-2")).toBeEnabled();
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+  });
+  it("explains why pristine pipe cancellation is disabled", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const cancel = screen.getByTestId("cancel-pipe-draft");
+    expect(cancel).toBeDisabled();
+    expect(cancel).toHaveAttribute("title", "No pipe draft to cancel");
+    fireEvent.click(screen.getByTestId("command-pipe"));
+    expect(cancel).toBeEnabled();
+    expect(cancel).toHaveAttribute("title", "Clear the pipe draft and stop continuation");
+  });
+});
+
+async function openBatchContext(records?: EditorOperationIntent[]) {
+  const basis = await loadPreviewModel();
+  const { makeRichIntent } = await import("./features/rich-authoring/formSupport");
+  const intent = makeRichIntent({ object_type: "Node", ref: basis.nodes[0].id }, "set_field", "position.x", String(basis.nodes[0].position.x), 1.75, "X coordinate");
+  intent.author_type = "agent";
+  intent.change.unit = basis.project.units.length;
+  intent.change.dimension = "length";
+  intent.source = { source_ref: "offline:invented-test", source_channel: "offline_user_supplied", source_role: "agent" };
+  intent.rationale = "Exact source rationale preserved across save.";
+  const envelope = inventedOpenEnvelope(basis);
+  envelope.editor_intents = records ?? [intent];
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(envelope) : Promise.reject(new Error(`Unexpected command ${command}`)));
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  act(() => nativeMenuCommand("file.open-local"));
+  await waitFor(() => expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(envelope.model.project.id));
+  await waitFor(() => expect(screen.getByRole("button", { name: /^Open local$/ })).toBeEnabled());
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+  return { envelope, intent };
+}
+async function requeueFirstContext() {
+  fireEvent.click(screen.getByTestId("requeue-context-0"));
+  await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 queued batches"));
+}
+
+describe("Tier3 shared batch and proposed context", () => {
+  it("restores unknown context, validates without acceptance, applies once and saves exact original metadata coherently", async () => {
+    const { envelope, intent } = await openBatchContext();
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
+    expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("0 queued; 0 applied");
+    expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
+    await requeueFirstContext();
+    fireEvent.click(screen.getByTestId("validate-batch-operation-batch-1"));
+    await waitFor(() => expect(screen.getByText(/Preview only. Temporary state was discarded/)).toBeInTheDocument());
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("apply-batch-operation-batch-1"));
+    await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 batches applied"));
+    expect(screen.getByTestId("batch-receipt")).toHaveTextContent(intent.rationale);
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("2 retained operation records");
+    fireEvent.click(screen.getByTestId("clear-pending-batches"));
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("2 retained operation records");
+    let savedRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
+      if (command !== "save_local_project") return Promise.reject(new Error(`Unexpected command ${command}`));
+      savedRequest = args.request;
+      return Promise.resolve({ ...envelope, model: args.request.model, editor_intents: args.request.editor_intents, project_envelope_hash: args.request.project_envelope_hash });
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(savedRequest).toBeDefined());
+    expect(savedRequest!.editor_intents).toEqual([intent, intent]);
+    const { computeProjectEnvelopeHash } = await import("./services/hashService");
+    const { model, editor_intents, proposal, selected_review_target, mechanics_result, analysis_run, model_hash } = savedRequest!;
+    const actualHash = await computeProjectEnvelopeHash({ model, editor_intents, proposal, selected_review_target, mechanics_result, analysis_run, model_hash } as never);
+    expect((savedRequest!.project_envelope_hash as { value: string }).value).toBe(actualHash?.value);
+    expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("0 queued; 1 applied");
+    fireEvent.click(screen.getByTestId("undo-session-model-edit"));
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.getByTestId("redo-session-model-edit")).toBeEnabled();
+  });
+
+  it.each(["validate", "apply"] as const)("withdraws delayed batch %s and protects newer single-request ownership", async (mode) => {
+    await openBatchContext();
+    await requeueFirstContext();
+    const pending = deferred<unknown>();
+    const newer = deferred<unknown>();
+    invokeMock.mockImplementation((command: string) => command === `${mode}_model_operation_batch` ? pending.promise : command === "validate_model_operation" ? newer.promise : Promise.reject(new Error(command)));
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    fireEvent.click(screen.getByTestId(`${mode}-batch-operation-batch-1`));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith(`${mode}_model_operation_batch`, expect.any(Object)));
+    fireEvent.click(screen.getByTestId("clear-pending-batches"));
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    fireEvent.click(screen.getByTestId("validate-intent-editor-intent-1"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("validate_model_operation", expect.any(Object)));
+    await act(async () => { pending.resolve({ deliberately: "unreadable stale outcome" }); await pending.promise; });
+    expect(screen.getByTestId("validate-intent-editor-intent-1")).toBeDisabled();
+    expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 0 batches applied");
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    await act(async () => { newer.reject(new Error("Deliberately stopped")); });
+    expect(screen.getByTestId("validate-intent-editor-intent-1")).toBeEnabled();
+  });
+
+  it("retains a malformed restored member as untrusted data and rejects it without crashing or accepting", async () => {
+    await openBatchContext([null] as unknown as EditorOperationIntent[]);
+    await requeueFirstContext();
+    fireEvent.click(screen.getByTestId("validate-batch-operation-batch-1"));
+    await waitFor(() => expect(screen.getByText(/Blocked. Temporary changes were rolled back/)).toBeInTheDocument());
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
+  });
+});
+
+async function importOfflineForTest(batch: unknown, key: number) {
+  fireEvent.change(screen.getByLabelText("Proposal batch JSON"), { target: { value: JSON.stringify(batch) } });
+  fireEvent.click(screen.getByRole("button", { name: "Queue imported batch for review" }));
+  await screen.findByTestId(`apply-batch-operation-batch-${key}`);
+}
+
+describe("Tier3 adversarial batch publication", () => {
+  it("rolls back a later failed step, then previews and commits two exact mixed-author members with one undo", async () => {
+    const { envelope, intent } = await openBatchContext();
+    const second = structuredClone(intent);
+    second.operation_id += ":second";
+    second.author_type = "user";
+    second.rationale = "Human second step, exact source.";
+    second.change = { ...second.change, change_id: `${second.change.change_id}:second`, field_path: "position.y", before: String(envelope.model.nodes[0].position.y), after: "0.5" };
+    const invalid = structuredClone(second);
+    invalid.change.before = "123456";
+    await importOfflineForTest({ batch_id: "batch:rollback", operations: [intent, invalid] }, 1);
+    fireEvent.click(screen.getByTestId("apply-batch-operation-batch-1"));
+    await waitFor(() => expect(screen.getByText(/Blocked. Temporary changes were rolled back/)).toBeInTheDocument());
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
+    await importOfflineForTest({ batch_id: "batch:mixed-source", operations: [intent, second] }, 2);
+    fireEvent.click(screen.getByTestId("validate-batch-operation-batch-2"));
+    await waitFor(() => expect(screen.getByText(/Preview only. Temporary state was discarded/)).toBeInTheDocument());
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("apply-batch-operation-batch-2"));
+    await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 batches applied"));
+    const receipt = screen.getByTestId("batch-receipt");
+    expect(receipt).toHaveTextContent(intent.rationale);
+    expect(receipt).toHaveTextContent(second.rationale);
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("3 retained operation records");
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    expect(screen.getByTestId("entity-grid-input-node:N-100-x")).toHaveValue("1.75");
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    fireEvent.click(screen.getByTestId("undo-session-model-edit"));
+    expect(screen.getByTestId("entity-grid-input-node:N-100-x")).toHaveValue(String(envelope.model.nodes[0].position.x));
+    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue(String(envelope.model.nodes[0].position.y));
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+  });
+
+  it("handles offline null through queue, validation, apply, save, reopen and explicit requeue as untrusted context", async () => {
+    const { envelope, intent } = await openBatchContext();
+    await importOfflineForTest({ batch_id: "batch:malformed", operations: [null] }, 1);
+    for (const mode of ["validate", "apply"]) {
+      fireEvent.click(screen.getByTestId(`${mode}-batch-operation-batch-1`));
+      await waitFor(() => expect(screen.getByText(/Blocked. Temporary changes were rolled back/)).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByTestId("apply-batch-operation-batch-1")).toBeEnabled());
+    }
+    let saved: LocalProjectEnvelope | undefined;
+    invokeMock.mockImplementation((command: string, args: { request: { editor_intents: EditorOperationIntent[]; project_envelope_hash: LocalProjectEnvelope["project_envelope_hash"] } }) => {
+      if (command === "save_local_project") {
+        saved = { ...envelope, editor_intents: args.request.editor_intents, project_envelope_hash: args.request.project_envelope_hash };
+        return Promise.resolve(saved);
+      }
+      if (command === "open_local_project") return Promise.resolve(saved);
+      return Promise.reject(new Error(command));
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(saved).toBeDefined());
+    expect(saved!.editor_intents).toEqual([intent, null]);
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Open local$/ })).toBeEnabled());
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("2 retained operation records"));
+    expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 0 batches applied");
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("requeue-context-1"));
+    await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 queued batches"));
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("2 retained operation records");
+  });
+
+  it("discards a pending batch when another model opens, and ignores delayed save metadata after a model replacement", async () => {
+    const { envelope } = await openBatchContext();
+    await requeueFirstContext();
+    const apply = deferred<unknown>();
+    const save = deferred<unknown>();
+    const replacement = inventedOpenEnvelope(envelope.model);
+    replacement.model.project.id = "project:second-replacement";
+    replacement.summary.project_id = replacement.model.project.id;
+    replacement.summary.project_name = "Second replacement";
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "apply_model_operation_batch") return apply.promise;
+      if (command === "save_local_project") return save.promise;
+      if (command === "open_local_project") return Promise.resolve(replacement);
+      return Promise.reject(new Error(command));
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    fireEvent.click(screen.getByTestId("apply-batch-operation-batch-1"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("apply_model_operation_batch", expect.any(Object)));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("command-selection-readout")).toHaveTextContent("project:second-replacement"));
+    await act(async () => { apply.resolve({ deliberately: "unreadable stale application" }); save.resolve({ deliberately: "unreadable stale save" }); await Promise.all([apply.promise, save.promise]); });
+    expect(screen.getByTestId("command-selection-readout")).toHaveTextContent("project:second-replacement");
+    expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("0 retained operation records");
+    expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.getByTestId("local-project-message")).not.toHaveTextContent("failed");
+  });
+});
+
+describe("Tier3 display in the actual application", () => {
+  it("passes the current result to comparison readouts and preserves the source result rows", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    fireEvent.click(screen.getByTestId("run-mechanics-preview"));
+    const comparison = screen.getByTestId("comparison-panel");
+    await waitFor(() => expect(within(comparison).queryByTestId("comparison-delta-table")).not.toBeNull());
+    const deltas = within(comparison).getByTestId("comparison-delta-table");
+    const entered = deltas.textContent;
+    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
+    await waitFor(() => expect(deltas.querySelector('[data-display-status="converted"]')).not.toBeNull());
+    expect(deltas.textContent).not.toBe(entered);
+    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "entered" } });
+    expect(deltas.textContent).toBe(entered);
   });
 });

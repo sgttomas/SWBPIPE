@@ -1,0 +1,394 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "version": 3,
+  "frozen": true,
+  "status": "IN_PROGRESS",
+  "recorded_utc": "2026-09-05T03:49:21.209539+00:00",
+  "scope_selection_authority": "HUMAN",
+  "graph_selection_authority": "AGENT_0",
+  "posture": "MIXED",
+  "basis": {
+    "head": "740569598f9d00440636b8ea25264127f418e4ec",
+    "branch": "codex/piping-ui-toolkit-parity",
+    "decomposition": "rev0.12 / SCA-009",
+    "dag": "DAG-010",
+    "runtime_gate": "SCA-008 / D-58",
+    "non_git_basis_source": "parent-declared"
+  },
+  "nodes": [
+    {
+      "id": "N0",
+      "role": "EPHEMERAL_AGENT_2",
+      "package_id": null,
+      "objective": "Initial frozen coordination record",
+      "status": "COMPLETED_RECORDING_ONLY",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N1",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-07",
+      "objective": "Contract/map then UI implementation",
+      "status": "PHASE_B_CONTRACT_PREPARATION_PARENT_REPORTED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "interface_relay": "Stable N2 B1 interface; no additional UI source grant inferred"
+    },
+    {
+      "id": "N2",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-16",
+      "objective": "Operation/backend implementation",
+      "status": "PHASE_B1_SOURCE_ACCEPTED_PARENT_REPORTED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "record_path": "N2_WI_PKG16/",
+      "accepted_brief": "N2_WI_PKG16/B1_BRIEF.md",
+      "source_write_authority": [
+        "{WORKING_ROOT}/core/model_operations/operation_applier/**",
+        "{WORKING_ROOT}/schemas/model_operation.schema.json",
+        "{WORKING_ROOT}/tests/test_model_operation_schema.py"
+      ],
+      "exclusions": [
+        "desktop",
+        "product_physics",
+        "Cargo.lock",
+        "assignment",
+        "unrelated tests"
+      ]
+    },
+    {
+      "id": "N3",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-02",
+      "objective": "Model and unit contract support",
+      "status": "PLANNED_NOT_EXECUTION_EVIDENCE",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "source_write_authority": "HELD pending existing-capability wave and contract refutation; requires exact versioned release"
+    },
+    {
+      "id": "N4",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-03",
+      "objective": "Hanger-library support as necessary",
+      "status": "PHASE_A_INTAKE_ACTIVATED_PARENT_REPORTED",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "source_write_authority": "HELD pending existing-capability wave and contract refutation; requires exact versioned release"
+    },
+    {
+      "id": "N5",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-05",
+      "objective": "Automatic self-weight support as necessary",
+      "status": "PHASE_A_INTAKE_ACTIVATED_PARENT_REPORTED",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "source_write_authority": "HELD pending existing-capability wave and contract refutation; requires exact versioned release"
+    },
+    {
+      "id": "N6",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-04",
+      "objective": "Row21 nozzle/equipment boundary design intake",
+      "status": "DESIGN_INTAKE_ACTIVATED_PARENT_REPORTED",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "instance_id": "N6_WI_PKG04",
+      "source_write_authority": "none; design intake only"
+    },
+    {
+      "id": "N7",
+      "role": "TASK",
+      "package_id": null,
+      "objective": "Fresh independent review of 100% frozen diff",
+      "status": "PLANNED_NOT_EXECUTION_EVIDENCE",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N8",
+      "role": "CHANGE",
+      "package_id": null,
+      "objective": "Validated scoped Git closeout without merge",
+      "status": "PLANNED_NOT_EXECUTION_EVIDENCE",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N_ENV",
+      "role": "EPHEMERAL_AGENT_2",
+      "package_id": null,
+      "objective": "Independent environment provisioning; no product writes",
+      "status": "ACTIVATED_PARENT_REPORTED",
+      "actual_model": "unavailable",
+      "execution_details": "Owned launch/status/return supply exact instance and fence; not known by N0"
+    }
+  ],
+  "edges": [
+    {
+      "source": "N0",
+      "target": "N1:intake",
+      "condition": "initial plan available"
+    },
+    {
+      "source": "N0",
+      "target": "N2:intake",
+      "condition": "initial plan available"
+    },
+    {
+      "source": "N0",
+      "target": "N3:intake",
+      "condition": "initial plan available"
+    },
+    {
+      "source": "N1:intake",
+      "target": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "condition": "concrete intake return"
+    },
+    {
+      "source": "N2:intake",
+      "target": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "condition": "concrete intake return"
+    },
+    {
+      "source": "N3:intake",
+      "target": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "condition": "concrete intake return"
+    },
+    {
+      "source": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "target": "N1:implementation",
+      "condition": "accepted exact fence; conditional nodes only if activated"
+    },
+    {
+      "source": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "target": "N2:implementation",
+      "condition": "accepted exact fence; conditional nodes only if activated"
+    },
+    {
+      "source": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "target": "N3:implementation",
+      "condition": "accepted exact fence; conditional nodes only if activated"
+    },
+    {
+      "source": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "target": "N4:implementation",
+      "condition": "accepted exact fence; conditional nodes only if activated"
+    },
+    {
+      "source": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "target": "N5:implementation",
+      "condition": "accepted exact fence; conditional nodes only if activated"
+    },
+    {
+      "source": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "target": "N6:implementation",
+      "condition": "accepted exact fence; conditional nodes only if activated"
+    },
+    {
+      "source": "N1:implementation",
+      "target": "G2_IMPLEMENTATION_FAN_IN",
+      "condition": "completed return or explicit conditional-node non-activation"
+    },
+    {
+      "source": "N2:implementation",
+      "target": "G2_IMPLEMENTATION_FAN_IN",
+      "condition": "completed return or explicit conditional-node non-activation"
+    },
+    {
+      "source": "N3:implementation",
+      "target": "G2_IMPLEMENTATION_FAN_IN",
+      "condition": "completed return or explicit conditional-node non-activation"
+    },
+    {
+      "source": "N4:implementation",
+      "target": "G2_IMPLEMENTATION_FAN_IN",
+      "condition": "completed return or explicit conditional-node non-activation"
+    },
+    {
+      "source": "N5:implementation",
+      "target": "G2_IMPLEMENTATION_FAN_IN",
+      "condition": "completed return or explicit conditional-node non-activation"
+    },
+    {
+      "source": "N6:implementation",
+      "target": "G2_IMPLEMENTATION_FAN_IN",
+      "condition": "completed return or explicit conditional-node non-activation"
+    },
+    {
+      "source": "G2_IMPLEMENTATION_FAN_IN",
+      "target": "N7",
+      "condition": "frozen integrated diff"
+    },
+    {
+      "source": "N7",
+      "target": "G3_DEC025",
+      "condition": "PASS without actionable findings"
+    },
+    {
+      "source": "G3_DEC025",
+      "target": "N8",
+      "condition": "required checks pass and scoped evidence accepted"
+    },
+    {
+      "source": "N0",
+      "target": "N4:intake",
+      "condition": "design intake activation; evidence only"
+    },
+    {
+      "source": "N0",
+      "target": "N5:intake",
+      "condition": "design intake activation; evidence only"
+    },
+    {
+      "source": "N4:intake",
+      "target": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "condition": "design support return; no source writes"
+    },
+    {
+      "source": "N5:intake",
+      "target": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "condition": "design support return; no source writes"
+    },
+    {
+      "source": "N0",
+      "target": "N_ENV",
+      "condition": "independent environment provisioning activation"
+    },
+    {
+      "source": "N_ENV",
+      "target": "G2_IMPLEMENTATION_FAN_IN",
+      "condition": "actual provisioning status and verification readiness"
+    },
+    {
+      "source": "N0",
+      "target": "N6:intake",
+      "condition": "actual intake activation parent-reported; no source writes"
+    },
+    {
+      "source": "N6:intake",
+      "target": "G1_AGENT0_CONTRACT_ACCEPTANCE",
+      "condition": "row21 design return"
+    },
+    {
+      "source": "N2:intake",
+      "target": "G_B1_AGENT0_ACCEPTED",
+      "condition": "narrow B1 interface accepted by Agent 0"
+    },
+    {
+      "source": "G_B1_AGENT0_ACCEPTED",
+      "target": "N2:B1",
+      "condition": "exact operation/schema/test fence only"
+    },
+    {
+      "source": "G_B1_AGENT0_ACCEPTED",
+      "target": "N1:B1_relay_contract_preparation",
+      "condition": "stable interface relay; contract preparation only"
+    },
+    {
+      "source": "N2:B1",
+      "target": "G2_IMPLEMENTATION_FAN_IN",
+      "condition": "tested implementation return; no closure inferred"
+    },
+    {
+      "source": "N1:B1_relay_contract_preparation",
+      "target": "N1:implementation",
+      "condition": "accepted concrete UI fence remains required"
+    }
+  ],
+  "edge_semantics": "Edges connect explicit phase vertices. Remediation/re-review requires a later recorded wave, not silent cycle linearization.",
+  "phase_a_parallel": [
+    "N1:intake",
+    "N2:intake",
+    "N3:intake",
+    "N4:intake",
+    "N5:intake",
+    "N_ENV",
+    "N6:intake"
+  ],
+  "serialization": {
+    "operation_applier_and_operation_schemas": "N2",
+    "desktop_src_and_ui_tests": "N1",
+    "shared_product_physics_schema_types": "one named owner under versioned Agent 0 exact fence",
+    "conditional_manager_source_writes": "prohibited until exact fence versioned"
+  },
+  "integration_owner": "HELP_HUMAN \u2014 cross-manager fan-in only; no source writes",
+  "git_closeout_owner": "CHANGE",
+  "delegation_class": "delegated-harness-native",
+  "enforcement_calibration": "instruction+config asserted; not mechanism-proven",
+  "gated": [
+    "D-58 runtime binding",
+    "roadmap R1-R3",
+    "lifecycle/release/professional acceptance"
+  ],
+  "planned_outputs": [
+    "24-row capability map",
+    "UI/operation implementation",
+    "tests",
+    "coverage ledger and deliverable residuals",
+    "blockers and remaining scope"
+  ],
+  "phase_vertices": [
+    "N0",
+    "N1:intake",
+    "N2:intake",
+    "N3:intake",
+    "G1_AGENT0_CONTRACT_ACCEPTANCE",
+    "N1:implementation",
+    "N2:implementation",
+    "N3:implementation",
+    "N4:implementation",
+    "N5:implementation",
+    "N6:implementation",
+    "G2_IMPLEMENTATION_FAN_IN",
+    "N7",
+    "G3_DEC025",
+    "N8",
+    "N_ENV",
+    "N4:intake",
+    "N5:intake",
+    "N6:intake",
+    "G_B1_AGENT0_ACCEPTED",
+    "N2:B1",
+    "N1:B1_relay_contract_preparation"
+  ],
+  "source_integration_owners": {
+    "desktop": "N1 within exact fence",
+    "operation_and_operation_schema": "N2 within exact fence"
+  },
+  "supersedes": "WORK_GRAPH.v2.json; previous frozen records preserved",
+  "amendment_authority": "Actual HELP_HUMAN parent message to recorder; Agent 0 implementation judgment under explicit user instruction, no new human ruling",
+  "agent0_dispositions": [
+    {
+      "subject": "N2 Section-ref dependency",
+      "disposition": "RELAY",
+      "recipient": "PKG-02 / N3",
+      "meaning": "Route model-reference dependency for contract work, not a source release"
+    },
+    {
+      "subject": "N4 manual hanger selection interface",
+      "disposition": "ACCEPT_DIRECTION_SUBJECT_TO_REFUTATION",
+      "source_release": false
+    },
+    {
+      "subject": "N5 explicit selfweight operation generator",
+      "disposition": "ACCEPT_DIRECTION_SUBJECT_TO_REFUTATION",
+      "source_release": false
+    },
+    {
+      "subject": "N6 row21 design intake",
+      "disposition": "ACTIVATE",
+      "source_release": false
+    },
+    {
+      "subject": "N2 PhaseB1 narrow repair interface",
+      "disposition": "ACCEPT_IMPLEMENTATION_INTERFACE",
+      "authority": "Agent 0 implementation judgment under user instruction",
+      "human_ruling_created": false
+    }
+  ],
+  "narrow_wave_policy": "B1 existing-capability repair proceeds via separate accepted gate without claiming broader G1 or N3/N4/N5 source acceptance."
+}

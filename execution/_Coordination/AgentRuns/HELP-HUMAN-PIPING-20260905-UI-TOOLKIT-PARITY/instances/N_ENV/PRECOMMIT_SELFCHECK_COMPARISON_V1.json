@@ -1,0 +1,130 @@
+{
+  "baseline": "earlier parent self-check log copied to _run_records/PRECOMMIT_selfcheck_baseline.txt",
+  "baseline_counts": {
+    "REVIEW": 12,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "current_counts": {
+    "REVIEW": 14,
+    "INFO": 14,
+    "WARN": 43
+  },
+  "new_findings": [
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_PROJECT_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/_run_records/B1_BRIEF.md:8",
+      "detail": "SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `B1_BRIEF.md`) carries 1 machine-absolute-path hit line(s); first hit at line 8. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_PROJECT_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/REVIEW_C2_BRIEF.md:2",
+      "detail": "SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `REVIEW_C2_BRIEF.md`) carries 1 machine-absolute-path hit line(s); first hit at line 2. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/REVIEW_C2_RETURN.md:8",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 8. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/SOURCE_RELEASE_C1.json:10",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 10. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/CHECKS.json:5",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 11 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/CHECKS_C2.json:5",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 7 machine-absolute-path hit line(s); first hit at line 5. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/RETURN_C2.md:19",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 19. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/children/A2_HANGER_IMPORT/RUNTIME_OVERRIDE_v1.md:2",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/START.json:9",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 9. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    }
+  ],
+  "resolved_findings": [
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_PROJECT_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B1_BRIEF.md:8",
+      "detail": "SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `B1_BRIEF.md`) carries 1 machine-absolute-path hit line(s); first hit at line 8. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B1_CHECKS.json:10",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 10. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/PHASE_A_PROPOSAL.md:19",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 19. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/DISCOVERY.json:160",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 160. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_PROJECT_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/PHASE_B_PLAN_DRAFT.md:23",
+      "detail": "SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `PHASE_B_PLAN_DRAFT.md`) carries 1 machine-absolute-path hit line(s); first hit at line 23. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/SECTION_IMPLEMENTATION_RETURN_V1.md:6",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 3 machine-absolute-path hit line(s); first hit at line 6. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    },
+    {
+      "severity": "REVIEW",
+      "code": "ABS_PATH_IN_UNCLASSIFIED_SURFACE",
+      "area": "path-anchoring",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/return.json:11",
+      "detail": "SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 11. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path."
+    }
+  ],
+  "comparison": "severity/code/path ignoring trailing line-number drift"
+}

@@ -52,7 +52,8 @@ const BUSY_REASON =
 const LIBRARY_KINDS: ReadonlyArray<{ value: LibraryKind; label: string }> = [
   { value: "material", label: "Material library" },
   { value: "section", label: "Section library" },
-  { value: "component", label: "Component library" }
+  { value: "component", label: "Component library" },
+  { value: "hanger", label: "Hanger library" }
 ];
 
 const VISIBILITY_OPTIONS: ReadonlyArray<{ value: IntendedVisibility; label: string }> = [
@@ -304,7 +305,7 @@ export function LibraryManagerPanel({
     onR3JourneyEvent?.("library_template_loaded");
     setActionStatus(
       `Invented private ${libraryKind}-library template loaded in memory ` +
-        "(privacy_class=private_user_data, redistribution_status=private_only). " +
+        `(privacy_class=${libraryKind === "hanger" ? "private_user_supplied" : "private_user_data"}, redistribution_status=private_only). ` +
         "Nothing is stored until you validate and save."
     );
   }

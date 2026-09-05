@@ -1,0 +1,10 @@
+# Fresh independent C2 full-diff review
+Actual child /root/wi_pkg03/hanger_import_review2. TASK software-code-review v1, actual instruction root Git toplevel; no delegation/writes; parent persists return. Model unavailable. Verdict PASS, no actionable findings in complete frozen C2 bounded schema/import implementation.
+
+Coverage: all10 files, both runtimes/READMEs, Rust parity test, Python test addition, full new schema/tests, valid invented fixture and all86 case payloads/expectations (exhaustive structural diffs against full base). All source hashes match FROZEN_C2_MANIFEST.json. Diff SHA2567fd3328e70b51b0d9efed05f153ca1383d1bfabc7b75d89ba90ceb98419dc578. Scope validator PASS. Accepted v2 contract, C1 findings and C2 fixes checked; strict shapes/keywords, explicit units, nested provenance/dispositions, duplicate IDs, source immutability, legacy behavior reviewed.
+
+P1 repaired: project_private library/record blocks public import at expected original path; diagnostic copy does not mutate source/legacy. P2 repaired: explicit protected/quarantined metadata yields QUARANTINE with missing/malformed provenance; preserves schema findings; tests cover library/record/quantity.
+
+Independent tests:105 Python passed using {PIPING_UI_PARITY_PYTHON_ENV}/bin/python3 with bytecode/cache disabled;11Rust unit+8 integration passed offline target {PIPING_HANGER_REVIEW_TARGET}. Dynamic complete ordered outcome/code/path/severity parity86 cases including32 C2 regressions. Affected broad checks evidence-sweep/harness-self-check/piping-pytest remain parent-owned. No new findings, no human ruling, no missing bounded-review inputs. Tools read-only/hash/scope/check selection and exact focused tests. Minor procedure note direct reads preceded standalone scope validation; final scope PASS.
+
+PASS supports bounded import fan-in only. Downstream native mapping/manual selection/intelligible preview/consumed DOF-value/atomic replacement/stale-before/persisted source snapshot remain required. Import validity not solve readiness; no lifecycle/authority update.

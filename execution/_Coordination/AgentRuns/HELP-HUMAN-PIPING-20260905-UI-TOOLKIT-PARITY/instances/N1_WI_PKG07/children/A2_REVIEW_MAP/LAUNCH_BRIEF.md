@@ -1,0 +1,10 @@
+# Sealed brief v1 — independent Phase A verifier
+RequestedBy: N1_WI_PKG07 (WORKING_ITEMS); RunID HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY; ChildInstanceID A2_REVIEW_MAP; role ephemeral Agent2, no delegation.
+PackageID PKG07; bounded scope DEL0709 SOW077/OBJ006/OBJ015 Phase A artifacts.
+Objective: independently review 100% of Capability_Comparison.csv, Palette_Operation_Routing.md, Palette_Organization_Contract.md under PKG07 DEL0709. Validate all 24 + R1-R3 row completeness, code-backed evidence, accepted routing ownership, sequencing, dimensional/provenance rules, D58 gate, historical row14–16 closure preservation, practical implementability and disjoint planned ownership. These are derivative contracts; no lifecycle acceptance.
+AcceptedBasis: project decomposition rev0.12, SCA009 annex accepted by ACCEPTANCE_RECORD.md Gate5 owner closure, DAG010 snapshot, actual PKG07 ScopeOfWork, docs/CONTRACT.md; author return and manager spec review. Parent authorizes Phase A only; no source edits.
+DeclaredReads: root/project AGENTS, actual WORKING_ITEMS instructions, relevant software-code-review skill as method, all three candidate artifacts, accepted project specs and source evidence they cite. Read source directly, do not rely on prior assistant claims. No network or broad tests needed.
+AllowedTools: read/search/shell commands for read-only verification. AllowedWriteTargets: own children/A2_REVIEW_MAP/RETURN.md and STATUS.json only. No edits to reviewed files, product, registers, lifecycle, receipts or Git; no delegation.
+ExpectedOutputs: PASS or actionable findings with file/row, evidence, impact and remediation; explicit review coverage and residual risks. Return to manager only.
+AcceptanceCriteria: all candidate outputs reviewed; no unsupported capability inferred from schema token alone; accepted Tier1/2 before Tier3 ordering; source write fence implementable. Any defect returns to author rather than reviewer repair.
+Runtime class delegated-harness-native; role instruction+config asserted; exact inherited model unavailable unless tool exposes it. Record actual runtime attribution honestly.

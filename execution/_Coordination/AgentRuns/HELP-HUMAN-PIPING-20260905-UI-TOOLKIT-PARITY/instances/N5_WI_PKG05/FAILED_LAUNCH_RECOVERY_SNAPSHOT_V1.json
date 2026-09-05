@@ -1,0 +1,143 @@
+{
+  "schema": "piping.failed-launch-recovery/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "instance_id": "N5_WI_PKG05",
+  "status": "RECOVERED_BY_ACTUAL_PARENT_DELEGATION",
+  "derivative_status": "coordination_evidence_not_authority_or_decomposition_truth",
+  "failed_attempt": {
+    "instance_id": "A2_REFUTE",
+    "native_session_instantiated": false,
+    "result": "agent thread limit reached",
+    "telemetry_session_label": "no-session-spawn-rejected",
+    "event_id": "N5-A2-REFUTE-SPAWN-REJECTED",
+    "disposition": "SUPERSEDED_RECOVERED",
+    "evidence": [
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/children/A2_REFUTE/LAUNCH_BRIEF.md",
+        "sha256": "4c9f98d03bdc4744fe6d7d5b91a7dfab9399dd52502e6e22ee4bc95cb87d1d16"
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/RUNTIME_EVENTS.jsonl",
+        "sha256": "bfdb4dca3ae3e3fab1d309f796ccd0d9bacbb370ac9b329d12bbbae4eb269958"
+      }
+    ]
+  },
+  "replacements": [
+    {
+      "stage": "PHASE_A design refutation",
+      "instance_id": "N_CROSS_CONTRACT_REFUTE",
+      "native_agent": "/root/test_environment",
+      "parent": "/root HELP_HUMAN",
+      "agent_role": "direct ephemeral Agent2",
+      "identity_evidence": "Parent explicit recovery instruction in current conversation; on-disk brief independently declares HELP_HUMAN parent and direct Agent2 role. Native identity is parent-attributed, not inferred from filename.",
+      "verdict": "PASS_DESIGN_ONLY for PKG05 (PKG03 separate REVISE does not block PKG05)",
+      "reviewed_input": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/PHASE_A_INTAKE.md",
+        "sha256": "9d217296898a48799d573c27f762a2180dde652f8141bb6eece6d9c328e9b66b"
+      },
+      "reviewed_input_hash_matches_captured_basis": true,
+      "evidence": [
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_CROSS_CONTRACT_REFUTE/brief.json",
+          "sha256": "d95ecfbd84fd5691ec26ccbd0362e22dc49af929f3146e147a2f754759128af2"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_CROSS_CONTRACT_REFUTE/status.json",
+          "sha256": "d9e5b1225b7e9c3581e73f96151ea5f69bba1d6d3ff478641de52aea0b8e16af"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_CROSS_CONTRACT_REFUTE/return.json",
+          "sha256": "6e1835b3357e820e4f847ab70fc15253e60ca89ee3c53a025b8c1607c3f0d43e"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_CROSS_CONTRACT_REFUTE/RETURN.md",
+          "sha256": "74b36ad2b004ce93e41e207fe9aeb251725bf3ab862cd7d957e87500b82d96c7"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_CROSS_CONTRACT_REFUTE/SOURCE_HASHES.json",
+          "sha256": "dbf7bea3d58202924f65df6f3f8931fbed79b9a753b79ddde7a41cf3e81de719"
+        }
+      ]
+    },
+    {
+      "stage": "native/Wasm adapter extension design refutation",
+      "instance_id": "N_SELFWEIGHT_ADAPTER_REFUTE",
+      "native_agent": "/root/test_environment",
+      "parent": "/root HELP_HUMAN",
+      "agent_role": "direct ephemeral Agent2",
+      "identity_evidence": "Parent explicit recovery instruction attributes actual direct reviewer; BRIEF.json independently names parent HELP_HUMAN.",
+      "initial_verdict": "REVISE SA1 strict unknown generation options",
+      "accepted_successor_verdict": "PASS_DESIGN_ONLY V2",
+      "reviewed_input": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_V2.md",
+        "sha256": "305e022f39fc58cbc268acf3727f23fa269e6061daf07a306c04dea2bbd3ea0e"
+      },
+      "reviewed_input_snapshot": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/ADAPTER_DESIGN_SNAPSHOT_V2.json",
+        "sha256": "e300961da2761707ea55d5066abd014c90c0975e2f3ba33fb35adb751ed625f7"
+      },
+      "reviewed_input_hash_matches_recheck": true,
+      "evidence": [
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_SELFWEIGHT_ADAPTER_REFUTE/BRIEF.json",
+          "sha256": "aaaecf4d55f9b87e302e8b20895eab57626f1487d41d7ef8459ecf6832445fed"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_SELFWEIGHT_ADAPTER_REFUTE/STATUS.json",
+          "sha256": "6f5fcbc3f9da54f2a9ccb7c96d939541c5c96ebb589051ab19baf11b1cb71c33"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_SELFWEIGHT_ADAPTER_REFUTE/RETURN.md",
+          "sha256": "c781fdf0cdc12725464b0fc89e5d47b94b73c8d11d053cf736cf87fbdfc2166c"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_SELFWEIGHT_ADAPTER_REFUTE/SOURCE_HASHES.json",
+          "sha256": "20dbdec5a0a832d2b0a9d66d52f5341fdf10a960898ccf0be0990456d192a235"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_SELFWEIGHT_ADAPTER_REFUTE/RECHECK_V2.md",
+          "sha256": "74cc1ce01b4848ada7d06c6095f77196d4942be01aed01ffd0ee8527eb4e575c"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_SELFWEIGHT_ADAPTER_REFUTE/RECHECK_V2_STATUS.json",
+          "sha256": "705da6e499341b1276b1901ca2a982fe1cca82f66e97907481470f1f54bc0dea"
+        }
+      ]
+    }
+  ],
+  "graph_disposition": {
+    "design_obligations": "SATISFIED_BY_EXECUTED_REPLACEMENTS",
+    "source_review": "Separate actual fresh combined source review PASS remains bound by SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json; design reviews do not substitute for source review.",
+    "backend_snapshot": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json",
+      "sha256": "191102ead5b70cc80ea81a251ec208e2f445d21c702da00dcf532b3229b69859"
+    },
+    "remaining_review_rerun_for_failed_launch": false,
+    "parent_final_graph_cross_binding": "pending HELP_HUMAN"
+  },
+  "telemetry_disposition": {
+    "raw_status": "INCOMPLETE",
+    "raw_summary": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/RUNTIME_SUMMARY.json",
+      "sha256": "621d0c82e027f5608282d82ff110ac6c7db0e7b0dcf21ff82be54c5ec0656d66"
+    },
+    "unmatched_label": "no-session-spawn-rejected",
+    "reason": "Summarizer groups every event by session_id including NOTICE-only prelaunch failure and demands exactly one START and one FINISH for every group. No prelaunch/instantiated flag or replacement-edge semantics is consulted. Required session_id on record command forced a placeholder for this non-session.",
+    "validator_reference": {
+      "path": "tools/workflow_runtime/runtime_telemetry.py",
+      "sha256": "f6e9095e73864b5c28bc2f5cd7ac4f2a485256f24087a8d284258ade7267d4a8"
+    },
+    "validator_lines": "record --session-id required; summarize lines135-156 groups all events and appends any non-1:1 START/FINISH group; line168 emits INCOMPLETE",
+    "actual_instantiated_sessions": "self_weight_implement and self_weight_combined_review each have real paired START/FINISH and PASS.",
+    "no_fabrication": "No START/FINISH emitted for rejected prelaunch; raw ledger/summary preserved. Recovery is a graph/evidence disposition only, not changing telemetry result."
+  },
+  "preserved_original_hashes": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/RUNTIME_EVENTS.jsonl": "bfdb4dca3ae3e3fab1d309f796ccd0d9bacbb370ac9b329d12bbbae4eb269958",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/RUNTIME_SUMMARY.json": "621d0c82e027f5608282d82ff110ac6c7db0e7b0dcf21ff82be54c5ec0656d66",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/children/A2_REFUTE/LAUNCH_BRIEF.md": "4c9f98d03bdc4744fe6d7d5b91a7dfab9399dd52502e6e22ee4bc95cb87d1d16",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/children/A2_REFUTE/STATUS.json": "206a0e994599653b77229b4c7943aa9b344375100588119d6855e508165cd189",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/PHASE_A_INTAKE.md": "9d217296898a48799d573c27f762a2180dde652f8141bb6eece6d9c328e9b66b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json": "191102ead5b70cc80ea81a251ec208e2f445d21c702da00dcf532b3229b69859"
+  },
+  "authority_fence": "No product writes, governance-tool edits, pointer/status rewrites, lifecycle or integration acceptance. Parent will cross-bind final graph."
+}

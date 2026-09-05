@@ -1,0 +1,62 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 3
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "CHECK": 2,
+      "FINISH": 3,
+      "REMEDIATION": 1,
+      "START": 3
+    },
+    "outcome": {
+      "FAIL": 1,
+      "PASS": 4,
+      "STARTED": 4
+    },
+    "reason_code": {}
+  },
+  "events": 9,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 185.298,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "N3_I1",
+      "package_id": "PKG-02",
+      "remediations": 1,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg02/section_resolution"
+    },
+    {
+      "duration_seconds": 173.101,
+      "events": 3,
+      "final_outcome": "FAIL",
+      "instance_id": "N3_R2",
+      "package_id": "PKG-02",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg02/section_review"
+    },
+    {
+      "duration_seconds": 84.962,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N3_R1",
+      "package_id": "PKG-02",
+      "remediations": 0,
+      "retries": 0,
+      "role": "ephemeral-generalist-agent2",
+      "session_id": "/root/wi_pkg02/semantics_refutation"
+    }
+  ],
+  "sessions": 3,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

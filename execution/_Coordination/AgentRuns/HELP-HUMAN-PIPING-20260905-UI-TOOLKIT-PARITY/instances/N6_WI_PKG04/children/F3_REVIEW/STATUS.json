@@ -1,0 +1,17 @@
+{
+  "status": "SUCCESS",
+  "verdict": "PASS",
+  "reviewer": "/root/wi_pkg04/f3_review",
+  "parent": "/root/wi_pkg04",
+  "model": "unavailable",
+  "role_enforcement": "instruction+config asserted",
+  "completed_at": "2026-09-05T05:49:40.928386+00:00",
+  "source_sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1",
+  "review_return_sha256": "d5da93d146e26e5bed13f6346234f58c9bf1b1bc5d38842e0c1d91330a5219ee",
+  "hash_bindings_verified": 24,
+  "hash_mismatches": [],
+  "source_scope": "{WORKING_ROOT}/core/product_physics/src/lib.rs",
+  "coverage": "100% frozen F3_REPAIR.patch",
+  "tests_executed_by_reviewer": false,
+  "source_acceptance": "parent-owned"
+}

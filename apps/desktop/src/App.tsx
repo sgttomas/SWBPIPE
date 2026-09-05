@@ -1,3 +1,12 @@
+import { HangerSelectionPanel } from "./features/hanger-selection";
+import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
+import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
+import operationSchema from "../../../schemas/model_operation.schema.json";
+import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
+import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
+import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
+import { applyOperationBatch, validateOperationBatch, type OperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
+import { BatchReviewPanel, type QueuedBatch, type BatchReceipt } from "./features/toolkit/BatchReviewPanel";
 import {
   Bot,
   ClipboardCheck,
@@ -46,6 +55,8 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
+import { ToolkitPalette } from "./features/toolkit/ToolkitPalette";
+import { toolkitCapabilities, capabilityAvailability, capabilityRoute, type ToolkitCapability } from "./features/toolkit/capabilityCatalog";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
 import { ReportPanel } from "./features/report/ReportPanel";
@@ -392,6 +403,10 @@ const INITIAL_R3_JOURNEY_STATE: R3JourneyState = {
 };
 
 export function App() {
+  return <DisplayUnitsProvider><AppSession /></DisplayUnitsProvider>;
+}
+
+function AppSession() {
   const [model, setModel] = useState<PreviewModel | null>(null);
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
   const [selection, setSelection] = useState<EntityRef | null>(null);
@@ -404,6 +419,8 @@ export function App() {
   const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
   const [editorIntents, setEditorIntents] = useState<EditorOperationIntent[]>([]);
+  const [retainedReviewContext, setRetainedReviewContext] = useState<EditorOperationIntent[]>([]);
+  const projectRequest = useRef(0);
   const [selectedReviewTarget, setSelectedReviewTarget] = useState<SelectedReviewTarget | null>(null);
   const [storageCapability, setStorageCapability] = useState<LocalStorageCapability | null>(null);
   const [projectSummary, setProjectSummary] = useState<LocalProjectSummary | null>(null);
@@ -430,6 +447,13 @@ export function App() {
   const [appliedOperations, setAppliedOperations] = useState<AppliedOperationReceipt[]>([]);
   const [undoStack, setUndoStack] = useState<SessionModelCheckpoint[]>([]);
   const [redoStack, setRedoStack] = useState<SessionModelCheckpoint[]>([]);
+  const [queuedBatches, setQueuedBatches] = useState<QueuedBatch[]>([]);
+  const [batchOutcomes, setBatchOutcomes] = useState<Record<string, OperationBatchOutcome>>({});
+  const [batchReceipts, setBatchReceipts] = useState<BatchReceipt[]>([]);
+  const [batchMessage, setBatchMessage] = useState<string | null>(null);
+  const [requestEpoch, setRequestEpoch] = useState(0);
+  const requestEpochRef = useRef(0);
+  const batchSequence = useRef(0);
   const [operationBusy, setOperationBusy] = useState(false);
   const [operationMessage, setOperationMessage] = useState<string | null>(null);
   const [operationEngineStatus, setOperationEngineStatus] = useState<OperationEngineStatus>(() =>
@@ -439,6 +463,13 @@ export function App() {
   // core (model tree | 3D viewport | inspector) owns the surface; workspace
   // sections are summoned from the View menu and dismissed back to the viewport.
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
+  const [toolkitFocus, setToolkitFocus] = useState<{ testId: string; elementId?: string } | null>(null);
+  useLayoutEffect(() => {
+    if (!toolkitFocus) return;
+    const target = toolkitFocus.elementId ? document.getElementById(toolkitFocus.elementId) : document.querySelector<HTMLElement>(`[data-testid="${toolkitFocus.testId}"]`);
+    target?.focus();
+    target?.scrollIntoView?.({ block: "nearest" });
+  }, [toolkitFocus]);
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const [armedCreationTool, setArmedCreationTool] = useState<CreationTool | null>(null);
   // Viewport-first agent-mediated shell (TP-R3UX-AGENTSHELL-001): the detailed
@@ -455,6 +486,8 @@ export function App() {
   const [issuesDrawerOpen, setIssuesDrawerOpen] = useState(false);
   const intentSequence = useRef(0);
   const modelRevision = useRef(0);
+  const currentModel = useRef<PreviewModel | null>(null);
+  const operationRequest = useRef({ sequence: 0, busy: false });
   const solveRunGate = useRef(new SolveRunGenerationGate());
   const activeSolveJob = useRef<{
     generation: number;
@@ -504,6 +537,12 @@ export function App() {
   }, [model]);
 
   function commitModel(nextModel: PreviewModel) {
+    requestEpochRef.current += 1;
+    setRequestEpoch(requestEpochRef.current);
+    currentModel.current = nextModel;
+    operationRequest.current.sequence += 1;
+    operationRequest.current.busy = false;
+    setOperationBusy(false);
     commitModelAfterSolveInvalidation(solveRunGate.current, modelRevision, () => {
       activeSolveJob.current = null;
       setRunning(false);
@@ -812,32 +851,157 @@ export function App() {
   }
 
   function handleClearReviewQueue() {
+    requestEpochRef.current += 1;
+    setRequestEpoch(requestEpochRef.current);
+    setQueuedBatches([]);
+    setBatchOutcomes({});
+    setBatchMessage("Pending batches cleared. Running requests will not change this session.");
+    // Withdrawal invalidates callbacks synchronously, including the hash waits
+    // in apply. An older response or finally block cannot revive this queue.
+    operationRequest.current.sequence += 1;
+    operationRequest.current.busy = false;
+    setOperationBusy(false);
     setEditorIntents([]);
     setProposal(null);
     setOperationOutcomes({});
-    setOperationMessage(null);
+    setOperationMessage("Pending changes cleared. Requests already running will not change this session.");
+  }
+
+  async function handleQueueOperationBatch(batch: OperationBatch) {
+    if (!model) return;
+    const revision = modelRevision.current;
+    const epoch = requestEpochRef.current;
+    const basisModel = clonePreviewModel(model);
+    const submitted = structuredClone(batch);
+    try {
+      const basisHash = await computeModelHash(basisModel);
+      if (revision !== modelRevision.current || epoch !== requestEpochRef.current) return;
+      if (!basisHash) throw new Error("The current model hash is unavailable.");
+      const key = `operation-batch-${++batchSequence.current}`;
+      setQueuedBatches((current) => [...current, { key, batch: submitted, basisModel, basisHash, basisRevision: revision }]);
+      setBatchMessage("Batch queued for validation and explicit application.");
+      setActiveSection("operations");
+      setToolkitFocus({ testId: "", elementId: "batch-review" });
+    } catch (error) {
+      if (revision === modelRevision.current && epoch === requestEpochRef.current) {
+        setBatchMessage(`Batch could not be queued: ${String(error)}`);
+      }
+    }
+  }
+
+  async function handleRunOperationBatch(entry: QueuedBatch, apply: boolean) {
+    if (operationRequest.current.busy || entry.basisRevision !== modelRevision.current) return;
+    const revision = modelRevision.current;
+    const request = ++operationRequest.current.sequence;
+    operationRequest.current.busy = true;
+    const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision;
+    setOperationBusy(true);
+    setBatchMessage(null);
+    try {
+      if (!currentModel.current) return;
+      const initialHash = await computeModelHash(currentModel.current);
+      if (!stillCurrent()) return;
+      if (!initialHash || initialHash.value !== entry.basisHash.value) throw new Error("The model changed. Prepare a new batch.");
+      const outcome = await (apply ? applyOperationBatch : validateOperationBatch)(entry.basisModel, entry.batch, entry.basisHash);
+      if (!stillCurrent() || !currentModel.current) return;
+      const currentHash = await computeModelHash(currentModel.current);
+      if (!stillCurrent()) return;
+      if (
+        currentHash?.value !== initialHash.value ||
+        outcome.initial_model_hash?.value !== initialHash.value ||
+        outcome.batch_id !== entry.batch.batch_id
+      ) {
+        throw new Error("The batch result does not match the original model basis; it was discarded.");
+      }
+      if (!apply && (outcome.acceptance || outcome.applied_model || outcome.validation.application_status === "applied_to_session_model")) {
+        throw new Error("Validation returned an application result; it was discarded.");
+      }
+      setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+      if (!apply || outcome.validation.application_status !== "applied_to_session_model") return;
+      if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
+        throw new Error("The batch did not return a complete application receipt; the model was not changed.");
+      }
+      setUndoStack((current) => [{
+        checkpoint_id: `undo-${entry.key}`,
+        operation_id: entry.batch.batch_id,
+        model: clonePreviewModel(entry.basisModel),
+        selection: selection ?? defaultSelection(entry.basisModel)
+      }, ...current].slice(0, 25));
+      setRedoStack([]);
+      setBatchReceipts((current) => [...current, { batch: entry.batch, outcome }]);
+      setRetainedReviewContext((current) => [...current, ...structuredClone(entry.batch.operations)]);
+      setAppliedOperations((current) => [...current, {
+        receipt_id: `applied-${entry.key}`,
+        sequence: current.length + 1,
+        operation_id: entry.batch.batch_id,
+        change_id: entry.batch.batch_id,
+        target_object_type: "Model",
+        target_ref: entry.basisModel.project.id,
+        field_path: "batch",
+        before: entry.basisHash.value,
+        after: outcome.applied_model_backend_hash ?? "not_reported",
+        application_route: outcome.application_route === "local_wasm_engine" ? "local_wasm_engine" : "tauri_backend_apply",
+        applied_model_hash: outcome.applied_model_backend_hash ?? "not_reported",
+        acceptance: outcome.acceptance!,
+        diagnostics: outcome.diagnostics,
+        professional_boundary: outcome.professional_boundary
+      }]);
+      commitModel(outcome.applied_model);
+      setSelection(defaultSelection(outcome.applied_model));
+      setQueuedBatches((current) => current.filter((candidate) => candidate.key !== entry.key));
+      clearComputedModelState(sessionHistoryChangedSolveJob("batch", entry.batch.batch_id));
+      setProposal(null);
+      setSelectedReviewTarget(null);
+      setBatchMessage("Batch applied once. Previous solve results were cleared; one undo checkpoint is available.");
+    } catch (error) {
+      if (stillCurrent()) setBatchMessage(`Batch request failed: ${String(error)}`);
+    } finally {
+      if (operationRequest.current.sequence === request) {
+        operationRequest.current.busy = false;
+        setOperationBusy(false);
+      }
+    }
   }
 
   async function handleValidateIntent(intent: EditorOperationIntent) {
-    if (!model) return;
+    if (!model || operationRequest.current.busy) return;
+    const revision = modelRevision.current;
+    const request = ++operationRequest.current.sequence;
+    operationRequest.current.busy = true;
+    const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision;
     setOperationBusy(true);
     setOperationMessage(null);
     try {
       const outcome = await validateModelOperation(model, intent, modelHash);
+      if (!stillCurrent()) return;
       setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
     } catch (error) {
-      setOperationMessage(`Operation validation failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Operation validation failed to run: ${String(error)}`);
     } finally {
-      setOperationBusy(false);
+      if (operationRequest.current.sequence === request) {
+        operationRequest.current.busy = false;
+        setOperationBusy(false);
+      }
     }
   }
 
   async function handleApplyIntent(intent: EditorOperationIntent) {
-    if (!model) return;
+    if (!model || operationRequest.current.busy) return;
+    const revision = modelRevision.current;
+    const request = ++operationRequest.current.sequence;
+    operationRequest.current.busy = true;
+    const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision;
     setOperationBusy(true);
     setOperationMessage(null);
     try {
-      const outcome = await applyModelOperation(model, intent, modelHash);
+      const initialHash = await computeModelHash(model);
+      if (!stillCurrent() || !initialHash) return;
+      const outcome = await applyModelOperation(model, intent, initialHash);
+      if (!stillCurrent() || !currentModel.current) return;
+      const currentHash = await computeModelHash(currentModel.current);
+      // The hash computation is asynchronous too; generation must still match
+      // after it resolves before any outcome, receipt or checkpoint is published.
+      if (!stillCurrent() || currentHash?.value !== initialHash.value) return;
       setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
       if (outcome.validation.application_status !== "applied_to_session_model" || !outcome.applied_model) {
         setOperationMessage(
@@ -862,6 +1026,7 @@ export function App() {
         professional_boundary: outcome.professional_boundary
       };
       setAppliedOperations((current) => [receipt, ...current]);
+      setRetainedReviewContext((current) => [...current, structuredClone(intent)]);
       setUndoStack((current) =>
         [
           {
@@ -877,6 +1042,9 @@ export function App() {
       commitModel(outcome.applied_model);
       const appliedSelection = selectionForOperationOutcome(outcome);
       if (
+        outcome.change_kind === "delete_material" ||
+        outcome.change_kind === "delete_section" ||
+        outcome.change_kind === "delete_component" ||
         outcome.change_kind === "delete_support" ||
         outcome.change_kind === "delete_pipe_run" ||
         outcome.change_kind === "delete_node"
@@ -899,9 +1067,12 @@ export function App() {
         `Applied ${outcome.operation_id} to the session model; previous solve results were cleared. Run a new solve, then save the project to store the edited model locally.`
       );
     } catch (error) {
-      setOperationMessage(`Operation apply failed to run: ${String(error)}`);
+      if (stillCurrent()) setOperationMessage(`Operation apply failed to run: ${String(error)}`);
     } finally {
-      setOperationBusy(false);
+      if (operationRequest.current.sequence === request) {
+        operationRequest.current.busy = false;
+        setOperationBusy(false);
+      }
     }
   }
 
@@ -971,31 +1142,38 @@ export function App() {
 
   async function handleCreateProject() {
     if (!model) return;
+    const request = ++projectRequest.current;
+    const epoch = requestEpochRef.current;
+    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
     setProjectBusy(true);
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
     try {
+      const snapshotModelHash = await computeModelHash(model);
+      if (!stillCurrent()) return;
       const envelopeHash = await computeProjectEnvelopeHash({
         model,
-        editor_intents: editorIntents,
+        editor_intents: combinedContext,
         proposal,
         selected_review_target: selectedReviewTarget,
         mechanics_result: result,
         analysis_run: analysisRun,
-        model_hash: modelHash
+        model_hash: snapshotModelHash
       });
+      if (!stillCurrent()) return;
       const created = await createLocalProject(
         model,
-        editorIntents,
+        combinedContext,
         proposal,
         selectedReviewTarget,
         result,
         analysisRun,
-        modelHash,
+        snapshotModelHash,
         envelopeHash
       );
+      if (!stillCurrent()) return;
       setProjectSummary(created.summary);
-      setEditorIntents(created.editor_intents ?? []);
       setProposal(created.proposal ?? null);
       setSelectedReviewTarget(created.selected_review_target ?? null);
       setProjectEnvelopeHash(created.project_envelope_hash ?? null);
@@ -1004,15 +1182,19 @@ export function App() {
       setProjectMessage(created.summary.message);
       setProjectOperation("create");
     } catch (error) {
+      if (!stillCurrent()) return;
       setProjectMessage(`Create failed: ${String(error)}`);
       setProjectOperation("create_failed");
     } finally {
-      setProjectBusy(false);
+      if (request === projectRequest.current) setProjectBusy(false);
     }
   }
 
   async function handleCreateBlankProject() {
     const blankModel = buildBlankLocalModelDocument();
+    const request = ++projectRequest.current;
+    let epoch = requestEpochRef.current;
+    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     setProjectBusy(true);
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
@@ -1028,15 +1210,21 @@ export function App() {
         model_hash: blankModelHash
       });
       const created = await createLocalProject(blankModel, [], null, null, null, null, blankModelHash, envelopeHash);
+      if (!stillCurrent()) return;
       const createdSummary = {
         ...created.summary,
         message: "Created blank local model document without fixture entities or external file copies."
       };
       commitModel(created.model);
+      epoch = requestEpochRef.current;
       setSelection(defaultSelection(created.model));
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
+      setQueuedBatches([]);
+      setBatchOutcomes({});
+      setBatchReceipts([]);
+      setBatchMessage(null);
       setOperationOutcomes({});
       setOperationMessage(null);
       setResult(null);
@@ -1044,7 +1232,8 @@ export function App() {
       setInputManifest(null);
       setRuleCheckAggregate(null);
       setProposal(null);
-      setEditorIntents(created.editor_intents ?? []);
+      setRetainedReviewContext(created.editor_intents ?? []);
+      setEditorIntents([]);
       setSelectedReviewTarget(null);
       setSolveJob(blankProjectCreatedSolveJob(created.model));
       setProjectSummary(createdSummary);
@@ -1055,19 +1244,24 @@ export function App() {
       setProjectMessage(createdSummary.message);
       setProjectOperation("create_blank");
     } catch (error) {
+      if (!stillCurrent()) return;
       setProjectMessage(`Blank create failed: ${String(error)}`);
       setProjectOperation("create_blank_failed");
     } finally {
-      setProjectBusy(false);
+      if (request === projectRequest.current) setProjectBusy(false);
     }
   }
 
   async function handleOpenProject(projectId: string | null = null) {
+    const request = ++projectRequest.current;
+    let epoch = requestEpochRef.current;
+    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     setProjectBusy(true);
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
     try {
       const opened = await openLocalProject(projectId);
+      if (!stillCurrent()) return;
       if (!opened) {
         setProjectMessage(
           projectId ? `No local project snapshot found for ${projectId}.` : "No local project snapshot found."
@@ -1078,10 +1272,15 @@ export function App() {
       const restoredResult = opened.mechanics_result ?? null;
       const restoredAnalysisRun = opened.analysis_run ?? null;
       commitModel(opened.model);
+      epoch = requestEpochRef.current;
       setSelection(defaultSelection(opened.model));
       setUndoStack([]);
       setRedoStack([]);
       setAppliedOperations([]);
+      setQueuedBatches([]);
+      setBatchOutcomes({});
+      setBatchReceipts([]);
+      setBatchMessage(null);
       setResult(restoredResult);
       setAnalysisRun(restoredAnalysisRun);
       // Persisted analysis-run refs do not include the exact current-session
@@ -1090,7 +1289,8 @@ export function App() {
       setInputManifest(null);
       setRuleCheckAggregate(null);
       setProposal(opened.proposal ?? null);
-      setEditorIntents(opened.editor_intents ?? []);
+      setRetainedReviewContext(opened.editor_intents ?? []);
+      setEditorIntents([]);
       setSelectedReviewTarget(opened.selected_review_target ?? null);
       setSolveJob(
         restoredResult && restoredAnalysisRun
@@ -1104,6 +1304,7 @@ export function App() {
       setProjectMessage(opened.summary.message);
       setProjectOperation(projectId ? "open_by_id" : "open");
       const recomputedHash = await computeModelHash(opened.model);
+      if (!stillCurrent()) return;
       setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
       const recomputedEnvelopeHash = await computeProjectEnvelopeHash({
         model: opened.model,
@@ -1114,6 +1315,7 @@ export function App() {
         analysis_run: opened.analysis_run ?? null,
         model_hash: opened.model_hash ?? null
       });
+      if (!stillCurrent()) return;
       setProjectEnvelopeHashIntegrity(
         deriveProjectEnvelopeHashIntegrity(
           opened.project_envelope_hash ?? null,
@@ -1122,41 +1324,49 @@ export function App() {
         )
       );
     } catch (error) {
+      if (!stillCurrent()) return;
       setProjectMessage(`Open failed: ${String(error)}`);
       setProjectOperation("open_failed");
     } finally {
-      setProjectBusy(false);
+      if (request === projectRequest.current) setProjectBusy(false);
     }
   }
 
   async function handleSaveProject() {
     if (!model) return;
+    const request = ++projectRequest.current;
+    const epoch = requestEpochRef.current;
+    const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
     setProjectBusy(true);
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
     try {
+      const snapshotModelHash = await computeModelHash(model);
+      if (!stillCurrent()) return;
       const envelopeHash = await computeProjectEnvelopeHash({
         model,
-        editor_intents: editorIntents,
+        editor_intents: combinedContext,
         proposal,
         selected_review_target: selectedReviewTarget,
         mechanics_result: result,
         analysis_run: analysisRun,
-        model_hash: modelHash
+        model_hash: snapshotModelHash
       });
+      if (!stillCurrent()) return;
       const saved = await saveLocalProject(
         model,
-        editorIntents,
+        combinedContext,
         proposal,
         selectedReviewTarget,
         result,
         analysisRun,
-        modelHash,
+        snapshotModelHash,
         envelopeHash,
         modelDocumentMigration
       );
+      if (!stillCurrent()) return;
       setProjectSummary(saved.summary);
-      setEditorIntents(saved.editor_intents ?? []);
       setProposal(saved.proposal ?? null);
       setSelectedReviewTarget(saved.selected_review_target ?? null);
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
@@ -1165,10 +1375,11 @@ export function App() {
       setProjectMessage(saved.summary.message);
       setProjectOperation("save");
     } catch (error) {
+      if (!stillCurrent()) return;
       setProjectMessage(`Save failed: ${String(error)}`);
       setProjectOperation("save_failed");
     } finally {
-      setProjectBusy(false);
+      if (request === projectRequest.current) setProjectBusy(false);
     }
   }
 
@@ -1223,6 +1434,26 @@ export function App() {
     if (tool === "support") {
       setInspectorCollapsed(false);
     }
+  }
+
+  function handleToolkitCommand(capability: ToolkitCapability) {
+    if (!selection) return;
+    const context = { selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model?.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) };
+    if (!capabilityAvailability(capability, context).enabled) return;
+    if (capability.history) {
+      if (capability.history === "undo") handleUndoSessionModelEdit();
+      else handleRedoSessionModelEdit();
+      setToolkitFocus({ testId: "toolkit-entry" });
+      return;
+    }
+    const route = capabilityRoute(capability, context);
+    if (!route) return;
+    setArmedCreationTool(route.tool ?? null);
+    if (route.surface === "inspector") { setInspectorCollapsed(false); setActiveSection(null); }
+    else if (route.surface === "tree") { setTreeCollapsed(false); setActiveSection(null); }
+    else if (route.surface === "viewport") setActiveSection(null);
+    else setActiveSection(route.surface);
+    setToolkitFocus({ testId: route.focusTestId, elementId: route.elementId });
   }
 
   async function handleSaveReportPackage() {
@@ -1387,6 +1618,7 @@ export function App() {
           <p>{projectSummary?.project_name ?? model.project.name}</p>
         </div>
         <div className="titlebar-actions" aria-label="Local project controls">
+          <div className="display-preference-control"><DisplayUnitSelector /></div>
           <span className="titlebar-project-name">{projectSummary?.project_name ?? model.project.name}</span>
           <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
             <Database size={15} aria-hidden="true" />
@@ -1477,6 +1709,10 @@ export function App() {
             <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={handleSelectEntity} />
           </div>
           <div className="workspace-pane workspace-pane-viewport">
+            <ToolkitPalette
+              context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
+              onChoose={handleToolkitCommand}
+            />
             <PipeViewport
               armedCreationTool={armedCreationTool}
               model={model}
@@ -1550,7 +1786,69 @@ export function App() {
               className={dockSectionClass("operations", activeSection)}
               aria-label="Operation Apply section"
               data-testid="workspace-section-operations"
+              tabIndex={-1}
             >
+              <section className="panel" aria-label="Stored proposed review context">
+                <h3>Stored proposed review context</h3>
+                <p data-testid="retained-context-summary">{retainedReviewContext.length} retained operation records. Acceptance unknown after reopening; these records do not prove the current model contains a change. Saved member metadata does not restore batch grouping, receipts or undo checkpoints.</p>
+                {retainedReviewContext.map((intent, index) => (
+                  <details key={index}>
+                    <summary>{String(intent?.operation_id ?? "Unrecognized operation record")} — proposed context; acceptance unknown</summary>
+                    <pre>{JSON.stringify(intent, null, 2)}</pre>
+                    <button type="button" data-testid={`requeue-context-${index}`} disabled={operationBusy} title={operationBusy ? "Wait for the current operation to finish." : undefined}
+                      onClick={() => void handleQueueOperationBatch({ batch_id: `requeue-${index}`, operations: [intent] })}>
+                      Requeue for fresh validation
+                    </button>
+                  </details>
+                ))}
+              </section>
+              <HangerSelectionPanel
+                model={model}
+                selection={selection}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                requestEpoch={requestEpoch}
+              />
+              <SelfWeightPlanPanel
+                model={model}
+                selection={selection}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                requestEpoch={requestEpoch}
+              />
+              <OfflineProposalIntakePanel
+                model={model}
+                selection={selection}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                requestEpoch={requestEpoch}
+                capabilityReference={{
+                  capabilities: toolkitCapabilities,
+                  operation_schema: operationSchema,
+                  provider_status: "Live provider is held; offline proposals require explicit human review."
+                }}
+              />
+              <GeometryToolsPanel
+                model={model}
+                selection={selection}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                requestEpoch={requestEpoch}
+              />
+              <BoundaryAuthoringPanel
+                model={model}
+                selection={selection}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                requestEpoch={requestEpoch}
+              />
+              <BatchReviewPanel
+                onClear={handleClearReviewQueue}
+                batches={queuedBatches} outcomes={batchOutcomes} receipts={batchReceipts}
+                revision={modelRevision.current} busy={operationBusy} message={batchMessage}
+                onValidate={(entry) => void handleRunOperationBatch(entry, false)}
+                onApply={(entry) => void handleRunOperationBatch(entry, true)}
+              />
               <OperationApplyPanel
                 queuedIntents={editorIntents}
                 outcomes={operationOutcomes}
@@ -1632,6 +1930,7 @@ export function App() {
               className={dockSectionClass("libraries", activeSection)}
               aria-label="Libraries section"
               data-testid="workspace-section-libraries"
+              tabIndex={-1}
             >
               <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
             </section>
@@ -1682,7 +1981,7 @@ export function App() {
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
               />
-              <ComparisonPanel comparison={comparison} onSelectResult={handleSelectResult} />
+              <ComparisonPanel comparison={comparison} result={result} onSelectResult={handleSelectResult} />
               <DesignWorkspacePanel
                 model={model}
                 knowledge={knowledge}
@@ -2594,8 +2893,8 @@ function blankProjectCreatedSolveJob(model: PreviewModel): SolveJobAuditState {
   };
 }
 
-function sessionHistoryChangedSolveJob(action: "undo" | "redo", operationId: string): SolveJobAuditState {
-  const verb = action === "undo" ? "Undid" : "Redid";
+function sessionHistoryChangedSolveJob(action: "undo" | "redo" | "batch", operationId: string): SolveJobAuditState {
+  const verb = action === "undo" ? "Undid" : action === "redo" ? "Redid" : "Applied batch";
   return {
     ...initialSolveJob(),
     job_id: `job:preview-linear-static:session-${action}`,

@@ -1,0 +1,2 @@
+# Parent acceptance B2
+HELP_HUMAN accepts existing update_support/configuration subset; set_field Material/temperature_points whole array; update_load Load/equivalent_static.wind.exposure combined exposure object. Authorizes isolated rich_authoring.rs and module tests while B1 lib.rs owner continues. Integration serial after B1. Independent whole frozen diff review required. No new mechanics, incomplete unselected tables with readiness diagnostics; no extrapolation/fallback. Existing family aliases retained; no false solver mode flags.

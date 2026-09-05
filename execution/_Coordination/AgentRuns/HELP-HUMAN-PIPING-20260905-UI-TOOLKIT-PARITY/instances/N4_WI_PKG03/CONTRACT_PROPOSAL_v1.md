@@ -1,0 +1,34 @@
+# Row 23 hanger-library contract proposal v1
+
+Status: PROPOSED; parent acceptance required before implementation. Derivative coordination evidence, not decomposition or lifecycle authority.
+
+## Basis and boundaries
+
+Accepted upstream: HEAD `740569598f9d00440636b8ea25264127f418e4ec`, SOFTWARE_DECOMP revision 0.12 / SCA-009 Vocabulary Annex row 23 and section 1.4; approved DAG-010. DEC-049 preserves explicit user values and no catalog sizing. DEL-03-02 OUT-001 / AC-001 / VER-001 (SOW-018, OBJ-004) covers schema and provenance; DEL-03-07 OUT-001 / AC-001 / VER-001 (SOW-019/SOW-044, OBJ-002/004) covers import boundary. Both are SOW_V1 and IN_PROGRESS; no Remaining entry is inferred to close them. OPS-K-IP-1..3, DATA-1..3, UNIT-1, PRIV-1 apply.
+
+## Minimal contract
+
+1. Extend LibraryKind with `hanger`; metadata/records keys `hanger_library`, `hanger_records`. Existing material/section/component behavior remains unchanged. New `schemas/hanger.schema.yaml` is a strict JSON Schema 2020-12 document, schema_version `1.0.0`, object keys schema_version/hanger_library/hanger_records. Metadata carries `library_id`, `name`, provenance and explicit existing disposition metadata. No bundled records.
+2. Each record: `hanger_id`, `name`, `hanger` and `provenance`. `hanger` has canonical `hanger_type` (`variable_spring_hanger` or `constant_effort_support`), `source_reference`, optional `manufacturer_reference`, optional `load_side_review_reference`, optional `mechanics_consumption`, `stiffness: {dof,value: ImportedQuantity}`, and optional installed_load/cold_load/hot_load/constant_load/travel_range/movement_limit ImportedQuantity fields. There is no node, support ID, or implied orientation. Stiffness DOF, when present, is explicit.
+3. ImportedQuantity uses `{magnitude,unit,dimension,provenance}`. Supported mappings: force quantities installed/cold/hot/constant_load; length quantities travel_range/movement_limit; force-per-length translational stiffness. Require finite explicit numbers, known unit/dimension compatibility, and positive values where existing hanger validator requires positive. Preserve per-value source metadata. No fixture magnitude is engineering authority. Missing optional properties remain missing and existing product validator diagnoses insufficient solve data; schema completeness is not solve completeness.
+4. Python/Rust import dispatch adds hanger, retaining seven required provenance fields: source_name/source_location/source_license/contributor/contributor_certification/redistribution_status/review_status. Same missing-field/private-local/public/quarantine outcomes apply. Shape and quantity validation must run on hanger imports in both runtimes so arbitrary wrappers cannot bypass units/provenance. No concrete third-party parser is selected: input is already-parsed project JSON.
+5. Selection is manual identity choice over successfully imported local records. User supplies target node, new/existing support ID, explicit restraint/DOF context and review context. Resolve by library_id + hanger_id. Revalidate current selected record; map ImportedQuantity.magnitude to product Quantity.value while preserving unit. Copy only explicit supported fields. Do not merge missing values from previous selections, infer engineering defaults, rank, size or select based on loads.
+6. Proposal evidence retains library identity, selected record identity, source payload including all provenance and source reference. This is a snapshot of imported values; editing the library later must not silently mutate supports. PKG16 is responsible for a supported operation evidence location without adding unsupported payload keys. Human GUI and agent callers use the same explicit create_support/update_support or set_field semantics. Existing model/solver completeness diagnostics continue to govern.
+
+## Dependency and ownership graph
+
+Parent accepts interface → PKG03 schema/import implementation → frozen contract/tests → PKG07 library UI/native metadata mapping and PKG16 support operations → integrated reviewer. Schema/import does not depend on UI; cross-package implementation edges are routed through HELP_HUMAN. No mutual implementation cycle is needed.
+
+Proposed PKG03 exclusive source fence: `schemas/hanger.schema.yaml`; `core/library_import/provenance_checker.py`; `core/library_import/library_import_document/src/lib.rs`; `core/library_import/library_import_document/tests/provenance_parity.rs`; new `tests/test_hanger_library_schema.py`; `tests/test_library_import_provenance.py`; new invented `fixtures/hanger/**`; library import READMEs. Source grant is not yet accepted. PKG03 does not write model.schema, product_physics, operation_applier, desktop, or shared types. Native library_metadata_key in apps/desktop/src-tauri/src/lib.rs is an additional PKG07 integration requirement (parent must assign).
+
+## Verification and gates
+
+Implementation tests: valid invented private local records, missing full/value provenance, protected-suspected quarantine, unsupported hanger type, absent/invalid quantities, unit mismatch, duplicate record IDs, Python/Rust outcome parity and existing library regressions. Require fresh read-only TASK+software-code-review over full PKG03 frozen diff before sweep/push. Only profile-registered checks or parent-authorized focused commands may run. Parent owns integrated sweep/receipt/Git.
+
+## Owner questions and acceptance limits
+
+No new owner engineering decision is necessary for manual imported-record selection under SCA-009. Automated sizing, catalog ranking, load-variation acceptability, bundled catalogs, new mechanical interpretation, or a concrete vendor format would be new work and remain excluded. Public legal/source-catalog questions already remain human decisions; this tranche does not resolve them. Source snapshots and existing acceptance authorities remain unchanged.
+
+## Handoff
+
+Closure: PHASE_A_PROPOSAL_RETURNED, implementation HELD pending parent interface/fence acceptance. Derivative status: current against hashed read basis in ACTIVATION.json, no truth pointer changed. Rerun on accepted contract amendment, overlapping write-fence change, or source drift. Remaining blocker: parent accepts concrete contract and assigns native-library mapping plus operation evidence retention. Next owner: HELP_HUMAN.

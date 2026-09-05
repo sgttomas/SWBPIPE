@@ -1,0 +1,25 @@
+{
+  "status": "SOURCE_FROZEN_REVIEW_PENDING",
+  "source_count": 65,
+  "source_manifest": "SOURCE_HASHES_V5.json",
+  "source_manifest_sha256": "7158a7442ed1a84e977868be993c66d0a5d2826c96218710aff66aaee04abb3c",
+  "full_diff": "diff-v5-integrated.patch",
+  "full_diff_sha256": "fb86c7fbcee315e432c47f1c0f0082d29b27f9625e728322849f20fbc7ac47bd",
+  "snapshot": "SOURCE_SNAPSHOT_V5",
+  "accepted_dependencies": [
+    "M_EXISTING_ACCEPTED001",
+    "T1_ACCEPTED_SNAPSHOT.json",
+    "T2_ACCEPTED_SNAPSHOT_V2.json",
+    "T3_ACCEPTED_SNAPSHOT_V2.json",
+    "T4_RENDERER_ACCEPTED_SNAPSHOT_V3.json",
+    "N_ENV/DUAL_WASM_BUILD.json"
+  ],
+  "artifacts": {
+    "projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "e9590a97b6ff9f965262ec1567457b98ccff5183d8539607b68ec14e4af6a30d",
+    "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "e9590a97b6ff9f965262ec1567457b98ccff5183d8539607b68ec14e4af6a30d",
+    "projects/chirality-piping/apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "61d1e06e60310f1fd488ebe6bd7d1369f086edd5ee07a73eb066181b52206e02",
+    "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "61d1e06e60310f1fd488ebe6bd7d1369f086edd5ee07a73eb066181b52206e02"
+  },
+  "checks": "final full rerun pending; focused shared batch8, typed display3, palette4/navigation and compatibility tests passed; built-browser dist1 passed on prior build. Current full run may contain prior legacy test assertions; final immutable frozen rerun follows.",
+  "remaining": "Root N7 fresh 100% union review and final full/dist terminal checks; no lifecycle closure."
+}

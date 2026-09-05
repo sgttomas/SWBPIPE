@@ -1,0 +1,81 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 4
+  },
+  "counts": {
+    "category": {
+      "execution_environment": 1,
+      "implementation": 2,
+      "independent_review": 4,
+      "remediation": 2
+    },
+    "event_type": {
+      "FINISH": 4,
+      "REMEDIATION": 1,
+      "START": 4
+    },
+    "outcome": {
+      "FAIL": 1,
+      "INFO": 1,
+      "PASS": 3,
+      "STARTED": 4
+    },
+    "reason_code": {
+      "PRIVACY_QUARANTINE_GAPS": 2,
+      "PYTEST_INTERPRETER": 1
+    }
+  },
+  "events": 9,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 481.552,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "A2_HANGER_IMPORT",
+      "package_id": "PKG-03",
+      "remediations": 1,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg03/hanger_import_implementation"
+    },
+    {
+      "duration_seconds": 161.844,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_HANGER_IMPORT_C2",
+      "package_id": "PKG-03",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg03/hanger_import_implementation_C2"
+    },
+    {
+      "duration_seconds": 187.279,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "A2_HANGER_REVIEW",
+      "package_id": "PKG-03",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg03/hanger_import_review"
+    },
+    {
+      "duration_seconds": 164.318,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_HANGER_REVIEW_C2",
+      "package_id": "PKG-03",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/wi_pkg03/hanger_import_review2"
+    }
+  ],
+  "sessions": 4,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

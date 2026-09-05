@@ -1,0 +1,176 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/SECTION_ACCEPTED_SNAPSHOT_V1.json",
+    "expected": "210f76091fe8701b15752b0a1f622e10df863b886e1b6a67f1b940d0f57c31e4",
+    "actual": "210f76091fe8701b15752b0a1f622e10df863b886e1b6a67f1b940d0f57c31e4",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/B1_ACCEPTED_SNAPSHOT_V1.json",
+    "expected": "c5f2bb8aadbe2e6dc25a2d7ce3cafc4f4b9c68c670385e0701f102cf10e95147",
+    "actual": "c5f2bb8aadbe2e6dc25a2d7ce3cafc4f4b9c68c670385e0701f102cf10e95147",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json",
+    "expected": "191102ead5b70cc80ea81a251ec208e2f445d21c702da00dcf532b3229b69859",
+    "actual": "191102ead5b70cc80ea81a251ec208e2f445d21c702da00dcf532b3229b69859",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/PKG03_ACCEPTED_SNAPSHOT_C2.json",
+    "expected": "460ffe2ca13c036355f65c372b23778fd54b5abc5315c5f68aece48412cbf5b0",
+    "actual": "460ffe2ca13c036355f65c372b23778fd54b5abc5315c5f68aece48412cbf5b0",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/C_ACCEPTED_SNAPSHOT_V1.json",
+    "expected": "178eb3b6efe8a20be6da0db6abc693f10b0549b83c739fc8ff790f30c801dc28",
+    "actual": "178eb3b6efe8a20be6da0db6abc693f10b0549b83c739fc8ff790f30c801dc28",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/NATIVE_ACCEPTED_SNAPSHOT_V1.json",
+    "expected": "8bf7481785b957db5e679445c620b254bf4c4cae0c324210ca9139d737bc35dc",
+    "actual": "8bf7481785b957db5e679445c620b254bf4c4cae0c324210ca9139d737bc35dc",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_REPAIR_ACCEPTED_SNAPSHOT_V1.json",
+    "expected": "a7918234ff1d7264dc04b9f7d3b01600fc03f02c055f6b9fdc2eea325246691a",
+    "actual": "a7918234ff1d7264dc04b9f7d3b01600fc03f02c055f6b9fdc2eea325246691a",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json",
+    "expected": "511c3e7cdb37a296bf80ff2546d3439357ace6fa0f795b5744fb42fe310f93f0",
+    "actual": "511c3e7cdb37a296bf80ff2546d3439357ace6fa0f795b5744fb42fe310f93f0",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/N7_UI_REPAIR_SOURCE_ACCEPTED_V1.json",
+    "expected": "fd0a5d1fbb5eebbe9151c5cf2d94bba60f0a1a3b259dc9d011c32283670e349f",
+    "actual": "fd0a5d1fbb5eebbe9151c5cf2d94bba60f0a1a3b259dc9d011c32283670e349f",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/SOURCE_HASHES_V9.json",
+    "expected": "bbe4540585ed5e1b5bbad0732b7ce35d8b9afd440e0e31e34f905e02aa61baf7",
+    "actual": "bbe4540585ed5e1b5bbad0732b7ce35d8b9afd440e0e31e34f905e02aa61baf7",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/A2_COVERAGE_FINAL/CHANGED_DOCS_MANIFEST_V2.json",
+    "expected": "148f1a4c1c19015c25b58a46209d6924c04a367bb5aab113ec8064dc03942edc",
+    "actual": "148f1a4c1c19015c25b58a46209d6924c04a367bb5aab113ec8064dc03942edc",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V9.json",
+    "expected": "5d997c21e5a8b36298c8ba035be44df1a198e3e5e9ca58122550ce09fc9f436b",
+    "actual": "5d997c21e5a8b36298c8ba035be44df1a198e3e5e9ca58122550ce09fc9f436b",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/CHECKS_V9_TERMINAL.json",
+    "expected": "c71129e2c90c15d2264d1cdd71e4c563725c33af96650b9d9d5cf94cb9c80c2d",
+    "actual": "c71129e2c90c15d2264d1cdd71e4c563725c33af96650b9d9d5cf94cb9c80c2d",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/V9_VERIFICATION_BEFORE.json",
+    "expected": "7410bc368d4f59be929865cf1b0f9b72c7087978622c7bfd405c33e3746ac170",
+    "actual": "7410bc368d4f59be929865cf1b0f9b72c7087978622c7bfd405c33e3746ac170",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/V9_VERIFICATION_AFTER.json",
+    "expected": "08561445465c8c41ec6def4efb555373fb5f36231446b1fbb9fda384903e0663",
+    "actual": "08561445465c8c41ec6def4efb555373fb5f36231446b1fbb9fda384903e0663",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/N1_REVIEW_PENDING_003.json",
+    "expected": "477c037e84fea72bd6b67bbf8197973cb9b8735e5367d743d1e59b55cdffcb06",
+    "actual": "477c037e84fea72bd6b67bbf8197973cb9b8735e5367d743d1e59b55cdffcb06",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/PACKAGE_HANDOFF_REVIEW_PENDING_V3.md",
+    "expected": "56f50bc739876724c050babf8b40040e4394bfa18794503bdc31ecbadf76bc1d",
+    "actual": "56f50bc739876724c050babf8b40040e4394bfa18794503bdc31ecbadf76bc1d",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_DUAL_BUILD_ACCEPTED_SNAPSHOT_V1.json",
+    "expected": "5cc3b5e293f8f8c274483e14a8cfd5ee7d74e07389dfed9329cd4b8b422b8bed",
+    "actual": "5cc3b5e293f8f8c274483e14a8cfd5ee7d74e07389dfed9329cd4b8b422b8bed",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_REPAIR_REVIEW_RETURN.md",
+    "expected": "7d6a8e0df455ff819089f927fb41fbda0a68931037cb923011fef30b67058b5b",
+    "actual": "7d6a8e0df455ff819089f927fb41fbda0a68931037cb923011fef30b67058b5b",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_REPAIR_MANAGER_CHECKS_V1.json",
+    "expected": "4dd14c408a34afc7b2acabfaa22ed2a95d90042095f342acd949451e8669dc32",
+    "actual": "4dd14c408a34afc7b2acabfaa22ed2a95d90042095f342acd949451e8669dc32",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/F_REPAIR_WASM_BACKCHECK_V1.json",
+    "expected": "17167ff863f31b85a3f1760d6fa319cace8ab7d123d4965e69b57398ec377510",
+    "actual": "17167ff863f31b85a3f1760d6fa319cace8ab7d123d4965e69b57398ec377510",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_REVIEW/REVIEW_RETURN.md",
+    "expected": "d5da93d146e26e5bed13f6346234f58c9bf1b1bc5d38842e0c1d91330a5219ee",
+    "actual": "d5da93d146e26e5bed13f6346234f58c9bf1b1bc5d38842e0c1d91330a5219ee",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/CHECKS.json",
+    "expected": "45b223a8dde175a3925b8e17088366b976050f000615a7a9d81b76bbbe493a34",
+    "actual": "45b223a8dde175a3925b8e17088366b976050f000615a7a9d81b76bbbe493a34",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/evidence_relocations/F3_BRIEF_PORTABILITY_V1/RELOCATION_SNAPSHOT.json",
+    "expected": "bcf24b40343d5d186c33c35c1d1d969d982f6251784c8455e940bd63e3db62f8",
+    "actual": "bcf24b40343d5d186c33c35c1d1d969d982f6251784c8455e940bd63e3db62f8",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/R_N7_UI_REPAIRS/PORTABILITY_RELOCATION_V1.json",
+    "expected": "6f2d3d272c3c9065c5bdeb7fc2f1c534a3d3fe64dab2d401416408f4b51ed265",
+    "actual": "6f2d3d272c3c9065c5bdeb7fc2f1c534a3d3fe64dab2d401416408f4b51ed265",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/R_N7_UI_REPAIRS/RETURN.md",
+    "expected": "825fe1c52b9bd2996d3e97c00da8211471d3074a5eaf9ac5770074624b9e5250",
+    "actual": "825fe1c52b9bd2996d3e97c00da8211471d3074a5eaf9ac5770074624b9e5250",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/PRECOMMIT_CHECKS_V3.json",
+    "expected": "822928eecd97150d66eea0334b57fa56cdae5e75823260ab3737d4b35172e40d",
+    "actual": "822928eecd97150d66eea0334b57fa56cdae5e75823260ab3737d4b35172e40d",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/PRECOMMIT_CHECKS_V5.json",
+    "expected": "588721d90463573df8d350c21e40df92dd94f2302a68c4768475c9857effeabb",
+    "actual": "588721d90463573df8d350c21e40df92dd94f2302a68c4768475c9857effeabb",
+    "match": true
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/PRECOMMIT_SELFCHECK_COMPARISON_V5.json",
+    "expected": "333b944cd00768a4e4f963d0ed7d9c1da436db0fe1a160b7f029a77b30af747a",
+    "actual": "333b944cd00768a4e4f963d0ed7d9c1da436db0fe1a160b7f029a77b30af747a",
+    "match": true
+  }
+]

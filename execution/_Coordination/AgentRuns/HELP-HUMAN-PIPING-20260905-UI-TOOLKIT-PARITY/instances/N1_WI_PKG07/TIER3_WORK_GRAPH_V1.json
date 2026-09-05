@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "status": "PARENT_ACCEPTED_CONDITIONAL_M_EXISTING_REVIEW_PASS",
+  "basis": "Parent request exact Tier3 graph; M_EXISTING review remains gate",
+  "posture": "MIXED",
+  "max_active_production_children": "actual harness availability; prior two-production cap superseded for Tier3",
+  "shared_integration_owner": "B0_UI_INTEGRATION",
+  "shared_files": [
+    "App.tsx",
+    "types.ts",
+    "styles.css",
+    "PipeViewport.tsx",
+    "PropertyInspector.tsx",
+    "ModelTree.tsx",
+    "LibraryManagerPanel.tsx",
+    "LoadCaseManagerPanel.tsx",
+    "enumerated results/readout renderers"
+  ],
+  "nodes": [
+    {
+      "id": "T1_TRANSPORT",
+      "writes": [
+        "services/operationBatchService.ts",
+        "services/displayQuantityService.ts",
+        "services/selfWeightPlanService.ts",
+        "services/wasmEngine/loadWasmEngine.ts",
+        "services/wasmEngine/loadSelfWeightEngine.ts",
+        "their tests",
+        "desktop/scripts/build-wasm-engine.mjs",
+        "relevant script tests",
+        "project-local .gitignore exact selfweight generated outputs"
+      ],
+      "depends_on": [
+        "accepted N2 transport source",
+        "compile-ready N5 adapter"
+      ],
+      "return": "local exported transport types, strict envelope handling, honest missing-artifact diagnostics, compatible resolveWasmArtifact"
+    },
+    {
+      "id": "T2_GEOMETRY",
+      "writes": [
+        "features/geometry-tools/**",
+        "features/boundary-authoring/**"
+      ],
+      "depends_on": [
+        "frozen N2 split/transform/boundary contracts",
+        "T1 typed interfaces"
+      ],
+      "return": "pure explicit structured forms/builders, no model mutation; callbacks for batch"
+    },
+    {
+      "id": "T3_WORKFLOWS",
+      "writes": [
+        "features/hanger-selection/**",
+        "features/self-weight-authoring/**",
+        "features/offline-proposal-intake/**"
+      ],
+      "depends_on": [
+        "accepted N4/N5/N2 producer contracts",
+        "T1 transport"
+      ],
+      "return": "user-imported manual hanger selection; explicit selfweight plan preview; offline authored batch intake preserving submitted source/rationale/author"
+    },
+    {
+      "id": "T4_DISPLAY",
+      "writes": [
+        "features/display-units/**"
+      ],
+      "depends_on": [
+        "accepted display converter",
+        "T1 service"
+      ],
+      "return": "context/readout component, target unit tokens only, no conversion constants, enumerated source renderer patch requirements"
+    },
+    {
+      "id": "T5_INTEGRATE",
+      "writes": [
+        "B0 shared files"
+      ],
+      "depends_on": [
+        "each accepted module return and fresh module review"
+      ],
+      "return": "real routed tools, batch generation+rehash guard, one checkpoint, capability/schema download and offline intake, all visible quantity readouts covered"
+    },
+    {
+      "id": "T6_REVIEW",
+      "writes": [
+        "own evidence"
+      ],
+      "depends_on": [
+        "all UI source frozen"
+      ],
+      "return": "fresh100% integrated source review PASS and real engine/UI/build evidence"
+    }
+  ],
+  "concurrency": "Parent accepts disjoint T1/T2/T3/T4 fanout within harness slots after frozen props/API. T2/T3 can use agreed type-only contracts while T1 builds. ONE B0 shared writer; integrate serial after accepted returns.",
+  "evidence": [
+    "accessible fields/errors/focus/preview",
+    "real native-Wasm rollback/stale response",
+    "validation never acceptance",
+    "one checkpoint per final successful batch",
+    "display model/hash/drafts unchanged",
+    "machine-readable exact supported/gated capability schema no provider claims"
+  ],
+  "claim_fence": "Derivative implementation graph, not decomposition truth; D58 live/provider held; R1-R3 deferred"
+}
