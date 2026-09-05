@@ -3082,3 +3082,12 @@
   - Pointers: PR #715; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ACCEPTED_LOCAL_REPAIR.json` and `RELOCATION_MAP.json`; same run `instances/N8_CHANGE/G4_PORTABILITY_CLOSEOUT_V1.md`.
   - Model-Attribution: HELP_HUMAN supervised HELPS_HUMANS for exact-byte evidence relocation and CHANGE for serialized final-tree validation/publication; actual attribution and native enforcement limitations remain in the owning records.
   - Gate-Outcome: `EXECUTED` — parent accepted the evidence-only repair of two active control paths, preserving original bytes and all product/configuration/manifest hashes. All hosted-equivalent local gates on the final tree and committed-range G4 remain required before publication; hosted exact-head checks remain required before merge. No lifecycle, source or authority change; owner merges.
+
+- **2026-09-05 — Receipt 130** (menu/drawer stacking repair).
+  - Receipt-ID: `Receipt-130`
+  - Examined-Through: `8e503b92e297a50f037739b4bb2b43068490805c`
+  - Parent-Receipt: `Receipt-129`
+  - Pointers: PR #715; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/MENU_REPAIR_PARENT_FINAL_HANDOFF_V1.md`; same run `instances/N7_FINAL_REVIEW/V4_BACKCHECK/RETURN.md` and `instances/N8_CHANGE/MENU_REPAIR_CLOSEOUT_V1/HANDOFF.md`; clean summary `validation/evidence/sweeps/SWEEP_20260905T155659Z_8e503b92e297.json`.
+  - Checks: accepted focused positive/negative proofs, independent112-member review and full clean committed-source DEC025: PASS. Final-tree local hosted gates and committed G4 remain required before push; actual exact-head hosted CI remains required before merge.
+  - Model-Attribution: HELP_HUMAN supervised WORKING_ITEMS and bounded implementation/review Agent2 roles; CHANGE performed serialized closeout without children. Actual attribution and native enforcement calibration remain in the owning run records.
+  - Gate-Outcome: `EXECUTED` — closed menu now stays below shared drawers; open menu retains its backdrop priority. Earlier hosted failures are preserved. Evidence commit must preserve all112 reviewed source hashes; no lifecycle promotion or residual closure. User-authorized same-branch publication remains conditional on final gates; owner merges.
