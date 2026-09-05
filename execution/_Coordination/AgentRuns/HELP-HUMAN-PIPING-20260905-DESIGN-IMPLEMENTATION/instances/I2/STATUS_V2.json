@@ -1,0 +1,16 @@
+{
+  "instance": "I2",
+  "runtime_id": "/root/integration_review",
+  "role": "TASK Agent 2",
+  "skill": "software-code-review",
+  "skill_version": "1",
+  "model": "unknown",
+  "enforcement": "instruction+config asserted",
+  "status": "PASS accepted by root",
+  "findings": [],
+  "scope": "100% three-file delta; combined 19-file binding",
+  "mapping_sha256": "218d841d4ea32f3a87b38b52716c79726590aa764cc09672a89a85951becc8f5",
+  "execution": "supplied evidence inspected, not rerun by reviewer",
+  "writes_by_child": false,
+  "delegation": "none"
+}

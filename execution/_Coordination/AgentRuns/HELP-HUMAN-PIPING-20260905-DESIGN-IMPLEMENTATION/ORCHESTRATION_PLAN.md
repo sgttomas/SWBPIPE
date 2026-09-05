@@ -1,4 +1,4 @@
-# Orchestration plan v6 — design implementation
+# Orchestration plan v8 — design implementation
 
 Frozen 2026-09-05 before implementation dispatch, recorded verbatim in substance from Agent 0 direction by bounded Agent 2 C1. This is derivative execution coordination, not decomposition truth or a new owner ruling.
 
@@ -76,3 +76,19 @@ Root accepted W2 FINAL_V1 bounded repair after reading its return and verifying 
 Add I2 `/root/integration_review`, direct TASK + software-code-review with read-only tools, AllowedWriteTargets empty, ApplyEdits false, and no children. Initial intake may inspect independently frozen W2 and policy basis. Final review of 100% combined product/test/configuration diff waits for root release of W7/C2 final freeze. Return includes exact hashes/findings; parent persists it in instances/I2. No engineering or lifecycle acceptance. W7 presentation-scope ResizeObserver repair and 13-file freeze remain under review, not accepted merely by freeze.
 
 C2 additionally owns exactly current-run .gitattributes entries with -whitespace for inventoried frozen raw logs/unified patches, with no glob or root-attribute edits. Preserve bytes and text diffs; C2 supplies exact inventory hashes. Third exact historical EVIDENCE classification of immutable W2/I1/TASK_RUN.md is separately authorized; prior entries and evidence remain unchanged. N1 preflight is preserved under _run_records with portable pointer, requiring no additional policy entry.
+
+## Additive update v7 — failed clean sweep and bounded browser-test repair
+
+Source commit e5ec1d4c6dc83315486b1df121474c6e2a75be3d began the first full DEC-025 attempt from a clean whole worktree. Browser failures were definitive; root stopped after five failures, three passes and twenty unfinished tests, exit 130. Rust, Piping Python 1011 and Vitest 748 passes were observed; dist and final build surfaces were unexecuted. This is not a full-gate PASS and no waiver exists. C2 confirms known sweep/Vite/Playwright/browser processes stopped and 17 source/configuration plus 77 prior evidence hashes unchanged; C2 owns preserved failure evidence.
+
+Root released W7 to repair only apps/desktop/e2e/gui-workflow-validation.spec.ts and r2-smoke.spec.ts, plus its own records. Stale assumptions concerned inspector width above 300px, permanent Agent rail, retired generic quantity label, hidden Selection & navigation, and former creator/projectDetails paths. No app-code defect or app-source amendment has been established. Preserve payload, unit, error, undo, save/reopen, solve and result assertions; use current visible typed labels, units, actionability and containment without blanket weakening.
+
+W7 must pass all 28 source browser tests and the existing dist preflight, freeze, and obtain fresh 100% read-only review. Root then routes I2 supplemental/full-binding review; C2 owns a new source commit and complete fresh clean five-surface DEC-025. Earlier precommit snapshots and Receipt 131 stay immutable; no receipt edit now. C1 records this control amendment only and freezes while W7 proceeds.
+
+## Additive update v8 — ordinary-pointer failure exposes bounded UI layout defect
+
+The two-spec preflight exposed real pointer interception at COMBINATION_STRESS_SUMMARY_SKIPPED: a visible stable diagnostic button was covered by neighboring missing-data/Issues/Diagnostics panels. The old synthetic click hid this defect. Retain ordinary click. Thirteen passes and one failure were observed before root authorized graceful stop; preserve terminal partial evidence without claiming a full PASS.
+
+Root extends current test-only repair back to original W7 UI layout authority, primarily styles.css drawer flex/scroll containment, with App/already-owned UI only if required. Core, schema and native configuration remain excluded. This required actionability fix does not add scope or require a new owner question. W7 owns all product changes and must produce a new freeze, fresh full-diff review, desktop checks, all 28 source-browser tests and 3 dist tests. I2 final V7 review is held as historical/static evidence until the new source binding.
+
+Root accepted N1's prior two-E2E-only continuity supplement as historical after reading and verifying both members (2e7a770c3a23c4da0766bb44822ef4bd7a303d85224f0a7f6e1c599565033ce2). Runtime CSS change invalidates app continuity and requires a fresh native bundle after review. C2 future source commit and complete clean five-surface DEC-025 remain mandatory. Preserve every prior packet and Receipt 131.

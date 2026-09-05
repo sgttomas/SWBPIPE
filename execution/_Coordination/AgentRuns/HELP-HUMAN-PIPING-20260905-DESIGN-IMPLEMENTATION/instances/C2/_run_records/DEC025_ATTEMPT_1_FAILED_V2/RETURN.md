@@ -1,0 +1,11 @@
+# First clean DEC025 attempt — FAILED / INTERRUPTED
+
+Source commit `e5ec1d4c6dc83315486b1df121474c6e2a75be3d` was clean across the whole repository at start; all17 reviewed files and77 prior inputs matched their accepted hashes. Final corrected receipt, source integrity and staged whitespace checks passed before source commit. Exact full registered command used the provisioned Python environment, offline Cargo and one Playwright worker under host escalation.
+
+Rust PASS, Python1011 PASS, Vitest748/45 PASS. Source Playwright completed five failures and three passes before root directed graceful interruption to avoid repeated stale-navigation timeouts. Twenty source tests remained unfinished; production-dist and final production-build surfaces were unexecuted. Exit130; no canonical sweep summary because KeyboardInterrupt interrupted summary generation. This record is not a full DEC025 result and grants no pass.
+
+Only known sweepPGID10417 and leftover ownedVitePGID18595 were signaled. Both groups and observed browser/worker PIDs were absent afterward. Buildslot released to root before capture packaging. No user process was targeted. No source/test repair or push by CHANGE.
+
+Exact console, precommit-check failures/repairs, and all five generated error contexts are carried in byte-hashed base64 records. Selected frames from four failure trace archives are included for visual context. The complete original7908-artifact capture, including hidden Playwright screenshot resources, is retained outside Git at the path in EXTERNAL_TRACE_INVENTORY.json with original hashes. Initial unaccepted capture packaging would have inserted an870MB encoded artifact; it was moved intact externally and superseded by this bounded V2 package before any commit. External complete traces need that retained capture and are not claimed portable from the repository alone.
+
+Observed terminal tests and clean-start evidence are in STATUS.json. No product/config/accepted-input changes occurred during capture; subsequent parent-authorized W7 repairs are a new phase. Root will require renewed review, source commit and a fresh complete clean five-surface sweep. Agent1 CHANGE `/root/sync_main`, parent `/root`; no children, native assertion only. Prior full gate remains unsatisfied.

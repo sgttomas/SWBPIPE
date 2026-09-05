@@ -1,0 +1,8 @@
+{
+  "receipt": "Receipt-132",
+  "tail_bytes": 1875,
+  "receipt_validator": "PASS exit0 VALID",
+  "scoped_diff_check": "PASS exit0",
+  "prior_receipt_bytes_preserved": true,
+  "status": "Awaiting N1/W7 final evidence before next precommit freeze"
+}

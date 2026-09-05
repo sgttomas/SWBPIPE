@@ -1,0 +1,11 @@
+# Handoff state — accepted repair precommit; complete clean sweep pending
+
+Accepted authority: SOFTWARE_DECOMP revision 0.12 / SCA-009 / DAG-010. Source lineage: origin/main 7458e9c1eb9399ed259da464207d9a507acdea2e → first source e5ec1d4c6dc83315486b1df121474c6e2a75be3d on codex/piping-modeling-workspace. Report/map and accepted research, implementation and coordination packets remain derivative evidence, never substitutes for decomposition truth.
+
+Closure verdict: root accepted bounded workspace/units implementation, repaired E2E paths and real diagnostic containment, fresh I2 combined review, fresh N1 native backend/package verification, W7 manager/local-state supplement and correctly attributed proposed issue plan. Exact accepted source/evidence hashes are in PRECOMMIT_FAN_IN.md and dispositions; combined 19-path digest is 218d841d4ea32f3a87b38b52716c79726590aa764cc09672a89a85951becc8f5. N1/W7/I2 and C1 writers now freeze.
+
+Required remaining gates: exact staged containment/whitespace/final metadata, new source commit, and complete clean committed-source five-surface DEC-025. First failed/interrupted sweep remains failure evidence only; no waiver or full-gate pass. C2 owns Git and sweep; no C1 writes until new source commit and terminal full sweep. Product/configuration changes invalidate binding and require renewed review/checks. Later evidence-only closure must distinguish swept source from evidence-container commit.
+
+Remaining product/owner scope: MAP-031 inline human Apply, complete typed widgets, canonical bridge producer ownership/PDU-023, state/run history, nonlinear selected-solution recovery, independent human usability and existing owner engineering/acceptance questions. No automatic source activation or lifecycle/scope/client-hold/release/professional-reliance promotion.
+
+Prior receipts/snapshots and failed packets remain immutable. Receipt 132 is a concise new bounded execution record. Proposed browser preflight issue plan creates no canonical policy/tool/skill change. Next owner CHANGE C2 has the already-authorized bounded source-commit/full-clean-sweep action after this packet freeze; HELP_HUMAN accepts the terminal source-bound result before publication closeout.

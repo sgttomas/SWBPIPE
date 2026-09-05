@@ -1,0 +1,61 @@
+{
+  "basis": "e5ec1d4c6dc83315486b1df121474c6e2a75be3d",
+  "scope": "Two source Playwright test files only; no product change",
+  "method": "software-test-planning",
+  "risks": [
+    {
+      "risk": "Legacy layout assertions prevent connected workflow coverage",
+      "checks": [
+        "Full source Playwright 28 tests across desktop1440 and compact1280; existing workspace-layout explicitly sets owner1024 target"
+      ],
+      "preserve": [
+        "selection consistency",
+        "explicit unit-bearing payloads",
+        "validation diagnostics",
+        "browser fixture solve boundaries",
+        "results and reports",
+        "undo/redo",
+        "save/list/reopen"
+      ]
+    },
+    {
+      "risk": "Hidden control path bypass could falsely prove usability",
+      "checks": [
+        "Visible summary/menu/Toolkit clicks only",
+        "No force clicks or DOM opening",
+        "Editor actionability plus viewport and inspector containment"
+      ]
+    },
+    {
+      "risk": "Built static assets differ from source",
+      "checks": [
+        "Production dist 3 tests rebuild both Wasm engines and desktop bundle",
+        "Actual built Wasm application and exact self-weight batch undo",
+        "Report package desktop-only failure"
+      ]
+    },
+    {
+      "risk": "Test edits silently reduce coverage",
+      "checks": [
+        "Fresh Agent2 software-code-review of100% frozen two-file diff",
+        "Source binding to unchanged product commit",
+        "Parent full clean committed DEC025 after newcommit"
+      ]
+    }
+  ],
+  "sequence": [
+    "Author complete audit and edit",
+    "Manager full source suite",
+    "Manager full production dist suite",
+    "Fresh independent review",
+    "Frozen supplement",
+    "Parent clean commit/full DEC025"
+  ],
+  "not_claimed": [
+    "native SQLite or linear solve from browser fixture tests",
+    "owner usability acceptance",
+    "PDU045/046 closure",
+    "full DEC025 from preflight"
+  ],
+  "unit_rerun": "No new unit run for tests-only repair; earlier748PASS and parent mandatory full clean DEC repeats."
+}

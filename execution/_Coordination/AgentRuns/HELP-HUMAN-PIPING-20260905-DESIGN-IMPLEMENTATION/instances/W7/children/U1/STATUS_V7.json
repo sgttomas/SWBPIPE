@@ -1,0 +1,19 @@
+{
+  "instance": "U1",
+  "revision": 7,
+  "status": "AUTHOR_CANDIDATE_FROZEN",
+  "actual_model": "unknown",
+  "source_frozen": true,
+  "source_manifest": "SOURCE_FREEZE_V7.json",
+  "return": "RETURN_V7.md",
+  "diff": "DIFF_V7.json",
+  "executed_tests": false,
+  "executed_builds": false,
+  "executed_browser": false,
+  "remaining": [
+    "manager full source28 preflight",
+    "manager production-dist preflight",
+    "fresh independent two-file review",
+    "combined source binding and DEC025"
+  ]
+}

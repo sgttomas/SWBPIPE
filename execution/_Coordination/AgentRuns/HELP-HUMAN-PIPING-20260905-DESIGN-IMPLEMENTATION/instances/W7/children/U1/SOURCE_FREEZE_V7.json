@@ -1,0 +1,27 @@
+{
+  "schema": "piping-ui-source-freeze/v1",
+  "instance": "U1",
+  "revision": 7,
+  "accepted_basis": "e5ec1d4c6dc83315486b1df121474c6e2a75be3d",
+  "actual_model": "unknown; not exposed",
+  "files": [
+    {
+      "path": "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10",
+      "unchanged_test_declarations": 1,
+      "previous_assertion_calls": 109,
+      "current_assertion_calls": 124
+    },
+    {
+      "path": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "4922261af9a74e7514b2a49e0aa0dd8552ae853264b07a0065f8fc4cc22449e8",
+      "unchanged_test_declarations": 10,
+      "previous_assertion_calls": 477,
+      "current_assertion_calls": 487
+    }
+  ],
+  "diff": "DIFF_V7.json",
+  "diff_sha256": "1200e2804566c9d7da944a11dab90a904250fcccecf33f433ad1a8ecc631d110",
+  "verification": "Author static audit only; tests/build/browser prohibited in this pass; manager owns preflight and independent review",
+  "diff_encoding": "base64; diff_sha256 binds decoded patch bytes"
+}

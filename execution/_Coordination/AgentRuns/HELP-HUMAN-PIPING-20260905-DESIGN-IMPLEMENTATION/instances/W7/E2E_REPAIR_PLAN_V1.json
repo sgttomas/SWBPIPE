@@ -1,0 +1,16 @@
+{
+  "basis": "e5ec1d4c6dc83315486b1df121474c6e2a75be3d",
+  "authority": "Root C2 terminal release 2026-09-05",
+  "posture": "SERIAL_AUTHOR_TEST_REVIEW",
+  "brief": "children/U1/BRIEF_AMENDMENT_V7.md",
+  "brief_sha256": "c19f26d0322d37a106b928dbfda103e07cc98b2c3bbc860790fca9e9c2fdc40f",
+  "nodes": [
+    "U1 two-file audit and repair",
+    "W7 full source and dist preflight",
+    "fresh R2 full two-file diff review",
+    "W7 supplemental freeze",
+    "Root new clean commit and DEC025"
+  ],
+  "prior_packets": "immutable; supplement only",
+  "failed_sweep": "exit130; source5fail3pass20unfinished; no full PASS"
+}

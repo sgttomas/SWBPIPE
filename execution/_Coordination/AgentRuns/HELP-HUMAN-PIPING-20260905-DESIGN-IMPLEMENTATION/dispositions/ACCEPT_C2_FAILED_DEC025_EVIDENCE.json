@@ -1,0 +1,12 @@
+{
+  "id": "ACCEPT_C2_FAILED_DEC025_EVIDENCE",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept C2 failed-attempt packet as failure evidence only",
+  "packet_sha256": "bf09caf39caeb220212549f97619e48abb14b30e50a420bd8c0f1af1eedbaae6",
+  "source_commit": "e5ec1d4c6dc83315486b1df121474c6e2a75be3d",
+  "claim_limit": "Never full DEC-025 PASS; incomplete surfaces and failed attempt remain preserved",
+  "required_follow_on": "Reviewed test repair, new source commit and complete clean sweep",
+  "receipt": "No Receipt 131 edit authorized"
+}

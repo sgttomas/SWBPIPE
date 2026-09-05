@@ -1,0 +1,40 @@
+{
+  "id": "AMEND_I2_SUPPLEMENTAL_REVIEW_V2",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "runtime_id": "/root/integration_review",
+  "role": "direct Agent 2 TASK",
+  "skill": "software-code-review",
+  "disposition": "Resume existing I2 for supplemental read-only review; no new product scope",
+  "plan_basis": "PLAN_V7",
+  "initial_review": "Baseline and already completed test hunks may be inspected now",
+  "final_pass_gate": "W7 freezes both test files after full 28 source-browser and 3 dist preflight tests pass",
+  "scope": [
+    "Exact two E2E repairs in apps/desktop/e2e/gui-workflow-validation.spec.ts and r2-smoke.spec.ts",
+    "Prior 17 reviewed paths unchanged",
+    "Combined 19-path fingerprint binding"
+  ],
+  "acceptance": [
+    "No test coverage weakening",
+    "No hidden-DOM bypass",
+    "Fresh full-diff supplemental review with exact source hashes"
+  ],
+  "tools": "Read-only inspection only",
+  "AllowedWriteTargets": [],
+  "ApplyEdits": false,
+  "exclusions": [
+    "No writes",
+    "No build",
+    "No network",
+    "No children"
+  ],
+  "return_persistence": "Root persists child return",
+  "model": "unavailable",
+  "enforcement": "Native instruction+config asserted; not mechanism-proven",
+  "preservation": [
+    "Prior accepted review evidence",
+    "Receipt 131 unchanged"
+  ],
+  "claim_limit": "Review does not substitute for new source commit and complete clean DEC-025"
+}

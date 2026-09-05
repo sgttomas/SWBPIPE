@@ -1,0 +1,11 @@
+{
+  "id": "ACCEPT_N1_TEST_ONLY_CONTINUITY_HISTORICAL",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept prior two-E2E-only continuity supplement as historical evidence",
+  "supplement_sha256": "2e7a770c3a23c4da0766bb44822ef4bd7a303d85224f0a7f6e1c599565033ce2",
+  "root_verification": "Root read and verified both members",
+  "claim_limit": "Runtime CSS amendment invalidates ongoing app continuity; fresh native bundle required after review",
+  "preservation": "Historical supplement bytes unchanged"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "ACCEPT_W7_REPAIR_FINAL_AND_METADATA",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept repair technical final, scoped local state, and corrected proposed issue plan",
+  "technical_manifest_sha256": "f02e8d16a01ed9e4c95e62ed5c08b907fe05d3d32bd72443cec71280fa72926d",
+  "technical_verification": "Root read E2E_REPAIR_RETURN and personally verified 35 members",
+  "local_state_manifest_sha256": "a9fec9b70e8bc7e279f3d139c2e57f6e95dc38c2988b1f4c59af6b12ba3adea4",
+  "local_state_verification": "Root verified 6 members and read scoped diff; Remaining and lifecycle unchanged",
+  "proposed_plan": {
+    "path": "{WORKING_ROOT}/plans/PLAN_2026-09-05_browser_workflow_preflight.md",
+    "sha256": "b7044d0c2da2bfc16a51a012c056fdfdb7550910ed8e03f4b1a68ac730681dd1",
+    "status": "Accepted as proposed follow-up only; no canonical policy/tool/skill change",
+    "attribution": "Actual Agent 0 authorization of trace-off preflight; no Owner trace-policy ruling asserted"
+  },
+  "metadata_sha256": "39d207fdb9c712a60a4b69709fa423d003e6caaaf1e2453cb50fd754d24f4a30",
+  "old_unaccepted_candidate": {
+    "path": "_run_records/ISSUE_PLAN_ATTRIBUTION_CANDIDATE_V1.json",
+    "sha256": "4c6de9fe5b3c0493f3eab28c88f836ebb1d194fc428f6d0d5ef5f18e1b1708f9",
+    "status": "Preserved encoded; not accepted"
+  },
+  "checks": "Corrected plan links and whitespace PASS; technical/local state unchanged",
+  "status": "All W7 writes frozen"
+}

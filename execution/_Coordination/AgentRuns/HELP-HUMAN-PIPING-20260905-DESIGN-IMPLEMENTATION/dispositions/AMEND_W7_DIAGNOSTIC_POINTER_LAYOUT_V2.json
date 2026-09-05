@@ -1,0 +1,38 @@
+{
+  "id": "AMEND_W7_DIAGNOSTIC_POINTER_LAYOUT_V2",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Release bounded UI layout repair within original W7 authority",
+  "trigger": "Two-spec ordinary-pointer preflight exposed real UI interception at COMBINATION_STRESS_SUMMARY_SKIPPED diagnostic button",
+  "observation": "Button visible and stable but neighboring missing-data/Issues/Diagnostics panels intercept pointer; old synthetic click hid issue",
+  "preflight_status": "13 passed and 1 failed observed so far; root authorized graceful stop and preserved terminal partial claim; no full PASS",
+  "write_scope": [
+    "Primary apps/desktop/src/styles.css drawer flex/scroll containment",
+    "App and already-owned UI only if needed",
+    "Current exact two E2E files and W7 records"
+  ],
+  "exclusions": [
+    "core",
+    "schema",
+    "native configuration"
+  ],
+  "required_behavior": "Retain ordinary click and repair actual actionability; no synthetic hidden-DOM workaround",
+  "authority_basis": "Original bounded W7 UI layout authority; required interaction correction creates no new scope or owner question",
+  "required_gates": [
+    "New W7 source freeze",
+    "Fresh read-only review of 100% changed diff",
+    "Desktop checks",
+    "Full 28 source-browser tests and 3 dist preflight tests",
+    "I2 final combined source-binding review",
+    "Fresh native bundle after reviewed runtime CSS change",
+    "C2 new source commit and complete clean five-surface DEC-025"
+  ],
+  "I2": "Final V7 review held; historical/static review only until new freeze",
+  "N1_continuity": "Prior test-only continuity is historical; runtime CSS change invalidates application continuity and requires fresh native bundle",
+  "preservation": [
+    "All prior packets",
+    "Receipt 131 unchanged"
+  ],
+  "ownership": "Only W7 product writes; C2 future Git and full clean gate remain unchanged"
+}

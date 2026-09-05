@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "route": "browser fixture only; not native GUI or backend acceptance",
+  "geometry": {
+    "width": 1024,
+    "height": 768,
+    "bodyScrollWidth": 1024,
+    "documentScrollWidth": 1024
+  },
+  "selection": {
+    "x": 246,
+    "y": 62,
+    "width": 760,
+    "height": 648,
+    "scrollTop": 0,
+    "scrollHeight": 12187,
+    "clientHeight": 646
+  },
+  "requiredScroll": 595,
+  "errors": [],
+  "assertions": [
+    "ordinary diagnostic pointer selection",
+    "linked result and MPa units from result envelope",
+    "required input content scroll reachable",
+    "ordinary Close reachable",
+    "drawer fits viewport",
+    "no horizontal body overflow"
+  ]
+}

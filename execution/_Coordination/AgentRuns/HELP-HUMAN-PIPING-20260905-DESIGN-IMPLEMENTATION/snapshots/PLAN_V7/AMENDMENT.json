@@ -1,0 +1,54 @@
+{
+  "id": "AMEND_W7_BROWSER_TEST_REPAIR_V1",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "AMEND and RELEASE W7 test-only repair after failed clean sweep",
+  "source_commit": "e5ec1d4c6dc83315486b1df121474c6e2a75be3d",
+  "failed_attempt": {
+    "whole_worktree_start": "clean",
+    "outcome": "Definitive browser failures; root stopped after 5 failed, 3 passed, 20 unfinished",
+    "exit_code": 130,
+    "observed_passes": [
+      "Rust",
+      "Piping Python 1011",
+      "Vitest 748"
+    ],
+    "unexecuted": [
+      "dist surface",
+      "final build surface"
+    ],
+    "full_gate": "NOT PASSED; no waiver"
+  },
+  "pre_repair_safety": {
+    "C2": "Known sweep/Vite/Playwright/browser processes stopped; failure evidence owned by C2",
+    "preservation": "17 reviewed source/configuration hashes and 77 prior evidence hashes unchanged"
+  },
+  "write_scope": [
+    "{WORKING_ROOT}/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+    "{WORKING_ROOT}/apps/desktop/e2e/r2-smoke.spec.ts",
+    "W7 own records"
+  ],
+  "exclusions": [
+    "No app code change established or authorized",
+    "No other writes",
+    "No receipt edit now",
+    "No Git mutation by W7 or C1"
+  ],
+  "diagnosis": "Stale tests assumed inspector wider than 300px, permanent Agent rail, retired generic quantity label, hidden Selection & navigation, and former creator/projectDetails paths",
+  "repair_contract": [
+    "Retain payload/unit/error/undo/save-reopen/solve/result assertions",
+    "Assert current visible typed labels, units, actionability and containment",
+    "No blanket weakening"
+  ],
+  "acceptance_sequence": [
+    "W7 full 28 source-browser tests and existing dist preflight before freeze",
+    "Fresh read-only review over 100% two-file repair",
+    "Root I2 supplemental/full-binding review",
+    "New source commit",
+    "New complete clean five-surface DEC-025"
+  ],
+  "ownership": "W7 tests/review evidence; C2 Git/failure evidence/future source commit; root coordination/fan-in",
+  "preservation": "Prior PRECOMMIT_ACCEPTED_V1/V2 and Receipt 131 snapshots immutable",
+  "claim_limit": "Partial observed passes do not satisfy full DEC-025; no engineering/lifecycle acceptance"
+}

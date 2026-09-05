@@ -1,0 +1,16 @@
+{
+  "version": 7,
+  "status": "frozen bounded failed-sweep repair amendment",
+  "previous_plan_manifest_sha256": "4737010651937b1a034bbbba2cbb8fbbe2498d491fdba306332f3e783a9db224",
+  "files": {
+    "snapshots/PLAN_V7/AMENDMENT.json": "fbe3f384fc0d4c5b9bf397cbf58113b3af518420b501a69dae06d379ee0be2a3",
+    "snapshots/PLAN_V7/ORCHESTRATION_PLAN.md": "4f7740a64028796b76212f25042be98229b257fb33cc97f60013a5fa77c0ae1a",
+    "snapshots/PLAN_V7/WORK_GRAPH.json": "a3cbb3be775d7dd437fbbd10aaacc908aeb3f43106c842934f13b80731d7ee0a"
+  },
+  "preserves": [
+    "PRECOMMIT_ACCEPTED_V1",
+    "PRECOMMIT_ACCEPTED_V2",
+    "Receipt 131"
+  ],
+  "freeze": "C1 control writes frozen after this packet"
+}

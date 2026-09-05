@@ -1,0 +1,12 @@
+{
+  "schema": "piping-ui-source-freeze/v1",
+  "instance": "U1",
+  "revision": 8,
+  "actual_model": "unknown",
+  "files": {
+    "apps/desktop/src/styles.css": "5e239ae690ac918d5aa4577916c816e6accd21eb89023a29f5c7b9e2c9de5b5b"
+  },
+  "source_status": "frozen for manager execution and fresh review",
+  "basis": "e5ec1d4 plus frozen V7 e2e files",
+  "changed_behavior": "Only direct Issues drawer panels resist flex shrinking; outer bounded overflow scrolling unchanged"
+}

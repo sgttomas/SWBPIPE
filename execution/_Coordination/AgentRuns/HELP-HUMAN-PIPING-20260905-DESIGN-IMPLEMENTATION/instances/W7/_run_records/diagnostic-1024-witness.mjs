@@ -1,0 +1,48 @@
+import { chromium, expect } from "@playwright/test";
+import fs from "node:fs/promises";
+const out = process.env.W7_WITNESS_DIR;
+if (!out) throw new Error("W7_WITNESS_DIR required");
+const browser = await chromium.launch({ headless: true });
+const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
+const errors = [];
+page.on("pageerror", e => errors.push(e.message));
+try {
+ await page.goto("http://127.0.0.1:5178/");
+ await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+ await page.getByTestId("menu-view").click();
+ await page.getByTestId("menu-item-view.section.solve").click();
+ await page.getByTestId("run-mechanics-preview").click();
+ await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+ await page.getByTestId("issues-drawer-toggle").click();
+ const drawer = page.getByTestId("issues-home");
+ await page.getByTestId("diagnostic-filter-input").fill("result:stress:pipe-P-130");
+ const target = page.getByTestId("diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED");
+ await target.click({ trial: true });
+ await target.click();
+ await expect(page.getByTestId("selected-diagnostic-linked-results")).toContainText("result:stress:pipe-P-130");
+ await expect(page.getByTestId("diagnostic-unit-context")).toContainText("linked_results=1");
+ await expect(page.getByTestId("diagnostic-unit-context")).toContainText("units=MPa");
+ await expect(page.getByTestId("diagnostic-unit-context")).toContainText("source=result_envelope");
+ await expect(page.getByTestId("diagnostic-unit-context")).toContainText("conversion=false");
+ await page.getByTestId("diagnostic-unit-context").scrollIntoViewIfNeeded();
+ await page.screenshot({path: `${out}/diagnostic-1024-selected.png`});
+ const selection = await drawer.evaluate(el => { const r=el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,scrollTop:el.scrollTop,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight}; });
+ const missing=page.getByTestId("missing-data-panel");
+ await missing.locator(".panel-title").scrollIntoViewIfNeeded();
+ await expect(missing.locator(".panel-title")).toBeVisible();
+ await missing.locator(".panel-title").click({trial:true});
+ await expect(page.getByTestId("missing-data-summary")).toContainText("blocked=true");
+ await page.screenshot({path: `${out}/diagnostic-1024-required-inputs.png`});
+ const requiredScroll=await drawer.evaluate(el=>el.scrollTop);
+ const close=drawer.getByRole("button",{name:"Close",exact:true});
+ await close.click({trial:true});
+ await close.click();
+ await expect(drawer).toHaveCount(0);
+ const geometry=await page.evaluate(()=>({width:innerWidth,height:innerHeight,bodyScrollWidth:document.body.scrollWidth,documentScrollWidth:document.documentElement.scrollWidth}));
+ if(geometry.width!==1024||geometry.height!==768||geometry.bodyScrollWidth>1024||geometry.documentScrollWidth>1024)throw new Error(`Viewport overflow ${JSON.stringify(geometry)}`);
+ if(selection.x<0||selection.y<0||selection.x+selection.width>1024||selection.y+selection.height>768)throw new Error(`Drawer out of bounds ${JSON.stringify(selection)}`);
+ if(errors.length)throw new Error(errors.join("; "));
+ await page.screenshot({path: `${out}/diagnostic-1024-closed.png`});
+ await fs.writeFile(`${out}/DIAGNOSTIC_1024_RESULT.json`,JSON.stringify({status:"PASS",route:"browser fixture only; not native GUI or backend acceptance",geometry,selection,requiredScroll,errors,assertions:["ordinary diagnostic pointer selection","linked result and MPa units from result envelope","required input content scroll reachable","ordinary Close reachable","drawer fits viewport","no horizontal body overflow"]},null,2)+"\n");
+} catch(error) { await page.screenshot({path:`${out}/diagnostic-1024-failed.png`}); await fs.writeFile(`${out}/DIAGNOSTIC_1024_RESULT.json`,JSON.stringify({status:"FAIL",error:String(error),errors},null,2)+"\n"); throw error; }
+finally { await browser.close(); }

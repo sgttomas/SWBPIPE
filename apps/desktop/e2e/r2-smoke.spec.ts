@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
 
@@ -26,12 +26,56 @@ const rehearsal = JSON.parse(
 // section is already open, do nothing (re-selecting it would toggle it shut).
 async function openWorkspaceSection(page: Page, sectionId: string): Promise<void> {
   const section = page.getByTestId(`workspace-section-${sectionId}`);
-  if (await section.isVisible()) {
-    return;
+  if (!await section.isVisible()) {
+    await page.getByTestId("menu-view").click();
+    await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
   }
-  await page.getByTestId("menu-view").click();
-  await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
   await expect(section).toBeVisible();
+  if (sectionId === "operations") {
+    const review = page.getByTestId("operation-tab-review");
+    if (await review.getAttribute("aria-pressed") !== "true") await review.click();
+  }
+}
+
+// Disclosures are opened through their visible summary, never by DOM mutation.
+async function setDisclosure(details: Locator, open = true): Promise<void> {
+  if ((await details.getAttribute("open") !== null) !== open) {
+    await details.locator(":scope > summary").click();
+  }
+  if (open) await expect(details).toHaveAttribute("open", "");
+  else await expect(details).not.toHaveAttribute("open");
+}
+
+async function openNamedDisclosure(scope: Page | Locator, name: string | RegExp): Promise<void> {
+  const summary = scope.locator("summary").filter({ hasText: typeof name === "string" ? new RegExp(`^${name}$`) : name });
+  await setDisclosure(summary.locator(".."));
+}
+
+async function expectRecordedStatus(page: Page, testId: string, value: string): Promise<void> {
+  const status = page.getByTestId(testId);
+  await setDisclosure(status);
+  await expect(status.locator("code")).toBeVisible();
+  await expect(status.locator("code")).toContainText(value);
+  await setDisclosure(status, false);
+}
+
+async function openReviewTab(page: Page, tab: "review" | "agent" | "details"): Promise<void> {
+  await openWorkspaceSection(page, "operations");
+  const button = page.getByTestId(`operation-tab-${tab}`);
+  if (await button.getAttribute("aria-pressed") !== "true") await button.click();
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  if (tab === "details") {
+    const toggle = page.getByTestId("review-apply-drawer-toggle");
+    if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  }
+}
+
+async function ensureEngineReady(page: Page): Promise<void> {
+  await openReviewTab(page, "review");
+  await expect(page.getByTestId("operation-engine-chip")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await page.getByTestId("workspace-task-model").click();
 }
 
 async function ensureTreeExpanded(page: Page): Promise<void> {
@@ -48,6 +92,18 @@ async function ensureInspectorExpanded(page: Page): Promise<void> {
     await toggle.click();
   }
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
+}
+
+async function chooseToolkit(page: Page, commandId: string, targetTestId: string): Promise<void> {
+  await page.getByTestId("toolkit-entry").click();
+  await page.getByTestId(`toolkit-${commandId}`).click();
+  await expect(page.getByTestId(targetTestId)).toBeVisible();
+  await expect(page.getByTestId(targetTestId)).toBeFocused();
+}
+
+async function openViewportPendingChanges(page: Page): Promise<void> {
+  await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), /^Pending changes \(/);
+  await expect(page.getByTestId("viewport-intent-list")).toBeVisible();
 }
 
 async function ensureCreationToolArmed(page: Page, testId: "command-node" | "command-pipe", label: string): Promise<void> {
@@ -116,29 +172,34 @@ test("guided workbench shell keeps journey steps, details, and compact status re
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await expect(page.getByTestId("app-menu-bar")).toBeVisible();
-  // The dock and detailed rails are collapsed by default so the 3D model plus
-  // the local review-only agent rail dominate the primary screen.
+  // The model stays visible; the browser default responds to window width,
+  // properties start open, and the agent workbench is an explicit review tab.
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
-  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "false");
-  await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", String(page.viewportSize()!.width > 1100));
+  await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByTestId("viewport-canvas")).toBeVisible();
+  await expect(page.getByTestId("agent-workbench-panel")).toBeHidden();
+  await openReviewTab(page, "agent");
   await expect(page.getByTestId("agent-workbench-panel")).toBeVisible();
   await expect(page.getByTestId("agent-focus-selection")).toContainText("project:invented-loop-01");
   await expect(page.getByTestId("agent-proposal-summary")).toContainText("review_only_local_preview");
   await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
-  await expect(page.getByTestId("status-pill-professional")).toContainText("HUMAN_REVIEW_REQUIRED");
-  await page.getByTestId("toggle-tree").click();
+  await expectRecordedStatus(page, "status-pill-professional", "HUMAN_REVIEW_REQUIRED");
+  await ensureTreeExpanded(page);
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
   await page.getByTestId("layout-mode-grid").click();
   await expect(page.getByTestId("entity-grid")).toBeVisible();
   await expect(page.getByTestId("entity-grid-table-nodes")).toBeVisible();
   await page.getByTestId("entity-grid-row-node:N-100").click();
   await expect(page.getByTestId("agent-focus-selection")).toContainText("node:N-100");
+  await openNamedDisclosure(page.getByLabel("Property inspector"), "All properties");
   await expect(page.getByLabel("Property inspector")).toContainText("node:N-100");
   await page.getByTestId("entity-grid-input-node:N-100-x").fill("1.25");
   await page.getByTestId("entity-grid-input-node:N-100-y").fill("0.5");
   await expect(page.getByTestId("entity-grid-change-count")).toContainText("2 changed cells");
   await page.getByTestId("queue-entity-grid-intents").click();
   await expect(page.getByTestId("entity-grid-queued-message")).toContainText("Queued 2 review intents");
+  await openReviewTab(page, "review");
   await expect(page.getByTestId("operation-apply-row-editor-intent-1")).toContainText(
     "op:grid-intent-node:N-100-position-x"
   );
@@ -152,7 +213,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
   await page.getByTestId("audit-boundary-drawer").getByRole("button", { name: /Close/i }).click();
-  await openWorkspaceSection(page, "operations");
+  await openReviewTab(page, "details");
   await expect(page.getByTestId("editor-contract-panel")).toBeVisible();
   await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("contract=DEL-02-02");
   await expect(page.getByTestId("editor-contract-unit-contract")).toContainText(
@@ -187,11 +248,12 @@ test("DEC-077 solve temperature queues an explicit unit-bearing operation", asyn
     .selectOption("modulus_basis_temperature.value");
   await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("K");
   await editorIntentPanel.getByTestId("editor-intent-value").fill("400");
+  await openNamedDisclosure(editorIntentPanel, "Operation details");
   await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
     "model_metadata_unit_dimension_declared"
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
-  await editorIntentPanel.getByTestId("queue-editor-intent").evaluate((button: HTMLButtonElement) => button.click());
+  await editorIntentPanel.getByTestId("queue-editor-intent").click();
   await expect(editorIntentPanel.getByTestId("editor-intent-queue")).toContainText(
     "modulus_basis_temperature.value"
   );
@@ -207,7 +269,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByRole("heading", { name: "OpenPipeStress" })).toBeVisible();
   // Engine-ready guard (DEC-020 / ADR-0001): browser mode answers operations
   // through the wasm32 operation_applier build; wait for init before edits.
-  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await ensureEngineReady(page);
+  await ensureInspectorExpanded(page);
+  await openNamedDisclosure(page.getByLabel("Property inspector"), "Sources and units");
   await expect(page.getByTestId("property-unit-catalog-status")).toContainText(
     "browser preview uses model metadata"
   );
@@ -258,8 +322,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("position.y");
   await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("m");
-  await expect(page.getByText("Proposed value (m, model metadata)")).toBeVisible();
+  await expect(editorIntentPanel.getByLabel("New y position", { exact: true })).toBeVisible();
+  await expect(editorIntentPanel.getByText("New y position (m)", { exact: true })).toBeVisible();
   await editorIntentPanel.getByTestId("editor-intent-value").fill("1.25");
+  await openNamedDisclosure(editorIntentPanel, "Operation details");
   await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
     'after={"value":1.25,"unit":"m"}'
   );
@@ -273,8 +339,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.getByTestId("tree-row-load:L-100").click();
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("N/m");
-  await expect(page.getByText("Proposed value (N/m, model metadata)")).toBeVisible();
+  await expect(editorIntentPanel.getByLabel("New first primitive magnitude", { exact: true })).toBeVisible();
+  await expect(editorIntentPanel.getByText("New first primitive magnitude (N/m)", { exact: true })).toBeVisible();
   await editorIntentPanel.getByTestId("editor-intent-value").fill("-225");
+  await openNamedDisclosure(editorIntentPanel, "Operation details");
   await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
     'after={"value":-225,"unit":"N/m"}'
   );
@@ -286,7 +354,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
+  await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
+  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
   await page.getByTestId("audit-drawer-toggle").click();
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
@@ -465,6 +535,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(canvas).toBeVisible();
   await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/collapsed/);
   await ensureCreationToolArmed(page, "command-node", "Node tool armed");
+  await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), "Unit source");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText(
     "browser preview uses model metadata"
   );
@@ -514,6 +585,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("N*m/rad,N/m");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=830");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+  await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=4.567557 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
     "scale=normalized_display_offset_not_physical_length"
@@ -524,6 +596,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
     "vector_direction=global_cartesian_displacement_components"
   );
+  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
 
   await page.getByTestId("audit-drawer-toggle").click();
   const auditDrawer = page.getByTestId("audit-boundary-drawer");
@@ -629,6 +702,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
       (item: { unit_policy_surface_id: string }) => item.unit_policy_surface_id === "[REDACTED]"
     )
   ).toBe(true);
+  await openWorkspaceSection(page, "exports");
   const pcfExport = page.getByLabel("Conservative PCF export");
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
@@ -707,6 +781,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await openWorkspaceSection(page, "operations");
   const applyPanel = page.getByTestId("operation-apply-panel");
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 0 applied");
+  await openReviewTab(page, "details");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toBeVisible();
   await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("records=1");
   await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("unit_bearing_changes=1");
   await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("dimensionless_changes=0");
@@ -717,6 +793,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "receipt_units=not_serialized_in_review_ledger"
   );
   await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("conversion=false");
+  await openReviewTab(page, "review");
   await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("1 unit-bearing queued");
   await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 dimensionless queued");
   await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 applied receipts");
@@ -727,6 +804,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 1 applied");
   await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 unit-bearing queued");
   await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("1 applied receipts");
+  await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
 
   // TP-APP-R2-COMBEXPR-001: author a result_state_subtraction combination
@@ -748,6 +826,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "Applied through local_wasm_engine"
   );
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 2 applied");
+  await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 9 primitive loads; 2 combinations"
   );
@@ -763,17 +842,24 @@ test("viewport gesture placeholders record unit validation", async ({ page }) =>
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await ensureEngineReady(page);
   await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/collapsed/);
   await ensureCreationToolArmed(page, "command-node", "Node tool armed");
+  await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), "Unit source");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText("browser preview uses model metadata");
+  await setDisclosure(page.getByLabel("Project summary"));
+  await expect(page.getByTestId("local-project-review-context")).toBeVisible();
   await expect(page.getByTestId("local-project-review-context")).toContainText("0 pending operations");
+  await setDisclosure(page.getByLabel("Project summary"), false);
+  await openNamedDisclosure(page.getByTestId("command-bar"), "Selection & navigation");
   await page.getByTestId("queue-armed-creation-intent").click();
   await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
   await page.getByTestId("queue-armed-creation-intent").click();
   await page.getByTestId("command-component").click();
   await expect(page.getByTestId("armed-creation-tool")).toContainText("Component tool armed");
   await page.getByTestId("queue-armed-creation-intent").click();
+  await setDisclosure(page.getByTestId("command-bar").locator(".command-context"), false);
+  await openViewportPendingChanges(page);
   await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
     "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
@@ -789,13 +875,13 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await ensureEngineReady(page);
   await page.getByRole("button", { name: "New blank" }).click();
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );
   await expect(page.getByTestId("app-menu-bar")).toBeVisible();
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+  await expectRecordedStatus(page, "status-pill-mechanics", "MODEL_INCOMPLETE");
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
   await openWorkspaceSection(page, "solve");
@@ -806,6 +892,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("workspace-section-project")).toBeVisible();
   await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+  await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "0 load cases; 0 primitive loads; 0 combinations"
   );
@@ -814,6 +901,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   const startNode = stepPayload("create_node", "node:R2-100");
   await fillNodeDraft(page, startNode);
   await page.getByTestId("queue-explicit-node-intent").click();
+  await openViewportPendingChanges(page);
   await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
     "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
@@ -825,6 +913,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await applyQueuedIntent(page, 2, loadedNode.id);
 
   const material = stepPayload("create_material", "material:r2-carbon-steel");
+  await chooseToolkit(page, "properties.material", "create-material-id");
   await page.getByTestId("create-material-id").fill(material.id);
   await page.getByTestId("create-material-label").fill(material.label);
   await page.getByTestId("create-material-elastic").fill(String(material.elastic_modulus.value));
@@ -834,6 +923,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await applyQueuedIntent(page, 3, material.id);
 
   const section = stepPayload("create_section", "section:r2-pipe");
+  await chooseToolkit(page, "properties.section", "create-section-id");
   await page.getByTestId("create-section-id").fill(section.id);
   await page.getByTestId("create-section-name").fill(section.name);
   await page.getByTestId("create-section-od").fill(String(section.properties.outside_diameter.value));
@@ -856,12 +946,16 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("viewport-create-pipe-yref-z").fill(String(pipe.y_reference.z));
   await page.getByTestId("viewport-create-pipe-provenance").fill(pipe.provenance);
   await page.getByTestId("queue-explicit-pipe-intent").click();
+  await openViewportPendingChanges(page);
   await expect(page.getByTestId("viewport-intent-unit-validation-connect_pipe_run")).toContainText(
     "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await applyQueuedIntent(page, 5, pipe.id);
 
   const support = stepPayload("create_support", "support:R2-anchor");
+  await page.getByTestId("command-support").click();
+  await expect(page.getByTestId("create-support-id")).toBeFocused();
+  await expect(page.getByTestId("create-support-id")).toBeVisible();
   await page.getByTestId("create-support-id").fill(support.id);
   await page.getByTestId("create-support-label").fill(support.label);
   await page.getByTestId("create-support-node").selectOption(support.node);
@@ -905,6 +999,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("queue-create-combination-intent").click();
   await applyQueuedIntent(page, 9, combination.id);
 
+  await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "1 load cases; 1 primitive loads; 1 combinations"
   );
@@ -980,7 +1075,7 @@ test("diagnostic detail exposes linked result unit context", async ({ page }) =>
   await page.getByTestId("diagnostic-filter-input").fill("result:stress:pipe-P-130");
   const diagnosticButton = page.getByTestId("diagnostic-COMBINATION_STRESS_SUMMARY_SKIPPED");
   await expect(diagnosticButton).toBeVisible();
-  await diagnosticButton.evaluate((button) => (button as HTMLButtonElement).click());
+  await diagnosticButton.click();
 
   await expect(page.getByTestId("selected-diagnostic-linked-results")).toContainText("result:stress:pipe-P-130");
   await expect(page.getByTestId("diagnostic-unit-context")).toContainText("linked_results=1");
@@ -996,7 +1091,7 @@ test("diagnostic detail exposes linked result unit context", async ({ page }) =>
 test("rule-pack manager drafts privately and reports the desktop-only backend seam", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await ensureEngineReady(page);
 
   await openWorkspaceSection(page, "rule-packs");
   await expect(page.getByTestId("rule-pack-scope-status")).toContainText("local SQLite only");
@@ -1221,7 +1316,7 @@ test("library manager loads an invented private sample and reports the desktop-o
 }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await ensureEngineReady(page);
 
   await openWorkspaceSection(page, "libraries");
   await expect(page.getByTestId("library-scope-status")).toContainText("local SQLite only");
@@ -1510,10 +1605,10 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
 test("R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await ensureEngineReady(page);
 
   await expect(page.getByTestId("app-menu-bar")).toBeVisible();
-  await expect(page.getByTestId("status-pill-rule-check")).toContainText("RULE_INPUTS_INCOMPLETE");
+  await expectRecordedStatus(page, "status-pill-rule-check", "RULE_INPUTS_INCOMPLETE");
 
   await openWorkspaceSection(page, "libraries");
   await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();

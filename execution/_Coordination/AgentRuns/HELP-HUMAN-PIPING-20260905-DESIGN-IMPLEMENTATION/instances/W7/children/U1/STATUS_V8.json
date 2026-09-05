@@ -1,0 +1,19 @@
+{
+  "instance": "U1",
+  "revision": 8,
+  "status": "AUTHOR_CANDIDATE_FROZEN",
+  "actual_model": "unknown",
+  "source_frozen": true,
+  "source_manifest": "SOURCE_FREEZE_V8.json",
+  "return": "RETURN_V8.md",
+  "executed_tests": false,
+  "executed_builds": false,
+  "executed_browser": false,
+  "remaining": [
+    "manager targeted diagnostic two-viewports",
+    "manager source28/dist3",
+    "manager desktop748/build",
+    "fresh combined review",
+    "updated native/source binding"
+  ]
+}

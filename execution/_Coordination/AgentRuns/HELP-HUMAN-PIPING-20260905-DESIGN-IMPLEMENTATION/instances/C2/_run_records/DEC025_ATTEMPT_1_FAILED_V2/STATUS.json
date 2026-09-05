@@ -1,0 +1,45 @@
+{
+  "schema": "piping.interrupted-validation-attempt.v1",
+  "status": "FAILED_INTERRUPTED",
+  "source_commit": "e5ec1d4c6dc83315486b1df121474c6e2a75be3d",
+  "clean_start": {
+    "source_sha": "e5ec1d4c6dc83315486b1df121474c6e2a75be3d",
+    "whole_repository_clean": true,
+    "status_porcelain": ""
+  },
+  "process_exit_code": 130,
+  "interruption": "Parent explicitly directed graceful stop after definitively failed legacy GUI expectations; SIGINT only sweep PGID10417, TERM only leftover ownedVitePGID18595; both groups and observed browserPIDs verified absent. No user process targeted.",
+  "observed_surfaces": {
+    "cargo_crate_sweep": "PASS",
+    "python_pytest": "PASS1011",
+    "desktop_vitest": "PASS748in45files",
+    "desktop_playwright_e2e": "FAILED_INTERRUPTED_SOURCE_LANE",
+    "desktop_production_build": "NOT_EXECUTED"
+  },
+  "playwright_source_completed": [
+    "\u2718   1 [chromium-desktop] \u203a e2e/gui-workflow-validation.spec.ts:54:1 \u203a DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (13.0s)",
+    "\u2713   2 [chromium-desktop] \u203a e2e/gui-workflow-validation.spec.ts:243:3 \u203a shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home (11.7s)",
+    "\u2713   3 [chromium-desktop] \u203a e2e/gui-workflow-validation.spec.ts:243:3 \u203a shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer (11.8s)",
+    "\u2718   4 [chromium-desktop] \u203a e2e/r2-smoke.spec.ts:114:1 \u203a guided workbench shell keeps journey steps, details, and compact status reachable (12.1s)",
+    "\u2713   5 [chromium-desktop] \u203a e2e/r2-smoke.spec.ts:178:1 \u203a DEC-077 solve temperature queues an explicit unit-bearing operation (3.3s)",
+    "\u2718   6 [chromium-desktop] \u203a e2e/r2-smoke.spec.ts:203:1 \u203a R2 desktop preview smoke covers solve, results, report, and viewport overlay (15.1s)",
+    "\u2718   7 [chromium-desktop] \u203a e2e/r2-smoke.spec.ts:762:1 \u203a viewport gesture placeholders record unit validation (2.0m)",
+    "\u2718   8 [chromium-desktop] \u203a e2e/r2-smoke.spec.ts:788:1 \u203a R2 from-blank GUI journey authors the A12 rehearsal script (2.3m)"
+  ],
+  "playwright_source_passed": 3,
+  "playwright_source_failed": 5,
+  "playwright_source_registered": 28,
+  "playwright_source_unfinished": 20,
+  "production_dist_lane": "NOT_EXECUTED",
+  "canonical_sweep_summary": "NOT_GENERATED_due_KeyboardInterrupt; this record is not a DEC025 summary or gate pass",
+  "full_gate": "NOT_SATISFIED",
+  "source17_unchanged": true,
+  "original77_unchanged": true,
+  "playwright_artifact_count": 7908,
+  "screenshots_present": "Selected JPEG trace frames carried; full PNG count zero; full trace screenshot cache retained externally.",
+  "required_next": "Parent authorizes bounded UI test-path repair; independent fresh review, source refreeze/commit, clean full five-surface rerun before publication.",
+  "packaging_version": 2,
+  "context_artifacts_carried": 5,
+  "selected_trace_frames_carried": 8,
+  "full_trace_capture_external": "/tmp/piping-C2-DEC025-ATTEMPT1-COMPLETE-CAPTURE"
+}

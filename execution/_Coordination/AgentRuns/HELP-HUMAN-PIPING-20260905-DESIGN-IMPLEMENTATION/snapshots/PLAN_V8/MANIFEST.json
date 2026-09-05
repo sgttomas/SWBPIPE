@@ -1,0 +1,11 @@
+{
+  "version": 8,
+  "status": "frozen bounded UI actionability amendment",
+  "previous_plan_manifest_sha256": "936efe83ca6a37e3f18b6da483b30a7ab2f5195e18f1ab9a393bd251be31054e",
+  "files": {
+    "snapshots/PLAN_V8/AMENDMENT.json": "d0d90c81bda4c10e1190d2084fc699c9ed2460fba9584cbb5aba1c43277afe69",
+    "snapshots/PLAN_V8/ORCHESTRATION_PLAN.md": "8ab4dbe359f13be2cdf954270ea43cddaeff8761f3d436ef1b6d18db072eeca6",
+    "snapshots/PLAN_V8/WORK_GRAPH.json": "17874d03bb895509d7504cd403f3f654a74ab67033733b66e6c6ed8be59cca58"
+  },
+  "freeze": "C1 frozen; only W7 product changes authorized"
+}

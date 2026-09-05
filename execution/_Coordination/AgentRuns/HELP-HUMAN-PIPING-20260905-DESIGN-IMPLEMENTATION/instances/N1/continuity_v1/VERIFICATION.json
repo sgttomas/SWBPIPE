@@ -1,0 +1,33 @@
+{
+  "utc": "2026-09-05T20:21:00.137202+00:00",
+  "status": "PASS_TEST_ONLY_SOURCE_CONTINUITY",
+  "original_manifest_sha256": "444b9772fe68f5f39a2a2cadd0ed04664f211ca0c78e516567deb661a78abc8d",
+  "original_input_count": 626,
+  "unchanged_original_inputs": 624,
+  "changed_inputs": {
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts": {
+      "before": "0d912f6687f2c89035bf55e553b6e22cbea3c1624aac0d788ffcf8d7f5459e8f",
+      "after": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10"
+    },
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": {
+      "before": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18",
+      "after": "4922261af9a74e7514b2a49e0aa0dd8552ae853264b07a0065f8fc4cc22449e8"
+    }
+  },
+  "basis_file_sha256": {
+    "package.json": "6dd5540cb4af6170e96ce433bab3630e8606ef6a8abc90b8601403c7542ba776",
+    "tsconfig.json": "cc32a3c2be133425d30e112e3dc863c9dbe1ecbbdd81123abf6d6a0300a8ae5c",
+    "index.html": "e6c61f8443b68c41c21d352df4ccf0babd96f1ac879ee5a0750acf3a679ad812",
+    "vite.config.ts": "9e59361cfb4e89b53d2ce1acfe7a9b000b6d87c38fd7cae283019efc13d04bf9",
+    "playwright.config.ts": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0",
+    "src-tauri/build.rs": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f",
+    "src-tauri/tauri.conf.json": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f"
+  },
+  "packaged_bundle_inventory_unchanged": true,
+  "bundle_inventory_sha256": "c86b10bac709df76cc9a8657a6024097f0dbf25eae7efb7d4d7af2d08135cbdc",
+  "binary_sha256": "c37d5f9e70f9727cf47323f44b765171ca38a14baefb577ebdb3a79136f23c68",
+  "rebuilt": false,
+  "native_self_test_rerun": false,
+  "gui_exercised": false,
+  "limits": "Original 626-input unchanged statement remains true only at initial build/self-test observation. This supplement proves 624 original inputs and existing binary/bundle unchanged after two excluded E2E test repairs. It adds no native GUI, numerical, or usability proof."
+}

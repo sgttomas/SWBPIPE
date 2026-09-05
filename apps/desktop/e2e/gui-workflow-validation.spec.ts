@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -39,10 +39,56 @@ if (!editedLoadCase) throw new Error(`GUI workflow fixture is missing load:L-100
 
 async function openWorkspaceSection(page: Page, sectionId: string): Promise<void> {
   const section = page.getByTestId(`workspace-section-${sectionId}`);
-  if (await section.isVisible()) return;
-  await page.getByTestId("menu-view").click();
-  await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
+  if (!await section.isVisible()) {
+    await page.getByTestId("menu-view").click();
+    await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
+  }
   await expect(section).toBeVisible();
+  if (sectionId === "operations") {
+    const review = page.getByTestId("operation-tab-review");
+    if (await review.getAttribute("aria-pressed") !== "true") await review.click();
+  }
+}
+
+// Disclosures are opened through their visible summary, never by DOM mutation.
+async function setDisclosure(details: Locator, open = true): Promise<void> {
+  if ((await details.getAttribute("open") !== null) !== open) {
+    await details.locator(":scope > summary").click();
+  }
+  if (open) await expect(details).toHaveAttribute("open", "");
+  else await expect(details).not.toHaveAttribute("open");
+}
+
+async function openNamedDisclosure(scope: Page | Locator, name: string | RegExp): Promise<void> {
+  const summary = scope.locator("summary").filter({ hasText: typeof name === "string" ? new RegExp(`^${name}$`) : name });
+  await setDisclosure(summary.locator(".."));
+}
+
+async function expectRecordedStatus(page: Page, testId: string, value: string): Promise<void> {
+  const status = page.getByTestId(testId);
+  await setDisclosure(status);
+  await expect(status.locator("code")).toBeVisible();
+  await expect(status.locator("code")).toContainText(value);
+  await setDisclosure(status, false);
+}
+
+async function openReviewTab(page: Page, tab: "review" | "agent" | "details"): Promise<void> {
+  await openWorkspaceSection(page, "operations");
+  const button = page.getByTestId(`operation-tab-${tab}`);
+  if (await button.getAttribute("aria-pressed") !== "true") await button.click();
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  if (tab === "details") {
+    const toggle = page.getByTestId("review-apply-drawer-toggle");
+    if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  }
+}
+
+async function ensureEngineReady(page: Page): Promise<void> {
+  await openReviewTab(page, "review");
+  await expect(page.getByTestId("operation-engine-chip")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await page.getByTestId("workspace-task-model").click();
 }
 
 async function ensureRailExpanded(page: Page, testId: "toggle-tree" | "toggle-inspector"): Promise<void> {
@@ -62,15 +108,15 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
 
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await ensureEngineReady(page);
   await ensureRailExpanded(page, "toggle-tree");
   await ensureRailExpanded(page, "toggle-inspector");
 
   // Bind the documented pre-solve state directly to the repository fixture.
   await expect(page.getByTestId(`tree-row-${modelFixture.project.id}`)).toBeVisible();
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText(modelFixture.analysis_status.mechanics);
-  await expect(page.getByTestId("status-pill-rule-check")).toContainText("RULE_INPUTS_INCOMPLETE");
-  await expect(page.getByTestId("status-pill-professional")).toContainText("HUMAN_REVIEW_REQUIRED");
+  await expectRecordedStatus(page, "status-pill-mechanics", modelFixture.analysis_status.mechanics);
+  await expectRecordedStatus(page, "status-pill-rule-check", "RULE_INPUTS_INCOMPLETE");
+  await expectRecordedStatus(page, "status-pill-professional", "HUMAN_REVIEW_REQUIRED");
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
@@ -85,9 +131,11 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText(`result_rows=${resultFixture.results.length}`);
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText(resultFixture.status.mechanics);
-  await expect(page.getByTestId("status-pill-rule-check")).toContainText(resultFixture.status.rule_check);
+  await expectRecordedStatus(page, "status-pill-mechanics", resultFixture.status.mechanics);
+  await expectRecordedStatus(page, "status-pill-rule-check", resultFixture.status.rule_check);
   const visibleSolveProof = page.getByTestId("status-pill-solve-proof");
+  await setDisclosure(visibleSolveProof);
+  await expect(visibleSolveProof.locator("code")).toBeVisible();
   await expect(visibleSolveProof).toContainText("seam=browser_fixture_no_backend_job");
   await expect(visibleSolveProof).toContainText(`project=${modelFixture.project.id}`);
   await expect(visibleSolveProof).toContainText(`result_model=${modelFixture.project.id}`);
@@ -96,6 +144,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(visibleSolveProof).toContainText("job=job:preview-linear-static:");
   await expect(visibleSolveProof).toContainText("model_sha256=sha256:");
   await expect(visibleSolveProof).toContainText("input_manifest_sha256=");
+  await setDisclosure(visibleSolveProof, false);
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("result-filter-summary")).toContainText(
     `${resultFixture.results.length} of ${resultFixture.results.length} results match filter`
@@ -135,13 +184,11 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(initialAudit.getByTestId("local-project-status")).toContainText("telemetry=false");
   await initialAudit.getByRole("button", { name: /Close/i }).click();
 
-  // Restore the visible authoring layout before using the inspector. Keeping
-  // Solve open lets its dock intercept compact-viewport pointer events.
+  // Return to the full-height authoring layout, then check actual control
+  // actionability and containment instead of an obsolete fixed rail width.
   await page.getByTestId("workspace-dock-close").click();
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
   await expect(page.getByTestId("workspace-section-solve")).toBeHidden();
-  const inspectorBounds = await page.locator(".workspace-pane-inspector").boundingBox();
-  expect(inspectorBounds?.width).toBeGreaterThan(300);
 
   // Edit explicit invented load data through the visible inspector and apply it
   // through the product's local WASM operation engine.
@@ -152,7 +199,31 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
     String(editedLoadCase.primitive_loads[0].magnitude.value)
   );
   await expect(editor.getByTestId("editor-intent-unit")).toHaveValue(editedLoadCase.primitive_loads[0].magnitude.unit);
-  await editor.getByTestId("editor-intent-value").fill("-225");
+  await editor.getByLabel("New first primitive magnitude", { exact: true }).fill("-225");
+  await expect(page.getByTestId("viewport-canvas")).toBeVisible();
+  for (const controlId of ["editor-intent-field", "editor-intent-value", "editor-intent-unit", "queue-editor-intent"]) {
+    const control = editor.getByTestId(controlId);
+    await control.scrollIntoViewIfNeeded();
+    await expect(control).toBeVisible();
+    await expect(control).toBeEnabled();
+    await control.click({ trial: true });
+    const [bounds, rail, canvas] = await Promise.all([
+      control.boundingBox(), page.locator(".workspace-pane-inspector").boundingBox(),
+      page.getByTestId("viewport-canvas").boundingBox(),
+    ]);
+    expect(bounds).not.toBeNull();
+    expect(rail).not.toBeNull();
+    expect(bounds!.width).toBeGreaterThan(0);
+    expect(bounds!.height).toBeGreaterThan(0);
+    expect(bounds!.x).toBeGreaterThanOrEqual(rail!.x);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(rail!.x + rail!.width);
+    expect(bounds!.y).toBeGreaterThanOrEqual(rail!.y);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(rail!.y + rail!.height);
+    expect(canvas).not.toBeNull();
+    expect(canvas!.width).toBeGreaterThan(64);
+    expect(canvas!.height).toBeGreaterThan(64);
+  }
+  await openNamedDisclosure(editor, "Operation details");
   await expect(editor.getByTestId("editor-operation-preview")).toContainText(
     'after={"value":-225,"unit":"N/m"}'
   );
@@ -170,7 +241,9 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("readiness-mechanics")).toContainText("preview run not started");
   const resetViewportStatus = page.getByTestId("viewport-deformation-status");
   await expect(resetViewportStatus).toBeVisible();
+  await setDisclosure(resetViewportStatus);
   await expect(resetViewportStatus).toContainText("not started; result rows=0");
+  await setDisclosure(resetViewportStatus, false);
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toContainText(
     "Run the bounded preview mechanics path to populate result summaries."
@@ -185,10 +258,14 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Listed 1 local project snapshot from the local store index."
   );
+  await setDisclosure(page.getByLabel("Project summary"));
+  await expect(page.getByTestId("project-index-picker")).toBeVisible();
   await page.getByTestId("project-index-open-project:invented-loop-01").click();
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Opened local browser-preview project snapshot by id project:invented-loop-01."
   );
+
+  await setDisclosure(page.getByLabel("Project summary"), false);
 
   // The edited unit-bearing value is still the current value after reopen.
   await page.getByTestId(`tree-row-${editedLoadCase.id}`).click();
@@ -203,12 +280,14 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
-  await page.getByTestId("issues-drawer-toggle").click();
-  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toBeVisible();
+  await expectRecordedStatus(page, "status-pill-mechanics", "MODEL_INCOMPLETE");
+  await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText(
     "blocked; mechanics=model incomplete; rows=0"
   );
+  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+  await page.getByTestId("issues-drawer-toggle").click();
+  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toBeVisible();
   const blockedIssues = page.getByTestId("issues-home");
   await expect(blockedIssues.getByTestId("missing-data-summary")).toContainText("solve_blocked=true");
   await expect(blockedIssues.getByTestId("missing-data-summary")).toContainText("rule_blocked=true");
@@ -242,7 +321,7 @@ for (const { drawerId, toggleId, contentId, contentText } of [
 ]) {
   test(`shared drawer menu overlap preserves ordinary Close and active menu priority: ${drawerId}`, async ({ page }, testInfo) => {
     await page.goto("/");
-    await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+    await ensureEngineReady(page);
     await openWorkspaceSection(page, "solve");
     await page.getByTestId("run-mechanics-preview").click();
     await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");

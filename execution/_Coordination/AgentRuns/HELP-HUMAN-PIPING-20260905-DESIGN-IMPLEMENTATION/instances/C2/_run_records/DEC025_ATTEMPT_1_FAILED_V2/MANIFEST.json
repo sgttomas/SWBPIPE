@@ -1,0 +1,20 @@
+{
+  "status": "failed/interrupted bounded diagnostic evidence",
+  "created_at": "2026-09-05T20:13:11.203538+00:00",
+  "files": {
+    "ERROR_CONTEXT_BYTES.json": "243f5400ebb0d46edcc6d81a6a6a2a53b5cf0c41a250fca39f1914c35c38dd88",
+    "EXTERNAL_TRACE_INVENTORY.json": "bb7be893f0d1dd58b0cd736e31ebf1b7ac6e82e8513aacaa3212f6a434635c1b",
+    "PRECOMMIT_CHECK_BYTES.json": "cd73efeb094a773f5d4afba15da6ce59fc41dd08480e434da19f9435777d650d",
+    "RETURN.md": "a23795f3d6922af0697c9ae2f57af66b6877943579e74410e4d8ecc3e67c5730",
+    "STATUS.json": "c4b780251b520d68d9875b3cb9355146d0274fce4aecace5a75ce2ec01912d2d",
+    "SWEEP_CONSOLE_BYTES.json": "904855046915b396d3d69b0ff9afd70766b9cde608aafb0e099a4d8a04a67cd0",
+    "trace_frames/failure-trace-frame-01.jpeg": "3fd19940cc473bd5f01994e41c292ee35cee2de6a86175d14c8e1c9e8066f014",
+    "trace_frames/failure-trace-frame-02.jpeg": "b1146df7cb9d90ce4f1383af7812f9206f00bc99b4020d7ffca23ad02f8256aa",
+    "trace_frames/failure-trace-frame-03.jpeg": "3fd19940cc473bd5f01994e41c292ee35cee2de6a86175d14c8e1c9e8066f014",
+    "trace_frames/failure-trace-frame-04.jpeg": "3cfb7f8f41c19388a5cd5a18f366fd9e834223f09239e1108e13926bdc184d06",
+    "trace_frames/failure-trace-frame-05.jpeg": "3fd19940cc473bd5f01994e41c292ee35cee2de6a86175d14c8e1c9e8066f014",
+    "trace_frames/failure-trace-frame-06.jpeg": "3108be1b2c69c507d68696495e157f5cd666d64ed325a1a118e2310709b4a91f",
+    "trace_frames/failure-trace-frame-07.jpeg": "3fd19940cc473bd5f01994e41c292ee35cee2de6a86175d14c8e1c9e8066f014",
+    "trace_frames/failure-trace-frame-08.jpeg": "915ba186d1752f8d46f54026d53fa23aecd537708129444bb9d5b71dae4ebb1d"
+  }
+}

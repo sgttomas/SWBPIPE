@@ -1,0 +1,18 @@
+{
+  "classification": "fresh final-style native package witness; derivative; no lifecycle acceptance",
+  "original_manifest_preserved_sha256": "444b9772fe68f5f39a2a2cadd0ed04664f211ca0c78e516567deb661a78abc8d",
+  "continuity_manifest_preserved_sha256": "2e7a770c3a23c4da0766bb44822ef4bd7a303d85224f0a7f6e1c599565033ce2",
+  "files": {
+    "_run_records/build_v2/BUILD_LOG_BYTES.json": "7d14e2986eef4a0ed897b668c5cc9bf72db4ea824c833b5e4e687d0a7fced6a2",
+    "_run_records/build_v2/BUILD_RESULT.json": "7501ecf80db5f075976c8bcc85a828d3b8b1d5334ca7844d3e001f8114770dbb",
+    "_run_records/build_v2/BUNDLE_VERIFICATION.json": "b4a8d158a7884a6d2274cf730d2225315ab8d4231da77ed883f302af3592f57d",
+    "_run_records/build_v2/CODESIGN_INSPECT.log": "76c14a3ee5799e4d8cea7c152edf775d59774c0fe2845a09d528ac789423caf1",
+    "_run_records/build_v2/SELF_TEST.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "_run_records/build_v2/SELF_TEST.stdout.json": "6efe9276f2e74200d9af54f0c306faddf004a55e8bb656389a5a14d9aa60ea56",
+    "_run_records/build_v2/SOURCE_AFTER.json": "77fbfadfe7d8fdf3d725df9957b8d601f2844ff95a7202f51a930cfac615333f",
+    "_run_records/build_v2/SOURCE_BEFORE.json": "740d8d6f3f67a4137ba18b5e58a59a929dd1d9f9103805cef1295d724b8e1a36",
+    "_run_records/build_v2/VERSIONS.json": "d5fdcd9443708f12f9e7c82e0dc61ac53135262a325a9bfb648572fb538a46f1",
+    "_run_records/build_v2/verify_bundle.py": "483807dd793f815c5a076fe492e4208b566d2684bb3d7a8e39664d4b763e76ae",
+    "build_v2_snapshot/RETURN.md": "2f1c41ac4e1314ce1ea2d00d916f43ebd065e80b0ffff7fa4ba56fce9f546904"
+  }
+}

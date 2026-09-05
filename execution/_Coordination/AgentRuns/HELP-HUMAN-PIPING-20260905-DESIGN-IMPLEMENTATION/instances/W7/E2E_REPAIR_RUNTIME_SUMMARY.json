@@ -1,0 +1,79 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 4
+  },
+  "counts": {
+    "category": {
+      "browser_path_repair": 2,
+      "browser_pointer_actionability": 2
+    },
+    "event_type": {
+      "CHECK": 1,
+      "FINISH": 4,
+      "REMEDIATION": 1,
+      "START": 4
+    },
+    "outcome": {
+      "FAIL": 2,
+      "PASS": 4,
+      "STARTED": 4
+    },
+    "reason_code": {
+      "CLIPPED_DRAWER_PANEL": 2,
+      "LEGACY_LAYOUT_EXPECTATIONS": 2
+    }
+  },
+  "events": 10,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 1836.575,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "W7",
+      "package_id": "PKG-07",
+      "remediations": 1,
+      "retries": 0,
+      "role": "Agent1 WORKING_ITEMS",
+      "session_id": "/root/workspace_manager/e2e-repair"
+    },
+    {
+      "duration_seconds": 472.257,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "R2",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK software-code-review",
+      "session_id": "/root/workspace_manager/e2e_review"
+    },
+    {
+      "duration_seconds": 77.853,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R2",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK software-code-review",
+      "session_id": "/root/workspace_manager/e2e_review-final"
+    },
+    {
+      "duration_seconds": 482.255,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "U1",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK",
+      "session_id": "/root/workspace_manager/workspace_ui-v7"
+    }
+  ],
+  "sessions": 4,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

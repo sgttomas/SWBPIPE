@@ -1,0 +1,26 @@
+{
+  "id": "ACCEPT_I2_SUPPLEMENTAL_FINAL_V2",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept I2 supplemental final PASS, no actionable findings",
+  "base": "e5ec1d4c6dc83315486b1df121474c6e2a75be3d",
+  "scope": "100% three-file delta, final combined 19-path binding",
+  "mapping_sha256": "218d841d4ea32f3a87b38b52716c79726590aa764cc09672a89a85951becc8f5",
+  "W7_manifest_sha256": "cf2cc3df5746b76652974df700a78ea0f876ca232ab9835ecf019ec0d5d18daf",
+  "patch_sha256": "1a85cb5e1336ad073009ad70645bbae0ad48f23672ca04f84799865bbba937ca",
+  "return_sha256": "8eb265425925514716b0f51b26a0f483efd93580c6bd0a5f04394cb7dc80ce87",
+  "remaining": [
+    "Fresh N1 native bundle",
+    "New source commit",
+    "Final metadata",
+    "Complete clean five-surface DEC-025"
+  ],
+  "claim_limit": "No waiver, engineering/lifecycle acceptance or whole-program closure",
+  "root_independent_verification": {
+    "performed": true,
+    "files": 19,
+    "all_live_hashes_match": true,
+    "reconstructed_repo_relative_path_hash_digest": "218d841d4ea32f3a87b38b52716c79726590aa764cc09672a89a85951becc8f5"
+  }
+}

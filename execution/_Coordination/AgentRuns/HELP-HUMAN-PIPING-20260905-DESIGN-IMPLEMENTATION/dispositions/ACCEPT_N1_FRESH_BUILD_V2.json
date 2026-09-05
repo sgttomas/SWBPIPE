@@ -1,0 +1,21 @@
+{
+  "id": "ACCEPT_N1_FRESH_BUILD_V2",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept fresh compiled-backend verification for repaired UI source",
+  "manifest_sha256": "c493acf4602f83879c9280defbdffe8a05bff2d97f0f2376fa88243e2c1d090c",
+  "root_verification": "Read build_v2_snapshot/RETURN.md and verified all 11 members",
+  "binary_sha256": "da744f96b3102842197861a2b4a71309c46bf28eb1527cdfe5c604813733b66c",
+  "results": "Actual Tauri bundle, both Wasm/frontend/native rebuilt; isolated actual binary edited save/close/reopen/solve PASS",
+  "measurements": {
+    "build_seconds": 18.446,
+    "current_input_hashes_unchanged": 626
+  },
+  "preservation": "Original N1 and continuity packets preserved; this bundle supersedes old bundle for current testing",
+  "limits": [
+    "No GUI usability claim",
+    "No user app/model/signing identity changes"
+  ],
+  "status": "N1 writes frozen"
+}

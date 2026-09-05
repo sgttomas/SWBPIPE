@@ -1,0 +1,5 @@
+{
+  "status": "RETRY",
+  "cause": "Helper explicitly selected absent Google Chrome path; use same installed Playwright Chromium fallback as existing configs. No app browser launched or product assertions executed.",
+  "startup_log": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nbrowserType.launch: Failed to launch chromium because executable doesn't exist at /Applications/Google Chrome.app/Contents/MacOS/Google Chrome\n    at /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/diagnostic-1024-witness.mjs:5:32\n    at async node:internal/modules/esm/loader:643:26 {\n  name: 'Error'\n}\n\nNode.js v24.18.0\n"
+}

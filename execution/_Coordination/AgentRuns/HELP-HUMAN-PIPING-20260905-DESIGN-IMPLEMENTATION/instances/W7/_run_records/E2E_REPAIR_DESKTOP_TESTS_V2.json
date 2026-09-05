@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "test:desktop"
+  ],
+  "source_manifest": "../snapshots/E2E_REPAIR_V2/MANIFEST.json",
+  "status": "PASS",
+  "exit_code": 0,
+  "passed": 748,
+  "files": 45,
+  "duration_seconds": 134.72,
+  "stdout_sha256": "196e90753ee62aade5b10961b7c71642b1c38911e90696a3d38b3b201134e2de",
+  "stdout_base64": "Cj4gb3BlbnBpcGVzdHJlc3Mtd29ya3NwYWNlQDAuMS4wIHRlc3Q6ZGVza3RvcAo+IG5wbSB0ZXN0IC0td29ya3NwYWNlIGFwcHMvZGVza3RvcAoKCj4gQG9wZW5waXBlc3RyZXNzL2Rlc2t0b3BAMC4xLjAgdGVzdAo+IHZpdGVzdCBydW4KCgogUlVOICB2NC4xLjEwIC9Vc2Vycy9yeWFuLy5jb2RleC93b3JrdHJlZXMvODcyOC9jaGlyYWxpdHkvcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9hcHBzL2Rlc2t0b3AKCgogVGVzdCBGaWxlcyAgNDUgcGFzc2VkICg0NSkKICAgICAgVGVzdHMgIDc0OCBwYXNzZWQgKDc0OCkKICAgU3RhcnQgYXQgIDE0OjM2OjU1CiAgIER1cmF0aW9uICAxMzQuNzJzICh0cmFuc2Zvcm0gNi41N3MsIHNldHVwIDMuMDZzLCBpbXBvcnQgOS44M3MsIHRlc3RzIDE3Ny43OXMsIGVudmlyb25tZW50IDEzLjAycykKCg=="
+}

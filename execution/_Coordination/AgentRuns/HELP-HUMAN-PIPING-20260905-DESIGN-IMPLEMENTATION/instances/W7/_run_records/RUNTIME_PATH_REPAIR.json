@@ -1,0 +1,6 @@
+{
+  "status": "CORRECTED",
+  "cause": "Relative output passed with repeated run-root prefix created nested new telemetry files. Merged all10distinct events without deletion or invented times; removed only newly generated duplicate-path files and empty directories.",
+  "prior_accepted_ledgers": "Unchanged",
+  "source_or_test_changes": "None"
+}

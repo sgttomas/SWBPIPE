@@ -1,0 +1,15 @@
+{
+  "status": "FINAL_METADATA_FROZEN",
+  "technical_snapshot": "E2E_REPAIR_FINAL_SNAPSHOT.json",
+  "technical_sha256": "f02e8d16a01ed9e4c95e62ed5c08b907fe05d3d32bd72443cec71280fa72926d",
+  "local_state_supplement": "E2E_REPAIR_LOCAL_STATE_SUPPLEMENT.json",
+  "local_state_sha256": "a9fec9b70e8bc7e279f3d139c2e57f6e95dc38c2988b1f4c59af6b12ba3adea4",
+  "issue_plan": "plans/PLAN_2026-09-05_browser_workflow_preflight.md",
+  "issue_plan_sha256": "b7044d0c2da2bfc16a51a012c056fdfdb7550910ed8e03f4b1a68ac730681dd1",
+  "plan_status": "Proposed follow-up only; no canonical method change",
+  "all_writes_frozen": true,
+  "product_source_manifest_sha256": "cf2cc3df5746b76652974df700a78ea0f876ca232ab9835ecf019ec0d5d18daf",
+  "superseded_candidate_record": "_run_records/ISSUE_PLAN_ATTRIBUTION_CANDIDATE_V1.json",
+  "superseded_candidate_record_sha256": "4c6de9fe5b3c0493f3eab28c88f836ebb1d194fc428f6d0d5ef5f18e1b1708f9",
+  "correction": "Trace-off attribution corrected to Agent 0 authorization within owner implementation direction; no explicit Owner ruling claimed."
+}

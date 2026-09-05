@@ -1,0 +1,21 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/r2-smoke.spec.ts",
+    "--grep",
+    "diagnostic detail",
+    "--trace",
+    "off"
+  ],
+  "workers": 1,
+  "source_manifest": "../snapshots/E2E_REPAIR_V2/MANIFEST.json",
+  "status": "PASS",
+  "exit_code": 0,
+  "passed": 2,
+  "duration": "17.8s",
+  "preflight_trace_override": "Root authorized trace off for iterative preflight only; final DEC unchanged",
+  "stdout_sha256": "665342449af7a8cb34ed00346ac38581d0d3e062c08aa5b02f99eb38b7406e85",
+  "stdout_base64": "G1sybVtXZWJTZXJ2ZXJdIBtbMjJtKG5vZGU6Mzg1MzEpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgobWzJtW1dlYlNlcnZlcl0gG1syMm0oVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQoKUnVubmluZyAyIHRlc3RzIHVzaW5nIDEgd29ya2VyCgoobm9kZTozODUzOSkgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCihub2RlOjM4NTM5KSBXYXJuaW5nOiBUaGUgJ05PX0NPTE9SJyBlbnYgaXMgaWdub3JlZCBkdWUgdG8gdGhlICdGT1JDRV9DT0xPUicgZW52IGJlaW5nIHNldC4KKFVzZSBgbm9kZSAtLXRyYWNlLXdhcm5pbmdzIC4uLmAgdG8gc2hvdyB3aGVyZSB0aGUgd2FybmluZyB3YXMgY3JlYXRlZCkKICDinJMgIDEgW2Nocm9taXVtLWRlc2t0b3BdIOKAuiBlMmUvcjItc21va2Uuc3BlYy50czoxMDY4OjEg4oC6IGRpYWdub3N0aWMgZGV0YWlsIGV4cG9zZXMgbGlua2VkIHJlc3VsdCB1bml0IGNvbnRleHQgKDguOHMpCihub2RlOjM4NjMwKSBXYXJuaW5nOiBUaGUgJ05PX0NPTE9SJyBlbnYgaXMgaWdub3JlZCBkdWUgdG8gdGhlICdGT1JDRV9DT0xPUicgZW52IGJlaW5nIHNldC4KKFVzZSBgbm9kZSAtLXRyYWNlLXdhcm5pbmdzIC4uLmAgdG8gc2hvdyB3aGVyZSB0aGUgd2FybmluZyB3YXMgY3JlYXRlZCkKKG5vZGU6Mzg2MzApIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQogIOKckyAgMiBbY2hyb21pdW0tY29tcGFjdF0g4oC6IGUyZS9yMi1zbW9rZS5zcGVjLnRzOjEwNjg6MSDigLogZGlhZ25vc3RpYyBkZXRhaWwgZXhwb3NlcyBsaW5rZWQgcmVzdWx0IHVuaXQgY29udGV4dCAoNy43cykKCiAgMiBwYXNzZWQgKDE3LjhzKQo="
+}

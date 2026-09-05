@@ -851,6 +851,11 @@ button:focus-visible {
   box-shadow: 0 18px 50px rgb(27 39 37 / 24%);
 }
 
+/* Keep diagnostic controls at content height; the bounded drawer owns scrolling. */
+.issues-drawer > .panel {
+  flex-shrink: 0;
+}
+
 .drawer-header {
   display: flex;
   align-items: center;
