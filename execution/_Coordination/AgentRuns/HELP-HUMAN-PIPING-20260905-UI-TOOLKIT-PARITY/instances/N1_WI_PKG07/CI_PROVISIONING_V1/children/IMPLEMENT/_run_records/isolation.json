@@ -1,0 +1,10 @@
+{
+  "temp_root": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-ci-provision-zt_cf8d3",
+  "CARGO_HOME": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-ci-provision-zt_cf8d3/cargo",
+  "CARGO_TARGET_DIR": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-ci-provision-zt_cf8d3/target",
+  "RUSTUP_TOOLCHAIN": "stable-aarch64-apple-darwin",
+  "initial_cargo_entries": [],
+  "initial_target_entries": [],
+  "global_cache_copied": false,
+  "toolchain_selection_note": "Installed stable is rustc1.97.1/cargo1.97.1 as versions.log proves; numeric alias absent. Initial numeric selection failed before downloads, no install performed."
+}

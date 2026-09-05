@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "completed_utc": "2026-09-05T14:11:59.982071+00:00",
+  "authority": "Parent evidence-only portability repair; substantive verdict unchanged",
+  "active_path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/CI_REPAIR/REVIEW/INDEPENDENT_CHECKS_V1.json",
+  "original_sha256": "995dd83b452f3d0c0bd5f44ce60e8248a4c9b725ea77cb51c67be55e2c913f81",
+  "original_encoded_path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/CI_REPAIR/REVIEW/PORTABILITY_RELOCATION_V1/ORIGINAL_INDEPENDENT_CHECKS_V1.json.b64",
+  "decoded_original_hash_verified": true,
+  "active_sha256": "b571b6b7c9836ed9c7c97a8fdc12753dec4607789a99807fec45e8c7163c35da",
+  "mapping": [
+    {
+      "old_utf8_base64": "L1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eS9wcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5n",
+      "replacement": "{WORKING_ROOT}",
+      "occurrences": 4,
+      "reason": "full working root"
+    },
+    {
+      "old_utf8_base64": "L1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eQ==",
+      "replacement": "{REPO_ROOT}",
+      "occurrences": 1,
+      "reason": "full repository root"
+    },
+    {
+      "old_utf8_base64": "L1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84",
+      "replacement": "{REPO_ROOT_PREFIX_TRUNCATED}",
+      "occurrences": 2,
+      "reason": "150-byte sample truncates repository root"
+    }
+  ],
+  "changed_fields": [
+    "all67[39].sample",
+    "all67[40].sample",
+    "all67[45].sample",
+    "all67[48].sample",
+    "all67[54].sample",
+    "all67[55].sample",
+    "all67[61].sample"
+  ],
+  "sample_note": "Samples remain truncated illustrative snippets; truncated-root replacement explicitly records lost suffix, never reconstructs missing original bytes. Exact original is recoverable from encoded snapshot.",
+  "source111_evidence67_unchanged": true,
+  "config_sha256": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes": "729bc98d0dd5888b78da58464b4bc6b96c7a3c9d2eb3063651240b4564903739",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/.gitattributes": "2a3fe991eac45f500c1c975056a4f9cb1f2daf40cff177fd462b63a43b9d84e0"
+  },
+  "prior_binding_rule": "Historical hashes remain unchanged and bind encoded original bytes; active relocated derivative is identified by new hash."
+}

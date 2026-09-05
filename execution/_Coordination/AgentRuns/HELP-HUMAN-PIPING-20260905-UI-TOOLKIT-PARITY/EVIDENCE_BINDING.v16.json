@@ -1,0 +1,20 @@
+{
+  "recorded_utc": "2026-09-05T14:17:26.635163+00:00",
+  "owner_evidence_sha256": {
+    "instances/N8_CHANGE/CI_REPAIR/REVIEW/RETURN_V2.md": "5ff12ca80eb5053d16ddf12bb8f6b5dc379c712a987b4b51a1dbc690ddd5bccf",
+    "instances/N1_WI_PKG07/CI_PROVISIONING_V1/ACCEPTED_CI_REPAIR_SNAPSHOT_V1.json": "4e5b1b496765adbf467915dcedef701b258b14d0df515553ca0d82504036bafd",
+    "instances/N1_WI_PKG07/CI_PROVISIONING_V1/MANAGER_HANDOFF_V1.md": "8efa099f7619df387ffe58b3902662392b43be25c6336dfb0ea58ccb0bf0906a",
+    "instances/N8_CHANGE/CI_REPAIR/ATTRIBUTE_ACCEPTED_SNAPSHOT_V1.json": "a17317892b7e1afd952f78ad4af53c5d0670c95e4b11551e2760501de22b4a92",
+    "instances/N8_CHANGE/CI_REPAIR/COMBINED_CHECKS_V2.json": "815012dd98a84de20ad76be9907a5a6fe6e0b5dbd296b3cf7bf4a6f87c11c47c"
+  },
+  "exact_config_sha256": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes": "729bc98d0dd5888b78da58464b4bc6b96c7a3c9d2eb3063651240b4564903739",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/.gitattributes": "2a3fe991eac45f500c1c975056a4f9cb1f2daf40cff177fd462b63a43b9d84e0",
+    ".github/workflows/piping-desktop-e2e.yml": "4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f"
+  },
+  "all111_product_hashes_reverified": true,
+  "immutable67_evidence": "reviewedN8snapshot claim consumed; preserved originalbytes",
+  "swept_product_basis": "d6a313fc41db10b7e992381b173ce1ac5cbc956e",
+  "authority": "actual parent final boundedfan-in accepts scopedcommit/normalpush, exacthostedCI still pending",
+  "timing": "recordednow, not backdated prelaunch"
+}

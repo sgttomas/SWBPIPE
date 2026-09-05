@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "harness-self-check"
+  ],
+  "paths": [
+    ".github/workflows/piping-desktop-e2e.yml"
+  ],
+  "reasons": {},
+  "schema": "chirality-affected-checks/v1"
+}

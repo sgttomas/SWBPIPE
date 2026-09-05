@@ -1,0 +1,215 @@
+{
+  "schema": "piping.ci-provisioning.accepted-snapshot/v1",
+  "created_utc": "2026-09-05T14:13:57.531885+00:00",
+  "verdict": "ACCEPTED_LOCAL_REPAIR",
+  "role": "WORKING_ITEMS Agent1 PKG-07",
+  "basis_commit": "079f865bc5507fc28ad52bc4b3186e563bb26ce0",
+  "derivative_package": true,
+  "authority": "Parent explicitly released one Piping-specific CI workflow integration file; not decomposition truth or lifecycle promotion",
+  "source": [
+    {
+      "path": "{REPO_ROOT}/.github/workflows/piping-desktop-e2e.yml",
+      "sha256": "4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f"
+    }
+  ],
+  "preimage_sha256": "7aec5e6cefab45cc88d8b6c81f7e8100b99fd37531b1bf4aa378bb64a5d481cd",
+  "change": "Unconditional locked prefetch of both existing crate graphs and both lockfiles in registry cache key; all other workflow behavior preserved",
+  "review": "Fresh independent 100% workflow and exact two-hunk diff PASS_SOURCE_AND_LOCAL_PROOF_REVIEW, no actionable findings",
+  "manager_validation": {
+    "author_bound_files": 26,
+    "protected_current_hashes": 135,
+    "emitted_artifact_hashes": 8,
+    "all_match": true,
+    "author_terminal_return_consumed_after_reviewer_command_level_review": true,
+    "source_changed_since_review": false
+  },
+  "proof": {
+    "isolated_empty_cargo_and_target": true,
+    "operation_only_prefetch_counterfactual": "Expected offline failure missing libc 0.2.189; original hosted failure specifically memchr 2.8.3",
+    "both_locked_fetches": "PASS",
+    "both_locked_offline_wasm_builds": "PASS",
+    "unchanged_actual_dual_builder": "PASS",
+    "platform": "macOS arm64, Rust/Cargo 1.97.1, wasm-bindgen 0.2.123, Node 24.18.0",
+    "actual_builder_locked_flag": "Existing builder uses offline but not locked; separate explicit builds use both flags; lockfile hashes unchanged"
+  },
+  "raw_evidence": "Lossless base64 JSON and decoded hash/byte-count maps preserve all original logs/patches; no new attributes exceptions",
+  "remaining_gates": [
+    "Parent-owned exact-commit hosted Ubuntu Piping Desktop E2E and CI checks after commit/push"
+  ],
+  "out_of_scope": [
+    "Git mutation or push",
+    "Other workflows or governance",
+    "Product behavior edits",
+    "Release or lifecycle approval"
+  ],
+  "evidence": [
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/ACCEPTED_PLAN_V1.json",
+      "sha256": "6f18f4cc81900e93840a6da140058f1b66392b809475d0535f49b431e46a4328"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/INSTRUCTION_SCOPE_CHECK.json",
+      "sha256": "a7bd07ea05fe79a15c25e601281840bdc217a0a01f197357eccead9e0442326b"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/RUNTIME_EVENTS.jsonl",
+      "sha256": "98caeef7e68691b8fd296219675d7b701d6e800ab0fc1aad39dd56538d7ce0e7"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/RUNTIME_SUMMARY.json",
+      "sha256": "41eb3f54e6bf48e0ca11e3ed58ffe3c65b64dea85b56b542e1f109f510282ad7"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/DIAGNOSE/LAUNCH_BRIEF.md",
+      "sha256": "bcf1fab66a80db733a07e5b4d079222bfe4fc0e3cfa53e311d820521da392a5a"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/DIAGNOSE/RAW_LOG_ENCODING_MAP.json",
+      "sha256": "7075ddaff645fab87c4f20db39f84905a574d813530203984d5346ebe2e323d5"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/DIAGNOSE/RETURN.md",
+      "sha256": "d50b5102b364f6c8fb3c3dbe5ea74d60d12e6ee1f0c0afbffd5eb91527d77814"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/DIAGNOSE/SHA256SUMS",
+      "sha256": "300088c6ff1f5a2408c40e2eba4a3f6d2bb28f1922344bf104f4e098f1792384"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/DIAGNOSE/_run_records/dependency-comparison.json",
+      "sha256": "5cd460ccc21886395cbf34a611fff34eb31e6abf7404d9a4e24083b868198c6d"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/DIAGNOSE/_run_records/piping-ui-pr715-desktop-failed.encoded.json",
+      "sha256": "80de88848f42e1ab9fbb6d7c929f5767cb94709b57f53f59e26d60bfa2cb733a"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/DIAGNOSE/_run_records/piping-ui-pr715-desktop-failed.log",
+      "sha256": "783cedbf7b29356137a28422347e6d5a5422b358926abbfccaf7fbec5592de04"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/LAUNCH_BRIEF.md",
+      "sha256": "c95957d02bc57e73c0b9721d6d5006ea452e51daad8906d89e3f542d993d6456"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/RETURN.md",
+      "sha256": "010186eeea056225547746d8f6a0638ff00c72b26222f2e21c4919f441e58810"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/SHA256SUMS",
+      "sha256": "06cdf46c37c7cc56354fab75cd47b554a8933c7c1f4bade166aacd5d95bac709"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/STATUS.json",
+      "sha256": "4e7b259719b727e4901c479603c08580ab0b23f7a8093e024013eccb9712041c"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/RAW_EVIDENCE_MAP.json",
+      "sha256": "083e33398732258b35f5b3eb73cefdcb83f3ac51843f0aa31bd9155b2bf42a1f"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/TASK_RUN_2026-09-05_CI_PROVISION.md",
+      "sha256": "a3c33f8ebc493257178d8e29c5830cd6bde030fdd6858e1039d83ffbb2550f84"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/actual-builder-sandbox.log.encoded.json",
+      "sha256": "6c5222a61b52a91704256365b1c66d3b0daad6d77ff382456ea676c288b97030"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/affected-checks.json",
+      "sha256": "67946077c6aa511bc42b273409e8c5634ed46616f4a63e50327e1c53902e8d19"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/artifacts.json",
+      "sha256": "c683524b493f9a582cb63789342d16d1338b659d88d7e08ac25411d84c84e4dc"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/build-operation-sandbox.log.encoded.json",
+      "sha256": "326270d9cee774c6f6825909be5a24c6499bf9c0e0627f1c41f3d1adb69c0754"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/build-selfweight-sandbox.log.encoded.json",
+      "sha256": "17e04e1424e68af88cbd3f2c0ed47060d197ffe1910fd3fbb3f0747ba29b0661"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/commands.jsonl",
+      "sha256": "dfa9ab1bae4d8bea09588370771d302452378e752c638875080def0a64629450"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/fetch-operation-host.log.encoded.json",
+      "sha256": "f9375c8b5ef9fd3275f9f1094e595392d7f5577659c39f13561ab3c6d5f92b97"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/fetch-operation-sandbox-stable.log.encoded.json",
+      "sha256": "c3335dca10115b9e811d8c0cba6feba7dbfebc92d2ed042a60fc33fd336fcdd5"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/fetch-operation-sandbox.log.encoded.json",
+      "sha256": "cd079cf5dc69ead4b42877c1891ff65a9f9b5331cfac78ea9fa6aa5f9a8cd857"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/fetch-selfweight-host.log.encoded.json",
+      "sha256": "6666c341dd27c074401d0080ecc473a9a20362fe53203174214d2e7811d16a13"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/isolation.json",
+      "sha256": "5071c666bfeee7c9e1c9aeef1579ed6a544840b529d38d54698b7ba75d1704c0"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/piping-ui-pr715-desktop-failed.log.encoded.json",
+      "sha256": "3522d7290392e9dc43c4ef8b93593ddf988938489480a50176d31793156e7b59"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/probe-selfweight-sandbox.log.encoded.json",
+      "sha256": "e0832774d248fb63c8b03efaaad69ccea56848c0cfbba83199a6c331f8da2817"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/proof.py",
+      "sha256": "cc873d4c6af598aa2c33ca5278b4eb2707fcbae1de3e17edae31d43e183b9c04"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/protected.after.json",
+      "sha256": "3375ec0c2c6a0a7e91cda2f29a0913b188fa4209a120c6918a99961c8710c009"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/protected.before.json",
+      "sha256": "3375ec0c2c6a0a7e91cda2f29a0913b188fa4209a120c6918a99961c8710c009"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/scope-check.json",
+      "sha256": "4e64adb0da3b53fd7db53af645ae666cdbae9c58a32c561185b345828a62b43f"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/versions.log.encoded.json",
+      "sha256": "1e221013dec7f77791b9a8e7fc3aa8c5a016380e633d5e885157975b352043a4"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/workflow.before.yml",
+      "sha256": "7aec5e6cefab45cc88d8b6c81f7e8100b99fd37531b1bf4aa378bb64a5d481cd"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/workflow.diff.encoded.json",
+      "sha256": "84b1ebb8c873571809de203e4a385206f036f41762d4ae22ec56cb7144066cf2"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/workflow.frozen.yml",
+      "sha256": "4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/REVIEW/HASH_VERIFICATION.json",
+      "sha256": "745ba3afe6d2c6773c20370d50c1c387ad3a1b411573a0972da3ec75137ecc59"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/REVIEW/LAUNCH_BRIEF.md",
+      "sha256": "d0bb0bf4fc395d5fc040a3ee557eb47886f9e48bf60c64a78710a4a3dcccf4b3"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/REVIEW/RETURN.md",
+      "sha256": "79de6f5ee12a6decde13d8862eebd242c7102d1517b1ec59d6bf84f14bbeac91"
+    },
+    {
+      "path": "{REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/REVIEW/STATUS.json",
+      "sha256": "b8da86c706757d24ef06376017e40ace6d0cf583d7137281a379f180de8bdd03"
+    }
+  ]
+}

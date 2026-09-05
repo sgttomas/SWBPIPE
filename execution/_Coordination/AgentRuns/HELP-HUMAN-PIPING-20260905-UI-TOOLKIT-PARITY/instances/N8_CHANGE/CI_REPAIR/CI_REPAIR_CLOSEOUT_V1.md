@@ -1,0 +1,11 @@
+# PR715 targeted CI repair closeout
+
+Published source/evidence HEAD079f865bc5507fc28ad52bc4b3186e563bb26ce0 received two actual failed CI verdicts: governance run33970080191 candidate-whitespace; Desktop E2E run33970080166 missing offline memchr2.8.3 while building the new self-weight Wasm graph. Those failures remain in the owning exact encoded logs and external publication history.
+
+Parent accepted three narrowly scoped configuration changes. Two new project-local .gitattributes files recognize exactly65 immutable evidence paths' needed whitespace and two exact root-anchored CSV CRLF paths. Original67 evidence and all111 reviewed product/source/contract/doc bytes remain unchanged. Fresh V1 attribute review found descendant matching by slashless CSV names; V2 anchors closed it, with67positive,268future and112existing controls PASS. Reviewer sample portability was repaired through exact encoded preservation and active anchors; prior bindings remain inspectable.
+
+N1 accepted the sole separately authorized root exception .github/workflows/piping-desktop-e2e.yml: provision both existing locked dependency graphs before the unchanged offline dual builder, and include both lockfiles in its registry cache key. Fresh independent review and empty-cache counterfactual/provisioning/offline dual-build proofs PASS. Manager handoff and accepted snapshot are under instances/N1_WI_PKG07/CI_PROVISIONING_V1/. No general root workflow/tool changes were authorized.
+
+Complete clean DEC025 remains the actual source proof at d6a313fc41db10b7e992381b173ce1ac5cbc956e. These three CI/storage configuration changes do not alter any111 frozen product member; do not claim a future config/evidence commit was swept. Targeted validation is candidate-whitespace at actual PRbase, exact attributes/negative probes, fresh config reviews, cold-cache build proof, full practitioner harness, selfcheck, receipt and source-equality checks. Actual hosted new-HEAD verdicts follow normal push; no local proof is substituted for Ubuntu CI.
+
+Parent and user authorization for the same branch/destination persist. No merge/rebase/force or lifecycle effects. Git publication outcomes are preserved in the external closeout status to keep reviewed checkout clean. Final recorder handoff must be consumed before commit. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

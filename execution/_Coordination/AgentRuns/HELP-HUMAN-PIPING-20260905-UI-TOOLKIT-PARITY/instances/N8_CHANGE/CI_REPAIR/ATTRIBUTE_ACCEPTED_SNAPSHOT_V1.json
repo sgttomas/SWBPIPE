@@ -1,0 +1,23 @@
+{
+  "status": "BOUNDED_ATTRIBUTE_REPAIR_ACCEPTED",
+  "parent_direction": "HELP_HUMAN accepted fresh attribute backcheck and authorized bounded fan-in",
+  "scope": "exact two project-local attribute files only",
+  "review_sha256": "5ff12ca80eb5053d16ddf12bb8f6b5dc379c712a987b4b51a1dbc690ddd5bccf",
+  "review": "REVIEW/RETURN_V2.md",
+  "frozen_manifest_sha256": "4599808af9f5714a589c1e992a0eda3bb3e3556b33c87fd2460eabe30b73adb1",
+  "attribute_hashes": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes": "729bc98d0dd5888b78da58464b4bc6b96c7a3c9d2eb3063651240b4564903739",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/.gitattributes": "2a3fe991eac45f500c1c975056a4f9cb1f2daf40cff177fd462b63a43b9d84e0"
+  },
+  "exact67artifact_hashes_unchanged": true,
+  "all111reviewed_source_hashes_unchanged": true,
+  "swept_source": "d6a313fc41db10b7e992381b173ce1ac5cbc956e",
+  "source_equality_basis": "instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_FREEZE_V3.json",
+  "derivative_status": "bounded config/evidence acceptance only",
+  "publication": "HELD_PENDING_N1_WORKFLOW_ACCEPTANCE_AND_COMBINED_CHECKS",
+  "role": "CHANGE",
+  "instance": "/root/change_closeout",
+  "parent": "/root",
+  "model": "inherited GPT-6; exact variant unavailable",
+  "execution_class": "delegated-harness-native; instruction+config asserted"
+}

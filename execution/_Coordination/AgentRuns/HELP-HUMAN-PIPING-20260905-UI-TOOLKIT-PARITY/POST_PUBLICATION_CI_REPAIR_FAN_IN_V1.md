@@ -1,0 +1,17 @@
+# Post-publication CI repair final fan-in / CHANGE release v16
+
+RunID: HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY
+Status: BOUNDED_THREE_CONFIG_REPAIR_ACCEPTED_COMMIT_PUSH_RELEASED
+Recorded-now calibration: this control successor captures actual existing owner briefs/returns and parent notices at final fan-in. It does not claim an earlier prelaunch timestamp or invent child execution. Parent reports user's explicit push/PR authorization; PR715 at079f865bc5507fc28ad52bc4b3186e563bb26ce0 had whitespace and cold offline selfweight provisioning CI failures.
+
+Authorized disjoint owners and accepted exact scope:
+- CHANGE: two project-local .gitattributes files, exact65 immutable evidence paths and2anchored CSV names. No broad wildcard exceptions or rewriting preserved bytes. ATTRIBUTE_ACCEPTED_SNAPSHOT_V1.json and fresh REVIEW/RETURN_V2.md SHA5ff12ca80eb5053d16ddf12bb8f6b5dc379c712a987b4b51a1dbc690ddd5bccf accepted. All67 artifacts retained; all111 reviewed product members unchanged.
+- N1: only .github/workflows/piping-desktop-e2e.yml, SHA4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f. Both existing dependency graphs fetched with locked mode unconditionally; both lockfiles in registry cachekey. No pin/permission/trigger/concurrency/cachepath/other-step change. ACCEPTED_CI_REPAIR_SNAPSHOT_V1 SHA4e5b1b496765adbf467915dcedef701b258b14d0df515553ca0d82504036bafd and MANAGER_HANDOFF_V1 SHA8efa099f7619df387ffe58b3902662392b43be25c6336dfb0ea58ccb0bf0906a verified. Fresh full source review and isolated cold dependency proof PASS; actual unchanged dualbuilder proof accepted.
+
+Parent read and accepts bounded fan-in. N8 COMBINED_CHECKS_V2 records harness350PASS, selfcheck baseline4REVIEW43WARN14INFO and no newfindings, candidate whitespacePASS. Earlier349PASS1FAIL and portability failure remain losslessly encoded; exact relocation maps preserve original reviewer evidence and hashes. Original hosted failures remain historical, not retroactively PASS. Accepted N1 handoff supersedes the combinedchecks pending-N1 wording without rewriting it.
+
+Source111 hashes verified again by recorder, and exact3config hashes verified. Immutable67artifact equality is accepted through reviewed N8 binding. Product sweep basis remains d6a313fc41db10b7e992381b173ce1ac5cbc956e; these targeted configuration/provisioning checks are NOT a new fullDEC025 or hosted Ubuntu/browser result. No roottool/governance/product111 changes authorized. Root-located project-specific workflow is the sole explicitly authorized root integration file, not rootgovernance permission.
+
+CHANGE now authorized to validate exact status/scope/config/review/evidence/source111/artifact67 bindings and receipt structure, stage ONLY these3config files plus required owned evidence, commit, then ordinary ancestry-checked push to existing origin/codex/piping-ui-toolkit-parity. Do not force/rebase/merge or stage unrelated state. User authorized push/PR; existing PR715 follows branch push. Inspect actual exact-new-commit hosted Piping Desktop E2E and applicableCI verdicts; no local macOS cold proof substitutes for Ubuntu success. Stop/route failures within owning scopes. Owner merges.
+
+Preserve clean46f3aed failure, later compactrepair/sweep basis, published079f865 CI failures and all repair/relocation history. This is bounded config/evidence fan-in, not broad lifecycle/release/professional acceptance. Prior D58, applied-history, mixed-payload and other scoped residuals remain. Recorder performs owncontrol writes only, no Git/receipt/source edits.

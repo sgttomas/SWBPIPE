@@ -1,0 +1,70 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 4
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "FINISH": 4,
+      "START": 4
+    },
+    "outcome": {
+      "PASS": 4,
+      "STARTED": 4
+    },
+    "reason_code": {}
+  },
+  "events": 8,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 311.568,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_CI_DIAGNOSE",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "ci-diagnosis"
+    },
+    {
+      "duration_seconds": 621.811,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_CI_IMPLEMENT",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "ci-implement"
+    },
+    {
+      "duration_seconds": 994.108,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N1_CI_PROVISIONING",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent1",
+      "session_id": "ci-manager"
+    },
+    {
+      "duration_seconds": 454.839,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "A2_CI_REVIEW",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2",
+      "session_id": "ci-review"
+    }
+  ],
+  "sessions": 4,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

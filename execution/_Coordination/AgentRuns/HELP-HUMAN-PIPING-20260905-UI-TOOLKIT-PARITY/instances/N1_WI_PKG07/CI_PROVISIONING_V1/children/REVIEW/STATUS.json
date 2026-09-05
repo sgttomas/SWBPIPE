@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "verdict": "PASS_SOURCE_AND_LOCAL_PROOF_REVIEW",
+  "source_findings": [],
+  "cold_proof": "terminal command receipts and encoded logs reviewed; no reviewer execution",
+  "hosted_exact_commit_ci": "PENDING_PARENT_GATE",
+  "workflow_sha256": "4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f",
+  "model": "unavailable",
+  "role": "fresh ephemeral Agent 2",
+  "nondelegation": "instruction+config asserted",
+  "derivative": true
+}

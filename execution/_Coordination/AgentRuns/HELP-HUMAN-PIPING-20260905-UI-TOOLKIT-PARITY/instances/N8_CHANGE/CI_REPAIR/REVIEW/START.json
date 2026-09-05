@@ -1,0 +1,10 @@
+{
+  "status": "RUNNING",
+  "start": "2026-09-05T13:59:58.398354+00:00",
+  "parent": "HELP_HUMAN /root",
+  "agent": "/root/review_ci_evidence",
+  "model": "unknown",
+  "instruction_root": "{REPO_ROOT}",
+  "scope": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/CI_REPAIR/REVIEW",
+  "nondelegation": "instruction+config asserted; no delegation"
+}

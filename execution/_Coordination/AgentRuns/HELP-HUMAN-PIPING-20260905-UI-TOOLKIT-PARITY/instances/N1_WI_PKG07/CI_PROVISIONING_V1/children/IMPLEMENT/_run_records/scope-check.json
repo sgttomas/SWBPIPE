@@ -1,0 +1,11 @@
+{
+  "allowed": [
+    ".github/workflows/piping-desktop-e2e.yml"
+  ],
+  "paths": [
+    ".github/workflows/piping-desktop-e2e.yml"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

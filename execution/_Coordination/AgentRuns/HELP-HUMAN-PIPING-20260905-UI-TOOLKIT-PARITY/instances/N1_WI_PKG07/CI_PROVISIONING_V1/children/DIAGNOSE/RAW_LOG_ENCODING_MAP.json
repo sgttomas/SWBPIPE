@@ -1,0 +1,10 @@
+{
+  "status": "EXACT_RAW_BYTES_PRESERVED_WHITESPACE_CLEAN_RECORD",
+  "original_logical_path": "_run_records/piping-ui-pr715-desktop-failed.log",
+  "original_sha256": "df3269deb3003231b2dcc191e7a6f6d65ea76f667fb411f112cb2340bb84aca6",
+  "active_pointer_sha256": "783cedbf7b29356137a28422347e6d5a5422b358926abbfccaf7fbec5592de04",
+  "encoded_path": "_run_records/piping-ui-pr715-desktop-failed.encoded.json",
+  "encoded_sha256": "80de88848f42e1ab9fbb6d7c929f5767cb94709b57f53f59e26d60bfa2cb733a",
+  "original_manifest": "SHA256SUMS remains original evidence binding; original log hash resolves by decoded payload, no source change",
+  "reason": "postpublication CI raw log formatting; no wildcard exception added"
+}

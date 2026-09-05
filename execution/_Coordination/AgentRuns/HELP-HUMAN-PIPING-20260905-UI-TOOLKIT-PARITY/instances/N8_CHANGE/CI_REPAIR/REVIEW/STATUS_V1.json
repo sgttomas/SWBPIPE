@@ -1,0 +1,13 @@
+{
+  "status": "COMPLETE",
+  "verdict": "CHANGES_REQUIRED",
+  "started": "2026-09-05T13:59:58.398354+00:00",
+  "finished": "2026-09-05T14:04:35.648543+00:00",
+  "parent": "/root",
+  "agent": "/root/review_ci_evidence",
+  "model": "unknown",
+  "findings": 1,
+  "source111_unchanged": true,
+  "evidence67_unchanged": true,
+  "return_sha256": "1a8dec37a50c753ec262a5b5121fc9834948f2b7c0fe92e59e859ca95d7d063b"
+}

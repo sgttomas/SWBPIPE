@@ -1,0 +1,9 @@
+# CI provisioning manager handoff
+
+Verdict: ACCEPTED_LOCAL_REPAIR. Fresh independent full workflow and exact diff review PASS; no actionable findings. This disposition supersedes pending review wording in the immutable author receipts.
+
+Accepted snapshot: `ACCEPTED_CI_REPAIR_SNAPSHOT_V1.json`, SHA256 4e5b1b496765adbf467915dcedef701b258b14d0df515553ca0d82504036bafd. Sole product file: `{REPO_ROOT}/.github/workflows/piping-desktop-e2e.yml`, SHA256 4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f. Source preimage independently matches commit `079f865bc5507fc28ad52bc4b3186e563bb26ce0`.
+
+Both existing locked dependency graphs are fetched unconditionally before the unchanged offline dual builder, and both existing lockfiles contribute to the registry cache key. Pins, permissions, triggers, concurrency, cache paths/restore prefix and all other steps remain preserved. Manager verified all 26 author-bound records, 135 protected current hashes and eight generated artifacts. Fresh-cache counterfactual reproduced missing dependencies; both locked offline builds and actual dual builder passed. Review consumed terminal command receipts; manager subsequently consumed unchanged-source terminal author return. Runtime summary PASS: eight events, four sessions, actual bounded diagnosis/implementation/review children, nondelegation instruction+config asserted; exact model/token telemetry unavailable.
+
+Derivative evidence from the parent-accepted plan, not decomposition truth or lifecycle closure. Local macOS proof does not establish Ubuntu or browser success. Required next gate is parent-owned exact-commit hosted Piping Desktop E2E and applicable CI after commit/push. No local proof blocker remains. No Git action taken. All failed attempts, original failed CI log and raw patch bytes remain preserved through lossless encoded maps; prior main and compact accepted records remain unchanged.

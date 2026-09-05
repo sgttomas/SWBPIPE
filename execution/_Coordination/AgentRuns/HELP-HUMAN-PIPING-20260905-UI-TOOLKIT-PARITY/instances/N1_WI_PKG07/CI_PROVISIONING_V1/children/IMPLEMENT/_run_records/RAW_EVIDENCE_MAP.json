@@ -1,0 +1,68 @@
+[
+  {
+    "original_name": "fetch-operation-sandbox.log",
+    "decoded_bytes": 821,
+    "decoded_sha256": "80c59fea003520083ddd1d6f693b5fb9892498602e30064b51347d68bb2e381a",
+    "encoded_file": "fetch-operation-sandbox.log.encoded.json"
+  },
+  {
+    "original_name": "fetch-selfweight-host.log",
+    "decoded_bytes": 1188,
+    "decoded_sha256": "362f3b6db96df8179bc0f6b30b181cc457eeee4417ee9d554e4cc202c0d8b24b",
+    "encoded_file": "fetch-selfweight-host.log.encoded.json"
+  },
+  {
+    "original_name": "build-selfweight-sandbox.log",
+    "decoded_bytes": 3549,
+    "decoded_sha256": "849a342f2626ae27e70bdfc4bacefa4f48fb9a6b90239bdc025d625911fd7aae",
+    "encoded_file": "build-selfweight-sandbox.log.encoded.json"
+  },
+  {
+    "original_name": "fetch-operation-host.log",
+    "decoded_bytes": 1831,
+    "decoded_sha256": "952fb68e4bd28c7b5903ff466feb1553fd987abc130c8c475a4c153c911a34bb",
+    "encoded_file": "fetch-operation-host.log.encoded.json"
+  },
+  {
+    "original_name": "actual-builder-sandbox.log",
+    "decoded_bytes": 1651,
+    "decoded_sha256": "f64dbcbbb2dc045f15dfaad2e9e2be7a780912cfaf782d4bf9d53276b4499fdf",
+    "encoded_file": "actual-builder-sandbox.log.encoded.json"
+  },
+  {
+    "original_name": "piping-ui-pr715-desktop-failed.log",
+    "decoded_bytes": 4789,
+    "decoded_sha256": "df3269deb3003231b2dcc191e7a6f6d65ea76f667fb411f112cb2340bb84aca6",
+    "encoded_file": "piping-ui-pr715-desktop-failed.log.encoded.json"
+  },
+  {
+    "original_name": "fetch-operation-sandbox-stable.log",
+    "decoded_bytes": 1340,
+    "decoded_sha256": "8e3820a7a804d828f192ca900860a42e082474d870a3871d04de4370a6ef92b0",
+    "encoded_file": "fetch-operation-sandbox-stable.log.encoded.json"
+  },
+  {
+    "original_name": "versions.log",
+    "decoded_bytes": 328,
+    "decoded_sha256": "dd895bf8858bd2d54de053247683f9909728f579c9e5b6d861f2a10af2e92878",
+    "encoded_file": "versions.log.encoded.json"
+  },
+  {
+    "original_name": "build-operation-sandbox.log",
+    "decoded_bytes": 2319,
+    "decoded_sha256": "17d0d6730d3769d302e895217ad555318351b44457784d3108eef05e37ccf1a6",
+    "encoded_file": "build-operation-sandbox.log.encoded.json"
+  },
+  {
+    "original_name": "probe-selfweight-sandbox.log",
+    "decoded_bytes": 1052,
+    "decoded_sha256": "04c11fabd85cd285aed9e61cb8f373809005b6adb1039d59e6d580d74b71a17d",
+    "encoded_file": "probe-selfweight-sandbox.log.encoded.json"
+  },
+  {
+    "original_name": "workflow.diff",
+    "decoded_bytes": 1529,
+    "decoded_sha256": "a676edb2ec175a6fb00d5002711b242f6535dd97d3ae98eb733d719a707e9a13",
+    "encoded_file": "workflow.diff.encoded.json"
+  }
+]

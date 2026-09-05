@@ -1,0 +1,16 @@
+{
+  "status": "SUCCESS",
+  "source_status": "FROZEN",
+  "proof_gate": "PASS",
+  "workflow_sha256": "4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f",
+  "protected_hash_count": 135,
+  "protected_unchanged": true,
+  "model": "unavailable",
+  "role": "ephemeral Agent2",
+  "nondelegation": "instruction+config asserted",
+  "remaining_parent_gates": [
+    "fresh independent fullworkflow review",
+    "exact-commit hosted CI"
+  ],
+  "raw_evidence_map": "_run_records/RAW_EVIDENCE_MAP.json"
+}

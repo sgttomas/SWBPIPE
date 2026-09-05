@@ -3056,3 +3056,12 @@
   - Checks: focused and registered checks, fresh independent integrated review, complete clean committed-source DEC-025 host sweep, practitioner harness, repository self-check, receipt contract and exact source containment/equality: PASS.
   - Model-Attribution: HELP_HUMAN supervised package-scoped WORKING_ITEMS, their implementation/review Agent 2 children, direct bounded Agent 2 instances and CHANGE. Actual role attribution, unavailable model details and native enforcement calibration are preserved in the named AgentRuns package; CHANGE dispatches no children.
   - Gate-Outcome: `EXECUTED` — bounded implementation and compact-layout repair accepted through owning manager/parent handoffs. Initial sweep failure preserved; repaired source passed the complete clean sweep. Durable applied-batch history, D58, R1–R3 and other accepted residuals remain open; no lifecycle or release promotion. Ordinary branch publication and CI remain conditional on final evidence checks; owner merges.
+
+- **2026-09-05 — Receipt 127** (PR715 evidence-storage and CI provisioning repair).
+  - Receipt-ID: `Receipt-127`
+  - Examined-Through: `079f865bc5507fc28ad52bc4b3186e563bb26ce0`
+  - Parent-Receipt: `Receipt-126`
+  - Pointers: PR #715; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/POST_PUBLICATION_CI_REPAIR_FAN_IN_V1.md`; within that run, `instances/N8_CHANGE/CI_REPAIR/ATTRIBUTE_ACCEPTED_SNAPSHOT_V1.json`, `CI_REPAIR_CLOSEOUT_V1.md`, `COMBINED_CHECKS_V2.json`, and `instances/N1_WI_PKG07/CI_PROVISIONING_V1/ACCEPTED_CI_REPAIR_SNAPSHOT_V1.json`.
+  - Checks: fresh independent configuration reviews, exact attribute scope and artifact/source equality, cold-cache locked offline builds, candidate whitespace, practitioner harness, baseline self-check and receipt contract: PASS.
+  - Model-Attribution: HELP_HUMAN supervised CHANGE, WORKING_ITEMS PKG07 and fresh independent Agent2 reviews; exact available attribution and native instruction/config enforcement calibration remain in the named AgentRuns records.
+  - Gate-Outcome: `EXECUTED` — parent accepted exact evidence attributes and the project-specific CI provisioning repair after actual failed PR checks. All reviewed product members preserve the clean DEC-025 source proof at `d6a313fc41db10b7e992381b173ce1ac5cbc956e`; the configuration commit is not represented as swept. Subsequent hosted CI remains required before merge; owner merges. Prior failures and residuals remain preserved.

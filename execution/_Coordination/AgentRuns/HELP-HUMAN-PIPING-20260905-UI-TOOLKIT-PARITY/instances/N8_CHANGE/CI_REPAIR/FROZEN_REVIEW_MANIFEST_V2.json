@@ -1,0 +1,22 @@
+{
+  "status": "FROZEN_V2_READY_FOR_INDEPENDENT_BACKCHECK",
+  "source_head": "079f865bc5507fc28ad52bc4b3186e563bb26ce0",
+  "pr_base": "d66395d101143df68d956984f7ab93f5027418ec",
+  "new_config_sha256": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes": "729bc98d0dd5888b78da58464b4bc6b96c7a3c9d2eb3063651240b4564903739",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/.gitattributes": "2a3fe991eac45f500c1c975056a4f9cb1f2daf40cff177fd462b63a43b9d84e0"
+  },
+  "inventory_sha256": "dd11ac64db3021bb4196fbf9b57602b368f78dcaac42fea622564b5eb08517a9",
+  "checks_sha256": "34639a9567f54a1340d73ee549494937e2385cecafd122aee9cc9de370b976d7",
+  "reviewed111_manifest_sha256": "9c6d9d3002fe1f64eca40d3f9c3e2ce5eec91ac4410857bcc99853580ed06505",
+  "context_sha256": {
+    "tools/validation/validate_candidate_whitespace.py": "dcdf39a0003f82ba9689aa52f07915086802664f652c2a15e433f3663c347dae",
+    ".github/workflows/governance-harness.yml": "9e6a9ef814c79f1c35a00d154986bf3ba7174c49450d0e9cc36bca1de8f73079",
+    "projects/chirality-piping/.gitattributes": "789c2961a1eb692099c4d90b912de046de219a3e524821f3e38954e4ad65e891",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/.gitattributes": "d95dd5bf6ba058f165fcf34755a80c7200342eaf1d4c0a3f84da89183b2179a2",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APPDEV_V3_NODE_N_2026-09-04/.gitattributes": "028479c03ab4f06b4b8b8417b2348df918b6c385ce1e1c7a6f1fe9b99338da08"
+  },
+  "candidate_check_status": "FAIL_EXTERNAL_SCOPE_N1_UNTRACKED_RAW_WORKFLOW_DIFF",
+  "candidate_check_log_sha256": "c84d7e37c0c5e89ed96368a63c5693decb37543905abf33ef6530351747eef1f",
+  "prior_review_sha256": "1a8dec37a50c753ec262a5b5121fc9834948f2b7c0fe92e59e859ca95d7d063b"
+}

@@ -1,0 +1,2 @@
+Exact original CI log bytes are preserved in piping-ui-pr715-desktop-failed.encoded.json.
+Decode its base64 data and verify decoded_sha256 before interpreting the original output.

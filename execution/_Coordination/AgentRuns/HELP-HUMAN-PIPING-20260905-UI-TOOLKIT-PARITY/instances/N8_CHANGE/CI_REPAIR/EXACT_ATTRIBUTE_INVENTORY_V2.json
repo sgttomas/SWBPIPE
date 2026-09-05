@@ -1,0 +1,754 @@
+{
+  "status": "V2_ANCHORED_CSV_PATTERNS_READY_FOR_BACKCHECK",
+  "write_fence": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/.gitattributes"
+  ],
+  "members": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+      "sha256": "9a06660400720a75340710491052a2512a47d175ee7895573ef91fade07efc94",
+      "bytes": 102394,
+      "findings": {
+        "trailing whitespace.": 28
+      },
+      "attribute_file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/.gitattributes",
+      "relative_pattern": "/Capability_Comparison.csv",
+      "attribute": "whitespace=cr-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+      "sha256": "7d65541d1cc9a99f85e972f80ae8113283d48e0937e953851ad3cc8f388ccd79",
+      "bytes": 92906,
+      "findings": {
+        "trailing whitespace.": 28
+      },
+      "attribute_file": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/.gitattributes",
+      "relative_pattern": "/Vocabulary_Coverage.csv",
+      "attribute": "whitespace=cr-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B1_FROZEN.diff",
+      "sha256": "d0ba0969a026bb17eba12bdd472512f3f87afa3cdeb1ee61f4025b2f7a611a9f",
+      "bytes": 23115,
+      "findings": {
+        "trailing whitespace.": 4
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "N2_WI_PKG16/B1_FROZEN.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B2_FROZEN.diff",
+      "sha256": "5fad43515190c532ddad57472482bc3267bf46374eaa386cf80e4d805b06aa4d",
+      "bytes": 32040,
+      "findings": {
+        "trailing whitespace.": 10
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "N2_WI_PKG16/B2_FROZEN.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B2_REPAIR_FROZEN.diff",
+      "sha256": "f05db37bd3e45677db4554abe5c8193b967c3bb04a475e440fd20db50990b95e",
+      "bytes": 34992,
+      "findings": {
+        "trailing whitespace.": 10
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "N2_WI_PKG16/B2_REPAIR_FROZEN.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/B3_FROZEN.diff",
+      "sha256": "c98424ababd0342ed41dbb8f3aea5b1b7cbb0e9f033dc418af086ef0fcf0f40e",
+      "bytes": 49734,
+      "findings": {
+        "trailing whitespace.": 13
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "N2_WI_PKG16/B3_FROZEN.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/C_FROZEN.diff",
+      "sha256": "b37309c2387b7b875cee44c29fcf53da8667a88e9ae378f24b139d3df4c600e8",
+      "bytes": 71242,
+      "findings": {
+        "trailing whitespace.": 16
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "N2_WI_PKG16/C_FROZEN.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/RN_FROZEN.diff",
+      "sha256": "5a4c6ae1150a2a0cd9b79cc36a12658a3fffc472f41efecbb528d15e420aa349",
+      "bytes": 6539,
+      "findings": {
+        "trailing whitespace.": 5
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "N2_WI_PKG16/RN_FROZEN.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/_run_records/NATIVE_AMENDMENT_TEST_V1.log",
+      "sha256": "bc5e9c69b75d4a8230759bd59e439a0b109fbd1bfcd0e3a6cd9e1d6e58d0186b",
+      "bytes": 194,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "N2_WI_PKG16/_run_records/NATIVE_AMENDMENT_TEST_V1.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/_run_records/NATIVE_FINAL_TEST.log",
+      "sha256": "277d14f354bbb8e3b8de655bd742d743f9bfbe3da7c6f70b5c1958223bd8e24f",
+      "bytes": 195,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "N2_WI_PKG16/_run_records/NATIVE_FINAL_TEST.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/TWO_FILE_DIFF.patch",
+      "sha256": "7ac0857c69021002b3cd066406227b75fa7f92f9f441bd22222fc822c8da8d9f",
+      "bytes": 2718,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/TWO_FILE_DIFF.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/dist-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md",
+      "sha256": "9faf2cc1ba6d2b08ab0accca2ce197ff38958148442f164bf0470ef322d86ba4",
+      "bytes": 497264,
+      "findings": {
+        "trailing whitespace.": 16
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/dist-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/dist-tests.log",
+      "sha256": "6c56cacf9bc6b8e20fe2ede412b39795aeade3c9f3a19667554315f60b49d44a",
+      "bytes": 4592,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/dist-tests.log",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/source-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md",
+      "sha256": "5b9374969424b6af1f4bb6bf9e9395447a6e62e82f3268280b89a009efdf7c7a",
+      "bytes": 497264,
+      "findings": {
+        "trailing whitespace.": 16
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/source-artifacts/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/source-tests.log",
+      "sha256": "a3060f2d82f06fc100da2448600a92fe9009060787531f873f7f48e78a979cab",
+      "bytes": 4599,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/source-tests.log",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/source.log",
+      "sha256": "8454fb982afa2677f9a4c2455f18c8bc30d8be028c9890daf79d3a394aa88c14",
+      "bytes": 229,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/source.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/two-file.diff",
+      "sha256": "b3bda2da50c392fc16f2aff2565cc686d4769894d975bedcdebfba9bfa9f27e4",
+      "bytes": 2760,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/COMPACT_REPAIR_V1/children/IMPLEMENT/_run_records/v1/two-file.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/A2_COVERAGE_FINAL/PREIMAGES_V2/0_Capability_Comparison.csv",
+      "sha256": "384cc52616708c9674f4ede4034be9cda8504fc3c9f61ead209e82b188b708b7",
+      "bytes": 72878,
+      "findings": {
+        "trailing whitespace.": 28
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/A2_COVERAGE_FINAL/PREIMAGES_V2/0_Capability_Comparison.csv",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/A2_COVERAGE_FINAL/PREIMAGES_V2/1_Vocabulary_Coverage.csv",
+      "sha256": "6933b3222935b55d5137829b05eb2c26e064f7bc2cd711e14ca910da3b7b57e4",
+      "bytes": 63390,
+      "findings": {
+        "trailing whitespace.": 28
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/A2_COVERAGE_FINAL/PREIMAGES_V2/1_Vocabulary_Coverage.csv",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/f2/display-attempt1.log",
+      "sha256": "385975bb6dbf5375c39ab1ab1957bf30a92035f2616f44ccb6b105b5f2429390",
+      "bytes": 509,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/f2/display-attempt1.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/f2/inspector-regression.log",
+      "sha256": "d2b9aff6c3d16047c41733870127ab8fa690f03009c717c30bd3072856002fe0",
+      "bytes": 599,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/f2/inspector-regression.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-dist-initial-setup-fail.log",
+      "sha256": "a64a9f52f4a221ba810211b6e7ad74f5f031154500d8cdecf8a94cdb935d0743",
+      "bytes": 3675,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-dist-initial-setup-fail.log",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-dist-navigation-setup-fail.log",
+      "sha256": "6c1354f0c552c273c5676af61ea89696e4d95c432a7a746ba5f2ef70cb8388cf",
+      "bytes": 3698,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-dist-navigation-setup-fail.log",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-focused-app-display.log",
+      "sha256": "0ce1b0bae51485e25fefb455daf1d69efba1240f405fef979e60c3ce86d040a9",
+      "bytes": 499,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-focused-app-display.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-focused-batch.log",
+      "sha256": "393a18f49b0a7d3a5bd991443e9d7037a923e9e5385ec07fc9aa28eb7293b135",
+      "bytes": 477,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-focused-batch.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-focused-persistence-compatibility.log",
+      "sha256": "5a53be6f1fd216148ea36c5e79e5a221a2d959aa787d00fe2aca300330cccf36",
+      "bytes": 515,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-focused-persistence-compatibility.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-focused-toolkit-display.log",
+      "sha256": "a36105045e9d9d93826084c7b64443607fd34e507751e5df197c3a733b64fa15",
+      "bytes": 799,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/_run_records/v5/v5-focused-toolkit-display.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v1.patch",
+      "sha256": "99e8f048fd84edcbfe4168c6830d1d37c0196b363467a6e72014fa33ce989b3f",
+      "bytes": 10672,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v1.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v2.patch",
+      "sha256": "4cc2731e4c97f6386b8edc556a5bc727aa4ccf4894000ccb989e24009e98fd82",
+      "bytes": 56272,
+      "findings": {
+        "trailing whitespace.": 11
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v2.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v3-integrated.patch",
+      "sha256": "004f983fb3b2e9efa9ff0253af0f8720b8a189a98df1d19f24b8ccf261598e4a",
+      "bytes": 130205,
+      "findings": {
+        "trailing whitespace.": 11
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v3-integrated.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v4-integrated.patch",
+      "sha256": "fe90c461081a5397d52cddf37e5e63d5ca1af2bac35834cec8af84875138b8b0",
+      "bytes": 134966,
+      "findings": {
+        "trailing whitespace.": 13
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v4-integrated.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v5-integrated.patch",
+      "sha256": "fb86c7fbcee315e432c47f1c0f0082d29b27f9625e728322849f20fbc7ac47bd",
+      "bytes": 400235,
+      "findings": {
+        "trailing whitespace.": 57
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v5-integrated.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v9-integrated.patch",
+      "sha256": "5dc4f8d39197ff7253a2b58d8a33c0be5cb76296491cf5b1ba79e34769321161",
+      "bytes": 418383,
+      "findings": {
+        "trailing whitespace.": 57
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/diff-v9-integrated.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v2-bound-final.log",
+      "sha256": "6123275dfff0f5cd090785c5e7ae0c481f84b21aea2ad66baceea93ec3c48d2c",
+      "bytes": 671,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v2-bound-final.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v2-recheck.log",
+      "sha256": "6934d9090f62a36b72494e64423887795cee927f80973d84d321cdebbcf6bd91",
+      "bytes": 671,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v2-recheck.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v3-final.log",
+      "sha256": "af6301c3833c9689d5b1dde6e03b72585c3fb1b43ed6dda4c05f23825d63248b",
+      "bytes": 665,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v3-final.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v3.log",
+      "sha256": "9f81cd29eaabc7cafde642804cbf36395cefa3542e4ce2dc5cfaed6cc53344c3",
+      "bytes": 665,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v3.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v4.log",
+      "sha256": "709a65781c16706a1e5599c0e26c2161b151b228bc3e39918b1d217df4513526",
+      "bytes": 535,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/focused-v4.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_ACTUAL_ENGINE_TESTS.txt",
+      "sha256": "5c2bbc1d0102491bc2f99fd4025459ae83208f85794cdddd93c4f9796e9042be",
+      "bytes": 439,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_ACTUAL_ENGINE_TESTS.txt",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_MOCK_TESTS.txt",
+      "sha256": "05d14d9c22a5967e3f46f0f590bfd3da96675d358bcb06cfac07ad5407bbbad4",
+      "bytes": 375,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_MOCK_TESTS.txt",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_MOCK_TESTS_V2.txt",
+      "sha256": "7706a09a7b171ccc73777f704b74e9de2211c8ad14660342cf4adbd4b0f49d22",
+      "bytes": 375,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_MOCK_TESTS_V2.txt",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/T4_DISPLAY/RENDERER_DIFF_V3.patch",
+      "sha256": "66c673a740e5bb718b3197c7074d3600de7e880bf823052a728efe0fe346ea9f",
+      "bytes": 34798,
+      "findings": {
+        "trailing whitespace.": 15
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/children/T4_DISPLAY/RENDERER_DIFF_V3.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/diff-v4-integrated.patch",
+      "sha256": "fe90c461081a5397d52cddf37e5e63d5ca1af2bac35834cec8af84875138b8b0",
+      "bytes": 134966,
+      "findings": {
+        "trailing whitespace.": 13
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N1_WI_PKG07/snapshots/M_EXISTING_ACCEPTED_001/diff-v4-integrated.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/SECTION_FROZEN_DIFF_V1.patch",
+      "sha256": "ba3034e2d0173c26d2af1a2ff438701e0d4273a1d85ffc0898d368ef54a3f953",
+      "bytes": 12337,
+      "findings": {
+        "trailing whitespace.": 4
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N3_WI_PKG02/SECTION_FROZEN_DIFF_V1.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/SECTION_FROZEN_DIFF_V2.patch",
+      "sha256": "1112f4e6b7f097f8ee4335f963537dc18291f91b4f9dcd0e38052a4fa92ed168",
+      "bytes": 13640,
+      "findings": {
+        "trailing whitespace.": 4
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N3_WI_PKG02/SECTION_FROZEN_DIFF_V2.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N3_WI_PKG02/_run_records/N3_I1/TASK_RUN_2026-09-05_section.md",
+      "sha256": "17529222edb1010bd5a0844e9746278060df80205c6be1d4aa2606f418d8d16f",
+      "bytes": 5646,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N3_WI_PKG02/_run_records/N3_I1/TASK_RUN_2026-09-05_section.md",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/FROZEN_C1.diff",
+      "sha256": "f78d76e32df64cd625be8c574022646627d1efb277f5c120787b053946b47042",
+      "bytes": 322635,
+      "findings": {
+        "trailing whitespace.": 9
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N4_WI_PKG03/FROZEN_C1.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/FROZEN_C2.diff",
+      "sha256": "7fd3328e70b51b0d9efed05f153ca1383d1bfabc7b75d89ba90ceb98419dc578",
+      "bytes": 493017,
+      "findings": {
+        "trailing whitespace.": 9
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N4_WI_PKG03/FROZEN_C2.diff",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/PHYSICS_TEST_RESULT_V2.txt",
+      "sha256": "d1ce483e9e1d9767bf72851304ae76f819e880131a157012a31b6cb17f2dfbbf",
+      "bytes": 10060,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N5_WI_PKG05/PHYSICS_TEST_RESULT_V2.txt",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SOURCE_COMBINED_DIFF.patch",
+      "sha256": "709f7e3ba5130eb6d1bdca19816acabf8d830cad8e9f04d1c362efc366ea4b0c",
+      "bytes": 49054,
+      "findings": {
+        "trailing whitespace.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N5_WI_PKG05/SOURCE_COMBINED_DIFF.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SOURCE_FROZEN_DIFF.patch",
+      "sha256": "f46ff2699561d25248f3aa5e86a219e87167d22d3f79f09061da157b21f687dd",
+      "bytes": 26849,
+      "findings": {
+        "trailing whitespace.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N5_WI_PKG05/SOURCE_FROZEN_DIFF.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SOURCE_FROZEN_DIFF_V2.patch",
+      "sha256": "bef84d746baa2afa3da3fdcb5963ad06cf80f2bc330ebde80b4409533e9dd013",
+      "bytes": 27575,
+      "findings": {
+        "trailing whitespace.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N5_WI_PKG05/SOURCE_FROZEN_DIFF_V2.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/B1_ANCHOR_ADAPTER/FROZEN_DIFF.patch",
+      "sha256": "19b70e0dfe8ad29ff117ac5a23277ff6e3dc4881c0c172940abb727c87b9a290",
+      "bytes": 6150,
+      "findings": {
+        "trailing whitespace.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N6_WI_PKG04/children/B1_ANCHOR_ADAPTER/FROZEN_DIFF.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/F3_REPAIR.patch",
+      "sha256": "35396580f865922cb94476609ab15ae47628c7ef80ec0e1d2298fb1cf5ba9d48",
+      "bytes": 11737,
+      "findings": {
+        "trailing whitespace.": 3
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/F3_REPAIR.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FOCUSED.log",
+      "sha256": "5c5e8e7ea9cdd863bb36eec6361b0d98d921a661cd7ef57a697fddf411e8ff42",
+      "bytes": 922,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FOCUSED.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FULL.log",
+      "sha256": "86f42908da313dda538b34f98f78a411885588f52ecf3170da5894faf3b0fc94",
+      "bytes": 10497,
+      "findings": {
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N6_WI_PKG04/children/F3_IMPLEMENTATION/FULL.log",
+      "attribute": "whitespace=-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_DIFF_V1.patch",
+      "sha256": "5db0f364ad8d3cb805a8850175e5b7415c04de046a09b1f9ec85ea49234cc762",
+      "bytes": 1431675,
+      "findings": {
+        "trailing whitespace.": 149
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_DIFF_V1.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_DIFF_V2.patch",
+      "sha256": "a7e9e8c7621a7a6620a567329019e2b891aa2832d4051e9475eaa9780fecda43",
+      "bytes": 1541770,
+      "findings": {
+        "trailing whitespace.": 151
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_DIFF_V2.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_DIFF_V3.patch",
+      "sha256": "0f6e1d226b767340e1155d62015387f2d1d06a642190d5b2115e6f41f4c65cf5",
+      "bytes": 1544121,
+      "findings": {
+        "trailing whitespace.": 153
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N7_FINAL_REVIEW/GLOBAL_PRODUCT_DIFF_V3.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/GLOBAL_REPAIR_DELTA_V2.patch",
+      "sha256": "225750c1767bbf7eb89870667afc97186dc550052b0bdb65d915efbcfa1df6ab",
+      "bytes": 409358,
+      "findings": {
+        "trailing whitespace.": 130,
+        "new blank line at EOF.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N7_FINAL_REVIEW/GLOBAL_REPAIR_DELTA_V2.patch",
+      "attribute": "whitespace=-blank-at-eol,-blank-at-eof"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/GLOBAL_REPAIR_DELTA_V3.patch",
+      "sha256": "2ea62f62fac74bd7d5a075b0c5f545b2f506b31bee55256c2e95b82b5bf4f331",
+      "bytes": 2630,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N7_FINAL_REVIEW/GLOBAL_REPAIR_DELTA_V3.patch",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/_run_records/DEC025_ATTEMPT1/console.log",
+      "sha256": "5cb8af47701b94653d749e2e5d24189a2583376e09c5892884b5586914fc543d",
+      "bytes": 127667,
+      "findings": {
+        "trailing whitespace.": 2
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N8_CHANGE/_run_records/DEC025_ATTEMPT1/console.log",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N8_CHANGE/_run_records/DEC025_ATTEMPT1/error-context.md",
+      "sha256": "5cac1e8d2c1fac2a13c1237a43e124f493e68548d3ac991bfcb99ba95a491f1c",
+      "bytes": 139583,
+      "findings": {
+        "trailing whitespace.": 17
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N8_CHANGE/_run_records/DEC025_ATTEMPT1/error-context.md",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/_run_records/PRECOMMIT_V4_harness-pytest.log",
+      "sha256": "05ce0c620d3f31605179af4a92af1057504f0f1e4e0e35868460d7cef730532e",
+      "bytes": 1806,
+      "findings": {
+        "trailing whitespace.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N_ENV/_run_records/PRECOMMIT_V4_harness-pytest.log",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/_run_records/PRECOMMIT_V6_harness-pytest.log",
+      "sha256": "799e9d888bcd72fd9945b32d25cf4068472230eb9778d3c7f401cf71807720bb",
+      "bytes": 1789,
+      "findings": {
+        "trailing whitespace.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N_ENV/_run_records/PRECOMMIT_V6_harness-pytest.log",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/_run_records/PRECOMMIT_harness-pytest.log",
+      "sha256": "01540b77fec5eab83e0b4a7c44c0e2feef70b554da37cd07b1fb2849488fc7ee",
+      "bytes": 1807,
+      "findings": {
+        "trailing whitespace.": 1
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N_ENV/_run_records/PRECOMMIT_harness-pytest.log",
+      "attribute": "whitespace=-blank-at-eol"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N_ENV/_run_records/PRECOMMIT_piping-pytest.log",
+      "sha256": "0de0653c68975544fb84ea651cae515ab79f4adc00842a08509e3cfcb89c7083",
+      "bytes": 25149,
+      "findings": {
+        "trailing whitespace.": 75
+      },
+      "attribute_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/.gitattributes",
+      "relative_pattern": "instances/N_ENV/_run_records/PRECOMMIT_piping-pytest.log",
+      "attribute": "whitespace=-blank-at-eol"
+    }
+  ],
+  "acceptance": [
+    "Fresh independent review of exact config diff and all67 path/hash classifications",
+    "Candidate whitespace checker against PR base PASS with actual checker and no command override",
+    "111 frozen source/doc/contract hashes unchanged",
+    "No attrs apply to other source or any future path",
+    "Receipt/harness/selfcheck and relevant config checks PASS; no roottools/CI edits"
+  ]
+}

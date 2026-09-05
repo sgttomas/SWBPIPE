@@ -1,0 +1,23 @@
+{
+  "status": "PASS_PENDING_N1_ACCEPTED_HANDOFF",
+  "harness": {
+    "exit": 0,
+    "passed": 350
+  },
+  "selfcheck": {
+    "exit": 0,
+    "REVIEW": 4,
+    "WARN": 43,
+    "INFO": 14,
+    "NOT_APPLICABLE": 1,
+    "new_findings": 0
+  },
+  "candidate_whitespace": {
+    "exit": 0,
+    "base": "d66395d101143df68d956984f7ab93f5027418ec"
+  },
+  "failure_history": "Prior349PASS1FAIL and new portability finding preserved in encoded logs; reviewer relocation resolved sample-only path issue",
+  "logs": "COMBINED_CHECK_LOGS_ENCODED_V2.json",
+  "logs_sha256": "b557b2a0ecbeaf7787ae07678e389fd755d9439f18c785c0eac00339f3555766",
+  "git_mutations": []
+}

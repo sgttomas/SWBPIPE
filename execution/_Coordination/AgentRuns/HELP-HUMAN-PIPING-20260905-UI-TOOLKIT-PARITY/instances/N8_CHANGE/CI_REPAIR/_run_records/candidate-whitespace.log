@@ -1,0 +1,1 @@
+PASS: candidate whitespace is clean (untracked binary/symlink paths safely skipped: 0).

@@ -1,0 +1,32 @@
+{
+  "status": "PARENT_FORMALLY_RELEASED_EXACT_ONEFILE_PLAN",
+  "baseline_head": "079f865bc5507fc28ad52bc4b3186e563bb26ce0",
+  "workflow": ".github/workflows/piping-desktop-e2e.yml",
+  "preimage_sha256": "7aec5e6cefab45cc88d8b6c81f7e8100b99fd37531b1bf4aa378bb64a5d481cd",
+  "cause": "Workflow locked-fetches only operation graph before dual offline builder; selfweight11registry tuples absent from operation29tuple set, actual log missingmemchr2.8.3",
+  "changes": [
+    "Cargo registry cache key hashFiles includes existing operation_applier/Cargo.lock and loads/self_weight_wasm/Cargo.lock",
+    "Unconditional provisioning run block executes cargo fetch --locked --manifest-path for operation_applier and self_weight_wasm before offline dualbuild; comment/name plural if needed"
+  ],
+  "preserved": [
+    "offline builder/script unchanged",
+    "existinglockedfetch",
+    "Rust/CLI/Nodepins",
+    "security permissions",
+    "triggers/events/concurrency",
+    "cachepaths/restoreprefix",
+    "allothersteps/workflowbehavior",
+    "allcratefiles/locks"
+  ],
+  "proof": [
+    "Fresh isolated Cargo registry/target under temporarydirectory, network allowed only lockedfetch phase",
+    "Operation-only lockedfetch plus offline selfweight probe demonstrates missingsecondgraph if reproducible",
+    "Fetch secondlockedgraph, then bothwasm32featureswasm releasebuilds with --locked --offline",
+    "Actual unchanged dualartifact script throughisolatedregistry and matching toolchain/CLI",
+    "Before/afterlock/workflow/protectedsourcehashes and assets",
+    "Freshread-only fullworkflowdiff review; hostedexactcommitCI rerun parent-owned"
+  ],
+  "authority": "Parent explicitformal exactonefile PipingCIintegration release; rootgovernance/tools excluded",
+  "derivative_status": "boundedexecutionplan notauthority",
+  "diagnosis_return": "children/DIAGNOSE/RETURN.md"
+}

@@ -1,0 +1,339 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY",
+  "version": 16,
+  "frozen": true,
+  "status": "POST_PUBLICATION_BOUNDED_CI_REPAIR_FAN_IN_ACCEPTED",
+  "recorded_utc": "2026-09-05T14:17:26.635163+00:00",
+  "scope_selection_authority": "HUMAN",
+  "graph_selection_authority": "AGENT_0",
+  "posture": "MIXED",
+  "basis": {
+    "head": "740569598f9d00440636b8ea25264127f418e4ec",
+    "branch": "codex/piping-ui-toolkit-parity",
+    "decomposition": "rev0.12 / SCA-009",
+    "dag": "DAG-010",
+    "runtime_gate": "SCA-008 / D-58",
+    "non_git_basis_source": "parent-declared"
+  },
+  "nodes": [
+    {
+      "id": "N0",
+      "role": "EPHEMERAL_AGENT_2",
+      "package_id": null,
+      "objective": "Initial frozen coordination record",
+      "status": "COMPLETED_RECORDING_ONLY",
+      "conditional": false,
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N1",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-07",
+      "objective": "Contract/map then UI implementation",
+      "status": "EXACT_PROJECT_WORKFLOW_CI_REPAIR_ACCEPTED_LOCAL_PROOF",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "interface_relay": "Stable N2 B1 interface; no additional UI source grant inferred",
+      "record_path": "instances/N1_WI_PKG07/",
+      "source_write_authority": "only .github/workflows/piping-desktop-e2e.yml accepted exact two-hunk change, no further write",
+      "milestone": "instances/N1_WI_PKG07/EXISTING_MILESTONE.md",
+      "adapter_source": "accepted V2 implemented backend; T1 builds browser artifact/integrates loader under exact fence",
+      "tier3_ui": "RELEASED parent-reported; T1-T4 disjoint and one B0 shared owner",
+      "accepted_snapshot": "instances/N1_WI_PKG07/N1_PACKAGE_ACCEPTED_SNAPSHOT_V1.json",
+      "production_cap": "prior two-producer cap stage-only; explicitly superseded for Tier3 by TIER3_WORK_GRAPH_V1.json",
+      "final_review": "N7 sole full integrated reviewer; N1 validates relayed UI verdict, no duplicate final review",
+      "persistence": "V2 proposed-context accepted; DEL16-03 applied-batch residual remains",
+      "repair_source_authority": "six-file source-only acceptance; final exact freeze awaits terminal manager return",
+      "accepted_snapshot_sha256": "1a36aecb83daa030047a068764285a7c9e0c7e643132c2abfe2f699687c69881",
+      "acceptance": "fresh child source review; actual source/dist R2 both viewports; full applicable checks",
+      "css_release": "final unconditional .workspace-dock { min-height: 0; } after max-width1320 block; remove newly added max-height wrapper only"
+    },
+    {
+      "id": "N2",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-16",
+      "objective": "Operation/backend implementation",
+      "status": "F_REPAIR_AND_DUAL_BUILD_ACCEPTED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "record_path": "N2_WI_PKG16/",
+      "accepted_brief": "N2_WI_PKG16/B1_BRIEF.md",
+      "source_write_authority": "frozen accepted core/native; new edits require scoped release",
+      "exclusions": [
+        "desktop",
+        "product_physics",
+        "Cargo.lock",
+        "assignment",
+        "unrelated tests"
+      ],
+      "b3": "fresh R3 PASS;110 tests/schema; accepted frozen snapshot",
+      "b4": "V3 PASS_DESIGN_ONLY accepted",
+      "stage_c": "accepted140 core/schema and complete RC source review",
+      "adapter_source": "HELD pending direct design PASS and exact parent release",
+      "native": "accepted80 native tests and RN review; inherited assertion test-only repair; hanger mapping/SQLite roundtrip",
+      "git_mutations": false,
+      "repair_source_authority": "completed accepted scoped repair;145 operation tests/schema plus5 actual Wasm cases",
+      "runtime": "both rebuilt artifacts; original F1 blocked; US lbf/in,lbf/ft preserved"
+    },
+    {
+      "id": "N3",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-02",
+      "objective": "Model and unit contract support",
+      "status": "ROW17_ACCEPTED_FENCE_RELEASED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "source_write_authority": "completed exact fence released to parent for next serialized owner; not general product_physics permission",
+      "accepted_snapshot": "instances/N3_WI_PKG02/SECTION_ACCEPTED_SNAPSHOT_V1.json"
+    },
+    {
+      "id": "N4",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-03",
+      "objective": "Hanger-library support as necessary",
+      "status": "PKG03_C2_ACCEPTED",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "source_write_authority": "accepted bounded source frozen; 105Python19Rust86parity checks; privacy fixes second review PASS"
+    },
+    {
+      "id": "N5",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-05",
+      "objective": "Automatic self-weight support as necessary",
+      "status": "SELFWEIGHT_GENERATOR_ADAPTER_ACCEPTED_LIB_RELEASED",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "source_write_authority": "completed lib fence released",
+      "adapter_source": "V2 design PASS and combined generator/adapter source implemented reviewed PASS;118physics4adapter/Wasm"
+    },
+    {
+      "id": "N6",
+      "role": "WORKING_ITEMS",
+      "package_id": "PKG-04",
+      "objective": "Row21 nozzle/equipment boundary design intake",
+      "status": "F3_PHYSICS_REPAIR_ACCEPTED_FENCE_RELEASED",
+      "conditional": true,
+      "actual_model": "unavailable",
+      "instance_id": "N6_WI_PKG04",
+      "source_write_authority": "completed narrow fence released; no active product_physics lib ownership",
+      "boundary_source": "HELD; no Tier3 boundary source grant",
+      "repair_source_authority": "RELEASED exact scoped repair per formal v9; manager child execution/fan-in required"
+    },
+    {
+      "id": "N7",
+      "role": "TASK",
+      "package_id": null,
+      "objective": "Fresh independent review of 100% frozen diff",
+      "status": "V3_PASS111STABLE_NO_FINDINGS",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "launch_brief": "instances/N7_FINAL_REVIEW/LAUNCH_BRIEF_V1.md",
+      "launch_brief_sha256": "827f9c0b9a5e1456fcb2f12a2e85a77e890c2ff36ce488e233acf79fca3d3235",
+      "final_source_manifest": "PENDING_PARENT_DISPATCH",
+      "start_evidence": "instances/N7_FINAL_REVIEW/START.json",
+      "findings": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "review": "instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md",
+      "review_sha256": "3f11e7e1be3a350e436e0a1ff40ca6c4725eeff02c78e7dc831194e0a4a20676"
+    },
+    {
+      "id": "N8",
+      "role": "CHANGE",
+      "package_id": null,
+      "objective": "Validated scoped Git closeout without merge",
+      "status": "EXACT_TWO_ATTRIBUTES_ACCEPTED_COMBINEDCHECKS_PASS_COMMIT_PUSH_RELEASED",
+      "conditional": false,
+      "actual_model": "unavailable",
+      "executed_git_mutations": [],
+      "final_target": "origin/refs/heads/codex/piping-ui-toolkit-parity"
+    },
+    {
+      "id": "N_ENV",
+      "role": "EPHEMERAL_AGENT_2",
+      "package_id": null,
+      "objective": "Independent environment provisioning; no product writes",
+      "status": "C_WASM_BUILT_FROZEN12_SOURCE_BINDING",
+      "actual_model": "unavailable",
+      "execution_details": "Owned launch/status/return supply exact instance and fence; not known by N0",
+      "record_path": "instances/N_ENV/",
+      "residual": "rebuild Wasm after engine changes; host escalation needed for browser run; no full suite pass claimed",
+      "integration_hold": "released; T1 builds second selfweight browser adapter later"
+    },
+    {
+      "id": "N_BATCH_CONTRACT_REFUTE",
+      "role": "EPHEMERAL_AGENT_2",
+      "status": "V3_PASS_DESIGN_ONLY",
+      "objective": "Direct independent B4 batch design refutation",
+      "source_write_authority": "none",
+      "record_path": "instances/N_BATCH_CONTRACT_REFUTE/",
+      "actual_model": "unavailable"
+    },
+    {
+      "id": "N_BOUNDARY_CONTEXT_REFUTE",
+      "role": "EPHEMERAL_AGENT_2",
+      "status": "V2_PASS_DESIGN_ONLY",
+      "record_path": "instances/N_BOUNDARY_CONTEXT_REFUTE/",
+      "actual_model": "unavailable",
+      "source_write_authority": "none"
+    },
+    {
+      "id": "N_SELFWEIGHT_ADAPTER_REFUTE",
+      "role": "EPHEMERAL_AGENT_2",
+      "status": "V2_PASS_DESIGN_ONLY_SOURCE_FOLLOWON_ACCEPTED",
+      "source_write_authority": "none",
+      "design": "instances/N5_WI_PKG05/ADAPTER_DESIGN_V1.md",
+      "actual_model": "unavailable",
+      "record_path": "instances/N_SELFWEIGHT_ADAPTER_REFUTE/"
+    }
+  ],
+  "edges": [
+    {
+      "source": "PR715:079f865_CI_failures",
+      "target": "N8:exact2attributes_review_PASS",
+      "condition": "whitespace failure repair exact67artifact rules"
+    },
+    {
+      "source": "PR715:079f865_CI_failures",
+      "target": "N1:locked_fetch_workflow_coldproof_review_PASS",
+      "condition": "cold offline secondgraph failure repair"
+    },
+    {
+      "source": "N8:exact2attributes_review_PASS",
+      "target": "G_PARENT_COMBINED_FAN_IN",
+      "condition": "accepted attribute snapshot and independent review"
+    },
+    {
+      "source": "N1:locked_fetch_workflow_coldproof_review_PASS",
+      "target": "G_PARENT_COMBINED_FAN_IN",
+      "condition": "accepted local proof/review and exact workflow bytes"
+    },
+    {
+      "source": "G_PARENT_COMBINED_FAN_IN",
+      "target": "N8:exact3config_evidence_commit",
+      "condition": "fresh exactscope/status/source111/evidence67/check validations"
+    },
+    {
+      "source": "N8:exact3config_evidence_commit",
+      "target": "N8:normal_existing_branch_push",
+      "condition": "ordinary live ancestry-checked existingbranch push; user authorized"
+    },
+    {
+      "source": "N8:normal_existing_branch_push",
+      "target": "HOSTED:exact_commit_actual_CI",
+      "condition": "inspect actual exactcommit CI verdicts; local proof not hostedPASS"
+    },
+    {
+      "source": "HOSTED:exact_commit_actual_CI",
+      "target": "OWNER:merge",
+      "condition": "owner merges; no agent merge"
+    }
+  ],
+  "edge_semantics": "Chronological review and repair vertices; future gated nodes do not imply execution or acceptance.",
+  "phase_a_parallel": [],
+  "serialization": {
+    "operation_applier_and_operation_schemas": "N2",
+    "desktop_src_and_ui_tests": "N1",
+    "shared_product_physics_schema_types": "one named owner under versioned Agent 0 exact fence",
+    "conditional_manager_source_writes": "prohibited until exact fence versioned"
+  },
+  "integration_owner": "HELP_HUMAN \u2014 cross-manager fan-in only; no source writes",
+  "git_closeout_owner": "CHANGE",
+  "delegation_class": "delegated-harness-native",
+  "enforcement_calibration": "instruction+config asserted; not mechanism-proven",
+  "gated": [
+    "D-58 runtime binding",
+    "roadmap R1-R3",
+    "lifecycle/release/professional acceptance"
+  ],
+  "planned_outputs": [
+    "24-row capability map",
+    "UI/operation implementation",
+    "tests",
+    "coverage ledger and deliverable residuals",
+    "blockers and remaining scope"
+  ],
+  "phase_vertices": [
+    "PR715:079f865_CI_failures",
+    "N8:exact2attributes_review_PASS",
+    "N1:locked_fetch_workflow_coldproof_review_PASS",
+    "G_PARENT_COMBINED_FAN_IN",
+    "N8:exact3config_evidence_commit",
+    "N8:normal_existing_branch_push",
+    "HOSTED:exact_commit_actual_CI",
+    "OWNER:merge"
+  ],
+  "source_integration_owners": {
+    "desktop": "N1 within exact fence",
+    "operation_and_operation_schema": "N2 within exact fence"
+  },
+  "supersedes": "postpublication CIrepair closeout gates only; all prior reviews/failures preserved",
+  "amendment_authority": "Actual HELP_HUMAN formal parent release after completed N7 CHANGES_REQUIRED review",
+  "agent0_dispositions": [
+    {
+      "subject": "attribute/workflow repairs",
+      "disposition": "BOUNDED_FAN_IN_ACCEPTED"
+    },
+    {
+      "subject": "source111",
+      "disposition": "UNCHANGED_SWEPT_PRODUCT_BASIS_RETAINED"
+    },
+    {
+      "subject": "hostedCI",
+      "disposition": "PENDING_EXACT_NEW_COMMIT"
+    }
+  ],
+  "narrow_wave_policy": "Formal repair source release only; no mixed family/nonlinear/hanger payload exclusivity matrix or alias migration. All Wasm rebuilds N2 after N6 acceptance; actual-engine UI tests await accepted rebuild.",
+  "evidence_manifest": "EVIDENCE_BINDING.v16.json",
+  "current_parallel_work": [
+    "CHANGE scoped3config+evidence commit and normalpush",
+    "exactcommit hosted CI verification after push"
+  ],
+  "telemetry_calibration": {
+    "N5": "failed prelaunch recovered by actual replacement design reviews; generic summary INCOMPLETE retained, not incomplete executable graph",
+    "N2_RC": "actual source review exists; missing contemporaneous START documented in RUNTIME_LIMITATIONS and late attribution; no fabricated duration",
+    "native": "instruction+config asserted, not mechanism-proven"
+  },
+  "parent_release_transcription": "OWNER_RELEASE.v9.md",
+  "released_repair_scopes": {
+    "N2": [
+      "core/model_operations/operation_applier/src/rich_authoring.rs",
+      "new scoped public operation regression tests under core/model_operations/operation_applier/tests/"
+    ],
+    "N6": [
+      "core/product_physics/src/lib.rs: private early family-token helper/call/explicit guide arm and tests ONLY; preserve N3/N5"
+    ],
+    "N1_F2": [
+      "apps/desktop/src/features/model-workspace/modelView.ts",
+      "apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx"
+    ],
+    "N1_F3": [
+      "apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "apps/desktop/src/features/rich-authoring/richForms.test.tsx",
+      "scoped canonical-token actual-engine tests explicitly named by manager under same feature test fence"
+    ]
+  },
+  "canonical_family_tokens": [
+    "anchor",
+    "guide",
+    "line_stop",
+    "vertical_support",
+    "spring",
+    "variable_spring_hanger",
+    "spring_hanger",
+    "constant_effort_support",
+    "nonlinear"
+  ],
+  "unit_alias_preservation": "Retain actual shared ForcePerLength-to-LinearStiffness alias support including lbf/ft and lbf/in; no unit catalog edits or exact-equality tolerance.",
+  "source_commit": "46f3aed341c07046bd0f1ccc1c64f704971bebf1",
+  "final_handoff": "SECOND_SOURCE_COMMIT_PARENT_FAN_IN_V1.md",
+  "calibration": "Recorded now from existing owner briefs/returns and actual parent notices; NOT retrospective prelaunch timing",
+  "publication_basis": {
+    "pr": 715,
+    "failed_ci_commit": "079f865bc5507fc28ad52bc4b3186e563bb26ce0",
+    "swept_product_source": "d6a313fc41db10b7e992381b173ce1ac5cbc956e"
+  }
+}

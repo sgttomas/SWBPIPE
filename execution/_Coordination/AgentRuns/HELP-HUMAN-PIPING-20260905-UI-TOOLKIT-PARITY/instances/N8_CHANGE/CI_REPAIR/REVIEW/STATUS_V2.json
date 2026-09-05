@@ -1,0 +1,12 @@
+{
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "started": "2026-09-05T14:07:35.195558+00:00",
+  "finished": "2026-09-05T14:08:40.854785+00:00",
+  "parent": "/root",
+  "reviewer": "/root/review_ci_evidence",
+  "model": "unknown",
+  "return_sha256": "5ff12ca80eb5053d16ddf12bb8f6b5dc379c712a987b4b51a1dbc690ddd5bccf",
+  "candidate_exit": 0,
+  "findings": 0
+}

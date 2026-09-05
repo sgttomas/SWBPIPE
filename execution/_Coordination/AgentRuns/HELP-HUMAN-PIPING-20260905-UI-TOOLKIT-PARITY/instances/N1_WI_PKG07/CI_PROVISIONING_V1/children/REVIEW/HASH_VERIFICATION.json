@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "basis_commit": "079f865bc5507fc28ad52bc4b3186e563bb26ce0",
+  "before_sha256": "7aec5e6cefab45cc88d8b6c81f7e8100b99fd37531b1bf4aa378bb64a5d481cd",
+  "current_and_frozen_sha256": "4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f",
+  "before_matches_git_commit": true,
+  "current_matches_frozen": true,
+  "decoded_diff_matches_computed_full_diff": true,
+  "raw_diff_sha256": "a676edb2ec175a6fb00d5002711b242f6535dd97d3ae98eb733d719a707e9a13",
+  "protected_files_verified": 135,
+  "protected_before_after_equal": true,
+  "artifact_files_verified": 8,
+  "raw_evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/fetch-operation-sandbox.log.encoded.json",
+      "encoded_sha256": "cd079cf5dc69ead4b42877c1891ff65a9f9b5331cfac78ea9fa6aa5f9a8cd857",
+      "decoded_sha256": "80c59fea003520083ddd1d6f693b5fb9892498602e30064b51347d68bb2e381a",
+      "decoded_bytes": 821,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/fetch-selfweight-host.log.encoded.json",
+      "encoded_sha256": "6666c341dd27c074401d0080ecc473a9a20362fe53203174214d2e7811d16a13",
+      "decoded_sha256": "362f3b6db96df8179bc0f6b30b181cc457eeee4417ee9d554e4cc202c0d8b24b",
+      "decoded_bytes": 1188,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/build-selfweight-sandbox.log.encoded.json",
+      "encoded_sha256": "17e04e1424e68af88cbd3f2c0ed47060d197ffe1910fd3fbb3f0747ba29b0661",
+      "decoded_sha256": "849a342f2626ae27e70bdfc4bacefa4f48fb9a6b90239bdc025d625911fd7aae",
+      "decoded_bytes": 3549,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/fetch-operation-host.log.encoded.json",
+      "encoded_sha256": "f9375c8b5ef9fd3275f9f1094e595392d7f5577659c39f13561ab3c6d5f92b97",
+      "decoded_sha256": "952fb68e4bd28c7b5903ff466feb1553fd987abc130c8c475a4c153c911a34bb",
+      "decoded_bytes": 1831,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/actual-builder-sandbox.log.encoded.json",
+      "encoded_sha256": "6c5222a61b52a91704256365b1c66d3b0daad6d77ff382456ea676c288b97030",
+      "decoded_sha256": "f64dbcbbb2dc045f15dfaad2e9e2be7a780912cfaf782d4bf9d53276b4499fdf",
+      "decoded_bytes": 1651,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/piping-ui-pr715-desktop-failed.log.encoded.json",
+      "encoded_sha256": "3522d7290392e9dc43c4ef8b93593ddf988938489480a50176d31793156e7b59",
+      "decoded_sha256": "df3269deb3003231b2dcc191e7a6f6d65ea76f667fb411f112cb2340bb84aca6",
+      "decoded_bytes": 4789,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/fetch-operation-sandbox-stable.log.encoded.json",
+      "encoded_sha256": "c3335dca10115b9e811d8c0cba6feba7dbfebc92d2ed042a60fc33fd336fcdd5",
+      "decoded_sha256": "8e3820a7a804d828f192ca900860a42e082474d870a3871d04de4370a6ef92b0",
+      "decoded_bytes": 1340,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/versions.log.encoded.json",
+      "encoded_sha256": "1e221013dec7f77791b9a8e7fc3aa8c5a016380e633d5e885157975b352043a4",
+      "decoded_sha256": "dd895bf8858bd2d54de053247683f9909728f579c9e5b6d861f2a10af2e92878",
+      "decoded_bytes": 328,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/build-operation-sandbox.log.encoded.json",
+      "encoded_sha256": "326270d9cee774c6f6825909be5a24c6499bf9c0e0627f1c41f3d1adb69c0754",
+      "decoded_sha256": "17d0d6730d3769d302e895217ad555318351b44457784d3108eef05e37ccf1a6",
+      "decoded_bytes": 2319,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/probe-selfweight-sandbox.log.encoded.json",
+      "encoded_sha256": "e0832774d248fb63c8b03efaaad69ccea56848c0cfbba83199a6c331f8da2817",
+      "decoded_sha256": "04c11fabd85cd285aed9e61cb8f373809005b6adb1039d59e6d580d74b71a17d",
+      "decoded_bytes": 1052,
+      "verified": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/CI_PROVISIONING_V1/children/IMPLEMENT/_run_records/workflow.diff.encoded.json",
+      "encoded_sha256": "84b1ebb8c873571809de203e4a385206f036f41762d4ae22ec56cb7144066cf2",
+      "decoded_sha256": "a676edb2ec175a6fb00d5002711b242f6535dd97d3ae98eb733d719a707e9a13",
+      "decoded_bytes": 1529,
+      "verified": true
+    }
+  ],
+  "diagnosis_raw_log_sha256": "df3269deb3003231b2dcc191e7a6f6d65ea76f667fb411f112cb2340bb84aca6",
+  "workflow_lines_reviewed": 158,
+  "source_review_coverage": "100% entire workflow and exact two-hunk diff",
+  "time_utc": "2026-09-05T14:08:53.424249+00:00"
+}

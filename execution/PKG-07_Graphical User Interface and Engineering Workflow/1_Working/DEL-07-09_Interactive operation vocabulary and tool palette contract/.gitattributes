@@ -1,0 +1,3 @@
+# These exact reviewed CSV artifacts use CRLF record separators.
+/Capability_Comparison.csv whitespace=cr-at-eol
+/Vocabulary_Coverage.csv whitespace=cr-at-eol
